@@ -1,0 +1,202 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{F6D4C2E7-A009-4A49-8FC5-0793F7166FB0}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>dMobile.Controller</RootNamespace>
+    <AssemblyName>dMobile.Controller</AssemblyName>
+    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Activity Detail\clsActivityDetail.cs" />
+    <Compile Include="Activity Detail\clsActivityDetailEdit.cs" />
+    <Compile Include="Activity Detail\clsActivityDetailExtra.cs" />
+    <Compile Include="Activity Detail\clsActivityDetailFacade.cs" />
+    <Compile Include="Activity Detail\clsActivityDetailFactory.cs" />
+    <Compile Include="Activity Detail\clsAdjustmentActivityDetail.cs" />
+    <Compile Include="Activity Detail\clsAdjustmentActivityDetailFactory.cs" />
+    <Compile Include="Activity Detail\clsAssignDefaultLocationActivityDetail.cs" />
+    <Compile Include="Activity Detail\clsAssignDefaultLocationActivityDetailFactory.cs" />
+    <Compile Include="Activity Detail\clsBarCodeAssociationActivityDetail.cs" />
+    <Compile Include="Activity Detail\clsBarCodeAssociationActivityDetailFactory.cs" />
+    <Compile Include="Activity Detail\clsConvertProductActivityDetail.cs" />
+    <Compile Include="Activity Detail\clsConvertProductActivityDetailFactory.cs" />
+    <Compile Include="Activity Detail\clsConvertUnitActivityDetail.cs" />
+    <Compile Include="Activity Detail\clsConvertUnitActivityDetailFactory.cs" />
+    <Compile Include="Activity Detail\clsCycleCountActivityDetail.cs" />
+    <Compile Include="Activity Detail\clsCycleCountActivityDetailFactory.cs" />
+    <Compile Include="Activity Detail\clsInventoryInquiryActivityDetail.cs" />
+    <Compile Include="Activity Detail\clsInventoryInquiryActivityDetailFactory.cs" />
+    <Compile Include="Activity Detail\clsMoveInventoryActivityDetail.cs" />
+    <Compile Include="Activity Detail\clsMoveInventoryActivityDetailFactory.cs" />
+    <Compile Include="Activity Detail\clsPhysicalCountActivityDetail.cs" />
+    <Compile Include="Activity Detail\clsPhysicalCountActivityDetailFactory.cs" />
+    <Compile Include="Activity Detail\clsPickingActivityDetail.cs" />
+    <Compile Include="Activity Detail\clsPickingActivityDetailFactory.cs" />
+    <Compile Include="Activity Detail\clsProductionTicketByProductActivityDetail.cs" />
+    <Compile Include="Activity Detail\clsProductionTicketByProductActivityDetailFactory.cs" />
+    <Compile Include="Activity Detail\clsProductionTicketFinishedActivityDetail.cs" />
+    <Compile Include="Activity Detail\clsProductionTicketFinishedActivityDetailFactory.cs" />
+    <Compile Include="Activity Detail\clsProductionTicketMaterialActivityDetail.cs" />
+    <Compile Include="Activity Detail\clsProductionTicketMaterialActivityDetailFactory.cs" />
+    <Compile Include="Activity Detail\clsPurchaseOrderWorkSheetActivityDetail.cs" />
+    <Compile Include="Activity Detail\clsPurchaseOrderWorkSheetDetailFactory.cs" />
+    <Compile Include="Activity Detail\clsPutAwaySkidActivityDetail.cs" />
+    <Compile Include="Activity Detail\clsPutAwaySkidActivityDetailFactory.cs" />
+    <Compile Include="Activity Detail\clsReceivingActivityDetail.cs" />
+    <Compile Include="Activity Detail\clsReceivingActivityDetailFactory.cs" />
+    <Compile Include="Activity Detail\clsReturnsActivityDetail.cs" />
+    <Compile Include="Activity Detail\clsReturnsActivityDetailFactory.cs" />
+    <Compile Include="Activity Detail\clsSkidInfoActivityDetail.cs" />
+    <Compile Include="Activity Detail\clsSkidInfoActivityDetailFactory.cs" />
+    <Compile Include="Activity Detail\clsTransferActivityDetail.cs" />
+    <Compile Include="Activity Detail\clsTransferActivityDetailFactory.cs" />
+    <Compile Include="Activity Item\clsActivityItem.cs" />
+    <Compile Include="Activity Item\clsActivityItemFacade.cs" />
+    <Compile Include="Activity Item\clsActivityItemFactory.cs" />
+    <Compile Include="Activity Item\clsAdjustmentActivityItem.cs" />
+    <Compile Include="Activity Item\clsAdjustmentActivityItemFactory.cs" />
+    <Compile Include="Activity Item\clsAssignDefaultLocationActivityItem.cs" />
+    <Compile Include="Activity Item\clsAssignDefaultLocationActivityItemFactory.cs" />
+    <Compile Include="Activity Item\clsBarCodeAssociationActivityItem.cs" />
+    <Compile Include="Activity Item\clsBarCodeAssociationActivityItemFactory.cs" />
+    <Compile Include="Activity Item\clsConvertProductActivityItem.cs" />
+    <Compile Include="Activity Item\clsConvertProductActivityItemFactory.cs" />
+    <Compile Include="Activity Item\clsConvertUnitActivityItem.cs" />
+    <Compile Include="Activity Item\clsConvertUnitActivityItemFactory.cs" />
+    <Compile Include="Activity Item\clsCycleCountActivityItem.cs" />
+    <Compile Include="Activity Item\clsCycleCountActivityItemFactory.cs" />
+    <Compile Include="Activity Item\clsInventoryInqiuryActivityItem.cs" />
+    <Compile Include="Activity Item\clsInventoryInquiryActivityItemFactory.cs" />
+    <Compile Include="Activity Item\clsInventoryInquirySummaryActivityItem.cs" />
+    <Compile Include="Activity Item\clsInventoryInquirySummaryActivityItemFactory.cs" />
+    <Compile Include="Activity Item\clsMoveInventoryActivityItem.cs" />
+    <Compile Include="Activity Item\clsMoveInventoryActivityItemFactory.cs" />
+    <Compile Include="Activity Item\clsPhysicalCountActivityItem.cs" />
+    <Compile Include="Activity Item\clsPhysicalCountActivityItemFactory.cs" />
+    <Compile Include="Activity Item\clsPickingActivityItem.cs" />
+    <Compile Include="Activity Item\clsPickingActivityItemFactory.cs" />
+    <Compile Include="Activity Item\clsPickingSingleActivityItem.cs" />
+    <Compile Include="Activity Item\clsPickingSingleActivityItemFactory.cs" />
+    <Compile Include="Activity Item\clsProductionTicketByProductActivityItem.cs" />
+    <Compile Include="Activity Item\clsProductionTicketByProductActivityItemFactory.cs" />
+    <Compile Include="Activity Item\clsProductionTicketFinishedActivityItem.cs" />
+    <Compile Include="Activity Item\clsProductionTicketFinishedActivityItemFactory.cs" />
+    <Compile Include="Activity Item\clsProductionTicketMaterialActivityItem.cs" />
+    <Compile Include="Activity Item\clsProductionTicketMaterialActivityItemFactory.cs" />
+    <Compile Include="Activity Item\clsPurchaseOrderWorkSheetActivityItem.cs" />
+    <Compile Include="Activity Item\clsPurchaseOrderWorkSheetActivityItemFactory.cs" />
+    <Compile Include="Activity Item\clsPutAwaySkidActivityItem.cs" />
+    <Compile Include="Activity Item\clsPutAwaySkidActivityItemFactory.cs" />
+    <Compile Include="Activity Item\clsReceivingActivityItem.cs" />
+    <Compile Include="Activity Item\clsReceivingActivityItemFactory.cs" />
+    <Compile Include="Activity Item\clsReturnsActivityItem.cs" />
+    <Compile Include="Activity Item\clsReturnsActivityItemFactory.cs" />
+    <Compile Include="Activity Item\clsSkidInfoActivityItem.cs" />
+    <Compile Include="Activity Item\clsSkidInfoActivityItemFactory.cs" />
+    <Compile Include="Activity Item\clsTransferActivityItem.cs" />
+    <Compile Include="Activity Item\clsTransferActivityItemFactory.cs" />
+    <Compile Include="Activity\clsActivity.cs" />
+    <Compile Include="Activity\clsActivityFacade.cs" />
+    <Compile Include="Activity\clsActivityFactory.cs" />
+    <Compile Include="Activity\clsAdjustmentActivity.cs" />
+    <Compile Include="Activity\clsAdjustmentActivityFactory.cs" />
+    <Compile Include="Activity\clsAssignDefaultLocationActivity.cs" />
+    <Compile Include="Activity\clsAssignDefaultLocationActivityFactory.cs" />
+    <Compile Include="Activity\clsBarCodeAssociationActivity.cs" />
+    <Compile Include="Activity\clsBarCodeAssociationActivityFactory.cs" />
+    <Compile Include="Activity\clsConvertProductActivity.cs" />
+    <Compile Include="Activity\clsConvertProductActivityFactory.cs" />
+    <Compile Include="Activity\clsConvertUnitActivity.cs" />
+    <Compile Include="Activity\clsConvertUnitActivityFactory.cs" />
+    <Compile Include="Activity\clsCycleCountActivity.cs" />
+    <Compile Include="Activity\clsCycleCountActivityFactory.cs" />
+    <Compile Include="Activity\clsInventoryInquiryActivity.cs" />
+    <Compile Include="Activity\clsInventoryInquiryActivityFactory.cs" />
+    <Compile Include="Activity\clsInventoryInquirySummaryActivity.cs" />
+    <Compile Include="Activity\clsInventoryInquirySummaryActivityFactory.cs" />
+    <Compile Include="Activity\clsMoveInventoryActivity.cs" />
+    <Compile Include="Activity\clsMoveInventoryActivityFactory.cs" />
+    <Compile Include="Activity\clsMoveSkidActivity.cs" />
+    <Compile Include="Activity\clsMoveSkidActivityFactory.cs" />
+    <Compile Include="Activity\clsPhysicalCountActivity.cs" />
+    <Compile Include="Activity\clsPhysicalCountActivityFactory.cs" />
+    <Compile Include="Activity\clsPickingActivity.cs" />
+    <Compile Include="Activity\clsPickingActivityFactory.cs" />
+    <Compile Include="Activity\clsProductionTicketByProductActivity.cs" />
+    <Compile Include="Activity\clsProductionTicketByProductActivityFactory.cs" />
+    <Compile Include="Activity\clsProductionTicketFinishedActivity.cs" />
+    <Compile Include="Activity\clsProductionTicketFinishedActivityFactory.cs" />
+    <Compile Include="Activity\clsProductionTicketMaterialActivity.cs" />
+    <Compile Include="Activity\clsProductionTicketMaterialActivityFactory.cs" />
+    <Compile Include="Activity\clsPurchaseOrderWorkSheetActivity.cs" />
+    <Compile Include="Activity\clsPurchaseOrderWorkSheetActivityFactory.cs" />
+    <Compile Include="Activity\clsPutAwaySkidActivity.cs" />
+    <Compile Include="Activity\clsPutAwaySkidActivityFactory.cs" />
+    <Compile Include="Activity\clsReceivingActivity.cs" />
+    <Compile Include="Activity\clsReceivingActivityFactory.cs" />
+    <Compile Include="Activity\clsReleaseByOrderActivity.cs" />
+    <Compile Include="Activity\clsReleaseByOrderActivityFactory.cs" />
+    <Compile Include="Activity\clsReturnsActivity.cs" />
+    <Compile Include="Activity\clsReturnsActivityFactory.cs" />
+    <Compile Include="Activity\clsSkidInfoActivity.cs" />
+    <Compile Include="Activity\clsSkidInfoActivityFactory.cs" />
+    <Compile Include="Activity\clsTransferActivity.cs" />
+    <Compile Include="Activity\clsTransferActivityFactory.cs" />
+    <Compile Include="clsCommon.cs" />
+    <Compile Include="DataLayerEventArgs.cs" />
+    <Compile Include="IDataLayer.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Activity Detail\saws.scc" />
+    <None Include="Activity Item\saws.scc" />
+    <None Include="Activity\saws.scc" />
+    <None Include="app.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\dMobile.Bedrock\dMobile.Bedrock.csproj">
+      <Project>{9a5c51a9-39e9-45f8-9d5e-18d88c91a321}</Project>
+      <Name>dMobile.Bedrock</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\dMobile.GroundWork\dMobile.GroundWork.csproj">
+      <Project>{07468172-3797-4cd2-8e9f-535a7afd58b3}</Project>
+      <Name>dMobile.GroundWork</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

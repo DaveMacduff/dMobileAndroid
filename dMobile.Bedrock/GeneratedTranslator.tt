@@ -1,0 +1,63 @@
+﻿<#@ template debug="false" hostspecific="true" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="System.Globalization" #>
+<#@ import namespace="System.Resources" #>
+<#@ import namespace="System.IO" #>
+<#@ output extension=".cs" #>
+<#
+// Read through bin/release directory for generated files.
+// if text files exist, parse through those
+// else if resource files exist, parse through those
+// else break this file to cause compiler error, so that a default language is sent out!
+
+// For now, hardcode a location and expect en-US to be there and to use that
+// Let's look for a text file.
+
+string fileName = this.Host.ResolvePath("Language\\dMobileTranslation.ENU.txt");
+int keyCount = 0;
+using (StreamReader sr = new StreamReader(fileName))
+{
+    while (!sr.EndOfStream)
+    {
+        if (sr.ReadLine().IndexOf('=') != -1)
+            keyCount++;
+    }
+}
+
+int padLength=70;
+string dash = "-";
+string[] autoGenerateWarning = {
+        "This file has been automatically generated.",
+        "Any changes to this file will be lost upon build.",
+        "This class was generated in a pre-build event for this project.",
+        "Date: " + DateTime.Now,
+        "Source: \"" + fileName + "\""
+        };
+
+string firstLastLine = string.Format("//+-{0}-+", dash.PadRight(padLength, '-'));
+#>
+#if MULTILANGUAGE
+<#= firstLastLine.ToString() #>
+<#
+    int autoGenerateLineCount = autoGenerateWarning.Length;
+    for (int i = 0; i < autoGenerateLineCount; ++i) {
+#>
+<#= string.Format("//| {0} |", autoGenerateWarning[i].PadRight(padLength, ' ')) #>
+<#
+        }
+#>
+<#= firstLastLine.ToString() #>
+namespace dMobile.Bedrock
+{
+	public partial class Translator
+	{
+        /// <summary>
+        /// Number of variables in a text or resource file.
+        /// Auto-generated variable.
+        /// </summary>
+        protected const int keyCount = <#= keyCount #>;
+	}
+}
+#endif

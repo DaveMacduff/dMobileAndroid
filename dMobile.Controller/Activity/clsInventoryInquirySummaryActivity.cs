@@ -1,0 +1,148 @@
+﻿namespace dMobile.Controller
+{
+    using System;
+    using System.Data;
+    using System.Windows.Forms;
+    using System.Xml.Linq;
+    using dMobile.Bedrock;
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public class InvInquirySummaryActivity : Activity
+    {
+        #region Constructors
+
+        public InvInquirySummaryActivity()
+            : base()
+        {
+            this.FullClassName = typeof(AdjActivity).FullName;
+        }
+
+        #endregion
+
+        #region Public Members
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <remarks></remarks>
+        public override void Purge()
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns></returns>
+        /// <remarks></remarks>
+        public override string GetFKRefnoIdx()
+        {
+            return "ActivityStringFKRefno";
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns></returns>
+        /// <remarks></remarks>
+        public override string GetControlDescription()
+        {
+#if MULTILANGUAGE
+      return Translator.GetInstance().Translate(TranslatorVocabulary.InventoryInquiry);
+#else
+            return "Inventory Inquiry Summary";
+#endif
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="idx"></param>
+        public override void SelectHdr(int idx)
+        {
+            this.FKRefno = (int)this.DataViewHdrs[idx]["ActivityRefno"];
+            this.Refno = (int)this.DataViewHdrs[idx]["ActivityRefno"];
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="idx"></param>
+        /// <returns></returns>
+        /// <remarks></remarks>
+        public override int GetRefnoFromRowIdx(int idx)
+        {
+            this.FKRefno = (int)this.DataViewHdrs[idx]["ActivityRefno"];
+            this.Refno = (int)this.DataViewHdrs[idx]["ActivityRefno"];
+
+            return this.Refno;
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="isSubmitBatch"></param>
+        /// <returns></returns>
+        /// <remarks></remarks>
+        public override DataView GetDataView(bool isSubmitBatch)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="searchText"></param>
+        /// <returns></returns>
+        /// <remarks></remarks>
+        public override DataView Search(string searchText)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <remarks></remarks>
+        public override void DesignDataGrid(DataGrid dataGridMain)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="filterData"></param>
+        public override void Refresh(XDocument filterData)
+        {
+            if (!this.SysEnv.SysSettings.IsDisconnectedMode)
+            {
+                this.Purge();
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="filterData"></param>
+        /// <returns></returns>
+        public override string GetFilter(XDocument filterData)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns></returns>
+        /// <remarks></remarks>
+        public override string GetFilter()
+        {
+            return string.Empty;
+        }
+
+        #endregion
+    }
+}

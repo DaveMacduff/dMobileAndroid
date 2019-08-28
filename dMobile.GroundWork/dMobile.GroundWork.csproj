@@ -1,0 +1,128 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{07468172-3797-4CD2-8E9F-535A7AFD58B3}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>dMobile.GroundWork</RootNamespace>
+    <AssemblyName>dMobile.GroundWork</AssemblyName>
+    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="clsCommon.cs" />
+    <Compile Include="clsTableActivity.cs" />
+    <Compile Include="clsTableActivityAdjustment.cs" />
+    <Compile Include="clsTableActivityConvertUnit.cs" />
+    <Compile Include="clsTableActivityCycleCount.cs" />
+    <Compile Include="clsTableActivityCycleCountDetail.cs" />
+    <Compile Include="clsTableActivityCycleCountItem.cs" />
+    <Compile Include="clsTableActivityDetailAdjustment.cs" />
+    <Compile Include="clsTableActivityDetailConvertUnit.cs" />
+    <Compile Include="clsTableActivityDetailMoveInventory.cs" />
+    <Compile Include="clsTableActivityDetailProductSchemeVariantXRef.cs" />
+    <Compile Include="clsTableActivityItem.cs" />
+    <Compile Include="clsTableActivityItemAdjustment.cs" />
+    <Compile Include="clsTableActivityItemBarCodeAssociationXRef.cs" />
+    <Compile Include="clsTableActivityItemConvertUnit.cs" />
+    <Compile Include="clsTableActivityItemMoveInventory.cs" />
+    <Compile Include="clsTableActivityMoveInventory.cs" />
+    <Compile Include="clsTableActivityPhysicalCount.cs" />
+    <Compile Include="clsTableActivityPhysicalCountDetail.cs" />
+    <Compile Include="clsTableActivityPhysicalCountItem.cs" />
+    <Compile Include="clsTableActivityPicking.cs" />
+    <Compile Include="clsTableActivityPickingDetail.cs" />
+    <Compile Include="clsTableActivityPickingItem.cs" />
+    <Compile Include="clsTableActivityPickingItemComment.cs" />
+    <Compile Include="clsTableActivityPickingRoute.cs" />
+    <Compile Include="clsTableActivityProductionTicketByProduct.cs" />
+    <Compile Include="clsTableActivityProductionTicketByProductDetail.cs" />
+    <Compile Include="clsTableActivityProductionTicketByProductItem.cs" />
+    <Compile Include="clsTableActivityProductionTicketFinished.cs" />
+    <Compile Include="clsTableActivityProductionTicketFinishedDetail.cs" />
+    <Compile Include="clsTableActivityProductionTicketFinishedItem.cs" />
+    <Compile Include="clsTableActivityProductionTicketMaterial.cs" />
+    <Compile Include="clsTableActivityProductionTicketMaterialDetail.cs" />
+    <Compile Include="clsTableActivityProductionTicketMaterialItem.cs" />
+    <Compile Include="clsTableActivityPurchaseOrderWorkSheetItem.cs" />
+    <Compile Include="clsTableActivityReceiving.cs" />
+    <Compile Include="clsTableActivityReceivingDetail.cs" />
+    <Compile Include="clsTableActivityReceivingItem.cs" />
+    <Compile Include="clsTableActivityReceivingItemComment.cs" />
+    <Compile Include="clsTableActivityReturns.cs" />
+    <Compile Include="clsTableActivityReturnsDetail.cs" />
+    <Compile Include="clsTableActivityReturnsItem.cs" />
+    <Compile Include="clsTableActivityReturnsItemComment.cs" />
+    <Compile Include="clsTableActivityTransfer.cs" />
+    <Compile Include="clsTableActivityTransferDetail.cs" />
+    <Compile Include="clsTableActivityTransferItem.cs" />
+    <Compile Include="clsTableContactUser.cs" />
+    <Compile Include="clsTableFamily.cs" />
+    <Compile Include="clsTableLocationMapSection.cs" />
+    <Compile Include="clsTableLocationMapSlot.cs" />
+    <Compile Include="clsTableLocationMapSlotCoordinate.cs" />
+    <Compile Include="clsTableLocationMapType.cs" />
+    <Compile Include="clsTableLocationMapWarehouse.cs" />
+    <Compile Include="clsTableProduct.cs" />
+    <Compile Include="clsTableProductLocationMapType.cs" />
+    <Compile Include="clsTableProductScheme.cs" />
+    <Compile Include="clsTableProductSchemeVariant.cs" />
+    <Compile Include="clsTableProductSchemeVariantXRef.cs" />
+    <Compile Include="clsTableProductUnit.cs" />
+    <Compile Include="clsTableProductUnitBarCode.cs" />
+    <Compile Include="clsTableProductUnitRelation.cs" />
+    <Compile Include="clsTableRoute.cs" />
+    <Compile Include="clsTableUnit.cs" />
+    <Compile Include="DataAccessEventArgs.cs" />
+    <Compile Include="DatabaseNub.cs" />
+    <Compile Include="DataNubEventArgs.cs" />
+    <Compile Include="IDataAccess.cs" />
+    <Compile Include="IDatabaseNub.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TableBase.cs" />
+    <Compile Include="TableProductSchemeLotNumber.cs" />
+    <Compile Include="TableProductSchemeLotNumberXRef.cs" />
+    <Compile Include="TableWarehouseLocationMapType.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\dMobile.Bedrock\dMobile.Bedrock.csproj">
+      <Project>{9a5c51a9-39e9-45f8-9d5e-18d88c91a321}</Project>
+      <Name>dMobile.Bedrock</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

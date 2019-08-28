@@ -1,0 +1,79 @@
+﻿namespace dMobile.BarCodeScanner
+{
+    using System;
+    class BarCodeParseUCC_EAN_128_GreenleaPremierMeats_Nossack : BarCodeParse
+    {
+        public override void ParseBarCodeData(string barCodeData)
+        {
+            // strip first character (unknown)
+            barCodeData = barCodeData.Substring(1);
+
+            barCodeData = IdentifyProductIdentifier(barCodeData);
+            barCodeData = IdentifyNetWeightMetricKG(barCodeData);
+
+            // strip one character (unknown)
+            barCodeData = barCodeData.Substring(1);
+
+            // read production date (Julian -> Convert to Gregorian)
+            barCodeData = IdentifyLogisticUnitProductionDate(barCodeData);
+
+            this.Remainder = barCodeData;
+        }
+
+        protected override string IdentifyProductIdentifier(string barCodeData)
+        {
+            this.ProductIdentifier = barCodeData.Substring(0, 5);
+            return barCodeData.Substring(5);
+        }
+
+        protected override string IdentifyNetWeightMetricKG(string barCodeData)
+        {
+            this.NetWeightMetricKGFoundAI = true;
+            int fieldLength = 3;
+            int decimalPlaces = 1; // 
+            if (decimalPlaces > 0)
+            {
+                this.NetWeightMetricKG = Convert.ToDecimal(
+                    barCodeData.Substring(0, fieldLength - decimalPlaces)
+                    + "."
+                    + barCodeData.Substring(fieldLength - decimalPlaces, decimalPlaces)
+                    );
+            }
+            else
+            {
+                this.NetWeightMetricKG = Convert.ToDecimal(
+                    barCodeData.Substring(0, fieldLength));
+            }
+            return barCodeData.Substring(fieldLength);
+        }
+
+        /// <summary>
+        /// 4-digit Julian to Gregorian date.
+        /// </summary>
+        /// <param name="barCodeData"></param>
+        /// <returns></returns>
+        protected override string IdentifyLogisticUnitProductionDate(string barCodeData)
+        {
+            int julianYear = Convert.ToInt32(barCodeData.Substring(0, 1));
+            int currentYear = DateTime.Now.Year;
+            int year;
+            if (julianYear > currentYear % 10)
+            {
+                year = (currentYear - 10) + (julianYear - (currentYear % 10));
+            }
+            else
+            {
+                year = currentYear - ((currentYear % 10) - julianYear);
+            }
+            int julianDay = Convert.ToInt32(barCodeData.Substring(1, 3));
+            DateTime gregorianDate = DateTime.Parse("1 Jan " + year);
+
+            // -1 because 1 is the first day, and julian days start counting at 1
+            gregorianDate = gregorianDate.AddDays(julianDay - 1);
+
+            this.LogisticUnitProductionDate = gregorianDate;
+
+            return barCodeData.Substring(4);
+        }
+    }
+}
