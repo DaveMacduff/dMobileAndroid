@@ -145,18 +145,18 @@ namespace dMobile.Controller
 
         if (result == DialogResult.Yes)
         {
-          using (SqlCeCommand cmndCountItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+          using (SQLiteCommand cmndCountItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
           {
             cmndCountItem.CommandText = "tActivityItemCount";
             cmndCountItem.CommandType = CommandType.TableDirect;
             cmndCountItem.IndexName = "UQ_ActivityItemCountOnActivityItemCountFKRefno";
 
-            using (SqlCeCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+            using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
             {
               cmndItem.CommandText = "tActivityItem";
               cmndItem.CommandType = CommandType.TableDirect;
 
-              using (SqlCeCommand cmndID = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+              using (SQLiteCommand cmndID = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
               {
                 cmndID.CommandText = "SELECT @@IDENTITY";
                 cmndID.CommandType = CommandType.Text;
@@ -667,7 +667,7 @@ namespace dMobile.Controller
         sql.Append("ORDER BY tActivityItemCount.ActivityItemRefno");
       }
 
-      using (SqlCeDataAdapter da = new SqlCeDataAdapter(sql.ToString(), DatabaseConnection.GetInstance().SQLConn))
+      using (SQLiteDataAdapter da = new SQLiteDataAdapter(sql.ToString(), DatabaseConnection.GetInstance().SQLConn))
       {
         using (DataSet ds = new DataSet())
         {
@@ -743,7 +743,7 @@ namespace dMobile.Controller
     {
       int foundActItemRefno = 0;
 
-      using (SqlCeCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+      using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
       {
         StringBuilder sql = new StringBuilder();
 
@@ -791,7 +791,7 @@ namespace dMobile.Controller
         cmndItem.CommandType = CommandType.Text;
         cmndItem.CommandText = sql.ToString();
 
-        using (SqlCeDataReader drItem = cmndItem.ExecuteReader())
+        using (SqliteDataReader drItem = cmndItem.ExecuteReader())
         {
           if (drItem.Read())
           {
@@ -893,7 +893,7 @@ namespace dMobile.Controller
     /// <param name="actItemRefno"></param>
     public override void UpdateQuantityFromDataView(int idx, int actItemRefno)
     {
-      using (SqlCeCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+      using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
       {
         cmndItem.CommandText = "tActivityItemCount";
         cmndItem.CommandType = CommandType.Text;

@@ -70,7 +70,7 @@ namespace dMobile.Controller
 
                     if (this.NewItemFKRefno != this.ActItem.FKRefno)
                     {
-                        using (SqlCeCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                        using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
                         {
                             cmndItem.CommandType = CommandType.Text;
                             cmndItem.IndexName = string.Empty;
@@ -144,7 +144,7 @@ namespace dMobile.Controller
             {
                 int actDetailRefno = this.InsertDetailDisconnected();
 
-                using (SqlCeCommand cmndDetailAdj = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                using (SQLiteCommand cmndDetailAdj = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
                 {
                     cmndDetailAdj.CommandText = "tActivityDetailCount";
                     cmndDetailAdj.CommandType = CommandType.TableDirect;
@@ -197,7 +197,7 @@ namespace dMobile.Controller
                     {
 
 
-                        using (SqlCeCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                        using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
                         {
                             cmndItem.IndexName = string.Empty;
                             cmndItem.CommandType = CommandType.Text;
@@ -273,7 +273,7 @@ namespace dMobile.Controller
             this.DataViewDetails.Sort = oldSort;
 
             // Delete from database
-            using (SqlCeCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+            using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
             {
                 cmndPurge.CommandType = CommandType.Text;
 
@@ -336,7 +336,7 @@ namespace dMobile.Controller
                         this.DataViewDetails[rowIdx].EndEdit();
                     }
 
-                    using (SqlCeCommand cmndDetail = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                    using (SQLiteCommand cmndDetail = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
                     {
                         cmndDetail.CommandType = CommandType.Text;
                         cmndDetail.CommandText = "UPDATE tActivityDetail "
@@ -620,7 +620,7 @@ namespace dMobile.Controller
                 return view;
             }
 
-            using (SqlCeDataAdapter da = new SqlCeDataAdapter(sql.ToString(), DatabaseConnection.GetInstance().SQLConn))
+            using (SQLiteDataAdapter da = new SQLiteDataAdapter(sql.ToString(), DatabaseConnection.GetInstance().SQLConn))
             using (DataTable ds = new DataTable())
             {
                 da.Fill(ds);
@@ -694,7 +694,7 @@ namespace dMobile.Controller
            " AND tActivityDetail.ActivityDetailSubType = " + (int)SysCommon.ActSubTypes.CycleCounts;
 
             DataTable table = new DataTable();
-            using (SqlCeDataAdapter da = new SqlCeDataAdapter(slotQuery, DatabaseConnection.GetInstance().SQLConn))
+            using (SQLiteDataAdapter da = new SQLiteDataAdapter(slotQuery, DatabaseConnection.GetInstance().SQLConn))
             {
                 da.Fill(table);
             }
@@ -761,7 +761,7 @@ namespace dMobile.Controller
             " AND tActivityDetail.ActivityDetailSubType = " + (int)SysCommon.ActSubTypes.CycleCounts;
 
             DataTable table = new DataTable();
-            using (SqlCeDataAdapter da = new SqlCeDataAdapter(sectionQuery, DatabaseConnection.GetInstance().SQLConn))
+            using (SQLiteDataAdapter da = new SQLiteDataAdapter(sectionQuery, DatabaseConnection.GetInstance().SQLConn))
             {
                 da.Fill(table);
             }
@@ -829,7 +829,7 @@ namespace dMobile.Controller
                 " AND tActivityDetail.ActivityDetailSubType = " + (int)SysCommon.ActSubTypes.CycleCounts;
 
             DataTable table = new DataTable();
-            using (SqlCeDataAdapter da = new SqlCeDataAdapter(warehouseQuery, DatabaseConnection.GetInstance().SQLConn))
+            using (SQLiteDataAdapter da = new SQLiteDataAdapter(warehouseQuery, DatabaseConnection.GetInstance().SQLConn))
             {
                 da.Fill(table);
             }

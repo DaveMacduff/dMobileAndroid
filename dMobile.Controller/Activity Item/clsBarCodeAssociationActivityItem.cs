@@ -85,7 +85,7 @@ namespace dMobile.Controller
       bool prodUnitIsBC = false;
       string prodUnitBC = string.Empty;
 
-      using (SqlCeCommand cmndProdUnit = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+      using (SQLiteCommand cmndProdUnit = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
       {
         cmndProdUnit.CommandType = CommandType.Text;
         cmndProdUnit.CommandText = "SELECT tProduct.ProductCode,"
@@ -97,7 +97,7 @@ namespace dMobile.Controller
             + "INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno "
             + "WHERE tProductUnit.ProductUnitRefno = " + prodUnitRefno;
 
-        using (SqlCeDataReader drProdUnit = cmndProdUnit.ExecuteReader())
+        using (SqliteDataReader drProdUnit = cmndProdUnit.ExecuteReader())
         {
           if (drProdUnit.Read())
           {
@@ -117,7 +117,7 @@ namespace dMobile.Controller
       // Check if the bar code is already associated to this product or another product
       bool isProdUnitBarCodeFound = false;
       string prodIdentifier = data.Root.Element("ProductIdentifier").Value;
-      using (SqlCeCommand cmndProdUnitBarCode = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+      using (SQLiteCommand cmndProdUnitBarCode = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
       {
         cmndProdUnitBarCode.CommandType = CommandType.Text;
         cmndProdUnitBarCode.CommandText = "SELECT tProductUnitBarCode.ProductUnitRefno," 
@@ -127,7 +127,7 @@ namespace dMobile.Controller
             + "AND tProductUnitBarCode.ProductUnitBarCodeModifier1 = \'" 
             + data.Root.Element("ProductUnitBarCodeModifier1").Value + "\'";
 
-        using (SqlCeDataReader drProdUnitBarCode = cmndProdUnitBarCode.ExecuteReader())
+        using (SqliteDataReader drProdUnitBarCode = cmndProdUnitBarCode.ExecuteReader())
         {
           if (drProdUnitBarCode.Read())
           {
@@ -174,7 +174,7 @@ namespace dMobile.Controller
             this.Create(SysCommon.ActSubTypes.BarCodeAssociation);
 
             // Add the new Bar Code to Product Unit Bar Codes
-            using (SqlCeCommand cmndProdUnitBarCode = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+            using (SQLiteCommand cmndProdUnitBarCode = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
             {
               cmndProdUnitBarCode.Transaction = barCodeTrx;
               cmndProdUnitBarCode.CommandType = CommandType.Text;
@@ -195,7 +195,7 @@ namespace dMobile.Controller
 
               cmndProdUnitBarCode.ExecuteNonQuery();
 
-              using (SqlCeCommand cmndProdUnitBarCodeID = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+              using (SQLiteCommand cmndProdUnitBarCodeID = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
               {
                 cmndProdUnitBarCodeID.Transaction = barCodeTrx;
                 cmndProdUnitBarCodeID.CommandText = "SELECT @@IDENTITY FROM tProductUnitBarCode";
@@ -206,7 +206,7 @@ namespace dMobile.Controller
             }
 
             // Create Activity to Bar Code XRef
-            using (SqlCeCommand cmndItemBarCode = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+            using (SQLiteCommand cmndItemBarCode = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
             {
               cmndItemBarCode.Transaction = barCodeTrx;
               cmndItemBarCode.CommandType = CommandType.Text;
@@ -344,7 +344,7 @@ namespace dMobile.Controller
         sql.Append("ORDER BY tActivityItem.ActivityItemRefno");
       }
 
-      using (SqlCeDataAdapter da = new SqlCeDataAdapter(sql.ToString(), DatabaseConnection.GetInstance().SQLConn))
+      using (SQLiteDataAdapter da = new SQLiteDataAdapter(sql.ToString(), DatabaseConnection.GetInstance().SQLConn))
       {
         using (DataSet ds = new DataSet())
         {
@@ -435,7 +435,7 @@ namespace dMobile.Controller
         }
         else
         {
-          using (SqlCeCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+          using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
           {
             cmndItem.CommandType = CommandType.Text;
             cmndItem.CommandText = "UPDATE tActivityItem " 

@@ -155,19 +155,19 @@ namespace dMobile.Controller
       {
         if (this.SysEnv.SysSettings.IsDisconnectedMode)
         {
-          using (SqlCeCommand cmndActSheetItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+          using (SQLiteCommand cmndActSheetItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
           {
             cmndActSheetItem.CommandText = "tActivityItemPurchaseOrderWorkSheet";
             cmndActSheetItem.CommandType = CommandType.TableDirect;
             cmndActSheetItem.IndexName 
                 = "UQ_ActivityItemPurchaseOrderWorkSheetOnActivityItemPurchaseOrderWorkSheetFKRefno";
 
-            using (SqlCeCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+            using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
             {
               cmndItem.CommandText = "tActivityItem";
               cmndItem.CommandType = CommandType.TableDirect;
 
-              using (SqlCeCommand cmndAct = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+              using (SQLiteCommand cmndAct = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
               {
                 cmndAct.CommandText = "tActivity";
                 cmndAct.CommandType = CommandType.TableDirect;
@@ -176,12 +176,12 @@ namespace dMobile.Controller
                 {
                   SqlCeUpdatableRecord recAct = rsAct.CreateRecord();
 
-                  using (SqlCeCommand cmndID = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                  using (SQLiteCommand cmndID = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
                   {
                     cmndID.CommandText = "SELECT @@IDENTITY FROM tActivity";
                     cmndID.CommandType = CommandType.Text;
 
-                    using (SqlCeCommand cmndIDItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                    using (SQLiteCommand cmndIDItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
                     {
                       cmndIDItem.CommandText = "SELECT @@IDENTITY FROM tActivityItem";
                       cmndIDItem.CommandType = CommandType.Text;
@@ -347,7 +347,7 @@ namespace dMobile.Controller
       if (this.SysEnv.SysSettings.IsDisconnectedMode)
       {
         // Update the Activity Item quantity shipped
-        using (SqlCeCommand cmndAct = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        using (SQLiteCommand cmndAct = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
         {
           cmndAct.CommandType = CommandType.Text;
           cmndAct.CommandText = "UPDATE tActivityItemPurchaseOrderWorkSheet "
@@ -482,7 +482,7 @@ namespace dMobile.Controller
             this.DataViewItems[idx].EndEdit();
           }
 
-          using (SqlCeCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+          using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
           {
             cmndItem.CommandType = CommandType.Text;
             cmndItem.CommandText = "UPDATE tActivityItem " 
@@ -491,7 +491,7 @@ namespace dMobile.Controller
             cmndItem.ExecuteNonQuery();
           }
 
-          using (SqlCeCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+          using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
           {
             cmndItem.CommandType = CommandType.Text;
             cmndItem.CommandText = "UPDATE tActivityItem "
@@ -662,7 +662,7 @@ namespace dMobile.Controller
         sql.Append("ORDER BY tActivityItemPurchaseOrderWorkSheet.ActivityItemRefno");
       }
 
-      using (SqlCeDataAdapter da = new SqlCeDataAdapter(sql.ToString(), DatabaseConnection.GetInstance().SQLConn))
+      using (SQLiteDataAdapter da = new SQLiteDataAdapter(sql.ToString(), DatabaseConnection.GetInstance().SQLConn))
       {
         using (DataSet ds = new DataSet())
         {
@@ -719,7 +719,7 @@ namespace dMobile.Controller
     {
       int foundActItemRefno = 0;
 
-      using (SqlCeCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+      using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
       {
         StringBuilder sql = new StringBuilder();
         cmndItem.CommandType = CommandType.Text;
@@ -738,7 +738,7 @@ namespace dMobile.Controller
         sql.AppendFormat("AND tActivityItemPurchaseOrderWorkSheet.ProductUnitRefno = {0} ", prodUnitRefno);
         cmndItem.CommandText = sql.ToString();
 
-        using (SqlCeDataReader drItem = cmndItem.ExecuteReader())
+        using (SqliteDataReader drItem = cmndItem.ExecuteReader())
         {
           if (drItem.Read())
           {
@@ -844,7 +844,7 @@ namespace dMobile.Controller
     /// <param name="actItemRefno"></param>
     public override void UpdateQuantityFromDataView(int idx, int actItemRefno)
     {
-      using (SqlCeCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+      using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
       {
         cmndItem.CommandText = "tActivityItemPurchaseOrderWorkSheet";
         cmndItem.CommandType = CommandType.Text;

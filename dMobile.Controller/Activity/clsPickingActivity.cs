@@ -466,7 +466,7 @@ namespace dMobile.Controller
       {
         int rowsAffected = 0;
 
-        using (SqlCeCommand cmndItemPicking = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        using (SQLiteCommand cmndItemPicking = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
         {
           cmndItemPicking.CommandType = CommandType.Text;
           cmndItemPicking.IndexName = string.Empty;
@@ -883,7 +883,7 @@ namespace dMobile.Controller
         sql.Append("LEFT JOIN tRoute ON tRoute.RouteRefno = tActivityPickingRoute.RouteRefno");
       }
 
-      using (SqlCeDataAdapter da = new SqlCeDataAdapter(sql.ToString(), DatabaseConnection.GetInstance().SQLConn))
+      using (SQLiteDataAdapter da = new SQLiteDataAdapter(sql.ToString(), DatabaseConnection.GetInstance().SQLConn))
       {
         using (DataSet ds = new DataSet())
         {

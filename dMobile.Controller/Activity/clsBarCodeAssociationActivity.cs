@@ -35,7 +35,7 @@ namespace dMobile.Controller
 
       try
       {
-        using (SqlCeCommand cmndPurgeActItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        using (SQLiteCommand cmndPurgeActItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
         {
           cmndPurgeActItem.CommandText = "DELETE FROM tActivityItem " 
               + "WHERE tActivityItem.ActivityItemSubType = " + (int)SysCommon.ActSubTypes.BarCodeAssociation;
@@ -43,7 +43,7 @@ namespace dMobile.Controller
           cmndPurgeActItem.ExecuteNonQuery();
         }
 
-        using (SqlCeCommand cmndPurgeActivity = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        using (SQLiteCommand cmndPurgeActivity = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
         {
           cmndPurgeActivity.CommandText = "DELETE FROM tActivity " 
               + "WHERE tActivity.ActivitySubType = " + (int)SysCommon.ActSubTypes.BarCodeAssociation;
@@ -162,7 +162,7 @@ namespace dMobile.Controller
         sql.AppendFormat(" AND tActivityItem.ActivityItemSubType = {0}", (int)SysCommon.ActSubTypes.BarCodeAssociation);
       }
 
-      using (SqlCeDataAdapter dataAdapterBarCode = new SqlCeDataAdapter(
+      using (SQLiteDataAdapter dataAdapterBarCode = new SQLiteDataAdapter(
           sql.ToString(), 
           DatabaseConnection.GetInstance().SQLConn))
       {

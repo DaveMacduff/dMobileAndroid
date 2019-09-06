@@ -293,13 +293,13 @@ namespace dMobile.Controller
     {
       string comment = base.GetComment(selectedIndex);
 
-      using (SqlCeCommand cmndItemPickComment = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+      using (SQLiteCommand cmndItemPickComment = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
       {
         cmndItemPickComment.CommandType = CommandType.TableDirect;
         cmndItemPickComment.CommandText = "tActivityItemPickingComment";
         cmndItemPickComment.IndexName = "PK_ActivityItemPickingCommentOnActivityItemRefno";
 
-        using (SqlCeDataReader drItemPickingComment = cmndItemPickComment.ExecuteReader())
+        using (SqliteDataReader drItemPickingComment = cmndItemPickComment.ExecuteReader())
         {
           if (drItemPickingComment.Seek(DbSeekOptions.FirstEqual, new object[] { selectedIndex }))
           {
@@ -394,18 +394,18 @@ namespace dMobile.Controller
 
         if (result == DialogResult.Yes)
         {
-          using (SqlCeCommand cmndPickItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+          using (SQLiteCommand cmndPickItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
           {
             cmndPickItem.CommandText = "tActivityItemPicking";
             cmndPickItem.CommandType = CommandType.TableDirect;
             cmndPickItem.IndexName = "UQ_ActivityItemPickingOnActivityItemPickingFKRefno";
 
-            using (SqlCeCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+            using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
             {
               cmndItem.CommandText = "tActivityItem";
               cmndItem.CommandType = CommandType.TableDirect;
 
-              using (SqlCeCommand cmndID = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+              using (SQLiteCommand cmndID = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
               {
                 cmndID.CommandText = "SELECT @@IDENTITY";
                 cmndID.CommandType = CommandType.Text;
@@ -775,7 +775,7 @@ namespace dMobile.Controller
         sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0}", this.ActHdr.Refno);
       }
 
-      using (SqlCeDataAdapter da = new SqlCeDataAdapter(
+      using (SQLiteDataAdapter da = new SQLiteDataAdapter(
           sql.ToString(), 
           DatabaseConnection.GetInstance().SQLConn))
       {
@@ -832,7 +832,7 @@ namespace dMobile.Controller
     {
       int foundActItemRefno = 0;
 
-      using (SqlCeCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+      using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
       {
         StringBuilder sql = new StringBuilder();
         sql.Append("SELECT tActivityItem.ActivityItemRefno,");
@@ -853,7 +853,7 @@ namespace dMobile.Controller
         cmndItem.CommandType = CommandType.Text;
         cmndItem.CommandText = sql.ToString();
 
-        using (SqlCeDataReader drItem = cmndItem.ExecuteReader())
+        using (SqliteDataReader drItem = cmndItem.ExecuteReader())
         {
           if (drItem.Read())
           {
@@ -1033,7 +1033,7 @@ namespace dMobile.Controller
     /// <param name="activityItemRefno"></param>
     public override void UpdateQuantityFromDataView(int idx, int activityItemRefno)
     {
-      using (SqlCeCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+      using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
       {
         cmndItem.CommandType = CommandType.Text;
         cmndItem.IndexName = string.Empty;
@@ -1086,7 +1086,7 @@ namespace dMobile.Controller
 
       try
       {
-        using (SqlCeCommand cmndItemPicking = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        using (SQLiteCommand cmndItemPicking = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
         {
           cmndItemPicking.CommandType = CommandType.Text;
           cmndItemPicking.IndexName = string.Empty;
@@ -1104,7 +1104,7 @@ namespace dMobile.Controller
               + string.Format("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.Refno)
               + "GROUP BY tUnit.UnitCode";
 
-          using (SqlCeDataReader dr = cmndItemPicking.ExecuteReader())
+          using (SqliteDataReader dr = cmndItemPicking.ExecuteReader())
           {
             while (dr.Read())
             {

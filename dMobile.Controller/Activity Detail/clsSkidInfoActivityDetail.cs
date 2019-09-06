@@ -238,13 +238,13 @@ namespace dMobile.Controller
             SysSkidInfo.GetSkidDetail(this.ActItem.ActHdr.SkidInfo, ref ds);
             if (ds.Tables.Count != 0)
             {
-                using (SqlCeCommand cmndProdSchemeVar = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                using (SQLiteCommand cmndProdSchemeVar = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
                 {
                     cmndProdSchemeVar.CommandText = "tProductSchemeVariant";
                     cmndProdSchemeVar.CommandType = CommandType.TableDirect;
                     cmndProdSchemeVar.IndexName = "UQ_ProductSchemeVariantOnProductSchemeVariantNo";
 
-                    using (SqlCeDataReader drProdSchemeVar = cmndProdSchemeVar.ExecuteReader())
+                    using (SqliteDataReader drProdSchemeVar = cmndProdSchemeVar.ExecuteReader())
                     {
                         foreach (DataRow drow in ds.Tables["cskiddetail"].Rows)
                         {

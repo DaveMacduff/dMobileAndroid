@@ -181,7 +181,7 @@ namespace dMobile.Controller
         sql.Append(" ORDER BY tActivityItemPurchaseOrderWorkSheet.ActivityItemRefno");
       }
 
-      using (SqlCeDataAdapter da = new SqlCeDataAdapter(
+      using (SQLiteDataAdapter da = new SQLiteDataAdapter(
           sql.ToString(), 
           DatabaseConnection.GetInstance().SQLConn))
       {

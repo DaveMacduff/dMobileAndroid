@@ -198,7 +198,7 @@ namespace dMobile.Controller
                 sql.AppendFormat("WHERE tActivityCount.ActivitySubType = {0}", (int)SysCommon.ActSubTypes.PhysicalCounts);
             }
 
-            using (SqlCeDataAdapter dataAdapterPhysical = new SqlCeDataAdapter(
+            using (SQLiteDataAdapter dataAdapterPhysical = new SQLiteDataAdapter(
                 sql.ToString(),
                 DatabaseConnection.GetInstance().SQLConn))
             {

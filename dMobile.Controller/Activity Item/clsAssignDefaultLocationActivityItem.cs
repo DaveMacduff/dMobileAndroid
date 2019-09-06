@@ -198,13 +198,13 @@ namespace dMobile.Controller
             ////    <picking_new_location_refno><%= %></picking_new_location_refno>
             ////</param>
 
-            using (SqlCeCommand cmndProdtLocMapType = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+            using (SQLiteCommand cmndProdtLocMapType = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
             {
                 cmndProdtLocMapType.CommandText = "tProductLocationMapType";
                 cmndProdtLocMapType.CommandType = CommandType.TableDirect;
                 cmndProdtLocMapType.IndexName
                     = "PK_ProductLocationMapTypeOnProductRefnoAndLocationMapRefnoAndProductLocationMapTypeEnum";
-                using (SqlCeDataReader drProdLocMapType = cmndProdtLocMapType.ExecuteReader())
+                using (SqliteDataReader drProdLocMapType = cmndProdtLocMapType.ExecuteReader())
                 {
                     if (bool.Parse(data.Root.Element("picking_is_update").Value))
                     {

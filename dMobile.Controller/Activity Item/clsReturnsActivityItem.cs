@@ -2,7 +2,7 @@ namespace dMobile.Controller
 {
   using System;
   using System.Data;
-  
+  using System.Data.SQLite;
   using System.Text;
   using System.Windows.Forms;
   using System.Xml;
@@ -70,21 +70,23 @@ namespace dMobile.Controller
     public override string GetComment(int selectedIndex)
     {
       string comment = base.GetComment(selectedIndex);
-      using (SqlCeCommand cmndItemReturnsComment = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+      using (SQLiteCommand cmndItemReturnsComment = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
       {
         cmndItemReturnsComment.CommandType = CommandType.TableDirect;
-        cmndItemReturnsComment.CommandText = "tActivityItemReturnsComment";
-        cmndItemReturnsComment.IndexName = "PK_ActivityItemReturnsCommentOnActivityItemRefno";
+        cmndItemReturnsComment.CommandText = "SELECT ActivityItemRefno FROM tActivityItemReturnsComment WHERE ActivityItemRefno = @selectedIndex";
+        cmndItemReturnsComment.Parameters.Add(new SQLiteParameter("@selectedIndex", selectedIndex));
 
-        using (SqlCeDataReader drItemReturnsComment = cmndItemReturnsComment.ExecuteReader())
+        //cmndItemReturnsComment.IndexName = "PK_ActivityItemReturnsCommentOnActivityItemRefno";
+
+        using (SQLiteDataReader drItemReturnsComment = cmndItemReturnsComment.ExecuteReader())
         {
-          if (drItemReturnsComment.Seek(DbSeekOptions.FirstEqual, new object[] { selectedIndex }))
-          {
+          //if (drItemReturnsComment.Seek(DbSeekOptions.FirstEqual, new object[] { selectedIndex }))
+          //{
             if (drItemReturnsComment.Read())
             {
               comment = drItemReturnsComment["ActivityItemReturnsCommentComment"].ToString();
             }
-          }
+          //}
         }
       }
 
@@ -272,121 +274,125 @@ namespace dMobile.Controller
     /// <remarks></remarks>
     public override DataView GetDataView(bool isSubmitBatch)
     {
-      StringBuilder sql = new StringBuilder();
+      SQLiteCommand cmd = DatabaseConnection.GetInstance().SQLConn.CreateCommand();
+      cmd.CommandType = CommandType.Text;
 
       if (isSubmitBatch)
       {
-        sql.Append("SELECT tActivityItemReturns.ActivityItemRefno,");
-        sql.Append("tActivityItemReturns.ActivityItemReturnsFKRefno,");
-        sql.Append("tActivityItemReturns.ActivityItemReturnsStringFKRefno,");
-        sql.Append("tProductUnit.ProductUnitRefno,");
-        sql.Append("tProduct.ProductRefno,");
-        sql.Append("tProduct.ProductCode,");
-        sql.Append("tProduct.ProductDescription,");
-        sql.Append("tProduct.ProductBrandDescription,");
-        sql.Append("tUnit.UnitCode,");
-        sql.Append("tProductUnit.ProductUnitBC,");
-        sql.Append("tProductUnit.ProductUnitSizeDescription,");
-        sql.Append("tActivityItemReturns.ActivityItemReturnsQuantityReturned,");
-        sql.Append("tActivityItemReturns.ActivityItemReturnsBaseQuantityReturned,");
-        sql.Append("tActivityItemReturns.ActivityItemReturnsWeightQuantityReturned,");
-        sql.Append("tActivityItemReturns.ActivityItemReturnsCustomerProductUnitCode,");
-        sql.Append("tLocationMapWarehouse.LocationMapRefno,");
-        sql.Append("tLocationMapWarehouse.LocationMapWarehouseCode AS LocationCode,");
-        sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationName,");
-        sql.Append("CASE WHEN tActivityItemReturnsComment.ActivityItemReturnsCommentComment IS NULL ");
-        sql.Append("THEN \' \' ELSE \'*\' END AS IsActivityItemReturnsComment,");
-        sql.Append("tActivityItem.ActivityItemStatus ");
-        sql.Append("FROM tActivityItemReturns ");
-        sql.Append("INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno = ");
-        sql.Append("tActivityItemReturns.ActivityItemRefno ");
-        sql.Append("INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = tActivityItemReturns.ProductUnitRefno ");
-        sql.Append("INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno ");
-        sql.Append("INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno ");
-        sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = ");
-        sql.Append("tActivityItemReturns.WarehouseLocationMapRefno ");
-        sql.Append("LEFT JOIN tActivityItemReturnsComment ON tActivityItemReturnsComment.ActivityItemRefno = ");
-        sql.Append("tActivityItemReturns.ActivityItemRefno ");
-        sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.Refno);
-        sql.AppendFormat("AND tActivityItem.ActivityItemStatus <> {0} ", (int)SysCommon.ActStatus.NoChange);
-        sql.Append("UNION ");
-        sql.Append("SELECT tActivityItemReturns.ActivityItemRefno,");
-        sql.Append("tActivityItemReturns.ActivityItemReturnsFKRefno,");
-        sql.Append("tActivityItemReturns.ActivityItemReturnsStringFKRefno,");
-        sql.Append("tProductUnit.ProductUnitRefno,");
-        sql.Append("tProduct.ProductRefno,");
-        sql.Append("tProduct.ProductCode,");
-        sql.Append("tProduct.ProductDescription,");
-        sql.Append("tProduct.ProductBrandDescription,");
-        sql.Append("tUnit.UnitCode,");
-        sql.Append("tProductUnit.ProductUnitBC,");
-        sql.Append("tProductUnit.ProductUnitSizeDescription,");
-        sql.Append("tActivityItemReturns.ActivityItemReturnsQuantityReturned,");
-        sql.Append("tActivityItemReturns.ActivityItemReturnsBaseQuantityReturned,");
-        sql.Append("tActivityItemReturns.ActivityItemReturnsWeightQuantityReturned,");
-        sql.Append("tActivityItemReturns.ActivityItemReturnsCustomerProductUnitCode,");
-        sql.Append("tLocationMapWarehouse.LocationMapRefno,");
-        sql.Append("tLocationMapWarehouse.LocationMapWarehouseCode AS LocationCode,");
-        sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationName,");
-        sql.Append("CASE WHEN tActivityItemReturnsComment.ActivityItemReturnsCommentComment IS NULL ");
-        sql.Append("THEN \' \' ELSE \'*\' END AS IsActivityItemReturnsComment,");
-        sql.Append("tActivityItem.ActivityItemStatus ");
-        sql.Append("FROM tActivityItemReturns ");
-        sql.Append("INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno = ");
-        sql.Append("tActivityItemReturns.ActivityItemRefno ");
-        sql.Append("INNER JOIN tActivityDetail ON tActivityDetail.ActivityItemRefno = ");
-        sql.Append("tActivityItemReturns.ActivityItemRefno ");
-        sql.Append("INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = tActivityItemReturns.ProductUnitRefno ");
-        sql.Append("INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno ");
-        sql.Append("INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno ");
-        sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = ");
-        sql.Append("tActivityItemReturns.WarehouseLocationMapRefno ");
-        sql.Append("LEFT JOIN tActivityItemReturnsComment ON tActivityItemReturnsComment.ActivityItemRefno = ");
-        sql.Append("tActivityItemReturns.ActivityItemRefno ");
-        sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.Refno);
-        sql.AppendFormat("AND tActivityDetail.ActivityDetailStatus <> {0} ", (int)SysCommon.ActStatus.NoChange);
-        sql.Append("ORDER BY tActivityItemReturns.ActivityItemRefno");
+        cmd.CommandText = 
+        "SELECT tActivityItemReturns.ActivityItemRefno, " +
+        "tActivityItemReturns.ActivityItemReturnsFKRefno, " +
+        "tActivityItemReturns.ActivityItemReturnsStringFKRefno, " +
+        "tProductUnit.ProductUnitRefno, " +
+        "tProduct.ProductRefno, " +
+        "tProduct.ProductCode, " +
+        "tProduct.ProductDescription, " +
+        "tProduct.ProductBrandDescription, " +
+        "tUnit.UnitCode, " +
+        "tProductUnit.ProductUnitBC, " +
+        "tProductUnit.ProductUnitSizeDescription, " +
+        "tActivityItemReturns.ActivityItemReturnsQuantityReturned, " +
+        "tActivityItemReturns.ActivityItemReturnsBaseQuantityReturned, " +
+        "tActivityItemReturns.ActivityItemReturnsWeightQuantityReturned, " +
+        "tActivityItemReturns.ActivityItemReturnsCustomerProductUnitCode, " +
+        "tLocationMapWarehouse.LocationMapRefno, " +
+        "tLocationMapWarehouse.LocationMapWarehouseCode AS LocationCode, " +
+        "tLocationMapWarehouse.LocationMapWarehouseName AS LocationName, " +
+        "CASE WHEN tActivityItemReturnsComment.ActivityItemReturnsCommentComment IS NULL " +
+        "THEN \' \' ELSE \'*\' END AS IsActivityItemReturnsComment, " +
+        "tActivityItem.ActivityItemStatus " +
+        "FROM tActivityItemReturns " +
+        "INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno = " +
+        "tActivityItemReturns.ActivityItemRefno " +
+        "INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = tActivityItemReturns.ProductUnitRefno " +
+        "INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno " +
+        "INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno " +
+        "INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = " +
+        "tActivityItemReturns.WarehouseLocationMapRefno " +
+        "LEFT JOIN tActivityItemReturnsComment ON tActivityItemReturnsComment.ActivityItemRefno = " +
+        "tActivityItemReturns.ActivityItemRefno " +
+        "WHERE tActivityItem.ActivityRefno = @Refno " +
+        "AND tActivityItem.ActivityItemStatus <> @ActStatus " +
+        "UNION " +
+        "SELECT tActivityItemReturns.ActivityItemRefno, " +
+        "tActivityItemReturns.ActivityItemReturnsFKRefno, " +
+        "tActivityItemReturns.ActivityItemReturnsStringFKRefno, " +
+        "tProductUnit.ProductUnitRefno, " +
+        "tProduct.ProductRefno, " +
+        "tProduct.ProductCode, " +
+        "tProduct.ProductDescription, " +
+        "tProduct.ProductBrandDescription, " +
+        "tUnit.UnitCode, " +
+        "tProductUnit.ProductUnitBC, " +
+        "tProductUnit.ProductUnitSizeDescription, " +
+        "tActivityItemReturns.ActivityItemReturnsQuantityReturned, " +
+        "tActivityItemReturns.ActivityItemReturnsBaseQuantityReturned, " +
+        "tActivityItemReturns.ActivityItemReturnsWeightQuantityReturned, " +
+        "tActivityItemReturns.ActivityItemReturnsCustomerProductUnitCode, " +
+        "tLocationMapWarehouse.LocationMapRefno, " +
+        "tLocationMapWarehouse.LocationMapWarehouseCode AS LocationCode, " +
+        "tLocationMapWarehouse.LocationMapWarehouseName AS LocationName, " +
+        "CASE WHEN tActivityItemReturnsComment.ActivityItemReturnsCommentComment IS NULL " +
+        "THEN \' \' ELSE \'*\' END AS IsActivityItemReturnsComment, " +
+        "tActivityItem.ActivityItemStatus " +
+        "FROM tActivityItemReturns " +
+        "INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno = " +
+        "tActivityItemReturns.ActivityItemRefno " +
+        "INNER JOIN tActivityDetail ON tActivityDetail.ActivityItemRefno = " +
+        "tActivityItemReturns.ActivityItemRefno " +
+        "INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = tActivityItemReturns.ProductUnitRefno " +
+        "INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno " +
+        "INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno " +
+        "INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = " +
+        "tActivityItemReturns.WarehouseLocationMapRefno " +
+        "LEFT JOIN tActivityItemReturnsComment ON tActivityItemReturnsComment.ActivityItemRefno = " +
+        "tActivityItemReturns.ActivityItemRefno " +
+        "WHERE tActivityItem.ActivityRefno = @Refno " +
+        "AND tActivityDetail.ActivityDetailStatus <> @ActStatus " +
+        "ORDER BY tActivityItemReturns.ActivityItemRefno";
+         cmd.Parameters.Add(new SQLiteParameter("@Refno", this.ActHdr.Refno));
+         cmd.Parameters.Add(new SQLiteParameter("@ActStatus", (int)SysCommon.ActStatus.NoChange));
       }
       else
       {
-        sql.Append("SELECT tActivityItemReturns.ActivityItemRefno,");
-        sql.Append("tActivityItemReturns.ActivityItemReturnsFKRefno,");
-        sql.Append("tActivityItemReturns.ActivityItemReturnsStringFKRefno,");
-        sql.Append("tProductUnit.ProductUnitRefno,");
-        sql.Append("tProduct.ProductRefno,");
-        sql.Append("tProduct.ProductCode,");
-        sql.Append("tProduct.ProductDescription,");
-        sql.Append("tProduct.ProductBrandDescription,");
-        sql.Append("tUnit.UnitCode,");
-        sql.Append("tProductUnit.ProductUnitBC,");
-        sql.Append("tProductUnit.ProductUnitSizeDescription,");
-        sql.Append("tActivityItemReturns.ActivityItemReturnsQuantityReturned,");
-        sql.Append("tActivityItemReturns.ActivityItemReturnsBaseQuantityReturned,");
-        sql.Append("tActivityItemReturns.ActivityItemReturnsWeightQuantityReturned,");
-        sql.Append("tActivityItemReturns.ActivityItemReturnsCustomerProductUnitCode,");
-        sql.Append("tLocationMapWarehouse.LocationMapRefno,");
-        sql.Append("tLocationMapWarehouse.LocationMapWarehouseCode AS LocationCode,");
-        sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationName,");
-        sql.Append("CASE WHEN tActivityItemReturnsComment.ActivityItemReturnsCommentComment IS NULL ");
-        sql.Append("THEN \' \' ELSE \'*\' END AS IsActivityItemReturnsComment,");
-        sql.Append("tActivityItem.ActivityItemStatus ");
-        sql.Append("FROM tActivityItemReturns ");
-        sql.Append("INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno = ");
-        sql.Append("tActivityItemReturns.ActivityItemRefno ");
-        sql.Append("INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = tActivityItemReturns.ProductUnitRefno ");
-        sql.Append("INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno ");
-        sql.Append("INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno ");
-        sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = ");
-        sql.Append("tActivityItemReturns.WarehouseLocationMapRefno ");
-        sql.Append("LEFT JOIN tActivityItemReturnsComment ON tActivityItemReturnsComment.ActivityItemRefno = ");
-        sql.Append("tActivityItemReturns.ActivityItemRefno ");
-        sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.Refno);
-        sql.Append("ORDER BY tActivityItemReturns.ActivityItemRefno");
+        cmd.CommandText = 
+        "SELECT tActivityItemReturns.ActivityItemRefno, " +
+        "tActivityItemReturns.ActivityItemReturnsFKRefno, " +
+        "tActivityItemReturns.ActivityItemReturnsStringFKRefno, " +
+        "tProductUnit.ProductUnitRefno, " +
+        "tProduct.ProductRefno, " +
+        "tProduct.ProductCode, " +
+        "tProduct.ProductDescription, " +
+        "tProduct.ProductBrandDescription, " +
+        "tUnit.UnitCode, " +
+        "tProductUnit.ProductUnitBC, " +
+        "tProductUnit.ProductUnitSizeDescription, " +
+        "tActivityItemReturns.ActivityItemReturnsQuantityReturned, " +
+        "tActivityItemReturns.ActivityItemReturnsBaseQuantityReturned, " +
+        "tActivityItemReturns.ActivityItemReturnsWeightQuantityReturned, " +
+        "tActivityItemReturns.ActivityItemReturnsCustomerProductUnitCode, " +
+        "tLocationMapWarehouse.LocationMapRefno, " +
+        "tLocationMapWarehouse.LocationMapWarehouseCode AS LocationCode, " +
+        "tLocationMapWarehouse.LocationMapWarehouseName AS LocationName, " +
+        "CASE WHEN tActivityItemReturnsComment.ActivityItemReturnsCommentComment IS NULL " +
+        "THEN \' \' ELSE \'*\' END AS IsActivityItemReturnsComment, " +
+        "tActivityItem.ActivityItemStatus " +
+        "FROM tActivityItemReturns " +
+        "INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno = " +
+        "tActivityItemReturns.ActivityItemRefno " +
+        "INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = tActivityItemReturns.ProductUnitRefno " +
+        "INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno " +
+        "INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno " +
+        "INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = " +
+        "tActivityItemReturns.WarehouseLocationMapRefno " +
+        "LEFT JOIN tActivityItemReturnsComment ON tActivityItemReturnsComment.ActivityItemRefno = " +
+        "tActivityItemReturns.ActivityItemRefno " +
+        "WHERE tActivityItem.ActivityRefno = @Refno " +
+        "ORDER BY tActivityItemReturns.ActivityItemRefno";
+         cmd.Parameters.Add(new SQLiteParameter("@Refno", this.ActHdr.Refno));
       }
 
-      using (SqlCeDataAdapter dataAdapterReturnItems = new SqlCeDataAdapter(
-          sql.ToString(), 
-          DatabaseConnection.GetInstance().SQLConn))
+      using (SQLiteDataAdapter dataAdapterReturnItems = new SQLiteDataAdapter(cmd))
       {
         using (DataSet dataSetReturnItems = new DataSet())
         {
@@ -442,26 +448,26 @@ namespace dMobile.Controller
       int foundActItemRefno = 0;
       int whsLocMapRefno = this.LocMap.CurrLocMap.WhsLocMapRefno;
 
-      using (SqlCeCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+      using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
       {
-        StringBuilder sql = new StringBuilder();
-        sql.Append("SELECT tActivityItem.ActivityItemRefno,");
-        sql.Append("tActivityItemReturns.ActivityItemReturnsFKRefno,");
-        sql.Append("tActivityItemReturns.ProductUnitRefno,");
-        sql.Append("tLocationMapWarehouse.LocationMapRefno");
-        sql.Append(" FROM tActivityItemReturns");
-        sql.Append(" INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno = ");
-        sql.Append("tActivityItemReturns.ActivityItemRefno");
-        sql.Append(" INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = ");
-        sql.Append("tActivityItemReturns.WarehouseLocationMapRefno");
-        sql.AppendFormat(" WHERE tActivityItem.ActivityRefno = {0}", this.ActHdr.Refno);
-        sql.AppendFormat(" AND tActivityItemReturns.WarehouseLocationMapRefno = {0}", whsLocMapRefno);
-        sql.AppendFormat(" AND tActivityItemReturns.ProductUnitRefno = {0}", prodUnitRefno);
-
         cmndItem.CommandType = CommandType.Text;
-        cmndItem.CommandText = sql.ToString();
+        cmndItem.CommandText = "SELECT tActivityItem.ActivityItemRefno, " +
+        "tActivityItemReturns.ActivityItemReturnsFKRefno, " +
+        "tActivityItemReturns.ProductUnitRefno, " +
+        "tLocationMapWarehouse.LocationMapRefno " +
+        "FROM tActivityItemReturns " +
+        "INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno = " +
+        "tActivityItemReturns.ActivityItemRefno " +
+        "INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = " +
+        "tActivityItemReturns.WarehouseLocationMapRefno " +
+        "WHERE tActivityItem.ActivityRefno = @Refno " +
+        "AND tActivityItemReturns.WarehouseLocationMapRefno = @whsLocMapRefno " + 
+        "AND tActivityItemReturns.ProductUnitRefno = @prodUnitRefno";
+        cmndItem.Parameters.Add(new SQLiteParameter("@Refno", this.ActHdr.Refno));
+        cmndItem.Parameters.Add(new SQLiteParameter("@whsLocMapRefno", whsLocMapRefno));
+        cmndItem.Parameters.Add(new SQLiteParameter("@prodUnitRefno", prodUnitRefno));
 
-        using (SqlCeDataReader drItem = cmndItem.ExecuteReader())
+        using (SQLiteDataReader drItem = cmndItem.ExecuteReader())
         {
           if (drItem.Read())
           {
@@ -571,19 +577,20 @@ namespace dMobile.Controller
     /// <param name="actItemRefno"></param>
     public override void UpdateQuantityFromDataView(int idx, int actItemRefno)
     {
-      using (SqlCeCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+      using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
       {
-        cmndItem.CommandText = "tActivityItemReturns";
         cmndItem.CommandType = CommandType.Text;
-        cmndItem.IndexName = string.Empty;
-        cmndItem.CommandText = "UPDATE tActivityItemReturns " 
-            + "SET ActivityItemReturnsQuantityReturned = " 
-            + this.DataViewItems[idx]["ActivityItemReturnsQuantityReturned"] + "," 
-            + " ActivityItemReturnsBaseQuantityReturned = " 
-            + this.DataViewItems[idx]["ActivityItemReturnsBaseQuantityReturned"] + "," 
-            + " ActivityItemReturnsWeightQuantityReturned = " 
-            + this.DataViewItems[idx]["ActivityItemReturnsWeightQuantityReturned"] 
-            + " WHERE tActivityItemReturns.ActivityItemRefno = " + actItemRefno;
+        cmndItem.CommandText = 
+            "UPDATE tActivityItemReturns " + 
+            "SET ActivityItemReturnsQuantityReturned = @ActivityItemReturnsQuantityReturned, " +
+            "ActivityItemReturnsBaseQuantityReturned = @ActivityItemReturnsBaseQuantityReturned, " +
+            "ActivityItemReturnsWeightQuantityReturned = @ActivityItemReturnsWeightQuantityReturned " +
+            "WHERE tActivityItemReturns.ActivityItemRefno = @actItemRefno";
+        cmndItem.Parameters.Add(new SQLiteParameter("@ActivityItemReturnsQuantityReturned", this.DataViewItems[idx]["ActivityItemReturnsQuantityReturned"]));
+        cmndItem.Parameters.Add(new SQLiteParameter("@ActivityItemReturnsBaseQuantityReturned", this.DataViewItems[idx]["ActivityItemReturnsBaseQuantityReturned"]));
+        cmndItem.Parameters.Add(new SQLiteParameter("@ActivityItemReturnsWeightQuantityReturned", this.DataViewItems[idx]["ActivityItemReturnsWeightQuantityReturned"]));
+        cmndItem.Parameters.Add(new SQLiteParameter("@actItemRefno", actItemRefno));
+
         cmndItem.ExecuteNonQuery();
       }
     }

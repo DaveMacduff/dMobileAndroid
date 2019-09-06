@@ -778,13 +778,13 @@ namespace dMobile.Controller
         {
             if (0 < prodSchemeData.VariantNumber)
             {
-                using (SqlCeCommand cmndSchemeVar = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                using (SQLiteCommand cmndSchemeVar = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
                 {
                     cmndSchemeVar.CommandText = "tProductSchemeVariant";
                     cmndSchemeVar.CommandType = CommandType.TableDirect;
                     cmndSchemeVar.IndexName = "UQ_ProductSchemeVariantOnProductSchemeVariantNo";
 
-                    using (SqlCeDataReader drSchemeVar = cmndSchemeVar.ExecuteReader())
+                    using (SqliteDataReader drSchemeVar = cmndSchemeVar.ExecuteReader())
                     {
                         if (drSchemeVar.Seek(DbSeekOptions.FirstEqual, new object[] { prodSchemeData.VariantNumber }))
                         {
@@ -1089,7 +1089,7 @@ namespace dMobile.Controller
                     }
                 }
 
-                using (SqlCeCommand cmndDetail = conn.CreateCommand())
+                using (SQLiteCommand cmndDetail = conn.CreateCommand())
                 {
                     cmndDetail.CommandText = "tActivityDetail";
                     cmndDetail.CommandType = CommandType.TableDirect;
@@ -1138,7 +1138,7 @@ namespace dMobile.Controller
                     }
                 }
 
-                using (SqlCeCommand cmndID = conn.CreateCommand())
+                using (SQLiteCommand cmndID = conn.CreateCommand())
                 {
                     cmndID.CommandText = "SELECT @@IDENTITY FROM tActivityDetail";
                     cmndID.CommandType = CommandType.Text;
@@ -1150,15 +1150,15 @@ namespace dMobile.Controller
 
                 if (0 < this.SchemeData.VariantNumber)
                 {
-                    using (SqlCeCommand cmndSchemeVar = conn.CreateCommand())
+                    using (SQLiteCommand cmndSchemeVar = conn.CreateCommand())
                     {
                         cmndSchemeVar.CommandText = "tProductSchemeVariant";
                         cmndSchemeVar.CommandType = CommandType.TableDirect;
                         cmndSchemeVar.IndexName = "UQ_ProductSchemeVariantOnProductSchemeVariantNo";
 
-                        using (SqlCeDataReader drSchemeVar = cmndSchemeVar.ExecuteReader())
+                        using (SqliteDataReader drSchemeVar = cmndSchemeVar.ExecuteReader())
                         {
-                            using (SqlCeCommand cmndSchemeVarXRef = conn.CreateCommand())
+                            using (SQLiteCommand cmndSchemeVarXRef = conn.CreateCommand())
                             {
                                 cmndSchemeVarXRef.CommandText = "tActivityDetailProductSchemeVariantXRef";
                                 cmndSchemeVarXRef.CommandType = CommandType.TableDirect;
@@ -1211,7 +1211,7 @@ namespace dMobile.Controller
                     || string.IsNullOrEmpty(this.ActExtra.Text4)
                     || string.IsNullOrEmpty(this.ActExtra.Text5))
                 {
-                    using (SqlCeCommand cmndExtra = conn.CreateCommand())
+                    using (SQLiteCommand cmndExtra = conn.CreateCommand())
                     {
                         cmndExtra.CommandText = "tActivityDetailExtra";
                         cmndExtra.CommandType = CommandType.TableDirect;

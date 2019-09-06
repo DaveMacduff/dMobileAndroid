@@ -362,7 +362,7 @@ namespace dMobile.Controller
         {
             try
             {
-                using (SqlCeCommand cmndAct = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                using (SQLiteCommand cmndAct = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
                 {
                     cmndAct.CommandText = "tActivity";
                     cmndAct.CommandType = CommandType.TableDirect;
@@ -371,7 +371,7 @@ namespace dMobile.Controller
                     {
                         SqlCeUpdatableRecord recAct = rsAct.CreateRecord();
 
-                        using (SqlCeCommand cmndID = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                        using (SQLiteCommand cmndID = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
                         {
                             cmndID.CommandText = "SELECT @@IDENTITY";
                             cmndID.CommandType = CommandType.Text;

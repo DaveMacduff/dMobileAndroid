@@ -67,7 +67,7 @@ namespace dMobile.Controller
           this.WeightQuantity = decimal.Parse(xmlDoc.DocumentElement["wt_qty"].InnerText);
 
           // Update the Activity Item quantity transferred
-          using (SqlCeCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+          using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
           {
             cmndItem.IndexName = string.Empty;
             if (this.NewItemFKRefno != this.ActItem.FKRefno)
@@ -144,7 +144,7 @@ namespace dMobile.Controller
       {
         int actDetailRefno = this.InsertDetailDisconnected();
 
-        using (SqlCeCommand cmndDetailTransfer = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        using (SQLiteCommand cmndDetailTransfer = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
         {
           cmndDetailTransfer.CommandText = "tActivityDetailTransfer";
           cmndDetailTransfer.CommandType = CommandType.TableDirect;
@@ -172,7 +172,7 @@ namespace dMobile.Controller
             XDocument.Parse(
             "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"))))
         {
-          using (SqlCeCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+          using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
           {
             cmndItem.IndexName = string.Empty;
             cmndItem.CommandType = CommandType.Text;
@@ -246,7 +246,7 @@ namespace dMobile.Controller
       this.DataViewDetails.Sort = oldSort;
 
       // Delete from database.
-      using (SqlCeCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+      using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
       {
         cmndPurge.CommandType = CommandType.Text;
 
@@ -307,7 +307,7 @@ namespace dMobile.Controller
             this.DataViewDetails[selectedRowIndex].EndEdit();
           }
 
-          using (SqlCeCommand cmndDetail = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+          using (SQLiteCommand cmndDetail = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
           {
             cmndDetail.CommandType = CommandType.Text;
             cmndDetail.CommandText = "UPDATE tActivityDetail " 
@@ -758,7 +758,7 @@ namespace dMobile.Controller
         sql.Append("ORDER BY tActivityDetail.ActivityDetailRefno");
       }
 
-      using (SqlCeDataAdapter da = new SqlCeDataAdapter(
+      using (SQLiteDataAdapter da = new SQLiteDataAdapter(
           sql.ToString(), DatabaseConnection.GetInstance().SQLConn))
       {
         using (DataSet ds = new DataSet())

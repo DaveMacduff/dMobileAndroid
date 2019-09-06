@@ -147,13 +147,13 @@ namespace dMobile.Controller
     public override string GetComment(int selectedIndex)
     {
       string cmmt = base.GetComment(selectedIndex);
-      using (SqlCeCommand cmndItemRecvCmnt = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+      using (SQLiteCommand cmndItemRecvCmnt = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
       {
         cmndItemRecvCmnt.CommandType = CommandType.TableDirect;
         cmndItemRecvCmnt.CommandText = "tActivityItemReceivingComment";
         cmndItemRecvCmnt.IndexName = "PK_ActivityItemReceivingCommentOnActivityItemRefno";
 
-        using (SqlCeDataReader drItemRecvCmnt = cmndItemRecvCmnt.ExecuteReader())
+        using (SqliteDataReader drItemRecvCmnt = cmndItemRecvCmnt.ExecuteReader())
         {
           if (drItemRecvCmnt.Seek(DbSeekOptions.FirstEqual, new object[] { selectedIndex }))
           {
@@ -505,7 +505,7 @@ namespace dMobile.Controller
         sql.Append("ORDER BY tActivityItemReceiving.ActivityItemRefno");
       }
 
-      using (SqlCeDataAdapter da = new SqlCeDataAdapter(sql.ToString(), DatabaseConnection.GetInstance().SQLConn))
+      using (SQLiteDataAdapter da = new SQLiteDataAdapter(sql.ToString(), DatabaseConnection.GetInstance().SQLConn))
       {
         using (DataSet ds = new DataSet())
         {
@@ -560,7 +560,7 @@ namespace dMobile.Controller
     {
       int foundActItemRefno = 0;
 
-      using (SqlCeCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+      using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
       {
         StringBuilder sql = new StringBuilder();
         sql.Append("SELECT tActivityItem.ActivityItemRefno,");
@@ -581,7 +581,7 @@ namespace dMobile.Controller
         cmndItem.CommandType = CommandType.Text;
         cmndItem.CommandText = sql.ToString();
 
-        using (SqlCeDataReader drItem = cmndItem.ExecuteReader())
+        using (SqliteDataReader drItem = cmndItem.ExecuteReader())
         {
           if (drItem.Read())
           {
@@ -681,7 +681,7 @@ namespace dMobile.Controller
     /// <param name="activityItemRefno"></param>
     public override void UpdateQuantityFromDataView(int idx, int actItemRefno)
     {
-      using (SqlCeCommand cmndItemRecv = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+      using (SQLiteCommand cmndItemRecv = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
       {
         cmndItemRecv.CommandType = CommandType.Text;
         cmndItemRecv.IndexName = string.Empty;
@@ -705,7 +705,7 @@ namespace dMobile.Controller
     {
       string msg = string.Empty;
 
-      using (SqlCeCommand cmndItemRecv = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+      using (SQLiteCommand cmndItemRecv = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
       {
         cmndItemRecv.CommandType = System.Data.CommandType.Text;
         cmndItemRecv.IndexName = string.Empty;
@@ -717,7 +717,7 @@ namespace dMobile.Controller
             + "tActivityItem.ActivityItemRefno "
             + string.Format("WHERE tActivityItem.ActivityRefno = {0}", this.ActHdr.Refno);
 
-        using (SqlCeDataReader dr = cmndItemRecv.ExecuteReader())
+        using (SqliteDataReader dr = cmndItemRecv.ExecuteReader())
         {
 #if MULTILANGUAGE
           msg = Translator.GetInstance().Translate(TranslatorVocabulary.TotalReceived);

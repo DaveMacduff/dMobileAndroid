@@ -156,7 +156,7 @@ namespace dMobile.Controller
             this.DataViewDetails[rowIdx].EndEdit();
           }
 
-          using (SqlCeCommand cmndDetail = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+          using (SQLiteCommand cmndDetail = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
           {
             cmndDetail.CommandType = CommandType.Text;
             cmndDetail.CommandText = "UPDATE tActivityDetail "

@@ -411,13 +411,13 @@ namespace dMobile.Controller
     public override string GetComment(int idx)
     {
       string itemCmnt = base.GetComment(idx);
-      using (SqlCeCommand cmndItemPickCmnt = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+      using (SQLiteCommand cmndItemPickCmnt = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
       {
         cmndItemPickCmnt.CommandType = CommandType.TableDirect;
         cmndItemPickCmnt.CommandText = "tActivityItemPickingComment";
         cmndItemPickCmnt.IndexName = "PK_ActivityItemPickingCommentOnActivityItemRefno";
 
-        using (SqlCeDataReader drItemPickCmnt = cmndItemPickCmnt.ExecuteReader())
+        using (SqliteDataReader drItemPickCmnt = cmndItemPickCmnt.ExecuteReader())
         {
           if (drItemPickCmnt.Seek(DbSeekOptions.FirstEqual, new object[] { idx }))
           {
@@ -756,7 +756,7 @@ namespace dMobile.Controller
         sql.Append("ORDER BY tActivityItemPicking.ActivityItemRefno");
       }
 
-      using (SqlCeDataAdapter da = new SqlCeDataAdapter(sql.ToString(), DatabaseConnection.GetInstance().SQLConn))
+      using (SQLiteDataAdapter da = new SQLiteDataAdapter(sql.ToString(), DatabaseConnection.GetInstance().SQLConn))
       {
         using (DataSet ds = new DataSet())
         {
@@ -813,7 +813,7 @@ namespace dMobile.Controller
     {
       int foundActItemRefno = 0;
 
-      ////using (SqlCeCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+      ////using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
       ////{
       ////  StringBuilder sql = new StringBuilder();
       ////  sql.Append("SELECT tActivityItem.ActivityItemRefno,");
@@ -832,7 +832,7 @@ namespace dMobile.Controller
       ////  cmndItem.CommandType = CommandType.Text;
       ////  cmndItem.CommandText = sql.ToString();
 
-      ////  using (SqlCeDataReader drItem = cmndItem.ExecuteReader())
+      ////  using (SqliteDataReader drItem = cmndItem.ExecuteReader())
       ////  {
       ////    if (drItem.Read())
       ////    {
@@ -936,7 +936,7 @@ namespace dMobile.Controller
     /// <param name="actItemRefno"></param>
     public override void UpdateQuantityFromDataView(int idx, int actItemRefno)
     {
-      using (SqlCeCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+      using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
       {
         cmndItem.CommandText = "tActivityItemPicking";
         cmndItem.CommandType = CommandType.Text;

@@ -111,7 +111,7 @@ namespace dMobile.Controller
       s.AppendFormat("WHERE tProduct.ProductRefno = {0}", prodRefno);
       s.Append(" ORDER BY tProductSchemeVariant.ProductSchemeVariantCode");
 
-      using (SqlCeDataAdapter dataAdapterVariant = new SqlCeDataAdapter(
+      using (SQLiteDataAdapter dataAdapterVariant = new SQLiteDataAdapter(
           s.ToString(),
           DatabaseConnection.GetInstance().SQLConn))
       {
@@ -149,7 +149,7 @@ namespace dMobile.Controller
       s.Append("FROM tProductSchemeLotNumber ");
       s.Append("ORDER BY ActivityDetailLogisticUnitBatchLotNumber");
 
-      using (SqlCeDataAdapter dataAdapterLot = new SqlCeDataAdapter(
+      using (SQLiteDataAdapter dataAdapterLot = new SQLiteDataAdapter(
           s.ToString(),
           DatabaseConnection.GetInstance().SQLConn))
       {
@@ -180,7 +180,7 @@ namespace dMobile.Controller
       s.AppendFormat("WHERE tProduct.ProductRefno = {0} ", prodRefno);
       s.Append("ORDER BY tActivityDetail.ActivityDetailSingleTradeItemSerialNumber");
 
-      using (SqlCeDataAdapter dataAdapterSerial = new SqlCeDataAdapter(
+      using (SQLiteDataAdapter dataAdapterSerial = new SQLiteDataAdapter(
           s.ToString(),
           DatabaseConnection.GetInstance().SQLConn))
       {

@@ -888,7 +888,7 @@ namespace dMobile.Controller
     {
       try
       {
-        using (SqlCeCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
         {
           cmndItem.CommandText = "tActivityItem";
           cmndItem.CommandType = CommandType.TableDirect;
@@ -897,7 +897,7 @@ namespace dMobile.Controller
           {
             SqlCeUpdatableRecord recActItem = rsActItem.CreateRecord();
 
-            using (SqlCeCommand cmndID = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+            using (SQLiteCommand cmndID = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
             {
               cmndID.CommandText = "SELECT @@IDENTITY FROM tActivityItem";
               cmndID.CommandType = CommandType.Text;

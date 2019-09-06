@@ -201,7 +201,7 @@ namespace dMobile.Controller
         sql.Append(" INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityReturns.ActivityRefno");
       }
 
-      using (SqlCeDataAdapter dataAdapterReturns = new SqlCeDataAdapter(
+      using (SQLiteDataAdapter dataAdapterReturns = new SQLiteDataAdapter(
           sql.ToString(), 
           DatabaseConnection.GetInstance().SQLConn))
       {

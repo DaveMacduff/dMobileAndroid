@@ -232,7 +232,7 @@ namespace dMobile.Controller
         sql.Append(" INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityAdjustment.ActivityRefno");
       }
 
-      using (SqlCeDataAdapter dataAdapterAdj = new SqlCeDataAdapter(
+      using (SQLiteDataAdapter dataAdapterAdj = new SQLiteDataAdapter(
           sql.ToString(),
           DatabaseConnection.GetInstance().SQLConn))
       {

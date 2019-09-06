@@ -73,7 +73,7 @@ namespace dMobile.Controller
           if (this.NewItemFKRefno != this.ActItem.FKRefno)
           {
             // Update the Activity Item quantity Adjustment
-            using (SqlCeCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+            using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
             {
               cmndItem.CommandType = CommandType.Text;
               cmndItem.IndexName = string.Empty;
@@ -147,7 +147,7 @@ namespace dMobile.Controller
       {
         int actDetailRefno = this.InsertDetailDisconnected();
 
-        using (SqlCeCommand cmndDetail = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        using (SQLiteCommand cmndDetail = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
         {
           cmndDetail.CommandText = "tActivityDetailAdjustment";
           cmndDetail.CommandType = CommandType.TableDirect;
@@ -172,7 +172,7 @@ namespace dMobile.Controller
             this.CreateSubmitXML(
             XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"))))
         {
-          using (SqlCeCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+          using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
           {
             cmndItem.IndexName = string.Empty;
             cmndItem.CommandType = CommandType.Text;
@@ -247,7 +247,7 @@ namespace dMobile.Controller
       this.DataViewDetails.Sort = mySort;
 
       // Delete from database
-      using (SqlCeCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+      using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
       {
         cmndPurge.CommandType = CommandType.Text;
         cmndPurge.CommandText = "DELETE FROM tActivityDetailProductSchemeVariantXRef "
@@ -309,7 +309,7 @@ namespace dMobile.Controller
             this.DataViewDetails[rowIdx].EndEdit();
           }
 
-          using (SqlCeCommand cmndDetail = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+          using (SQLiteCommand cmndDetail = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
           {
             cmndDetail.CommandType = CommandType.Text;
             cmndDetail.CommandText = "UPDATE tActivityDetail "
@@ -741,7 +741,7 @@ namespace dMobile.Controller
         sql.Append("ORDER BY tActivityDetail.ActivityDetailRefno");
       }
 
-      using (SqlCeDataAdapter da = new SqlCeDataAdapter(sql.ToString(), DatabaseConnection.GetInstance().SQLConn))
+      using (SQLiteDataAdapter da = new SQLiteDataAdapter(sql.ToString(), DatabaseConnection.GetInstance().SQLConn))
       {
         using (DataSet ds = new DataSet())
         {
@@ -872,7 +872,7 @@ namespace dMobile.Controller
       SysCommon.AdjTypes adjType = SysCommon.AdjTypes.Inventory;
       AdjustmentSettings adjSettings = new AdjustmentSettings().LoadData();
 
-      using (SqlCeCommand cmndAdj = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+      using (SQLiteCommand cmndAdj = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
       {
         cmndAdj.CommandText = "SELECT tActivityAdjustment.ActivityAdjustmentType FROM tActivityAdjustment "
             + "WHERE tActivityAdjustment.ActivityRefno = " + this.ActItem.ActHdr.Refno;
@@ -940,7 +940,7 @@ namespace dMobile.Controller
       XmlWriter xml = XmlWriter.Create(xmlString);
       SysCommon.AdjTypes adjType = SysCommon.AdjTypes.Inventory;
 
-      using (SqlCeCommand cmndAdj = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+      using (SQLiteCommand cmndAdj = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
       {
         cmndAdj.CommandText = "SELECT tActivityAdjustment.ActivityAdjustmentType FROM tActivityAdjustment "
             + "WHERE tActivityAdjustment.ActivityRefno = " + this.ActItem.ActHdr.Refno;

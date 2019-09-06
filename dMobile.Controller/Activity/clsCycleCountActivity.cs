@@ -190,7 +190,7 @@ namespace dMobile.Controller
                 sql.AppendFormat("WHERE tActivityCount.ActivitySubType = {0}", (int)SysCommon.ActSubTypes.CycleCounts);
             }
 
-            using (SqlCeDataAdapter dataAdapterCycle = new SqlCeDataAdapter(
+            using (SQLiteDataAdapter dataAdapterCycle = new SQLiteDataAdapter(
                 sql.ToString(),
                 DatabaseConnection.GetInstance().SQLConn))
             {
