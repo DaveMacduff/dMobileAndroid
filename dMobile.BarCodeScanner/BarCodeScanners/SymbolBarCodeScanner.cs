@@ -1,10 +1,9 @@
 namespace dMobile.BarCodeScanner
 {
   using System;
-  using System.Windows.Forms;
-  using Symbol;
-  using Symbol.Barcode;
-  using dMobile.Bedrock;
+    using Symbol;
+    using Symbol.Barcode;
+    using dMobile.Bedrock;
 
   /// <summary>
   /// This is the barcode scanner class for Symbol devices.
@@ -177,49 +176,52 @@ namespace dMobile.BarCodeScanner
           }
           catch (RuleViolationException ex)
           {
-#if MULTILANGUAGE
-            MessageBox.Show(Translator.GetInstance().Translate(TranslatorVocabulary.BarCodeRuleViolation) + Environment.NewLine + ex.Message,
-                Translator.GetInstance().Translate(TranslatorVocabulary.ScanEngine),
-#else
-            MessageBox.Show("Bar code rule violation." + Environment.NewLine + ex.Message,
-                "Scan Engine.",
-#endif
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Exclamation,
-                MessageBoxDefaultButton.Button1);
+                        // TODO: Create pop up and add logging
+                        //#if MULTILANGUAGE
+                        //            MessageBox.Show(Translator.GetInstance().Translate(TranslatorVocabulary.BarCodeRuleViolation) + Environment.NewLine + ex.Message,
+                        //                Translator.GetInstance().Translate(TranslatorVocabulary.ScanEngine),
+                        //#else
+                        //            MessageBox.Show("Bar code rule violation." + Environment.NewLine + ex.Message,
+                        //                "Scan Engine.",
+                        //#endif
+                        //                MessageBoxButtons.OK,
+                        //                MessageBoxIcon.Exclamation,
+                        //                MessageBoxDefaultButton.Button1);
           }
           catch (BarCodeParseException ex)
           {
               this.Stop();
-              MessageBox.Show(
-#if MULTILANGUAGE
-                  Translator.GetInstance().Translate(TranslatorVocabulary.BarCodeParseException) + Environment.NewLine + ex.Message,
-#else
-                  "Bar Code Parse Exception" + Environment.NewLine + ex.Message,
-#endif
-                  "Scan Engine",
-                  MessageBoxButtons.OK,
-                  MessageBoxIcon.Exclamation,
-                  MessageBoxDefaultButton.Button1);
-          }
-          catch (Exception ex)
+                        // TODO: Create pop up and add logging
+                        //              MessageBox.Show(
+                        //#if MULTILANGUAGE
+                        //                  Translator.GetInstance().Translate(TranslatorVocabulary.BarCodeParseException) + Environment.NewLine + ex.Message,
+                        //#else
+                        //                  "Bar Code Parse Exception" + Environment.NewLine + ex.Message,
+                        //#endif
+                        //                  "Scan Engine",
+                        //                  MessageBoxButtons.OK,
+                        //                  MessageBoxIcon.Exclamation,
+                        //                  MessageBoxDefaultButton.Button1);
+                    }
+                    catch (Exception ex)
           {
             string msg = ex.Message;
             this.Stop();
 
-            MessageBox.Show(msg,
-#if MULTILANGUAGE
-                Translator.GetInstance().Translate(TranslatorVocabulary.ScanEngine),
-#else
-                "Scan Engine.",
-#endif
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Exclamation,
-                MessageBoxDefaultButton.Button1);
-          }
+                        // TODO: Create pop up and add logging
+                        //            MessageBox.Show(msg,
+                        //#if MULTILANGUAGE
+                        //                Translator.GetInstance().Translate(TranslatorVocabulary.ScanEngine),
+                        //#else
+                        //                "Scan Engine.",
+                        //#endif
+                        //                MessageBoxButtons.OK,
+                        //                MessageBoxIcon.Exclamation,
+                        //                MessageBoxDefaultButton.Button1);
+                    }
 
-          // Start the next scan
-          this.Start();
+                    // Start the next scan
+                    this.Start();
           break;
 
         case Results.CANCELED:

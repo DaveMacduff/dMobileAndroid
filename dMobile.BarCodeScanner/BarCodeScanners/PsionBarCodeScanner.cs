@@ -1,5 +1,4 @@
-﻿using System.Windows.Forms;
-using dMobile.Bedrock;
+﻿using dMobile.Bedrock;
 using PsionTeklogix.Barcode;
 using PsionTeklogix.Barcode.ScannerServices;
 using System;
@@ -170,29 +169,31 @@ namespace dMobile.BarCodeScanner
             }
             catch (RuleViolationException ex)
             {
-#if MULTILANGUAGE
-        MessageBox.Show(Translator.GetInstance().Translate(TranslatorVocabulary.BarCodeRuleViolation) + Environment.NewLine + ex.Message, 
-            Translator.GetInstance().Translate(TranslatorVocabulary.ScanEngine), 
-#else
-                MessageBox.Show("Bar code rule violation." + Environment.NewLine + ex.Message,
-                    "Scan Engine.",
-#endif
- MessageBoxButtons.OK,
-                    MessageBoxIcon.Exclamation,
-                    MessageBoxDefaultButton.Button1);
+                // TODO: Add pop up
+//#if MULTILANGUAGE
+//        MessageBox.Show(Translator.GetInstance().Translate(TranslatorVocabulary.BarCodeRuleViolation) + Environment.NewLine + ex.Message, 
+//            Translator.GetInstance().Translate(TranslatorVocabulary.ScanEngine), 
+//#else
+//                MessageBox.Show("Bar code rule violation." + Environment.NewLine + ex.Message,
+//                    "Scan Engine.",
+//#endif
+// MessageBoxButtons.OK,
+//                    MessageBoxIcon.Exclamation,
+//                    MessageBoxDefaultButton.Button1);
             }
             catch (BarCodeParseException ex)
             {
-                MessageBox.Show(
-#if MULTILANGUAGE
-                Translator.GetInstance().Translate(TranslatorVocabulary.BarCodeParseException) + Environment.NewLine + ex.Message,
-#else
-"Bar Code Parse Exception" + Environment.NewLine + ex.Message,
-#endif
- "Scan Engine",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Exclamation,
-                    MessageBoxDefaultButton.Button1);
+                // TODO: Add pop up and log
+                //                MessageBox.Show(
+                //#if MULTILANGUAGE
+                //                Translator.GetInstance().Translate(TranslatorVocabulary.BarCodeParseException) + Environment.NewLine + ex.Message,
+                //#else
+                //"Bar Code Parse Exception" + Environment.NewLine + ex.Message,
+                //#endif
+                // "Scan Engine",
+                //                    MessageBoxButtons.OK,
+                //                    MessageBoxIcon.Exclamation,
+                //                    MessageBoxDefaultButton.Button1);
 
                 this.Stop();
                 this.Start();
@@ -202,16 +203,17 @@ namespace dMobile.BarCodeScanner
                 string msg = ex.Message;
                 this.Terminate();
                 this.Initialize();
-
-                MessageBox.Show(msg,
-#if MULTILANGUAGE
-            Translator.GetInstance().Translate(TranslatorVocabulary.ScanEngine),
-#else
- "Scan Engine.",
-#endif
- MessageBoxButtons.OK,
-                    MessageBoxIcon.Exclamation,
-                    MessageBoxDefaultButton.Button1);
+                
+                // TODO: Add pop up and log
+                //                MessageBox.Show(msg,
+                //#if MULTILANGUAGE
+                //            Translator.GetInstance().Translate(TranslatorVocabulary.ScanEngine),
+                //#else
+                // "Scan Engine.",
+                //#endif
+                // MessageBoxButtons.OK,
+                //                    MessageBoxIcon.Exclamation,
+                //                    MessageBoxDefaultButton.Button1);
             }
         }
 
