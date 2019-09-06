@@ -1,5 +1,4 @@
-﻿// ----------------------------------------------------------------------
-// <copyright file="CommunicationSetup.cs" company="InterSect Business Systems Inc.">
+﻿// <copyright file="CommunicationSetup.cs" company="InterSect Business Systems Inc.">
 //     Copyright statement. All right reserved
 // </copyright>
 //

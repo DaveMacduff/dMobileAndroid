@@ -3,6 +3,7 @@ namespace dMobile.Bedrock
     using System;
     using System.Collections.Generic;
     using System.Data;
+    using System.Data.SQLite;
     using System.IO;
     using System.Net.Sockets;
     using System.Reflection;
@@ -1857,11 +1858,10 @@ namespace dMobile.Bedrock
             sql.Append("INNER JOIN tActivityDetail ON tActivityDetail.ActivityItemRefno = tActivityItem.ActivityItemRefno ");
             sql.AppendFormat("WHERE tActivityDetail.ActivityDetailStatus <> {0}", (int)ActStatus.NoChange);
 
-            using (SqlCeCommand cmndDetail = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+            using (SQLiteCommand cmndDetail = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
             {
                 cmndDetail.CommandText = sql.ToString();
                 cmndDetail.CommandType = CommandType.Text;
-                cmndDetail.IndexName = string.Empty;
 
                 if (cmndDetail.ExecuteNonQuery() != 0)
                 {

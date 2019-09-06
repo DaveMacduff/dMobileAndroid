@@ -1,38 +1,60 @@
 ﻿namespace dMobile.Bedrock
 {
-    using SQLite;
+    using System.Data.SQLite;
     using System.Data;
     using System.IO;
     using System.Reflection;
 
+    /// <summary>
+    /// Defines the <see cref="DatabaseConnection" />
+    /// </summary>
     public class DatabaseConnection
     {
-        #region Fields
-
+        /// <summary>
+        /// Defines the dataConnUniq
+        /// </summary>
         private static DatabaseConnection dataConnUniq;
-        private static SQLiteConnection sqlConn = null;
-        private static string dbPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase) + "\\";
-        private static string dbName = "dMobile.sqlite";
-        private static string dbASCIIZ = string.Empty;
-        private static string dbPassword = "dMobile";
-        private static string connString = string.Empty;
-
-        #endregion
-
-        #region Constructors
 
         /// <summary>
-        /// 
+        /// Defines the sqlConn
         /// </summary>
-        /// <remarks></remarks>
+        private static SQLiteConnection sqlConn = null;
+
+        /// <summary>
+        /// Defines the dbPath
+        /// </summary>
+        private static string dbPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase) + "\\";
+
+        /// <summary>
+        /// Defines the dbName
+        /// </summary>
+        private static string dbName = "dMobile.sqlite";
+
+        /// <summary>
+        /// Defines the dbASCIIZ
+        /// </summary>
+        private static string dbASCIIZ = string.Empty;
+
+        /// <summary>
+        /// Defines the dbPassword
+        /// </summary>
+        private static string dbPassword = "dMobile";
+
+        /// <summary>
+        /// Defines the connString
+        /// </summary>
+        private static string connString = string.Empty;
+
+        /// <summary>
+        /// Prevents a default instance of the <see cref="DatabaseConnection"/> class from being created.
+        /// </summary>
         private DatabaseConnection()
         {
         }
 
-        #endregion
-
-        #region Properties
-
+        /// <summary>
+        /// Gets or sets the DataConnUniq
+        /// </summary>
         public DatabaseConnection DataConnUniq
         {
             get
@@ -46,6 +68,9 @@
             }
         }
 
+        /// <summary>
+        /// Gets or sets the ConnString
+        /// </summary>
         public string ConnString
         {
             get
@@ -59,6 +84,9 @@
             }
         }
 
+        /// <summary>
+        /// Gets or sets the DBASCIIZ
+        /// </summary>
         public string DBASCIIZ
         {
             get
@@ -72,6 +100,9 @@
             }
         }
 
+        /// <summary>
+        /// Gets or sets the DBPath
+        /// </summary>
         public string DBPath
         {
             get
@@ -85,6 +116,9 @@
             }
         }
 
+        /// <summary>
+        /// Gets the DBPassword
+        /// </summary>
         public string DBPassword
         {
             get
@@ -93,6 +127,9 @@
             }
         }
 
+        /// <summary>
+        /// Gets the DBName
+        /// </summary>
         public string DBName
         {
             get
@@ -101,6 +138,9 @@
             }
         }
 
+        /// <summary>
+        /// Gets the SQLConn
+        /// </summary>
         public SQLiteConnection SQLConn
         {
             get
@@ -109,15 +149,10 @@
             }
         }
 
-        #endregion
-
-        #region Public Members
-
         /// <summary>
-        /// 
+        /// The GetInstance
         /// </summary>
         /// <returns></returns>
-        /// <remarks></remarks>
         public static DatabaseConnection GetInstance()
         {
             if (dataConnUniq == null)
@@ -133,73 +168,68 @@
         }
 
         /// <summary>
-        /// 
+        /// The OpenDataBaseConnection
         /// </summary>
-        /// <remarks></remarks>
         public static void OpenDataBaseConnection()
         {
             if (File.Exists(dbASCIIZ) & sqlConn == null)
             {
-                sqlConn = new SQLiteConnection(dbASCIIZ);
+                sqlConn = new SQLiteConnection(connString);
             }
 
-            //if (sqlConn != null)
-            //{
-                //if (sqlConn.State == ConnectionState.Closed)
-                //{
-                    //sqlConn.Open();
-                //}
-            //}
+            if (sqlConn != null)
+            {
+                if (sqlConn.State == ConnectionState.Closed)
+                {
+                    sqlConn.Open();
+                }
+            }
         }
 
         /// <summary>
-        /// 
+        /// The DisposeDataBaseConnection
         /// </summary>
-        /// <remarks></remarks>
         public static void DisposeDataBaseConnection()
         {
             if (sqlConn != null)
             {
-                //if (sqlConn.State == ConnectionState.Closed)
-                //{
+                if (sqlConn.State == ConnectionState.Closed)
+                {
                     sqlConn.Dispose();
                     sqlConn = null;
                     dataConnUniq = null;
-                //}
+                }
             }
         }
 
         /// <summary>
-        /// 
+        /// The CloseDataBaseConnection
         /// </summary>
-        /// <remarks></remarks>
         public static void CloseDataBaseConnection()
         {
             if (sqlConn != null)
             {
-                //if (sqlConn.State == ConnectionState.Open)
-                //{
+                if (sqlConn.State == ConnectionState.Open)
+                {
                     sqlConn.Close();
-                //}
+                }
             }
         }
 
         /// <summary>
-        /// 
+        /// The IsDataBaseConnectionOpen
         /// </summary>
-        /// <remarks></remarks>
+        /// <returns>The <see cref="bool"/></returns>
         public static bool IsDataBaseConnectionOpen()
         {
-            //bool isConnOpen = false;
+            bool isConnOpen = false;
 
-            //if (!(sqlConn.State == ConnectionState.Open))
-            //{
-            //    isConnOpen = true;
-            //}
+            if (!(sqlConn.State == ConnectionState.Open))
+            {
+                isConnOpen = true;
+            }
 
-            return true;
+            return isConnOpen;
         }
-
-        #endregion
     }
 }

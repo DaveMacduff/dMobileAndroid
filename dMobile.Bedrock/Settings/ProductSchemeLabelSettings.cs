@@ -4,7 +4,7 @@ namespace dMobile.Bedrock
   using System.Collections;
   using System.Collections.Generic;
   using System.Data;
-  
+  using System.Data.SQLite;
   using System.IO;
   using System.Net.Sockets;
   using System.Reflection;
@@ -12,7 +12,6 @@ namespace dMobile.Bedrock
   using System.Xml;
   using System.Xml.Linq;
   using System.Xml.Serialization;
-  using Microsoft.VisualBasic;
 
   /// <summary>
   /// Printer Settings Class
@@ -454,22 +453,28 @@ namespace dMobile.Bedrock
               this.OnProdSchemeLabelSettingsProgressOut(this, msgArg);
             }
              
-            using (SqlCeCommand cmndScheme = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+            using (SQLiteCommand cmndScheme = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
             {
-              cmndScheme.CommandText = "tProductScheme";
-              cmndScheme.CommandType = CommandType.TableDirect;
-              cmndScheme.IndexName = "UQ_ProductSchemeOnProductSchemeCode";
+              HashSet<string> productSchemeCodes = new HashSet<string>();
+              cmndScheme.CommandText = "SELECT * FROM tProductScheme";
+              cmndScheme.CommandType = CommandType.Text;
 
-              using (SqlCeDataReader drScheme = cmndScheme.ExecuteReader())
+              using (SQLiteDataReader drScheme = cmndScheme.ExecuteReader())
               {
+                while (drScheme.Read())
+                {
+                    productSchemeCodes.Add(drScheme["ProductSchemeCode"].ToString());
+                }
+
                 this.AllProdSchemeLabel.Clear();
                 int progValue = 0;
                 ProdSchemeLabelInfo schemeLblInfo = new ProdSchemeLabelInfo();
                 foreach (DataRow drow in ds.Tables["seg"].Rows)
                 {
                   schemeCode = Convert.ToString(drow["ProductSchemeCode"]);
-                  errMsg = "Scheme code \'" + errMsg + "\'";
-                  if (!drScheme.Seek(DbSeekOptions.FirstEqual, new object[] { schemeCode }))
+                  errMsg = "Scheme code \'" + errMsg + "\'"; 
+
+                  if (!productSchemeCodes.Contains(schemeCode))
                   {
                     throw new Exception("Unable to locate the product scheme code in tProductScheme." 
                         + Environment.NewLine + errMsg);
@@ -499,6 +504,8 @@ namespace dMobile.Bedrock
                     msgArg.MaxValue = progMax;
                     this.OnProdSchemeLabelSettingsProgressOut(this, msgArg);
                   }
+
+                  productSchemeCodes.Clear();
                 }
 
                 if (this.OnProdSchemeLabelSettingsProgressOut != null)
@@ -523,7 +530,7 @@ namespace dMobile.Bedrock
           }
         }
       }
-      catch (SqlCeException ex)
+      catch (SQLiteException ex)
       {
         if (this.OnProdSchemeLabelSettingsStatusOut != null)
         {

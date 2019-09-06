@@ -2,7 +2,7 @@ namespace dMobile.Bedrock
 {
     using System;
     using System.Collections.Generic;
-    
+    using System.Data.SQLite;
     using System.IO;
     using System.Net.Sockets;
     using System.Reflection;
@@ -705,7 +705,7 @@ namespace dMobile.Bedrock
                     }
                 }
             }
-            catch (SqlCeException ex)
+            catch (SQLiteException ex)
             {
                 if (this.OnContactLoginStatusOut != null)
                 {
@@ -803,7 +803,7 @@ namespace dMobile.Bedrock
                     }
                 }
             }
-            catch (SqlCeException ex)
+            catch (SQLiteException ex)
             {
                 if (this.OnContactLoginStatusOut != null)
                 {
@@ -858,7 +858,7 @@ namespace dMobile.Bedrock
             XmlWriter xml = XmlWriter.Create(xmlString);
             string deviceID = SysDeviceID.GetDeviceID();
             RefreshDataOptions refreshOpt = new RefreshDataOptions().LoadData();
-            string revision = DateAndTime.Now.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
+            string revision = DateTime.Now.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
             ContactLogin login = new ContactLogin().LoadData();
             string loginID = login.LoginID.ToString();
 
@@ -889,7 +889,7 @@ namespace dMobile.Bedrock
             XmlWriter xml = XmlWriter.Create(xmlString);
             string deviceID = SysDeviceID.GetDeviceID();
             RefreshDataOptions refreshOpt = new RefreshDataOptions().LoadData();
-            string revision = DateAndTime.Now.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
+            string revision = DateTime.Now.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
             ContactLogin login = new ContactLogin().LoadData();
             string loginID = login.LoginID.ToString();
 
