@@ -92,7 +92,7 @@ namespace dMobile.GroundWork
 #else
         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product scheme variant xref.", true);
 #endif
-        using (SqlCeCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
         {
           // Note should tProductSchemeVariants be purged too?
 
@@ -129,7 +129,7 @@ namespace dMobile.GroundWork
 
       try
       {
-        using (SqlCeCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        using (SQLiteCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
         {
           cmndStatus.CommandText = "SELECT COUNT(*) FROM tProductSchemeVariantXRef";
           cmndStatus.CommandType = CommandType.Text;
@@ -203,30 +203,30 @@ namespace dMobile.GroundWork
 #endif
                 false);
 
-            using (SqlCeCommand cmndSchemeVarXRef = conn.CreateCommand())
+            using (SQLiteCommand cmndSchemeVarXRef = conn.CreateCommand())
             {
               cmndSchemeVarXRef.CommandText = "tProductSchemeVariantXRef";
               cmndSchemeVarXRef.CommandType = CommandType.TableDirect;
               cmndSchemeVarXRef.IndexName =
                   "PK_ProductSchemeVariantXRefOnProductSchemeRefnoAndProductSchemeVariantRefno";
 
-              using (SqlCeDataReader drSchemeVarXRef = cmndSchemeVarXRef.ExecuteReader())
+              using (SqliteDataReader drSchemeVarXRef = cmndSchemeVarXRef.ExecuteReader())
               {
-                using (SqlCeCommand cmndScheme = conn.CreateCommand())
+                using (SQLiteCommand cmndScheme = conn.CreateCommand())
                 {
                   cmndScheme.CommandText = "tProductScheme";
                   cmndScheme.IndexName = "UQ_ProductSchemeOnProductSchemeCode";
                   cmndScheme.CommandType = CommandType.TableDirect;
 
-                  using (SqlCeDataReader drScheme = cmndScheme.ExecuteReader())
+                  using (SqliteDataReader drScheme = cmndScheme.ExecuteReader())
                   {
-                    using (SqlCeCommand cmndSchemeVar = conn.CreateCommand())
+                    using (SQLiteCommand cmndSchemeVar = conn.CreateCommand())
                     {
                       cmndSchemeVar.CommandText = "tProductSchemeVariant";
                       cmndSchemeVar.IndexName = "UQ_ProductSchemeVariantOnProductSchemeVariantNo";
                       cmndSchemeVar.CommandType = CommandType.TableDirect;
 
-                      using (SqlCeDataReader drSchemeVar = cmndSchemeVar.ExecuteReader())
+                      using (SqliteDataReader drSchemeVar = cmndSchemeVar.ExecuteReader())
                       {
                         using (SqlCeResultSet rs = cmndSchemeVarXRef.ExecuteResultSet(ResultSetOptions.Updatable))
                         {

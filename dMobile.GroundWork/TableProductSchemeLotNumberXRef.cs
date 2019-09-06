@@ -96,7 +96,7 @@ namespace dMobile.GroundWork
         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product scheme lot number xref.", true);
 #endif
 
-        using (SqlCeCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
         {
           cmndPurge.CommandText = "DELETE FROM tProductSchemeLotNumber";
           cmndPurge.CommandType = CommandType.Text;
@@ -148,7 +148,7 @@ namespace dMobile.GroundWork
 
       try
       {
-        using (SqlCeCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        using (SQLiteCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
         {
           cmndStatus.CommandText = "SELECT COUNT(*) FROM tProductSchemeLotNumberXRef";
           cmndStatus.CommandType = CommandType.Text;
@@ -221,30 +221,30 @@ namespace dMobile.GroundWork
 #endif
                 false);
 
-            using (SqlCeCommand cmndSchemeLotXRef = conn.CreateCommand())
+            using (SQLiteCommand cmndSchemeLotXRef = conn.CreateCommand())
             {
               cmndSchemeLotXRef.CommandText = "tProductSchemeLotNumberXRef";
               cmndSchemeLotXRef.CommandType = CommandType.TableDirect;
               cmndSchemeLotXRef.IndexName = 
                   "PK_ProductSchemeLotNumberXRefOnProductSchemeRefnoAndProductSchemeLotNumberRefno";
 
-              using (SqlCeDataReader drSchemeLotXRef = cmndSchemeLotXRef.ExecuteReader())
+              using (SqliteDataReader drSchemeLotXRef = cmndSchemeLotXRef.ExecuteReader())
               {
-                using (SqlCeCommand cmndGetScheme = conn.CreateCommand())
+                using (SQLiteCommand cmndGetScheme = conn.CreateCommand())
                 {
                   cmndGetScheme.CommandText = "tProductScheme";
                   cmndGetScheme.IndexName = "UQ_ProductSchemeOnProductSchemeCode";
                   cmndGetScheme.CommandType = CommandType.TableDirect;
 
-                  using (SqlCeDataReader drScheme = cmndGetScheme.ExecuteReader())
+                  using (SqliteDataReader drScheme = cmndGetScheme.ExecuteReader())
                   {
-                    using (SqlCeCommand cmndGetSchemeLot = conn.CreateCommand())
+                    using (SQLiteCommand cmndGetSchemeLot = conn.CreateCommand())
                     {
                       cmndGetSchemeLot.CommandText = "tProductSchemeLotNumber";
                       cmndGetSchemeLot.IndexName = "UQ_ProductSchemeLotNumberOnProductSchemeLotNumberCode";
                       cmndGetSchemeLot.CommandType = CommandType.TableDirect;
 
-                      using (SqlCeDataReader drSchemeLot = cmndGetSchemeLot.ExecuteReader())
+                      using (SqliteDataReader drSchemeLot = cmndGetSchemeLot.ExecuteReader())
                       {
                         using (SqlCeResultSet rs = cmndSchemeLotXRef.ExecuteResultSet(ResultSetOptions.Updatable))
                         {

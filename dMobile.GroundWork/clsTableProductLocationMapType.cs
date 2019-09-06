@@ -38,12 +38,12 @@ namespace dMobile.GroundWork
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding product locations.", true);
 #endif
 
-                using (SqlCeCommand cmndLocMapWhs = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                using (SQLiteCommand cmndLocMapWhs = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
                 {
                     cmndLocMapWhs.CommandText = "tLocationMapWarehouse";
                     cmndLocMapWhs.CommandType = CommandType.TableDirect;
                     cmndLocMapWhs.IndexName = "UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno";
-                    using (SqlCeDataReader drLocMapWhs = cmndLocMapWhs.ExecuteReader())
+                    using (SqliteDataReader drLocMapWhs = cmndLocMapWhs.ExecuteReader())
                     {
                         string whsLocMapName = string.Empty;
                         int whsLocMapFKRefno = 0;
@@ -175,7 +175,7 @@ namespace dMobile.GroundWork
 
             try
             {
-                using (SqlCeCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                using (SQLiteCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
                 {
                     cmndStatus.CommandText = "SELECT COUNT(*) FROM tProductLocationMapType";
                     cmndStatus.CommandType = CommandType.Text;
@@ -225,7 +225,7 @@ namespace dMobile.GroundWork
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product locations.", true);
 #endif
 
-                using (SqlCeCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
                 {
                     cmndPurge.CommandText = "DELETE FROM tProductLocationMapType";
                     cmndPurge.CommandType = CommandType.Text;
@@ -312,52 +312,52 @@ namespace dMobile.GroundWork
 #endif
  false);
 
-                        using (SqlCeCommand cmndLocMapType = conn.CreateCommand())
+                        using (SQLiteCommand cmndLocMapType = conn.CreateCommand())
                         {
                             cmndLocMapType.CommandText = "tProductLocationMapType";
                             cmndLocMapType.CommandType = CommandType.TableDirect;
                             cmndLocMapType.IndexName =
                                   "FK_ProductLocationMapTypeOnWarehouseLocationMapRefnoAndProductRefnoAndProductLocationMapTypeEnum";
 
-                            using (SqlCeCommand cmndLocMapTypeUpdate = conn.CreateCommand())
+                            using (SQLiteCommand cmndLocMapTypeUpdate = conn.CreateCommand())
                             {
                                 cmndLocMapTypeUpdate.CommandText = string.Empty;
                                 cmndLocMapTypeUpdate.CommandType = CommandType.Text;
                                 cmndLocMapTypeUpdate.IndexName = string.Empty;
 
-                                using (SqlCeDataReader drLocMapType = cmndLocMapType.ExecuteReader())
+                                using (SqliteDataReader drLocMapType = cmndLocMapType.ExecuteReader())
                                 {
-                                    using (SqlCeCommand cmndProd = conn.CreateCommand())
+                                    using (SQLiteCommand cmndProd = conn.CreateCommand())
                                     {
                                         cmndProd.CommandText = "tProduct";
                                         cmndProd.IndexName = "UQ_ProductOnProductFKRefno";
                                         cmndProd.CommandType = CommandType.TableDirect;
 
-                                        using (SqlCeDataReader drProd = cmndProd.ExecuteReader())
+                                        using (SqliteDataReader drProd = cmndProd.ExecuteReader())
                                         {
-                                            using (SqlCeCommand cmndWhs = conn.CreateCommand())
+                                            using (SQLiteCommand cmndWhs = conn.CreateCommand())
                                             {
                                                 cmndWhs.CommandText = "tLocationMapWarehouse";
                                                 cmndWhs.IndexName = "UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno";
                                                 cmndWhs.CommandType = CommandType.TableDirect;
 
-                                                using (SqlCeDataReader drWhs = cmndWhs.ExecuteReader())
+                                                using (SqliteDataReader drWhs = cmndWhs.ExecuteReader())
                                                 {
-                                                    using (SqlCeCommand cmndSect = conn.CreateCommand())
+                                                    using (SQLiteCommand cmndSect = conn.CreateCommand())
                                                     {
                                                         cmndSect.CommandText = "tLocationMapSection";
                                                         cmndSect.IndexName = "UQ_LocationMapSectionOnLocationMapSectionFKRefno";
                                                         cmndSect.CommandType = CommandType.TableDirect;
 
-                                                        using (SqlCeDataReader drSect = cmndSect.ExecuteReader())
+                                                        using (SqliteDataReader drSect = cmndSect.ExecuteReader())
                                                         {
-                                                            using (SqlCeCommand cmndSlot = conn.CreateCommand())
+                                                            using (SQLiteCommand cmndSlot = conn.CreateCommand())
                                                             {
                                                                 cmndSlot.CommandText = "tLocationMapSlot";
                                                                 cmndSlot.IndexName = "UQ_LocationMapSlotOnLocationMapSlotFKRefno";
                                                                 cmndSlot.CommandType = CommandType.TableDirect;
 
-                                                                using (SqlCeDataReader drSlot = cmndSlot.ExecuteReader())
+                                                                using (SqliteDataReader drSlot = cmndSlot.ExecuteReader())
                                                                 {
                                                                     using (SqlCeResultSet rs = cmndLocMapType.ExecuteResultSet(
                                                                         ResultSetOptions.Updatable))
@@ -725,12 +725,12 @@ namespace dMobile.GroundWork
 
 
 
-                    using (SqlCeCommand cmndLocMapType = conn.CreateCommand())
-                    using (SqlCeCommand cmndLocMapTypeUpdate = conn.CreateCommand())
-                    using (SqlCeCommand cmndProd = conn.CreateCommand())
-                    using (SqlCeCommand cmndWhs = conn.CreateCommand())
-                    using (SqlCeCommand cmndSect = conn.CreateCommand())
-                    using (SqlCeCommand cmndSlot = conn.CreateCommand())
+                    using (SQLiteCommand cmndLocMapType = conn.CreateCommand())
+                    using (SQLiteCommand cmndLocMapTypeUpdate = conn.CreateCommand())
+                    using (SQLiteCommand cmndProd = conn.CreateCommand())
+                    using (SQLiteCommand cmndWhs = conn.CreateCommand())
+                    using (SQLiteCommand cmndSect = conn.CreateCommand())
+                    using (SQLiteCommand cmndSlot = conn.CreateCommand())
                     {
                         cmndLocMapType.CommandText = "tProductLocationMapType";
                         cmndLocMapType.CommandType = CommandType.TableDirect;
@@ -758,11 +758,11 @@ namespace dMobile.GroundWork
                         cmndSlot.IndexName = "UQ_LocationMapSlotOnLocationMapSlotFKRefno";
                         cmndSlot.CommandType = CommandType.TableDirect;
 
-                        using (SqlCeDataReader drLocMapType = cmndLocMapType.ExecuteReader())
-                        using (SqlCeDataReader drProd = cmndProd.ExecuteReader())
-                        using (SqlCeDataReader drWhs = cmndWhs.ExecuteReader())
-                        using (SqlCeDataReader drSect = cmndSect.ExecuteReader())
-                        using (SqlCeDataReader drSlot = cmndSlot.ExecuteReader())
+                        using (SqliteDataReader drLocMapType = cmndLocMapType.ExecuteReader())
+                        using (SqliteDataReader drProd = cmndProd.ExecuteReader())
+                        using (SqliteDataReader drWhs = cmndWhs.ExecuteReader())
+                        using (SqliteDataReader drSect = cmndSect.ExecuteReader())
+                        using (SqliteDataReader drSlot = cmndSlot.ExecuteReader())
                         using (SqlCeResultSet rs = cmndLocMapType.ExecuteResultSet(
                             ResultSetOptions.Updatable))
                         {

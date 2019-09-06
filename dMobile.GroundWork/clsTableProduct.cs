@@ -46,13 +46,13 @@ namespace dMobile.GroundWork
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding products.", true);
 #endif
 
-                using (SqlCeCommand cmndFamily = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                using (SQLiteCommand cmndFamily = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
                 {
                     cmndFamily.CommandText = "SELECT tFamily.* FROM tFamily";
                     cmndFamily.CommandType = CommandType.Text;
                     cmndFamily.IndexName = "UQ_FamilyOnFamilyCode";
 
-                    using (SqlCeDataReader drFamily = cmndFamily.ExecuteReader())
+                    using (SqliteDataReader drFamily = cmndFamily.ExecuteReader())
                     {
                         while (drFamily.Read())
                         {
@@ -148,7 +148,7 @@ namespace dMobile.GroundWork
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging products.", true);
 #endif
 
-                using (SqlCeCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
                 {
                     cmndPurge.CommandText = "DELETE FROM tProduct";
                     cmndPurge.CommandType = CommandType.Text;
@@ -190,13 +190,13 @@ namespace dMobile.GroundWork
 
             try
             {
-                using (SqlCeCommand cmndProduct = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                using (SQLiteCommand cmndProduct = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
                 {
                     cmndProduct.CommandText = "tProduct";
                     cmndProduct.IndexName = "UQ_ProductOnProductFKRefno";
                     cmndProduct.CommandType = CommandType.TableDirect;
 
-                    using (SqlCeDataReader drProduct = cmndProduct.ExecuteReader())
+                    using (SqliteDataReader drProduct = cmndProduct.ExecuteReader())
                     {
                         drProduct.Seek(DbSeekOptions.FirstEqual, new object[] { prodFKRefno });
                         if (drProduct.Read())
@@ -239,7 +239,7 @@ string.Format("Unable to locate product Refno from product FK Refno {0} in tProd
 
             try
             {
-                using (SqlCeCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.
+                using (SQLiteCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.
                     CreateCommand())
                 {
                     cmndStatus.CommandText = "SELECT COUNT(*) FROM tProduct";
@@ -319,9 +319,9 @@ string.Format("Unable to locate product Refno from product FK Refno {0} in tProd
 #endif
  false);
 
-                        using (SqlCeCommand cmndProd = conn.CreateCommand())
-                        using (SqlCeCommand cmndScheme = conn.CreateCommand())
-                        using (SqlCeCommand cmndFamily = conn.CreateCommand())
+                        using (SQLiteCommand cmndProd = conn.CreateCommand())
+                        using (SQLiteCommand cmndScheme = conn.CreateCommand())
+                        using (SQLiteCommand cmndFamily = conn.CreateCommand())
                         {
                             cmndProd.CommandText = "tProduct";
                             cmndProd.CommandType = CommandType.TableDirect;
@@ -335,9 +335,9 @@ string.Format("Unable to locate product Refno from product FK Refno {0} in tProd
                             cmndFamily.IndexName = "UQ_FamilyOnFamilyCode";
                             cmndFamily.CommandType = CommandType.TableDirect;
 
-                            using (SqlCeDataReader drProduct = cmndProd.ExecuteReader())
-                            using (SqlCeDataReader drScheme = cmndScheme.ExecuteReader())
-                            using (SqlCeDataReader drFamily = cmndFamily.ExecuteReader())
+                            using (SqliteDataReader drProduct = cmndProd.ExecuteReader())
+                            using (SqliteDataReader drScheme = cmndScheme.ExecuteReader())
+                            using (SqliteDataReader drFamily = cmndFamily.ExecuteReader())
                             using (SqlCeResultSet rs = cmndProd.ExecuteResultSet(ResultSetOptions.Updatable))
                             {
                                 int familyRefno = 0;
@@ -563,9 +563,9 @@ string.Format("Unable to locate product Refno from product FK Refno {0} in tProd
                     Dictionary<string, int> schemeCache = new Dictionary<string, int>();
                     Dictionary<string, int> familyCache = new Dictionary<string, int>();
 
-                    using (SqlCeCommand cmndProd = conn.CreateCommand())
-                    using (SqlCeCommand cmndScheme = conn.CreateCommand())
-                    using (SqlCeCommand cmndFamily = conn.CreateCommand())
+                    using (SQLiteCommand cmndProd = conn.CreateCommand())
+                    using (SQLiteCommand cmndScheme = conn.CreateCommand())
+                    using (SQLiteCommand cmndFamily = conn.CreateCommand())
                     {
                         cmndProd.CommandText = "tProduct";
                         cmndProd.CommandType = CommandType.TableDirect;
@@ -579,9 +579,9 @@ string.Format("Unable to locate product Refno from product FK Refno {0} in tProd
                         cmndFamily.IndexName = "UQ_FamilyOnFamilyCode";
                         cmndFamily.CommandType = CommandType.TableDirect;
 
-                        using (SqlCeDataReader drProduct = cmndProd.ExecuteReader())
-                        using (SqlCeDataReader drScheme = cmndScheme.ExecuteReader())
-                        using (SqlCeDataReader drFamily = cmndFamily.ExecuteReader())
+                        using (SqliteDataReader drProduct = cmndProd.ExecuteReader())
+                        using (SqliteDataReader drScheme = cmndScheme.ExecuteReader())
+                        using (SqliteDataReader drFamily = cmndFamily.ExecuteReader())
                         using (SqlCeResultSet rs = cmndProd.ExecuteResultSet(ResultSetOptions.Updatable))
                         {
                             bool isProdFound = false;
@@ -757,7 +757,7 @@ string.Format("Unable to locate product Refno from product FK Refno {0} in tProd
                                         cmndProd.Parameters.Clear();
 
                                         // For optimal performance set parameter type and maximum size
-                                        // https://msdn.microsoft.com/en-us/library/system.data.sqlserverce.sqlcecommand.parameters(v=vs.100).aspx
+                                        // https://msdn.microsoft.com/en-us/library/system.data.sqlserverce.SQLiteCommand.parameters(v=vs.100).aspx
                                         SqlCeParameter schemeRefnoParam = new SqlCeParameter("@SchemeRefno", SqlDbType.Int);
                                         SqlCeParameter prodCodeParam = new SqlCeParameter("@ProdCode", SqlDbType.NVarChar, 10);
                                         SqlCeParameter famRefnoParam = new SqlCeParameter("@FamilyRefno", SqlDbType.Int);

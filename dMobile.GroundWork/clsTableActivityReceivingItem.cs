@@ -2,7 +2,7 @@ namespace dMobile.GroundWork
 {
   using System;
   using System.Data;
-  
+  using System.Data.SQLite;
   using System.Text;
   using System.Xml;
   using System.Xml.Linq;
@@ -44,14 +44,14 @@ namespace dMobile.GroundWork
 
         if (actRefno == 0)
         {
-          using (SqlCeCommand cmndRecv = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+          using (SQLiteCommand cmndRecv = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
           {
             cmndRecv.CommandType = CommandType.Text;
             cmndRecv.CommandText = "SELECT tActivity.ActivityRefno " 
                 + "FROM tActivity " 
                 + "WHERE tActivity.ActivitySubType = " + (int)SysCommon.ActSubTypes.Receiving;
 
-            using (SqlCeDataReader drRecv = cmndRecv.ExecuteReader())
+            using (SQLiteDataReader drRecv = cmndRecv.ExecuteReader())
             {
               while (drRecv.Read())
               {
@@ -96,7 +96,7 @@ namespace dMobile.GroundWork
         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding receiving items complete.", true);
 #endif
       }
-      catch (SqlCeException ex)
+      catch (SQLiteException ex)
       {
 #if MULTILANGUAGE
         this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), false);
@@ -138,7 +138,7 @@ namespace dMobile.GroundWork
 
       try
       {
-        using (SqlCeCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        using (SQLiteCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
         {
           cmndStatus.CommandType = CommandType.Text;
           cmndStatus.CommandText = "SELECT COUNT(tActivityItem.ActivityItemRefno) " 
@@ -158,7 +158,7 @@ namespace dMobile.GroundWork
               true);
         }
       }
-      catch (SqlCeException ex)
+      catch (SQLiteException ex)
       {
 #if MULTILANGUAGE
         throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredReceivingItemsStatusFailed), ex);
@@ -184,7 +184,7 @@ namespace dMobile.GroundWork
         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging receiving items.", true);
 #endif
 
-        using (SqlCeCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
         {
           cmndPurge.CommandText = "DELETE FROM tActivityItemBarCodeAssociationXRef " 
               + "WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno IN " 
@@ -211,7 +211,7 @@ namespace dMobile.GroundWork
         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging receiving items complete.", true);
 #endif
       }
-      catch (SqlCeException ex)
+      catch (SQLiteException ex)
       {
 #if MULTILANGUAGE
         this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), true);
@@ -242,13 +242,13 @@ namespace dMobile.GroundWork
     {
       int recvFKRefno = 0;
 
-      using (SqlCeCommand cmndRecv = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+      using (SQLiteCommand cmndRecv = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
       {
         cmndRecv.CommandText = "tActivityReceiving";
         cmndRecv.CommandType = CommandType.TableDirect;
-        cmndRecv.IndexName = "PK_ActivityReceivingOnActivityRefno";
+        //cmndRecv.IndexName = "PK_ActivityReceivingOnActivityRefno";
 
-        using (SqlCeDataReader drRecv = cmndRecv.ExecuteReader())
+        using (SQLiteDataReader drRecv = cmndRecv.ExecuteReader())
         {
           if (drRecv.Seek(DbSeekOptions.FirstEqual, new object[] { actRefno }))
           {
@@ -320,19 +320,19 @@ namespace dMobile.GroundWork
 #endif
                 false);
 
-            using (SqlCeCommand cmndRecvItem = conn.CreateCommand())
+            using (SQLiteCommand cmndRecvItem = conn.CreateCommand())
             {
               cmndRecvItem.CommandText = "tActivityItemReceiving";
               cmndRecvItem.CommandType = CommandType.TableDirect;
-              cmndRecvItem.IndexName = "UQ_ActivityItemReceivingOnActivityItemReceivingFKRefno";
+              //cmndRecvItem.IndexName = "UQ_ActivityItemReceivingOnActivityItemReceivingFKRefno";
 
-              using (SqlCeCommand cmndRecvItemComment = conn.CreateCommand())
+              using (SQLiteCommand cmndRecvItemComment = conn.CreateCommand())
               {
                 cmndRecvItemComment.CommandText = "tActivityItemReceivingComment";
                 cmndRecvItemComment.CommandType = CommandType.TableDirect;
-                cmndRecvItemComment.IndexName = "PK_ActivityItemReceivingCommentOnActivityItemRefno";
+                //cmndRecvItemComment.IndexName = "PK_ActivityItemReceivingCommentOnActivityItemRefno";
 
-                using (SqlCeCommand cmndItem = conn.CreateCommand())
+                using (SQLiteCommand cmndItem = conn.CreateCommand())
                 {
                   cmndItem.CommandText = "tActivityItem";
                   cmndItem.CommandType = CommandType.TableDirect;
@@ -341,39 +341,39 @@ namespace dMobile.GroundWork
                   {
                     SqlCeUpdatableRecord recItem = rsItem.CreateRecord();
 
-                    using (SqlCeCommand cmndProdUnit = conn.CreateCommand())
+                    using (SQLiteCommand cmndProdUnit = conn.CreateCommand())
                     {
                       cmndProdUnit.CommandText = "tProductUnit";
                       cmndProdUnit.CommandType = CommandType.TableDirect;
-                      cmndProdUnit.IndexName = "UQ_ProductUnitOnProductRefnoAndUnitRefnoAndProductUnitIsBC";
+                      //cmndProdUnit.IndexName = "UQ_ProductUnitOnProductRefnoAndUnitRefnoAndProductUnitIsBC";
 
-                      using (SqlCeDataReader drProdUnit = cmndProdUnit.ExecuteReader())
+                      using (SQLiteDataReader drProdUnit = cmndProdUnit.ExecuteReader())
                       {
-                        using (SqlCeCommand cmndProd = conn.CreateCommand())
+                        using (SQLiteCommand cmndProd = conn.CreateCommand())
                         {
                           cmndProd.CommandText = "tProduct";
-                          cmndProd.IndexName = "UQ_ProductOnProductFKRefno";
+                          //cmndProd.IndexName = "UQ_ProductOnProductFKRefno";
                           cmndProd.CommandType = CommandType.TableDirect;
 
-                          using (SqlCeDataReader drProd = cmndProd.ExecuteReader())
+                          using (SQLiteDataReader drProd = cmndProd.ExecuteReader())
                           {
-                            using (SqlCeCommand cmndUnit = conn.CreateCommand())
+                            using (SQLiteCommand cmndUnit = conn.CreateCommand())
                             {
                               cmndUnit.CommandText = "tUnit";
-                              cmndUnit.IndexName = "UQ_UnitOnUnitCode";
+                              //cmndUnit.IndexName = "UQ_UnitOnUnitCode";
                               cmndUnit.CommandType = CommandType.TableDirect;
 
-                              using (SqlCeDataReader drUnit = cmndUnit.ExecuteReader())
+                              using (SQLiteDataReader drUnit = cmndUnit.ExecuteReader())
                               {
-                                using (SqlCeCommand cmndLocMapWhs = conn.CreateCommand())
+                                using (SQLiteCommand cmndLocMapWhs = conn.CreateCommand())
                                 {
                                   cmndLocMapWhs.CommandText = "tLocationMapWarehouse";
                                   cmndLocMapWhs.CommandType = CommandType.TableDirect;
-                                  cmndLocMapWhs.IndexName = "UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno";
+                                  //cmndLocMapWhs.IndexName = "UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno";
 
-                                  using (SqlCeDataReader drLocMapWhs = cmndLocMapWhs.ExecuteReader())
+                                  using (SQLiteDataReader drLocMapWhs = cmndLocMapWhs.ExecuteReader())
                                   {
-                                    using (SqlCeCommand cmndID = conn.CreateCommand())
+                                    using (SQLiteCommand cmndID = conn.CreateCommand())
                                     {
                                       cmndID.CommandText = "SELECT @@IDENTITY";
                                       cmndID.CommandType = CommandType.Text;
@@ -546,7 +546,7 @@ namespace dMobile.GroundWork
 #endif
         }
       }
-      catch (SqlCeException ex)
+      catch (SQLiteException ex)
       {
 #if MULTILANGUAGE
         this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), true);
@@ -626,9 +626,9 @@ namespace dMobile.GroundWork
     private int GetProductXRefUnitRefnoFromDataRow(
         DataRow drow,
         ref string errMsg,
-        SqlCeDataReader drProduct,
-        SqlCeDataReader drUnit,
-        SqlCeDataReader drProdUnit)
+        SQLiteDataReader drProduct,
+        SQLiteDataReader drUnit,
+        SQLiteDataReader drProdUnit)
     {
       int prodRefno = 0;
       int prodFKRefno = Convert.ToInt32(drow["ProductFKRefno"]);

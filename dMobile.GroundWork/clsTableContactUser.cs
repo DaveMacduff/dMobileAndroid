@@ -88,7 +88,7 @@ namespace dMobile.GroundWork
 
       try
       {
-        using (SqlCeCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        using (SQLiteCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
         {
           cmndStatus.CommandText = "SELECT COUNT(*) FROM tContactUser";
           cmndStatus.CommandType = CommandType.Text;
@@ -131,7 +131,7 @@ namespace dMobile.GroundWork
         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging users.", true);
 #endif
 
-        using (SqlCeCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
         {
           cmndPurge.CommandText = "DELETE FROM tContactUser";
           cmndPurge.CommandType = CommandType.Text;
@@ -172,13 +172,13 @@ namespace dMobile.GroundWork
 
       try
       {
-        using (SqlCeCommand cmndUser = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        using (SQLiteCommand cmndUser = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
         {
           cmndUser.CommandText = "tContactUser";
           cmndUser.CommandType = CommandType.TableDirect;
           cmndUser.IndexName = "UQ_ContactUserOnContactUserCode";
 
-          using (SqlCeCommand cmndContact = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+          using (SQLiteCommand cmndContact = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
           {
             cmndContact.CommandText = "tContact";
             cmndContact.CommandType = CommandType.TableDirect;
@@ -187,7 +187,7 @@ namespace dMobile.GroundWork
             {
               SqlCeUpdatableRecord recContact = rsContact.CreateRecord();
 
-              using (SqlCeCommand cmndID = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+              using (SQLiteCommand cmndID = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
               {
                 cmndID.CommandText = "SELECT @@IDENTITY";
                 cmndID.CommandType = CommandType.Text;
@@ -196,7 +196,7 @@ namespace dMobile.GroundWork
                 {
                   SqlCeUpdatableRecord rec = rs.CreateRecord();
 
-                  using (SqlCeDataReader drUser = cmndUser.ExecuteReader())
+                  using (SqliteDataReader drUser = cmndUser.ExecuteReader())
                   {
                     int contactRefno = 0;
                     int contactCode = 0;
@@ -341,12 +341,12 @@ namespace dMobile.GroundWork
 #endif
                 false);
 
-            using (SqlCeCommand cmndUser = conn.CreateCommand())
+            using (SQLiteCommand cmndUser = conn.CreateCommand())
             {
               cmndUser.CommandText = "tContactUser";
               cmndUser.CommandType = CommandType.TableDirect;
 
-              using (SqlCeCommand cmndContact = conn.CreateCommand())
+              using (SQLiteCommand cmndContact = conn.CreateCommand())
               {
                 cmndContact.CommandText = "tContact";
                 cmndContact.CommandType = CommandType.TableDirect;
@@ -355,7 +355,7 @@ namespace dMobile.GroundWork
                 {
                   SqlCeUpdatableRecord recContact = rsContact.CreateRecord();
 
-                  using (SqlCeCommand cmndID = conn.CreateCommand())
+                  using (SQLiteCommand cmndID = conn.CreateCommand())
                   {
                     cmndID.CommandText = "SELECT @@IDENTITY FROM tContact";
                     cmndID.CommandType = CommandType.Text;

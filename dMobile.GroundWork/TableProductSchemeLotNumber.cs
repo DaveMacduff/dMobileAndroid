@@ -90,7 +90,7 @@ namespace dMobile.GroundWork
         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product scheme lot mumbers.", true);
 #endif
 
-        using (SqlCeCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
         {
           cmndPurge.CommandText = "DELETE FROM tProductSchemeLotNumberXRef";
           cmndPurge.CommandType = CommandType.Text;
@@ -135,7 +135,7 @@ namespace dMobile.GroundWork
 
       try
       {
-        using (SqlCeCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        using (SQLiteCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
         {
           cmndStatus.CommandText = "SELECT COUNT(*) FROM tProductSchemeLotNumber";
           cmndStatus.CommandType = CommandType.Text;
@@ -217,13 +217,13 @@ namespace dMobile.GroundWork
 #endif
                 false);
 
-            using (SqlCeCommand cmndSchemeLot = conn.CreateCommand())
+            using (SQLiteCommand cmndSchemeLot = conn.CreateCommand())
             {
               cmndSchemeLot.CommandText = "tProductSchemeLotNumber";
               cmndSchemeLot.CommandType = CommandType.TableDirect;
               cmndSchemeLot.IndexName = "UQ_ProductSchemeLotNumberOnProductSchemeLotNumberCode";
 
-              using (SqlCeDataReader drSchemeLot = cmndSchemeLot.ExecuteReader())
+              using (SqliteDataReader drSchemeLot = cmndSchemeLot.ExecuteReader())
               {
                 using (SqlCeResultSet rs = cmndSchemeLot.ExecuteResultSet(ResultSetOptions.Updatable))
                 {

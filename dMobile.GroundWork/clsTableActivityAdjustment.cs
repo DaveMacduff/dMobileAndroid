@@ -2,9 +2,8 @@ namespace dMobile.GroundWork
 {
   using System;
   using System.Data;
-  
+  using System.Data.SQLite;
   using System.Text;
-  using System.Windows.Forms;
   using System.Xml;
   using System.Xml.Linq;
   using dMobile.Bedrock;
@@ -92,7 +91,7 @@ namespace dMobile.GroundWork
         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging adjustments.", true);
 #endif
 
-        using (SqlCeCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
         {
           cmndPurge.CommandText = "DELETE FROM tActivityAdjustment " 
               + "WHERE tActivityAdjustment.ActivitySubType = " + (int)SysCommon.ActSubTypes.Adjustment;
@@ -111,7 +110,7 @@ namespace dMobile.GroundWork
         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging adjustments complete.", true);
 #endif
       }
-      catch (SqlCeException ex)
+      catch (SQLiteException ex)
       {
 #if MULTILANGUAGE
         this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), true);
@@ -139,7 +138,7 @@ namespace dMobile.GroundWork
 
       try
       {
-        using (SqlCeCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        using (SQLiteCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
         {
           cmndStatus.CommandText = "SELECT COUNT(tActivity.ActivityRefno)" 
               + " FROM tActivity" 
@@ -158,7 +157,7 @@ namespace dMobile.GroundWork
               true);
         }
       }
-      catch (SqlCeException ex)
+      catch (SQLiteException ex)
       {
 #if MULTILANGUAGE
         throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredAdjustmentsStatusFailed), ex);
@@ -181,7 +180,7 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     protected override void Save(string reqData)
     {
-      SqlCeConnection conn = DatabaseConnection.GetInstance().SQLConn;
+      SQLiteConnection conn = DatabaseConnection.GetInstance().SQLConn;
       string errMsg = string.Empty;
 
       try
@@ -212,13 +211,13 @@ namespace dMobile.GroundWork
             this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
 #endif
 
-            using (SqlCeCommand cmndAdj = conn.CreateCommand())
+            using (SQLiteCommand cmndAdj = conn.CreateCommand())
             {
               cmndAdj.CommandText = "tActivityAdjustment";
               cmndAdj.CommandType = CommandType.TableDirect;
               cmndAdj.IndexName = "UQ_ActivityAdjustmentOnActivityAdjustmentFKRefno";
 
-              using (SqlCeCommand cmndAct = conn.CreateCommand())
+              using (SQLiteCommand cmndAct = conn.CreateCommand())
               {
                 cmndAct.CommandText = "tActivity";
                 cmndAct.CommandType = CommandType.TableDirect;
@@ -227,18 +226,18 @@ namespace dMobile.GroundWork
                 {
                   SqlCeUpdatableRecord recAct = rsAct.CreateRecord();
 
-                  using (SqlCeCommand cmndID = conn.CreateCommand())
+                  using (SQLiteCommand cmndID = conn.CreateCommand())
                   {
                     cmndID.CommandText = "SELECT @@IDENTITY";
                     cmndID.CommandType = CommandType.Text;
 
-                    using (SqlCeCommand cmndWhs = conn.CreateCommand())
+                    using (SQLiteCommand cmndWhs = conn.CreateCommand())
                     {
                       cmndWhs.CommandText = "tLocationMapWarehouse";
                       cmndWhs.IndexName = "UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno";
                       cmndWhs.CommandType = CommandType.TableDirect;
 
-                      using (SqlCeDataReader drWhs = cmndWhs.ExecuteReader())
+                      using (SqliteDataReader drWhs = cmndWhs.ExecuteReader())
                       {
                         using (SqlCeResultSet rs = cmndAdj.ExecuteResultSet(ResultSetOptions.Updatable))
                         {
@@ -413,7 +412,7 @@ namespace dMobile.GroundWork
 #endif
         }
       }
-      catch (SqlCeException ex)
+      catch (SQLiteException ex)
       {
 #if MULTILANGUAGE
         this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), true);

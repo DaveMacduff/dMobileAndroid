@@ -86,7 +86,7 @@ namespace dMobile.GroundWork
 
       try
       {
-        using (SqlCeCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        using (SQLiteCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
         {
           cmndStatus.CommandType = CommandType.Text;
           cmndStatus.CommandText = "SELECT COUNT(tActivity.ActivityRefno) "
@@ -132,7 +132,7 @@ namespace dMobile.GroundWork
         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging receivings.", true);
 #endif
 
-        using (SqlCeCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
         {
           cmndPurge.CommandType = CommandType.Text;
           cmndPurge.CommandText = "DELETE FROM tActivityReceiving";
@@ -212,13 +212,13 @@ namespace dMobile.GroundWork
 #endif
                 false);
 
-            using (SqlCeCommand cmndRecv = conn.CreateCommand())
+            using (SQLiteCommand cmndRecv = conn.CreateCommand())
             {
               cmndRecv.CommandText = "tActivityReceiving";
               cmndRecv.CommandType = CommandType.TableDirect;
               cmndRecv.IndexName = "UQ_ActivityReceivingOnActivityReceivingFKRefno";
 
-              using (SqlCeCommand cmndAct = conn.CreateCommand())
+              using (SQLiteCommand cmndAct = conn.CreateCommand())
               {
                 cmndAct.CommandText = "tActivity";
                 cmndAct.CommandType = CommandType.TableDirect;
@@ -227,18 +227,18 @@ namespace dMobile.GroundWork
                 {
                   SqlCeUpdatableRecord recAct = rsAct.CreateRecord();
 
-                  using (SqlCeCommand cmndID = conn.CreateCommand())
+                  using (SQLiteCommand cmndID = conn.CreateCommand())
                   {
                     cmndID.CommandText = "SELECT @@IDENTITY";
                     cmndID.CommandType = CommandType.Text;
 
-                    using (SqlCeCommand cmndWhs = conn.CreateCommand())
+                    using (SQLiteCommand cmndWhs = conn.CreateCommand())
                     {
                       cmndWhs.CommandText = "tLocationMapWarehouse";
                       cmndWhs.IndexName = "UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno";
                       cmndWhs.CommandType = CommandType.TableDirect;
 
-                      using (SqlCeDataReader drWhs = cmndWhs.ExecuteReader())
+                      using (SqliteDataReader drWhs = cmndWhs.ExecuteReader())
                       {
                         using (SqlCeResultSet rs = cmndRecv.ExecuteResultSet(ResultSetOptions.Updatable))
                         {

@@ -90,7 +90,7 @@ namespace dMobile.GroundWork
         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging slot coordinates.", true);
 #endif
 
-        using (SqlCeCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
         {
           cmndPurge.CommandType = CommandType.Text;
           cmndPurge.CommandText = "DELETE FROM tLocationMapSlotCoordinate";
@@ -130,7 +130,7 @@ namespace dMobile.GroundWork
       int rowsAffected = 0;
       try
       {
-        using (SqlCeCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        using (SQLiteCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
         {
           cmndStatus.CommandText = "SELECT COUNT(*) FROM tLocationMapSlotCoordinate";
           cmndStatus.CommandType = CommandType.Text;
@@ -203,13 +203,13 @@ namespace dMobile.GroundWork
 #endif
                 false);
 
-            using (SqlCeCommand cmndSlotCoord = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+            using (SQLiteCommand cmndSlotCoord = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
             {
               cmndSlotCoord.CommandText = "tLocationMapSlotCoordinate";
               cmndSlotCoord.IndexName = "UQ_LocationMapSlotCoordOnLocationMapSlotCoordEnumAndLocationMapSlotCoordCode";
               cmndSlotCoord.CommandType = CommandType.TableDirect;
 
-              using (SqlCeDataReader drSlotCoord = cmndSlotCoord.ExecuteReader())
+              using (SqliteDataReader drSlotCoord = cmndSlotCoord.ExecuteReader())
               {
                 using (SqlCeResultSet rs = cmndSlotCoord.ExecuteResultSet(ResultSetOptions.Updatable))
                 {

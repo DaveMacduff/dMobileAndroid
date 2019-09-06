@@ -46,14 +46,14 @@ namespace dMobile.GroundWork
 
         if (actItemRefno == 0)
         {
-          using (SqlCeCommand cmndRetItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+          using (SQLiteCommand cmndRetItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
           {
             cmndRetItem.CommandType = CommandType.Text;
             cmndRetItem.CommandText = "SELECT tActivityItem.ActivityItemRefno " 
                 + "FROM tActivityItem " 
                 + "WHERE tActivityItem.ActivityItemSubType = " + (int)SysCommon.ActSubTypes.Returns;
 
-            using (SqlCeDataReader drReturnsItem = cmndRetItem.ExecuteReader())
+            using (SqliteDataReader drReturnsItem = cmndRetItem.ExecuteReader())
             {
               while (drReturnsItem.Read())
               {
@@ -144,7 +144,7 @@ namespace dMobile.GroundWork
         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging sales return details.", true);
 #endif
 
-        using (SqlCeCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
         {
           cmndPurge.CommandType = CommandType.Text;
           cmndPurge.CommandText = "DELETE FROM tActivityDetailProductSchemeVariantXRef " 
@@ -207,7 +207,7 @@ namespace dMobile.GroundWork
 
       try
       {
-        using (SqlCeCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        using (SQLiteCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
         {
           cmndStatus.CommandType = CommandType.Text;
           cmndStatus.CommandText = "SELECT COUNT(tActivityDetail.ActivityDetailRefno) " 
@@ -252,13 +252,13 @@ namespace dMobile.GroundWork
     {
       int actItemRetFKRefno = 0;
 
-      using (SqlCeCommand cmndItemReturns = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+      using (SQLiteCommand cmndItemReturns = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
       {
         cmndItemReturns.CommandText = "tActivityItemReturns";
         cmndItemReturns.CommandType = CommandType.TableDirect;
         cmndItemReturns.IndexName = "PK_ActivityItemReturnsOnActivityItemRefno";
 
-        using (SqlCeDataReader drItemReturns = cmndItemReturns.ExecuteReader())
+        using (SqliteDataReader drItemReturns = cmndItemReturns.ExecuteReader())
         {
           if (drItemReturns.Seek(DbSeekOptions.FirstEqual, new object[] { actItemRetRefno }))
           {
@@ -331,7 +331,7 @@ namespace dMobile.GroundWork
 #endif
                 false);
               
-            using (SqlCeCommand cmndDetailRet = conn.CreateCommand())
+            using (SQLiteCommand cmndDetailRet = conn.CreateCommand())
             {
               cmndDetailRet.CommandText = "tActivityDetailReturns";
               cmndDetailRet.CommandType = CommandType.TableDirect;
@@ -341,7 +341,7 @@ namespace dMobile.GroundWork
               {
                 SqlCeUpdatableRecord recDetailRet = rsDetailRet.CreateRecord();
 
-                using (SqlCeCommand cmndDetail = conn.CreateCommand())
+                using (SQLiteCommand cmndDetail = conn.CreateCommand())
                 {
                   cmndDetail.CommandText = "tActivityDetail";
                   cmndDetail.CommandType = CommandType.TableDirect;
@@ -351,7 +351,7 @@ namespace dMobile.GroundWork
                   {
                     SqlCeUpdatableRecord recDetail = rsDetail.CreateRecord();
 
-                    using (SqlCeCommand cmndExtra = conn.CreateCommand())
+                    using (SQLiteCommand cmndExtra = conn.CreateCommand())
                     {
                       cmndExtra.CommandText = "tActivityDetailExtra";
                       cmndExtra.CommandType = CommandType.TableDirect;
@@ -361,47 +361,47 @@ namespace dMobile.GroundWork
                       {
                         SqlCeUpdatableRecord recExtra = rsExtra.CreateRecord();
 
-                        using (SqlCeCommand cmndItemRet = conn.CreateCommand())
+                        using (SQLiteCommand cmndItemRet = conn.CreateCommand())
                         {
                           cmndItemRet.CommandText = "tActivityItemReturns";
                           cmndItemRet.CommandType = CommandType.TableDirect;
                           cmndItemRet.IndexName = "PK_ActivityItemReturnsOnActivityItemRefno";
 
-                          using (SqlCeDataReader drItemRet = cmndItemRet.ExecuteReader())
+                          using (SqliteDataReader drItemRet = cmndItemRet.ExecuteReader())
                           {
-                            using (SqlCeCommand cmndLocMapSlot = conn.CreateCommand())
+                            using (SQLiteCommand cmndLocMapSlot = conn.CreateCommand())
                             {
                               cmndLocMapSlot.CommandText = "tLocationMapSlot";
                               cmndLocMapSlot.CommandType = CommandType.TableDirect;
                               cmndLocMapSlot.IndexName = "UQ_LocationMapSlotOnLocationMapSlotFKRefno";
 
-                              using (SqlCeDataReader drLocMapSlot = cmndLocMapSlot.ExecuteReader())
+                              using (SqliteDataReader drLocMapSlot = cmndLocMapSlot.ExecuteReader())
                               {
-                                using (SqlCeCommand cmndLocMapSect = conn.CreateCommand())
+                                using (SQLiteCommand cmndLocMapSect = conn.CreateCommand())
                                 {
                                   cmndLocMapSect.CommandText = "tLocationMapSection";
                                   cmndLocMapSect.CommandType = CommandType.TableDirect;
                                   cmndLocMapSect.IndexName = "UQ_LocationMapSectionOnLocationMapSectionFKRefno";
 
-                                  using (SqlCeDataReader drLocMapSect = cmndLocMapSect.ExecuteReader())
+                                  using (SqliteDataReader drLocMapSect = cmndLocMapSect.ExecuteReader())
                                   {
-                                    using (SqlCeCommand cmndLocMapWhs = conn.CreateCommand())
+                                    using (SQLiteCommand cmndLocMapWhs = conn.CreateCommand())
                                     {
                                       cmndLocMapWhs.CommandText = "tLocationMapWarehouse";
                                       cmndLocMapWhs.CommandType = CommandType.TableDirect;
                                       cmndLocMapWhs.IndexName = "UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno";
 
-                                      using (SqlCeDataReader drLocMapWhs = cmndLocMapWhs.ExecuteReader())
+                                      using (SqliteDataReader drLocMapWhs = cmndLocMapWhs.ExecuteReader())
                                       {
-                                        using (SqlCeCommand cmndSchemeVar = conn.CreateCommand())
+                                        using (SQLiteCommand cmndSchemeVar = conn.CreateCommand())
                                         {
                                           cmndSchemeVar.CommandText = "tProductSchemeVariant";
                                           cmndSchemeVar.CommandType = CommandType.TableDirect;
                                           cmndSchemeVar.IndexName = "UQ_ProductSchemeVariantOnProductSchemeVariantNo";
 
-                                          using (SqlCeDataReader drSchemeVar = cmndSchemeVar.ExecuteReader())
+                                          using (SqliteDataReader drSchemeVar = cmndSchemeVar.ExecuteReader())
                                           {
-                                            using (SqlCeCommand cmndSchemeVarXRef = conn.CreateCommand())
+                                            using (SQLiteCommand cmndSchemeVarXRef = conn.CreateCommand())
                                             {
                                               cmndSchemeVarXRef.CommandText 
                                                   = "tActivityDetailProductSchemeVariantXRef";
@@ -414,7 +414,7 @@ namespace dMobile.GroundWork
                                               {
                                                 SqlCeUpdatableRecord recSchemeVarXRef = rsSchemeVarXRef.CreateRecord();
 
-                                                using (SqlCeCommand cmndID = conn.CreateCommand())
+                                                using (SQLiteCommand cmndID = conn.CreateCommand())
                                                 {
                                                   cmndID.CommandText = "SELECT @@IDENTITY FROM tActivityDetail";
                                                   cmndID.CommandType = CommandType.Text;

@@ -33,7 +33,7 @@ namespace dMobile.GroundWork
         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging convert unit items.", true);
 #endif
 
-        using (SqlCeCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
         {
           cmndPurge.CommandText = "DELETE FROM tActivityItemConvertUnit " 
               + "WHERE tActivityItemConvertUnit.ActivityItemSubType = " + (int)SysCommon.ActSubTypes.ConvertUnit;

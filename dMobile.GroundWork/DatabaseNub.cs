@@ -2,11 +2,9 @@ namespace dMobile.GroundWork
 {
   using System;
   using System.Data;
-  
+  using System.Data.SQLite;
   using System.IO;
-  using System.Windows.Forms;
   using dMobile.Bedrock;
-  using Microsoft.VisualBasic;
 
   public class DatabaseNub : IDataNubPublisher
   {
@@ -105,32 +103,32 @@ namespace dMobile.GroundWork
     /// </summary>
     public void CompactDatabase()
     {
-      string srceDBName = this.DBConn.DBName;
-      string destDBName = this.DBConn.DBName + ".tmp";
-      string newPassword = "Password = " + this.DBConn.DBPassword;
-      SqlCeEngine engine = new SqlCeEngine("Data Source = " + srceDBName);
+      //string srceDBName = this.DBConn.DBName;
+      //string destDBName = this.DBConn.DBName + ".tmp";
+      //string newPassword = "Password = " + this.DBConn.DBPassword;
+      //SqlCeEngine engine = new SqlCeEngine("Data Source = " + srceDBName);
 
-      try
-      {
-        this.ErrorRaised = false;
-        engine.Compact((string)("Data Source = " + destDBName + ";" + srceDBName));
-        engine.Dispose();
-        File.Delete(srceDBName);
-        File.Move(destDBName, srceDBName);
-      }
-      catch (SqlCeException ssce)
-      {
-        this.ErrorRaised = true;
+      //try
+      //{
+      //  this.ErrorRaised = false;
+      //  engine.Compact((string)("Data Source = " + destDBName + ";" + srceDBName));
+      //  engine.Dispose();
+      //  File.Delete(srceDBName);
+      //  File.Move(destDBName, srceDBName);
+      //}
+      //catch (SqlCeException ssce)
+      //{
+      //  this.ErrorRaised = true;
 
-        throw ssce;
-      }
-      finally
-      {
-        if (engine != null)
-        {
-          engine.Dispose();
-        }
-      }
+      //  throw ssce;
+      //}
+      //finally
+      //{
+      //  if (engine != null)
+      //  {
+      //    engine.Dispose();
+      //  }
+      //}
     }
 
     /// <summary>
@@ -139,28 +137,28 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     public void RepairDatabase()
     {
-      string srceDBName = this.DBConn.DBName;
-      SqlCeEngine engine = new SqlCeEngine("Data Source = " + srceDBName);
+      //string srceDBName = this.DBConn.DBName;
+      //SqlCeEngine engine = new SqlCeEngine("Data Source = " + srceDBName);
 
-      try
-      {
-        this.ErrorRaised = false;
-        engine.Repair((string)("Data Source = " + srceDBName), RepairOption.RecoverAllPossibleRows);
-        engine.Dispose();
-      }
-      catch (SqlCeException ssce)
-      {
-        this.ErrorRaised = true;
+      //try
+      //{
+      //  this.ErrorRaised = false;
+      //  engine.Repair((string)("Data Source = " + srceDBName), RepairOption.RecoverAllPossibleRows);
+      //  engine.Dispose();
+      //}
+      //catch (SqlCeException ssce)
+      //{
+      //  this.ErrorRaised = true;
 
-        throw ssce;
-      }
-      finally
-      {
-        if (engine != null)
-        {
-          engine.Dispose();
-        }
-      }
+      //  throw ssce;
+      //}
+      //finally
+      //{
+      //  if (engine != null)
+      //  {
+      //    engine.Dispose();
+      //  }
+      //}
     }
 
     /// <summary>
@@ -170,44 +168,44 @@ namespace dMobile.GroundWork
     /// <remarks>Password is 'dMobile'</remarks>
     public void CreateNewDatabase()
     {
-      string dbASCIIZ = this.DBConn.DBPath + this.DBConn.DBName;
+//      string dbASCIIZ = this.DBConn.DBPath + this.DBConn.DBName;
 
-      DatabaseConnection.CloseDataBaseConnection();
-      DatabaseConnection.DisposeDataBaseConnection();
+//      DatabaseConnection.CloseDataBaseConnection();
+//      DatabaseConnection.DisposeDataBaseConnection();
 
-      if (File.Exists(dbASCIIZ))
-      {
-        if (this.OnNubStatOut != null)
-        {
-#if MULTILANGUAGE
-          this.MsgEventArgs.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.DeletingDatabase) + dbASCIIZ;
-#else
-          this.MsgEventArgs.StatusOutMsg = "Deleting database " + dbASCIIZ;
-#endif
-          this.OnNubStatOut(this, this.MsgEventArgs);
-        }
+//      if (File.Exists(dbASCIIZ))
+//      {
+//        if (this.OnNubStatOut != null)
+//        {
+//#if MULTILANGUAGE
+//          this.MsgEventArgs.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.DeletingDatabase) + dbASCIIZ;
+//#else
+//          this.MsgEventArgs.StatusOutMsg = "Deleting database " + dbASCIIZ;
+//#endif
+//          this.OnNubStatOut(this, this.MsgEventArgs);
+//        }
 
-        File.Delete(dbASCIIZ);
-      }
+//        File.Delete(dbASCIIZ);
+//      }
 
-      using (SqlCeEngine dbEngine = new SqlCeEngine(this.DBConn.ConnString))
-      {
-        if (this.OnNubStatOut != null)
-        {
-#if MULTILANGUAGE
-          this.MsgEventArgs.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.CreatingDatabase) + dbASCIIZ;
-#else
-          this.MsgEventArgs.StatusOutMsg = "Creating database " + dbASCIIZ;
-#endif
-          this.OnNubStatOut(this, this.MsgEventArgs);
-        }
+//      using (SQLIte dbEngine = new SqlCeEngine(this.DBConn.ConnString))
+//      {
+//        if (this.OnNubStatOut != null)
+//        {
+//#if MULTILANGUAGE
+//          this.MsgEventArgs.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.CreatingDatabase) + dbASCIIZ;
+//#else
+//          this.MsgEventArgs.StatusOutMsg = "Creating database " + dbASCIIZ;
+//#endif
+//          this.OnNubStatOut(this, this.MsgEventArgs);
+//        }
 
-        dbEngine.CreateDatabase();
-        dbEngine.Dispose();
-      }
+//        dbEngine.CreateDatabase();
+//        dbEngine.Dispose();
+//      }
 
-      DatabaseConnection.GetInstance();
-      DatabaseConnection.OpenDataBaseConnection();
+//      DatabaseConnection.GetInstance();
+//      DatabaseConnection.OpenDataBaseConnection();
     }
 
     /// <summary>
@@ -217,14 +215,14 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     public void RunDDLCommand(string cmndDDLStr)
     {
-      SqlCeCommand cmndDLLCmd = null;
+      SQLiteCommand cmndDLLCmd = null;
       try
       {
-        cmndDLLCmd = new SqlCeCommand(cmndDDLStr, DatabaseConnection.GetInstance().SQLConn);
+        cmndDLLCmd = new SQLiteCommand(cmndDDLStr, DatabaseConnection.GetInstance().SQLConn);
         cmndDLLCmd.CommandType = CommandType.Text;
         cmndDLLCmd.ExecuteNonQuery();
       }
-      catch (SqlCeException ex)
+      catch (SQLiteException ex)
       {
         this.ErrorRaised = true;
 
@@ -344,7 +342,7 @@ namespace dMobile.GroundWork
 
         this.CreateTableActivityItemPurchaseOrderWorkSheet();
       }
-      catch (SqlCeException ex)
+      catch (SQLiteException ex)
       {
         this.ErrorRaised = true;
 

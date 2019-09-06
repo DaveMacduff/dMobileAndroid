@@ -33,7 +33,7 @@ namespace dMobile.GroundWork
         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product scheme variant xref details.", true);
 #endif
 
-        using (SqlCeCommand cmndPurgeProdSchemeVarXRef = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        using (SQLiteCommand cmndPurgeProdSchemeVarXRef = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
         {
           cmndPurgeProdSchemeVarXRef.CommandText = "DELETE FROM tActivityDetailProductSchemeVariantXRef";
           cmndPurgeProdSchemeVarXRef.CommandType = CommandType.Text;

@@ -87,13 +87,13 @@ namespace dMobile.GroundWork
 
       try
       {
-        using (SqlCeCommand cmndRoute = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        using (SQLiteCommand cmndRoute = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
         {
           cmndRoute.CommandText = "tRoute";
           cmndRoute.IndexName = "UQ_RouteOnRouteCode";
           cmndRoute.CommandType = CommandType.TableDirect;
 
-          using (SqlCeDataReader drRoute = cmndRoute.ExecuteReader())
+          using (SqliteDataReader drRoute = cmndRoute.ExecuteReader())
           {
             if (drRoute.Seek(DbSeekOptions.FirstEqual, new object[] { routeCode }))
             {
@@ -146,7 +146,7 @@ namespace dMobile.GroundWork
 
       try
       {
-        using (SqlCeCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        using (SQLiteCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
         {
           cmndStatus.CommandText = "SELECT COUNT(*) FROM tRoute";
           cmndStatus.CommandType = CommandType.Text;
@@ -190,7 +190,7 @@ namespace dMobile.GroundWork
         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging routes.", true);
 #endif
 
-        using (SqlCeCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
         {
           cmndPurge.CommandText = "DELETE FROM tRoute";
           cmndPurge.CommandType = CommandType.Text;
@@ -264,13 +264,13 @@ namespace dMobile.GroundWork
 #endif
                 false);
 
-            using (SqlCeCommand cmndRoute = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+            using (SQLiteCommand cmndRoute = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
             {
               cmndRoute.CommandText = "tRoute";
               cmndRoute.CommandType = CommandType.TableDirect;
               cmndRoute.IndexName = "UQ_RouteOnRouteCode";
 
-              using (SqlCeDataReader drRoute = cmndRoute.ExecuteReader())
+              using (SqliteDataReader drRoute = cmndRoute.ExecuteReader())
               {
                 using (SqlCeResultSet rs = cmndRoute.ExecuteResultSet(ResultSetOptions.Updatable))
                 {

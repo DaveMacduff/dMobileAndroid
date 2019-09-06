@@ -33,7 +33,7 @@ namespace dMobile.GroundWork
 
       try
       {
-        using (SqlCeCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
         {
           cmndPurge.CommandText = "DELETE FROM tActivityItemMoveInventory " 
               + "WHERE tActivityItemMoveInventory.ActivityItemSubType = " + (int)SysCommon.ActSubTypes.MoveInventory;

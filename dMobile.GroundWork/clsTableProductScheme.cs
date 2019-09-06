@@ -88,13 +88,13 @@ namespace dMobile.GroundWork
 
       try
       {
-        using (SqlCeCommand cmndScheme = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        using (SQLiteCommand cmndScheme = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
         {
           cmndScheme.CommandText = "tProductScheme";
           cmndScheme.IndexName = "UQ_ProductSchemeOnProductSchemeCode";
           cmndScheme.CommandType = CommandType.TableDirect;
 
-          using (SqlCeDataReader drScheme = cmndScheme.ExecuteReader())
+          using (SqliteDataReader drScheme = cmndScheme.ExecuteReader())
           {
             if (drScheme.Seek(DbSeekOptions.FirstEqual, new object[] { schemeCode }))
             {
@@ -150,7 +150,7 @@ namespace dMobile.GroundWork
 
       try
       {
-        using (SqlCeCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        using (SQLiteCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
         {
           cmndStatus.CommandText = "SELECT COUNT(*) FROM tProductScheme";
           cmndStatus.CommandType = CommandType.Text;
@@ -193,7 +193,7 @@ namespace dMobile.GroundWork
         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product schemes.", true);
 #endif
 
-        using (SqlCeCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
         {
           cmndPurge.CommandText = "DELETE FROM tProductScheme";
           cmndPurge.CommandType = CommandType.Text;
@@ -267,13 +267,13 @@ namespace dMobile.GroundWork
 #endif
                 false);
 
-            using (SqlCeCommand cmndScheme = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+            using (SQLiteCommand cmndScheme = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
             {
               cmndScheme.CommandText = "tProductScheme";
               cmndScheme.CommandType = CommandType.TableDirect;
               cmndScheme.IndexName = "UQ_ProductSchemeOnProductSchemeCode";
 
-              using (SqlCeDataReader drScheme = cmndScheme.ExecuteReader())
+              using (SqliteDataReader drScheme = cmndScheme.ExecuteReader())
               {
                 using (SqlCeResultSet rs = cmndScheme.ExecuteResultSet(ResultSetOptions.Updatable))
                 {

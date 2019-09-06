@@ -87,7 +87,7 @@ namespace dMobile.GroundWork
 
       try
       {
-        using (SqlCeCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        using (SQLiteCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
         {
           cmndStatus.CommandType = CommandType.Text;
           cmndStatus.CommandText = "SELECT COUNT(tActivity.ActivityRefno) "
@@ -133,7 +133,7 @@ namespace dMobile.GroundWork
         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging sales orders.", true);
 #endif
 
-        using (SqlCeCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
         {
           cmndPurge.CommandText = "DELETE FROM tActivityPickingRoute "
               + "WHERE tActivityPickingRoute.PickingActivityRefno IN "
@@ -231,13 +231,13 @@ namespace dMobile.GroundWork
 #endif
                 false);
 
-            using (SqlCeCommand cmndPick = conn.CreateCommand())
+            using (SQLiteCommand cmndPick = conn.CreateCommand())
             {
               cmndPick.CommandText = "tActivityPicking";
               cmndPick.CommandType = CommandType.TableDirect;
               cmndPick.IndexName = "UQ_ActivityPickingOnActivityPickingFKRefno";
 
-              using (SqlCeCommand cmndAct = conn.CreateCommand())
+              using (SQLiteCommand cmndAct = conn.CreateCommand())
               {
                 cmndAct.CommandText = "tActivity";
                 cmndAct.CommandType = CommandType.TableDirect;
@@ -246,32 +246,32 @@ namespace dMobile.GroundWork
                 {
                   SqlCeUpdatableRecord recAct = rsAct.CreateRecord();
 
-                  using (SqlCeCommand cmndID = conn.CreateCommand())
+                  using (SQLiteCommand cmndID = conn.CreateCommand())
                   {
                     cmndID.CommandText = "SELECT @@IDENTITY";
                     cmndID.CommandType = CommandType.Text;
 
-                    using (SqlCeCommand cmndWhs = conn.CreateCommand())
+                    using (SQLiteCommand cmndWhs = conn.CreateCommand())
                     {
                       cmndWhs.CommandText = "tLocationMapWarehouse";
                       cmndWhs.IndexName = "UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno";
                       cmndWhs.CommandType = CommandType.TableDirect;
 
-                      using (SqlCeDataReader drWhs = cmndWhs.ExecuteReader())
+                      using (SqliteDataReader drWhs = cmndWhs.ExecuteReader())
                       {
-                        using (SqlCeCommand cmndPickRoute = conn.CreateCommand())
+                        using (SQLiteCommand cmndPickRoute = conn.CreateCommand())
                         {
                           cmndPickRoute.CommandType = CommandType.TableDirect;
                           cmndPickRoute.CommandText = "tActivityPickingRoute";
                           cmndPickRoute.IndexName = "UQ_ActivityPickingRouteOnPickingActivityRefnoAndRouteRefno";
 
-                          using (SqlCeCommand cmndRoute = conn.CreateCommand())
+                          using (SQLiteCommand cmndRoute = conn.CreateCommand())
                           {
                             cmndRoute.CommandText = "tRoute";
                             cmndRoute.CommandType = CommandType.TableDirect;
                             cmndRoute.IndexName = "UQ_RouteOnRouteCode";
 
-                            using (SqlCeDataReader drRoute = cmndRoute.ExecuteReader())
+                            using (SqliteDataReader drRoute = cmndRoute.ExecuteReader())
                             {
                               using (SqlCeResultSet rsPickRoute = 
                                   cmndPickRoute.ExecuteResultSet(ResultSetOptions.Updatable))

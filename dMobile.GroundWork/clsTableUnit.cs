@@ -2,9 +2,8 @@ namespace dMobile.GroundWork
 {
   using System;
   using System.Data;
-  
+  using System.Data.SQLite;
   using System.Text;
-  using System.Windows.Forms;
   using System.Xml;
   using System.Xml.Linq;
   using dMobile.Bedrock;
@@ -103,13 +102,13 @@ namespace dMobile.GroundWork
 
       try
       {
-        using (SqlCeCommand cmndUnit = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        using (SQLiteCommand cmndUnit = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
         {
           cmndUnit.CommandText = "tUnit";
-          cmndUnit.IndexName = "UQ_UnitOnUnitCode";
+          //cmndUnit.IndexName = "UQ_UnitOnUnitCode";
           cmndUnit.CommandType = CommandType.TableDirect;
 
-          using (SqlCeDataReader drUnit = cmndUnit.ExecuteReader())
+          using (SQLiteDataReader drUnit = cmndUnit.ExecuteReader())
           {
             if (drUnit.Seek(DbSeekOptions.FirstEqual, new object[] { unitCode }))
             {
@@ -140,7 +139,7 @@ namespace dMobile.GroundWork
           }
         }
       }
-      catch (SqlCeException ex)
+      catch (SQLiteException ex)
       {
 #if MULTILANGUAGE
         throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredGetiunitrefnofromunitcodeFailed), ex);
@@ -162,7 +161,7 @@ namespace dMobile.GroundWork
 
       try
       {
-        using (SqlCeCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        using (SQLiteCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
         {
           cmndStatus.CommandText = "SELECT COUNT(*) FROM tUnit";
           cmndStatus.CommandType = CommandType.Text;
@@ -179,7 +178,7 @@ namespace dMobile.GroundWork
               true);
         }
       }
-      catch (SqlCeException ex)
+      catch (SQLiteException ex)
       {
 #if MULTILANGUAGE
         throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredUnitsOfMeasureStatusFailed), ex);
@@ -205,7 +204,7 @@ namespace dMobile.GroundWork
         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging units of measure.", true);
 #endif
 
-        using (SqlCeCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
         {
           cmndPurge.CommandText = "DELETE FROM tUnit";
           cmndPurge.CommandType = CommandType.Text;
@@ -218,7 +217,7 @@ namespace dMobile.GroundWork
         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging units of measure complete.", true);
 #endif
       }
-      catch (SqlCeException ex)
+      catch (SQLiteException ex)
       {
 #if MULTILANGUAGE
         this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), true);
@@ -274,13 +273,13 @@ namespace dMobile.GroundWork
             this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
 #endif
            
-            using (SqlCeCommand cmndUnit = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+            using (SQLiteCommand cmndUnit = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
             {
               cmndUnit.CommandText = "tUnit";
               cmndUnit.CommandType = CommandType.TableDirect;
-              cmndUnit.IndexName = "UQ_UnitOnUnitCode";
+              //cmndUnit.IndexName = "UQ_UnitOnUnitCode";
 
-              using (SqlCeDataReader drUnit = cmndUnit.ExecuteReader())
+              using (SQLiteDataReader drUnit = cmndUnit.ExecuteReader())
               {
                 using (SqlCeResultSet rs = cmndUnit.ExecuteResultSet(ResultSetOptions.Updatable))
                 {
@@ -301,7 +300,7 @@ namespace dMobile.GroundWork
                     {
                       cmndUnit.CommandText = "tUnit";
                       cmndUnit.CommandType = CommandType.TableDirect;
-                      cmndUnit.IndexName = "UQ_UnitOnUnitCode";
+                      //cmndUnit.IndexName = "UQ_UnitOnUnitCode";
 
                       if (drUnit.Seek(DbSeekOptions.FirstEqual, new object[] { unitCode }))
                       {
@@ -313,7 +312,7 @@ namespace dMobile.GroundWork
                     {
                       cmndUnit.CommandText = "tUnit";
                       cmndUnit.CommandType = CommandType.TableDirect;
-                      cmndUnit.IndexName = "UQ_UnitOnUnitCode";
+                      //cmndUnit.IndexName = "UQ_UnitOnUnitCode";
 
                       rec.SetString((int)SysCommon.UnitFields.UnitCode, unitCode);
 
@@ -342,7 +341,7 @@ namespace dMobile.GroundWork
 #endif
         }
       }
-      catch (SqlCeException ex)
+      catch (SQLiteException ex)
       {
 #if MULTILANGUAGE
         this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), false);

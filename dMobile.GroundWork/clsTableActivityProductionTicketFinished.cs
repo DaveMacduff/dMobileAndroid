@@ -86,7 +86,7 @@ namespace dMobile.GroundWork
 
       try
       {
-        using (SqlCeCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        using (SQLiteCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
         {
           cmndStatus.CommandText = "SELECT COUNT(tActivity.ActivityRefno)"
               + " FROM tActivity"
@@ -126,7 +126,7 @@ namespace dMobile.GroundWork
     {
       try
       {
-        using (SqlCeCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
         {
 #if MULTILANGUAGE
           this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingFinishedTicket), true);
@@ -221,13 +221,13 @@ namespace dMobile.GroundWork
 #endif
                 false);
 
-            using (SqlCeCommand cmndProduction = conn.CreateCommand())
+            using (SQLiteCommand cmndProduction = conn.CreateCommand())
             {
               cmndProduction.CommandText = "tActivityProduction";
               cmndProduction.CommandType = CommandType.TableDirect;
               cmndProduction.IndexName = "PK_ActivityProductionOnActivityRefno";
 
-              using (SqlCeCommand cmndFinished = conn.CreateCommand())
+              using (SQLiteCommand cmndFinished = conn.CreateCommand())
               {
                 cmndFinished.CommandText = "tActivityProductionFinished";
                 cmndFinished.CommandType = CommandType.TableDirect;
@@ -237,7 +237,7 @@ namespace dMobile.GroundWork
                 {
                   SqlCeUpdatableRecord recFinished = rsFinished.CreateRecord();
 
-                  using (SqlCeCommand cmndActivity = conn.CreateCommand())
+                  using (SQLiteCommand cmndActivity = conn.CreateCommand())
                   {
                     cmndActivity.CommandText = "tActivity";
                     cmndActivity.CommandType = CommandType.TableDirect;
@@ -246,18 +246,18 @@ namespace dMobile.GroundWork
                     {
                       SqlCeUpdatableRecord recActivity = rsActivity.CreateRecord();
 
-                      using (SqlCeCommand cmndID = conn.CreateCommand())
+                      using (SQLiteCommand cmndID = conn.CreateCommand())
                       {
                         cmndID.CommandText = "SELECT @@IDENTITY";
                         cmndID.CommandType = CommandType.Text;
 
-                        using (SqlCeCommand cmndWhs = conn.CreateCommand())
+                        using (SQLiteCommand cmndWhs = conn.CreateCommand())
                         {
                           cmndWhs.CommandText = "tLocationMapWarehouse";
                           cmndWhs.IndexName = "UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno";
                           cmndWhs.CommandType = CommandType.TableDirect;
 
-                          using (SqlCeDataReader drWhs = cmndWhs.ExecuteReader())
+                          using (SqliteDataReader drWhs = cmndWhs.ExecuteReader())
                           {
                             using (SqlCeResultSet rsProduction = cmndProduction.ExecuteResultSet(
                                 ResultSetOptions.Updatable))

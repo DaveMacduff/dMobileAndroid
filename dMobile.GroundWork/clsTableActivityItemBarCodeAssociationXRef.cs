@@ -37,7 +37,7 @@ namespace dMobile.GroundWork
 #endif
             true);
 
-        using (SqlCeCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
         {
           cmndPurge.CommandText = "DELETE FROM tActivityItemBarCodeAssociationXRef";
           cmndPurge.CommandType = CommandType.Text;

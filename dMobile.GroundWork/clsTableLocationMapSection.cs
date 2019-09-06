@@ -43,13 +43,13 @@ namespace dMobile.GroundWork
 
         if (0 < whsLocMapRefno)
         {
-          using (SqlCeCommand cmndWhs = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+          using (SQLiteCommand cmndWhs = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
           {
             cmndWhs.CommandText = "tLocationMapWarehouse";
             cmndWhs.CommandType = CommandType.TableDirect;
             cmndWhs.IndexName = "PK_LocationMapWarehouseOnLocationMapRefno";
 
-            using (SqlCeDataReader drWhs = cmndWhs.ExecuteReader())
+            using (SqliteDataReader drWhs = cmndWhs.ExecuteReader())
             {
               if (drWhs.Seek(DbSeekOptions.FirstEqual, new object[] { whsLocMapRefno }))
               {
@@ -157,7 +157,7 @@ namespace dMobile.GroundWork
         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging sections.", true);
 #endif
 
-        using (SqlCeCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
         {
           cmndPurge.CommandType = CommandType.Text;
 
@@ -208,7 +208,7 @@ namespace dMobile.GroundWork
 
       try
       {
-        using (SqlCeCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        using (SQLiteCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
         {
           cmndStatus.CommandText = "SELECT COUNT(*) FROM tLocationMapSection";
           cmndStatus.CommandType = CommandType.Text;
@@ -292,15 +292,15 @@ namespace dMobile.GroundWork
 #endif
                 false);
 
-            using (SqlCeCommand cmndSect = conn.CreateCommand())
+            using (SQLiteCommand cmndSect = conn.CreateCommand())
             {
               cmndSect.CommandText = "tLocationMapSection";
               cmndSect.CommandType = CommandType.TableDirect;
               cmndSect.IndexName = "UQ_LocationMapSectionOnLocationMapSectionFKRefno";
 
-              using (SqlCeDataReader drSect = cmndSect.ExecuteReader())
+              using (SqliteDataReader drSect = cmndSect.ExecuteReader())
               {
-                using (SqlCeCommand cmndLocMap = conn.CreateCommand())
+                using (SQLiteCommand cmndLocMap = conn.CreateCommand())
                 {
                   cmndLocMap.CommandText = "tLocationMap";
                   cmndLocMap.CommandType = CommandType.TableDirect;
@@ -309,18 +309,18 @@ namespace dMobile.GroundWork
                   {
                     SqlCeUpdatableRecord recLocMap = rsLocMap.CreateRecord();
 
-                    using (SqlCeCommand cmndID = conn.CreateCommand())
+                    using (SQLiteCommand cmndID = conn.CreateCommand())
                     {
                       cmndID.CommandText = "SELECT @@IDENTITY";
                       cmndID.CommandType = CommandType.Text;
 
-                      using (SqlCeCommand cmndWhs = conn.CreateCommand())
+                      using (SQLiteCommand cmndWhs = conn.CreateCommand())
                       {
                         cmndWhs.CommandText = "tLocationMapWarehouse";
                         cmndWhs.IndexName = "UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno";
                         cmndWhs.CommandType = CommandType.TableDirect;
 
-                        using (SqlCeDataReader drWhs = cmndWhs.ExecuteReader())
+                        using (SqliteDataReader drWhs = cmndWhs.ExecuteReader())
                         {
                           using (SqlCeResultSet rs = cmndSect.ExecuteResultSet(ResultSetOptions.Updatable))
                           {

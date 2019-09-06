@@ -33,7 +33,7 @@ namespace dMobile.GroundWork
         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging activity.", true);
 #endif
 
-        using (SqlCeCommand cmndPurgeActivity = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        using (SQLiteCommand cmndPurgeActivity = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
         {
           cmndPurgeActivity.CommandText = "DELETE FROM tActivity "
               + "WHERE tActivity.ActivitySubType = " + (int)actSubType;

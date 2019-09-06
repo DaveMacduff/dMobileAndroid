@@ -86,7 +86,7 @@ namespace dMobile.GroundWork
 
       try
       {
-        using (SqlCeCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        using (SQLiteCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
         {
           cmndStatus.CommandText = "SELECT COUNT(*) FROM tFamily";
           cmndStatus.CommandType = CommandType.Text;
@@ -126,7 +126,7 @@ namespace dMobile.GroundWork
         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging families.", true);
 #endif
 
-        using (SqlCeCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
         {
           cmndPurge.CommandText = "DELETE FROM tFamily";
           cmndPurge.CommandType = CommandType.Text;
@@ -168,13 +168,13 @@ namespace dMobile.GroundWork
 
       try
       {
-        using (SqlCeCommand cmndFamily = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        using (SQLiteCommand cmndFamily = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
         {
           cmndFamily.CommandText = "tFamily";
           cmndFamily.IndexName = "UQ_FamilyOnFamilyCode";
           cmndFamily.CommandType = CommandType.TableDirect;
 
-          using (SqlCeDataReader drFamily = cmndFamily.ExecuteReader())
+          using (SqliteDataReader drFamily = cmndFamily.ExecuteReader())
           {
             if (drFamily.Seek(DbSeekOptions.FirstEqual, new object[] { familyCode }))
             {
@@ -257,13 +257,13 @@ namespace dMobile.GroundWork
             this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
 #endif
 
-            using (SqlCeCommand cmndFamily = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+            using (SQLiteCommand cmndFamily = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
             {
               cmndFamily.CommandText = "tFamily";
               cmndFamily.CommandType = CommandType.TableDirect;
               cmndFamily.IndexName = "UQ_FamilyOnFamilyCode";
 
-              using (SqlCeDataReader drFamily = cmndFamily.ExecuteReader())
+              using (SqliteDataReader drFamily = cmndFamily.ExecuteReader())
               {
                 using (SqlCeResultSet rs = cmndFamily.ExecuteResultSet(ResultSetOptions.Updatable))
                 {

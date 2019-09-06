@@ -2,7 +2,6 @@ namespace dMobile.GroundWork
 {
     using System;
     using System.Data;
-    
     using System.Text;
     using System.Xml;
     using System.Xml.Linq;
