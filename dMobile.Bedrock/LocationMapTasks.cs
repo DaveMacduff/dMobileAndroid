@@ -938,33 +938,33 @@
         public static int CalculateGlobalLocationIdentifierCheckSum(string globalLocationIdentifier)
         {
             int checkSum = 0;
-            double odd = 0;
-            double even = 0;
-            double x = 0;
-            int i = 0;
+            //double odd = 0;
+            //double even = 0;
+            //double x = 0;
+            //int i = 0;
 
-            // Padding left should not be needed but added anyway.
-            // 7 digits company prefix padded left with zeros + 5 digits for the serial 
-            // identifier padded left with zeros = 12
-            if (globalLocationIdentifier.Length < 12)
-            {
-                globalLocationIdentifier = globalLocationIdentifier.PadLeft(12, Convert.ToChar("0"));
-            }
+            //// Padding left should not be needed but added anyway.
+            //// 7 digits company prefix padded left with zeros + 5 digits for the serial 
+            //// identifier padded left with zeros = 12
+            //if (globalLocationIdentifier.Length < 12)
+            //{
+            //    globalLocationIdentifier = globalLocationIdentifier.PadLeft(12, Convert.ToChar("0"));
+            //}
 
-            // Calculate check sum MOD^10
-            for (i = 1; i <= globalLocationIdentifier.Length; i += 2)
-            {
-                odd = odd + (Conversion.Val(globalLocationIdentifier.Substring(i - 1, 1)) * 3);
-            }
+            //// Calculate check sum MOD^10
+            //for (i = 1; i <= globalLocationIdentifier.Length; i += 2)
+            //{
+            //    odd = odd + (Conversion.Val(globalLocationIdentifier.Substring(i - 1, 1)) * 3);
+            //}
 
-            for (i = 2; i <= globalLocationIdentifier.Length; i += 2)
-            {
-                even = even + Conversion.Val(globalLocationIdentifier.Substring(i - 1, 1));
-            }
+            //for (i = 2; i <= globalLocationIdentifier.Length; i += 2)
+            //{
+            //    even = even + Conversion.Val(globalLocationIdentifier.Substring(i - 1, 1));
+            //}
 
-            x = 10 - ((odd + even) / 10) - 0.5;
+            //x = 10 - ((odd + even) / 10) - 0.5;
 
-            checkSum = Convert.ToInt32(x);
+            //checkSum = Convert.ToInt32(x);
 
             return checkSum;
         }

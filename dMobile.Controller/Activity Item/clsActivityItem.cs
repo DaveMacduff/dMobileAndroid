@@ -2,7 +2,7 @@ namespace dMobile.Controller
 {
   using System;
   using System.Data;
-  
+  using System.Data.SQLite;
   using System.Windows.Forms;
   using System.Xml.Linq;
   using dMobile.Bedrock;
@@ -886,41 +886,41 @@ namespace dMobile.Controller
     /// <param name="actSubTypes"></param>
     public void Create(SysCommon.ActSubTypes actSubTypes)
     {
-      try
-      {
-        using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-        {
-          cmndItem.CommandText = "tActivityItem";
-          cmndItem.CommandType = CommandType.TableDirect;
+//      try
+//      {
+//        using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+//        {
+//          cmndItem.CommandText = "tActivityItem";
+//          cmndItem.CommandType = CommandType.TableDirect;
 
-          using (SqlCeResultSet rsActItem = cmndItem.ExecuteResultSet(ResultSetOptions.Updatable))
-          {
-            SqlCeUpdatableRecord recActItem = rsActItem.CreateRecord();
+//          using (SqlCeResultSet rsActItem = cmndItem.ExecuteResultSet(ResultSetOptions.Updatable))
+//          {
+//            SqlCeUpdatableRecord recActItem = rsActItem.CreateRecord();
 
-            using (SQLiteCommand cmndID = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-            {
-              cmndID.CommandText = "SELECT @@IDENTITY FROM tActivityItem";
-              cmndID.CommandType = CommandType.Text;
+//            using (SQLiteCommand cmndID = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+//            {
+//              cmndID.CommandText = "SELECT @@IDENTITY FROM tActivityItem";
+//              cmndID.CommandType = CommandType.Text;
 
-              recActItem.SetInt32((int)SysCommon.ActItemFields.SubType, (int)actSubTypes);
-              recActItem.SetInt32((int)SysCommon.ActItemFields.ActRefno, this.ActHdr.Refno);
-              recActItem.SetInt32((int)SysCommon.ActItemFields.Status, (int)SysCommon.ActStatus.Inserted);
+//              recActItem.SetInt32((int)SysCommon.ActItemFields.SubType, (int)actSubTypes);
+//              recActItem.SetInt32((int)SysCommon.ActItemFields.ActRefno, this.ActHdr.Refno);
+//              recActItem.SetInt32((int)SysCommon.ActItemFields.Status, (int)SysCommon.ActStatus.Inserted);
 
-              rsActItem.Insert(recActItem);
+//              rsActItem.Insert(recActItem);
 
-              this.Refno = Convert.ToInt32(cmndID.ExecuteScalar());
-            }
-          }
-        }
-      }
-      catch (SqlCeException ex)
-      {
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), ex);
-#else
-        throw new Exception("Database exception occurred.", ex);
-#endif
-      }
+//              this.Refno = Convert.ToInt32(cmndID.ExecuteScalar());
+//            }
+//          }
+//        }
+//      }
+//      catch (SQLiteException ex)
+//      {
+//#if MULTILANGUAGE
+//        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), ex);
+//#else
+//        throw new Exception("Database exception occurred.", ex);
+//#endif
+//      }
     }
 
     /// <summary>

@@ -2,7 +2,7 @@ namespace dMobile.Controller
 {
     using System;
     using System.Data;
-    
+    using System.Data.SQLite;
     using System.Text;
     using System.Windows.Forms;
     using System.Xml;
@@ -242,9 +242,9 @@ namespace dMobile.Controller
                 {
                     cmndProdSchemeVar.CommandText = "tProductSchemeVariant";
                     cmndProdSchemeVar.CommandType = CommandType.TableDirect;
-                    cmndProdSchemeVar.IndexName = "UQ_ProductSchemeVariantOnProductSchemeVariantNo";
+                    //cmndProdSchemeVar.IndexName = "UQ_ProductSchemeVariantOnProductSchemeVariantNo";
 
-                    using (SqliteDataReader drProdSchemeVar = cmndProdSchemeVar.ExecuteReader())
+                    using (SQLiteDataReader drProdSchemeVar = cmndProdSchemeVar.ExecuteReader())
                     {
                         foreach (DataRow drow in ds.Tables["cskiddetail"].Rows)
                         {
@@ -268,22 +268,22 @@ namespace dMobile.Controller
                             tempSchemeData.LogisticUnitSkidNumber = ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno.ToString();
                             tempSchemeData.VariantNumber = Convert.ToInt32(drow["ProductSchemeVariantNo"]);
 
-                            if (drProdSchemeVar.Seek(DbSeekOptions.FirstEqual, new object[] { tempSchemeData.VariantNumber }))
-                            {
-                                if (drProdSchemeVar.Read())
-                                {
-                                    tempSchemeData.VariantCode = drProdSchemeVar.GetString((int)SysCommon.ProdSchemeVariantFields.Code);
-                                    tempSchemeData.VariantDescription = drProdSchemeVar.GetString(
-                                        (int)SysCommon.ProdSchemeVariantFields.Description);
-                                }
-                                else
-                                {
-                                    throw new Exception(
-                                        string.Format(
-                                        "Unable to locate the product scheme variant no {0} in tProductSchemeVariant",
-                                        tempSchemeData.VariantNumber));
-                                }
-                            }
+                            //if (drProdSchemeVar.Seek(DbSeekOptions.FirstEqual, new object[] { tempSchemeData.VariantNumber }))
+                            //{
+                            //    if (drProdSchemeVar.Read())
+                            //    {
+                            //        tempSchemeData.VariantCode = drProdSchemeVar.GetString((int)SysCommon.ProdSchemeVariantFields.Code);
+                            //        tempSchemeData.VariantDescription = drProdSchemeVar.GetString(
+                            //            (int)SysCommon.ProdSchemeVariantFields.Description);
+                            //    }
+                            //    else
+                            //    {
+                            //        throw new Exception(
+                            //            string.Format(
+                            //            "Unable to locate the product scheme variant no {0} in tProductSchemeVariant",
+                            //            tempSchemeData.VariantNumber));
+                            //    }
+                            //}
 
                             string newDate = "01-01-1900";
 

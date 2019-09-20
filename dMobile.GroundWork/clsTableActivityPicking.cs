@@ -2,7 +2,7 @@ namespace dMobile.GroundWork
 {
   using System;
   using System.Data;
-  
+  using System.Data.SQLite;
   using System.Text;
   using System.Xml;
   using System.Xml.Linq;
@@ -107,7 +107,7 @@ namespace dMobile.GroundWork
               true);
         }
       }
-      catch (SqlCeException ex)
+      catch (SQLiteException ex)
       {
 #if MULTILANGUAGE
         throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredSalesOrdersStatusFailed), ex);
@@ -159,7 +159,7 @@ namespace dMobile.GroundWork
         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging sales orders complete.", true);
 #endif
       }
-      catch (SqlCeException ex)
+      catch (SQLiteException ex)
       {
 #if MULTILANGUAGE
         this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), true);
@@ -198,263 +198,263 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     protected override void Save(string reqData)
     {
-      SqlCeConnection conn = DatabaseConnection.GetInstance().SQLConn;
-      string errMsg = string.Empty;
+//      SQLiteConnection conn = DatabaseConnection.GetInstance().SQLConn;
+//      string errMsg = string.Empty;
 
-      try
-      {
-        using (DataSet ds = new DataSet())
-        {
-#if MULTILANGUAGE
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.ReadingReceivedData), false);
-#else
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
-#endif
-          ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
+//      try
+//      {
+//        using (DataSet ds = new DataSet())
+//        {
+//#if MULTILANGUAGE
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.ReadingReceivedData), false);
+//#else
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
+//#endif
+//          ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
 
-#if MULTILANGUAGE
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingSalesOrders), false);
-#else
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving sales orders.", false);
-#endif
-          if (ds.Tables.Count != 0)
-          {
-            int progMax = Convert.ToInt32(ds.Tables["tActivityPicking"].Rows.Count);
+//#if MULTILANGUAGE
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingSalesOrders), false);
+//#else
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving sales orders.", false);
+//#endif
+//          if (ds.Tables.Count != 0)
+//          {
+//            int progMax = Convert.ToInt32(ds.Tables["tActivityPicking"].Rows.Count);
 
-            this.DataAccessStatusOutHandler(
-                this, 
-                EventArgs.Empty, 
-#if MULTILANGUAGE
-                string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.Recordsz), progMax), 
-#else
-                string.Format("Records {0}", progMax), 
-#endif
-                false);
+//            this.DataAccessStatusOutHandler(
+//                this, 
+//                EventArgs.Empty, 
+//#if MULTILANGUAGE
+//                string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.Recordsz), progMax), 
+//#else
+//                string.Format("Records {0}", progMax), 
+//#endif
+//                false);
 
-            using (SQLiteCommand cmndPick = conn.CreateCommand())
-            {
-              cmndPick.CommandText = "tActivityPicking";
-              cmndPick.CommandType = CommandType.TableDirect;
-              cmndPick.IndexName = "UQ_ActivityPickingOnActivityPickingFKRefno";
+//            using (SQLiteCommand cmndPick = conn.CreateCommand())
+//            {
+//              cmndPick.CommandText = "tActivityPicking";
+//              cmndPick.CommandType = CommandType.TableDirect;
+//              cmndPick.IndexName = "UQ_ActivityPickingOnActivityPickingFKRefno";
 
-              using (SQLiteCommand cmndAct = conn.CreateCommand())
-              {
-                cmndAct.CommandText = "tActivity";
-                cmndAct.CommandType = CommandType.TableDirect;
+//              using (SQLiteCommand cmndAct = conn.CreateCommand())
+//              {
+//                cmndAct.CommandText = "tActivity";
+//                cmndAct.CommandType = CommandType.TableDirect;
 
-                using (SqlCeResultSet rsAct = cmndAct.ExecuteResultSet(ResultSetOptions.Updatable))
-                {
-                  SqlCeUpdatableRecord recAct = rsAct.CreateRecord();
+//                using (SqlCeResultSet rsAct = cmndAct.ExecuteResultSet(ResultSetOptions.Updatable))
+//                {
+//                  SqlCeUpdatableRecord recAct = rsAct.CreateRecord();
 
-                  using (SQLiteCommand cmndID = conn.CreateCommand())
-                  {
-                    cmndID.CommandText = "SELECT @@IDENTITY";
-                    cmndID.CommandType = CommandType.Text;
+//                  using (SQLiteCommand cmndID = conn.CreateCommand())
+//                  {
+//                    cmndID.CommandText = "SELECT @@IDENTITY";
+//                    cmndID.CommandType = CommandType.Text;
 
-                    using (SQLiteCommand cmndWhs = conn.CreateCommand())
-                    {
-                      cmndWhs.CommandText = "tLocationMapWarehouse";
-                      cmndWhs.IndexName = "UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno";
-                      cmndWhs.CommandType = CommandType.TableDirect;
+//                    using (SQLiteCommand cmndWhs = conn.CreateCommand())
+//                    {
+//                      cmndWhs.CommandText = "tLocationMapWarehouse";
+//                      cmndWhs.IndexName = "UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno";
+//                      cmndWhs.CommandType = CommandType.TableDirect;
 
-                      using (SqliteDataReader drWhs = cmndWhs.ExecuteReader())
-                      {
-                        using (SQLiteCommand cmndPickRoute = conn.CreateCommand())
-                        {
-                          cmndPickRoute.CommandType = CommandType.TableDirect;
-                          cmndPickRoute.CommandText = "tActivityPickingRoute";
-                          cmndPickRoute.IndexName = "UQ_ActivityPickingRouteOnPickingActivityRefnoAndRouteRefno";
+//                      using (SQLiteDataReader drWhs = cmndWhs.ExecuteReader())
+//                      {
+//                        using (SQLiteCommand cmndPickRoute = conn.CreateCommand())
+//                        {
+//                          cmndPickRoute.CommandType = CommandType.TableDirect;
+//                          cmndPickRoute.CommandText = "tActivityPickingRoute";
+//                          cmndPickRoute.IndexName = "UQ_ActivityPickingRouteOnPickingActivityRefnoAndRouteRefno";
 
-                          using (SQLiteCommand cmndRoute = conn.CreateCommand())
-                          {
-                            cmndRoute.CommandText = "tRoute";
-                            cmndRoute.CommandType = CommandType.TableDirect;
-                            cmndRoute.IndexName = "UQ_RouteOnRouteCode";
+//                          using (SQLiteCommand cmndRoute = conn.CreateCommand())
+//                          {
+//                            cmndRoute.CommandText = "tRoute";
+//                            cmndRoute.CommandType = CommandType.TableDirect;
+//                            cmndRoute.IndexName = "UQ_RouteOnRouteCode";
 
-                            using (SqliteDataReader drRoute = cmndRoute.ExecuteReader())
-                            {
-                              using (SqlCeResultSet rsPickRoute = 
-                                  cmndPickRoute.ExecuteResultSet(ResultSetOptions.Updatable))
-                              {
-                                SqlCeUpdatableRecord recPickRoute = rsPickRoute.CreateRecord();
+//                            using (SQLiteDataReader drRoute = cmndRoute.ExecuteReader())
+//                            {
+//                              using (SqlCeResultSet rsPickRoute = 
+//                                  cmndPickRoute.ExecuteResultSet(ResultSetOptions.Updatable))
+//                              {
+//                                SqlCeUpdatableRecord recPickRoute = rsPickRoute.CreateRecord();
 
-                                using (SqlCeResultSet rsPick = cmndPick.ExecuteResultSet(ResultSetOptions.Updatable))
-                                {
-                                  SqlCeUpdatableRecord recPick = rsPick.CreateRecord();
-                                  int actRefno = 0;
-                                  int progValue = 0;
-                                  int whsLocMapRefno = 0;
-                                  int routeRefno = 0;
-                                  string pickRouteCode = string.Empty;
-                                  int actPickFKRefno = 0;
+//                                using (SqlCeResultSet rsPick = cmndPick.ExecuteResultSet(ResultSetOptions.Updatable))
+//                                {
+//                                  SqlCeUpdatableRecord recPick = rsPick.CreateRecord();
+//                                  int actRefno = 0;
+//                                  int progValue = 0;
+//                                  int whsLocMapRefno = 0;
+//                                  int routeRefno = 0;
+//                                  string pickRouteCode = string.Empty;
+//                                  int actPickFKRefno = 0;
 
-                                  this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
+//                                  this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
 
-                                  foreach (DataRow drow in ds.Tables["tActivityPicking"].Rows)
-                                  {
-                                    errMsg = "Arguments:";
+//                                  foreach (DataRow drow in ds.Tables["tActivityPicking"].Rows)
+//                                  {
+//                                    errMsg = "Arguments:";
 
-                                    recAct.SetInt32(
-                                        (int)SysCommon.ActFields.SubType, 
-                                        (int)SysCommon.ActSubTypes.Picking);
+//                                    recAct.SetInt32(
+//                                        (int)SysCommon.ActFields.SubType, 
+//                                        (int)SysCommon.ActSubTypes.Picking);
 
-                                    recAct.SetInt32((int)SysCommon.ActFields.Status, 0);
+//                                    recAct.SetInt32((int)SysCommon.ActFields.Status, 0);
 
-                                    rsAct.Insert(recAct);
+//                                    rsAct.Insert(recAct);
 
-                                    actRefno = Convert.ToInt32(cmndID.ExecuteScalar());
+//                                    actRefno = Convert.ToInt32(cmndID.ExecuteScalar());
 
-                                    recPick.SetInt32(
-                                        (int)SysCommon.ActPickingFields.ActRefno,
-                                        actRefno);
+//                                    recPick.SetInt32(
+//                                        (int)SysCommon.ActPickingFields.ActRefno,
+//                                        actRefno);
 
-                                    recPick.SetInt32(
-                                        (int)SysCommon.ActPickingFields.ActSubType,
-                                        (int)SysCommon.ActSubTypes.Picking);
+//                                    recPick.SetInt32(
+//                                        (int)SysCommon.ActPickingFields.ActSubType,
+//                                        (int)SysCommon.ActSubTypes.Picking);
 
-                                    actPickFKRefno = Convert.ToInt32(drow["ActivityPickingFKRefno"]);
-                                    errMsg += Environment.NewLine + "FK refno " + actPickFKRefno;
-                                    recPick.SetInt32(
-                                        (int)SysCommon.ActPickingFields.FKRefno,
-                                        actPickFKRefno);
-                                    recPick.SetString(
-                                        (int)SysCommon.ActPickingFields.StringFKRefno,
-                                        actPickFKRefno.ToString());
+//                                    actPickFKRefno = Convert.ToInt32(drow["ActivityPickingFKRefno"]);
+//                                    errMsg += Environment.NewLine + "FK refno " + actPickFKRefno;
+//                                    recPick.SetInt32(
+//                                        (int)SysCommon.ActPickingFields.FKRefno,
+//                                        actPickFKRefno);
+//                                    recPick.SetString(
+//                                        (int)SysCommon.ActPickingFields.StringFKRefno,
+//                                        actPickFKRefno.ToString());
 
-                                    whsLocMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, ref errMsg, drWhs);
-                                    recPick.SetInt32(
-                                        (int)SysCommon.ActPickingFields.WhsLocMapRefno, 
-                                        whsLocMapRefno);
+//                                    whsLocMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, ref errMsg, drWhs);
+//                                    recPick.SetInt32(
+//                                        (int)SysCommon.ActPickingFields.WhsLocMapRefno, 
+//                                        whsLocMapRefno);
 
-                                    recPick.SetDateTime(
-                                        (int)SysCommon.ActPickingFields.OrderedDateTime,
-                                        Convert.ToDateTime(drow["ActivityPickingOrderedDateTime"]));
+//                                    recPick.SetDateTime(
+//                                        (int)SysCommon.ActPickingFields.OrderedDateTime,
+//                                        Convert.ToDateTime(drow["ActivityPickingOrderedDateTime"]));
 
-                                    recPick.SetDateTime(
-                                        (int)SysCommon.ActPickingFields.DeliveryDateTime,
-                                        Convert.ToDateTime(drow["ActivityPickingDeliveryDateTime"]));
+//                                    recPick.SetDateTime(
+//                                        (int)SysCommon.ActPickingFields.DeliveryDateTime,
+//                                        Convert.ToDateTime(drow["ActivityPickingDeliveryDateTime"]));
                                     
-                                    recPick.SetString(
-                                        (int)SysCommon.ActPickingFields.CustomerContactName, 
-                                        drow["ActivityPickingCustomerContactName"].ToString());
+//                                    recPick.SetString(
+//                                        (int)SysCommon.ActPickingFields.CustomerContactName, 
+//                                        drow["ActivityPickingCustomerContactName"].ToString());
 
-                                    recPick.SetString(
-                                        (int)SysCommon.ActPickingFields.CustomerShipToInfo,
-                                        drow["ActivityPickingCustomerShipToInfo"].ToString());
+//                                    recPick.SetString(
+//                                        (int)SysCommon.ActPickingFields.CustomerShipToInfo,
+//                                        drow["ActivityPickingCustomerShipToInfo"].ToString());
 
-                                    recPick.SetBoolean(
-                                        (int)SysCommon.ActPickingFields.IsReviewed,
-                                        false);
+//                                    recPick.SetBoolean(
+//                                        (int)SysCommon.ActPickingFields.IsReviewed,
+//                                        false);
                                     
-                                    rsPick.Insert(recPick);
+//                                    rsPick.Insert(recPick);
 
-                                    routeRefno = 0;
-                                    pickRouteCode = drow["ActivityPickingRouteCode"].ToString();
-                                    errMsg += Environment.NewLine + "Route code \'" + pickRouteCode + "\'";
-                                    if (!string.IsNullOrEmpty(pickRouteCode))
-                                    {
-                                      if (drRoute.Seek(DbSeekOptions.FirstEqual, new object[] { pickRouteCode }))
-                                      {
-                                        if (drRoute.Read())
-                                        {
-                                          routeRefno = drRoute.GetInt32((int)SysCommon.RouteFields.Refno);
-                                        }
-                                        else
-                                        {
-                                          throw new Exception("drRoute.Read() failed." + Environment.NewLine + errMsg);
-                                        }
-                                      }
-                                      else
-                                      {
-                                        throw new Exception(
-#if MULTILANGUAGE
-                                            Translator.GetInstance().Translate(TranslatorVocabulary.UnableToLocateTheRouteCodeInTroute)
-#else
-                                            "Unable to locate the route code in tRoute."
-#endif
-                                            + Environment.NewLine + errMsg);
-                                      }
-                                    }
+//                                    routeRefno = 0;
+//                                    pickRouteCode = drow["ActivityPickingRouteCode"].ToString();
+//                                    errMsg += Environment.NewLine + "Route code \'" + pickRouteCode + "\'";
+//                                    if (!string.IsNullOrEmpty(pickRouteCode))
+//                                    {
+//                                      if (drRoute.Seek(DbSeekOptions.FirstEqual, new object[] { pickRouteCode }))
+//                                      {
+//                                        if (drRoute.Read())
+//                                        {
+//                                          routeRefno = drRoute.GetInt32((int)SysCommon.RouteFields.Refno);
+//                                        }
+//                                        else
+//                                        {
+//                                          throw new Exception("drRoute.Read() failed." + Environment.NewLine + errMsg);
+//                                        }
+//                                      }
+//                                      else
+//                                      {
+//                                        throw new Exception(
+//#if MULTILANGUAGE
+//                                            Translator.GetInstance().Translate(TranslatorVocabulary.UnableToLocateTheRouteCodeInTroute)
+//#else
+//                                            "Unable to locate the route code in tRoute."
+//#endif
+//                                            + Environment.NewLine + errMsg);
+//                                      }
+//                                    }
 
-                                    if (routeRefno != 0)
-                                    {
-                                      recPickRoute.SetInt32(
-                                          (int)SysCommon.ActPickingRouteFields.PickingActRefno,
-                                          actRefno);
+//                                    if (routeRefno != 0)
+//                                    {
+//                                      recPickRoute.SetInt32(
+//                                          (int)SysCommon.ActPickingRouteFields.PickingActRefno,
+//                                          actRefno);
 
-                                      recPickRoute.SetInt32(
-                                          (int)SysCommon.ActPickingRouteFields.RouteRefno,
-                                          routeRefno);
+//                                      recPickRoute.SetInt32(
+//                                          (int)SysCommon.ActPickingRouteFields.RouteRefno,
+//                                          routeRefno);
 
-                                      recPickRoute.SetInt32(
-                                          (int)SysCommon.ActPickingRouteFields.RouteStop,
-                                          Convert.ToInt32(drow["ActivityPickingRouteStop"]));
+//                                      recPickRoute.SetInt32(
+//                                          (int)SysCommon.ActPickingRouteFields.RouteStop,
+//                                          Convert.ToInt32(drow["ActivityPickingRouteStop"]));
 
-                                      rsPickRoute.Insert(recPickRoute);
-                                    }
+//                                      rsPickRoute.Insert(recPickRoute);
+//                                    }
 
-                                    progValue++;
-                                    if (progValue % 10 == 0)
-                                    {
-                                      this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue);
-                                    }
-                                  }
+//                                    progValue++;
+//                                    if (progValue % 10 == 0)
+//                                    {
+//                                      this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue);
+//                                    }
+//                                  }
 
-                                  this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax);
-                                }
-                              }
+//                                  this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax);
+//                                }
+//                              }
 
-                              drRoute.Close();
-                            }
-                          }
-                        }
+//                              drRoute.Close();
+//                            }
+//                          }
+//                        }
 
-                        drWhs.Close();
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
+//                        drWhs.Close();
+//                      }
+//                    }
+//                  }
+//                }
+//              }
+//            }
+//          }
 
-#if MULTILANGUAGE
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingSalesOrdersComplete), false);
-#else
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving sales orders complete.", false);
-#endif
-        }
-      }
-      catch (SqlCeException ex)
-      {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), true);
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingSalesOrdersFailed), true);
-#else
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving sales orders failed.", true);
-#endif
+//#if MULTILANGUAGE
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingSalesOrdersComplete), false);
+//#else
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving sales orders complete.", false);
+//#endif
+//        }
+//      }
+//      catch (SQLiteException ex)
+//      {
+//#if MULTILANGUAGE
+//        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), true);
+//        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingSalesOrdersFailed), true);
+//#else
+//        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
+//        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving sales orders failed.", true);
+//#endif
 
-       // Duplicate key violations
-        if (ex.NativeError == 25016)
-        {
-#if MULTILANGUAGE
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.UniquenessViolation), false);
-          throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.UniquenessViolation) + Environment.NewLine + errMsg, ex);
-#else
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Uniqueness violation.", false);
-          throw new Exception("Uniqueness violation." + Environment.NewLine + errMsg, ex);
-#endif
-        }
+//       // Duplicate key violations
+//        if (ex.NativeError == 25016)
+//        {
+//#if MULTILANGUAGE
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.UniquenessViolation), false);
+//          throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.UniquenessViolation) + Environment.NewLine + errMsg, ex);
+//#else
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Uniqueness violation.", false);
+//          throw new Exception("Uniqueness violation." + Environment.NewLine + errMsg, ex);
+//#endif
+//        }
 
-        throw new Exception(
-#if MULTILANGUAGE
-            Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredSavingSalesOrdersFailed) + Environment.NewLine + errMsg,
-#else
-            "Database exception occurred. Saving sales orders failed." + Environment.NewLine + errMsg,
-#endif
-            ex);
-      }
+//        throw new Exception(
+//#if MULTILANGUAGE
+//            Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredSavingSalesOrdersFailed) + Environment.NewLine + errMsg,
+//#else
+//            "Database exception occurred. Saving sales orders failed." + Environment.NewLine + errMsg,
+//#endif
+//            ex);
+//      }
     }
 
     /// <summary>

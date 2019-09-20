@@ -1,7 +1,6 @@
 namespace dMobile.BarCodeScanner
 {
   using System;
-  using System.Windows.Forms;
   using Intermec.DataCollection;
   using dMobile.Bedrock;
 
@@ -17,7 +16,7 @@ namespace dMobile.BarCodeScanner
     /// <summary>
     /// Created to synchronize the main thread and temporary threads.
     /// </summary>
-    private Control syncLock;
+    //private Control syncLock;
     #endregion
 
     #region Properties
@@ -47,12 +46,12 @@ namespace dMobile.BarCodeScanner
     public override bool Initialize()
     {
       bool isInitialized = false;
-      syncLock = new Control();
-      syncLock.Enabled = false;
-      syncLock.Visible = false;
-      syncLock.Width = 1;
-      syncLock.Height = 1;
-      syncLock.TabStop = false;
+      //syncLock = new Control();
+      //syncLock.Enabled = false;
+      //syncLock.Visible = false;
+      //syncLock.Width = 1;
+      //syncLock.Height = 1;
+      //syncLock.TabStop = false;
 
       // If scanner is already present then fail initialize
       if (this.IntermecReader == null)
@@ -131,10 +130,10 @@ namespace dMobile.BarCodeScanner
     {
         BarCodeScannerEventArgs e = (BarCodeScannerEventArgs)param;
         System.Threading.Thread.Sleep(25); // Sleep to allow the main thread to exit the read event
-        if (syncLock.InvokeRequired)
-        {
-            syncLock.Invoke(new BarCodeScanEventHandler(OnDelayedBarCodeScan), new object[] { this, e });
-        }
+        //if (syncLock.InvokeRequired)
+        //{
+        //    syncLock.Invoke(new BarCodeScanEventHandler(OnDelayedBarCodeScan), new object[] { this, e });
+        //}
     }
 
     /// <summary>
@@ -155,7 +154,7 @@ namespace dMobile.BarCodeScanner
       {
         // Code to clean up managed resources
           Terminate();
-          syncLock.Dispose();
+          //syncLock.Dispose();
       }
 
       // Code to clean up unmanaged resources
@@ -172,57 +171,57 @@ namespace dMobile.BarCodeScanner
     /// </summary>
     private void intermecReader_BarcodeRead(object sender, BarcodeReadEventArgs bre)
     {
-      try
-      {
-        // Raise read event to caller (with data)
-        BarCodeScannerEventArgs e = new BarCodeScannerEventArgs(bre.strDataBuffer);
-        this.ThreadedBarCodeScan(e); // wait for this thread to end, then fire event
-      }
-      catch (RuleViolationException ex)
-      {
-#if MULTILANGUAGE
-        MessageBox.Show(Translator.GetInstance().Translate(TranslatorVocabulary.BarCodeRuleViolation) + Environment.NewLine + ex.Message,
-            Translator.GetInstance().Translate(TranslatorVocabulary.ScanEngine),
-#else
-        MessageBox.Show("Bar code rule violation." + Environment.NewLine + ex.Message,
-            "Scan Engine.",
-#endif
-            MessageBoxButtons.OK,
-            MessageBoxIcon.Exclamation,
-            MessageBoxDefaultButton.Button1);
-      }
-      catch (BarCodeParseException ex)
-      {
-          MessageBox.Show(
-#if MULTILANGUAGE
-              Translator.GetInstance().Translate(TranslatorVocabulary.BarCodeParseException) + Environment.NewLine + ex.Message,
-#else
-              "Bar Code Parse Exception" + Environment.NewLine + ex.Message,
-#endif
-              "Scan Engine",
-              MessageBoxButtons.OK,
-              MessageBoxIcon.Exclamation,
-              MessageBoxDefaultButton.Button1);
+//      try
+//      {
+//        // Raise read event to caller (with data)
+//        BarCodeScannerEventArgs e = new BarCodeScannerEventArgs(bre.strDataBuffer);
+//        this.ThreadedBarCodeScan(e); // wait for this thread to end, then fire event
+//      }
+//      catch (RuleViolationException ex)
+//      {
+//#if MULTILANGUAGE
+//        MessageBox.Show(Translator.GetInstance().Translate(TranslatorVocabulary.BarCodeRuleViolation) + Environment.NewLine + ex.Message,
+//            Translator.GetInstance().Translate(TranslatorVocabulary.ScanEngine),
+//#else
+//        MessageBox.Show("Bar code rule violation." + Environment.NewLine + ex.Message,
+//            "Scan Engine.",
+//#endif
+//            MessageBoxButtons.OK,
+//            MessageBoxIcon.Exclamation,
+//            MessageBoxDefaultButton.Button1);
+//      }
+//      catch (BarCodeParseException ex)
+//      {
+//          MessageBox.Show(
+//#if MULTILANGUAGE
+//              Translator.GetInstance().Translate(TranslatorVocabulary.BarCodeParseException) + Environment.NewLine + ex.Message,
+//#else
+//              "Bar Code Parse Exception" + Environment.NewLine + ex.Message,
+//#endif
+//              "Scan Engine",
+//              MessageBoxButtons.OK,
+//              MessageBoxIcon.Exclamation,
+//              MessageBoxDefaultButton.Button1);
 
-          this.Stop();
-          this.Start();
-      }
-      catch (Exception ex)
-      {
-        string msg = ex.Message;
-        this.Terminate();
-        this.Initialize();
+//          this.Stop();
+//          this.Start();
+//      }
+//      catch (Exception ex)
+//      {
+//        string msg = ex.Message;
+//        this.Terminate();
+//        this.Initialize();
 
-        MessageBox.Show(msg,
-#if MULTILANGUAGE
-            Translator.GetInstance().Translate(TranslatorVocabulary.ScanEngine),
-#else
-            "Scan Engine.",
-#endif
-            MessageBoxButtons.OK,
-            MessageBoxIcon.Exclamation,
-            MessageBoxDefaultButton.Button1);
-      }
+//        MessageBox.Show(msg,
+//#if MULTILANGUAGE
+//            Translator.GetInstance().Translate(TranslatorVocabulary.ScanEngine),
+//#else
+//            "Scan Engine.",
+//#endif
+//            MessageBoxButtons.OK,
+//            MessageBoxIcon.Exclamation,
+//            MessageBoxDefaultButton.Button1);
+//      }
     }
 
     #endregion

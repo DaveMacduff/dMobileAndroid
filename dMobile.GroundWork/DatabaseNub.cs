@@ -116,7 +116,7 @@ namespace dMobile.GroundWork
       //  File.Delete(srceDBName);
       //  File.Move(destDBName, srceDBName);
       //}
-      //catch (SqlCeException ssce)
+      //catch (SQLiteException ssce)
       //{
       //  this.ErrorRaised = true;
 
@@ -146,7 +146,7 @@ namespace dMobile.GroundWork
       //  engine.Repair((string)("Data Source = " + srceDBName), RepairOption.RecoverAllPossibleRows);
       //  engine.Dispose();
       //}
-      //catch (SqlCeException ssce)
+      //catch (SQLiteException ssce)
       //{
       //  this.ErrorRaised = true;
 
@@ -168,45 +168,39 @@ namespace dMobile.GroundWork
     /// <remarks>Password is 'dMobile'</remarks>
     public void CreateNewDatabase()
     {
-//      string dbASCIIZ = this.DBConn.DBPath + this.DBConn.DBName;
+            string dbASCIIZ = this.DBConn.DBPath + this.DBConn.DBName;
 
-//      DatabaseConnection.CloseDataBaseConnection();
-//      DatabaseConnection.DisposeDataBaseConnection();
+            DatabaseConnection.CloseDataBaseConnection();
+            DatabaseConnection.DisposeDataBaseConnection();
 
-//      if (File.Exists(dbASCIIZ))
-//      {
-//        if (this.OnNubStatOut != null)
-//        {
-//#if MULTILANGUAGE
-//          this.MsgEventArgs.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.DeletingDatabase) + dbASCIIZ;
-//#else
-//          this.MsgEventArgs.StatusOutMsg = "Deleting database " + dbASCIIZ;
-//#endif
-//          this.OnNubStatOut(this, this.MsgEventArgs);
-//        }
+            if (File.Exists(dbASCIIZ))
+            {
+                if (this.OnNubStatOut != null)
+                {
+#if MULTILANGUAGE
+          this.MsgEventArgs.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.DeletingDatabase) + dbASCIIZ;
+#else
+                    this.MsgEventArgs.StatusOutMsg = "Deleting database " + dbASCIIZ;
+#endif
+                    this.OnNubStatOut(this, this.MsgEventArgs);
+                }
 
-//        File.Delete(dbASCIIZ);
-//      }
+                File.Delete(dbASCIIZ);
+            }
 
-//      using (SQLIte dbEngine = new SqlCeEngine(this.DBConn.ConnString))
-//      {
-//        if (this.OnNubStatOut != null)
-//        {
-//#if MULTILANGUAGE
-//          this.MsgEventArgs.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.CreatingDatabase) + dbASCIIZ;
-//#else
-//          this.MsgEventArgs.StatusOutMsg = "Creating database " + dbASCIIZ;
-//#endif
-//          this.OnNubStatOut(this, this.MsgEventArgs);
-//        }
+            if (this.OnNubStatOut != null)
+            {
+#if MULTILANGUAGE
+          this.MsgEventArgs.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.CreatingDatabase) + dbASCIIZ;
+#else
+                this.MsgEventArgs.StatusOutMsg = "Creating database " + dbASCIIZ;
+#endif
+                this.OnNubStatOut(this, this.MsgEventArgs);
+            }
 
-//        dbEngine.CreateDatabase();
-//        dbEngine.Dispose();
-//      }
-
-//      DatabaseConnection.GetInstance();
-//      DatabaseConnection.OpenDataBaseConnection();
-    }
+            DatabaseConnection.GetInstance();
+            DatabaseConnection.OpenDataBaseConnection();
+        }
 
     /// <summary>
     ///
@@ -341,8 +335,8 @@ namespace dMobile.GroundWork
         this.CreateTableActivityDetailProductionByProduct();
 
         this.CreateTableActivityItemPurchaseOrderWorkSheet();
-      }
-      catch (SQLiteException ex)
+            }
+            catch (SQLiteException ex)
       {
         this.ErrorRaised = true;
 
@@ -382,7 +376,7 @@ namespace dMobile.GroundWork
     {
       string sqlTable = "CREATE TABLE tActivity"
           + "("
-          + "ActivityRefno int NOT NULL IDENTITY(1, 1) CONSTRAINT PK_ActivityOnActivityRefno PRIMARY KEY,"
+          + "ActivityRefno int NOT NULL CONSTRAINT PK_ActivityOnActivityRefno PRIMARY KEY,"
           + "ActivityStatus int NOT NULL,"
           + "ActivitySubType int NOT NULL"
           + ")";
@@ -399,7 +393,7 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_ActivityOnActivityRefnoAndActivitySubType "
+      string sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityOnActivityRefnoAndActivitySubType "
           + "ON tActivity(ActivityRefno ASC, ActivitySubType ASC)";
       this.RunDDLCommand(sqlNdx);
     }
@@ -413,7 +407,10 @@ namespace dMobile.GroundWork
       string sqlTable = "CREATE TABLE tActivityDetailProductSchemeVariantXRef"
           + "("
           + "ActivityDetailRefno int NOT NULL,"
-          + "ProductSchemeVariantRefno int NOT NULL"
+          + "ProductSchemeVariantRefno int NOT NULL, "
+          + "CONSTRAINT ActivityDetailProductSchemeVariantXRefTactDetailOnActivityDetailRefno FOREIGN KEY (ActivityDetailRefno) REFERENCES tActivityDetail(ActivityDetailRefno) ON DELETE CASCADE ON UPDATE CASCADE, "
+          + "CONSTRAINT ActivityDetailProductSchemeVariantXRefToProductSchemeVariantOnProductSchemeVariantRefno FOREIGN KEY (ProductSchemeVariantRefno) " 
+          + "REFERENCES tProductSchemeVariant(ProductSchemeVariantRefno) ON DELETE CASCADE ON UPDATE CASCADE"
           + ")";
 
       if (this.OnNubStatOut != null)
@@ -428,30 +425,30 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX "
+      string sqlNdx = "CREATE UNIQUE INDEX "
           + "PK_ActivityDetailProductSchemeVariantXRefOnActivityDetailRefnoAndProductSchemeVariantRefno ON "
           + "tActivityDetailProductSchemeVariantXRef(ActivityDetailRefno ASC, ProductSchemeVariantRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_ActivityDetailProductSchemeVariantXRefOnActivityDetailRefno ON "
+      sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityDetailProductSchemeVariantXRefOnActivityDetailRefno ON "
           + "tActivityDetailProductSchemeVariantXRef(ActivityDetailRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE NONCLUSTERED INDEX FK_ActivityDetailProductSchemeVariantXRefOnProductSchemeVariantRefno "
+      sqlNdx = "CREATE INDEX FK_ActivityDetailProductSchemeVariantXRefOnProductSchemeVariantRefno "
           + "ON tActivityDetailProductSchemeVariantXRef(ProductSchemeVariantRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      string alterTable = "ALTER TABLE tActivityDetailProductSchemeVariantXRef ADD CONSTRAINT "
-          + "ActivityDetailProductSchemeVariantXRefTactDetailOnActivityDetailRefno  "
-          + "FOREIGN KEY (ActivityDetailRefno) REFERENCES tActivityDetail(ActivityDetailRefno) "
-          + "ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //string alterTable = "ALTER TABLE tActivityDetailProductSchemeVariantXRef ADD CONSTRAINT "
+      //    + "ActivityDetailProductSchemeVariantXRefTactDetailOnActivityDetailRefno  "
+      //    + "FOREIGN KEY (ActivityDetailRefno) REFERENCES tActivityDetail(ActivityDetailRefno) "
+      //    + "ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
 
-      alterTable = "ALTER TABLE tActivityDetailProductSchemeVariantXRef ADD CONSTRAINT "
-          + "ActivityDetailProductSchemeVariantXRefToProductSchemeVariantOnProductSchemeVariantRefno "
-          + "FOREIGN KEY (ProductSchemeVariantRefno) REFERENCES tProductSchemeVariant(ProductSchemeVariantRefno) "
-          + "ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //alterTable = "ALTER TABLE tActivityDetailProductSchemeVariantXRef ADD CONSTRAINT "
+      //    + "ActivityDetailProductSchemeVariantXRefToProductSchemeVariantOnProductSchemeVariantRefno "
+      //    + "FOREIGN KEY (ProductSchemeVariantRefno) REFERENCES tProductSchemeVariant(ProductSchemeVariantRefno) "
+      //    + "ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
     }
 
     /// <summary>
@@ -462,10 +459,11 @@ namespace dMobile.GroundWork
     {
       string sqlTable = "CREATE TABLE tActivityItem"
           + "("
-          + "ActivityItemRefno int NOT NULL IDENTITY(1, 1) CONSTRAINT PK_ActivityItemOnActivityItemRefno PRIMARY KEY,"
+          + "ActivityItemRefno int NOT NULL CONSTRAINT PK_ActivityItemOnActivityItemRefno PRIMARY KEY,"
           + "ActivityItemSubType int NOT NULL,"
           + "ActivityItemStatus int NOT NULL,"
-          + "ActivityRefno int NOT NULL"
+          + "ActivityRefno int NOT NULL, "
+          + "CONSTRAINT ActivityItemToActivityOnActivityRefno FOREIGN KEY (ActivityRefno) REFERENCES tActivity(ActivityRefno) ON DELETE CASCADE ON UPDATE CASCADE"
           + ")";
 
       if (this.OnNubStatOut != null)
@@ -480,16 +478,16 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_ActivityDetailOnActivityItemRefnoAndActivityItemSubType "
+      string sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityDetailOnActivityItemRefnoAndActivityItemSubType "
           + "ON tActivityItem(ActivityItemRefno ASC, ActivityItemSubType ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE NONCLUSTERED INDEX FK_ActivityItemOnActivityRefno ON tActivityItem(ActivityRefno ASC)";
+      sqlNdx = "CREATE INDEX FK_ActivityItemOnActivityRefno ON tActivityItem(ActivityRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      string alterTable = "ALTER TABLE tActivityItem ADD CONSTRAINT ActivityItemToActivityOnActivityRefno "
-          + "FOREIGN KEY (ActivityRefno) REFERENCES tActivity(ActivityRefno) ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //string alterTable = "ALTER TABLE tActivityItem ADD CONSTRAINT ActivityItemToActivityOnActivityRefno "
+      //    + "FOREIGN KEY (ActivityRefno) REFERENCES tActivity(ActivityRefno) ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
     }
 
     /// <summary>
@@ -500,7 +498,7 @@ namespace dMobile.GroundWork
     {
       string sqlTable = "CREATE TABLE tActivityDetail"
           + "("
-          + "ActivityDetailRefno int NOT NULL IDENTITY(1, 1) "
+          + "ActivityDetailRefno int NOT NULL "
           + "CONSTRAINT PK_ActivityDetailOnActivityDetailRefno PRIMARY KEY,"
           + "ActivityDetailSubType int NOT NULL,"
           + "ActivityDetailStatus int NOT NULL,"
@@ -519,7 +517,10 @@ namespace dMobile.GroundWork
           + "ActivityDetailLogisticUnitProductionDate datetime NOT NULL,"
           + "ActivityDetailLogisticUnitDueDate datetime NOT NULL,"
           + "ActivityDetailLogisticUnitPackagingDate datetime NOT NULL,"
-          + "ActivityDetailLogisticUnitSkidNumber nvarchar(18) NOT NULL"
+          + "ActivityDetailLogisticUnitSkidNumber nvarchar(18) NOT NULL, "
+          + "CONSTRAINT ActivityDetailTactItemOnActivityItemRefno FOREIGN KEY (ActivityItemRefno) REFERENCES tActivityItem(ActivityItemRefno) ON DELETE CASCADE ON UPDATE CASCADE, "
+          + "CONSTRAINT ActivityDetailTactItemOnLocationMapRefno FOREIGN KEY (LocationMapRefno) REFERENCES tLocationMap(LocationMapRefno) ON DELETE CASCADE ON UPDATE CASCADE, "
+          + "CONSTRAINT ActivityDetailTactItemOnProductUnitRefno FOREIGN KEY (ProductUnitRefno) REFERENCES tProductUnit(ProductUnitRefno) ON DELETE CASCADE ON UPDATE CASCADE"
           + ")";
 
       if (this.OnNubStatOut != null)
@@ -534,40 +535,40 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_ActivityDetailOnActivityDetailRefnoAndActivityDetailSubType "
+      string sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityDetailOnActivityDetailRefnoAndActivityDetailSubType "
           + "ON tActivityDetail(ActivityDetailRefno ASC, ActivityDetailSubType ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE NONCLUSTERED INDEX ActivityDetailOnActivityDetailUniqueSchemeID ON "
+      sqlNdx = "CREATE INDEX ActivityDetailOnActivityDetailUniqueSchemeID ON "
           + "tActivityDetail(ActivityDetailUniqueSchemeID ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE NONCLUSTERED INDEX FK_ActivityDetailOnActivityItemRefno ON "
+      sqlNdx = "CREATE INDEX FK_ActivityDetailOnActivityItemRefno ON "
           + "tActivityDetail(ActivityItemRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE NONCLUSTERED INDEX FK_ActivityDetailOnLocationMapRefno ON "
+      sqlNdx = "CREATE INDEX FK_ActivityDetailOnLocationMapRefno ON "
           + "tActivityDetail(LocationMapRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE NONCLUSTERED INDEX FK_ActivityDetailOnProductUnitRefno ON "
+      sqlNdx = "CREATE INDEX FK_ActivityDetailOnProductUnitRefno ON "
           + "tActivityDetail(ProductUnitRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      string alterTable = "ALTER TABLE tActivityDetail ADD CONSTRAINT ActivityDetailTactItemOnActivityItemRefno "
-          + "FOREIGN KEY (ActivityItemRefno) REFERENCES tActivityItem(ActivityItemRefno) "
-          + "ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //string alterTable = "ALTER TABLE tActivityDetail ADD CONSTRAINT ActivityDetailTactItemOnActivityItemRefno "
+      //    + "FOREIGN KEY (ActivityItemRefno) REFERENCES tActivityItem(ActivityItemRefno) "
+      //    + "ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
 
-      alterTable = "ALTER TABLE tActivityDetail ADD CONSTRAINT ActivityDetailTactItemOnLocationMapRefno "
-          + "FOREIGN KEY (LocationMapRefno) REFERENCES tLocationMap(LocationMapRefno) "
-          + "ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //alterTable = "ALTER TABLE tActivityDetail ADD CONSTRAINT ActivityDetailTactItemOnLocationMapRefno "
+      //    + "FOREIGN KEY (LocationMapRefno) REFERENCES tLocationMap(LocationMapRefno) "
+      //    + "ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
 
-      alterTable = "ALTER TABLE tActivityDetail ADD CONSTRAINT ActivityDetailTactItemOnProductUnitRefno "
-          + "FOREIGN KEY (ProductUnitRefno) REFERENCES tProductUnit(ProductUnitRefno) "
-          + "ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //alterTable = "ALTER TABLE tActivityDetail ADD CONSTRAINT ActivityDetailTactItemOnProductUnitRefno "
+      //    + "FOREIGN KEY (ProductUnitRefno) REFERENCES tProductUnit(ProductUnitRefno) "
+      //    + "ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
     }
 
     /// <summary>
@@ -584,7 +585,8 @@ namespace dMobile.GroundWork
           + "ActivityDetailExtra2Text nvarchar(10) NOT NULL,"
           + "ActivityDetailExtra3Text nvarchar(10) NOT NULL,"
           + "ActivityDetailExtra4Text nvarchar(10) NOT NULL,"
-          + "ActivityDetailExtra5Text nvarchar(10) NOT NULL"
+          + "ActivityDetailExtra5Text nvarchar(10) NOT NULL, "
+          + "CONSTRAINT ActivityDetailExtraToActivityDetailOnActivityDetailRefno FOREIGN KEY (ActivityDetailRefno) REFERENCES tActivityDetail(ActivityDetailRefno) ON DELETE CASCADE ON UPDATE CASCADE"
           + ")";
 
       if (this.OnNubStatOut != null)
@@ -599,15 +601,15 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_ActivityDetailExtraOnActivityDetailRefnoAndActivityDetailSubType "
+      string sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityDetailExtraOnActivityDetailRefnoAndActivityDetailSubType "
           + "ON tActivityDetailExtra(ActivityDetailRefno ASC, ActivityDetailSubType ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      string alterTable = "ALTER TABLE tActivityDetailExtra ADD CONSTRAINT "
-          + "ActivityDetailExtraToActivityDetailOnActivityDetailRefno FOREIGN KEY (ActivityDetailRefno) "
-          + "REFERENCES tActivityDetail(ActivityDetailRefno) "
-          + "ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //string alterTable = "ALTER TABLE tActivityDetailExtra ADD CONSTRAINT "
+      //    + "ActivityDetailExtraToActivityDetailOnActivityDetailRefno FOREIGN KEY (ActivityDetailRefno) "
+      //    + "REFERENCES tActivityDetail(ActivityDetailRefno) "
+      //    + "ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
     }
 
     /// <summary>
@@ -626,7 +628,9 @@ namespace dMobile.GroundWork
           + "ActivityCountType int NOT NULL,"
           + "ActivityCountDateTime datetime NOT NULL,"
           + "ActivityCountTypeDescription nvarchar(60) NOT NULL,"
-          + "ActivityCountDescription nvarchar(60) NOT NULL"
+          + "ActivityCountDescription nvarchar(60) NOT NULL, "
+          + "CONSTRAINT ActivityCountToActivityOnActivityRefno FOREIGN KEY (ActivityRefno) REFERENCES tActivity(ActivityRefno) ON DELETE CASCADE ON UPDATE CASCADE, "
+          + "CONSTRAINT ActivityCountToLocationMapWarehouseOnWarehouseLocationMapRefnoAndLocationMapRefno FOREIGN KEY (WarehouseLocationMapRefno) REFERENCES tLocationMapWarehouse(LocationMapRefno)"
           + ")";
 
       if (this.OnNubStatOut != null)
@@ -641,27 +645,27 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_ActivityCountOnActivityRefnoAndActivitySubType ON "
+      string sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityCountOnActivityRefnoAndActivitySubType ON "
           + "tActivityCount(ActivityRefno ASC, ActivitySubType ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_ActivityCountOnActivityCountFKRefno ON "
+      sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityCountOnActivityCountFKRefno ON "
           + "tActivityCount(ActivityCountFKRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE NONCLUSTERED INDEX FK_ActivityCountOnWarehouseLocationMapRefno ON "
+      sqlNdx = "CREATE INDEX FK_ActivityCountOnWarehouseLocationMapRefno ON "
           + "tActivityCount(WarehouseLocationMapRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      string alterTable = "ALTER TABLE tActivityCount ADD CONSTRAINT ActivityCountToActivityOnActivityRefno "
-          + "FOREIGN KEY (ActivityRefno) REFERENCES tActivity(ActivityRefno) "
-          + "ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //string alterTable = "ALTER TABLE tActivityCount ADD CONSTRAINT ActivityCountToActivityOnActivityRefno "
+      //    + "FOREIGN KEY (ActivityRefno) REFERENCES tActivity(ActivityRefno) "
+      //    + "ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
 
-      alterTable = "ALTER TABLE tActivityCount ADD CONSTRAINT "
-          + "ActivityCountToLocationMapWarehouseOnWarehouseLocationMapRefnoAndLocationMapRefno "
-          + "FOREIGN KEY (WarehouseLocationMapRefno) REFERENCES tLocationMapWarehouse(LocationMapRefno)";
-      this.RunDDLCommand(alterTable);
+      //alterTable = "ALTER TABLE tActivityCount ADD CONSTRAINT "
+      //    + "ActivityCountToLocationMapWarehouseOnWarehouseLocationMapRefnoAndLocationMapRefno "
+      //    + "FOREIGN KEY (WarehouseLocationMapRefno) REFERENCES tLocationMapWarehouse(LocationMapRefno)";
+      //this.RunDDLCommand(alterTable);
     }
 
     /// <summary>
@@ -681,7 +685,9 @@ namespace dMobile.GroundWork
           + "ActivityPickingDeliveryDateTime datetime NOT NULL,"
           + "ActivityPickingCustomerContactName nvarchar(40) NOT NULL,"
           + "ActivityPickingCustomerShipToInfo nvarchar(40) NOT NULL,"
-          + "ActivityPickingIsReviewed bit NOT NULL"
+          + "ActivityPickingIsReviewed bit NOT NULL, "
+          + "CONSTRAINT ActivityPickingToActivityOnActivityRefno FOREIGN KEY (ActivityRefno) REFERENCES tActivity(ActivityRefno) ON DELETE CASCADE ON UPDATE CASCADE, "
+          + "CONSTRAINT ActivityPickingToLocationMapWarehouseOnWarehouseLocationMapRefnoAndLocationMapRefno FOREIGN KEY (WarehouseLocationMapRefno) REFERENCES tLocationMapWarehouse(LocationMapRefno) ON DELETE CASCADE ON UPDATE CASCADE"
           + ")";
 
       if (this.OnNubStatOut != null)
@@ -696,28 +702,28 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_ActivityPickingOnActivityRefnoAndActivitySubType "
+      string sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityPickingOnActivityRefnoAndActivitySubType "
           + "ON tActivityPicking(ActivityRefno ASC, ActivitySubType ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_ActivityPickingOnActivityPickingFKRefno ON "
+      sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityPickingOnActivityPickingFKRefno ON "
           + "tActivityPicking(ActivityPickingFKRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE NONCLUSTERED INDEX FK_ActivityPickingOnWarehouseLocationMapRefno ON "
+      sqlNdx = "CREATE INDEX FK_ActivityPickingOnWarehouseLocationMapRefno ON "
           + "tActivityPicking(WarehouseLocationMapRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      string alterTable = "ALTER TABLE tActivityPicking ADD CONSTRAINT ActivityPickingToActivityOnActivityRefno "
-          + "FOREIGN KEY (ActivityRefno) REFERENCES tActivity(ActivityRefno) "
-          + "ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //string alterTable = "ALTER TABLE tActivityPicking ADD CONSTRAINT ActivityPickingToActivityOnActivityRefno "
+      //    + "FOREIGN KEY (ActivityRefno) REFERENCES tActivity(ActivityRefno) "
+      //    + "ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
 
-      alterTable = "ALTER TABLE tActivityPicking ADD CONSTRAINT "
-          + "ActivityPickingToLocationMapWarehouseOnWarehouseLocationMapRefnoAndLocationMapRefno "
-          + "FOREIGN KEY (WarehouseLocationMapRefno) REFERENCES tLocationMapWarehouse(LocationMapRefno) "
-          + "ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //alterTable = "ALTER TABLE tActivityPicking ADD CONSTRAINT "
+      //    + "ActivityPickingToLocationMapWarehouseOnWarehouseLocationMapRefnoAndLocationMapRefno "
+      //    + "FOREIGN KEY (WarehouseLocationMapRefno) REFERENCES tLocationMapWarehouse(LocationMapRefno) "
+      //    + "ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
     }
 
     /// <summary>
@@ -736,7 +742,9 @@ namespace dMobile.GroundWork
           + "ActivityReturnsOrderedDateTime datetime NOT NULL,"
           + "ActivityReturnsDeliveryDateTime datetime NOT NULL,"
           + "ActivityReturnsCustomerContactName nvarchar(40) NOT NULL,"
-          + "ActivityReturnsCustomerShipToInfo nvarchar(40) NOT NULL"
+          + "ActivityReturnsCustomerShipToInfo nvarchar(40) NOT NULL, "
+          + "CONSTRAINT ActivityReturnsToActivityOnActivityRefnoAndActivitySubType FOREIGN KEY (ActivityRefno, ActivitySubType) REFERENCES tActivity(ActivityRefno, ActivitySubType) ON DELETE CASCADE, "
+          + "CONSTRAINT ActivityReturnsToLocationMapWarehouseOnWarehouseLocationMapRefnoAndLocationMapRefno FOREIGN KEY (WarehouseLocationMapRefno) REFERENCES tLocationMapWarehouse(LocationMapRefno) ON DELETE NO ACTION"
           + ")";
 
       if (this.OnNubStatOut != null)
@@ -751,28 +759,28 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_ActivityReturnsOnActivityRefnoAndActivitySubType "
+      string sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityReturnsOnActivityRefnoAndActivitySubType "
           + "ON tActivityReturns(ActivityRefno ASC, ActivitySubType ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_ActivityReturnsOnActivityReturnsFKRefno ON "
+      sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityReturnsOnActivityReturnsFKRefno ON "
           + "tActivityReturns(ActivityReturnsFKRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE NONCLUSTERED INDEX FK_ActivityReturnsOnWarehouseLocationMapRefno ON "
+      sqlNdx = "CREATE INDEX FK_ActivityReturnsOnWarehouseLocationMapRefno ON "
           + "tActivityReturns(WarehouseLocationMapRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      string alterTable = "ALTER TABLE tActivityReturns ADD CONSTRAINT "
-          + "ActivityReturnsToActivityOnActivityRefnoAndActivitySubType FOREIGN KEY (ActivityRefno, ActivitySubType) "
-          + "REFERENCES tActivity(ActivityRefno, ActivitySubType) ON DELETE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //string alterTable = "ALTER TABLE tActivityReturns ADD CONSTRAINT "
+      //    + "ActivityReturnsToActivityOnActivityRefnoAndActivitySubType FOREIGN KEY (ActivityRefno, ActivitySubType) "
+      //    + "REFERENCES tActivity(ActivityRefno, ActivitySubType) ON DELETE CASCADE";
+      //this.RunDDLCommand(alterTable);
 
-      alterTable = "ALTER TABLE tActivityReturns ADD CONSTRAINT "
-          + "ActivityReturnsToLocationMapWarehouseOnWarehouseLocationMapRefnoAndLocationMapRefno "
-          + "FOREIGN KEY (WarehouseLocationMapRefno) REFERENCES tLocationMapWarehouse(LocationMapRefno) "
-          + "ON DELETE NO ACTION";
-      this.RunDDLCommand(alterTable);
+      //alterTable = "ALTER TABLE tActivityReturns ADD CONSTRAINT "
+      //    + "ActivityReturnsToLocationMapWarehouseOnWarehouseLocationMapRefnoAndLocationMapRefno "
+      //    + "FOREIGN KEY (WarehouseLocationMapRefno) REFERENCES tLocationMapWarehouse(LocationMapRefno) "
+      //    + "ON DELETE NO ACTION";
+      //this.RunDDLCommand(alterTable);
     }
 
     /// <summary>
@@ -785,7 +793,9 @@ namespace dMobile.GroundWork
           + "("
           + "PickingActivityRefno int NOT NULL,"
           + "RouteRefno int NOT NULL,"
-          + "RouteStop int NOT NULL "
+          + "RouteStop int NOT NULL, "
+          + "CONSTRAINT ActivityPickingRouteToActivityPickingOnPickingActivityRefnoAndActivityRefno FOREIGN KEY (PickingActivityRefno) REFERENCES tActivityPicking(ActivityRefno) ON DELETE CASCADE ON UPDATE CASCADE, "
+          + "CONSTRAINT ActivityPickingRouteToRouteOnRouteRefno FOREIGN KEY (RouteRefno) REFERENCES tRoute(RouteRefno) ON DELETE CASCADE ON UPDATE CASCADE"
           + ")";
 
       if (this.OnNubStatOut != null)
@@ -800,26 +810,26 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_ActivityPickingRouteOnPickingActivityRefnoAndRouteRefno "
+      string sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityPickingRouteOnPickingActivityRefnoAndRouteRefno "
           + "ON tActivityPickingRoute(PickingActivityRefno ASC, RouteRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX FK_ActivityPickingRouteOnPickingActivityRefno ON "
+      sqlNdx = "CREATE UNIQUE INDEX FK_ActivityPickingRouteOnPickingActivityRefno ON "
           + "tActivityPickingRoute(PickingActivityRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE NONCLUSTERED INDEX FK_ActivityPickingRouteOnRouteRefno ON tActivityPickingRoute(RouteRefno ASC)";
+      sqlNdx = "CREATE INDEX FK_ActivityPickingRouteOnRouteRefno ON tActivityPickingRoute(RouteRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      string alterTable = "ALTER TABLE tActivityPickingRoute ADD CONSTRAINT "
-          + "ActivityPickingRouteToActivityPickingOnPickingActivityRefnoAndActivityRefno "
-          + "FOREIGN KEY (PickingActivityRefno) REFERENCES tActivityPicking(ActivityRefno) "
-          + "ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //string alterTable = "ALTER TABLE tActivityPickingRoute ADD CONSTRAINT "
+      //    + "ActivityPickingRouteToActivityPickingOnPickingActivityRefnoAndActivityRefno "
+      //    + "FOREIGN KEY (PickingActivityRefno) REFERENCES tActivityPicking(ActivityRefno) "
+      //    + "ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
 
-      alterTable = "ALTER TABLE tActivityPickingRoute ADD CONSTRAINT ActivityPickingRouteToRouteOnRouteRefno "
-          + "FOREIGN KEY (RouteRefno) REFERENCES tRoute(RouteRefno) ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //alterTable = "ALTER TABLE tActivityPickingRoute ADD CONSTRAINT ActivityPickingRouteToRouteOnRouteRefno "
+      //    + "FOREIGN KEY (RouteRefno) REFERENCES tRoute(RouteRefno) ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
     }
 
     /// <summary>
@@ -841,7 +851,9 @@ namespace dMobile.GroundWork
           + "ActivityReceivingArrivalDateTime datetime NOT NULL,"
           + "ActivityReceivingVendorContactName nvarchar(40) NOT NULL,"
           + "ActivityReceivingVendorSupplierContactName nvarchar(40) NOT NULL,"
-          + "ActivityReceivingVendorSupplierGTINCompanyPrefix nvarchar(11) NOT NULL"
+          + "ActivityReceivingVendorSupplierGTINCompanyPrefix nvarchar(11) NOT NULL, "
+          + "CONSTRAINT ActivityReceivingToActivityOnActivityRefno FOREIGN KEY (ActivityRefno) REFERENCES tActivity(ActivityRefno) ON DELETE CASCADE ON UPDATE CASCADE, "
+          + "CONSTRAINT ActivityReceivingToLocationMapWarehouseOnWarehouseLocationMapRefnoAndLocationMapRefno FOREIGN KEY (WarehouseLocationMapRefno) REFERENCES tLocationMapWarehouse(LocationMapRefno) ON DELETE CASCADE ON UPDATE CASCADE"
           + ")";
 
       if (this.OnNubStatOut != null)
@@ -856,31 +868,31 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_ActivityReceivingOnActivityRefnoAndActivitySubType "
+      string sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityReceivingOnActivityRefnoAndActivitySubType "
           + "ON tActivityReceiving(ActivityRefno ASC, ActivitySubType ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_ActivityReceivingOnActivityReceivingFKRefno ON "
+      sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityReceivingOnActivityReceivingFKRefno ON "
           + "tActivityReceiving(ActivityReceivingFKRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_ActivityReceivingOnActivityReceivingPONumber ON "
+      sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityReceivingOnActivityReceivingPONumber ON "
           + "tActivityReceiving(ActivityReceivingPONumber ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE NONCLUSTERED INDEX FK_ActivityReceivingOnWarehouseLocationMapRefno ON "
+      sqlNdx = "CREATE INDEX FK_ActivityReceivingOnWarehouseLocationMapRefno ON "
           + "tActivityReceiving(WarehouseLocationMapRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      string alterTable = "ALTER TABLE tActivityReceiving ADD CONSTRAINT ActivityReceivingToActivityOnActivityRefno "
-          + "FOREIGN KEY (ActivityRefno)" + " REFERENCES tActivity(ActivityRefno) ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //string alterTable = "ALTER TABLE tActivityReceiving ADD CONSTRAINT ActivityReceivingToActivityOnActivityRefno "
+      //    + "FOREIGN KEY (ActivityRefno)" + " REFERENCES tActivity(ActivityRefno) ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
 
-      alterTable = "ALTER TABLE tActivityReceiving ADD CONSTRAINT "
-          + "ActivityReceivingToLocationMapWarehouseOnWarehouseLocationMapRefnoAndLocationMapRefno "
-          + "FOREIGN KEY (WarehouseLocationMapRefno) REFERENCES tLocationMapWarehouse(LocationMapRefno) "
-          + "ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //alterTable = "ALTER TABLE tActivityReceiving ADD CONSTRAINT "
+      //    + "ActivityReceivingToLocationMapWarehouseOnWarehouseLocationMapRefnoAndLocationMapRefno "
+      //    + "FOREIGN KEY (WarehouseLocationMapRefno) REFERENCES tLocationMapWarehouse(LocationMapRefno) "
+      //    + "ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
     }
 
     /// <summary>
@@ -898,7 +910,10 @@ namespace dMobile.GroundWork
           + "TransferToWarehouseLocationMapRefno int NOT NULL,"
           + "ActivityTransferDescription nvarchar(30) NOT NULL,"
           + "ActivityTransferDateTime datetime NOT NULL,"
-          + "ActivityTransferArrivalDateTime datetime NOT NULL"
+          + "ActivityTransferArrivalDateTime datetime NOT NULL, "
+          + "CONSTRAINT ActivityTransferToActivityOnActivityRefno FOREIGN KEY (ActivityRefno) REFERENCES tActivity(ActivityRefno) ON DELETE CASCADE ON UPDATE CASCADE, "
+          + "CONSTRAINT ActivityTransferToLocationMapWarehouseOnTransferToWarehouseLocationMapRefnoAndLocationMapRefno FOREIGN KEY (TransferToWarehouseLocationMapRefno) REFERENCES tLocationMapWarehouse(LocationMapRefno) "
+          + "ON DELETE CASCADE ON UPDATE CASCADE"
           + ")";
 
       if (this.OnNubStatOut != null)
@@ -913,27 +928,27 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_ActivityTransferOnActivityRefnoAndActivitySubType ON "
+      string sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityTransferOnActivityRefnoAndActivitySubType ON "
           + "tActivityTransfer(ActivityRefno ASC, ActivitySubType ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_ActivityTransferOnActivityTransferFKRefno ON "
+      sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityTransferOnActivityTransferFKRefno ON "
           + "tActivityTransfer(ActivityTransferFKRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE NONCLUSTERED INDEX FK_ActivityTransferOnTransferToWarehouseLocationMapRefno ON "
+      sqlNdx = "CREATE INDEX FK_ActivityTransferOnTransferToWarehouseLocationMapRefno ON "
           + "tActivityTransfer(TransferToWarehouseLocationMapRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      string alterTable = "ALTER TABLE tActivityTransfer ADD CONSTRAINT ActivityTransferToActivityOnActivityRefno "
-          + "FOREIGN KEY (ActivityRefno) REFERENCES tActivity(ActivityRefno) ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //string alterTable = "ALTER TABLE tActivityTransfer ADD CONSTRAINT ActivityTransferToActivityOnActivityRefno "
+      //    + "FOREIGN KEY (ActivityRefno) REFERENCES tActivity(ActivityRefno) ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
 
-      alterTable = "ALTER TABLE tActivityTransfer ADD CONSTRAINT "
-          + "ActivityTransferToLocationMapWarehouseOnTransferToWarehouseLocationMapRefnoAndLocationMapRefno "
-          + "FOREIGN KEY (TransferToWarehouseLocationMapRefno) REFERENCES tLocationMapWarehouse(LocationMapRefno) "
-          + "ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //alterTable = "ALTER TABLE tActivityTransfer ADD CONSTRAINT "
+      //    + "ActivityTransferToLocationMapWarehouseOnTransferToWarehouseLocationMapRefnoAndLocationMapRefno "
+      //    + "FOREIGN KEY (TransferToWarehouseLocationMapRefno) REFERENCES tLocationMapWarehouse(LocationMapRefno) "
+      //    + "ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
     }
 
     /// <summary>
@@ -955,7 +970,10 @@ namespace dMobile.GroundWork
           + "ActivityItemCountWeightQuantityOnHand numeric(11, 3) NOT NULL,"
           + "ActivityItemCountQuantity numeric(11, 3) NOT NULL,"
           + "ActivityItemCountBaseQuantity numeric(11, 3) NOT NULL,"
-          + "ActivityItemCountWeightQuantity numeric(11, 3) NOT NULL"
+          + "ActivityItemCountWeightQuantity numeric(11, 3) NOT NULL, "
+          + "CONSTRAINT ActivityItemCountTactItemOnActivityItemRefno FOREIGN KEY (ActivityItemRefno) REFERENCES tActivityItem(ActivityItemRefno) ON DELETE CASCADE ON UPDATE CASCADE, "
+          + "CONSTRAINT ActivityItemCountToLocationMapOnLocationMapRefno FOREIGN KEY (LocationMapRefno) REFERENCES tLocationMap(LocationMapRefno) ON DELETE CASCADE ON UPDATE CASCADE, "
+          + "CONSTRAINT ActivityItemCountTactItemOnProductUnitRefno FOREIGN KEY (ProductUnitRefno) REFERENCES tProductUnit(ProductUnitRefno) ON DELETE CASCADE ON UPDATE CASCADE"
           + ")";
 
       if (this.OnNubStatOut != null)
@@ -970,30 +988,30 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_ActivityItemCountOnActivityItemRefnoAndActivityItemSubType "
+      string sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityItemCountOnActivityItemRefnoAndActivityItemSubType "
           + "ON tActivityItemCount(ActivityItemRefno ASC, ActivityItemSubType ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_ActivityItemCountOnActivityItemCountFKRefno ON "
+      sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityItemCountOnActivityItemCountFKRefno ON "
           + "tActivityItemCount(ActivityItemCountFKRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
       //// Note: Cannot enforce uniqueness on LocationMapRefno and ProductUnitRefno without ActivityRefno in the table.
 
-      string alterTable = "ALTER TABLE tActivityItemCount ADD CONSTRAINT ActivityItemCountTactItemOnActivityItemRefno "
-          + "FOREIGN KEY (ActivityItemRefno) REFERENCES tActivityItem(ActivityItemRefno) "
-          + "ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //string alterTable = "ALTER TABLE tActivityItemCount ADD CONSTRAINT ActivityItemCountTactItemOnActivityItemRefno "
+      //    + "FOREIGN KEY (ActivityItemRefno) REFERENCES tActivityItem(ActivityItemRefno) "
+      //    + "ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
 
-      alterTable = "ALTER TABLE tActivityItemCount ADD CONSTRAINT ActivityItemCountToLocationMapOnLocationMapRefno "
-          + "FOREIGN KEY (LocationMapRefno) REFERENCES tLocationMap(LocationMapRefno) "
-          + "ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //alterTable = "ALTER TABLE tActivityItemCount ADD CONSTRAINT ActivityItemCountToLocationMapOnLocationMapRefno "
+      //    + "FOREIGN KEY (LocationMapRefno) REFERENCES tLocationMap(LocationMapRefno) "
+      //    + "ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
 
-      alterTable = "ALTER TABLE tActivityItemCount ADD CONSTRAINT ActivityItemCountTactItemOnProductUnitRefno "
-          + "FOREIGN KEY (ProductUnitRefno) REFERENCES tProductUnit(ProductUnitRefno) "
-          + "ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //alterTable = "ALTER TABLE tActivityItemCount ADD CONSTRAINT ActivityItemCountTactItemOnProductUnitRefno "
+      //    + "FOREIGN KEY (ProductUnitRefno) REFERENCES tProductUnit(ProductUnitRefno) "
+      //    + "ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
     }
 
     /// <summary>
@@ -1021,7 +1039,10 @@ namespace dMobile.GroundWork
           + "ActivityItemPickingQuantityAvailable numeric(11, 3) NOT NULL,"
           + "ActivityItemPickingBaseQuantityAvailable numeric(11, 3) NOT NULL,"
           + "ActivityItemPickingWeightQuantityAvailable numeric(11, 3) NOT NULL,"
-          + "ActivityItemPickingIsReviewed bit NOT NULL"
+          + "ActivityItemPickingIsReviewed bit NOT NULL, "
+          + "CONSTRAINT ActivityItemPickingTactItemOnActivityItemRefno FOREIGN KEY (ActivityItemRefno) REFERENCES tActivityItem(ActivityItemRefno) ON DELETE CASCADE ON UPDATE CASCADE, "
+          + "CONSTRAINT ActivityItemPickingToLocationMapWarehouseOnWarehouseLocationMapRefno FOREIGN KEY (WarehouseLocationMapRefno) REFERENCES tLocationMapWarehouse(LocationMapRefno) ON DELETE CASCADE ON UPDATE CASCADE, "
+          + "CONSTRAINT ActivityItemPickingTactItemOnProductUnitRefno FOREIGN KEY (ProductUnitRefno) REFERENCES tProductUnit(ProductUnitRefno) ON DELETE CASCADE ON UPDATE CASCADE"
           + ")";
 
       if (this.OnNubStatOut != null)
@@ -1036,33 +1057,33 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_ActivityItemPickingOnActivityItemRefnoAndActivityItemSubType"
+      string sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityItemPickingOnActivityItemRefnoAndActivityItemSubType"
           + " ON tActivityItemPicking(ActivityItemRefno ASC, ActivityItemSubType ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_ActivityItemPickingOnActivityItemPickingFKRefno ON "
+      sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityItemPickingOnActivityItemPickingFKRefno ON "
           + "tActivityItemPicking(ActivityItemPickingFKRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE NONCLUSTERED INDEX FK_ActivityItemPickingOnWarehouseLocationMapRefno ON "
+      sqlNdx = "CREATE INDEX FK_ActivityItemPickingOnWarehouseLocationMapRefno ON "
           + "tActivityItemPicking(WarehouseLocationMapRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      string alterTable = "ALTER TABLE tActivityItemPicking ADD CONSTRAINT "
-          + "ActivityItemPickingTactItemOnActivityItemRefno FOREIGN KEY (ActivityItemRefno) REFERENCES "
-          + "tActivityItem(ActivityItemRefno) ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //string alterTable = "ALTER TABLE tActivityItemPicking ADD CONSTRAINT "
+      //    + "ActivityItemPickingTactItemOnActivityItemRefno FOREIGN KEY (ActivityItemRefno) REFERENCES "
+      //    + "tActivityItem(ActivityItemRefno) ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
 
-      alterTable = "ALTER TABLE tActivityItemPicking ADD CONSTRAINT "
-          + "ActivityItemPickingToLocationMapWarehouseOnWarehouseLocationMapRefno FOREIGN KEY "
-          + "(WarehouseLocationMapRefno) REFERENCES tLocationMapWarehouse(LocationMapRefno) "
-          + "ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //alterTable = "ALTER TABLE tActivityItemPicking ADD CONSTRAINT "
+      //    + "ActivityItemPickingToLocationMapWarehouseOnWarehouseLocationMapRefno FOREIGN KEY "
+      //    + "(WarehouseLocationMapRefno) REFERENCES tLocationMapWarehouse(LocationMapRefno) "
+      //    + "ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
 
-      alterTable = "ALTER TABLE tActivityItemPicking ADD CONSTRAINT ActivityItemPickingTactItemOnProductUnitRefno "
-          + "FOREIGN KEY (ProductUnitRefno) REFERENCES tProductUnit(ProductUnitRefno) "
-          + "ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //alterTable = "ALTER TABLE tActivityItemPicking ADD CONSTRAINT ActivityItemPickingTactItemOnProductUnitRefno "
+      //    + "FOREIGN KEY (ProductUnitRefno) REFERENCES tProductUnit(ProductUnitRefno) "
+      //    + "ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
     }
 
     /// <summary>
@@ -1083,7 +1104,10 @@ namespace dMobile.GroundWork
           + "ActivityItemReturnsBaseQuantityReturned numeric(11, 3) NOT NULL,"
           + "ActivityItemReturnsWeightQuantityReturned numeric(11, 3) NOT NULL,"
           + "ActivityItemReturnsCustomerProductUnitCode nvarchar(10) NOT NULL,"
-          + "ActivityItemReturnsDescription nvarchar(40) NOT NULL"
+          + "ActivityItemReturnsDescription nvarchar(40) NOT NULL, "
+          + "CONSTRAINT ActivityItemReturnsTactItemOnActivityItemRefno FOREIGN KEY (ActivityItemRefno) REFERENCES tActivityItem(ActivityItemRefno) ON DELETE CASCADE ON UPDATE CASCADE, "
+          + "CONSTRAINT ActivityItemReturnsToLocationMapWarehouseOnWarehouseLocationMapRefno FOREIGN KEY (WarehouseLocationMapRefno) REFERENCES tLocationMapWarehouse(LocationMapRefno) ON DELETE CASCADE ON UPDATE CASCADE, "
+          + "CONSTRAINT ActivityItemReturnsTactItemOnProductUnitRefno FOREIGN KEY (ProductUnitRefno) REFERENCES tProductUnit(ProductUnitRefno) ON DELETE CASCADE ON UPDATE CASCADE"
           + ")";
 
       if (this.OnNubStatOut != null)
@@ -1098,33 +1122,33 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_ActivityItemReturnsOnActivityItemRefnoAndActivityItemSubType"
+      string sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityItemReturnsOnActivityItemRefnoAndActivityItemSubType"
           + " ON tActivityItemReturns(ActivityItemRefno ASC, ActivityItemSubType ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_ActivityItemReturnsOnActivityItemReturnsFKRefno ON "
+      sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityItemReturnsOnActivityItemReturnsFKRefno ON "
           + "tActivityItemReturns(ActivityItemReturnsFKRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE NONCLUSTERED INDEX FK_ActivityItemReturnsOnWarehouseLocationMapRefno ON "
+      sqlNdx = "CREATE INDEX FK_ActivityItemReturnsOnWarehouseLocationMapRefno ON "
           + "tActivityItemReturns(WarehouseLocationMapRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      string alterTable = "ALTER TABLE tActivityItemReturns ADD CONSTRAINT "
-          + "ActivityItemReturnsTactItemOnActivityItemRefno FOREIGN KEY (ActivityItemRefno) REFERENCES "
-          + "tActivityItem(ActivityItemRefno) ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //string alterTable = "ALTER TABLE tActivityItemReturns ADD CONSTRAINT "
+      //    + "ActivityItemReturnsTactItemOnActivityItemRefno FOREIGN KEY (ActivityItemRefno) REFERENCES "
+      //    + "tActivityItem(ActivityItemRefno) ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
 
-      alterTable = "ALTER TABLE tActivityItemReturns ADD CONSTRAINT "
-          + "ActivityItemReturnsToLocationMapWarehouseOnWarehouseLocationMapRefno FOREIGN KEY "
-          + "(WarehouseLocationMapRefno) REFERENCES tLocationMapWarehouse(LocationMapRefno) "
-          + "ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //alterTable = "ALTER TABLE tActivityItemReturns ADD CONSTRAINT "
+      //    + "ActivityItemReturnsToLocationMapWarehouseOnWarehouseLocationMapRefno FOREIGN KEY "
+      //    + "(WarehouseLocationMapRefno) REFERENCES tLocationMapWarehouse(LocationMapRefno) "
+      //    + "ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
 
-      alterTable = "ALTER TABLE tActivityItemReturns ADD CONSTRAINT ActivityItemReturnsTactItemOnProductUnitRefno "
-          + "FOREIGN KEY (ProductUnitRefno) REFERENCES tProductUnit(ProductUnitRefno) "
-          + "ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //alterTable = "ALTER TABLE tActivityItemReturns ADD CONSTRAINT ActivityItemReturnsTactItemOnProductUnitRefno "
+      //    + "FOREIGN KEY (ProductUnitRefno) REFERENCES tProductUnit(ProductUnitRefno) "
+      //    + "ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
     }
 
     /// <summary>
@@ -1136,7 +1160,8 @@ namespace dMobile.GroundWork
       string sqlTable = "CREATE TABLE tActivityItemPickingComment"
           + "("
           + "ActivityItemRefno int NOT NULL CONSTRAINT PK_ActivityItemPickingCommentOnActivityItemRefno PRIMARY KEY,"
-          + "ActivityItemPickingCommentComment nvarchar(255) NOT NULL"
+          + "ActivityItemPickingCommentComment nvarchar(255) NOT NULL, "
+          + "CONSTRAINT ActivityItemPickingCommentTactItemOnActivityItemRefno FOREIGN KEY (ActivityItemRefno) REFERENCES tActivityItemPicking(ActivityItemRefno) ON DELETE CASCADE ON UPDATE CASCADE"
           + ")";
 
       if (this.OnNubStatOut != null)
@@ -1151,10 +1176,10 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string alterTable = "ALTER TABLE tActivityItemPickingComment ADD CONSTRAINT "
-          + "ActivityItemPickingCommentTactItemOnActivityItemRefno FOREIGN KEY (ActivityItemRefno) REFERENCES "
-          + "tActivityItemPicking(ActivityItemRefno) ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //string alterTable = "ALTER TABLE tActivityItemPickingComment ADD CONSTRAINT "
+      //    + "ActivityItemPickingCommentTactItemOnActivityItemRefno FOREIGN KEY (ActivityItemRefno) REFERENCES "
+      //    + "tActivityItemPicking(ActivityItemRefno) ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
     }
 
     /// <summary>
@@ -1166,7 +1191,8 @@ namespace dMobile.GroundWork
       string sqlTable = "CREATE TABLE tActivityItemReturnsComment"
           + "("
           + "ActivityItemRefno int NOT NULL CONSTRAINT PK_ActivityItemReturnsCommentOnActivityItemRefno PRIMARY KEY,"
-          + "ActivityItemReturnsCommentComment nvarchar(255) NOT NULL"
+          + "ActivityItemReturnsCommentComment nvarchar(255) NOT NULL, "
+          + "CONSTRAINT ActivityItemReturnsCommentTactItemOnActivityItemRefno FOREIGN KEY (ActivityItemRefno) REFERENCES tActivityItemReturns(ActivityItemRefno) ON DELETE CASCADE ON UPDATE CASCADE"
           + ")";
 
       if (this.OnNubStatOut != null)
@@ -1181,10 +1207,10 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string alterTable = "ALTER TABLE tActivityItemReturnsComment ADD CONSTRAINT "
-          + "ActivityItemReturnsCommentTactItemOnActivityItemRefno FOREIGN KEY (ActivityItemRefno) REFERENCES "
-          + "tActivityItemReturns(ActivityItemRefno) ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //string alterTable = "ALTER TABLE tActivityItemReturnsComment ADD CONSTRAINT "
+      //    + "ActivityItemReturnsCommentTactItemOnActivityItemRefno FOREIGN KEY (ActivityItemRefno) REFERENCES "
+      //    + "tActivityItemReturns(ActivityItemRefno) ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
     }
 
     /// <summary>
@@ -1211,7 +1237,10 @@ namespace dMobile.GroundWork
           + "ActivityItemReceivingDescription nvarchar(40) NOT NULL,"
           + "ActivityItemReceivingQuantityReceivedToDate numeric(11, 3) NOT NULL,"
           + "ActivityItemReceivingBaseQuantityReceivedToDate numeric(11, 3) NOT NULL,"
-          + "ActivityItemReceivingWeightQuantityReceivedToDate numeric(11, 3) NOT NULL"
+          + "ActivityItemReceivingWeightQuantityReceivedToDate numeric(11, 3) NOT NULL, "
+          + "CONSTRAINT ActivityItemReceivingTactItemOnActivityItemRefno FOREIGN KEY (ActivityItemRefno) REFERENCES tActivityItem(ActivityItemRefno) ON DELETE CASCADE ON UPDATE CASCADE, "
+          + "CONSTRAINT ActivityItemReceivingToLocationMapWarehouseOnWarehouseLocationMapRefno FOREIGN KEY (WarehouseLocationMapRefno) REFERENCES tLocationMapWarehouse(LocationMapRefno) ON DELETE CASCADE ON UPDATE CASCADE, "
+          + "CONSTRAINT ActivityItemReceivingTactItemOnProductUnitRefno FOREIGN KEY (ProductUnitRefno) REFERENCES tProductUnit(ProductUnitRefno) ON DELETE CASCADE ON UPDATE CASCADE"
           + ")";
 
       if (this.OnNubStatOut != null)
@@ -1226,32 +1255,32 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_ActivityItemReceivingOnActivityItemRefnoAndActivityItemSubType"
+      string sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityItemReceivingOnActivityItemRefnoAndActivityItemSubType"
           + " ON tActivityItemReceiving(ActivityItemRefno ASC, ActivityItemSubType ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_ActivityItemReceivingOnActivityItemReceivingFKRefno ON "
+      sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityItemReceivingOnActivityItemReceivingFKRefno ON "
           + "tActivityItemReceiving(ActivityItemReceivingFKRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE NONCLUSTERED INDEX FK_ActivityItemReceivingOnWarehouseLocationMapRefno ON "
+      sqlNdx = "CREATE INDEX FK_ActivityItemReceivingOnWarehouseLocationMapRefno ON "
           + "tActivityItemReceiving(WarehouseLocationMapRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      string alterTable = "ALTER TABLE tActivityItemReceiving ADD CONSTRAINT "
-          + "ActivityItemReceivingTactItemOnActivityItemRefno FOREIGN KEY (ActivityItemRefno) REFERENCES "
-          + "tActivityItem(ActivityItemRefno) ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //string alterTable = "ALTER TABLE tActivityItemReceiving ADD CONSTRAINT "
+      //    + "ActivityItemReceivingTactItemOnActivityItemRefno FOREIGN KEY (ActivityItemRefno) REFERENCES "
+      //    + "tActivityItem(ActivityItemRefno) ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
 
-      alterTable = "ALTER TABLE tActivityItemReceiving ADD CONSTRAINT "
-          + "ActivityItemReceivingToLocationMapWarehouseOnWarehouseLocationMapRefno FOREIGN KEY "
-          + "(WarehouseLocationMapRefno) REFERENCES tLocationMapWarehouse(LocationMapRefno) "
-          + "ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //alterTable = "ALTER TABLE tActivityItemReceiving ADD CONSTRAINT "
+      //    + "ActivityItemReceivingToLocationMapWarehouseOnWarehouseLocationMapRefno FOREIGN KEY "
+      //    + "(WarehouseLocationMapRefno) REFERENCES tLocationMapWarehouse(LocationMapRefno) "
+      //    + "ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
 
-      alterTable = "ALTER TABLE tActivityItemReceiving ADD CONSTRAINT ActivityItemReceivingTactItemOnProductUnitRefno "
-          + "FOREIGN KEY (ProductUnitRefno) REFERENCES tProductUnit(ProductUnitRefno) "
-          + "ON DELETE CASCADE ON UPDATE CASCADE";
+      //alterTable = "ALTER TABLE tActivityItemReceiving ADD CONSTRAINT ActivityItemReceivingTactItemOnProductUnitRefno "
+      //    + "FOREIGN KEY (ProductUnitRefno) REFERENCES tProductUnit(ProductUnitRefno) "
+      //    + "ON DELETE CASCADE ON UPDATE CASCADE";
    }
 
     /// <summary>
@@ -1271,7 +1300,10 @@ namespace dMobile.GroundWork
           + "WarehouseLocationMapRefno int NOT NULL,"
           + "ActivityItemPurchaseOrderWorkSheetQuantityOrdered numeric(11, 3) NOT NULL,"
           + "ActivityItemPurchaseOrderWorkSheetBaseQuantityOrdered numeric(11, 3) NOT NULL,"
-          + "ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered numeric(11, 3) NOT NULL"
+          + "ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered numeric(11, 3) NOT NULL, "
+          + "CONSTRAINT ActivityItemPurchaseOrderWorkSheetTactItemOnActivityItemRefno FOREIGN KEY (ActivityItemRefno) REFERENCES tActivityItem(ActivityItemRefno) ON DELETE CASCADE ON UPDATE CASCADE, "
+          + "CONSTRAINT ActivityItemPurchaseOrderWorkSheetToLocationMapWarehouseOnWarehouseLocationMapRefno FOREIGN KEY (WarehouseLocationMapRefno) REFERENCES tLocationMapWarehouse(LocationMapRefno) ON DELETE CASCADE ON UPDATE CASCADE, "
+          + "CONSTRAINT ActivityItemPurchaseOrderWorkSheetTactItemOnProductUnitRefno FOREIGN KEY (ProductUnitRefno) REFERENCES tProductUnit(ProductUnitRefno) ON DELETE CASCADE ON UPDATE CASCADE"
           + ")";
 
       if (this.OnNubStatOut != null)
@@ -1286,35 +1318,35 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX "
+      string sqlNdx = "CREATE UNIQUE INDEX "
           + "UQ_ActivityItemPurchaseOrderWorkSheetOnActivityItemRefnoAndActivityItemSubType ON "
           + "tActivityItemPurchaseOrderWorkSheet(ActivityItemRefno ASC, ActivityItemSubType ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX "
+      sqlNdx = "CREATE UNIQUE INDEX "
           + "UQ_ActivityItemPurchaseOrderWorkSheetOnActivityItemPurchaseOrderWorkSheetFKRefno ON "
           + "tActivityItemPurchaseOrderWorkSheet(ActivityItemPurchaseOrderWorkSheetFKRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE NONCLUSTERED INDEX FK_ActivityItemPurchaseOrderWorkSheetOnWarehouseLocationMapRefno ON "
+      sqlNdx = "CREATE INDEX FK_ActivityItemPurchaseOrderWorkSheetOnWarehouseLocationMapRefno ON "
           + "tActivityItemPurchaseOrderWorkSheet(WarehouseLocationMapRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      string alterTable = "ALTER TABLE tActivityItemPurchaseOrderWorkSheet ADD CONSTRAINT "
-          + "ActivityItemPurchaseOrderWorkSheetTactItemOnActivityItemRefno FOREIGN KEY (ActivityItemRefno) "
-          + "REFERENCES tActivityItem(ActivityItemRefno) ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //string alterTable = "ALTER TABLE tActivityItemPurchaseOrderWorkSheet ADD CONSTRAINT "
+      //    + "ActivityItemPurchaseOrderWorkSheetTactItemOnActivityItemRefno FOREIGN KEY (ActivityItemRefno) "
+      //    + "REFERENCES tActivityItem(ActivityItemRefno) ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
 
-      alterTable = "ALTER TABLE tActivityItemPurchaseOrderWorkSheet ADD CONSTRAINT "
-          + "ActivityItemPurchaseOrderWorkSheetToLocationMapWarehouseOnWarehouseLocationMapRefno FOREIGN KEY "
-          + "(WarehouseLocationMapRefno) REFERENCES tLocationMapWarehouse(LocationMapRefno) "
-          + "ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //alterTable = "ALTER TABLE tActivityItemPurchaseOrderWorkSheet ADD CONSTRAINT "
+      //    + "ActivityItemPurchaseOrderWorkSheetToLocationMapWarehouseOnWarehouseLocationMapRefno FOREIGN KEY "
+      //    + "(WarehouseLocationMapRefno) REFERENCES tLocationMapWarehouse(LocationMapRefno) "
+      //    + "ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
 
-      alterTable = "ALTER TABLE tActivityItemPurchaseOrderWorkSheet ADD CONSTRAINT "
-          + "ActivityItemPurchaseOrderWorkSheetTactItemOnProductUnitRefno FOREIGN KEY (ProductUnitRefno) "
-          + "REFERENCES tProductUnit(ProductUnitRefno) ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //alterTable = "ALTER TABLE tActivityItemPurchaseOrderWorkSheet ADD CONSTRAINT "
+      //    + "ActivityItemPurchaseOrderWorkSheetTactItemOnProductUnitRefno FOREIGN KEY (ProductUnitRefno) "
+      //    + "REFERENCES tProductUnit(ProductUnitRefno) ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
     }
 
     /// <summary>
@@ -1326,7 +1358,8 @@ namespace dMobile.GroundWork
       string sqlTable = "CREATE TABLE tActivityItemReceivingComment"
           + "("
           + "ActivityItemRefno int NOT NULL CONSTRAINT PK_ActivityItemReceivingCommentOnActivityItemRefno PRIMARY KEY,"
-          + "ActivityItemReceivingCommentComment nvarchar(255) NOT NULL"
+          + "ActivityItemReceivingCommentComment nvarchar(255) NOT NULL, "
+          + "CONSTRAINT ActivityItemReceivingCommentTactItemOnActivityItemRefno FOREIGN KEY (ActivityItemRefno) REFERENCES tActivityItemReceiving(ActivityItemRefno) ON DELETE CASCADE ON UPDATE CASCADE"
           + ")";
 
       if (this.OnNubStatOut != null)
@@ -1341,10 +1374,10 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string alterTable = "ALTER TABLE tActivityItemReceivingComment ADD CONSTRAINT "
-          + "ActivityItemReceivingCommentTactItemOnActivityItemRefno FOREIGN KEY (ActivityItemRefno) REFERENCES "
-          + "tActivityItemReceiving(ActivityItemRefno) ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //string alterTable = "ALTER TABLE tActivityItemReceivingComment ADD CONSTRAINT "
+      //    + "ActivityItemReceivingCommentTactItemOnActivityItemRefno FOREIGN KEY (ActivityItemRefno) REFERENCES "
+      //    + "tActivityItemReceiving(ActivityItemRefno) ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
     }
 
     /// <summary>
@@ -1364,7 +1397,11 @@ namespace dMobile.GroundWork
           + "ActivityItemTransferRequiredQuantity numeric(11, 3) NOT NULL,"
           + "ActivityItemTransferQuantity numeric(11, 3) NOT NULL,"
           + "ActivityItemTransferBaseQuantity numeric(11, 3) NOT NULL,"
-          + "ActivityItemTransferWeightQuantity numeric(11, 3) NOT NULL"
+          + "ActivityItemTransferWeightQuantity numeric(11, 3) NOT NULL, "
+          + "CONSTRAINT ActivityItemTransferTactItemOnActivityItemRefno FOREIGN KEY (ActivityItemRefno) REFERENCES tActivityItem(ActivityItemRefno) ON DELETE CASCADE ON UPDATE CASCADE, "
+          + "CONSTRAINT ActivityItemTransferToLocationMapWarehouseOnTransferFromWarehouseLocationMapRefnoAndLocationMapRefno FOREIGN KEY (TransferFromWarehouseLocationMapRefno) "
+          + "REFERENCES tLocationMapWarehouse(LocationMapRefno) ON DELETE CASCADE ON UPDATE CASCADE, "
+          + "CONSTRAINT ActivityItemTransferTactItemOnProductUnitRefno FOREIGN KEY (ProductUnitRefno) REFERENCES tProductUnit(ProductUnitRefno) ON DELETE CASCADE ON UPDATE CASCADE"
           + ")";
 
       if (this.OnNubStatOut != null)
@@ -1379,33 +1416,33 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_ActivityItemTransferOnActivityItemRefnoAndActivityItemSubType"
+      string sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityItemTransferOnActivityItemRefnoAndActivityItemSubType"
           + " ON tActivityItemTransfer(ActivityItemRefno ASC, ActivityItemSubType ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_ActivityItemTransferOnActivityItemTransferFKRefno ON "
+      sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityItemTransferOnActivityItemTransferFKRefno ON "
           + "tActivityItemTransfer(ActivityItemTransferFKRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE NONCLUSTERED INDEX FK_ActivityItemTransferOnTransferFromWarehouseLocationMapRefno ON "
+      sqlNdx = "CREATE INDEX FK_ActivityItemTransferOnTransferFromWarehouseLocationMapRefno ON "
           + "tActivityItemTransfer(TransferFromWarehouseLocationMapRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      string alterTable = "ALTER TABLE tActivityItemTransfer ADD CONSTRAINT "
-          + "ActivityItemTransferTactItemOnActivityItemRefno FOREIGN KEY (ActivityItemRefno) REFERENCES "
-          + "tActivityItem(ActivityItemRefno) ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //string alterTable = "ALTER TABLE tActivityItemTransfer ADD CONSTRAINT "
+      //    + "ActivityItemTransferTactItemOnActivityItemRefno FOREIGN KEY (ActivityItemRefno) REFERENCES "
+      //    + "tActivityItem(ActivityItemRefno) ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
 
-      alterTable = "ALTER TABLE tActivityItemTransfer ADD CONSTRAINT "
-          + "ActivityItemTransferToLocationMapWarehouseOnTransferFromWarehouseLocationMapRefnoAndLocationMapRefno "
-          + "FOREIGN KEY (TransferFromWarehouseLocationMapRefno) REFERENCES tLocationMapWarehouse(LocationMapRefno) "
-          + "ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //alterTable = "ALTER TABLE tActivityItemTransfer ADD CONSTRAINT "
+      //    + "ActivityItemTransferToLocationMapWarehouseOnTransferFromWarehouseLocationMapRefnoAndLocationMapRefno "
+      //    + "FOREIGN KEY (TransferFromWarehouseLocationMapRefno) REFERENCES tLocationMapWarehouse(LocationMapRefno) "
+      //    + "ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
 
-      alterTable = "ALTER TABLE tActivityItemTransfer ADD CONSTRAINT ActivityItemTransferTactItemOnProductUnitRefno "
-          + "FOREIGN KEY (ProductUnitRefno) REFERENCES tProductUnit(ProductUnitRefno) "
-          + "ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //alterTable = "ALTER TABLE tActivityItemTransfer ADD CONSTRAINT ActivityItemTransferTactItemOnProductUnitRefno "
+      //    + "FOREIGN KEY (ProductUnitRefno) REFERENCES tProductUnit(ProductUnitRefno) "
+      //    + "ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
     }
 
     /// <summary>
@@ -1417,7 +1454,9 @@ namespace dMobile.GroundWork
       string sqlTable = "CREATE TABLE tActivityItemBarCodeAssociationXRef"
           + "("
           + "ActivityItemRefno int NOT NULL,"
-          + "ProductUnitBarCodeRefno int NOT NULL "
+          + "ProductUnitBarCodeRefno int NOT NULL, "
+          + "CONSTRAINT ActivityItemBarCodeAssociationXRefTactItemOnActivityItemRefno FOREIGN KEY (ActivityItemRefno) REFERENCES tActivityItem(ActivityItemRefno) ON DELETE CASCADE ON UPDATE CASCADE, "
+          + "CONSTRAINT ActivityItemBarCodeAssociationXRefToProductUnitBarCodeOnProductUnitBarCodeRefno FOREIGN KEY (ProductUnitBarCodeRefno) REFERENCES tProductUnitBarCode(ProductUnitBarCodeRefno) ON DELETE CASCADE ON UPDATE CASCADE"
           + ")";
 
       if (this.OnNubStatOut != null)
@@ -1432,29 +1471,29 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX "
+      string sqlNdx = "CREATE UNIQUE INDEX "
           + "PK_ActivityItemBarCodeAssociationXRefOnActivityItemRefnoAndProductUnitBarCodeRefno ON "
           + "tActivityItemBarCodeAssociationXRef(ActivityItemRefno ASC, ProductUnitBarCodeRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE NONCLUSTERED INDEX FK_ActivityItemBarCodeAssociationXRefOnActivityItemRefno ON "
+      sqlNdx = "CREATE INDEX FK_ActivityItemBarCodeAssociationXRefOnActivityItemRefno ON "
           + "tActivityItemBarCodeAssociationXRef(ActivityItemRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE NONCLUSTERED INDEX FK_ActivityItemBarCodeAssociationXRefOnProductUnitBarCodeRefno ON "
+      sqlNdx = "CREATE INDEX FK_ActivityItemBarCodeAssociationXRefOnProductUnitBarCodeRefno ON "
           + "tActivityItemBarCodeAssociationXRef(ProductUnitBarCodeRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      string alterTable = "ALTER TABLE tActivityItemBarCodeAssociationXRef ADD CONSTRAINT "
-          + "ActivityItemBarCodeAssociationXRefTactItemOnActivityItemRefno FOREIGN KEY (ActivityItemRefno) "
-          + "REFERENCES tActivityItem(ActivityItemRefno) ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //string alterTable = "ALTER TABLE tActivityItemBarCodeAssociationXRef ADD CONSTRAINT "
+      //    + "ActivityItemBarCodeAssociationXRefTactItemOnActivityItemRefno FOREIGN KEY (ActivityItemRefno) "
+      //    + "REFERENCES tActivityItem(ActivityItemRefno) ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
 
-      alterTable = "ALTER TABLE tActivityItemBarCodeAssociationXRef ADD CONSTRAINT "
-          + "ActivityItemBarCodeAssociationXRefToProductUnitBarCodeOnProductUnitBarCodeRefno FOREIGN KEY "
-          + "(ProductUnitBarCodeRefno) REFERENCES tProductUnitBarCode(ProductUnitBarCodeRefno) "
-          + "ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //alterTable = "ALTER TABLE tActivityItemBarCodeAssociationXRef ADD CONSTRAINT "
+      //    + "ActivityItemBarCodeAssociationXRefToProductUnitBarCodeOnProductUnitBarCodeRefno FOREIGN KEY "
+      //    + "(ProductUnitBarCodeRefno) REFERENCES tProductUnitBarCode(ProductUnitBarCodeRefno) "
+      //    + "ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
     }
 
     /// <summary>
@@ -1466,7 +1505,8 @@ namespace dMobile.GroundWork
       string sqlTable = "CREATE TABLE tActivityDetailCount"
           + "("
           + "ActivityDetailRefno int NOT NULL CONSTRAINT PK_ActivityDetailCountOnActivityDetailRefno PRIMARY KEY,"
-          + "ActivityDetailCountFKRefno int NOT NULL "
+          + "ActivityDetailCountFKRefno int NOT NULL, "
+          + "CONSTRAINT ActivityDetailCountTactDetailOnActivityDetailRefno FOREIGN KEY (ActivityDetailRefno) REFERENCES tActivityDetail(ActivityDetailRefno) ON DELETE CASCADE ON UPDATE CASCADE"
           + ")";
 
       if (this.OnNubStatOut != null)
@@ -1481,14 +1521,14 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_ActivityDetailCountOnActivityDetailCountFKRefno ON "
+      string sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityDetailCountOnActivityDetailCountFKRefno ON "
           + "tActivityDetailCount(ActivityDetailCountFKRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      string alterTable = "ALTER TABLE tActivityDetailCount ADD CONSTRAINT "
-          + "ActivityDetailCountTactDetailOnActivityDetailRefno FOREIGN KEY (ActivityDetailRefno) REFERENCES "
-          + "tActivityDetail(ActivityDetailRefno) ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //string alterTable = "ALTER TABLE tActivityDetailCount ADD CONSTRAINT "
+      //    + "ActivityDetailCountTactDetailOnActivityDetailRefno FOREIGN KEY (ActivityDetailRefno) REFERENCES "
+      //    + "tActivityDetail(ActivityDetailRefno) ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
     }
 
     /// <summary>
@@ -1501,7 +1541,8 @@ namespace dMobile.GroundWork
           + "("
           + "ActivityDetailRefno int NOT NULL CONSTRAINT PK_ActivityDetailPickingOnActivityDetailRefno PRIMARY KEY,"
           + "ActivityDetailPickingFKRefno int NOT NULL,"
-          + "ActivityDetailPickingIsConfirmed bit NOT NULL"
+          + "ActivityDetailPickingIsConfirmed bit NOT NULL, "
+          + "CONSTRAINT ActivityDetailPickingTactDetailOnActivityDetailRefno FOREIGN KEY (ActivityDetailRefno) REFERENCES tActivityDetail(ActivityDetailRefno) ON DELETE CASCADE ON UPDATE CASCADE"
           + ")";
 
       if (this.OnNubStatOut != null)
@@ -1516,14 +1557,14 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_ActivityDetailPickingOnActivityDetailPickingFKRefno ON "
+      string sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityDetailPickingOnActivityDetailPickingFKRefno ON "
           + "tActivityDetailPicking(ActivityDetailPickingFKRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      string alterTable = "ALTER TABLE tActivityDetailPicking ADD CONSTRAINT "
-          + "ActivityDetailPickingTactDetailOnActivityDetailRefno FOREIGN KEY (ActivityDetailRefno) REFERENCES "
-          + "tActivityDetail(ActivityDetailRefno) ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //string alterTable = "ALTER TABLE tActivityDetailPicking ADD CONSTRAINT "
+      //    + "ActivityDetailPickingTactDetailOnActivityDetailRefno FOREIGN KEY (ActivityDetailRefno) REFERENCES "
+      //    + "tActivityDetail(ActivityDetailRefno) ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
     }
 
     /// <summary>
@@ -1532,12 +1573,13 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     private void CreateTableActivityDetailReturns()
     {
-      string sqlTable = "CREATE TABLE tActivityDetailReturns" +
-                "(" +
-                "ActivityDetailRefno int NOT NULL CONSTRAINT PK_ActivityDetailReturnsOnActivityDetailRefno PRIMARY KEY," +
-                "ActivityDetailReturnsFKRefno int NOT NULL," +
-                "ActivityDetailReturnsIsConfirmed bit NOT NULL" +
-                ")";
+      string sqlTable = "CREATE TABLE tActivityDetailReturns" 
+                + "(" 
+                + "ActivityDetailRefno int NOT NULL CONSTRAINT PK_ActivityDetailReturnsOnActivityDetailRefno PRIMARY KEY," 
+                + "ActivityDetailReturnsFKRefno int NOT NULL," 
+                + "ActivityDetailReturnsIsConfirmed bit NOT NULL, " 
+                + "CONSTRAINT ActivityDetailReturnsTactDetailOnActivityDetailRefno FOREIGN KEY (ActivityDetailRefno) REFERENCES tActivityDetail(ActivityDetailRefno) ON DELETE CASCADE ON UPDATE CASCADE"
+                + ")";
       if (this.OnNubStatOut != null)
       {
 #if MULTILANGUAGE
@@ -1550,14 +1592,14 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_ActivityDetailReturnsOnActivityDetailReturnsFKRefno ON "
+      string sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityDetailReturnsOnActivityDetailReturnsFKRefno ON "
           + "tActivityDetailReturns(ActivityDetailReturnsFKRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      string alterTable = "ALTER TABLE tActivityDetailReturns ADD CONSTRAINT "
-          + "ActivityDetailReturnsTactDetailOnActivityDetailRefno FOREIGN KEY (ActivityDetailRefno) REFERENCES "
-          + "tActivityDetail(ActivityDetailRefno) ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //string alterTable = "ALTER TABLE tActivityDetailReturns ADD CONSTRAINT "
+      //    + "ActivityDetailReturnsTactDetailOnActivityDetailRefno FOREIGN KEY (ActivityDetailRefno) REFERENCES "
+      //    + "tActivityDetail(ActivityDetailRefno) ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
     }
 
     /// <summary>
@@ -1569,7 +1611,8 @@ namespace dMobile.GroundWork
       string sqlTable = "CREATE TABLE tActivityDetailReceiving"
           + "("
           + "ActivityDetailRefno int NOT NULL CONSTRAINT PK_ActivityDetailReceivingOnActivityDetailRefno PRIMARY KEY,"
-          + "ActivityDetailReceivingFKRefno int NOT NULL "
+          + "ActivityDetailReceivingFKRefno int NOT NULL, "
+          + "CONSTRAINT ActivityDetailReceivingTactDetailOnActivityDetailRefno FOREIGN KEY (ActivityDetailRefno) REFERENCES tActivityDetail(ActivityDetailRefno) ON DELETE CASCADE ON UPDATE CASCADE"
           + ")";
 
       if (this.OnNubStatOut != null)
@@ -1584,14 +1627,14 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_ActivityDetailReceivingOnActivityDetailReceivingFKRefno ON "
+      string sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityDetailReceivingOnActivityDetailReceivingFKRefno ON "
           + "tActivityDetailReceiving(ActivityDetailReceivingFKRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      string alterTable = "ALTER TABLE tActivityDetailReceiving ADD CONSTRAINT "
-          + "ActivityDetailReceivingTactDetailOnActivityDetailRefno FOREIGN KEY (ActivityDetailRefno) REFERENCES "
-          + "tActivityDetail(ActivityDetailRefno) ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //string alterTable = "ALTER TABLE tActivityDetailReceiving ADD CONSTRAINT "
+      //    + "ActivityDetailReceivingTactDetailOnActivityDetailRefno FOREIGN KEY (ActivityDetailRefno) REFERENCES "
+      //    + "tActivityDetail(ActivityDetailRefno) ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
     }
 
     /// <summary>
@@ -1604,7 +1647,8 @@ namespace dMobile.GroundWork
           + "("
           + "ActivityDetailRefno int NOT NULL CONSTRAINT PK_ActivityDetailTransferOnActivityDetailRefno PRIMARY KEY,"
           + "ActivityDetailTransferFKRefno int NOT NULL,"
-          + "ActivityDetailTransferIsConfirmed bit NOT NULL"
+          + "ActivityDetailTransferIsConfirmed bit NOT NULL, "
+          + "CONSTRAINT ActivityDetailTransferTactDetailOnActivityDetailRefno FOREIGN KEY (ActivityDetailRefno) REFERENCES tActivityDetail(ActivityDetailRefno) ON DELETE CASCADE ON UPDATE CASCADE"
           + ")";
 
       if (this.OnNubStatOut != null)
@@ -1619,14 +1663,14 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_ActivityDetailTransferOnActivityDetailTransferFKRefno ON "
+      string sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityDetailTransferOnActivityDetailTransferFKRefno ON "
           + "tActivityDetailTransfer(ActivityDetailTransferFKRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      string alterTable = "ALTER TABLE tActivityDetailTransfer ADD CONSTRAINT "
-          + "ActivityDetailTransferTactDetailOnActivityDetailRefno FOREIGN KEY (ActivityDetailRefno) REFERENCES "
-          + "tActivityDetail(ActivityDetailRefno) ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //string alterTable = "ALTER TABLE tActivityDetailTransfer ADD CONSTRAINT "
+      //    + "ActivityDetailTransferTactDetailOnActivityDetailRefno FOREIGN KEY (ActivityDetailRefno) REFERENCES "
+      //    + "tActivityDetail(ActivityDetailRefno) ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
     }
 
     /// <summary>
@@ -1637,7 +1681,7 @@ namespace dMobile.GroundWork
     {
       string sqlTable = "CREATE TABLE tUnit"
           + "("
-          + "UnitRefno int NOT NULL IDENTITY(1, 1) CONSTRAINT PK_UnitOnUnitRefno PRIMARY KEY,"
+          + "UnitRefno int NOT NULL CONSTRAINT PK_UnitOnUnitRefno PRIMARY KEY,"
           + "UnitCode nvarchar(2) NOT NULL"
           + ")";
 
@@ -1653,7 +1697,7 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_UnitOnUnitCode ON tUnit(UnitCode ASC)";
+      string sqlNdx = "CREATE UNIQUE INDEX UQ_UnitOnUnitCode ON tUnit(UnitCode ASC)";
       this.RunDDLCommand(sqlNdx);
     }
 
@@ -1665,7 +1709,7 @@ namespace dMobile.GroundWork
     {
       string sqlTable = "CREATE TABLE tRoute"
           + "("
-          + "RouteRefno int NOT NULL IDENTITY(1, 1) CONSTRAINT PK_RouteOnRouteRefno PRIMARY KEY,"
+          + "RouteRefno int NOT NULL CONSTRAINT PK_RouteOnRouteRefno PRIMARY KEY,"
           + "RouteCode nvarchar(5) NOT NULL,"
           + "RouteDescription nvarchar(35) NOT NULL,"
           + "RouteDayOfWeek nvarchar(3) NOT NULL"
@@ -1683,10 +1727,10 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_RouteOnRouteCode ON tRoute(RouteCode ASC)";
+      string sqlNdx = "CREATE UNIQUE INDEX UQ_RouteOnRouteCode ON tRoute(RouteCode ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE NONCLUSTERED INDEX RouteOnRouteDescription ON tRoute(RouteDescription ASC)";
+      sqlNdx = "CREATE INDEX RouteOnRouteDescription ON tRoute(RouteDescription ASC)";
       this.RunDDLCommand(sqlNdx);
     }
 
@@ -1698,7 +1742,7 @@ namespace dMobile.GroundWork
     {
       string sqlTable = "CREATE TABLE tLocationMap"
           + "("
-          + "LocationMapRefno int NOT NULL IDENTITY(1, 1) CONSTRAINT PK_LocationMapOnLocationMapRefno PRIMARY KEY,"
+          + "LocationMapRefno int NOT NULL CONSTRAINT PK_LocationMapOnLocationMapRefno PRIMARY KEY,"
           + "LocationMapSubType int NOT NULL"
           + ")";
 
@@ -1714,7 +1758,7 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_LocationMapOnLocationMapRefnoAndLocationMapSubType ON "
+      string sqlNdx = "CREATE UNIQUE INDEX UQ_LocationMapOnLocationMapRefnoAndLocationMapSubType ON "
           + "tLocationMap(LocationMapRefno ASC, LocationMapSubType ASC)";
       this.RunDDLCommand(sqlNdx);
     }
@@ -1732,46 +1776,74 @@ namespace dMobile.GroundWork
           + "LocationMapWarehouseName nvarchar(22) NOT NULL,"
           + "LocationMapWarehouseCode int NOT NULL,"
           + "LocationMapWarehouseFKRefno int NOT NULL,"
-          + "LocationMapWarehouseBarCode nvarchar(13) NOT NULL"
+          + "LocationMapWarehouseBarCode nvarchar(13) NOT NULL,"
+          + "CONSTRAINT LocationMapWarehouseToLocationMapOnLocationMapRefno FOREIGN KEY (LocationMapRefno) REFERENCES "
+          + "tLocationMap(LocationMapRefno) ON DELETE CASCADE ON UPDATE CASCADE" 
           + ")";
 
-      if (this.OnNubStatOut != null)
-      {
+            if (this.OnNubStatOut != null)
+            {
 #if MULTILANGUAGE
-        this.MsgEventArgs.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.CreatingLocationMapWarehouseTable);
+                    this.MsgEventArgs.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.CreatingLocationMapWarehouseTable);
 #else
-        this.MsgEventArgs.StatusOutMsg = "Creating location map warehouse table.";
+                this.MsgEventArgs.StatusOutMsg = "Creating location map warehouse table.";
 #endif
-        this.OnNubStatOut(this, this.MsgEventArgs);
-      }
+                this.OnNubStatOut(this, this.MsgEventArgs);
+            }
 
-      this.RunDDLCommand(sqlTable);
+            this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_LocationMapWarehouseOnLocationMapRefnoAndLocationMapSubType "
-          + "ON tLocationMapWarehouse(LocationMapRefno ASC, LocationMapSubType ASC)";
-      this.RunDDLCommand(sqlNdx);
+            //string sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_LocationMapWarehouseOnLocationMapRefnoAndLocationMapSubType "
+            //    + "ON tLocationMapWarehouse(LocationMapRefno ASC, LocationMapSubType ASC)";
+            //this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno ON "
-          + "tLocationMapWarehouse(LocationMapWarehouseFKRefno ASC)";
-      this.RunDDLCommand(sqlNdx);
+            //sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno ON "
+            //    + "tLocationMapWarehouse(LocationMapWarehouseFKRefno ASC)";
+            //this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_LocationMapWarehouseOnLocationMapWarehouseName ON "
-          + "tLocationMapWarehouse(LocationMapWarehouseName ASC)";
-      this.RunDDLCommand(sqlNdx);
+            //sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_LocationMapWarehouseOnLocationMapWarehouseName ON "
+            //    + "tLocationMapWarehouse(LocationMapWarehouseName ASC)";
+            //this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_LocationMapWarehouseOnLocationMapWarehouseCode ON "
-          + "tLocationMapWarehouse(LocationMapWarehouseCode ASC)";
-      this.RunDDLCommand(sqlNdx);
+            //sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_LocationMapWarehouseOnLocationMapWarehouseCode ON "
+            //    + "tLocationMapWarehouse(LocationMapWarehouseCode ASC)";
+            //this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_LocationMapWarehouseOnLocationMapWarehouseBarCode ON "
-          + "tLocationMapWarehouse(LocationMapWarehouseBarCode ASC)";
-      this.RunDDLCommand(sqlNdx);
+            //sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_LocationMapWarehouseOnLocationMapWarehouseBarCode ON "
+            //    + "tLocationMapWarehouse(LocationMapWarehouseBarCode ASC)";
+            //this.RunDDLCommand(sqlNdx);
 
-      string alterTable = "ALTER TABLE tLocationMapWarehouse ADD CONSTRAINT "
-          + "LocationMapWarehouseToLocationMapOnLocationMapRefno FOREIGN KEY (LocationMapRefno) REFERENCES "
-          + "tLocationMap(LocationMapRefno) ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
-    }
+            //string alterTable = "ALTER TABLE tLocationMapWarehouse ADD CONSTRAINT "
+            //    + "LocationMapWarehouseToLocationMapOnLocationMapRefno FOREIGN KEY (LocationMapRefno) REFERENCES "
+            //    + "tLocationMap(LocationMapRefno) ON DELETE CASCADE ON UPDATE CASCADE";
+            //this.RunDDLCommand(alterTable);
+
+
+            string sqlNdx = "CREATE UNIQUE INDEX UQ_LocationMapWarehouseOnLocationMapRefnoAndLocationMapSubType "
+                + "ON tLocationMapWarehouse(LocationMapRefno ASC, LocationMapSubType ASC)";
+            this.RunDDLCommand(sqlNdx);
+
+            sqlNdx = "CREATE UNIQUE INDEX UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno ON "
+                + "tLocationMapWarehouse(LocationMapWarehouseFKRefno ASC)";
+            this.RunDDLCommand(sqlNdx);
+
+            sqlNdx = "CREATE UNIQUE INDEX UQ_LocationMapWarehouseOnLocationMapWarehouseName ON "
+                + "tLocationMapWarehouse(LocationMapWarehouseName ASC)";
+            this.RunDDLCommand(sqlNdx);
+
+            sqlNdx = "CREATE UNIQUE INDEX UQ_LocationMapWarehouseOnLocationMapWarehouseCode ON "
+                + "tLocationMapWarehouse(LocationMapWarehouseCode ASC)";
+            this.RunDDLCommand(sqlNdx);
+
+            sqlNdx = "CREATE UNIQUE INDEX UQ_LocationMapWarehouseOnLocationMapWarehouseBarCode ON "
+                + "tLocationMapWarehouse(LocationMapWarehouseBarCode ASC)";
+            this.RunDDLCommand(sqlNdx);
+
+            //string alterTable = "ALTER TABLE tLocationMapWarehouse ADD CONSTRAINT "
+            //    + "LocationMapWarehouseToLocationMapOnLocationMapRefno FOREIGN KEY (LocationMapRefno) REFERENCES "
+            //    + "tLocationMap(LocationMapRefno) ON DELETE CASCADE ON UPDATE CASCADE";
+            //this.RunDDLCommand(alterTable);
+        }
 
     /// <summary>
     ///
@@ -1779,15 +1851,19 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     private void CreateTableLocationMapSection()
     {
-      string sqlTable = "CREATE TABLE tLocationMapSection"
-          + "("
-          + "LocationMapRefno int NOT NULL CONSTRAINT PK_LocationMapSectionOnLocationMapRefno PRIMARY KEY,"
-          + "LocationMapSubType int NOT NULL,"
-          + "WarehouseLocationMapRefno int NOT NULL,"
-          + "LocationMapSectionCode int NOT NULL,"
-          + "LocationMapSectionName nvarchar(10),"
-          + "LocationMapSectionFKRefno int NOT NULL,"
-          + "LocationMapSectionBarCode nvarchar(13) "
+        string sqlTable = "CREATE TABLE tLocationMapSection"
+            + "("
+            + "LocationMapRefno int NOT NULL CONSTRAINT PK_LocationMapSectionOnLocationMapRefno PRIMARY KEY,"
+            + "LocationMapSubType int NOT NULL,"
+            + "WarehouseLocationMapRefno int NOT NULL,"
+            + "LocationMapSectionCode int NOT NULL,"
+            + "LocationMapSectionName nvarchar(10),"
+            + "LocationMapSectionFKRefno int NOT NULL,"
+            + "LocationMapSectionBarCode nvarchar(13),"
+            + "CONSTRAINT LocationMapSectionToLocationMapOnLocationMapRefno "
+            + "FOREIGN KEY (LocationMapRefno) "
+            + "REFERENCES tLocationMap(LocationMapRefno) "
+            + "ON DELETE CASCADE ON UPDATE CASCADE"
           + ")";
 
       if (this.OnNubStatOut != null)
@@ -1802,34 +1878,34 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE NONCLUSTERED INDEX FK_LocationMapSectionOnWarehouseLocationMapRefno ON "
+      string sqlNdx = "CREATE INDEX FK_LocationMapSectionOnWarehouseLocationMapRefno ON "
           + "tLocationMapSection(WarehouseLocationMapRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_LocationMapSectionOnLocationMapRefnoAndLocationMapSubType ON "
+      sqlNdx = "CREATE UNIQUE INDEX UQ_LocationMapSectionOnLocationMapRefnoAndLocationMapSubType ON "
           + "tLocationMapSection(LocationMapRefno ASC, LocationMapSubType ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_LocationMapSectionOnLocationMapSectionFKRefno ON "
+      sqlNdx = "CREATE UNIQUE INDEX UQ_LocationMapSectionOnLocationMapSectionFKRefno ON "
           + "tLocationMapSection(LocationMapSectionFKRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_LocationMapSectionOnWarehouseLocationMapRefnoLocationMapSectionName"
+      sqlNdx = "CREATE UNIQUE INDEX UQ_LocationMapSectionOnWarehouseLocationMapRefnoLocationMapSectionName"
           + " ON tLocationMapSection(WarehouseLocationMapRefno ASC, LocationMapSectionName ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_LocationMapSectionOnLocationMapSectionCode ON "
+      sqlNdx = "CREATE UNIQUE INDEX UQ_LocationMapSectionOnLocationMapSectionCode ON "
           + "tLocationMapSection(LocationMapSectionCode ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_LocationMapSectionOnLocationMapSectionBarCode ON "
+      sqlNdx = "CREATE UNIQUE INDEX UQ_LocationMapSectionOnLocationMapSectionBarCode ON "
           + "tLocationMapSection(LocationMapSectionBarCode ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      string alterTable = "ALTER TABLE tLocationMapSection ADD CONSTRAINT "
-          + "LocationMapSectionToLocationMapOnLocationMapRefno FOREIGN KEY (LocationMapRefno) REFERENCES "
-          + "tLocationMap(LocationMapRefno) ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //string alterTable = "ALTER TABLE tLocationMapSection ADD CONSTRAINT "
+      //    + "LocationMapSectionToLocationMapOnLocationMapRefno FOREIGN KEY (LocationMapRefno) REFERENCES "
+      //    + "tLocationMap(LocationMapRefno) ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
     }
 
     /// <summary>
@@ -1840,8 +1916,7 @@ namespace dMobile.GroundWork
     {
       string sqlTable = "CREATE TABLE tLocationMapSlotCoordinate"
           + "("
-          + "LocationMapSlotCoordinateRefno int IDENTITY(1, 1) NOT NULL CONSTRAINT PK_LocationMapSlotCoordinateRefno "
-          + "PRIMARY KEY,"
+          + "LocationMapSlotCoordinateRefno int NOT NULL CONSTRAINT PK_LocationMapSlotCoordinateRefno PRIMARY KEY,"
           + "LocationMapSlotCoordinateEnum int NOT NULL,"
           + "LocationMapSlotCoordinateCode nvarchar(10) NOT NULL"
           + ")";
@@ -1858,7 +1933,7 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX "
+      string sqlNdx = "CREATE UNIQUE INDEX "
           + "UQ_LocationMapSlotCoordOnLocationMapSlotCoordEnumAndLocationMapSlotCoordCode ON "
           + "tLocationMapSlotCoordinate(LocationMapSlotCoordinateEnum ASC, LocationMapSlotCoordinateCode ASC)";
       this.RunDDLCommand(sqlNdx);
@@ -1884,7 +1959,18 @@ namespace dMobile.GroundWork
           + "SlotCoord3LocationMapRefno int NOT NULL,"
           + "LocationMapSlotFKRefno int NOT NULL,"
           + "LocationMapSlotBarCode nvarchar(13) NOT NULL,"
-          + "WarehouseLocationMapRefno int NOT NULL"
+          + "WarehouseLocationMapRefno int NOT NULL,"
+          + "CONSTRAINT LocationMapSlotToLocationMapOnLocationMapRefno "
+          + "FOREIGN KEY (LocationMapRefno) REFERENCES tLocationMap(LocationMapRefno) "
+          + "ON DELETE CASCADE ON UPDATE CASCADE,"
+          + "CONSTRAINT LocationMapSlotToLocationMapSectionOnSectionLocationMapRefnoAndLocationMapRefno "
+          + "FOREIGN KEY(SectionLocationMapRefno) REFERENCES tLocationMapSection(LocationMapRefno), "
+          + "CONSTRAINT LocationMapSlotToLocationMapSlotCoordOnSlotCoord1LocationMapRefnoAndLocationMapSlotCoordRefno "
+          + "FOREIGN KEY (SlotCoord1LocationMapRefno) REFERENCES tLocationMapSlotCoordinate(LocationMapSlotCoordinateRefno), "
+          + "CONSTRAINT LocationMapSlotToLocationMapSlotCoordOnSlotCoord2LocationMapRefnoAndLocationMapSlotCoordRefno " 
+          + "FOREIGN KEY (SlotCoord2LocationMapRefno) REFERENCES tLocationMapSlotCoordinate(LocationMapSlotCoordinateRefno), "
+          + "CONSTRAINT LocationMapSlotToLocationMapSlotCoordOnSlotCoord3LocationMapRefnoAndLocationMapSlotCoordRefno "
+          + "FOREIGN KEY (SlotCoord3LocationMapRefno) REFERENCES tLocationMapSlotCoordinate(LocationMapSlotCoordinateRefno)"
           + ")";
 
       if (this.OnNubStatOut != null)
@@ -1899,70 +1985,71 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE NONCLUSTERED INDEX FK_LocationMapSlotOnSectionLocationMapRefno ON "
+      string sqlNdx = "CREATE INDEX FK_LocationMapSlotOnSectionLocationMapRefno ON "
           + "tLocationMapSlot(SectionLocationMapRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE NONCLUSTERED INDEX FK_LocationMapSlotOnWarehouseLocationMapRefno ON "
+      sqlNdx = "CREATE INDEX FK_LocationMapSlotOnWarehouseLocationMapRefno ON "
           + "tLocationMapSlot(WarehouseLocationMapRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE NONCLUSTERED INDEX FK_LocationMapSlotOnSlotCoord1LocationMapRefno ON "
+      sqlNdx = "CREATE INDEX FK_LocationMapSlotOnSlotCoord1LocationMapRefno ON "
           + "tLocationMapSlot(SlotCoord1LocationMapRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE NONCLUSTERED INDEX FK_LocationMapSlotOnSlotCoord2LocationMapRefno ON "
+      sqlNdx = "CREATE INDEX FK_LocationMapSlotOnSlotCoord2LocationMapRefno ON "
           + "tLocationMapSlot(SlotCoord2LocationMapRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE NONCLUSTERED INDEX FK_LocationMapSlotOnSlotCoord3LocationMapRefno ON "
+      sqlNdx = "CREATE INDEX FK_LocationMapSlotOnSlotCoord3LocationMapRefno ON "
           + "tLocationMapSlot(SlotCoord3LocationMapRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_LocationMapSlotOnLocationMapRefnoAndLocationMapSubType ON "
+      sqlNdx = "CREATE UNIQUE INDEX UQ_LocationMapSlotOnLocationMapRefnoAndLocationMapSubType ON "
           + "tLocationMapSlot(LocationMapRefno ASC, LocationMapSubType ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_LocationMapSlotOnLocationMapSlotFKRefno ON "
+      sqlNdx = "CREATE UNIQUE INDEX UQ_LocationMapSlotOnLocationMapSlotFKRefno ON "
           + "tLocationMapSlot(LocationMapSlotFKRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_LocationMapSlotOnLocationMapSlotCode ON "
+      sqlNdx = "CREATE UNIQUE INDEX UQ_LocationMapSlotOnLocationMapSlotCode ON "
           + "tLocationMapSlot(LocationMapSlotCode ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_LocationMapSlotOnSectionLocationMapRefnoAndLocationMapSlotCode ON "
+      sqlNdx = "CREATE UNIQUE INDEX UQ_LocationMapSlotOnSectionLocationMapRefnoAndLocationMapSlotCode ON "
           + "tLocationMapSlot(SectionLocationMapRefno ASC, LocationMapSlotCode ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_LocationMapSlotOnLocationMapSlotBarCode ON "
+      sqlNdx = "CREATE UNIQUE INDEX UQ_LocationMapSlotOnLocationMapSlotBarCode ON "
           + "tLocationMapSlot(LocationMapSlotBarCode ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      string alterTable = "ALTER TABLE tLocationMapSlot ADD CONSTRAINT LocationMapSlotToLocationMapOnLocationMapRefno "
-          + "FOREIGN KEY (LocationMapRefno) REFERENCES tLocationMap(LocationMapRefno) "
-          + "ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+    //string alterTable;
+    //= "ALTER TABLE tLocationMapSlot ADD CONSTRAINT LocationMapSlotToLocationMapOnLocationMapRefno "
+    //    + "FOREIGN KEY (LocationMapRefno) REFERENCES tLocationMap(LocationMapRefno) "
+    //    + "ON DELETE CASCADE ON UPDATE CASCADE";
+    //this.RunDDLCommand(alterTable);
 
-      alterTable = "ALTER TABLE tLocationMapSlot ADD CONSTRAINT "
-          + "LocationMapSlotToLocationMapSectionOnSectionLocationMapRefnoAndLocationMapRefno FOREIGN KEY "
-          + "(SectionLocationMapRefno) REFERENCES tLocationMapSection(LocationMapRefno)";
-      this.RunDDLCommand(alterTable);
+    //alterTable = "ALTER TABLE tLocationMapSlot ADD CONSTRAINT "
+    //    + "LocationMapSlotToLocationMapSectionOnSectionLocationMapRefnoAndLocationMapRefno FOREIGN KEY "
+    //    + "(SectionLocationMapRefno) REFERENCES tLocationMapSection(LocationMapRefno)";
+    //this.RunDDLCommand(alterTable);
 
-      alterTable = "ALTER TABLE tLocationMapSlot ADD CONSTRAINT "
-          + "LocationMapSlotToLocationMapSlotCoordOnSlotCoord1LocationMapRefnoAndLocationMapSlotCoordRefno FOREIGN KEY "
-          + "(SlotCoord1LocationMapRefno) REFERENCES tLocationMapSlotCoordinate(LocationMapSlotCoordinateRefno)";
-      this.RunDDLCommand(alterTable);
+      //      alterTable = "ALTER TABLE tLocationMapSlot ADD CONSTRAINT "
+      //    + "LocationMapSlotToLocationMapSlotCoordOnSlotCoord1LocationMapRefnoAndLocationMapSlotCoordRefno FOREIGN KEY "
+      //    + "(SlotCoord1LocationMapRefno) REFERENCES tLocationMapSlotCoordinate(LocationMapSlotCoordinateRefno)";
+      //this.RunDDLCommand(alterTable);
 
-      alterTable = "ALTER TABLE tLocationMapSlot ADD CONSTRAINT "
-          + "LocationMapSlotToLocationMapSlotCoordOnSlotCoord2LocationMapRefnoAndLocationMapSlotCoordRefno FOREIGN KEY "
-          + "(SlotCoord2LocationMapRefno) REFERENCES tLocationMapSlotCoordinate(LocationMapSlotCoordinateRefno)";
-      this.RunDDLCommand(alterTable);
+      //alterTable = "ALTER TABLE tLocationMapSlot ADD CONSTRAINT "
+      //    + "LocationMapSlotToLocationMapSlotCoordOnSlotCoord2LocationMapRefnoAndLocationMapSlotCoordRefno FOREIGN KEY "
+      //    + "(SlotCoord2LocationMapRefno) REFERENCES tLocationMapSlotCoordinate(LocationMapSlotCoordinateRefno)";
+      //this.RunDDLCommand(alterTable);
 
-      alterTable = "ALTER TABLE tLocationMapSlot ADD CONSTRAINT "
-          + "LocationMapSlotToLocationMapSlotCoordOnSlotCoord3LocationMapRefnoAndLocationMapSlotCoordRefno FOREIGN KEY "
-          + "(SlotCoord3LocationMapRefno) REFERENCES tLocationMapSlotCoordinate(LocationMapSlotCoordinateRefno)";
-      this.RunDDLCommand(alterTable);
+      //alterTable = "ALTER TABLE tLocationMapSlot ADD CONSTRAINT "
+      //    + "LocationMapSlotToLocationMapSlotCoordOnSlotCoord3LocationMapRefnoAndLocationMapSlotCoordRefno FOREIGN KEY "
+      //    + "(SlotCoord3LocationMapRefno) REFERENCES tLocationMapSlotCoordinate(LocationMapSlotCoordinateRefno)";
+      //this.RunDDLCommand(alterTable);
     }
 
     /// <summary>
@@ -1974,7 +2061,10 @@ namespace dMobile.GroundWork
       string sqlTable = "CREATE TABLE tLocationMapType"
           + "("
           + "LocationMapRefno int NOT NULL,"
-          + "LocationMapTypeEnum int NOT NULL"
+          + "LocationMapTypeEnum int NOT NULL,"
+          + "CONSTRAINT LocationMapTypeToLocationMapOnLocationMapRefno "
+          + "FOREIGN KEY (LocationMapRefno) REFERENCES tLocationMap(LocationMapRefno) "
+          + "ON DELETE CASCADE ON UPDATE CASCADE"
           + ")";
 
       if (this.OnNubStatOut != null)
@@ -1989,18 +2079,18 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX PK_LocationMapTypeOnLocationMapRefnoAndLocationMapTypeEnum ON "
+      string sqlNdx = "CREATE UNIQUE INDEX PK_LocationMapTypeOnLocationMapRefnoAndLocationMapTypeEnum ON "
           + "tLocationMapType(LocationMapRefno ASC, LocationMapTypeEnum ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE NONCLUSTERED INDEX FK_LocationMapTypeOnLocationMapRefno ON "
+      sqlNdx = "CREATE INDEX FK_LocationMapTypeOnLocationMapRefno ON "
           + "tLocationMapType(LocationMapRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      string alterTable = "ALTER TABLE tLocationMapType ADD CONSTRAINT LocationMapTypeToLocationMapOnLocationMapRefno "
-          + "FOREIGN KEY (LocationMapRefno)" + " REFERENCES tLocationMap(LocationMapRefno) "
-          + "ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //string alterTable = "ALTER TABLE tLocationMapType ADD CONSTRAINT LocationMapTypeToLocationMapOnLocationMapRefno "
+      //    + "FOREIGN KEY (LocationMapRefno)" + " REFERENCES tLocationMap(LocationMapRefno) "
+      //    + "ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
     }
 
     /// <summary>
@@ -2012,7 +2102,11 @@ namespace dMobile.GroundWork
       string sqlTable = "CREATE TABLE tProductSchemeVariantXRef"
           + "("
           + "ProductSchemeRefno int NOT NULL,"
-          + "ProductSchemeVariantRefno int NOT NULL"
+          + "ProductSchemeVariantRefno int NOT NULL, "
+          + "CONSTRAINT ProductSchemeVariantXRefToProductSchemeVariantOnProductSchemeVariantRefno " 
+          + "FOREIGN KEY (ProductSchemeVariantRefno) REFERENCES tProductSchemeVariant(ProductSchemeVariantRefno) ON DELETE CASCADE ON UPDATE CASCADE, "
+          + "CONSTRAINT ProductSchemeVariantXRefToProductSchemeOnProductSchemeRefno FOREIGN KEY (ProductSchemeRefno) REFERENCES tProductScheme(ProductSchemeRefno) "
+          + "ON DELETE CASCADE ON UPDATE CASCADE"
           + ")";
 
       if (this.OnNubStatOut != null)
@@ -2027,29 +2121,29 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX "
+      string sqlNdx = "CREATE UNIQUE INDEX "
           + "PK_ProductSchemeVariantXRefOnProductSchemeRefnoAndProductSchemeVariantRefno ON "
           + "tProductSchemeVariantXRef(ProductSchemeRefno ASC, ProductSchemeVariantRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE NONCLUSTERED INDEX FK_ProductSchemeVariantXRefOnProductSchemeRefno ON "
+      sqlNdx = "CREATE INDEX FK_ProductSchemeVariantXRefOnProductSchemeRefno ON "
           + "tProductSchemeVariantXRef(ProductSchemeRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE NONCLUSTERED INDEX FK_ProductSchemeVariantXRefOnProductSchemeVariantRefno ON "
+      sqlNdx = "CREATE INDEX FK_ProductSchemeVariantXRefOnProductSchemeVariantRefno ON "
           + "tProductSchemeVariantXRef(ProductSchemeVariantRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      string alterTable = "ALTER TABLE tProductSchemeVariantXRef ADD CONSTRAINT "
-          + "ProductSchemeVariantXRefToProductSchemeVariantOnProductSchemeVariantRefno FOREIGN KEY "
-          + "(ProductSchemeVariantRefno) REFERENCES tProductSchemeVariant(ProductSchemeVariantRefno) "
-          + "ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //string alterTable = "ALTER TABLE tProductSchemeVariantXRef ADD CONSTRAINT "
+      //    + "ProductSchemeVariantXRefToProductSchemeVariantOnProductSchemeVariantRefno FOREIGN KEY "
+      //    + "(ProductSchemeVariantRefno) REFERENCES tProductSchemeVariant(ProductSchemeVariantRefno) "
+      //    + "ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
 
-      alterTable = "ALTER TABLE tProductSchemeVariantXRef ADD CONSTRAINT "
-          + "ProductSchemeVariantXRefToProductSchemeOnProductSchemeRefno FOREIGN KEY (ProductSchemeRefno) REFERENCES "
-          + "tProductScheme(ProductSchemeRefno) ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //alterTable = "ALTER TABLE tProductSchemeVariantXRef ADD CONSTRAINT "
+      //    + "ProductSchemeVariantXRefToProductSchemeOnProductSchemeRefno FOREIGN KEY (ProductSchemeRefno) REFERENCES "
+      //    + "tProductScheme(ProductSchemeRefno) ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
     }
 
     /// <summary>
@@ -2061,7 +2155,11 @@ namespace dMobile.GroundWork
       string sqlTable = "CREATE TABLE tProductSchemeLotNumberXRef"
           + "("
           + "ProductSchemeRefno int NOT NULL,"
-          + "ProductSchemeLotNumberRefno int NOT NULL"
+          + "ProductSchemeLotNumberRefno int NOT NULL, "
+          + "CONSTRAINT ProductSchemeLotNumberXRefToProductSchemeLotNumberOnProductSchemeLotNumberRefno " 
+          + "FOREIGN KEY (ProductSchemeLotNumberRefno) REFERENCES tProductSchemeLotNumber(ProductSchemeLotNumberRefno) ON DELETE CASCADE ON UPDATE CASCADE "
+          + "CONSTRAINT ProductSchemeLotNumberXRefToProductSchemeOnProductSchemeRefno " 
+          + "FOREIGN KEY (ProductSchemeRefno) REFERENCES tProductScheme(ProductSchemeRefno) ON DELETE CASCADE ON UPDATE CASCADE"
           + ")";
 
       if (this.OnNubStatOut != null)
@@ -2076,29 +2174,29 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX "
+      string sqlNdx = "CREATE UNIQUE INDEX "
           + "PK_ProductSchemeLotNumberXRefOnProductSchemeRefnoAndProductSchemeLotNumberRefno ON "
           + "tProductSchemeLotNumberXRef(ProductSchemeRefno ASC, ProductSchemeLotNumberRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE NONCLUSTERED INDEX FK_ProductSchemeLotNumberXRefOnProductSchemeRefno ON "
+      sqlNdx = "CREATE INDEX FK_ProductSchemeLotNumberXRefOnProductSchemeRefno ON "
           + "tProductSchemeLotNumberXRef(ProductSchemeRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE NONCLUSTERED INDEX FK_ProductSchemeLotNumberXRefOnProductSchemeLotNumberRefno ON "
+      sqlNdx = "CREATE INDEX FK_ProductSchemeLotNumberXRefOnProductSchemeLotNumberRefno ON "
           + "tProductSchemeLotNumberXRef(ProductSchemeLotNumberRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      string alterTable = "ALTER TABLE tProductSchemeLotNumberXRef ADD CONSTRAINT "
-          + "ProductSchemeLotNumberXRefToProductSchemeLotNumberOnProductSchemeLotNumberRefno FOREIGN KEY "
-          + "(ProductSchemeLotNumberRefno) REFERENCES tProductSchemeLotNumber(ProductSchemeLotNumberRefno) "
-          + "ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //string alterTable = "ALTER TABLE tProductSchemeLotNumberXRef ADD CONSTRAINT "
+      //    + "ProductSchemeLotNumberXRefToProductSchemeLotNumberOnProductSchemeLotNumberRefno FOREIGN KEY "
+      //    + "(ProductSchemeLotNumberRefno) REFERENCES tProductSchemeLotNumber(ProductSchemeLotNumberRefno) "
+      //    + "ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
 
-      alterTable = "ALTER TABLE tProductSchemeLotNumberXRef ADD CONSTRAINT "
-          + "ProductSchemeLotNumberXRefToProductSchemeOnProductSchemeRefno FOREIGN KEY (ProductSchemeRefno) REFERENCES "
-          + "tProductScheme(ProductSchemeRefno) ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //alterTable = "ALTER TABLE tProductSchemeLotNumberXRef ADD CONSTRAINT "
+      //    + "ProductSchemeLotNumberXRefToProductSchemeOnProductSchemeRefno FOREIGN KEY (ProductSchemeRefno) REFERENCES "
+      //    + "tProductScheme(ProductSchemeRefno) ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
     }
 
     /// <summary>
@@ -2109,7 +2207,7 @@ namespace dMobile.GroundWork
     {
       string sqlTable = "CREATE TABLE tProductScheme"
           + "("
-          + "ProductSchemeRefno int IDENTITY(1, 1) NOT NULL CONSTRAINT PK_ProductSchemeOnProductSchemeRefno PRIMARY KEY,"
+          + "ProductSchemeRefno int NOT NULL CONSTRAINT PK_ProductSchemeOnProductSchemeRefno PRIMARY KEY,"
           + "ProductSchemeCode nvarchar(10) NOT NULL,"
           + "ProductSchemeIsSerialTracked bit NOT NULL,"
           + "ProductSchemeIsProductionDateTracked bit NOT NULL,"
@@ -2152,7 +2250,7 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_ProductSchemeOnProductSchemeCode ON "
+      string sqlNdx = "CREATE UNIQUE INDEX UQ_ProductSchemeOnProductSchemeCode ON "
           + "tProductScheme(ProductSchemeCode ASC)";
       this.RunDDLCommand(sqlNdx);
     }
@@ -2165,7 +2263,7 @@ namespace dMobile.GroundWork
     {
       string sqlTable = "CREATE TABLE tProductSchemeVariant"
           + "("
-          + "ProductSchemeVariantRefno int IDENTITY(1, 1) NOT NULL CONSTRAINT "
+          + "ProductSchemeVariantRefno int NOT NULL CONSTRAINT "
           + "PK_ProductSchemeVariantOnProductSchemeVariantRefno PRIMARY KEY,"
           + "ProductSchemeVariantCode nvarchar(5) NOT NULL,"
           + "ProductSchemeVariantDescription nvarchar(30) NOT NULL,"
@@ -2185,11 +2283,11 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_ProductSchemeVariantOnProductSchemeVariantCode ON "
+      string sqlNdx = "CREATE UNIQUE INDEX UQ_ProductSchemeVariantOnProductSchemeVariantCode ON "
           + "tProductSchemeVariant(ProductSchemeVariantCode ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_ProductSchemeVariantOnProductSchemeVariantNo ON "
+      sqlNdx = "CREATE UNIQUE INDEX UQ_ProductSchemeVariantOnProductSchemeVariantNo ON "
           + "tProductSchemeVariant(ProductSchemeVariantNo ASC)";
       this.RunDDLCommand(sqlNdx);
     }
@@ -2202,7 +2300,7 @@ namespace dMobile.GroundWork
     {
       string sqlTable = "CREATE TABLE tProductSchemeLotNumber"
           + "("
-          + "ProductSchemeLotNumberRefno int IDENTITY(1, 1) NOT NULL CONSTRAINT "
+          + "ProductSchemeLotNumberRefno int NOT NULL CONSTRAINT "
           + "PK_ProductSchemeLotNumberOnProductSchemeLotNumberRefno PRIMARY KEY,"
           + "ProductSchemeLotNumberCode nvarchar(20) NOT NULL,"
           + "ProductSchemeLotNumberCodeDefault nvarchar(20) NOT NULL"
@@ -2220,7 +2318,7 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_ProductSchemeLotNumberOnProductSchemeLotNumberCode ON "
+      string sqlNdx = "CREATE UNIQUE INDEX UQ_ProductSchemeLotNumberOnProductSchemeLotNumberCode ON "
           + "tProductSchemeLotNumber(ProductSchemeLotNumberCode ASC)";
       this.RunDDLCommand(sqlNdx);
     }
@@ -2233,7 +2331,7 @@ namespace dMobile.GroundWork
     {
       string sqlTable = "CREATE TABLE tProduct" 
           + "(" 
-          + "ProductRefno int IDENTITY(1, 1) NOT NULL CONSTRAINT PK_ProductOnProductRefno PRIMARY KEY," 
+          + "ProductRefno int NOT NULL CONSTRAINT PK_ProductOnProductRefno PRIMARY KEY," 
           + "ProductSchemeRefno int NOT NULL," 
           + "FamilyRefno int NOT NULL," 
           + "ProductCode nvarchar(10) NOT NULL," 
@@ -2244,7 +2342,9 @@ namespace dMobile.GroundWork
           + "ProductIsCatchAsk bit NOT NULL,"
           + "ProductIsCatchAskZero bit NOT NULL,"
           + "ProductBrandDescription nvarchar(10) NOT NULL," 
-          + "ProductAllowConvertProduct bit NOT NULL"
+          + "ProductAllowConvertProduct bit NOT NULL, "
+          + "CONSTRAINT ProductToProductSchemeOnProductSchemeRefno "
+          + "FOREIGN KEY (ProductSchemeRefno) REFERENCES tProductScheme(ProductSchemeRefno) ON DELETE CASCADE ON UPDATE CASCADE"
           + ")";
 
       if (this.OnNubStatOut != null)
@@ -2259,22 +2359,22 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE NONCLUSTERED INDEX FK_ProductOnProductSchemeRefno ON tProduct(ProductSchemeRefno ASC)";
+      string sqlNdx = "CREATE INDEX FK_ProductOnProductSchemeRefno ON tProduct(ProductSchemeRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_ProductOnProductCode ON tProduct(ProductCode ASC)";
+      sqlNdx = "CREATE UNIQUE INDEX UQ_ProductOnProductCode ON tProduct(ProductCode ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE NONCLUSTERED INDEX ProductOnProductDescription ON tProduct(ProductDescription ASC)";
+      sqlNdx = "CREATE INDEX ProductOnProductDescription ON tProduct(ProductDescription ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_ProductOnProductFKRefno ON tProduct(ProductFKRefno ASC)";
+      sqlNdx = "CREATE UNIQUE INDEX UQ_ProductOnProductFKRefno ON tProduct(ProductFKRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      string alterTable = "ALTER TABLE tProduct ADD CONSTRAINT ProductToProductSchemeOnProductSchemeRefno " 
-          + "FOREIGN KEY (ProductSchemeRefno)" 
-          + " REFERENCES tProductScheme(ProductSchemeRefno) ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //string alterTable = "ALTER TABLE tProduct ADD CONSTRAINT ProductToProductSchemeOnProductSchemeRefno " 
+      //    + "FOREIGN KEY (ProductSchemeRefno)" 
+      //    + " REFERENCES tProductScheme(ProductSchemeRefno) ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
     }
 
     /// <summary>
@@ -2284,7 +2384,8 @@ namespace dMobile.GroundWork
     private void CreateTableProductUnit()
     {
       string sqlTable = "CREATE TABLE tProductUnit" 
-          + "(" + "ProductUnitRefno int IDENTITY(1, 1) NOT NULL CONSTRAINT PK_ProductUnitOnProductUnitRefno PRIMARY KEY," 
+          + "(" 
+          + "ProductUnitRefno int NOT NULL CONSTRAINT PK_ProductUnitOnProductUnitRefno PRIMARY KEY," 
           + "ProductRefno int NOT NULL," 
           + "UnitRefno int NOT NULL," 
           + "BaseUnitRefno int NOT NULL," 
@@ -2295,7 +2396,11 @@ namespace dMobile.GroundWork
           + "ProductUnitSizeDescription nvarchar(15) NOT NULL," 
           + "ProductUnitIsSellUnit bit NOT NULL," 
           + "ProductUnitIsDefault bit NOT NULL," 
-          + "ProductUnitBoxCount numeric(10, 4) NOT NULL"
+          + "ProductUnitBoxCount numeric(10, 4) NOT NULL, "
+          + "CONSTRAINT ProductUnitToProductOnProductRefno FOREIGN KEY (ProductRefno) REFERENCES tProduct(ProductRefno) ON DELETE CASCADE ON UPDATE CASCADE, "
+          + "CONSTRAINT ProductUnitToUnitOnUnitRefno FOREIGN KEY (UnitRefno) REFERENCES tUnit(UnitRefno), "
+          + "CONSTRAINT ProductUnitToUnitOnBaseUnitRefno FOREIGN KEY (BaseUnitRefno) REFERENCES tUnit(UnitRefno), "
+          + "CONSTRAINT ProductUnitToUnitOnWtUnitRefno FOREIGN KEY (WtUnitRefno) REFERENCES tUnit(UnitRefno)"
           + ")";
 
       if (this.OnNubStatOut != null)
@@ -2310,37 +2415,37 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE NONCLUSTERED INDEX FK_ProductUnitOnProductRefno ON tProductUnit(ProductRefno ASC)";
+      string sqlNdx = "CREATE INDEX FK_ProductUnitOnProductRefno ON tProductUnit(ProductRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE NONCLUSTERED INDEX FK_ProductUnitOnUnitRefno ON tProductUnit(UnitRefno ASC)";
+      sqlNdx = "CREATE INDEX FK_ProductUnitOnUnitRefno ON tProductUnit(UnitRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE NONCLUSTERED INDEX FK_ProductUnitOnBaseUnitRefno ON tProductUnit(BaseUnitRefno ASC)";
+      sqlNdx = "CREATE INDEX FK_ProductUnitOnBaseUnitRefno ON tProductUnit(BaseUnitRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE NONCLUSTERED INDEX FK_ProductUnitOnWtUnitRefno ON tProductUnit(WtUnitRefno ASC)";
+      sqlNdx = "CREATE INDEX FK_ProductUnitOnWtUnitRefno ON tProductUnit(WtUnitRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_ProductUnitOnProductRefnoAndUnitRefnoAndProductUnitIsBC " 
+      sqlNdx = "CREATE UNIQUE INDEX UQ_ProductUnitOnProductRefnoAndUnitRefnoAndProductUnitIsBC " 
           + "ON tProductUnit(ProductRefno ASC, UnitRefno ASC, ProductUnitIsBC ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      string alterTable = "ALTER TABLE tProductUnit ADD CONSTRAINT ProductUnitToProductOnProductRefno " 
-          + "FOREIGN KEY (ProductRefno)" + " REFERENCES tProduct(ProductRefno) ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //string alterTable = "ALTER TABLE tProductUnit ADD CONSTRAINT ProductUnitToProductOnProductRefno " 
+      //    + "FOREIGN KEY (ProductRefno)" + " REFERENCES tProduct(ProductRefno) ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
 
-      alterTable = "ALTER TABLE tProductUnit ADD CONSTRAINT ProductUnitToUnitOnUnitRefno FOREIGN KEY (UnitRefno)" 
-          + " REFERENCES tUnit(UnitRefno)";
-      this.RunDDLCommand(alterTable);
+      //alterTable = "ALTER TABLE tProductUnit ADD CONSTRAINT ProductUnitToUnitOnUnitRefno FOREIGN KEY (UnitRefno)" 
+      //    + " REFERENCES tUnit(UnitRefno)";
+      //this.RunDDLCommand(alterTable);
 
-      alterTable = "ALTER TABLE tProductUnit ADD CONSTRAINT ProductUnitToUnitOnBaseUnitRefno " 
-          + "FOREIGN KEY (BaseUnitRefno) REFERENCES tUnit(UnitRefno)";
-      this.RunDDLCommand(alterTable);
+      //alterTable = "ALTER TABLE tProductUnit ADD CONSTRAINT ProductUnitToUnitOnBaseUnitRefno " 
+      //    + "FOREIGN KEY (BaseUnitRefno) REFERENCES tUnit(UnitRefno)";
+      //this.RunDDLCommand(alterTable);
 
-      alterTable = "ALTER TABLE tProductUnit ADD CONSTRAINT ProductUnitToUnitOnWtUnitRefno " 
-          + "FOREIGN KEY (WtUnitRefno) REFERENCES tUnit(UnitRefno)";
-      this.RunDDLCommand(alterTable);
+      //alterTable = "ALTER TABLE tProductUnit ADD CONSTRAINT ProductUnitToUnitOnWtUnitRefno " 
+      //    + "FOREIGN KEY (WtUnitRefno) REFERENCES tUnit(UnitRefno)";
+      //this.RunDDLCommand(alterTable);
     }
 
     /// <summary>
@@ -2352,14 +2457,15 @@ namespace dMobile.GroundWork
       // 255 max len for a 1D barcode
       string sqlTable = "CREATE TABLE tProductUnitBarCode"
           + "("
-          + "ProductUnitBarCodeRefno int IDENTITY(1, 1) NOT NULL CONSTRAINT "
+          + "ProductUnitBarCodeRefno int NOT NULL CONSTRAINT "
           + "PK_ProductUnitBarCodeOnProductUnitBarCodeRefno PRIMARY KEY,"
           + "ProductUnitRefno int NOT NULL,"
           + "ProductUnitBarCodeCode nvarchar(20) NOT NULL,"
           + "ProductUnitBarCodeRaw nvarchar(255) NOT NULL,"
           + "ProductUnitBarCodeSymbologyEnum int NOT NULL,"
           + "ProductUnitBarCodeModifier1 nvarchar(1) NOT NULL,"
-          + "ProductUnitBarCodeStatus int NOT NULL"
+          + "ProductUnitBarCodeStatus int NOT NULL, "
+          + "CONSTRAINT ProductUnitBarCodeToProductUnitOnProductUnitRefno FOREIGN KEY (ProductUnitRefno) REFERENCES tProductUnit(ProductUnitRefno) ON DELETE CASCADE ON UPDATE CASCADE"
           + ")";
 
       if (this.OnNubStatOut != null)
@@ -2374,19 +2480,19 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE NONCLUSTERED INDEX FK_ProductUnitBarCodeOnProductUnitRefno ON "
+      string sqlNdx = "CREATE INDEX FK_ProductUnitBarCodeOnProductUnitRefno ON "
           + "tProductUnitBarCode(ProductUnitRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX "
+      sqlNdx = "CREATE UNIQUE INDEX "
           + "UQ_ProductUnitBarCodeOnProductUnitBarCodeCodeAndProductUnitBarCodeModifier1 ON "
           + "tProductUnitBarCode(ProductUnitBarCodeCode ASC, ProductUnitBarCodeModifier1 ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      string alterTable = "ALTER TABLE tProductUnitBarCode ADD CONSTRAINT "
-          + "ProductUnitBarCodeToProductUnitOnProductUnitRefno FOREIGN KEY (ProductUnitRefno) REFERENCES "
-          + "tProductUnit(ProductUnitRefno) ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //string alterTable = "ALTER TABLE tProductUnitBarCode ADD CONSTRAINT "
+      //    + "ProductUnitBarCodeToProductUnitOnProductUnitRefno FOREIGN KEY (ProductUnitRefno) REFERENCES "
+      //    + "tProductUnit(ProductUnitRefno) ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
     }
 
     /// <summary>
@@ -2399,7 +2505,9 @@ namespace dMobile.GroundWork
           + "("
           + "ProductUnit1Refno int NOT NULL,"
           + "ProductUnit2Refno int NOT NULL,"
-          + "ProductUnitRelationFactor numeric(12, 6) NOT NULL"
+          + "ProductUnitRelationFactor numeric(12, 6) NOT NULL, "
+          + "CONSTRAINT ProductUnitRelationToProductUnitOnProductUnit1RefnoAndProductUnitRefno FOREIGN KEY (ProductUnit1Refno) REFERENCES tProductUnit(ProductUnitRefno), "
+          + "CONSTRAINT ProductUnitRelationToProductUnitOnProductUnit2RefnoAndProductUnitRefno FOREIGN KEY (ProductUnit2Refno) REFERENCES tProductUnit(ProductUnitRefno)"
           + ")";
 
       if (this.OnNubStatOut != null)
@@ -2414,27 +2522,25 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX PK_ProductUnitRelationOnProductUnit1RefnoAndProductUnit2Refno "
+      string sqlNdx = "CREATE UNIQUE INDEX PK_ProductUnitRelationOnProductUnit1RefnoAndProductUnit2Refno "
           + "ON tProductUnitRelation(ProductUnit1Refno, ProductUnit2Refno)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE NONCLUSTERED INDEX FK_ProductUnitRelationOnProductUnit1Refno ON "
+      sqlNdx = "CREATE INDEX FK_ProductUnitRelationOnProductUnit1Refno ON "
           + "tProductUnitRelation(ProductUnit1Refno)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE NONCLUSTERED INDEX FK_ProductUnitRelationOnProductUnit2Refno ON "
+      sqlNdx = "CREATE INDEX FK_ProductUnitRelationOnProductUnit2Refno ON "
           + "tProductUnitRelation(ProductUnit2Refno)";
       this.RunDDLCommand(sqlNdx);
 
-      string alterTable = "ALTER TABLE tProductUnitRelation ADD CONSTRAINT "
-          + "ProductUnitRelationToProductUnitOnProductUnit1RefnoAndProductUnitRefno FOREIGN KEY (ProductUnit1Refno) "
-          + "REFERENCES tProductUnit(ProductUnitRefno)";
-      this.RunDDLCommand(alterTable);
+      //string alterTable = "ALTER TABLE tProductUnitRelation ADD ;
+      //this.RunDDLCommand(alterTable);
 
-      alterTable = "ALTER TABLE tProductUnitRelation ADD CONSTRAINT "
-          + "ProductUnitRelationToProductUnitOnProductUnit2RefnoAndProductUnitRefno FOREIGN KEY (ProductUnit2Refno) "
-          + "REFERENCES tProductUnit(ProductUnitRefno)";
-      this.RunDDLCommand(alterTable);
+      //alterTable = "ALTER TABLE tProductUnitRelation ADD CONSTRAINT "
+      //    + "ProductUnitRelationToProductUnitOnProductUnit2RefnoAndProductUnitRefno FOREIGN KEY (ProductUnit2Refno) "
+      //    + "REFERENCES tProductUnit(ProductUnitRefno)";
+      //this.RunDDLCommand(alterTable);
     }
 
     /// <summary>
@@ -2446,7 +2552,12 @@ namespace dMobile.GroundWork
           + "("
           + "WarehouseLocationMapRefno int NOT NULL,"
           + "WarehouseLocationMapTypeEnum int NOT NULL,"
-          + "LocationMapRefno int NOT NULL"
+          + "LocationMapRefno int NOT NULL, "
+          + "CONSTRAINT WarehouseLocationMapTypeToLocationMapOnLocationMapRefno "
+          + "FOREIGN KEY (LocationMapRefno) REFERENCES tLocationMap(LocationMapRefno) "
+          + "ON DELETE CASCADE ON UPDATE CASCADE, "
+          + "CONSTRAINT WarehouseLocationMapTypeToLocationMapOnWarehouseLocationMapRefno "
+          + "FOREIGN KEY (WarehouseLocationMapRefno) REFERENCES tLocationMap(LocationMapRefno)"
           + ")";
 
       if (this.OnNubStatOut != null)
@@ -2461,33 +2572,33 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX "
+      string sqlNdx = "CREATE UNIQUE INDEX "
           + "PK_WarehouseLocationMapTypeOnWarehouseLocationMapRefnoAndLocationMapRefnoAndWarehouseLocationMapTypeEnum ON "
           + "tWarehouseLocationMapType(WarehouseLocationMapRefno, LocationMapRefno, WarehouseLocationMapTypeEnum)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX "
+      sqlNdx = "CREATE UNIQUE INDEX "
           + "UQ_WarehouseLocationMapTypeOnWarehouseLocationMapRefnoAndWarehouseLocationMapTypeEnum ON "
           + "tWarehouseLocationMapType(WarehouseLocationMapRefno, WarehouseLocationMapTypeEnum)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE NONCLUSTERED INDEX FK_WarehouseLocationMapTypeOnWarehouseLocationMapRefno ON "
+      sqlNdx = "CREATE INDEX FK_WarehouseLocationMapTypeOnWarehouseLocationMapRefno ON "
           + "tWarehouseLocationMapType(WarehouseLocationMapRefno)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE NONCLUSTERED INDEX FK_WarehouseLocationMapTypeOnLocationMapRefno ON "
+      sqlNdx = "CREATE INDEX FK_WarehouseLocationMapTypeOnLocationMapRefno ON "
           + "tWarehouseLocationMapType(LocationMapRefno)";
       this.RunDDLCommand(sqlNdx);
 
-      string alterTable = "ALTER TABLE tWarehouseLocationMapType ADD CONSTRAINT "
-          + "WarehouseLocationMapTypeToLocationMapOnLocationMapRefno FOREIGN KEY (LocationMapRefno) REFERENCES "
-          + "tLocationMap(LocationMapRefno) ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //string alterTable = "ALTER TABLE tWarehouseLocationMapType ADD CONSTRAINT "
+      //    + "WarehouseLocationMapTypeToLocationMapOnLocationMapRefno FOREIGN KEY (LocationMapRefno) REFERENCES "
+      //    + "tLocationMap(LocationMapRefno) ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
 
-      alterTable = "ALTER TABLE tWarehouseLocationMapType ADD CONSTRAINT "
-          + "WarehouseLocationMapTypeToLocationMapOnWarehouseLocationMapRefno FOREIGN KEY (WarehouseLocationMapRefno) "
-          + "REFERENCES tLocationMap(LocationMapRefno)";
-      this.RunDDLCommand(alterTable);
+      //alterTable = "ALTER TABLE tWarehouseLocationMapType ADD CONSTRAINT "
+      //    + "WarehouseLocationMapTypeToLocationMapOnWarehouseLocationMapRefno FOREIGN KEY (WarehouseLocationMapRefno) "
+      //    + "REFERENCES tLocationMap(LocationMapRefno)";
+      //this.RunDDLCommand(alterTable);
     }
 
     /// <summary>
@@ -2501,7 +2612,10 @@ namespace dMobile.GroundWork
           + "ProductRefno int NOT NULL,"
           + "WarehouseLocationMapRefno int NOT NULL,"
           + "ProductLocationMapTypeEnum int NOT NULL,"
-          + "LocationMapRefno int NOT NULL"
+          + "LocationMapRefno int NOT NULL, "
+          + "CONSTRAINT ProductLocationMapTypeToProductOnProductRefno FOREIGN KEY (ProductRefno) REFERENCES tProduct(ProductRefno) ON DELETE CASCADE ON UPDATE CASCADE, "
+          + "CONSTRAINT ProductLocationMapTypeToLocationMapOnLocationMapRefno FOREIGN KEY (LocationMapRefno) REFERENCES tLocationMap(LocationMapRefno) ON DELETE CASCADE ON UPDATE CASCADE, "
+          + "CONSTRAINT ProductLocationMapTypeToLocationMapOnWarehouseLocationMapRefno FOREIGN KEY (WarehouseLocationMapRefno) REFERENCES tLocationMap(LocationMapRefno)"
           + ")";
 
       if (this.OnNubStatOut != null)
@@ -2516,42 +2630,42 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX "
+      string sqlNdx = "CREATE UNIQUE INDEX "
           + "PK_ProductLocationMapTypeOnProductRefnoAndLocationMapRefnoAndProductLocationMapTypeEnum ON "
           + "tProductLocationMapType(ProductRefno, LocationMapRefno, ProductLocationMapTypeEnum)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX "
+      sqlNdx = "CREATE UNIQUE INDEX "
           + "FK_ProductLocationMapTypeOnWarehouseLocationMapRefnoAndProductRefnoAndProductLocationMapTypeEnum ON "
           + "tProductLocationMapType(WarehouseLocationMapRefno, ProductRefno, ProductLocationMapTypeEnum)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE NONCLUSTERED INDEX FK_ProductLocationMapTypeOnProductRefno ON "
+      sqlNdx = "CREATE INDEX FK_ProductLocationMapTypeOnProductRefno ON "
           + "tProductLocationMapType(ProductRefno)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE NONCLUSTERED INDEX FK_ProductLocationMapTypeOnWarehouseLocationMapRefno ON "
+      sqlNdx = "CREATE INDEX FK_ProductLocationMapTypeOnWarehouseLocationMapRefno ON "
           + "tProductLocationMapType(WarehouseLocationMapRefno)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE NONCLUSTERED INDEX FK_ProductLocationMapTypeOnLocationMapRefno ON "
+      sqlNdx = "CREATE INDEX FK_ProductLocationMapTypeOnLocationMapRefno ON "
           + "tProductLocationMapType(LocationMapRefno)";
       this.RunDDLCommand(sqlNdx);
 
-      string alterTable = "ALTER TABLE tProductLocationMapType ADD CONSTRAINT "
-          + "ProductLocationMapTypeToProductOnProductRefno FOREIGN KEY (ProductRefno) REFERENCES tProduct(ProductRefno) "
-          + "ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //string alterTable = "ALTER TABLE tProductLocationMapType ADD CONSTRAINT "
+      //    + "ProductLocationMapTypeToProductOnProductRefno FOREIGN KEY (ProductRefno) REFERENCES tProduct(ProductRefno) "
+      //    + "ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
 
-      alterTable = "ALTER TABLE tProductLocationMapType ADD CONSTRAINT "
-          + "ProductLocationMapTypeToLocationMapOnLocationMapRefno FOREIGN KEY (LocationMapRefno) REFERENCES "
-          + "tLocationMap(LocationMapRefno) ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //alterTable = "ALTER TABLE tProductLocationMapType ADD CONSTRAINT "
+      //    + "ProductLocationMapTypeToLocationMapOnLocationMapRefno FOREIGN KEY (LocationMapRefno) REFERENCES "
+      //    + "tLocationMap(LocationMapRefno) ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
 
-      alterTable = "ALTER TABLE tProductLocationMapType ADD CONSTRAINT "
-          + "ProductLocationMapTypeToLocationMapOnWarehouseLocationMapRefno FOREIGN KEY (WarehouseLocationMapRefno) "
-          + "REFERENCES tLocationMap(LocationMapRefno)";
-      this.RunDDLCommand(alterTable);
+      //alterTable = "ALTER TABLE tProductLocationMapType ADD CONSTRAINT "
+      //    + "ProductLocationMapTypeToLocationMapOnWarehouseLocationMapRefno FOREIGN KEY (WarehouseLocationMapRefno) "
+      //    + "REFERENCES tLocationMap(LocationMapRefno)";
+      //this.RunDDLCommand(alterTable);
     }
 
     /// <summary>
@@ -2562,7 +2676,7 @@ namespace dMobile.GroundWork
     {
       string sqlTable = "CREATE TABLE tContact"
           + "("
-          + "ContactRefno int NOT NULL IDENTITY(1, 1) CONSTRAINT PK_ContactOnContactRefno PRIMARY KEY,"
+          + "ContactRefno int NOT NULL CONSTRAINT PK_ContactOnContactRefno PRIMARY KEY,"
           + "ContactSubType int NOT NULL"
           + ")";
 
@@ -2578,7 +2692,7 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_ContactOnContactRefnoAndContactSubType ON "
+      string sqlNdx = "CREATE UNIQUE INDEX UQ_ContactOnContactRefnoAndContactSubType ON "
           + "tContact(ContactRefno ASC, ContactSubType ASC)";
       this.RunDDLCommand(sqlNdx);
     }
@@ -2599,7 +2713,8 @@ namespace dMobile.GroundWork
           + "ContactUserIsAllowedAssociateProductBarCode bit NOT NULL,"
           + "ContactUserIsAllowedPickingModuleOverridePicker bit NOT NULL,"
           + "ContactUserIsAllowedPickingModuleOverrideAddManualDetail bit NOT NULL,"
-          + "ContactUserLocalizationLanguage nvarchar(3)"
+          + "ContactUserLocalizationLanguage nvarchar(3),"
+          + "CONSTRAINT ContactUserToContactOnContactRefno FOREIGN KEY (ContactRefno) REFERENCES tContact(ContactRefno) ON DELETE CASCADE ON UPDATE CASCADE"
           + ")";
 
       if (this.OnNubStatOut != null)
@@ -2614,19 +2729,19 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_ContactUserOnContactRefnoAndContactSubType ON "
+      string sqlNdx = "CREATE UNIQUE INDEX UQ_ContactUserOnContactRefnoAndContactSubType ON "
           + "tContactUser(ContactRefno ASC, ContactSubType ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_ContactUserOnContactUserCode ON tContactUser(ContactUserCode ASC)";
+      sqlNdx = "CREATE UNIQUE INDEX UQ_ContactUserOnContactUserCode ON tContactUser(ContactUserCode ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_ContactUserOnContactUserName ON tContactUser(ContactUserName ASC)";
+      sqlNdx = "CREATE UNIQUE INDEX UQ_ContactUserOnContactUserName ON tContactUser(ContactUserName ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      string alterTable = "ALTER TABLE tContactUser ADD CONSTRAINT ContactUserToContactOnContactRefno FOREIGN KEY "
-          + "(ContactRefno) REFERENCES tContact(ContactRefno) ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //string alterTable = "ALTER TABLE tContactUser ADD CONSTRAINT ContactUserToContactOnContactRefno FOREIGN KEY "
+      //    + "(ContactRefno) REFERENCES tContact(ContactRefno) ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
     }
 
     /// <summary>
@@ -2641,7 +2756,8 @@ namespace dMobile.GroundWork
           + "ContactSubType int NOT NULL,"
           + "ContactCustomerFKRefno int NOT NULL,"
           + "ContactCustomerCode nvarchar(8) NOT NULL,"
-          + "ContactCustomerName nvarchar(40) NOT NULL"
+          + "ContactCustomerName nvarchar(40) NOT NULL,"
+          + "CONSTRAINT ContactCustomerToContactOnContactRefno FOREIGN KEY (ContactRefno) REFERENCES tContact(ContactRefno) ON DELETE CASCADE ON UPDATE CASCADE"
           + ")";
 
       if (this.OnNubStatOut != null)
@@ -2656,25 +2772,25 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_ContactCustomerOnContactRefnoAndContactSubType ON "
+      string sqlNdx = "CREATE UNIQUE INDEX UQ_ContactCustomerOnContactRefnoAndContactSubType ON "
           + "tContactCustomer(ContactRefno ASC, ContactSubType ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_ContactCustomerOnContactCustomerFKRefno ON "
+      sqlNdx = "CREATE UNIQUE INDEX UQ_ContactCustomerOnContactCustomerFKRefno ON "
           + "tContactCustomer(ContactCustomerFKRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_ContactCustomerOnContactCustomerCode ON "
+      sqlNdx = "CREATE UNIQUE INDEX UQ_ContactCustomerOnContactCustomerCode ON "
           + "tContactCustomer(ContactCustomerCode ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_ContactCustomerOnContactCustomerName ON "
+      sqlNdx = "CREATE UNIQUE INDEX UQ_ContactCustomerOnContactCustomerName ON "
           + "tContactCustomer(ContactCustomerName ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      string alterTable = "ALTER TABLE tContactCustomer ADD CONSTRAINT ContactCustomerToContactOnContactRefno "
-          + "FOREIGN KEY (ContactRefno) REFERENCES tContact(ContactRefno) ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //string alterTable = "ALTER TABLE tContactCustomer ADD CONSTRAINT ContactCustomerToContactOnContactRefno "
+      //    + "FOREIGN KEY (ContactRefno) REFERENCES tContact(ContactRefno) ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
     }
 
     /// <summary>
@@ -2690,7 +2806,10 @@ namespace dMobile.GroundWork
           + "CustomerContactRefno int NOT NULL,"
           + "ContactCustomerShipToFKRefno int NOT NULL,"
           + "ContactCustomerShipToCode nvarchar(8) NOT NULL,"
-          + "ContactCustomerShipToName nvarchar(40) NOT NULL" + ")";
+          + "ContactCustomerShipToName nvarchar(40) NOT NULL," 
+          + "CONSTRAINT ContactCustomerShipToContactOnContactRefno FOREIGN KEY (ContactRefno) REFERENCES tContact(ContactRefno) ON DELETE CASCADE ON UPDATE CASCADE, "
+          + "CONSTRAINT ContactCustomerShipToContactCustomerOnCustomerContactRefno FOREIGN KEY (CustomerContactRefno) REFERENCES tContactCustomer(ContactRefno)"
+          + ")";
 
       if (this.OnNubStatOut != null)
       {
@@ -2704,31 +2823,31 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_ContactCustomerShipToOnContactRefnoAndContactSubType ON "
+      string sqlNdx = "CREATE UNIQUE INDEX UQ_ContactCustomerShipToOnContactRefnoAndContactSubType ON "
           + "tContactCustomerShipTo(ContactRefno ASC, ContactSubType ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_ContactCustomerShipToOnContactCustomerShipToFKRefno ON "
+      sqlNdx = "CREATE UNIQUE INDEX UQ_ContactCustomerShipToOnContactCustomerShipToFKRefno ON "
           + "tContactCustomerShipTo(ContactCustomerShipToFKRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_ContactCustomerShipToOnContactCustomerShipToCode ON "
+      sqlNdx = "CREATE UNIQUE INDEX UQ_ContactCustomerShipToOnContactCustomerShipToCode ON "
           + "tContactCustomerShipTo(ContactCustomerShipToCode ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_ContactCustomerShipToOnContactCustomerShipToName ON "
+      sqlNdx = "CREATE UNIQUE INDEX UQ_ContactCustomerShipToOnContactCustomerShipToName ON "
           + "tContactCustomerShipTo(ContactCustomerShipToName ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      string alterTable = "ALTER TABLE tContactCustomerShipTo ADD CONSTRAINT "
-          + "ContactCustomerShipToContactOnContactRefno FOREIGN KEY (ContactRefno) REFERENCES tContact(ContactRefno) "
-          + "ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //string alterTable = "ALTER TABLE tContactCustomerShipTo ADD CONSTRAINT "
+      //    + "ContactCustomerShipToContactOnContactRefno FOREIGN KEY (ContactRefno) REFERENCES tContact(ContactRefno) "
+      //    + "ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
 
-      alterTable = "ALTER TABLE tContactCustomerShipTo ADD CONSTRAINT "
-          + "ContactCustomerShipToContactCustomerOnCustomerContactRefno FOREIGN KEY (CustomerContactRefno) REFERENCES "
-          + "tContactCustomer(ContactRefno)";
-      this.RunDDLCommand(alterTable);
+      //alterTable = "ALTER TABLE tContactCustomerShipTo ADD CONSTRAINT "
+      //    + "ContactCustomerShipToContactCustomerOnCustomerContactRefno FOREIGN KEY (CustomerContactRefno) REFERENCES "
+      //    + "tContactCustomer(ContactRefno)";
+      //this.RunDDLCommand(alterTable);
     }
 
     /// <summary>
@@ -2743,7 +2862,8 @@ namespace dMobile.GroundWork
           + "ContactSubType int NOT NULL,"
           + "ContactVendorFKRefno int NOT NULL,"
           + "ContactVendorCode nvarchar(8) NOT NULL,"
-          + "ContactVendorName nvarchar(40) NOT NULL"
+          + "ContactVendorName nvarchar(40) NOT NULL, "
+          + "CONSTRAINT ContactVendorToContactOnContactRefno FOREIGN KEY (ContactRefno) REFERENCES tContact(ContactRefno) ON DELETE CASCADE ON UPDATE CASCADE"
           + ")";
 
       if (this.OnNubStatOut != null)
@@ -2758,25 +2878,25 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_ContactVendorOnContactRefnoAndContactSubType ON "
+      string sqlNdx = "CREATE UNIQUE INDEX UQ_ContactVendorOnContactRefnoAndContactSubType ON "
           + "tContactVendor(ContactRefno ASC, ContactSubType ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_ContactVendorOnContactVendorFKRefno ON "
+      sqlNdx = "CREATE UNIQUE INDEX UQ_ContactVendorOnContactVendorFKRefno ON "
           + "tContactVendor(ContactVendorFKRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_ContactVendorOnContactVendorCode ON "
+      sqlNdx = "CREATE UNIQUE INDEX UQ_ContactVendorOnContactVendorCode ON "
           + "tContactVendor(ContactVendorCode ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_ContactVendorOnContactVendorName ON "
+      sqlNdx = "CREATE UNIQUE INDEX UQ_ContactVendorOnContactVendorName ON "
           + "tContactVendor(ContactVendorName ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      string alterTable = "ALTER TABLE tContactVendor ADD CONSTRAINT ContactVendorToContactOnContactRefno FOREIGN KEY "
-          + "(ContactRefno) REFERENCES tContact(ContactRefno) ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //string alterTable = "ALTER TABLE tContactVendor ADD CONSTRAINT ContactVendorToContactOnContactRefno FOREIGN KEY "
+      //    + "(ContactRefno) REFERENCES tContact(ContactRefno) ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
     }
 
     /// <summary>
@@ -2792,7 +2912,9 @@ namespace dMobile.GroundWork
           + "VendorContactRefno int NOT NULL,"
           + "ContactVendorSupplierFKRefno int NOT NULL,"
           + "ContactVendorSupplierCode nvarchar(8) NOT NULL,"
-          + "ContactVendorSupplierName nvarchar(40) NOT NULL"
+          + "ContactVendorSupplierName nvarchar(40) NOT NULL, "
+          + "CONSTRAINT ContactVendorSupplierToContactOnContactRefno FOREIGN KEY (ContactRefno) REFERENCES tContact(ContactRefno) ON DELETE CASCADE ON UPDATE CASCADE, "
+          + "CONSTRAINT ContactVendorSupplierToVendorContactOnVendorContactRefno FOREIGN KEY (VendorContactRefno) REFERENCES tContactVendor(ContactRefno)"
           + ")";
 
       if (this.OnNubStatOut != null)
@@ -2807,31 +2929,31 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_ContactVendorSupplierOnContactRefnoAndContactSubType ON "
+      string sqlNdx = "CREATE UNIQUE INDEX UQ_ContactVendorSupplierOnContactRefnoAndContactSubType ON "
           + "tContactVendorSupplier(ContactRefno ASC, ContactSubType ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_ContactVendorSupplierOnContactVendorSupplierFKRefno ON "
+      sqlNdx = "CREATE UNIQUE INDEX UQ_ContactVendorSupplierOnContactVendorSupplierFKRefno ON "
           + "tContactVendorSupplier(ContactVendorSupplierFKRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_ContactVendorSupplierOnContactVendorSupplierCode ON "
+      sqlNdx = "CREATE UNIQUE INDEX UQ_ContactVendorSupplierOnContactVendorSupplierCode ON "
           + "tContactVendorSupplier(ContactVendorSupplierCode ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_ContactVendorSupplierOnContactVendorSupplierName ON "
+      sqlNdx = "CREATE UNIQUE INDEX UQ_ContactVendorSupplierOnContactVendorSupplierName ON "
           + "tContactVendorSupplier(ContactVendorSupplierName ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      string alterTable = "ALTER TABLE tContactVendorSupplier ADD CONSTRAINT "
-          + "ContactVendorSupplierToContactOnContactRefno FOREIGN KEY (ContactRefno) REFERENCES tContact(ContactRefno) "
-          + "ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //string alterTable = "ALTER TABLE tContactVendorSupplier ADD CONSTRAINT "
+      //    + "ContactVendorSupplierToContactOnContactRefno FOREIGN KEY (ContactRefno) REFERENCES tContact(ContactRefno) "
+      //    + "ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
 
-      alterTable = "ALTER TABLE tContactVendorSupplier ADD CONSTRAINT "
-          + "ContactVendorSupplierToVendorContactOnVendorContactRefno FOREIGN KEY (VendorContactRefno) REFERENCES "
-          + "tContactVendor(ContactRefno)";
-      this.RunDDLCommand(alterTable);
+      //alterTable = "ALTER TABLE tContactVendorSupplier ADD CONSTRAINT "
+      //    + "ContactVendorSupplierToVendorContactOnVendorContactRefno FOREIGN KEY (VendorContactRefno) REFERENCES "
+      //    + "tContactVendor(ContactRefno)";
+      //this.RunDDLCommand(alterTable);
     }
 
     /// <summary>
@@ -2842,7 +2964,7 @@ namespace dMobile.GroundWork
     {
       string sqlTable = "CREATE TABLE tReasonCode"
           + "("
-          + "ReasonCodeRefno int NOT NULL IDENTITY(1, 1) CONSTRAINT PK_ReasonCodeOnReasonCodeRefno PRIMARY KEY,"
+          + "ReasonCodeRefno int NOT NULL CONSTRAINT PK_ReasonCodeOnReasonCodeRefno PRIMARY KEY,"
           + "ReasonCodeFKRefno int NOT NULL,"
           + "ReasonCodeCode nvarchar(4) NOT NULL,"
           + "ReasonCodeDescription nvarchar(25) NOT NULL"
@@ -2860,11 +2982,11 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_ActivityOnReasonCodeFKRefno ON "
+      string sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityOnReasonCodeFKRefno ON "
           + "tReasonCode(ReasonCodeFKRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_ActivityOnReasonCodeCode ON tReasonCode(ReasonCodeCode ASC)";
+      sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityOnReasonCodeCode ON tReasonCode(ReasonCodeCode ASC)";
       this.RunDDLCommand(sqlNdx);
     }
 
@@ -2877,7 +2999,9 @@ namespace dMobile.GroundWork
       string sqlTable = "CREATE TABLE tActivityItemReasonCodeXRef"
           + "("
           + "ActivityItemRefno int NOT NULL,"
-          + "ReasonCodeRefno int NOT NULL "
+          + "ReasonCodeRefno int NOT NULL, "
+          + "CONSTRAINT ActivityItemReasonCodeXRefTactItemOnActivityItemRefno FOREIGN KEY (ActivityItemRefno) REFERENCES tActivityItem(ActivityItemRefno) ON DELETE CASCADE ON UPDATE CASCADE, "
+          + "CONSTRAINT ActivityItemReasonCodeXRefToReasonCodeOnReasonCodeRefno FOREIGN KEY (ReasonCodeRefno) REFERENCES tReasonCode(ReasonCodeRefno) ON DELETE CASCADE ON UPDATE CASCADE"
           + ")";
 
       if (this.OnNubStatOut != null)
@@ -2892,28 +3016,28 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX "
+      string sqlNdx = "CREATE UNIQUE INDEX "
           + "PK_ActivityItemReasonCodeXRefOnActivityItemRefnoAndReasonCodeRefno ON "
           + "tActivityItemReasonCodeXRef(ActivityItemRefno ASC, ReasonCodeRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE NONCLUSTERED INDEX FK_ActivityItemReasonCodeXRefOnActivityItemRefno ON "
+      sqlNdx = "CREATE INDEX FK_ActivityItemReasonCodeXRefOnActivityItemRefno ON "
           + "tActivityItemReasonCodeXRef(ActivityItemRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE NONCLUSTERED INDEX FK_ActivityItemReasonCodeXRefOnReasonCodeRefno ON "
+      sqlNdx = "CREATE INDEX FK_ActivityItemReasonCodeXRefOnReasonCodeRefno ON "
           + "tActivityItemReasonCodeXRef(ReasonCodeRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      string alterTable = "ALTER TABLE tActivityItemReasonCodeXRef ADD CONSTRAINT "
-          + "ActivityItemReasonCodeXRefTactItemOnActivityItemRefno FOREIGN KEY (ActivityItemRefno) REFERENCES "
-          + "tActivityItem(ActivityItemRefno) ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //string alterTable = "ALTER TABLE tActivityItemReasonCodeXRef ADD CONSTRAINT "
+      //    + "ActivityItemReasonCodeXRefTactItemOnActivityItemRefno FOREIGN KEY (ActivityItemRefno) REFERENCES "
+      //    + "tActivityItem(ActivityItemRefno) ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
 
-      alterTable = "ALTER TABLE tActivityItemReasonCodeXRef ADD CONSTRAINT "
-          + "ActivityItemReasonCodeXRefToReasonCodeOnReasonCodeRefno FOREIGN KEY (ReasonCodeRefno) REFERENCES "
-          + "tReasonCode(ReasonCodeRefno) ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //alterTable = "ALTER TABLE tActivityItemReasonCodeXRef ADD CONSTRAINT "
+      //    + "ActivityItemReasonCodeXRefToReasonCodeOnReasonCodeRefno FOREIGN KEY (ReasonCodeRefno) REFERENCES "
+      //    + "tReasonCode(ReasonCodeRefno) ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
     }
 
     /// <summary>
@@ -3085,7 +3209,9 @@ namespace dMobile.GroundWork
           + "WarehouseLocationMapRefno int NOT NULL,"
           + "ActivityAdjustmentDateTime datetime NOT NULL,"
           + "ActivityAdjustmentDescription nvarchar(40) NOT NULL,"
-          + "ActivityAdjustmentTypeDescription nvarchar(20) NOT NULL"
+          + "ActivityAdjustmentTypeDescription nvarchar(20) NOT NULL, "
+          + "CONSTRAINT ActivityAdjustmentToActivityOnActivityRefnoAndActivitySubType FOREIGN KEY (ActivityRefno) REFERENCES tActivity(ActivityRefno) ON DELETE CASCADE ON UPDATE CASCADE, "
+          + "CONSTRAINT ActivityAdjustmentToLocationMapWarehouseOnWarehouseLocationMapRefnoAndLocationMapRefno FOREIGN KEY (WarehouseLocationMapRefno) REFERENCES tLocationMapWarehouse(LocationMapRefno) ON DELETE CASCADE ON UPDATE CASCADE"
           + ")";
 
       if (this.OnNubStatOut != null)
@@ -3100,28 +3226,28 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_ActivityAdjustmentOnActivityRefnoAndActivitySubType ON "
+      string sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityAdjustmentOnActivityRefnoAndActivitySubType ON "
           + "tActivityAdjustment(ActivityRefno ASC, ActivitySubType ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_ActivityAdjustmentOnActivityAdjustmentFKRefno ON "
+      sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityAdjustmentOnActivityAdjustmentFKRefno ON "
           + "tActivityAdjustment(ActivityAdjustmentFKRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE NONCLUSTERED INDEX FK_ActivityAdjustmentOnWarehouseLocationMapRefno ON "
+      sqlNdx = "CREATE INDEX FK_ActivityAdjustmentOnWarehouseLocationMapRefno ON "
           + "tActivityAdjustment(WarehouseLocationMapRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      string alterTable = "ALTER TABLE tActivityAdjustment ADD CONSTRAINT "
-          + "ActivityAdjustmentToActivityOnActivityRefnoAndActivitySubType FOREIGN KEY (ActivityRefno) REFERENCES "
-          + "tActivity(ActivityRefno) ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //string alterTable = "ALTER TABLE tActivityAdjustment ADD CONSTRAINT "
+      //    + "ActivityAdjustmentToActivityOnActivityRefnoAndActivitySubType FOREIGN KEY (ActivityRefno) REFERENCES "
+      //    + "tActivity(ActivityRefno) ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
 
-      alterTable = "ALTER TABLE tActivityAdjustment ADD CONSTRAINT "
-          + "ActivityAdjustmentToLocationMapWarehouseOnWarehouseLocationMapRefnoAndLocationMapRefno FOREIGN KEY "
-          + "(WarehouseLocationMapRefno) REFERENCES tLocationMapWarehouse(LocationMapRefno) "
-          + "ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //alterTable = "ALTER TABLE tActivityAdjustment ADD CONSTRAINT "
+      //    + "ActivityAdjustmentToLocationMapWarehouseOnWarehouseLocationMapRefnoAndLocationMapRefno FOREIGN KEY "
+      //    + "(WarehouseLocationMapRefno) REFERENCES tLocationMapWarehouse(LocationMapRefno) "
+      //    + "ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
     }
 
     /// <summary>
@@ -3141,7 +3267,10 @@ namespace dMobile.GroundWork
           + "ActivityItemAdjustmentQuantity numeric(11, 3) NOT NULL,"
           + "ActivityItemAdjustmentBaseQuantity numeric(11, 3) NOT NULL,"
           + "ActivityItemAdjustmentWeightQuantity numeric(11, 3) NOT NULL,"
-          + "ActivityItemAdjustmentDescription nvarchar(42) NOT NULL"
+          + "ActivityItemAdjustmentDescription nvarchar(42) NOT NULL, "
+          + "CONSTRAINT ActivityItemAdjustmentTactItemOnActivityItemRefno FOREIGN KEY (ActivityItemRefno) REFERENCES tActivityItem(ActivityItemRefno) ON DELETE CASCADE ON UPDATE CASCADE, "
+          + "CONSTRAINT ActivityItemAdjustmentToLocationMapWarehouseOnWarehouseLocationMapRefno FOREIGN KEY (WarehouseLocationMapRefno) REFERENCES tLocationMapWarehouse(LocationMapRefno) ON DELETE CASCADE ON UPDATE CASCADE, "
+          + "CONSTRAINT ActivityItemAdjustmentTactItemOnProductUnitRefno FOREIGN KEY (ProductUnitRefno) REFERENCES tProductUnit(ProductUnitRefno) ON DELETE CASCADE ON UPDATE CASCADE"
           + ")";
 
       if (this.OnNubStatOut != null)
@@ -3156,34 +3285,34 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX "
+      string sqlNdx = "CREATE UNIQUE INDEX "
           + "UQ_ActivityItemAdjustmentOnActivityItemRefnoAndActivityItemSubType ON "
           + "tActivityItemAdjustment(ActivityItemRefno ASC, ActivityItemSubType ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_ActivityItemAdjustmentOnActivityItemAdjustmentFKRefno ON "
+      sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityItemAdjustmentOnActivityItemAdjustmentFKRefno ON "
           + "tActivityItemAdjustment(ActivityItemAdjustmentFKRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE NONCLUSTERED INDEX FK_ActivityItemAdjustmentOnWarehouseLocationMapRefno ON "
+      sqlNdx = "CREATE INDEX FK_ActivityItemAdjustmentOnWarehouseLocationMapRefno ON "
           + "tActivityItemAdjustment(WarehouseLocationMapRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      string alterTable = "ALTER TABLE tActivityItemAdjustment ADD CONSTRAINT "
-          + "ActivityItemAdjustmentTactItemOnActivityItemRefno FOREIGN KEY (ActivityItemRefno) REFERENCES "
-          + "tActivityItem(ActivityItemRefno) ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //string alterTable = "ALTER TABLE tActivityItemAdjustment ADD CONSTRAINT "
+      //    + "ActivityItemAdjustmentTactItemOnActivityItemRefno FOREIGN KEY (ActivityItemRefno) REFERENCES "
+      //    + "tActivityItem(ActivityItemRefno) ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
 
-      alterTable = "ALTER TABLE tActivityItemAdjustment ADD CONSTRAINT "
-          + "ActivityItemAdjustmentToLocationMapWarehouseOnWarehouseLocationMapRefno FOREIGN KEY "
-          + "(WarehouseLocationMapRefno) REFERENCES tLocationMapWarehouse(LocationMapRefno) "
-          + "ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //alterTable = "ALTER TABLE tActivityItemAdjustment ADD CONSTRAINT "
+      //    + "ActivityItemAdjustmentToLocationMapWarehouseOnWarehouseLocationMapRefno FOREIGN KEY "
+      //    + "(WarehouseLocationMapRefno) REFERENCES tLocationMapWarehouse(LocationMapRefno) "
+      //    + "ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
 
-      alterTable = "ALTER TABLE tActivityItemAdjustment ADD CONSTRAINT "
-          + "ActivityItemAdjustmentTactItemOnProductUnitRefno FOREIGN KEY (ProductUnitRefno) REFERENCES "
-          + "tProductUnit(ProductUnitRefno) ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //alterTable = "ALTER TABLE tActivityItemAdjustment ADD CONSTRAINT "
+      //    + "ActivityItemAdjustmentTactItemOnProductUnitRefno FOREIGN KEY (ProductUnitRefno) REFERENCES "
+      //    + "tProductUnit(ProductUnitRefno) ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
     }
 
     /// <summary>
@@ -3195,7 +3324,8 @@ namespace dMobile.GroundWork
       string sqlTable = "CREATE TABLE tActivityDetailAdjustment"
           + "("
           + "ActivityDetailRefno int NOT NULL CONSTRAINT PK_ActivityDetailAdjustmentOnActivityDetailRefno PRIMARY KEY,"
-          + "ActivityDetailAdjustmentFKRefno int NOT NULL "
+          + "ActivityDetailAdjustmentFKRefno int NOT NULL, "
+          + "CONSTRAINT ActivityDetailAdjustmentTactDetailOnActivityDetailRefno FOREIGN KEY (ActivityDetailRefno) REFERENCES tActivityDetail(ActivityDetailRefno) ON DELETE CASCADE ON UPDATE CASCADE"
           + ")";
 
       if (this.OnNubStatOut != null)
@@ -3210,15 +3340,15 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX "
+      string sqlNdx = "CREATE UNIQUE INDEX "
           + "UQ_ActivityDetailAdjustmentOnActivityDetailAdjustmentFKRefno ON "
           + "tActivityDetailAdjustment(ActivityDetailAdjustmentFKRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      string alterTable = "ALTER TABLE tActivityDetailAdjustment ADD CONSTRAINT "
-          + "ActivityDetailAdjustmentTactDetailOnActivityDetailRefno FOREIGN KEY (ActivityDetailRefno) REFERENCES "
-          + "tActivityDetail(ActivityDetailRefno) ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //string alterTable = "ALTER TABLE tActivityDetailAdjustment ADD CONSTRAINT "
+      //    + "ActivityDetailAdjustmentTactDetailOnActivityDetailRefno FOREIGN KEY (ActivityDetailRefno) REFERENCES "
+      //    + "tActivityDetail(ActivityDetailRefno) ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
     }
 
     /// <summary>
@@ -3233,7 +3363,9 @@ namespace dMobile.GroundWork
           + "ActivitySubType int NOT NULL,"
           + "WarehouseLocationMapRefno int NOT NULL,"
           + "ActivityProductionDateTime datetime NOT NULL,"
-          + "ActivityProductionDescription nvarchar(25) NOT NULL "
+          + "ActivityProductionDescription nvarchar(25) NOT NULL, "
+          + "CONSTRAINT ActivityProductionToActivityOnActivityRefno FOREIGN KEY (ActivityRefno) REFERENCES tActivity(ActivityRefno) ON DELETE CASCADE ON UPDATE CASCADE, "
+          + "CONSTRAINT ActivityProductionToLocationMapWarehouseOnWarehouseLocationMapRefnoAndLocationMapRefno FOREIGN KEY (WarehouseLocationMapRefno) REFERENCES tLocationMapWarehouse(LocationMapRefno) ON DELETE CASCADE ON UPDATE CASCADE"
           + ")";
 
       if (this.OnNubStatOut != null)
@@ -3248,23 +3380,23 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_ActivityProductionOnActivityRefnoAndActivitySubType ON "
+      string sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityProductionOnActivityRefnoAndActivitySubType ON "
           + "tActivityProduction(ActivityRefno ASC, ActivitySubType ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE NONCLUSTERED INDEX FK_ActivityProductionOnWarehouseLocationMapRefno ON "
+      sqlNdx = "CREATE INDEX FK_ActivityProductionOnWarehouseLocationMapRefno ON "
           + "tActivityProduction(WarehouseLocationMapRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      string alterTable = "ALTER TABLE tActivityProduction ADD CONSTRAINT ActivityProductionToActivityOnActivityRefno "
-          + "FOREIGN KEY (ActivityRefno) REFERENCES tActivity(ActivityRefno) ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //string alterTable = "ALTER TABLE tActivityProduction ADD CONSTRAINT ActivityProductionToActivityOnActivityRefno "
+      //    + "FOREIGN KEY (ActivityRefno) REFERENCES tActivity(ActivityRefno) ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
 
-      alterTable = "ALTER TABLE tActivityProduction ADD CONSTRAINT "
-          + "ActivityProductionToLocationMapWarehouseOnWarehouseLocationMapRefnoAndLocationMapRefno "
-          + "FOREIGN KEY (WarehouseLocationMapRefno) REFERENCES tLocationMapWarehouse(LocationMapRefno) "
-          + "ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //alterTable = "ALTER TABLE tActivityProduction ADD CONSTRAINT "
+      //    + "ActivityProductionToLocationMapWarehouseOnWarehouseLocationMapRefnoAndLocationMapRefno "
+      //    + "FOREIGN KEY (WarehouseLocationMapRefno) REFERENCES tLocationMapWarehouse(LocationMapRefno) "
+      //    + "ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
     }
 
     /// <summary>
@@ -3278,7 +3410,8 @@ namespace dMobile.GroundWork
           + "ActivityRefno int NOT NULL,"
           + "ActivityProductionFKRefno int NOT NULL,"
           + "ActivityProductionStringFKRefno nvarchar(8) NOT NULL,"
-          + "ActivityProductionFinishedDefaultLogisticUnitBatchLotNumber nvarchar(20) NOT NULL"
+          + "ActivityProductionFinishedDefaultLogisticUnitBatchLotNumber nvarchar(20) NOT NULL, "
+          + "CONSTRAINT ActivityProductionFinishedToActivityProductionOnActivityRefno FOREIGN KEY (ActivityRefno) REFERENCES tActivityProduction(ActivityRefno) ON DELETE CASCADE ON UPDATE CASCADE"
           + ")";
 
       if (this.OnNubStatOut != null)
@@ -3293,18 +3426,18 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX PK_ActivityProductionFinishedOnActivityRefno ON "
+      string sqlNdx = "CREATE UNIQUE INDEX PK_ActivityProductionFinishedOnActivityRefno ON "
           + "tActivityProductionFinished(ActivityRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_ActivityProductionFinishedOnActivityProductionFKRefno ON "
+      sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityProductionFinishedOnActivityProductionFKRefno ON "
           + "tActivityProductionFinished(ActivityProductionFKRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      string alterTable = "ALTER TABLE tActivityProductionFinished ADD CONSTRAINT "
-          + "ActivityProductionFinishedToActivityProductionOnActivityRefno FOREIGN KEY (ActivityRefno) REFERENCES "
-          + "tActivityProduction(ActivityRefno) ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //string alterTable = "ALTER TABLE tActivityProductionFinished ADD CONSTRAINT "
+      //    + "ActivityProductionFinishedToActivityProductionOnActivityRefno FOREIGN KEY (ActivityRefno) REFERENCES "
+      //    + "tActivityProduction(ActivityRefno) ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
     }
 
     /// <summary>
@@ -3317,7 +3450,8 @@ namespace dMobile.GroundWork
           + "("
           + "ActivityRefno int NOT NULL,"
           + "ActivityProductionFKRefno int NOT NULL,"
-          + "ActivityProductionStringFKRefno nvarchar(8) NOT NULL"
+          + "ActivityProductionStringFKRefno nvarchar(8) NOT NULL, "
+          + "CONSTRAINT ActivityProductionMaterialToActivityProductionOnActivityRefno FOREIGN KEY (ActivityRefno) REFERENCES tActivityProduction(ActivityRefno) ON DELETE CASCADE ON UPDATE CASCADE"
           + ")";
 
       if (this.OnNubStatOut != null)
@@ -3332,18 +3466,18 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX PK_ActivityProductionMaterialOnActivityRefno ON "
+      string sqlNdx = "CREATE UNIQUE INDEX PK_ActivityProductionMaterialOnActivityRefno ON "
           + "tActivityProductionMaterial(ActivityRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_ActivityProductionMaterialOnActivityProductionFKRefno ON "
+      sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityProductionMaterialOnActivityProductionFKRefno ON "
           + "tActivityProductionMaterial(ActivityProductionFKRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      string alterTable = "ALTER TABLE tActivityProductionMaterial ADD CONSTRAINT "
-          + "ActivityProductionMaterialToActivityProductionOnActivityRefno FOREIGN KEY (ActivityRefno) REFERENCES "
-          + "tActivityProduction(ActivityRefno) ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //string alterTable = "ALTER TABLE tActivityProductionMaterial ADD CONSTRAINT "
+      //    + "ActivityProductionMaterialToActivityProductionOnActivityRefno FOREIGN KEY (ActivityRefno) REFERENCES "
+      //    + "tActivityProduction(ActivityRefno) ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
     }
 
     /// <summary>
@@ -3356,7 +3490,8 @@ namespace dMobile.GroundWork
           + "("
           + "ActivityRefno int NOT NULL,"
           + "ActivityProductionFKRefno int NOT NULL,"
-          + "ActivityProductionStringFKRefno nvarchar(8) NOT NULL"
+          + "ActivityProductionStringFKRefno nvarchar(8) NOT NULL, "
+          + "CONSTRAINT ActivityProductionByProductToActivityProductionOnActivityRefno FOREIGN KEY (ActivityRefno) REFERENCES tActivityProduction(ActivityRefno) ON DELETE CASCADE ON UPDATE CASCADE"
           + ")";
 
       if (this.OnNubStatOut != null)
@@ -3371,18 +3506,18 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX PK_ActivityProductionByProductOnActivityRefno ON "
+      string sqlNdx = "CREATE UNIQUE INDEX PK_ActivityProductionByProductOnActivityRefno ON "
           + "tActivityProductionByProduct(ActivityRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_ActivityProductionByProductOnActivityProductionFKRefno ON "
+      sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityProductionByProductOnActivityProductionFKRefno ON "
           + "tActivityProductionByProduct(ActivityProductionFKRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      string alterTable = "ALTER TABLE tActivityProductionByProduct ADD CONSTRAINT "
-          + "ActivityProductionByProductToActivityProductionOnActivityRefno FOREIGN KEY (ActivityRefno) REFERENCES "
-          + "tActivityProduction(ActivityRefno) ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //string alterTable = "ALTER TABLE tActivityProductionByProduct ADD CONSTRAINT "
+      //    + "ActivityProductionByProductToActivityProductionOnActivityRefno FOREIGN KEY (ActivityRefno) REFERENCES "
+      //    + "tActivityProduction(ActivityRefno) ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
     }
 
     /// <summary>
@@ -3403,7 +3538,10 @@ namespace dMobile.GroundWork
           + "ActivityItemProductionDescription nvarchar(42) NOT NULL,"
           + "ActivityItemProductionQuantityExpected numeric(11, 3) NOT NULL,"
           + "ActivityItemProductionBaseQuantityExpected numeric(11, 3) NOT NULL,"
-          + "ActivityItemProductionWeightQuantityExpected numeric(11, 3) NOT NULL"
+          + "ActivityItemProductionWeightQuantityExpected numeric(11, 3) NOT NULL, "
+          + "CONSTRAINT ActivityItemProductionTactItemOnActivityItemRefno FOREIGN KEY (ActivityItemRefno) REFERENCES tActivityItem(ActivityItemRefno) ON DELETE CASCADE ON UPDATE CASCADE, "
+          + "CONSTRAINT ActivityItemProductionToLocationMapOnLocationMapRefno FOREIGN KEY (LocationMapRefno) REFERENCES tLocationMap(LocationMapRefno) ON DELETE CASCADE ON UPDATE CASCADE, "
+          + "CONSTRAINT ActivityItemProductionTactItemOnProductUnitRefno FOREIGN KEY (ProductUnitRefno) REFERENCES tProductUnit(ProductUnitRefno) ON DELETE CASCADE ON UPDATE CASCADE"
           + ")";
 
       if (this.OnNubStatOut != null)
@@ -3418,29 +3556,29 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX "
+      string sqlNdx = "CREATE UNIQUE INDEX "
           + "UQ_ActivityItemProductionOnActivityItemRefnoAndActivityItemSubType ON "
           + "tActivityItemProduction(ActivityItemRefno ASC, ActivityItemSubType ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE NONCLUSTERED INDEX FK_ActivityItemProductionOnLocationMapRefno ON "
+      sqlNdx = "CREATE INDEX FK_ActivityItemProductionOnLocationMapRefno ON "
           + "tActivityItemProduction(LocationMapRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      string alterTable = "ALTER TABLE tActivityItemProduction ADD CONSTRAINT "
-          + "ActivityItemProductionTactItemOnActivityItemRefno FOREIGN KEY (ActivityItemRefno) REFERENCES "
-          + "tActivityItem(ActivityItemRefno) ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //string alterTable = "ALTER TABLE tActivityItemProduction ADD CONSTRAINT "
+      //    + "ActivityItemProductionTactItemOnActivityItemRefno FOREIGN KEY (ActivityItemRefno) REFERENCES "
+      //    + "tActivityItem(ActivityItemRefno) ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
 
-      alterTable = "ALTER TABLE tActivityItemProduction ADD CONSTRAINT "
-          + "ActivityItemProductionToLocationMapOnLocationMapRefno FOREIGN KEY (LocationMapRefno) REFERENCES "
-          + "tLocationMap(LocationMapRefno) ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //alterTable = "ALTER TABLE tActivityItemProduction ADD CONSTRAINT "
+      //    + "ActivityItemProductionToLocationMapOnLocationMapRefno FOREIGN KEY (LocationMapRefno) REFERENCES "
+      //    + "tLocationMap(LocationMapRefno) ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
 
-      alterTable = "ALTER TABLE tActivityItemProduction ADD CONSTRAINT "
-          + "ActivityItemProductionTactItemOnProductUnitRefno FOREIGN KEY (ProductUnitRefno) REFERENCES "
-          + "tProductUnit(ProductUnitRefno) ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //alterTable = "ALTER TABLE tActivityItemProduction ADD CONSTRAINT "
+      //    + "ActivityItemProductionTactItemOnProductUnitRefno FOREIGN KEY (ProductUnitRefno) REFERENCES "
+      //    + "tProductUnit(ProductUnitRefno) ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
     }
 
     /// <summary>
@@ -3454,7 +3592,8 @@ namespace dMobile.GroundWork
           + "ActivityItemRefno int NOT NULL CONSTRAINT PK_ActivityItemProductionFinishedOnActivityItemRefno "
           + "PRIMARY KEY,"
           + "ActivityItemProductionFinishedFKRefno int NOT NULL,"
-          + "ActivityItemProductionFinishedStringFKRefno nvarchar(8) NOT NULL"
+          + "ActivityItemProductionFinishedStringFKRefno nvarchar(8) NOT NULL, "
+          + "CONSTRAINT ActivityItemProductionFinishedTactItemProductionOnActivityRefno FOREIGN KEY (ActivityItemRefno) REFERENCES tActivityItemProduction(ActivityItemRefno) ON DELETE CASCADE ON UPDATE CASCADE"
           + ")";
 
       if (this.OnNubStatOut != null)
@@ -3469,15 +3608,15 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX "
+      string sqlNdx = "CREATE UNIQUE INDEX "
           + "UQ_ActivityItemProductionFinishedOnActivityItemProductionFinishedFKRefno ON "
           + "tActivityItemProductionFinished(ActivityItemProductionFinishedFKRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      string alterTable = "ALTER TABLE tActivityItemProductionFinished ADD CONSTRAINT "
-          + "ActivityItemProductionFinishedTactItemProductionOnActivityRefno FOREIGN KEY (ActivityItemRefno) "
-          + "REFERENCES tActivityItemProduction(ActivityItemRefno) ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //string alterTable = "ALTER TABLE tActivityItemProductionFinished ADD CONSTRAINT "
+      //    + "ActivityItemProductionFinishedTactItemProductionOnActivityRefno FOREIGN KEY (ActivityItemRefno) "
+      //    + "REFERENCES tActivityItemProduction(ActivityItemRefno) ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
     }
 
     /// <summary>
@@ -3491,7 +3630,8 @@ namespace dMobile.GroundWork
           + "ActivityItemRefno int NOT NULL CONSTRAINT PK_ActivityItemProductionMaterialOnActivityItemRefno "
           + "PRIMARY KEY,"
           + "ActivityItemProductionMaterialFKRefno int NOT NULL,"
-          + "ActivityItemProductionMaterialStringFKRefno nvarchar(8) NOT NULL"
+          + "ActivityItemProductionMaterialStringFKRefno nvarchar(8) NOT NULL, "
+          + "CONSTRAINT ActivityItemProductionMaterialTactItemProductionOnActivityRefno FOREIGN KEY (ActivityItemRefno) REFERENCES tActivityItemProduction(ActivityItemRefno) ON DELETE CASCADE ON UPDATE CASCADE"
           + ")";
 
       if (this.OnNubStatOut != null)
@@ -3506,15 +3646,15 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX "
+      string sqlNdx = "CREATE UNIQUE INDEX "
           + "UQ_ActivityItemProductionMaterialOnActivityItemProductionMaterialFKRefno ON "
           + "tActivityItemProductionMaterial(ActivityItemProductionMaterialFKRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      string alterTable = "ALTER TABLE tActivityItemProductionMaterial ADD CONSTRAINT "
-          + "ActivityItemProductionMaterialTactItemProductionOnActivityRefno FOREIGN KEY (ActivityItemRefno) "
-          + "REFERENCES tActivityItemProduction(ActivityItemRefno) ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //string alterTable = "ALTER TABLE tActivityItemProductionMaterial ADD CONSTRAINT "
+      //    + "ActivityItemProductionMaterialTactItemProductionOnActivityRefno FOREIGN KEY (ActivityItemRefno) "
+      //    + "REFERENCES tActivityItemProduction(ActivityItemRefno) ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
     }
 
     /// <summary>
@@ -3528,7 +3668,8 @@ namespace dMobile.GroundWork
           + "ActivityItemRefno int NOT NULL CONSTRAINT PK_ActivityItemProductionByProductOnActivityItemRefno "
           + "PRIMARY KEY,"
           + "ActivityItemProductionByProductFKRefno int NOT NULL,"
-          + "ActivityItemProductionByProductStringFKRefno nvarchar(8) NOT NULL"
+          + "ActivityItemProductionByProductStringFKRefno nvarchar(8) NOT NULL, "
+          + "CONSTRAINT ActivityItemProductionByProductTactItemProductionOnActivityRefno FOREIGN KEY (ActivityItemRefno) REFERENCES tActivityItemProduction(ActivityItemRefno) ON DELETE CASCADE ON UPDATE CASCADE"
           + ")";
 
       if (this.OnNubStatOut != null)
@@ -3543,15 +3684,15 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX "
+      string sqlNdx = "CREATE UNIQUE INDEX "
           + "UQ_ActivityItemProductionByProductOnActivityItemProductionByProductFKRefno ON "
           + "tActivityItemProductionByProduct(ActivityItemProductionByProductFKRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      string alterTable = "ALTER TABLE tActivityItemProductionByProduct ADD CONSTRAINT "
-          + "ActivityItemProductionByProductTactItemProductionOnActivityRefno FOREIGN KEY (ActivityItemRefno) "
-          + "REFERENCES tActivityItemProduction(ActivityItemRefno) ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //string alterTable = "ALTER TABLE tActivityItemProductionByProduct ADD CONSTRAINT "
+      //    + "ActivityItemProductionByProductTactItemProductionOnActivityRefno FOREIGN KEY (ActivityItemRefno) "
+      //    + "REFERENCES tActivityItemProduction(ActivityItemRefno) ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
     }
 
     /// <summary>
@@ -3564,7 +3705,8 @@ namespace dMobile.GroundWork
           + "("
           + "ActivityDetailRefno int NOT NULL CONSTRAINT PK_ActivityDetailProductionFinishedOnActivityDetailRefno "
           + "PRIMARY KEY,"
-          + "ActivityDetailProductionFinishedFKRefno int NOT NULL "
+          + "ActivityDetailProductionFinishedFKRefno int NOT NULL, "
+          + "CONSTRAINT ActivityDetailProductionFinishedTactDetailOnActivityDetailRefno FOREIGN KEY (ActivityDetailRefno) REFERENCES tActivityDetail(ActivityDetailRefno) ON DELETE CASCADE ON UPDATE CASCADE"
           + ")";
 
       if (this.OnNubStatOut != null)
@@ -3579,15 +3721,15 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX "
+      string sqlNdx = "CREATE UNIQUE INDEX "
           + "UQ_ActivityDetailProductionFinishedOnActivityDetailProductionFinishedFKRefno ON "
           + "tActivityDetailProductionFinished(ActivityDetailProductionFinishedFKRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      string alterTable = "ALTER TABLE tActivityDetailProductionFinished ADD CONSTRAINT "
-          + "ActivityDetailProductionFinishedTactDetailOnActivityDetailRefno FOREIGN KEY (ActivityDetailRefno) "
-          + "REFERENCES tActivityDetail(ActivityDetailRefno) ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //string alterTable = "ALTER TABLE tActivityDetailProductionFinished ADD CONSTRAINT "
+      //    + "ActivityDetailProductionFinishedTactDetailOnActivityDetailRefno FOREIGN KEY (ActivityDetailRefno) "
+      //    + "REFERENCES tActivityDetail(ActivityDetailRefno) ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
     }
 
     /// <summary>
@@ -3600,7 +3742,8 @@ namespace dMobile.GroundWork
           + "("
           + "ActivityDetailRefno int NOT NULL CONSTRAINT PK_ActivityDetailProductionMaterialOnActivityDetailRefno "
           + "PRIMARY KEY,"
-          + "ActivityDetailProductionMaterialFKRefno int NOT NULL "
+          + "ActivityDetailProductionMaterialFKRefno int NOT NULL, "
+          + "CONSTRAINT ActivityDetailProductionMaterialTactDetailOnActivityDetailRefno FOREIGN KEY (ActivityDetailRefno) REFERENCES tActivityDetail(ActivityDetailRefno) ON DELETE CASCADE ON UPDATE CASCADE"
           + ")";
 
       if (this.OnNubStatOut != null)
@@ -3615,15 +3758,15 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX "
+      string sqlNdx = "CREATE UNIQUE INDEX "
           + "UQ_ActivityDetailProductionMaterialOnActivityDetailProductionMaterialFKRefno ON "
           + "tActivityDetailProductionMaterial(ActivityDetailProductionMaterialFKRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      string alterTable = "ALTER TABLE tActivityDetailProductionMaterial ADD CONSTRAINT "
-          + "ActivityDetailProductionMaterialTactDetailOnActivityDetailRefno FOREIGN KEY (ActivityDetailRefno) "
-          + "REFERENCES tActivityDetail(ActivityDetailRefno) ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //string alterTable = "ALTER TABLE tActivityDetailProductionMaterial ADD CONSTRAINT "
+      //    + "ActivityDetailProductionMaterialTactDetailOnActivityDetailRefno FOREIGN KEY (ActivityDetailRefno) "
+      //    + "REFERENCES tActivityDetail(ActivityDetailRefno) ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
     }
 
     /// <summary>
@@ -3636,7 +3779,8 @@ namespace dMobile.GroundWork
           + "("
           + "ActivityDetailRefno int NOT NULL CONSTRAINT PK_ActivityDetailProductionByProductOnActivityDetailRefno "
           + "PRIMARY KEY,"
-          + "ActivityDetailProductionByProductFKRefno int NOT NULL "
+          + "ActivityDetailProductionByProductFKRefno int NOT NULL, "
+          + "CONSTRAINT ActivityDetailProductionByProductTactDetailOnActivityDetailRefno FOREIGN KEY (ActivityDetailRefno) REFERENCES tActivityDetail(ActivityDetailRefno) ON DELETE CASCADE ON UPDATE CASCADE"
           + ")";
 
       if (this.OnNubStatOut != null)
@@ -3651,15 +3795,15 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX "
+      string sqlNdx = "CREATE UNIQUE INDEX "
           + "UQ_ActivityDetailProductionByProductOnActivityDetailProductionByProductFKRefno ON "
           + "tActivityDetailProductionByProduct(ActivityDetailProductionByProductFKRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      string alterTable = "ALTER TABLE tActivityDetailProductionByProduct ADD CONSTRAINT "
-          + "ActivityDetailProductionByProductTactDetailOnActivityDetailRefno FOREIGN KEY (ActivityDetailRefno) "
-          + "REFERENCES tActivityDetail(ActivityDetailRefno) ON DELETE CASCADE ON UPDATE CASCADE";
-      this.RunDDLCommand(alterTable);
+      //string alterTable = "ALTER TABLE tActivityDetailProductionByProduct ADD CONSTRAINT "
+      //    + "ActivityDetailProductionByProductTactDetailOnActivityDetailRefno FOREIGN KEY (ActivityDetailRefno) "
+      //    + "REFERENCES tActivityDetail(ActivityDetailRefno) ON DELETE CASCADE ON UPDATE CASCADE";
+      //this.RunDDLCommand(alterTable);
     }
 
     /// <summary>
@@ -3670,7 +3814,7 @@ namespace dMobile.GroundWork
     {
       string sqlTable = "CREATE TABLE tFamily"
           + "("
-          + "FamilyRefno int NOT NULL IDENTITY(1, 1) CONSTRAINT PK_FamilyOnFamilyRefno PRIMARY KEY,"
+          + "FamilyRefno int NOT NULL CONSTRAINT PK_FamilyOnFamilyRefno PRIMARY KEY,"
           + "FamilyCode nvarchar(20) NOT NULL"
           + ")";
 
@@ -3686,7 +3830,7 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_FamilyOnFamilyCode ON tFamily(FamilyCode ASC)";
+      string sqlNdx = "CREATE UNIQUE INDEX UQ_FamilyOnFamilyCode ON tFamily(FamilyCode ASC)";
       this.RunDDLCommand(sqlNdx);
     }
 

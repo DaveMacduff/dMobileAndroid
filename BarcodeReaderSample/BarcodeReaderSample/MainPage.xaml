@@ -12,19 +12,19 @@
   </ContentPage.Padding>
 
   <ContentPage.Content>
-    <Grid>
-      <Grid.RowDefinitions>
+    <!--<Grid>-->
+      <!--<Grid.RowDefinitions>
         <RowDefinition Height="auto"/>
         <RowDefinition Height="auto"/>
         <RowDefinition Height="*"/>
         <RowDefinition Height="auto"/>
         <RowDefinition Height="auto"/>
-      </Grid.RowDefinitions>
+      </Grid.RowDefinitions>-->
 
       <!--display title-->
-      <Label Grid.Row="0" Text="Barcode Reader Sample" FontSize="22" TextColor="White" BackgroundColor="Maroon" HorizontalTextAlignment="Center" VerticalOptions="Start" HorizontalOptions="FillAndExpand"/>
+      <Label Grid.Row="0" Text="This is a test" TextColor="White" BackgroundColor="Maroon" HorizontalTextAlignment="Center" VerticalOptions="Start" HorizontalOptions="FillAndExpand"/>
 
-      <Grid Grid.Row="1">
+      <!--<Grid Grid.Row="1">
         <Grid Margin="0,0,0,10">
           <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
@@ -42,9 +42,9 @@
           <Label Grid.Row="2" Grid.Column="0" x:Name="mEnableScanningLabel" Text="Enable Scanning:" IsEnabled="false" VerticalOptions="Center"/>
           <Switch Grid.Row="2" Grid.Column="1" x:Name="mEnableScanningSwitch" IsToggled="false" IsEnabled="false" Toggled="EnableScanningSwitch_Toggled"/>
         </Grid>
-      </Grid>
+      </Grid>-->
 
-      <!--display return bar code data-->
+      <!--display return bar code data--><!--
       <Grid Grid.Row="2" BackgroundColor="Gray">
         <Grid.RowDefinitions>
           <RowDefinition Height="*"/>
@@ -56,7 +56,7 @@
         <Label Grid.Row="2" x:Name="mTimestampLabel" HorizontalTextAlignment="Start"/>
       </Grid>
 
-      <!--display continuous scan option -->
+      --><!--display continuous scan option --><!--
       <Grid Grid.Row="3" Margin="0,5,0,0">
         <Grid.RowDefinitions>
           <RowDefinition Height="auto"/>
@@ -72,6 +72,6 @@
       </Grid>
 
       <Button Grid.Row="4" x:Name="mScanButton" Text="Scan" IsEnabled="false" HorizontalOptions="Center" VerticalOptions="End" Clicked="OnScanButtonClicked"/>
-    </Grid>
+    </Grid>-->
   </ContentPage.Content>
 </ContentPage>

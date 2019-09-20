@@ -6,6 +6,10 @@ using Android.Runtime;
 using Android.Views;
 using Android.Widget;
 using Android.OS;
+using dMobile.GroundWork;
+using System.Data.SQLite;
+using dMobile.Bedrock;
+using System.Data;
 
 namespace BarcodeReaderSample.Droid
 {
@@ -22,6 +26,8 @@ namespace BarcodeReaderSample.Droid
             global::Xamarin.Forms.Forms.Init(this, bundle);
             LoadApplication((mBarcodeReaderSampleApp = new BarcodeReaderSample.App()));
             mMainPage = (BarcodeReaderSample.MainPage)mBarcodeReaderSampleApp.MainPage;
+            DatabaseNub test = new DatabaseNub();
+            test.CreateTables();
         }
 
         /// <summary>

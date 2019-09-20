@@ -17,7 +17,7 @@ namespace dMobile.Bedrock
         #region System Fields
 
         private bool isDisconnectedMode = false;
-        private DateTime lastRefreshData = DateAndTime.Now;
+        private DateTime lastRefreshData = DateTime.Now;
         private bool isInvStrict = false;
         private bool isSetCatchWeightZero = false;
         private bool isSetCatchCountZero = false;

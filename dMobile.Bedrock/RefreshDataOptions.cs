@@ -4,7 +4,6 @@
     using System.IO;
     using System.Reflection;
     using System.Xml.Serialization;
-    using Microsoft.VisualBasic;
 
     [Serializable]
     public class RefreshDataOptions
@@ -25,7 +24,8 @@
         private bool counts = false;
         private bool transfers = false;
         private bool purchaseOrderWorkSheet = false;
-        private DateTime refreshedDataLast = DateAndTime.DateSerial(1900, 1, 1);
+        //private DateTime refreshedDataLast = DateAndTime.DateSerial(1900, 1, 1);
+        private DateTime refreshedDataLast = DateTime.Now;
         private bool isRefreshedLastDataChangesOnly = false;
         private bool isDataCreatedOnStartUp = false;
         private bool isRefreshDataFailed = false;

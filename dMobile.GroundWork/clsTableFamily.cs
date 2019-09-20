@@ -2,7 +2,7 @@ namespace dMobile.GroundWork
 {
   using System;
   using System.Data;
-  
+  using System.Data.SQLite;
   using System.Text;
   using System.Xml;
   using System.Xml.Linq;
@@ -100,7 +100,7 @@ namespace dMobile.GroundWork
 #endif
         }
       }
-      catch (SqlCeException ex)
+      catch (SQLiteException ex)
       {
 #if MULTILANGUAGE
         throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.FamiliesStatusFailed), ex);
@@ -139,7 +139,7 @@ namespace dMobile.GroundWork
         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging families complete.", true);
 #endif
       }
-      catch (SqlCeException ex)
+      catch (SQLiteException ex)
       {
 #if MULTILANGUAGE
         this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), true);
@@ -166,55 +166,55 @@ namespace dMobile.GroundWork
     {
       int familyRefno = 0;
 
-      try
-      {
-        using (SQLiteCommand cmndFamily = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-        {
-          cmndFamily.CommandText = "tFamily";
-          cmndFamily.IndexName = "UQ_FamilyOnFamilyCode";
-          cmndFamily.CommandType = CommandType.TableDirect;
+//      try
+//      {
+//        using (SQLiteCommand cmndFamily = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+//        {
+//          cmndFamily.CommandText = "tFamily";
+//          cmndFamily.IndexName = "UQ_FamilyOnFamilyCode";
+//          cmndFamily.CommandType = CommandType.TableDirect;
 
-          using (SqliteDataReader drFamily = cmndFamily.ExecuteReader())
-          {
-            if (drFamily.Seek(DbSeekOptions.FirstEqual, new object[] { familyCode }))
-            {
-              if (drFamily.Read())
-              {
-                familyRefno = Convert.ToInt32(drFamily.GetValue((int)SysCommon.FamilyFields.Refno));
-              }
-              else
-              {
-#if MULTILANGUAGE
-                throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DrfamilyreadFailed));
-#else
-                throw new Exception("drFamily.Read() failed.");
-#endif
-              }
-            }
-            else
-            {
-              throw new Exception(
-                  string.Format(
-#if MULTILANGUAGE
-                  Translator.GetInstance().Translate(TranslatorVocabulary.UnableToLocateTheFamilyRefnoFromFamilyCodeInTfamily),
-#else
-                  "Unable to locate the family refno from family code {0} in tFamily.",
-#endif
-                  familyCode));
-            }
+//          using (SQLiteDataReader drFamily = cmndFamily.ExecuteReader())
+//          {
+//            if (drFamily.Seek(DbSeekOptions.FirstEqual, new object[] { familyCode }))
+//            {
+//              if (drFamily.Read())
+//              {
+//                familyRefno = Convert.ToInt32(drFamily.GetValue((int)SysCommon.FamilyFields.Refno));
+//              }
+//              else
+//              {
+//#if MULTILANGUAGE
+//                throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DrfamilyreadFailed));
+//#else
+//                throw new Exception("drFamily.Read() failed.");
+//#endif
+//              }
+//            }
+//            else
+//            {
+//              throw new Exception(
+//                  string.Format(
+//#if MULTILANGUAGE
+//                  Translator.GetInstance().Translate(TranslatorVocabulary.UnableToLocateTheFamilyRefnoFromFamilyCodeInTfamily),
+//#else
+//                  "Unable to locate the family refno from family code {0} in tFamily.",
+//#endif
+//                  familyCode));
+//            }
 
-            drFamily.Close();
-          }
-        }
-      }
-      catch (SqlCeException ex)
-      {
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredGetifamilyrefnofromfamilycodeFailed), ex);
-#else
-        throw new Exception("Database exception occurred. GetiFamilyRefnoFromFamilyCode failed.", ex);
-#endif
-      }
+//            drFamily.Close();
+//          }
+//        }
+//      }
+//      catch (SQLiteException ex)
+//      {
+//#if MULTILANGUAGE
+//        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredGetifamilyrefnofromfamilycodeFailed), ex);
+//#else
+//        throw new Exception("Database exception occurred. GetiFamilyRefnoFromFamilyCode failed.", ex);
+//#endif
+//      }
 
       return familyRefno;
     }
@@ -230,128 +230,128 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     protected override void Save(string reqData)
     {
-      string errMsg = string.Empty;
+//      string errMsg = string.Empty;
 
-      try
-      {
-        using (DataSet ds = new DataSet())
-        {
-#if MULTILANGUAGE
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.ReadingReceivedData), false);
-#else
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
-#endif
-          ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
+//      try
+//      {
+//        using (DataSet ds = new DataSet())
+//        {
+//#if MULTILANGUAGE
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.ReadingReceivedData), false);
+//#else
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
+//#endif
+//          ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
 
-#if MULTILANGUAGE
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingFamilies), false);
-#else
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving families.", false);
-#endif
-          if (ds.Tables.Count != 0)
-          {
-            int progMax = ds.Tables["tFamily"].Rows.Count;
-#if MULTILANGUAGE
-            this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.Recordsz), progMax), false);
-#else
-            this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
-#endif
+//#if MULTILANGUAGE
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingFamilies), false);
+//#else
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving families.", false);
+//#endif
+//          if (ds.Tables.Count != 0)
+//          {
+//            int progMax = ds.Tables["tFamily"].Rows.Count;
+//#if MULTILANGUAGE
+//            this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.Recordsz), progMax), false);
+//#else
+//            this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
+//#endif
 
-            using (SQLiteCommand cmndFamily = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-            {
-              cmndFamily.CommandText = "tFamily";
-              cmndFamily.CommandType = CommandType.TableDirect;
-              cmndFamily.IndexName = "UQ_FamilyOnFamilyCode";
+//            using (SQLiteCommand cmndFamily = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+//            {
+//              cmndFamily.CommandText = "tFamily";
+//              cmndFamily.CommandType = CommandType.TableDirect;
+//              cmndFamily.IndexName = "UQ_FamilyOnFamilyCode";
 
-              using (SqliteDataReader drFamily = cmndFamily.ExecuteReader())
-              {
-                using (SqlCeResultSet rs = cmndFamily.ExecuteResultSet(ResultSetOptions.Updatable))
-                {
-                  SqlCeUpdatableRecord rec = rs.CreateRecord();
-                  int progValue = 0;
-                  bool isFamilyFound = false;
-                  string familyCode = string.Empty;
+//              using (SQLiteDataReader drFamily = cmndFamily.ExecuteReader())
+//              {
+//                using (SqlCeResultSet rs = cmndFamily.ExecuteResultSet(ResultSetOptions.Updatable))
+//                {
+//                  SqlCeUpdatableRecord rec = rs.CreateRecord();
+//                  int progValue = 0;
+//                  bool isFamilyFound = false;
+//                  string familyCode = string.Empty;
 
-                  this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
+//                  this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
 
-                  foreach (DataRow drow in ds.Tables["tFamily"].Rows)
-                  {
-                    familyCode = drow["FamilyCode"].ToString();
-                    errMsg = "Family \'" + familyCode + "\'";
+//                  foreach (DataRow drow in ds.Tables["tFamily"].Rows)
+//                  {
+//                    familyCode = drow["FamilyCode"].ToString();
+//                    errMsg = "Family \'" + familyCode + "\'";
 
-                    cmndFamily.CommandText = "tFamily";
-                    cmndFamily.CommandType = CommandType.TableDirect;
-                    cmndFamily.IndexName = "UQ_FamilyOnFamilyCode";
+//                    cmndFamily.CommandText = "tFamily";
+//                    cmndFamily.CommandType = CommandType.TableDirect;
+//                    cmndFamily.IndexName = "UQ_FamilyOnFamilyCode";
 
-                    isFamilyFound = false;
-                    if (SysEnv.RefreshOpt.RefreshDataChangesOnly)
-                    {
-                      if (drFamily.Seek(DbSeekOptions.FirstEqual, new object[] { familyCode }))
-                      {
-                        isFamilyFound = true;
-                      }
-                    }
+//                    isFamilyFound = false;
+//                    if (SysEnv.RefreshOpt.RefreshDataChangesOnly)
+//                    {
+//                      if (drFamily.Seek(DbSeekOptions.FirstEqual, new object[] { familyCode }))
+//                      {
+//                        isFamilyFound = true;
+//                      }
+//                    }
 
-                    if (!isFamilyFound)
-                    {
-                      rec.SetString((int)SysCommon.FamilyFields.Code, familyCode);
+//                    if (!isFamilyFound)
+//                    {
+//                      rec.SetString((int)SysCommon.FamilyFields.Code, familyCode);
 
-                      rs.Insert(rec);
-                    }
+//                      rs.Insert(rec);
+//                    }
 
-                    progValue++;
-                    if (progValue % 100 == 0)
-                    {
-                      this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
-                    }
-                  }
+//                    progValue++;
+//                    if (progValue % 100 == 0)
+//                    {
+//                      this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
+//                    }
+//                  }
 
-                  this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
-                }
+//                  this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
+//                }
 
-                drFamily.Close();
-              }
-            }
-          }
+//                drFamily.Close();
+//              }
+//            }
+//          }
 
-#if MULTILANGUAGE
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingFamiliesComplete), false);
-#else
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving families complete.", false);
-#endif
-        }
-      }
-      catch (SqlCeException ex)
-      {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), false);
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingFamiliesFailed), false);
-#else
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving families failed.", false);
-#endif
+//#if MULTILANGUAGE
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingFamiliesComplete), false);
+//#else
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving families complete.", false);
+//#endif
+//        }
+//      }
+//      catch (SQLiteException ex)
+//      {
+//#if MULTILANGUAGE
+//        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), false);
+//        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingFamiliesFailed), false);
+//#else
+//        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
+//        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving families failed.", false);
+//#endif
 
 
-        // Duplicate key violations
-        if (ex.NativeError == 25016)
-        {
-#if MULTILANGUAGE
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.UniquenessViolation), false);
-          throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.UniquenessViolation) + Environment.NewLine + errMsg, ex);
-#else
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Uniqueness violation.", false);
-          throw new Exception("Uniqueness violation." + Environment.NewLine + errMsg, ex);
-#endif
-        }
+//        // Duplicate key violations
+//        if (ex.NativeError == 25016)
+//        {
+//#if MULTILANGUAGE
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.UniquenessViolation), false);
+//          throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.UniquenessViolation) + Environment.NewLine + errMsg, ex);
+//#else
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Uniqueness violation.", false);
+//          throw new Exception("Uniqueness violation." + Environment.NewLine + errMsg, ex);
+//#endif
+//        }
 
-        throw new Exception(
-#if MULTILANGUAGE
-            Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredSavingFamiliesFailed) + Environment.NewLine + errMsg,
-#else
-            "Database exception occurred. Saving families failed." + Environment.NewLine + errMsg,
-#endif
-            ex);
-      }
+//        throw new Exception(
+//#if MULTILANGUAGE
+//            Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredSavingFamiliesFailed) + Environment.NewLine + errMsg,
+//#else
+//            "Database exception occurred. Saving families failed." + Environment.NewLine + errMsg,
+//#endif
+//            ex);
+//      }
     }
 
     /// <summary>

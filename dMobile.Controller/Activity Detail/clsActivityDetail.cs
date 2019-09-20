@@ -2,7 +2,7 @@ namespace dMobile.Controller
 {
     using System;
     using System.Data;
-    
+    using System.Data.SQLite;
     using System.Windows.Forms;
     using System.Xml;
     using System.Xml.Linq;
@@ -776,33 +776,33 @@ namespace dMobile.Controller
         /// <returns></returns>
         public SProductSchemeData FillSchemeDataVarInfoFromSchemeDataVarNo(SProductSchemeData prodSchemeData)
         {
-            if (0 < prodSchemeData.VariantNumber)
-            {
-                using (SQLiteCommand cmndSchemeVar = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                {
-                    cmndSchemeVar.CommandText = "tProductSchemeVariant";
-                    cmndSchemeVar.CommandType = CommandType.TableDirect;
-                    cmndSchemeVar.IndexName = "UQ_ProductSchemeVariantOnProductSchemeVariantNo";
+            //if (0 < prodSchemeData.VariantNumber)
+            //{
+            //    using (SQLiteCommand cmndSchemeVar = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+            //    {
+            //        cmndSchemeVar.CommandText = "tProductSchemeVariant";
+            //        cmndSchemeVar.CommandType = CommandType.TableDirect;
+            //        cmndSchemeVar.IndexName = "UQ_ProductSchemeVariantOnProductSchemeVariantNo";
 
-                    using (SqliteDataReader drSchemeVar = cmndSchemeVar.ExecuteReader())
-                    {
-                        if (drSchemeVar.Seek(DbSeekOptions.FirstEqual, new object[] { prodSchemeData.VariantNumber }))
-                        {
-                            if (drSchemeVar.Read())
-                            {
-                                prodSchemeData.VariantCode = drSchemeVar["ProductSchemeVariantCode"].ToString();
-                                prodSchemeData.VariantDescription = drSchemeVar["ProductSchemeVariantDescription"].ToString();
-                            }
-                            else
-                            {
-                                throw new Exception("drSchemeVar.Read() failed.");
-                            }
-                        }
+            //        using (SQLiteDataReader drSchemeVar = cmndSchemeVar.ExecuteReader())
+            //        {
+            //            if (drSchemeVar.Seek(DbSeekOptions.FirstEqual, new object[] { prodSchemeData.VariantNumber }))
+            //            {
+            //                if (drSchemeVar.Read())
+            //                {
+            //                    prodSchemeData.VariantCode = drSchemeVar["ProductSchemeVariantCode"].ToString();
+            //                    prodSchemeData.VariantDescription = drSchemeVar["ProductSchemeVariantDescription"].ToString();
+            //                }
+            //                else
+            //                {
+            //                    throw new Exception("drSchemeVar.Read() failed.");
+            //                }
+            //            }
 
-                        drSchemeVar.Close();
-                    }
-                }
-            }
+            //            drSchemeVar.Close();
+            //        }
+            //    }
+            //}
 
             return prodSchemeData;
         }
@@ -1072,176 +1072,176 @@ namespace dMobile.Controller
         public int InsertDetailDisconnected()
         {
             int actDetailRefno = 0;
-            SqlCeConnection conn = DatabaseConnection.GetInstance().SQLConn;
+//            SQLiteConnection conn = DatabaseConnection.GetInstance().SQLConn;
 
-            try
-            {
-                if (string.Compare(this.UniqueSchemeID, string.Empty) > 0)
-                {
-                    bool isDupSchemeId = ProductInfoTasks.IsDuplicateUniqueSchemeID(this.UniqueSchemeID);
-                    if (isDupSchemeId)
-                    {
-#if MULTILANGUAGE
-            throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DuplicateSchemeId) + Environment.NewLine + this.UniqueSchemeID);
-#else
-                        throw new Exception("Duplicate scheme ID!" + Environment.NewLine + this.UniqueSchemeID);
-#endif
-                    }
-                }
+//            try
+//            {
+//                if (string.Compare(this.UniqueSchemeID, string.Empty) > 0)
+//                {
+//                    bool isDupSchemeId = ProductInfoTasks.IsDuplicateUniqueSchemeID(this.UniqueSchemeID);
+//                    if (isDupSchemeId)
+//                    {
+//#if MULTILANGUAGE
+//            throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DuplicateSchemeId) + Environment.NewLine + this.UniqueSchemeID);
+//#else
+//                        throw new Exception("Duplicate scheme ID!" + Environment.NewLine + this.UniqueSchemeID);
+//#endif
+//                    }
+//                }
 
-                using (SQLiteCommand cmndDetail = conn.CreateCommand())
-                {
-                    cmndDetail.CommandText = "tActivityDetail";
-                    cmndDetail.CommandType = CommandType.TableDirect;
-                    cmndDetail.IndexName = "PK_ActivityDetailOnActivityDetailRefno";
+//                using (SQLiteCommand cmndDetail = conn.CreateCommand())
+//                {
+//                    cmndDetail.CommandText = "tActivityDetail";
+//                    cmndDetail.CommandType = CommandType.TableDirect;
+//                    cmndDetail.IndexName = "PK_ActivityDetailOnActivityDetailRefno";
 
-                    using (SqlCeResultSet rsDetail = cmndDetail.ExecuteResultSet(ResultSetOptions.Updatable))
-                    {
-                        SqlCeUpdatableRecord recDetail = rsDetail.CreateRecord();
+//                    using (SqlCeResultSet rsDetail = cmndDetail.ExecuteResultSet(ResultSetOptions.Updatable))
+//                    {
+//                        SqlCeUpdatableRecord recDetail = rsDetail.CreateRecord();
 
-                        recDetail.SetInt32((int)SysCommon.ActDetailFields.SubType, (int)this.ActSubType);
-                        recDetail.SetInt32((int)SysCommon.ActDetailFields.Status, (int)SysCommon.ActStatus.Inserted);
-                        recDetail.SetInt32((int)SysCommon.ActDetailFields.ActivityItemRefno, this.ActItem.Refno);
-                        recDetail.SetInt32((int)SysCommon.ActDetailFields.LocationMapRefno, this.LocMap.CurrLocMapRefno);
-                        recDetail.SetInt32((int)SysCommon.ActDetailFields.ProductUnitRefno, this.ActItem.ProdInfo.UnitRefno);
-                        recDetail.SetDecimal((int)SysCommon.ActDetailFields.Quantity, this.Quantity);
-                        recDetail.SetDecimal((int)SysCommon.ActDetailFields.BaseQuantity, this.BaseQuantity);
-                        recDetail.SetDecimal((int)SysCommon.ActDetailFields.WeightQuantity, this.WeightQuantity);
-                        recDetail.SetString(
-                            (int)SysCommon.ActDetailFields.SingleTradeItemSerialNumber,
-                            this.SchemeData.SingleTradeItemSerialNumber);
-                        recDetail.SetString(
-                            (int)SysCommon.ActDetailFields.LogisticUnitBatchLotNumber,
-                            this.SchemeData.LogisticUnitBatchLotNumber);
-                        recDetail.SetDateTime(
-                            (int)SysCommon.ActDetailFields.LogisticUnitBestBeforeSellByDate,
-                            this.SchemeData.LogisticUnitBestBeforeSellByDate);
-                        recDetail.SetDateTime(
-                            (int)SysCommon.ActDetailFields.LogisticUnitExpiryUseByDate,
-                            this.SchemeData.LogisticUnitExpiryUseByDate);
-                        recDetail.SetDateTime(
-                            (int)SysCommon.ActDetailFields.LogisticUnitProductionDate,
-                            this.SchemeData.LogisticUnitProductionDate);
-                        recDetail.SetDateTime(
-                            (int)SysCommon.ActDetailFields.LogisticUnitDueDate,
-                            this.SchemeData.LogisticUnitDueDate);
-                        recDetail.SetDateTime(
-                            (int)SysCommon.ActDetailFields.LogisticUnitPackagingDate,
-                            this.SchemeData.LogisticUnitPackagingDate);
-                        recDetail.SetString(
-                            (int)SysCommon.ActDetailFields.LogisticUnitSkidNumber,
-                            this.SchemeData.LogisticUnitSkidNumber);
-                        recDetail.SetString((int)SysCommon.ActDetailFields.UniqueSchemeID, this.UniqueSchemeID);
-                        recDetail.SetString((int)SysCommon.ActDetailFields.SchemeID, this.SchemeID);
+//                        recDetail.SetInt32((int)SysCommon.ActDetailFields.SubType, (int)this.ActSubType);
+//                        recDetail.SetInt32((int)SysCommon.ActDetailFields.Status, (int)SysCommon.ActStatus.Inserted);
+//                        recDetail.SetInt32((int)SysCommon.ActDetailFields.ActivityItemRefno, this.ActItem.Refno);
+//                        recDetail.SetInt32((int)SysCommon.ActDetailFields.LocationMapRefno, this.LocMap.CurrLocMapRefno);
+//                        recDetail.SetInt32((int)SysCommon.ActDetailFields.ProductUnitRefno, this.ActItem.ProdInfo.UnitRefno);
+//                        recDetail.SetDecimal((int)SysCommon.ActDetailFields.Quantity, this.Quantity);
+//                        recDetail.SetDecimal((int)SysCommon.ActDetailFields.BaseQuantity, this.BaseQuantity);
+//                        recDetail.SetDecimal((int)SysCommon.ActDetailFields.WeightQuantity, this.WeightQuantity);
+//                        recDetail.SetString(
+//                            (int)SysCommon.ActDetailFields.SingleTradeItemSerialNumber,
+//                            this.SchemeData.SingleTradeItemSerialNumber);
+//                        recDetail.SetString(
+//                            (int)SysCommon.ActDetailFields.LogisticUnitBatchLotNumber,
+//                            this.SchemeData.LogisticUnitBatchLotNumber);
+//                        recDetail.SetDateTime(
+//                            (int)SysCommon.ActDetailFields.LogisticUnitBestBeforeSellByDate,
+//                            this.SchemeData.LogisticUnitBestBeforeSellByDate);
+//                        recDetail.SetDateTime(
+//                            (int)SysCommon.ActDetailFields.LogisticUnitExpiryUseByDate,
+//                            this.SchemeData.LogisticUnitExpiryUseByDate);
+//                        recDetail.SetDateTime(
+//                            (int)SysCommon.ActDetailFields.LogisticUnitProductionDate,
+//                            this.SchemeData.LogisticUnitProductionDate);
+//                        recDetail.SetDateTime(
+//                            (int)SysCommon.ActDetailFields.LogisticUnitDueDate,
+//                            this.SchemeData.LogisticUnitDueDate);
+//                        recDetail.SetDateTime(
+//                            (int)SysCommon.ActDetailFields.LogisticUnitPackagingDate,
+//                            this.SchemeData.LogisticUnitPackagingDate);
+//                        recDetail.SetString(
+//                            (int)SysCommon.ActDetailFields.LogisticUnitSkidNumber,
+//                            this.SchemeData.LogisticUnitSkidNumber);
+//                        recDetail.SetString((int)SysCommon.ActDetailFields.UniqueSchemeID, this.UniqueSchemeID);
+//                        recDetail.SetString((int)SysCommon.ActDetailFields.SchemeID, this.SchemeID);
 
-                        rsDetail.Insert(recDetail);
-                    }
-                }
+//                        rsDetail.Insert(recDetail);
+//                    }
+//                }
 
-                using (SQLiteCommand cmndID = conn.CreateCommand())
-                {
-                    cmndID.CommandText = "SELECT @@IDENTITY FROM tActivityDetail";
-                    cmndID.CommandType = CommandType.Text;
+//                using (SQLiteCommand cmndID = conn.CreateCommand())
+//                {
+//                    cmndID.CommandText = "SELECT @@IDENTITY FROM tActivityDetail";
+//                    cmndID.CommandType = CommandType.Text;
 
-                    actDetailRefno = Convert.ToInt32(cmndID.ExecuteScalar());
-                }
+//                    actDetailRefno = Convert.ToInt32(cmndID.ExecuteScalar());
+//                }
 
-                this.FKRefno = actDetailRefno * -1;
+//                this.FKRefno = actDetailRefno * -1;
 
-                if (0 < this.SchemeData.VariantNumber)
-                {
-                    using (SQLiteCommand cmndSchemeVar = conn.CreateCommand())
-                    {
-                        cmndSchemeVar.CommandText = "tProductSchemeVariant";
-                        cmndSchemeVar.CommandType = CommandType.TableDirect;
-                        cmndSchemeVar.IndexName = "UQ_ProductSchemeVariantOnProductSchemeVariantNo";
+//                if (0 < this.SchemeData.VariantNumber)
+//                {
+//                    using (SQLiteCommand cmndSchemeVar = conn.CreateCommand())
+//                    {
+//                        cmndSchemeVar.CommandText = "tProductSchemeVariant";
+//                        cmndSchemeVar.CommandType = CommandType.TableDirect;
+//                        cmndSchemeVar.IndexName = "UQ_ProductSchemeVariantOnProductSchemeVariantNo";
 
-                        using (SqliteDataReader drSchemeVar = cmndSchemeVar.ExecuteReader())
-                        {
-                            using (SQLiteCommand cmndSchemeVarXRef = conn.CreateCommand())
-                            {
-                                cmndSchemeVarXRef.CommandText = "tActivityDetailProductSchemeVariantXRef";
-                                cmndSchemeVarXRef.CommandType = CommandType.TableDirect;
-                                cmndSchemeVarXRef.IndexName =
-                                    "PK_ActivityDetailProductSchemeVariantXRefOnActivityDetailRefnoAndProductSchemeVariantRefno";
+//                        using (SQLiteDataReader drSchemeVar = cmndSchemeVar.ExecuteReader())
+//                        {
+//                            using (SQLiteCommand cmndSchemeVarXRef = conn.CreateCommand())
+//                            {
+//                                cmndSchemeVarXRef.CommandText = "tActivityDetailProductSchemeVariantXRef";
+//                                cmndSchemeVarXRef.CommandType = CommandType.TableDirect;
+//                                cmndSchemeVarXRef.IndexName =
+//                                    "PK_ActivityDetailProductSchemeVariantXRefOnActivityDetailRefnoAndProductSchemeVariantRefno";
 
-                                using (SqlCeResultSet rsSchemeVarXRef = cmndSchemeVarXRef.ExecuteResultSet(ResultSetOptions.Updatable))
-                                {
-                                    SqlCeUpdatableRecord recSchemeVarXRef = rsSchemeVarXRef.CreateRecord();
+//                                using (SqlCeResultSet rsSchemeVarXRef = cmndSchemeVarXRef.ExecuteResultSet(ResultSetOptions.Updatable))
+//                                {
+//                                    SqlCeUpdatableRecord recSchemeVarXRef = rsSchemeVarXRef.CreateRecord();
 
-                                    int schemeVarRefno = 0;
-                                    if (drSchemeVar.Seek(DbSeekOptions.FirstEqual, new object[] { this.SchemeData.VariantNumber }))
-                                    {
-                                        if (drSchemeVar.Read())
-                                        {
-                                            schemeVarRefno = drSchemeVar.GetInt32((int)SysCommon.ProdSchemeVariantFields.Refno);
+//                                    int schemeVarRefno = 0;
+//                                    if (drSchemeVar.Seek(DbSeekOptions.FirstEqual, new object[] { this.SchemeData.VariantNumber }))
+//                                    {
+//                                        if (drSchemeVar.Read())
+//                                        {
+//                                            schemeVarRefno = drSchemeVar.GetInt32((int)SysCommon.ProdSchemeVariantFields.Refno);
 
-                                            recSchemeVarXRef.SetInt32(
-                                                (int)SysCommon.ActDetailSchemeVariantXRefFields.ActDetailRefno,
-                                                actDetailRefno);
-                                            recSchemeVarXRef.SetInt32(
-                                                (int)SysCommon.ActDetailSchemeVariantXRefFields.ProdSchemeVariantRefno,
-                                                schemeVarRefno);
+//                                            recSchemeVarXRef.SetInt32(
+//                                                (int)SysCommon.ActDetailSchemeVariantXRefFields.ActDetailRefno,
+//                                                actDetailRefno);
+//                                            recSchemeVarXRef.SetInt32(
+//                                                (int)SysCommon.ActDetailSchemeVariantXRefFields.ProdSchemeVariantRefno,
+//                                                schemeVarRefno);
 
-                                            rsSchemeVarXRef.Insert(recSchemeVarXRef);
-                                        }
-                                        else
-                                        {
-                                            throw new Exception("drSchemeVar.Read() failed.");
-                                        }
-                                    }
-                                    else
-                                    {
-                                        throw new Exception(
-                                            string.Format(
-                                            "Unable to locate the product scheme variant no {0} in tProductSchemeVariant,",
-                                            this.SchemeData.VariantNumber));
-                                    }
-                                }
-                            }
+//                                            rsSchemeVarXRef.Insert(recSchemeVarXRef);
+//                                        }
+//                                        else
+//                                        {
+//                                            throw new Exception("drSchemeVar.Read() failed.");
+//                                        }
+//                                    }
+//                                    else
+//                                    {
+//                                        throw new Exception(
+//                                            string.Format(
+//                                            "Unable to locate the product scheme variant no {0} in tProductSchemeVariant,",
+//                                            this.SchemeData.VariantNumber));
+//                                    }
+//                                }
+//                            }
 
-                            drSchemeVar.Close();
-                        }
-                    }
-                }
+//                            drSchemeVar.Close();
+//                        }
+//                    }
+//                }
 
-                if (!string.IsNullOrEmpty(this.ActExtra.Text1)
-                    || string.IsNullOrEmpty(this.ActExtra.Text2)
-                    || string.IsNullOrEmpty(this.ActExtra.Text3)
-                    || string.IsNullOrEmpty(this.ActExtra.Text4)
-                    || string.IsNullOrEmpty(this.ActExtra.Text5))
-                {
-                    using (SQLiteCommand cmndExtra = conn.CreateCommand())
-                    {
-                        cmndExtra.CommandText = "tActivityDetailExtra";
-                        cmndExtra.CommandType = CommandType.TableDirect;
-                        cmndExtra.IndexName = "PK_ActivityDetailExtraOnActivityDetailRefno";
+//                if (!string.IsNullOrEmpty(this.ActExtra.Text1)
+//                    || string.IsNullOrEmpty(this.ActExtra.Text2)
+//                    || string.IsNullOrEmpty(this.ActExtra.Text3)
+//                    || string.IsNullOrEmpty(this.ActExtra.Text4)
+//                    || string.IsNullOrEmpty(this.ActExtra.Text5))
+//                {
+//                    using (SQLiteCommand cmndExtra = conn.CreateCommand())
+//                    {
+//                        cmndExtra.CommandText = "tActivityDetailExtra";
+//                        cmndExtra.CommandType = CommandType.TableDirect;
+//                        cmndExtra.IndexName = "PK_ActivityDetailExtraOnActivityDetailRefno";
 
-                        using (SqlCeResultSet rsExtra = cmndExtra.ExecuteResultSet(ResultSetOptions.Updatable))
-                        {
-                            SqlCeUpdatableRecord recExtra = rsExtra.CreateRecord();
+//                        using (SqlCeResultSet rsExtra = cmndExtra.ExecuteResultSet(ResultSetOptions.Updatable))
+//                        {
+//                            SqlCeUpdatableRecord recExtra = rsExtra.CreateRecord();
 
-                            recExtra.SetInt32((int)SysCommon.ActDetailExtraFields.ActDetailRefno, actDetailRefno);
-                            recExtra.SetInt32((int)SysCommon.ActDetailExtraFields.ActDetailSubType, (int)this.ActSubType);
-                            recExtra.SetString((int)SysCommon.ActDetailExtraFields.Text1, this.ActExtra.Text1);
-                            recExtra.SetString((int)SysCommon.ActDetailExtraFields.Text2, this.ActExtra.Text2);
-                            recExtra.SetString((int)SysCommon.ActDetailExtraFields.Text3, this.ActExtra.Text3);
-                            recExtra.SetString((int)SysCommon.ActDetailExtraFields.Text4, this.ActExtra.Text4);
-                            recExtra.SetString((int)SysCommon.ActDetailExtraFields.Text5, this.ActExtra.Text5);
+//                            recExtra.SetInt32((int)SysCommon.ActDetailExtraFields.ActDetailRefno, actDetailRefno);
+//                            recExtra.SetInt32((int)SysCommon.ActDetailExtraFields.ActDetailSubType, (int)this.ActSubType);
+//                            recExtra.SetString((int)SysCommon.ActDetailExtraFields.Text1, this.ActExtra.Text1);
+//                            recExtra.SetString((int)SysCommon.ActDetailExtraFields.Text2, this.ActExtra.Text2);
+//                            recExtra.SetString((int)SysCommon.ActDetailExtraFields.Text3, this.ActExtra.Text3);
+//                            recExtra.SetString((int)SysCommon.ActDetailExtraFields.Text4, this.ActExtra.Text4);
+//                            recExtra.SetString((int)SysCommon.ActDetailExtraFields.Text5, this.ActExtra.Text5);
 
-                            rsExtra.Insert(recExtra);
-                        }
-                    }
-                }
-            }
-            catch (SqlCeException ex)
-            {
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredInsertingDetailInDisconnectedModeFailed), ex);
-#else
-                throw new Exception("Database exception occurred. Inserting detail in disconnected mode failed.", ex);
-#endif
-            }
+//                            rsExtra.Insert(recExtra);
+//                        }
+//                    }
+//                }
+//            }
+//            catch (SQLiteException ex)
+//            {
+//#if MULTILANGUAGE
+//        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredInsertingDetailInDisconnectedModeFailed), ex);
+//#else
+//                throw new Exception("Database exception occurred. Inserting detail in disconnected mode failed.", ex);
+//#endif
+//            }
 
             return actDetailRefno;
         }

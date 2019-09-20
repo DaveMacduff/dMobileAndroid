@@ -2,7 +2,7 @@ namespace dMobile.GroundWork
 {
   using System;
   using System.Data;
-  
+  using System.Data.SQLite;
   using System.Text;
   using System.Xml;
   using System.Xml.Linq;
@@ -50,7 +50,7 @@ namespace dMobile.GroundWork
                 + " FROM tActivity" 
                 + " WHERE tActivity.ActivitySubType = " + (int)SysCommon.ActSubTypes.Transfers;
 
-            using (SqliteDataReader drTrans = cmndTrans.ExecuteReader())
+            using (SQLiteDataReader drTrans = cmndTrans.ExecuteReader())
             {
               while (drTrans.Read())
               {
@@ -94,7 +94,7 @@ namespace dMobile.GroundWork
         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding transfer items complete.", true);
 #endif
       }
-      catch (SqlCeException ex)
+      catch (SQLiteException ex)
       {
 #if MULTILANGUAGE
         this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), true);
@@ -167,7 +167,7 @@ namespace dMobile.GroundWork
         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging transfer items complete.", true);
 #endif
       }
-      catch (SqlCeException ex)
+      catch (SQLiteException ex)
       {
 #if MULTILANGUAGE
         this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), true);
@@ -215,7 +215,7 @@ namespace dMobile.GroundWork
               true);
         }
       }
-      catch (SqlCeException ex)
+      catch (SQLiteException ex)
       {
 #if MULTILANGUAGE
         throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredTransferItemsStatusFailed), ex);
@@ -240,41 +240,41 @@ namespace dMobile.GroundWork
     {
       int transFKRefno = 0;
 
-      using (SQLiteCommand cmndTrans = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-      {
-        cmndTrans.CommandText = "tActivityTransfer";
-        cmndTrans.CommandType = CommandType.TableDirect;
-        cmndTrans.IndexName = "PK_ActivityTransferOnActivityRefno";
-        using (SqliteDataReader drTrans = cmndTrans.ExecuteReader())
-        {
-          if (drTrans.Seek(DbSeekOptions.FirstEqual, new object[] { actRefno }))
-          {
-            if (drTrans.Read())
-            {
-              transFKRefno = drTrans.GetInt32((int)SysCommon.ActTransferFields.FKRefno);
-            }
-            else
-            {
-#if MULTILANGUAGE
-              throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DrtransreadFailed));
-#else
-              throw new Exception("drTrans.Read() failed.");
-#endif
-            }
-          }
-          else
-          {
-            throw new Exception(
-                string.Format(
-#if MULTILANGUAGE
-                Translator.GetInstance().Translate(TranslatorVocabulary.UnableToLocateTheTransferRefnoInTactivitytransfer), 
-#else
-                "Unable to locate the transfer refno {0} in tActivityTransfer.", 
-#endif
-                actRefno));
-          }
-        }
-      }
+//      using (SQLiteCommand cmndTrans = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+//      {
+//        cmndTrans.CommandText = "tActivityTransfer";
+//        cmndTrans.CommandType = CommandType.TableDirect;
+//        cmndTrans.IndexName = "PK_ActivityTransferOnActivityRefno";
+//        using (SQLiteDataReader drTrans = cmndTrans.ExecuteReader())
+//        {
+//          if (drTrans.Seek(DbSeekOptions.FirstEqual, new object[] { actRefno }))
+//          {
+//            if (drTrans.Read())
+//            {
+//              transFKRefno = drTrans.GetInt32((int)SysCommon.ActTransferFields.FKRefno);
+//            }
+//            else
+//            {
+//#if MULTILANGUAGE
+//              throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DrtransreadFailed));
+//#else
+//              throw new Exception("drTrans.Read() failed.");
+//#endif
+//            }
+//          }
+//          else
+//          {
+//            throw new Exception(
+//                string.Format(
+//#if MULTILANGUAGE
+//                Translator.GetInstance().Translate(TranslatorVocabulary.UnableToLocateTheTransferRefnoInTactivitytransfer), 
+//#else
+//                "Unable to locate the transfer refno {0} in tActivityTransfer.", 
+//#endif
+//                actRefno));
+//          }
+//        }
+//      }
 
       return this.SendComm(this.Create(transFKRefno));
     }
@@ -286,265 +286,265 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     protected override void Save(string reqData, int actRefno)
     {
-      string errMsg = string.Empty;
-      SqlCeConnection conn = DatabaseConnection.GetInstance().SQLConn;
+//      string errMsg = string.Empty;
+//      SQLiteConnection conn = DatabaseConnection.GetInstance().SQLConn;
 
-      try
-      {
-        using (DataSet ds = new DataSet())
-        {
-#if MULTILANGUAGE
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.ReadingReceivedData), false);
-#else
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
-#endif
-          ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
+//      try
+//      {
+//        using (DataSet ds = new DataSet())
+//        {
+//#if MULTILANGUAGE
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.ReadingReceivedData), false);
+//#else
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
+//#endif
+//          ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
 
-#if MULTILANGUAGE
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingTransferItems), false);
-#else
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving transfer items.", false);
-#endif
-          if (ds.Tables.Count != 0)
-          {
-            int progMax = Convert.ToInt32(ds.Tables["tActivityItemTransfer"].Rows.Count);
+//#if MULTILANGUAGE
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingTransferItems), false);
+//#else
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving transfer items.", false);
+//#endif
+//          if (ds.Tables.Count != 0)
+//          {
+//            int progMax = Convert.ToInt32(ds.Tables["tActivityItemTransfer"].Rows.Count);
 
-#if MULTILANGUAGE
-            this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.Recordsz), progMax), false);
-#else
-            this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
-#endif
+//#if MULTILANGUAGE
+//            this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.Recordsz), progMax), false);
+//#else
+//            this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
+//#endif
             
-            using (SQLiteCommand cmndTransItem = conn.CreateCommand())
-            {
-              cmndTransItem.CommandText = "tActivityItemTransfer";
-              cmndTransItem.CommandType = CommandType.TableDirect;
-              cmndTransItem.IndexName = "UQ_ActivityItemTransferOnActivityItemTransferFKRefno";
+//            using (SQLiteCommand cmndTransItem = conn.CreateCommand())
+//            {
+//              cmndTransItem.CommandText = "tActivityItemTransfer";
+//              cmndTransItem.CommandType = CommandType.TableDirect;
+//              cmndTransItem.IndexName = "UQ_ActivityItemTransferOnActivityItemTransferFKRefno";
 
-              using (SQLiteCommand cmndActItem = conn.CreateCommand())
-              {
-                cmndActItem.CommandText = "tActivityItem";
-                cmndActItem.CommandType = CommandType.TableDirect;
+//              using (SQLiteCommand cmndActItem = conn.CreateCommand())
+//              {
+//                cmndActItem.CommandText = "tActivityItem";
+//                cmndActItem.CommandType = CommandType.TableDirect;
 
-                using (SqlCeResultSet rsActItem = cmndActItem.ExecuteResultSet(ResultSetOptions.Updatable))
-                {
-                  SqlCeUpdatableRecord recActItem = rsActItem.CreateRecord();
+//                using (SqlCeResultSet rsActItem = cmndActItem.ExecuteResultSet(ResultSetOptions.Updatable))
+//                {
+//                  SqlCeUpdatableRecord recActItem = rsActItem.CreateRecord();
 
-                  using (SQLiteCommand cmndProdUnit = conn.CreateCommand())
-                  {
-                    cmndProdUnit.CommandText = "tProductUnit";
-                    cmndProdUnit.CommandType = CommandType.TableDirect;
-                    cmndProdUnit.IndexName = "UQ_ProductUnitOnProductRefnoAndUnitRefnoAndProductUnitIsBC";
+//                  using (SQLiteCommand cmndProdUnit = conn.CreateCommand())
+//                  {
+//                    cmndProdUnit.CommandText = "tProductUnit";
+//                    cmndProdUnit.CommandType = CommandType.TableDirect;
+//                    cmndProdUnit.IndexName = "UQ_ProductUnitOnProductRefnoAndUnitRefnoAndProductUnitIsBC";
 
-                    using (SqliteDataReader drProdUnit = cmndProdUnit.ExecuteReader())
-                    {
-                      using (SQLiteCommand cmndProd = conn.CreateCommand())
-                      {
-                        cmndProd.CommandText = "tProduct";
-                        cmndProd.IndexName = "UQ_ProductOnProductFKRefno";
-                        cmndProd.CommandType = CommandType.TableDirect;
+//                    using (SQLiteDataReader drProdUnit = cmndProdUnit.ExecuteReader())
+//                    {
+//                      using (SQLiteCommand cmndProd = conn.CreateCommand())
+//                      {
+//                        cmndProd.CommandText = "tProduct";
+//                        cmndProd.IndexName = "UQ_ProductOnProductFKRefno";
+//                        cmndProd.CommandType = CommandType.TableDirect;
 
-                        using (SqliteDataReader drProd = cmndProd.ExecuteReader())
-                        {
-                          using (SQLiteCommand cmndUnit = conn.CreateCommand())
-                          {
-                            cmndUnit.CommandText = "tUnit";
-                            cmndUnit.IndexName = "UQ_UnitOnUnitCode";
-                            cmndUnit.CommandType = CommandType.TableDirect;
+//                        using (SQLiteDataReader drProd = cmndProd.ExecuteReader())
+//                        {
+//                          using (SQLiteCommand cmndUnit = conn.CreateCommand())
+//                          {
+//                            cmndUnit.CommandText = "tUnit";
+//                            cmndUnit.IndexName = "UQ_UnitOnUnitCode";
+//                            cmndUnit.CommandType = CommandType.TableDirect;
 
-                            using (SqliteDataReader drUnit = cmndUnit.ExecuteReader())
-                            {
-                              using (SQLiteCommand cmndWhs = conn.CreateCommand())
-                              {
-                                cmndWhs.CommandText = "tLocationMapWarehouse";
-                                cmndWhs.CommandType = CommandType.TableDirect;
-                                cmndWhs.IndexName = "UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno";
+//                            using (SQLiteDataReader drUnit = cmndUnit.ExecuteReader())
+//                            {
+//                              using (SQLiteCommand cmndWhs = conn.CreateCommand())
+//                              {
+//                                cmndWhs.CommandText = "tLocationMapWarehouse";
+//                                cmndWhs.CommandType = CommandType.TableDirect;
+//                                cmndWhs.IndexName = "UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno";
 
-                                using (SqliteDataReader drWhs = cmndWhs.ExecuteReader())
-                                {
-                                  using (SQLiteCommand cmndID = conn.CreateCommand())
-                                  {
-                                    cmndID.CommandText = "SELECT @@IDENTITY";
-                                    cmndID.CommandType = CommandType.Text;
+//                                using (SQLiteDataReader drWhs = cmndWhs.ExecuteReader())
+//                                {
+//                                  using (SQLiteCommand cmndID = conn.CreateCommand())
+//                                  {
+//                                    cmndID.CommandText = "SELECT @@IDENTITY";
+//                                    cmndID.CommandType = CommandType.Text;
 
-                                    using (SqlCeResultSet rs = 
-                                        cmndTransItem.ExecuteResultSet(ResultSetOptions.Updatable))
-                                    {
-                                      SqlCeUpdatableRecord rec = rs.CreateRecord();
-                                      int actItemRefno = 0;
-                                      int progValue = 0;
-                                      int prodUnitRefno = 0;
-                                      int locMapRefno = 0;
-                                      int locMapWhsFKRefno = 0;
-                                      int transItemFKRefno = 0;
+//                                    using (SqlCeResultSet rs = 
+//                                        cmndTransItem.ExecuteResultSet(ResultSetOptions.Updatable))
+//                                    {
+//                                      SqlCeUpdatableRecord rec = rs.CreateRecord();
+//                                      int actItemRefno = 0;
+//                                      int progValue = 0;
+//                                      int prodUnitRefno = 0;
+//                                      int locMapRefno = 0;
+//                                      int locMapWhsFKRefno = 0;
+//                                      int transItemFKRefno = 0;
 
-                                      this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
+//                                      this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
 
-                                      foreach (DataRow drow in ds.Tables["tActivityItemTransfer"].Rows)
-                                      {
-                                        errMsg = "Arguments:";
+//                                      foreach (DataRow drow in ds.Tables["tActivityItemTransfer"].Rows)
+//                                      {
+//                                        errMsg = "Arguments:";
 
-                                        recActItem.SetInt32(
-                                            (int)SysCommon.ActItemFields.SubType, 
-                                            (int)SysCommon.ActSubTypes.Transfers);
-                                        recActItem.SetInt32((int)SysCommon.ActItemFields.Status, 0);
-                                        recActItem.SetInt32((int)SysCommon.ActItemFields.ActRefno, actRefno);
+//                                        recActItem.SetInt32(
+//                                            (int)SysCommon.ActItemFields.SubType, 
+//                                            (int)SysCommon.ActSubTypes.Transfers);
+//                                        recActItem.SetInt32((int)SysCommon.ActItemFields.Status, 0);
+//                                        recActItem.SetInt32((int)SysCommon.ActItemFields.ActRefno, actRefno);
 
-                                        rsActItem.Insert(recActItem);
+//                                        rsActItem.Insert(recActItem);
                                         
-                                        actItemRefno = Convert.ToInt32(cmndID.ExecuteScalar());
+//                                        actItemRefno = Convert.ToInt32(cmndID.ExecuteScalar());
 
-                                        prodUnitRefno = this.GetProductUnitRefnoFromDataRow(
-                                            drow, 
-                                            ref errMsg, 
-                                            drProd, 
-                                            drUnit, 
-                                            drProdUnit,
-                                            false);
+//                                        prodUnitRefno = this.GetProductUnitRefnoFromDataRow(
+//                                            drow, 
+//                                            ref errMsg, 
+//                                            drProd, 
+//                                            drUnit, 
+//                                            drProdUnit,
+//                                            false);
 
-                                        locMapRefno = 0;
-                                        if (locMapRefno == 0)
-                                        {
-                                          locMapWhsFKRefno = 
-                                              Convert.ToInt32(drow["TransferFromLocationMapWarehouseFKRefno"]);
-                                          errMsg += Environment.NewLine + "whs fk refno " + locMapWhsFKRefno;
-                                          if (drWhs.Seek(DbSeekOptions.FirstEqual, new object[] { locMapWhsFKRefno }))
-                                          {
-                                            if (drWhs.Read())
-                                            {
-                                              locMapRefno = drWhs.GetInt32((int)SysCommon.LocMapWhsFields.LocMapRefno);
-                                            }
-                                            else
-                                            {
-                                              throw new Exception(
-#if MULTILANGUAGE
-                                                  Translator.GetInstance().Translate(TranslatorVocabulary.DrwhsreadFailed) + Environment.NewLine + errMsg);
-#else
-                                                  "drWhs.Read() failed." + Environment.NewLine + errMsg);
-#endif
-                                            }
-                                          }
-                                        }
+//                                        locMapRefno = 0;
+//                                        if (locMapRefno == 0)
+//                                        {
+//                                          locMapWhsFKRefno = 
+//                                              Convert.ToInt32(drow["TransferFromLocationMapWarehouseFKRefno"]);
+//                                          errMsg += Environment.NewLine + "whs fk refno " + locMapWhsFKRefno;
+//                                          if (drWhs.Seek(DbSeekOptions.FirstEqual, new object[] { locMapWhsFKRefno }))
+//                                          {
+//                                            if (drWhs.Read())
+//                                            {
+//                                              locMapRefno = drWhs.GetInt32((int)SysCommon.LocMapWhsFields.LocMapRefno);
+//                                            }
+//                                            else
+//                                            {
+//                                              throw new Exception(
+//#if MULTILANGUAGE
+//                                                  Translator.GetInstance().Translate(TranslatorVocabulary.DrwhsreadFailed) + Environment.NewLine + errMsg);
+//#else
+//                                                  "drWhs.Read() failed." + Environment.NewLine + errMsg);
+//#endif
+//                                            }
+//                                          }
+//                                        }
 
-                                        if (locMapRefno == 0)
-                                        {
-                                          throw new Exception(
-#if MULTILANGUAGE
-                                              Translator.GetInstance().Translate(TranslatorVocabulary.UnableToIndentifyTheLocationMapRefnoz)
-#else
-                                              "Unable to indentify the location map refno."
-#endif
-                                              + Environment.NewLine + errMsg);
-                                        }
+//                                        if (locMapRefno == 0)
+//                                        {
+//                                          throw new Exception(
+//#if MULTILANGUAGE
+//                                              Translator.GetInstance().Translate(TranslatorVocabulary.UnableToIndentifyTheLocationMapRefnoz)
+//#else
+//                                              "Unable to indentify the location map refno."
+//#endif
+//                                              + Environment.NewLine + errMsg);
+//                                        }
 
-                                        rec.SetInt32((int)SysCommon.ActItemTransferFields.ActItemRefno, actItemRefno);
-                                        rec.SetInt32(
-                                            (int)SysCommon.ActItemTransferFields.ActItemSubType, 
-                                            (int)SysCommon.ActSubTypes.Transfers);
+//                                        rec.SetInt32((int)SysCommon.ActItemTransferFields.ActItemRefno, actItemRefno);
+//                                        rec.SetInt32(
+//                                            (int)SysCommon.ActItemTransferFields.ActItemSubType, 
+//                                            (int)SysCommon.ActSubTypes.Transfers);
 
-                                        transItemFKRefno = Convert.ToInt32(drow["ActivityItemTransferFKRefno"]);
-                                        errMsg += Environment.NewLine + "Item fk refno " + transItemFKRefno;
-                                        rec.SetInt32(
-                                            (int)SysCommon.ActItemTransferFields.FKRefno,
-                                            Convert.ToInt32(drow["ActivityItemTransferFKRefno"]));
-                                        rec.SetString(
-                                            (int)SysCommon.ActItemTransferFields.StringFKRefno, 
-                                            Convert.ToString(transItemFKRefno));
+//                                        transItemFKRefno = Convert.ToInt32(drow["ActivityItemTransferFKRefno"]);
+//                                        errMsg += Environment.NewLine + "Item fk refno " + transItemFKRefno;
+//                                        rec.SetInt32(
+//                                            (int)SysCommon.ActItemTransferFields.FKRefno,
+//                                            Convert.ToInt32(drow["ActivityItemTransferFKRefno"]));
+//                                        rec.SetString(
+//                                            (int)SysCommon.ActItemTransferFields.StringFKRefno, 
+//                                            Convert.ToString(transItemFKRefno));
 
-                                        rec.SetInt32(
-                                            (int)SysCommon.ActItemTransferFields.ProductUnitRefno, 
-                                            prodUnitRefno);
-                                        rec.SetInt32(
-                                            (int)SysCommon.ActItemTransferFields.TransferFromWhsLocMapRefno, 
-                                            locMapRefno);
-                                        rec.SetDecimal(
-                                            (int)SysCommon.ActItemTransferFields.RequiredQuantity,
-                                            Convert.ToDecimal(drow["ActivityItemTransferRequiredQuantity"]));
-                                        rec.SetDecimal(
-                                            (int)SysCommon.ActItemTransferFields.Quantity, 
-                                            Convert.ToDecimal(drow["ActivityItemTransferQuantity"]));
-                                        rec.SetDecimal(
-                                            (int)SysCommon.ActItemTransferFields.BaseQuantity, 
-                                            Convert.ToDecimal(drow["ActivityItemTransferBaseQuantity"]));
-                                        rec.SetDecimal(
-                                            (int)SysCommon.ActItemTransferFields.WeightQuantity, 
-                                            Convert.ToDecimal(drow["ActivityItemTransferWeightQuantity"]));
+//                                        rec.SetInt32(
+//                                            (int)SysCommon.ActItemTransferFields.ProductUnitRefno, 
+//                                            prodUnitRefno);
+//                                        rec.SetInt32(
+//                                            (int)SysCommon.ActItemTransferFields.TransferFromWhsLocMapRefno, 
+//                                            locMapRefno);
+//                                        rec.SetDecimal(
+//                                            (int)SysCommon.ActItemTransferFields.RequiredQuantity,
+//                                            Convert.ToDecimal(drow["ActivityItemTransferRequiredQuantity"]));
+//                                        rec.SetDecimal(
+//                                            (int)SysCommon.ActItemTransferFields.Quantity, 
+//                                            Convert.ToDecimal(drow["ActivityItemTransferQuantity"]));
+//                                        rec.SetDecimal(
+//                                            (int)SysCommon.ActItemTransferFields.BaseQuantity, 
+//                                            Convert.ToDecimal(drow["ActivityItemTransferBaseQuantity"]));
+//                                        rec.SetDecimal(
+//                                            (int)SysCommon.ActItemTransferFields.WeightQuantity, 
+//                                            Convert.ToDecimal(drow["ActivityItemTransferWeightQuantity"]));
                                         
-                                        rs.Insert(rec);
+//                                        rs.Insert(rec);
 
-                                        progValue++;
-                                        if (progValue % 100 == 0)
-                                        {
-                                          this.DataAccessProgressOutHandler(
-                                              this, 
-                                              EventArgs.Empty, 
-                                              progValue, 
-                                              0, 
-                                              progMax);
-                                        }
-                                      }
+//                                        progValue++;
+//                                        if (progValue % 100 == 0)
+//                                        {
+//                                          this.DataAccessProgressOutHandler(
+//                                              this, 
+//                                              EventArgs.Empty, 
+//                                              progValue, 
+//                                              0, 
+//                                              progMax);
+//                                        }
+//                                      }
 
-                                      this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
-                                    }
-                                  }
+//                                      this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
+//                                    }
+//                                  }
 
-                                  drWhs.Close();
-                                }
-                              }
+//                                  drWhs.Close();
+//                                }
+//                              }
 
-                              drUnit.Close();
-                            }
-                          }
+//                              drUnit.Close();
+//                            }
+//                          }
 
-                          drProd.Close();
-                        }
-                      }
+//                          drProd.Close();
+//                        }
+//                      }
 
-                      drProdUnit.Close();
-                    }
-                  }
-                }
-              }
-            }
-          }
+//                      drProdUnit.Close();
+//                    }
+//                  }
+//                }
+//              }
+//            }
+//          }
 
-#if MULTILANGUAGE
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingTransferItemsComplete), false);
-#else
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving transfer items complete.", false);
-#endif
-        }
-      }
-      catch (SqlCeException ex)
-      {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), false);
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingTransferItemsFailed), false);
-#else
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving transfer items failed.", false);
-#endif
+//#if MULTILANGUAGE
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingTransferItemsComplete), false);
+//#else
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving transfer items complete.", false);
+//#endif
+//        }
+//      }
+//      catch (SQLiteException ex)
+//      {
+//#if MULTILANGUAGE
+//        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), false);
+//        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingTransferItemsFailed), false);
+//#else
+//        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
+//        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving transfer items failed.", false);
+//#endif
 
-        // Duplicate key violations
-        if (ex.NativeError == 25016)
-        {
-#if MULTILANGUAGE
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.UniquenessViolation), false);
-          throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.UniquenessViolation) + Environment.NewLine + errMsg, ex);
-#else
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Uniqueness violation.", false);
-          throw new Exception("Uniqueness violation." + Environment.NewLine + errMsg, ex);
-#endif
-        }
+//        // Duplicate key violations
+//        if (ex.NativeError == 25016)
+//        {
+//#if MULTILANGUAGE
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.UniquenessViolation), false);
+//          throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.UniquenessViolation) + Environment.NewLine + errMsg, ex);
+//#else
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Uniqueness violation.", false);
+//          throw new Exception("Uniqueness violation." + Environment.NewLine + errMsg, ex);
+//#endif
+//        }
 
-        throw new Exception(
-#if MULTILANGUAGE
-            Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredSavingTransferItemsFailed) + Environment.NewLine + errMsg,
-#else
-            "Database exception occurred. Saving transfer items failed." + Environment.NewLine + errMsg,
-#endif
-            ex);
-      }
+//        throw new Exception(
+//#if MULTILANGUAGE
+//            Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredSavingTransferItemsFailed) + Environment.NewLine + errMsg,
+//#else
+//            "Database exception occurred. Saving transfer items failed." + Environment.NewLine + errMsg,
+//#endif
+//            ex);
+//      }
     }
 
     /// <summary>

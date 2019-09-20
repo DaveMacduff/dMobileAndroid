@@ -2,7 +2,7 @@ namespace dMobile.Controller
 {
   using System;
   using System.Data;
-  
+  using System.Data.SQLite;
   using System.Text;
   using System.Windows.Forms;
   using System.Xml;
@@ -123,148 +123,148 @@ namespace dMobile.Controller
     /// <param name="askToInsertAsNewItem"></param>
     public override void Insert(XDocument data, bool askToInsertAsNewItem)
     {
-      int foundActItemRefno = 0;
-      var dlgResult = DialogResult.None;
-      int prodUnitRefno = int.Parse(data.Root.Element("ProductUnitRefno").Value);
+//      int foundActItemRefno = 0;
+//      var dlgResult = DialogResult.None;
+//      int prodUnitRefno = int.Parse(data.Root.Element("ProductUnitRefno").Value);
 
-      if (prodUnitRefno != 0)
-      {
-        foundActItemRefno = this.GetRefnoFromProdUnitRefno(prodUnitRefno);
+//      if (prodUnitRefno != 0)
+//      {
+//        foundActItemRefno = this.GetRefnoFromProdUnitRefno(prodUnitRefno);
 
-        if (foundActItemRefno > 0)
-        {
-          dlgResult = MessageBox.Show(
-#if MULTILANGUAGE
-              Translator.GetInstance().Translate(TranslatorVocabulary.ALineItemAlreadyExistsForThisLocationAndProduct)
-              + Environment.NewLine + Translator.GetInstance().Translate(TranslatorVocabulary.DoYouWishToCreateOne),
-              Translator.GetInstance().Translate(TranslatorVocabulary.NewItem),
-#else
-              "A line item already exists for this location and product."
-              + Environment.NewLine + "Do you wish to create one?",
-              "New Item",
-#endif
-              MessageBoxButtons.YesNoCancel,
-              MessageBoxIcon.Question,
-              MessageBoxDefaultButton.Button3);
-        }
-        else
-        {
-          // If the selected product to insert was not found, force the dialog result to insert it.
-          dlgResult = DialogResult.Yes;
-        }
+//        if (foundActItemRefno > 0)
+//        {
+//          dlgResult = MessageBox.Show(
+//#if MULTILANGUAGE
+//              Translator.GetInstance().Translate(TranslatorVocabulary.ALineItemAlreadyExistsForThisLocationAndProduct)
+//              + Environment.NewLine + Translator.GetInstance().Translate(TranslatorVocabulary.DoYouWishToCreateOne),
+//              Translator.GetInstance().Translate(TranslatorVocabulary.NewItem),
+//#else
+//              "A line item already exists for this location and product."
+//              + Environment.NewLine + "Do you wish to create one?",
+//              "New Item",
+//#endif
+//              MessageBoxButtons.YesNoCancel,
+//              MessageBoxIcon.Question,
+//              MessageBoxDefaultButton.Button3);
+//        }
+//        else
+//        {
+//          // If the selected product to insert was not found, force the dialog result to insert it.
+//          dlgResult = DialogResult.Yes;
+//        }
 
-        if (dlgResult == DialogResult.Yes)
-        {
-          using (SQLiteCommand cmndActItemByProduct = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-          {
-            cmndActItemByProduct.CommandText = "tActivityItemProductionByProduct";
-            cmndActItemByProduct.CommandType = CommandType.TableDirect;
-            cmndActItemByProduct.IndexName = "UQ_ActivityItemProductionByProductOnActivityItemProductionByProductFKRefno";
+//        if (dlgResult == DialogResult.Yes)
+//        {
+//          using (SQLiteCommand cmndActItemByProduct = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+//          {
+//            cmndActItemByProduct.CommandText = "tActivityItemProductionByProduct";
+//            cmndActItemByProduct.CommandType = CommandType.TableDirect;
+//            cmndActItemByProduct.IndexName = "UQ_ActivityItemProductionByProductOnActivityItemProductionByProductFKRefno";
 
-            using (SqlCeResultSet rsActItemByProduct = cmndActItemByProduct.ExecuteResultSet(ResultSetOptions.Updatable))
-            {
-              SqlCeUpdatableRecord recActItemByProduct = rsActItemByProduct.CreateRecord();
+//            using (SqlCeResultSet rsActItemByProduct = cmndActItemByProduct.ExecuteResultSet(ResultSetOptions.Updatable))
+//            {
+//              SqlCeUpdatableRecord recActItemByProduct = rsActItemByProduct.CreateRecord();
 
-              using (SQLiteCommand cmndActProdItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-              {
-                cmndActProdItem.CommandText = "tActivityItemProduction";
-                cmndActProdItem.CommandType = CommandType.TableDirect;
-                cmndActProdItem.IndexName = "PK_ActivityItemProductionOnActivityItemRefno";
+//              using (SQLiteCommand cmndActProdItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+//              {
+//                cmndActProdItem.CommandText = "tActivityItemProduction";
+//                cmndActProdItem.CommandType = CommandType.TableDirect;
+//                cmndActProdItem.IndexName = "PK_ActivityItemProductionOnActivityItemRefno";
 
-                using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                {
-                  cmndItem.CommandText = "tActivityItem";
-                  cmndItem.CommandType = CommandType.TableDirect;
+//                using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+//                {
+//                  cmndItem.CommandText = "tActivityItem";
+//                  cmndItem.CommandType = CommandType.TableDirect;
 
-                  using (SQLiteCommand cmndID = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                  {
-                    cmndID.CommandText = "SELECT @@IDENTITY";
-                    cmndID.CommandType = CommandType.Text;
+//                  using (SQLiteCommand cmndID = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+//                  {
+//                    cmndID.CommandText = "SELECT @@IDENTITY";
+//                    cmndID.CommandType = CommandType.Text;
 
-                    using (SqlCeResultSet rsActItemProd = cmndActProdItem.ExecuteResultSet(ResultSetOptions.Updatable))
-                    {
-                      SqlCeUpdatableRecord recActItemProd = rsActItemProd.CreateRecord();
+//                    using (SqlCeResultSet rsActItemProd = cmndActProdItem.ExecuteResultSet(ResultSetOptions.Updatable))
+//                    {
+//                      SqlCeUpdatableRecord recActItemProd = rsActItemProd.CreateRecord();
 
-                      using (SqlCeResultSet rsActItem = cmndItem.ExecuteResultSet(ResultSetOptions.Updatable))
-                      {
-                        SqlCeUpdatableRecord recActItem = rsActItem.CreateRecord();
+//                      using (SqlCeResultSet rsActItem = cmndItem.ExecuteResultSet(ResultSetOptions.Updatable))
+//                      {
+//                        SqlCeUpdatableRecord recActItem = rsActItem.CreateRecord();
 
-                        recActItem.SetInt32(
-                            (int)SysCommon.ActItemFields.SubType,
-                            (int)SysCommon.ActSubTypes.TicketAddProduct);
-                        recActItem.SetInt32((int)SysCommon.ActItemFields.Status, (int)SysCommon.ActStatus.NoChange);
-                        recActItem.SetInt32((int)SysCommon.ActItemFields.ActRefno, this.ActHdr.Refno);
+//                        recActItem.SetInt32(
+//                            (int)SysCommon.ActItemFields.SubType,
+//                            (int)SysCommon.ActSubTypes.TicketAddProduct);
+//                        recActItem.SetInt32((int)SysCommon.ActItemFields.Status, (int)SysCommon.ActStatus.NoChange);
+//                        recActItem.SetInt32((int)SysCommon.ActItemFields.ActRefno, this.ActHdr.Refno);
 
-                        rsActItem.Insert(recActItem);
+//                        rsActItem.Insert(recActItem);
 
-                        this.Refno = Convert.ToInt32(cmndID.ExecuteScalar());
+//                        this.Refno = Convert.ToInt32(cmndID.ExecuteScalar());
 
-                        recActItemProd.SetInt32((int)SysCommon.ActItemProdFields.ActItemRefno, this.Refno);
-                        recActItemProd.SetInt32(
-                            (int)SysCommon.ActItemProdFields.ActivityItemSubType,
-                            (int)SysCommon.ActSubTypes.TicketAddProduct);
-                        recActItemProd.SetInt32((int)SysCommon.ActItemProdFields.ProdUnitRefno, prodUnitRefno);
-                        recActItemProd.SetInt32(
-                            (int)SysCommon.ActItemProdFields.LocMapRefno,
-                            this.LocMap.CurrLocMap.WhsLocMapRefno);
-                        recActItemProd.SetDecimal((int)SysCommon.ActItemProdFields.Quantity, 0);
-                        recActItemProd.SetDecimal((int)SysCommon.ActItemProdFields.BaseQuantity, 0);
-                        recActItemProd.SetDecimal((int)SysCommon.ActItemProdFields.WeightQuantity, 0);
-                        string desc = data.Root.Element("ProductDescription").Value.ToString().TrimEnd() + " "
-                            + data.Root.Element("ProductUnitSizeDescription").Value;
-                        recActItemProd.SetString((int)SysCommon.ActItemProdFields.Description, desc);
-                        recActItemProd.SetDecimal((int)SysCommon.ActItemProdFields.QuantityExpected, 0);
-                        recActItemProd.SetDecimal((int)SysCommon.ActItemProdFields.BaseQuantityExpected, 0);
-                        recActItemProd.SetDecimal((int)SysCommon.ActItemProdFields.WeightQuantityExpected, 0);
+//                        recActItemProd.SetInt32((int)SysCommon.ActItemProdFields.ActItemRefno, this.Refno);
+//                        recActItemProd.SetInt32(
+//                            (int)SysCommon.ActItemProdFields.ActivityItemSubType,
+//                            (int)SysCommon.ActSubTypes.TicketAddProduct);
+//                        recActItemProd.SetInt32((int)SysCommon.ActItemProdFields.ProdUnitRefno, prodUnitRefno);
+//                        recActItemProd.SetInt32(
+//                            (int)SysCommon.ActItemProdFields.LocMapRefno,
+//                            this.LocMap.CurrLocMap.WhsLocMapRefno);
+//                        recActItemProd.SetDecimal((int)SysCommon.ActItemProdFields.Quantity, 0);
+//                        recActItemProd.SetDecimal((int)SysCommon.ActItemProdFields.BaseQuantity, 0);
+//                        recActItemProd.SetDecimal((int)SysCommon.ActItemProdFields.WeightQuantity, 0);
+//                        string desc = data.Root.Element("ProductDescription").Value.ToString().TrimEnd() + " "
+//                            + data.Root.Element("ProductUnitSizeDescription").Value;
+//                        recActItemProd.SetString((int)SysCommon.ActItemProdFields.Description, desc);
+//                        recActItemProd.SetDecimal((int)SysCommon.ActItemProdFields.QuantityExpected, 0);
+//                        recActItemProd.SetDecimal((int)SysCommon.ActItemProdFields.BaseQuantityExpected, 0);
+//                        recActItemProd.SetDecimal((int)SysCommon.ActItemProdFields.WeightQuantityExpected, 0);
 
-                        rsActItemProd.Insert(recActItemProd);
+//                        rsActItemProd.Insert(recActItemProd);
 
-                        this.ProdInfo = ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
-                        this.ProdInfo.Scheme = ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
+//                        this.ProdInfo = ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
+//                        this.ProdInfo.Scheme = ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
 
-                        this.FKRefno = this.Refno * -1;
-                        recActItemByProduct.SetInt32((int)SysCommon.ActItemProdByProductFields.ActItemRefno, this.Refno);
-                        recActItemByProduct.SetInt32((int)SysCommon.ActItemProdByProductFields.FKRefno, this.FKRefno);
-                        recActItemByProduct.SetString(
-                            (int)SysCommon.ActItemProdByProductFields.StringFKRefno,
-                            this.FKRefno.ToString());
+//                        this.FKRefno = this.Refno * -1;
+//                        recActItemByProduct.SetInt32((int)SysCommon.ActItemProdByProductFields.ActItemRefno, this.Refno);
+//                        recActItemByProduct.SetInt32((int)SysCommon.ActItemProdByProductFields.FKRefno, this.FKRefno);
+//                        recActItemByProduct.SetString(
+//                            (int)SysCommon.ActItemProdByProductFields.StringFKRefno,
+//                            this.FKRefno.ToString());
 
-                        rsActItemByProduct.Insert(recActItemByProduct);
+//                        rsActItemByProduct.Insert(recActItemByProduct);
 
-                        if (this.DataViewItems != null)
-                        {
-                          DataRowView rowView = this.DataViewItems.AddNew();
-                          rowView["ActivityItemRefno"] = this.Refno;
-                          rowView["ActivityItemProductionByProductFKRefno"] = this.FKRefno;
-                          rowView["ActivityItemProductionByProductStringFKRefno"] = this.FKRefno.ToString();
-                          rowView["ProductUnitRefno"] = prodUnitRefno;
-                          rowView["ProductRefno"] = int.Parse(data.Root.Element("ProductRefno").Value);
-                          rowView["ProductCode"] = data.Root.Element("ProductCode").Value;
-                          rowView["ProductDescription"] = data.Root.Element("ProductDescription").Value;
-                          rowView["BaseUnitCode"] = data.Root.Element("BaseUnitCode").Value;
-                          rowView["ProductUnitBC"] = data.Root.Element("ProductUnitBC").Value;
-                          rowView["ProductUnitSizeDescription"] = data.Root.Element("ProductUnitSizeDescription").Value;
-                          rowView["LocationMapRefno"] = this.LocMap.CurrLocMap.WhsLocMapRefno;
-                          rowView["LocationCode"] = this.LocMap.CurrLocMap.WhsCode;
-                          rowView["LocationName"] = this.LocMap.CurrLocMap.WhsName;
-                          rowView["ActivityItemStatus"] = SysCommon.ActStatus.Inserted;
-                          rowView["ActivityItemProductionQuantity"] = 0;
-                          rowView["ActivityItemProductionBaseQuantity"] = 0;
-                          rowView["ActivityItemProductionWeightQuantity"] = 0;
-                          rowView["ActivityItemProductionQuantityExpected"] = 0;
-                          rowView["ActivityItemProductionBaseQuantityExpected"] = 0;
-                          rowView["ActivityItemProductionWeightQuantityExpected"] = 0;
-                          rowView.EndEdit();
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
+//                        if (this.DataViewItems != null)
+//                        {
+//                          DataRowView rowView = this.DataViewItems.AddNew();
+//                          rowView["ActivityItemRefno"] = this.Refno;
+//                          rowView["ActivityItemProductionByProductFKRefno"] = this.FKRefno;
+//                          rowView["ActivityItemProductionByProductStringFKRefno"] = this.FKRefno.ToString();
+//                          rowView["ProductUnitRefno"] = prodUnitRefno;
+//                          rowView["ProductRefno"] = int.Parse(data.Root.Element("ProductRefno").Value);
+//                          rowView["ProductCode"] = data.Root.Element("ProductCode").Value;
+//                          rowView["ProductDescription"] = data.Root.Element("ProductDescription").Value;
+//                          rowView["BaseUnitCode"] = data.Root.Element("BaseUnitCode").Value;
+//                          rowView["ProductUnitBC"] = data.Root.Element("ProductUnitBC").Value;
+//                          rowView["ProductUnitSizeDescription"] = data.Root.Element("ProductUnitSizeDescription").Value;
+//                          rowView["LocationMapRefno"] = this.LocMap.CurrLocMap.WhsLocMapRefno;
+//                          rowView["LocationCode"] = this.LocMap.CurrLocMap.WhsCode;
+//                          rowView["LocationName"] = this.LocMap.CurrLocMap.WhsName;
+//                          rowView["ActivityItemStatus"] = SysCommon.ActStatus.Inserted;
+//                          rowView["ActivityItemProductionQuantity"] = 0;
+//                          rowView["ActivityItemProductionBaseQuantity"] = 0;
+//                          rowView["ActivityItemProductionWeightQuantity"] = 0;
+//                          rowView["ActivityItemProductionQuantityExpected"] = 0;
+//                          rowView["ActivityItemProductionBaseQuantityExpected"] = 0;
+//                          rowView["ActivityItemProductionWeightQuantityExpected"] = 0;
+//                          rowView.EndEdit();
+//                        }
+//                      }
+//                    }
+//                  }
+//                }
+//              }
+//            }
+//          }
+//        }
+//      }
     }
 
     /// <summary>
@@ -582,7 +582,7 @@ namespace dMobile.Controller
 
         cmndItem.CommandText = sql.ToString();
         
-        using (SqliteDataReader drItem = cmndItem.ExecuteReader())
+        using (SQLiteDataReader drItem = cmndItem.ExecuteReader())
         {
           if (drItem.Read())
           {
@@ -690,7 +690,7 @@ namespace dMobile.Controller
       {
         cmndItem.CommandText = "tActivityItemProduction";
         cmndItem.CommandType = CommandType.Text;
-        cmndItem.IndexName = string.Empty;
+        //cmndItem.IndexName = string.Empty;
         cmndItem.CommandText = "UPDATE tActivityItemProduction "
             + "SET ActivityItemProductionQuantity = " + this.DataViewItems[idx]["ActivityItemProductionQuantity"] + ","
             + "ActivityItemProductionBaseQuantity = " 

@@ -2,9 +2,8 @@ namespace dMobile.GroundWork
 {
   using System;
   using System.Data;
-  
+  using System.Data.SQLite;
   using System.Text;
-  using System.Windows.Forms;
   using System.Xml;
   using System.Xml.Linq;
   using dMobile.Bedrock;
@@ -111,7 +110,7 @@ namespace dMobile.GroundWork
         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging sales returns failed.", true);
 #endif
       }
-      catch (SqlCeException ex)
+      catch (SQLiteException ex)
       {
 #if MULTILANGUAGE
         this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), true);
@@ -159,7 +158,7 @@ namespace dMobile.GroundWork
               true);
         }
       }
-      catch (SqlCeException ex)
+      catch (SQLiteException ex)
       {
 #if MULTILANGUAGE
         throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredSalesReturnsStatusFailed), ex);
@@ -182,176 +181,176 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     protected override void Save(string reqData)
     {
-      SqlCeConnection conn = DatabaseConnection.GetInstance().SQLConn;
-      string errMsg = string.Empty;
+//      SQLiteConnection conn = DatabaseConnection.GetInstance().SQLConn;
+//      string errMsg = string.Empty;
 
-      try
-      {
-        using (DataSet ds = new DataSet())
-        {
-#if MULTILANGUAGE
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.ReadingReceivedData), false);
-#else
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
-#endif
-          ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
+//      try
+//      {
+//        using (DataSet ds = new DataSet())
+//        {
+//#if MULTILANGUAGE
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.ReadingReceivedData), false);
+//#else
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
+//#endif
+//          ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
 
-#if MULTILANGUAGE
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingSalesReturns), false);
-#else
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving sales returns.", false);
-#endif
-          if (ds.Tables.Count != 0)
-          {
-            int progMax = Convert.ToInt32(ds.Tables["tActivityReturns"].Rows.Count);
+//#if MULTILANGUAGE
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingSalesReturns), false);
+//#else
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving sales returns.", false);
+//#endif
+//          if (ds.Tables.Count != 0)
+//          {
+//            int progMax = Convert.ToInt32(ds.Tables["tActivityReturns"].Rows.Count);
 
-            this.DataAccessStatusOutHandler(
-                this, 
-                EventArgs.Empty, 
-#if MULTILANGUAGE
-                string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.Recordsz), progMax), 
-#else
-                string.Format("Records {0}", progMax), 
-#endif
-                false);
+//            this.DataAccessStatusOutHandler(
+//                this, 
+//                EventArgs.Empty, 
+//#if MULTILANGUAGE
+//                string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.Recordsz), progMax), 
+//#else
+//                string.Format("Records {0}", progMax), 
+//#endif
+//                false);
 
-            using (SQLiteCommand cmndReturns = conn.CreateCommand())
-            {
-              cmndReturns.CommandText = "tActivityReturns";
-              cmndReturns.CommandType = CommandType.TableDirect;
-              cmndReturns.IndexName = "UQ_ActivityReturnsOnActivityReturnsFKRefno";
+//            using (SQLiteCommand cmndReturns = conn.CreateCommand())
+//            {
+//              cmndReturns.CommandText = "tActivityReturns";
+//              cmndReturns.CommandType = CommandType.TableDirect;
+//              cmndReturns.IndexName = "UQ_ActivityReturnsOnActivityReturnsFKRefno";
 
-              using (SQLiteCommand cmndAct = conn.CreateCommand())
-              {
-                cmndAct.CommandText = "tActivity";
-                cmndAct.CommandType = CommandType.TableDirect;
+//              using (SQLiteCommand cmndAct = conn.CreateCommand())
+//              {
+//                cmndAct.CommandText = "tActivity";
+//                cmndAct.CommandType = CommandType.TableDirect;
 
-                using (SqlCeResultSet rsAct = cmndAct.ExecuteResultSet(ResultSetOptions.Updatable))
-                {
-                  SqlCeUpdatableRecord recAct = rsAct.CreateRecord();
+//                using (SqlCeResultSet rsAct = cmndAct.ExecuteResultSet(ResultSetOptions.Updatable))
+//                {
+//                  SqlCeUpdatableRecord recAct = rsAct.CreateRecord();
 
-                  using (SQLiteCommand cmndID = conn.CreateCommand())
-                  {
-                    cmndID.CommandText = "SELECT @@IDENTITY";
-                    cmndID.CommandType = CommandType.Text;
+//                  using (SQLiteCommand cmndID = conn.CreateCommand())
+//                  {
+//                    cmndID.CommandText = "SELECT @@IDENTITY";
+//                    cmndID.CommandType = CommandType.Text;
 
-                    using (SQLiteCommand cmndWhs = conn.CreateCommand())
-                    {
-                      cmndWhs.CommandText = "tLocationMapWarehouse";
-                      cmndWhs.IndexName = "UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno";
-                      cmndWhs.CommandType = CommandType.TableDirect;
+//                    using (SQLiteCommand cmndWhs = conn.CreateCommand())
+//                    {
+//                      cmndWhs.CommandText = "tLocationMapWarehouse";
+//                      cmndWhs.IndexName = "UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno";
+//                      cmndWhs.CommandType = CommandType.TableDirect;
 
-                      using (SqliteDataReader drWhs = cmndWhs.ExecuteReader())
-                      {
-                        using (SqlCeResultSet rsReturns = cmndReturns.ExecuteResultSet(ResultSetOptions.Updatable))
-                        {
-                          SqlCeUpdatableRecord recActReturns = rsReturns.CreateRecord();
-                          int actRefno = 0;
-                          int progValue = 0;
-                          int whsLocMapRefno = 0;
-                          int returnsFKRefno = 0;
+//                      using (SQLiteDataReader drWhs = cmndWhs.ExecuteReader())
+//                      {
+//                        using (SqlCeResultSet rsReturns = cmndReturns.ExecuteResultSet(ResultSetOptions.Updatable))
+//                        {
+//                          SqlCeUpdatableRecord recActReturns = rsReturns.CreateRecord();
+//                          int actRefno = 0;
+//                          int progValue = 0;
+//                          int whsLocMapRefno = 0;
+//                          int returnsFKRefno = 0;
 
-                          this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
+//                          this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
 
-                          foreach (DataRow drow in ds.Tables["tActivityReturns"].Rows)
-                          {
-                            errMsg = "Arguments:";
+//                          foreach (DataRow drow in ds.Tables["tActivityReturns"].Rows)
+//                          {
+//                            errMsg = "Arguments:";
 
-                            recAct.SetInt32(
-                                (int)SysCommon.ActFields.SubType,
-                                (int)SysCommon.ActSubTypes.Returns);
-                            recAct.SetInt32((int)SysCommon.ActFields.Status, 0);
+//                            recAct.SetInt32(
+//                                (int)SysCommon.ActFields.SubType,
+//                                (int)SysCommon.ActSubTypes.Returns);
+//                            recAct.SetInt32((int)SysCommon.ActFields.Status, 0);
 
-                            rsAct.Insert(recAct);
+//                            rsAct.Insert(recAct);
 
-                            actRefno = Convert.ToInt32(cmndID.ExecuteScalar());
+//                            actRefno = Convert.ToInt32(cmndID.ExecuteScalar());
 
-                            recActReturns.SetInt32((int)SysCommon.ActReturnsFields.ActRefno, actRefno);
-                            recActReturns.SetInt32(
-                                (int)SysCommon.ActReturnsFields.ActSubType, 
-                                (int)SysCommon.ActSubTypes.Returns);
+//                            recActReturns.SetInt32((int)SysCommon.ActReturnsFields.ActRefno, actRefno);
+//                            recActReturns.SetInt32(
+//                                (int)SysCommon.ActReturnsFields.ActSubType, 
+//                                (int)SysCommon.ActSubTypes.Returns);
 
-                            returnsFKRefno = Convert.ToInt32(drow["ActivityReturnsFKRefno"]);
-                            errMsg += Environment.NewLine + "FK refno " + returnsFKRefno;
-                            recActReturns.SetInt32((int)SysCommon.ActReturnsFields.FKRefno, returnsFKRefno);
-                            recActReturns.SetString(
-                                (int)SysCommon.ActReturnsFields.StringFKRefno, 
-                                Convert.ToString(returnsFKRefno));
+//                            returnsFKRefno = Convert.ToInt32(drow["ActivityReturnsFKRefno"]);
+//                            errMsg += Environment.NewLine + "FK refno " + returnsFKRefno;
+//                            recActReturns.SetInt32((int)SysCommon.ActReturnsFields.FKRefno, returnsFKRefno);
+//                            recActReturns.SetString(
+//                                (int)SysCommon.ActReturnsFields.StringFKRefno, 
+//                                Convert.ToString(returnsFKRefno));
 
-                            whsLocMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, ref errMsg, drWhs);
-                            recActReturns.SetInt32((int)SysCommon.ActReturnsFields.WhsLocMapRefno, whsLocMapRefno);
+//                            whsLocMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, ref errMsg, drWhs);
+//                            recActReturns.SetInt32((int)SysCommon.ActReturnsFields.WhsLocMapRefno, whsLocMapRefno);
 
-                            recActReturns.SetDateTime(
-                                (int)SysCommon.ActReturnsFields.OrderedDateTime, 
-                                Convert.ToDateTime(drow["ActivityReturnsOrderedDateTime"]));
-                            recActReturns.SetDateTime(
-                                (int)SysCommon.ActReturnsFields.DeliveryDateTime, 
-                                Convert.ToDateTime(drow["ActivityReturnsDeliveryDateTime"]));
-                            recActReturns.SetString(
-                                (int)SysCommon.ActReturnsFields.CustomerContactName, 
-                                drow["ActivityReturnsCustomerContactName"].ToString());
-                            recActReturns.SetString(
-                                (int)SysCommon.ActReturnsFields.CustomerShipToInfo, 
-                                drow["ActivityReturnsCustomerShipToInfo"].ToString());
+//                            recActReturns.SetDateTime(
+//                                (int)SysCommon.ActReturnsFields.OrderedDateTime, 
+//                                Convert.ToDateTime(drow["ActivityReturnsOrderedDateTime"]));
+//                            recActReturns.SetDateTime(
+//                                (int)SysCommon.ActReturnsFields.DeliveryDateTime, 
+//                                Convert.ToDateTime(drow["ActivityReturnsDeliveryDateTime"]));
+//                            recActReturns.SetString(
+//                                (int)SysCommon.ActReturnsFields.CustomerContactName, 
+//                                drow["ActivityReturnsCustomerContactName"].ToString());
+//                            recActReturns.SetString(
+//                                (int)SysCommon.ActReturnsFields.CustomerShipToInfo, 
+//                                drow["ActivityReturnsCustomerShipToInfo"].ToString());
 
-                            rsReturns.Insert(recActReturns);
+//                            rsReturns.Insert(recActReturns);
 
-                            progValue++;
-                            if (progValue % 10 == 0)
-                            {
-                              this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
-                            }
-                          }
+//                            progValue++;
+//                            if (progValue % 10 == 0)
+//                            {
+//                              this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
+//                            }
+//                          }
 
-                          this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
-                        }
+//                          this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
+//                        }
 
-                        drWhs.Close();
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
+//                        drWhs.Close();
+//                      }
+//                    }
+//                  }
+//                }
+//              }
+//            }
+//          }
 
-#if MULTILANGUAGE
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingSalesReturnsComplete), false);
-#else
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving sales returns complete.", false);
-#endif
-        }
-      }
-      catch (SqlCeException ex)
-      {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), true);
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingSalesReturnsFailed), true);
-#else
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving sales returns failed.", true);
-#endif
+//#if MULTILANGUAGE
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingSalesReturnsComplete), false);
+//#else
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving sales returns complete.", false);
+//#endif
+//        }
+//      }
+//      catch (SQLiteException ex)
+//      {
+//#if MULTILANGUAGE
+//        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), true);
+//        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingSalesReturnsFailed), true);
+//#else
+//        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
+//        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving sales returns failed.", true);
+//#endif
 
-        // Duplicate key violations
-        if (ex.NativeError == 25016)
-        {
-#if MULTILANGUAGE
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.UniquenessViolation), false);
-          throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.UniquenessViolation) + Environment.NewLine + errMsg, ex);
-#else
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Uniqueness violation.", false);
-          throw new Exception("Uniqueness violation." + Environment.NewLine + errMsg, ex);
-#endif
-        }
+//        // Duplicate key violations
+//        if (ex.NativeError == 25016)
+//        {
+//#if MULTILANGUAGE
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.UniquenessViolation), false);
+//          throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.UniquenessViolation) + Environment.NewLine + errMsg, ex);
+//#else
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Uniqueness violation.", false);
+//          throw new Exception("Uniqueness violation." + Environment.NewLine + errMsg, ex);
+//#endif
+//        }
 
-        throw new Exception(
-#if MULTILANGUAGE
-            Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredSavingSalesReturnsFailed) + Environment.NewLine + errMsg,
-#else
-            "Database exception occurred. Saving sales returns failed." + Environment.NewLine + errMsg,
-#endif
-            ex);
-      }
+//        throw new Exception(
+//#if MULTILANGUAGE
+//            Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredSavingSalesReturnsFailed) + Environment.NewLine + errMsg,
+//#else
+//            "Database exception occurred. Saving sales returns failed." + Environment.NewLine + errMsg,
+//#endif
+//            ex);
+//      }
     }
 
     /// <summary>

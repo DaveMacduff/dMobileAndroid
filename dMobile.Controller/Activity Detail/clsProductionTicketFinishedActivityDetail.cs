@@ -2,7 +2,7 @@ namespace dMobile.Controller
 {
   using System;
   using System.Data;
-  
+  using System.Data.SQLite;
   using System.Text;
   using System.Windows.Forms;
   using System.Xml;
@@ -74,7 +74,7 @@ namespace dMobile.Controller
             using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
             {
               cmndItem.CommandType = CommandType.Text;
-              cmndItem.IndexName = string.Empty;
+              //cmndItem.IndexName = string.Empty;
               cmndItem.CommandText = "UPDATE tActivityItemProductionFinished "
                   + "SET ActivityItemProductionFinishedStringFKRefno = \'" + this.NewItemFKRefno + "\'," +
                   "ActivityItemProductionFinishedFKRefno = " + this.NewItemFKRefno 
@@ -141,70 +141,70 @@ namespace dMobile.Controller
     /// <param name="data"></param>
     public override void Insert(XDocument data)
     {
-      this.FillActDetailObjFromXML(data);
+      //this.FillActDetailObjFromXML(data);
 
-      if (this.SysEnv.SysSettings.IsDisconnectedMode)
-      {
-        int actDetailRefno = this.InsertDetailDisconnected();
+      //if (this.SysEnv.SysSettings.IsDisconnectedMode)
+      //{
+      //  int actDetailRefno = this.InsertDetailDisconnected();
 
-        using (SQLiteCommand cmndDetailFinished = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-        {
-          cmndDetailFinished.CommandText = "tActivityDetailProductionFinished";
-          cmndDetailFinished.CommandType = CommandType.TableDirect;
-          cmndDetailFinished.IndexName = "UQ_ActivityDetailProductionFinishedOnActivityDetailProductionFinishedFKRefno";
+      //  using (SQLiteCommand cmndDetailFinished = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+      //  {
+      //    cmndDetailFinished.CommandText = "tActivityDetailProductionFinished";
+      //    cmndDetailFinished.CommandType = CommandType.TableDirect;
+      //    cmndDetailFinished.IndexName = "UQ_ActivityDetailProductionFinishedOnActivityDetailProductionFinishedFKRefno";
 
-          using (SqlCeResultSet rsDetailFinished = cmndDetailFinished.ExecuteResultSet(ResultSetOptions.Updatable))
-          {
-            SqlCeUpdatableRecord recDetailFinished = rsDetailFinished.CreateRecord();
+      //    using (SqlCeResultSet rsDetailFinished = cmndDetailFinished.ExecuteResultSet(ResultSetOptions.Updatable))
+      //    {
+      //      SqlCeUpdatableRecord recDetailFinished = rsDetailFinished.CreateRecord();
 
-            recDetailFinished.SetInt32(
-                (int)SysCommon.ActDetailProdFinishedFields.ActDetailRefno,
-                actDetailRefno);
-            recDetailFinished.SetInt32((int)SysCommon.ActDetailProdFinishedFields.FKRefno, this.FKRefno);
+      //      recDetailFinished.SetInt32(
+      //          (int)SysCommon.ActDetailProdFinishedFields.ActDetailRefno,
+      //          actDetailRefno);
+      //      recDetailFinished.SetInt32((int)SysCommon.ActDetailProdFinishedFields.FKRefno, this.FKRefno);
 
-            rsDetailFinished.Insert(recDetailFinished);
+      //      rsDetailFinished.Insert(recDetailFinished);
 
-            this.IsUpdateView = true;
-          }
-        }
-      }
-      else
-      {
-        if (this.InsertDetail(
-            this.CreateSubmitXML(XDocument.Parse(
-            "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"))))
-        {
-          using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-          {
-            cmndItem.IndexName = string.Empty;
-            cmndItem.CommandType = CommandType.Text;
-            cmndItem.CommandText = "UPDATE tActivityItemProductionFinished "
-                + "SET ActivityItemProductionFinishedStringFKRefno = \'" + this.NewItemFKRefno + "\',"
-                + "ActivityItemProductionFinishedFKRefno = " + this.NewItemFKRefno
-                + " WHERE tActivityItemProductionFinished.ActivityItemRefno = " + this.ActItem.Refno;
-            cmndItem.ExecuteNonQuery();
-          }
+      //      this.IsUpdateView = true;
+      //    }
+      //  }
+      //}
+      //else
+      //{
+      //  if (this.InsertDetail(
+      //      this.CreateSubmitXML(XDocument.Parse(
+      //      "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"))))
+      //  {
+      //    using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+      //    {
+      //      cmndItem.IndexName = string.Empty;
+      //      cmndItem.CommandType = CommandType.Text;
+      //      cmndItem.CommandText = "UPDATE tActivityItemProductionFinished "
+      //          + "SET ActivityItemProductionFinishedStringFKRefno = \'" + this.NewItemFKRefno + "\',"
+      //          + "ActivityItemProductionFinishedFKRefno = " + this.NewItemFKRefno
+      //          + " WHERE tActivityItemProductionFinished.ActivityItemRefno = " + this.ActItem.Refno;
+      //      cmndItem.ExecuteNonQuery();
+      //    }
 
-          string oldSort = this.ActItem.DataViewItems.Sort;
-          this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
+      //    string oldSort = this.ActItem.DataViewItems.Sort;
+      //    this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
 
-          int rowIdx = this.ActItem.DataViewItems.Find(new object[] { this.ActItem.Refno });
-          if (rowIdx != -1)
-          {
-            DataRowView rowView = this.ActItem.DataViewItems[rowIdx];
-            rowView.BeginEdit();
-            rowView["ActivityItemProductionFinishedFKRefno"] = this.NewItemFKRefno;
-            rowView["ActivityItemProductionFinishedStringFKRefno"] = this.NewItemFKRefno.ToString();
-            rowView.EndEdit();
-          }
+      //    int rowIdx = this.ActItem.DataViewItems.Find(new object[] { this.ActItem.Refno });
+      //    if (rowIdx != -1)
+      //    {
+      //      DataRowView rowView = this.ActItem.DataViewItems[rowIdx];
+      //      rowView.BeginEdit();
+      //      rowView["ActivityItemProductionFinishedFKRefno"] = this.NewItemFKRefno;
+      //      rowView["ActivityItemProductionFinishedStringFKRefno"] = this.NewItemFKRefno.ToString();
+      //      rowView.EndEdit();
+      //    }
 
-          this.ActItem.DataViewItems.Sort = oldSort;
-        }
-      }
+      //    this.ActItem.DataViewItems.Sort = oldSort;
+      //  }
+      //}
 
-      this.InsertUpdateDataViewDetail(
-          "ActivityDetailProductionFinishedFKRefno",
-          "ActivityDetailProductionFinishedFKRefno");
+      //this.InsertUpdateDataViewDetail(
+      //    "ActivityDetailProductionFinishedFKRefno",
+      //    "ActivityDetailProductionFinishedFKRefno");
     }
 
     /// <summary>

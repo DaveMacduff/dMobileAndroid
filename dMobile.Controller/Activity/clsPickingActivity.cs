@@ -2,7 +2,7 @@ namespace dMobile.Controller
 {
   using System;
   using System.Data;
-  
+  using System.Data.SQLite;
   using System.Text;
   using System.Windows.Forms;
   using System.Xml;
@@ -469,7 +469,7 @@ namespace dMobile.Controller
         using (SQLiteCommand cmndItemPicking = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
         {
           cmndItemPicking.CommandType = CommandType.Text;
-          cmndItemPicking.IndexName = string.Empty;
+          //cmndItemPicking.IndexName = string.Empty;
           cmndItemPicking.CommandText = "SELECT COUNT(tActivityItem.ActivityItemRefno) "
               + "FROM tActivityItem "
               + "INNER JOIN tActivityItemPicking ON tActivityItemPicking.ActivityItemRefno "

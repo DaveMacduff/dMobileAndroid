@@ -1,9 +1,10 @@
 ﻿namespace dMobile.Bedrock
 {
-    using System.Data.SQLite;
     using System.Data;
     using System.IO;
     using System.Reflection;
+    using System;
+    using System.Data.SQLite;
 
     /// <summary>
     /// Defines the <see cref="DatabaseConnection" />
@@ -23,12 +24,13 @@
         /// <summary>
         /// Defines the dbPath
         /// </summary>
-        private static string dbPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase) + "\\";
+        //private static string dbPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase) + "//";
+        private static string dbPath = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
 
         /// <summary>
         /// Defines the dbName
         /// </summary>
-        private static string dbName = "dMobile.sqlite";
+        private static string dbName = "dMobile.Sqlite";
 
         /// <summary>
         /// Defines the dbASCIIZ
@@ -159,22 +161,31 @@
             {
                 dataConnUniq = new DatabaseConnection();
                 dbASCIIZ = Path.Combine(dbPath, dbName);
-                connString = "Data Source = '" + dbPath + dbName + "'; Password = " + dbPassword;
+                connString = "Data Source = '" + dbASCIIZ + "'";
+                //connString = "Data Source = '" + dbPath + dbName + "'; Password = " + dbPassword;
+
+            }
+
+            if (!File.Exists(dbASCIIZ))
+            {
+                SQLiteConnection.CreateFile(dbASCIIZ);
             }
 
             OpenDataBaseConnection();
 
             return dataConnUniq;
         }
-
+        
         /// <summary>
         /// The OpenDataBaseConnection
         /// </summary>
         public static void OpenDataBaseConnection()
         {
+
             if (File.Exists(dbASCIIZ) & sqlConn == null)
             {
                 sqlConn = new SQLiteConnection(connString);
+                //sqlConn.SetPassword(dbPassword);
             }
 
             if (sqlConn != null)
@@ -186,7 +197,7 @@
             }
         }
 
-        /// <summary>
+        /// <summary>   
         /// The DisposeDataBaseConnection
         /// </summary>
         public static void DisposeDataBaseConnection()

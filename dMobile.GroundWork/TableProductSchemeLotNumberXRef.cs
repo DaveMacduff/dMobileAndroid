@@ -2,7 +2,7 @@ namespace dMobile.GroundWork
 {
   using System;
   using System.Data;
-  
+  using System.Data.SQLite;
   using System.Text;
   using System.Xml;
   using System.Xml.Linq;
@@ -113,7 +113,7 @@ namespace dMobile.GroundWork
         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product scheme lot number xref failed.", true);
 #endif
       }
-      catch (SqlCeException ex)
+      catch (SQLiteException ex)
       {
 #if MULTILANGUAGE
         this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), true);
@@ -165,7 +165,7 @@ namespace dMobile.GroundWork
               true);
         }
       }
-      catch (SqlCeException ex)
+      catch (SQLiteException ex)
       {
 #if MULTILANGUAGE
         throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredProductSchemeLotNumberXrefsStatusFailed), ex);
@@ -188,226 +188,226 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     protected override void Save(string reqData)
     {
-      SqlCeConnection conn = DatabaseConnection.GetInstance().SQLConn;
-      string errMsg = string.Empty;
+//      SQLiteConnection conn = DatabaseConnection.GetInstance().SQLConn;
+//      string errMsg = string.Empty;
 
-      try
-      {
-        using (DataSet ds = new DataSet())
-        {
-#if MULTILANGUAGE
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.ReadingReceivedData), false);
-#else
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
-#endif
-          ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
+//      try
+//      {
+//        using (DataSet ds = new DataSet())
+//        {
+//#if MULTILANGUAGE
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.ReadingReceivedData), false);
+//#else
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
+//#endif
+//          ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
 
-#if MULTILANGUAGE
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingProductSchemeLotNumberXref), false);
-#else
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product scheme lot number xref.", false);
-#endif
-          if (ds.Tables.Count != 0)
-          {
-            int progMax = Convert.ToInt32(ds.Tables["tProductSchemeLotNumberXRef"].Rows.Count);
+//#if MULTILANGUAGE
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingProductSchemeLotNumberXref), false);
+//#else
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product scheme lot number xref.", false);
+//#endif
+//          if (ds.Tables.Count != 0)
+//          {
+//            int progMax = Convert.ToInt32(ds.Tables["tProductSchemeLotNumberXRef"].Rows.Count);
 
-            this.DataAccessStatusOutHandler(
-                this, 
-                EventArgs.Empty, 
-#if MULTILANGUAGE
-                string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.Recordsz), progMax),
-#else
-                string.Format("Records {0}", progMax),
-#endif
-                false);
+//            this.DataAccessStatusOutHandler(
+//                this, 
+//                EventArgs.Empty, 
+//#if MULTILANGUAGE
+//                string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.Recordsz), progMax),
+//#else
+//                string.Format("Records {0}", progMax),
+//#endif
+//                false);
 
-            using (SQLiteCommand cmndSchemeLotXRef = conn.CreateCommand())
-            {
-              cmndSchemeLotXRef.CommandText = "tProductSchemeLotNumberXRef";
-              cmndSchemeLotXRef.CommandType = CommandType.TableDirect;
-              cmndSchemeLotXRef.IndexName = 
-                  "PK_ProductSchemeLotNumberXRefOnProductSchemeRefnoAndProductSchemeLotNumberRefno";
+//            using (SQLiteCommand cmndSchemeLotXRef = conn.CreateCommand())
+//            {
+//              cmndSchemeLotXRef.CommandText = "tProductSchemeLotNumberXRef";
+//              cmndSchemeLotXRef.CommandType = CommandType.TableDirect;
+//              cmndSchemeLotXRef.IndexName = 
+//                  "PK_ProductSchemeLotNumberXRefOnProductSchemeRefnoAndProductSchemeLotNumberRefno";
 
-              using (SqliteDataReader drSchemeLotXRef = cmndSchemeLotXRef.ExecuteReader())
-              {
-                using (SQLiteCommand cmndGetScheme = conn.CreateCommand())
-                {
-                  cmndGetScheme.CommandText = "tProductScheme";
-                  cmndGetScheme.IndexName = "UQ_ProductSchemeOnProductSchemeCode";
-                  cmndGetScheme.CommandType = CommandType.TableDirect;
+//              using (SQLiteDataReader drSchemeLotXRef = cmndSchemeLotXRef.ExecuteReader())
+//              {
+//                using (SQLiteCommand cmndGetScheme = conn.CreateCommand())
+//                {
+//                  cmndGetScheme.CommandText = "tProductScheme";
+//                  cmndGetScheme.IndexName = "UQ_ProductSchemeOnProductSchemeCode";
+//                  cmndGetScheme.CommandType = CommandType.TableDirect;
 
-                  using (SqliteDataReader drScheme = cmndGetScheme.ExecuteReader())
-                  {
-                    using (SQLiteCommand cmndGetSchemeLot = conn.CreateCommand())
-                    {
-                      cmndGetSchemeLot.CommandText = "tProductSchemeLotNumber";
-                      cmndGetSchemeLot.IndexName = "UQ_ProductSchemeLotNumberOnProductSchemeLotNumberCode";
-                      cmndGetSchemeLot.CommandType = CommandType.TableDirect;
+//                  using (SQLiteDataReader drScheme = cmndGetScheme.ExecuteReader())
+//                  {
+//                    using (SQLiteCommand cmndGetSchemeLot = conn.CreateCommand())
+//                    {
+//                      cmndGetSchemeLot.CommandText = "tProductSchemeLotNumber";
+//                      cmndGetSchemeLot.IndexName = "UQ_ProductSchemeLotNumberOnProductSchemeLotNumberCode";
+//                      cmndGetSchemeLot.CommandType = CommandType.TableDirect;
 
-                      using (SqliteDataReader drSchemeLot = cmndGetSchemeLot.ExecuteReader())
-                      {
-                        using (SqlCeResultSet rs = cmndSchemeLotXRef.ExecuteResultSet(ResultSetOptions.Updatable))
-                        {
-                          SqlCeUpdatableRecord rec = rs.CreateRecord();
-                          int schemeRefno = 0;
-                          int schemeLotRefno = 0;
-                          int progValue = 0;
-                          bool isSchemeLotXRef = false;
-                          string schemeCode = string.Empty;
-                          string schemeLotCode = string.Empty;
+//                      using (SQLiteDataReader drSchemeLot = cmndGetSchemeLot.ExecuteReader())
+//                      {
+//                        using (SqlCeResultSet rs = cmndSchemeLotXRef.ExecuteResultSet(ResultSetOptions.Updatable))
+//                        {
+//                          SqlCeUpdatableRecord rec = rs.CreateRecord();
+//                          int schemeRefno = 0;
+//                          int schemeLotRefno = 0;
+//                          int progValue = 0;
+//                          bool isSchemeLotXRef = false;
+//                          string schemeCode = string.Empty;
+//                          string schemeLotCode = string.Empty;
 
-                          this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
+//                          this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
 
-                          foreach (DataRow drow in ds.Tables["tProductSchemeLotNumberXRef"].Rows)
-                          {
-                            schemeCode = Convert.ToString(drow["ProductSchemeCode"]);
-                            errMsg = "Scheme code \'" + schemeCode + "\'";
-                            if (drScheme.Seek(DbSeekOptions.FirstEqual, new object[] { schemeCode }))
-                            {
-                              if (drScheme.Read())
-                              {
-                                schemeRefno = Convert.ToInt32(
-                                    drScheme.GetValue(
-                                    Convert.ToInt32(SysCommon.ProdSchemeFields.Refno)));
-                              }
-                              else
-                              {
-#if MULTILANGUAGE
-                                throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DrschemereadFailed) + Environment.NewLine + errMsg);
-#else
-                                throw new Exception("drScheme.Read() failed." + Environment.NewLine + errMsg);
-#endif
-                              }
-                            }
-                            else
-                            {
-                              throw new Exception(
-#if MULTILANGUAGE
-                                  Translator.GetInstance().Translate(TranslatorVocabulary.UnableToLocateTheProductSchemeCodeInTproductscheme)
-#else
-                                  "Unable to locate the product scheme code in tProductScheme."
-#endif
-                                  + Environment.NewLine + errMsg);
-                            }
+//                          foreach (DataRow drow in ds.Tables["tProductSchemeLotNumberXRef"].Rows)
+//                          {
+//                            schemeCode = Convert.ToString(drow["ProductSchemeCode"]);
+//                            errMsg = "Scheme code \'" + schemeCode + "\'";
+//                            if (drScheme.Seek(DbSeekOptions.FirstEqual, new object[] { schemeCode }))
+//                            {
+//                              if (drScheme.Read())
+//                              {
+//                                schemeRefno = Convert.ToInt32(
+//                                    drScheme.GetValue(
+//                                    Convert.ToInt32(SysCommon.ProdSchemeFields.Refno)));
+//                              }
+//                              else
+//                              {
+//#if MULTILANGUAGE
+//                                throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DrschemereadFailed) + Environment.NewLine + errMsg);
+//#else
+//                                throw new Exception("drScheme.Read() failed." + Environment.NewLine + errMsg);
+//#endif
+//                              }
+//                            }
+//                            else
+//                            {
+//                              throw new Exception(
+//#if MULTILANGUAGE
+//                                  Translator.GetInstance().Translate(TranslatorVocabulary.UnableToLocateTheProductSchemeCodeInTproductscheme)
+//#else
+//                                  "Unable to locate the product scheme code in tProductScheme."
+//#endif
+//                                  + Environment.NewLine + errMsg);
+//                            }
 
-                            schemeLotCode = Convert.ToString(drow["ProductSchemeLotNumberCode"]);
-                            errMsg += Environment.NewLine + "Scheme lot code \'" + schemeLotCode + "\'";
-                            if (drSchemeLot.Seek(DbSeekOptions.FirstEqual, new object[] { schemeLotCode }))
-                            {
-                              if (drSchemeLot.Read())
-                              {
-                                schemeLotRefno = Convert.ToInt32(
-                                    drSchemeLot.GetValue(
-                                    Convert.ToInt32(
-                                    SysCommon.ProdSchemeLotNumberFields.Refno)));
-                              }
-                              else
-                              {
-                                throw new Exception("drSchemeLot.Read() failed." + Environment.NewLine + errMsg);
-                              }
-                            }
-                            else
-                            {
-                              throw new Exception(
-#if MULTILANGUAGE
-                                  Translator.GetInstance().Translate(TranslatorVocabulary.UnableToLocateTheProductSchemeLotNumberCodeInTproductschemelotnumber)
-#else
-                                  "Unable to locate the product scheme lot number code in tProductSchemeLotNumber."
-#endif
-                                  + Environment.NewLine + errMsg);
-                            }
+//                            schemeLotCode = Convert.ToString(drow["ProductSchemeLotNumberCode"]);
+//                            errMsg += Environment.NewLine + "Scheme lot code \'" + schemeLotCode + "\'";
+//                            if (drSchemeLot.Seek(DbSeekOptions.FirstEqual, new object[] { schemeLotCode }))
+//                            {
+//                              if (drSchemeLot.Read())
+//                              {
+//                                schemeLotRefno = Convert.ToInt32(
+//                                    drSchemeLot.GetValue(
+//                                    Convert.ToInt32(
+//                                    SysCommon.ProdSchemeLotNumberFields.Refno)));
+//                              }
+//                              else
+//                              {
+//                                throw new Exception("drSchemeLot.Read() failed." + Environment.NewLine + errMsg);
+//                              }
+//                            }
+//                            else
+//                            {
+//                              throw new Exception(
+//#if MULTILANGUAGE
+//                                  Translator.GetInstance().Translate(TranslatorVocabulary.UnableToLocateTheProductSchemeLotNumberCodeInTproductschemelotnumber)
+//#else
+//                                  "Unable to locate the product scheme lot number code in tProductSchemeLotNumber."
+//#endif
+//                                  + Environment.NewLine + errMsg);
+//                            }
 
-                            isSchemeLotXRef = false;
-                            if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly)
-                            {
-                              cmndSchemeLotXRef.CommandText = "tProductSchemeLotNumberXRef";
-                              cmndSchemeLotXRef.CommandType = CommandType.TableDirect;
-                              cmndSchemeLotXRef.IndexName =
-                                  "PK_ProductSchemeLotNumberXRefOnProductSchemeRefnoAndProductSchemeLotNumberRefno";
-                              if (drSchemeLotXRef.Seek(
-                                  DbSeekOptions.FirstEqual, 
-                                  new object[] { schemeRefno, schemeLotRefno }))
-                              {
-                                isSchemeLotXRef = true;
-                              }
-                            }
+//                            isSchemeLotXRef = false;
+//                            if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly)
+//                            {
+//                              cmndSchemeLotXRef.CommandText = "tProductSchemeLotNumberXRef";
+//                              cmndSchemeLotXRef.CommandType = CommandType.TableDirect;
+//                              cmndSchemeLotXRef.IndexName =
+//                                  "PK_ProductSchemeLotNumberXRefOnProductSchemeRefnoAndProductSchemeLotNumberRefno";
+//                              if (drSchemeLotXRef.Seek(
+//                                  DbSeekOptions.FirstEqual, 
+//                                  new object[] { schemeRefno, schemeLotRefno }))
+//                              {
+//                                isSchemeLotXRef = true;
+//                              }
+//                            }
 
-                            if (!isSchemeLotXRef)
-                            {
-                              cmndSchemeLotXRef.CommandText = "tProductSchemeLotNumberXRef";
-                              cmndSchemeLotXRef.CommandType = CommandType.TableDirect;
-                              cmndSchemeLotXRef.IndexName = 
-                                  "PK_ProductSchemeLotNumberXRefOnProductSchemeRefnoAndProductSchemeLotNumberRefno";
-                              rec.SetInt32(
-                                  Convert.ToInt32(
-                                  SysCommon.ProdSchemeLotNumberXRefFields.ProdSchemeRefno), 
-                                  schemeRefno);
+//                            if (!isSchemeLotXRef)
+//                            {
+//                              cmndSchemeLotXRef.CommandText = "tProductSchemeLotNumberXRef";
+//                              cmndSchemeLotXRef.CommandType = CommandType.TableDirect;
+//                              cmndSchemeLotXRef.IndexName = 
+//                                  "PK_ProductSchemeLotNumberXRefOnProductSchemeRefnoAndProductSchemeLotNumberRefno";
+//                              rec.SetInt32(
+//                                  Convert.ToInt32(
+//                                  SysCommon.ProdSchemeLotNumberXRefFields.ProdSchemeRefno), 
+//                                  schemeRefno);
 
-                              rec.SetInt32(
-                                  Convert.ToInt32(
-                                  SysCommon.ProdSchemeLotNumberXRefFields.ProdSchemeLotNumberRefno), 
-                                  schemeLotRefno);
+//                              rec.SetInt32(
+//                                  Convert.ToInt32(
+//                                  SysCommon.ProdSchemeLotNumberXRefFields.ProdSchemeLotNumberRefno), 
+//                                  schemeLotRefno);
 
-                              rs.Insert(rec);
-                            }
+//                              rs.Insert(rec);
+//                            }
 
-                            progValue++;
-                            if (progValue % 100 == 0)
-                            {
-                              this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
-                            }
-                          }
+//                            progValue++;
+//                            if (progValue % 100 == 0)
+//                            {
+//                              this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
+//                            }
+//                          }
 
-                          this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
-                        }
+//                          this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
+//                        }
 
-                        drSchemeLot.Close();
-                      }
-                    }
+//                        drSchemeLot.Close();
+//                      }
+//                    }
 
-                    drScheme.Close();
-                  }
-                }
+//                    drScheme.Close();
+//                  }
+//                }
 
-                drSchemeLotXRef.Close();
-              }
-            }
-          }
+//                drSchemeLotXRef.Close();
+//              }
+//            }
+//          }
 
-          this.DataAccessStatusOutHandler(
-              this,
-              EventArgs.Empty,
-#if MULTILANGUAGE
-              Translator.GetInstance().Translate(TranslatorVocabulary.SavingProductSchemeLotNumberXrefComplete),
-#else
-              "Saving product scheme lot number xref complete.",
-#endif
-              false);
-        }
-      }
-      catch (SqlCeException ex)
-      {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), false);
-#else
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
-#endif
-        this.DataAccessStatusOutHandler(
-            this, 
-            EventArgs.Empty, 
-#if MULTILANGUAGE
-            Translator.GetInstance().Translate(TranslatorVocabulary.RequestProductSchemeLotNumberXrefFailed), 
-#else
-            "Request product scheme lot number xref failed.", 
-#endif
-            false);
+//          this.DataAccessStatusOutHandler(
+//              this,
+//              EventArgs.Empty,
+//#if MULTILANGUAGE
+//              Translator.GetInstance().Translate(TranslatorVocabulary.SavingProductSchemeLotNumberXrefComplete),
+//#else
+//              "Saving product scheme lot number xref complete.",
+//#endif
+//              false);
+//        }
+//      }
+//      catch (SQLiteException ex)
+//      {
+//#if MULTILANGUAGE
+//        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), false);
+//#else
+//        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
+//#endif
+//        this.DataAccessStatusOutHandler(
+//            this, 
+//            EventArgs.Empty, 
+//#if MULTILANGUAGE
+//            Translator.GetInstance().Translate(TranslatorVocabulary.RequestProductSchemeLotNumberXrefFailed), 
+//#else
+//            "Request product scheme lot number xref failed.", 
+//#endif
+//            false);
 
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredRequestProductSchemeLotNumberXrefFailed) + errMsg, ex);
-#else
-        throw new Exception("Database exception occurred. Request product scheme lot number xref failed." + errMsg, ex);
-#endif
-      }
+//#if MULTILANGUAGE
+//        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredRequestProductSchemeLotNumberXrefFailed) + errMsg, ex);
+//#else
+//        throw new Exception("Database exception occurred. Request product scheme lot number xref failed." + errMsg, ex);
+//#endif
+//      }
     }
 
     /// <summary>

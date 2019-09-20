@@ -2,7 +2,7 @@ namespace dMobile.Controller
 {
   using System;
   using System.Data;
-  
+  using System.Data.SQLite;
   using System.Text;
   using System.Windows.Forms;
   using System.Xml;
@@ -69,7 +69,7 @@ namespace dMobile.Controller
         {
           using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
           {
-            cmndItem.IndexName = string.Empty;
+            //cmndItem.IndexName = string.Empty;
             cmndItem.CommandType = CommandType.Text;
             cmndItem.CommandText = "UPDATE tActivityItemReturns " 
               + "SET ActivityItemReturnsStringFKRefno = \'" + this.NewItemFKRefno.ToString() + "\', "
@@ -143,65 +143,65 @@ namespace dMobile.Controller
     /// <param name="data"></param>
     public override void Insert(XDocument data)
     {
-      this.FillActDetailObjFromXML(data);
+      //this.FillActDetailObjFromXML(data);
 
-      if (this.SysEnv.SysSettings.IsDisconnectedMode)
-      {
-        int actDetailRefno = this.InsertDetailDisconnected();
+      //if (this.SysEnv.SysSettings.IsDisconnectedMode)
+      //{
+      //  int actDetailRefno = this.InsertDetailDisconnected();
 
-        using (SQLiteCommand cmndDetailReturns = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-        {
-          cmndDetailReturns.CommandText = "tActivityDetailReturns";
-          cmndDetailReturns.CommandType = CommandType.TableDirect;
-          cmndDetailReturns.IndexName = "UQ_ActivityDetailReturnsOnActivityDetailReturnsFKRefno";
+      //  using (SQLiteCommand cmndDetailReturns = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+      //  {
+      //    cmndDetailReturns.CommandText = "tActivityDetailReturns";
+      //    cmndDetailReturns.CommandType = CommandType.TableDirect;
+      //    cmndDetailReturns.IndexName = "UQ_ActivityDetailReturnsOnActivityDetailReturnsFKRefno";
 
-          using (SqlCeResultSet rsDetailReturns = cmndDetailReturns.ExecuteResultSet(ResultSetOptions.Updatable))
-          {
-            SqlCeUpdatableRecord recDetailReturns = rsDetailReturns.CreateRecord();
-            recDetailReturns.SetInt32((int)SysCommon.ActDetailReturnsFields.ActDetailRefno, actDetailRefno);
-            recDetailReturns.SetInt32((int)SysCommon.ActDetailReturnsFields.FKRefno, this.FKRefno);
-            recDetailReturns.SetBoolean((int)SysCommon.ActDetailReturnsFields.IsConfirmed, true);
-            rsDetailReturns.Insert(recDetailReturns);
+      //    using (SqlCeResultSet rsDetailReturns = cmndDetailReturns.ExecuteResultSet(ResultSetOptions.Updatable))
+      //    {
+      //      SqlCeUpdatableRecord recDetailReturns = rsDetailReturns.CreateRecord();
+      //      recDetailReturns.SetInt32((int)SysCommon.ActDetailReturnsFields.ActDetailRefno, actDetailRefno);
+      //      recDetailReturns.SetInt32((int)SysCommon.ActDetailReturnsFields.FKRefno, this.FKRefno);
+      //      recDetailReturns.SetBoolean((int)SysCommon.ActDetailReturnsFields.IsConfirmed, true);
+      //      rsDetailReturns.Insert(recDetailReturns);
 
-            this.IsUpdateView = true;
-          }
-        }
-      }
-      else
-      {
-        if (this.InsertDetail(
-            this.CreateSubmitXML(
-            XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"))))
-        {
-          using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-          {
-            cmndItem.IndexName = string.Empty;
-            cmndItem.CommandType = CommandType.Text;
-            cmndItem.CommandText = "UPDATE tActivityItemReturns "
-                + "SET ActivityItemReturnsStringFKRefno = \'" + this.NewItemFKRefno + "\',"
-                + "ActivityItemReturnsFKRefno = " + this.NewItemFKRefno
-                + " WHERE tActivityItemReturns.ActivityItemRefno = " + this.ActItem.Refno;
-            cmndItem.ExecuteNonQuery();
-          }
+      //      this.IsUpdateView = true;
+      //    }
+      //  }
+      //}
+      //else
+      //{
+      //  if (this.InsertDetail(
+      //      this.CreateSubmitXML(
+      //      XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"))))
+      //  {
+      //    using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+      //    {
+      //      cmndItem.IndexName = string.Empty;
+      //      cmndItem.CommandType = CommandType.Text;
+      //      cmndItem.CommandText = "UPDATE tActivityItemReturns "
+      //          + "SET ActivityItemReturnsStringFKRefno = \'" + this.NewItemFKRefno + "\',"
+      //          + "ActivityItemReturnsFKRefno = " + this.NewItemFKRefno
+      //          + " WHERE tActivityItemReturns.ActivityItemRefno = " + this.ActItem.Refno;
+      //      cmndItem.ExecuteNonQuery();
+      //    }
 
-          string oldSort = this.ActItem.DataViewItems.Sort;
-          this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
+      //    string oldSort = this.ActItem.DataViewItems.Sort;
+      //    this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
 
-          int rowIdx = this.ActItem.DataViewItems.Find(new object[] { this.ActItem.Refno });
-          if (rowIdx != -1)
-          {
-            DataRowView rowView = this.ActItem.DataViewItems[rowIdx];
-            rowView.BeginEdit();
-            rowView["ActivityItemReturnsFKRefno"] = this.NewItemFKRefno;
-            rowView["ActivityItemReturnsStringFKRefno"] = this.NewItemFKRefno.ToString();
-            rowView.EndEdit();
-          }
+      //    int rowIdx = this.ActItem.DataViewItems.Find(new object[] { this.ActItem.Refno });
+      //    if (rowIdx != -1)
+      //    {
+      //      DataRowView rowView = this.ActItem.DataViewItems[rowIdx];
+      //      rowView.BeginEdit();
+      //      rowView["ActivityItemReturnsFKRefno"] = this.NewItemFKRefno;
+      //      rowView["ActivityItemReturnsStringFKRefno"] = this.NewItemFKRefno.ToString();
+      //      rowView.EndEdit();
+      //    }
 
-          this.ActItem.DataViewItems.Sort = oldSort;
-        }
-      }
+      //    this.ActItem.DataViewItems.Sort = oldSort;
+      //  }
+      //}
 
-      this.InsertUpdateDataViewDetail("ActivityDetailReturnsFKRefno", "ActivityDetailReturnsFKRefno");
+      //this.InsertUpdateDataViewDetail("ActivityDetailReturnsFKRefno", "ActivityDetailReturnsFKRefno");
     }
 
     /// <summary>
@@ -787,74 +787,74 @@ namespace dMobile.Controller
     /// <remarks></remarks>
     public override void DesignDataGrid(DataGrid dataGridMain)
     {
-      int colWidthFactor = 1;
+//      int colWidthFactor = 1;
 
-      if (this.SysEnv.IsWindowsMobile6Device)
-      {
-        colWidthFactor = 2;
-      }
+//      if (this.SysEnv.IsWindowsMobile6Device)
+//      {
+//        colWidthFactor = 2;
+//      }
 
-      if (dataGridMain.TableStyles.Count > 0)
-      {
-        dataGridMain.TableStyles.Clear();
-      }
+//      if (dataGridMain.TableStyles.Count > 0)
+//      {
+//        dataGridMain.TableStyles.Clear();
+//      }
 
-      DataGridTableStyle dataGridStyle = new DataGridTableStyle();
-      dataGridStyle.MappingName = this.MainGridMappingName;
+//      DataGridTableStyle dataGridStyle = new DataGridTableStyle();
+//      dataGridStyle.MappingName = this.MainGridMappingName;
 
-      if (this.SysEnv.SysSettings.IsRetConfirmDet)
-      {
-        CustomColumnStyle oColumnType = null;
-        oColumnType = new CustomColumnStyle(0);
-        oColumnType.MappingName = "ActivityDetailIsConfirmedString";
-        oColumnType.HeaderText = "C";
-        oColumnType.Width = Convert.ToInt32(12 * colWidthFactor);
-        dataGridStyle.GridColumnStyles.Add(oColumnType);
-      }
+//      if (this.SysEnv.SysSettings.IsRetConfirmDet)
+//      {
+//        CustomColumnStyle oColumnType = null;
+//        oColumnType = new CustomColumnStyle(0);
+//        oColumnType.MappingName = "ActivityDetailIsConfirmedString";
+//        oColumnType.HeaderText = "C";
+//        oColumnType.Width = Convert.ToInt32(12 * colWidthFactor);
+//        dataGridStyle.GridColumnStyles.Add(oColumnType);
+//      }
 
-      DataGridTextBoxColumn dataGridCol = null;
+//      DataGridTextBoxColumn dataGridCol = null;
 
-      dataGridCol = new DataGridTextBoxColumn();
-      dataGridCol.MappingName = "ActivityDetailQuantity";
-#if MULTILANGUAGE
-      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Qtyzzz);
-#else
-      dataGridCol.HeaderText = "Qty";
-#endif
-      dataGridCol.Width = (int)(50 * colWidthFactor);
-      dataGridCol.Format = "0.000";
-      dataGridStyle.GridColumnStyles.Add(dataGridCol);
+//      dataGridCol = new DataGridTextBoxColumn();
+//      dataGridCol.MappingName = "ActivityDetailQuantity";
+//#if MULTILANGUAGE
+//      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Qtyzzz);
+//#else
+//      dataGridCol.HeaderText = "Qty";
+//#endif
+//      dataGridCol.Width = (int)(50 * colWidthFactor);
+//      dataGridCol.Format = "0.000";
+//      dataGridStyle.GridColumnStyles.Add(dataGridCol);
 
-      dataGridCol = new DataGridTextBoxColumn();
-      dataGridCol.MappingName = "ActivityDetailWeightQuantity";
-#if MULTILANGUAGE
-      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Weight);
-#else
-      dataGridCol.HeaderText = "Weight";
-#endif
-      dataGridCol.Width = (int)(55 * colWidthFactor);
-      dataGridCol.Format = "0.000";
-      dataGridStyle.GridColumnStyles.Add(dataGridCol);
+//      dataGridCol = new DataGridTextBoxColumn();
+//      dataGridCol.MappingName = "ActivityDetailWeightQuantity";
+//#if MULTILANGUAGE
+//      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Weight);
+//#else
+//      dataGridCol.HeaderText = "Weight";
+//#endif
+//      dataGridCol.Width = (int)(55 * colWidthFactor);
+//      dataGridCol.Format = "0.000";
+//      dataGridStyle.GridColumnStyles.Add(dataGridCol);
 
-      dataGridCol = new DataGridTextBoxColumn();
-      dataGridCol.MappingName = "UnitCode";
-      dataGridCol.HeaderText = string.Empty;
-      dataGridCol.Width = (int)(30 * colWidthFactor);
-      dataGridStyle.GridColumnStyles.Add(dataGridCol);
+//      dataGridCol = new DataGridTextBoxColumn();
+//      dataGridCol.MappingName = "UnitCode";
+//      dataGridCol.HeaderText = string.Empty;
+//      dataGridCol.Width = (int)(30 * colWidthFactor);
+//      dataGridStyle.GridColumnStyles.Add(dataGridCol);
 
-      dataGridCol = new DataGridTextBoxColumn();
-      dataGridCol.MappingName = "ActivityDetailSchemeID";
-#if MULTILANGUAGE
-      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.SchemeId);
-#else
-      dataGridCol.HeaderText = "Scheme ID";
-#endif
-      dataGridCol.Width = (int)(500 * colWidthFactor);
-      dataGridStyle.GridColumnStyles.Add(dataGridCol);
+//      dataGridCol = new DataGridTextBoxColumn();
+//      dataGridCol.MappingName = "ActivityDetailSchemeID";
+//#if MULTILANGUAGE
+//      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.SchemeId);
+//#else
+//      dataGridCol.HeaderText = "Scheme ID";
+//#endif
+//      dataGridCol.Width = (int)(500 * colWidthFactor);
+//      dataGridStyle.GridColumnStyles.Add(dataGridCol);
 
-      dataGridMain.TableStyles.Add(dataGridStyle);
-      dataGridMain.RowHeadersVisible = false;
-      dataGridMain.ColumnHeadersVisible = true;
+//      dataGridMain.TableStyles.Add(dataGridStyle);
+//      dataGridMain.RowHeadersVisible = false;
+//      dataGridMain.ColumnHeadersVisible = true;
     }
 
     /// <summary>

@@ -2,7 +2,7 @@ namespace dMobile.Controller
 {
     using System;
     using System.Data;
-    
+    using System.Data.SQLite;
     using System.Text;
     using System.Windows.Forms;
     using System.Xml.Linq;
@@ -198,129 +198,129 @@ namespace dMobile.Controller
             ////    <picking_new_location_refno><%= %></picking_new_location_refno>
             ////</param>
 
-            using (SQLiteCommand cmndProdtLocMapType = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-            {
-                cmndProdtLocMapType.CommandText = "tProductLocationMapType";
-                cmndProdtLocMapType.CommandType = CommandType.TableDirect;
-                cmndProdtLocMapType.IndexName
-                    = "PK_ProductLocationMapTypeOnProductRefnoAndLocationMapRefnoAndProductLocationMapTypeEnum";
-                using (SqliteDataReader drProdLocMapType = cmndProdtLocMapType.ExecuteReader())
-                {
-                    if (bool.Parse(data.Root.Element("picking_is_update").Value))
-                    {
-                        if (drProdLocMapType.Seek(
-                            DbSeekOptions.FirstEqual,
-                            new object[] 
-                {
-                  int.Parse(data.Root.Element("prod_refno").Value), 
-                  int.Parse(data.Root.Element("picking_old_location_refno").Value), 
-                  (int)SysCommon.ProdLocMapTypes.Picking 
-                }))
-                        {
-                            cmndProdtLocMapType.CommandType = CommandType.Text;
-                            cmndProdtLocMapType.IndexName = string.Empty;
+            //using (SQLiteCommand cmndProdtLocMapType = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+            //{
+            //    cmndProdtLocMapType.CommandText = "tProductLocationMapType";
+            //    cmndProdtLocMapType.CommandType = CommandType.TableDirect;
+            //    cmndProdtLocMapType.IndexName
+            //        = "PK_ProductLocationMapTypeOnProductRefnoAndLocationMapRefnoAndProductLocationMapTypeEnum";
+            //    using (SQLiteDataReader drProdLocMapType = cmndProdtLocMapType.ExecuteReader())
+            //    {
+            //        if (bool.Parse(data.Root.Element("picking_is_update").Value))
+            //        {
+            //            if (drProdLocMapType.Seek(
+            //                DbSeekOptions.FirstEqual,
+            //                new object[] 
+            //    {
+            //      int.Parse(data.Root.Element("prod_refno").Value), 
+            //      int.Parse(data.Root.Element("picking_old_location_refno").Value), 
+            //      (int)SysCommon.ProdLocMapTypes.Picking 
+            //    }))
+            //            {
+            //                cmndProdtLocMapType.CommandType = CommandType.Text;
+            //                cmndProdtLocMapType.IndexName = string.Empty;
 
-                            StringBuilder sql = new StringBuilder();
-                            sql.Append("UPDATE tProductLocationMapType");
-                            sql.AppendFormat(
-                                " SET LocationMapRefno = {0}",
-                                int.Parse(data.Root.Element("picking_new_location_refno").Value));
-                            sql.AppendFormat(
-                                " WHERE ProductRefno = {0}",
-                                int.Parse(data.Root.Element("prod_refno").Value));
-                            sql.AppendFormat(
-                                " AND WarehouseLocationMapRefno = {0}",
-                                int.Parse(data.Root.Element("picking_warehouse_location_refno").Value));
-                            sql.AppendFormat(
-                                " AND LocationMapRefno = {0}",
-                                int.Parse(data.Root.Element("picking_old_location_refno").Value));
-                            sql.AppendFormat(
-                                " AND ProductLocationMapTypeEnum = {0}",
-                                (int)SysCommon.ProdLocMapTypes.Picking);
+            //                StringBuilder sql = new StringBuilder();
+            //                sql.Append("UPDATE tProductLocationMapType");
+            //                sql.AppendFormat(
+            //                    " SET LocationMapRefno = {0}",
+            //                    int.Parse(data.Root.Element("picking_new_location_refno").Value));
+            //                sql.AppendFormat(
+            //                    " WHERE ProductRefno = {0}",
+            //                    int.Parse(data.Root.Element("prod_refno").Value));
+            //                sql.AppendFormat(
+            //                    " AND WarehouseLocationMapRefno = {0}",
+            //                    int.Parse(data.Root.Element("picking_warehouse_location_refno").Value));
+            //                sql.AppendFormat(
+            //                    " AND LocationMapRefno = {0}",
+            //                    int.Parse(data.Root.Element("picking_old_location_refno").Value));
+            //                sql.AppendFormat(
+            //                    " AND ProductLocationMapTypeEnum = {0}",
+            //                    (int)SysCommon.ProdLocMapTypes.Picking);
 
-                            cmndProdtLocMapType.CommandText = sql.ToString();
-                            cmndProdtLocMapType.ExecuteNonQuery();
-                        }
-                        else
-                        {
-                            cmndProdtLocMapType.CommandType = CommandType.Text;
-                            cmndProdtLocMapType.IndexName = string.Empty;
+            //                cmndProdtLocMapType.CommandText = sql.ToString();
+            //                cmndProdtLocMapType.ExecuteNonQuery();
+            //            }
+            //            else
+            //            {
+            //                cmndProdtLocMapType.CommandType = CommandType.Text;
+            //                cmndProdtLocMapType.IndexName = string.Empty;
 
-                            StringBuilder sql = new StringBuilder();
-                            sql.Append("INSERT INTO tProductLocationMapType");
-                            sql.Append(" (ProductRefno, WarehouseLocationMapRefno, LocationMapRefno, ProductLocationMapTypeEnum)");
-                            sql.AppendFormat(
-                                " VALUES ({0}, {1}, {2}, {3})",
-                                int.Parse(data.Root.Element("prod_refno").Value),
-                                int.Parse(data.Root.Element("picking_warehouse_location_refno").Value),
-                                int.Parse(data.Root.Element("picking_new_location_refno").Value),
-                                (int)SysCommon.ProdLocMapTypes.Picking);
+            //                StringBuilder sql = new StringBuilder();
+            //                sql.Append("INSERT INTO tProductLocationMapType");
+            //                sql.Append(" (ProductRefno, WarehouseLocationMapRefno, LocationMapRefno, ProductLocationMapTypeEnum)");
+            //                sql.AppendFormat(
+            //                    " VALUES ({0}, {1}, {2}, {3})",
+            //                    int.Parse(data.Root.Element("prod_refno").Value),
+            //                    int.Parse(data.Root.Element("picking_warehouse_location_refno").Value),
+            //                    int.Parse(data.Root.Element("picking_new_location_refno").Value),
+            //                    (int)SysCommon.ProdLocMapTypes.Picking);
 
-                            cmndProdtLocMapType.CommandText = sql.ToString();
-                            cmndProdtLocMapType.ExecuteNonQuery();
-                        }
-                    }
+            //                cmndProdtLocMapType.CommandText = sql.ToString();
+            //                cmndProdtLocMapType.ExecuteNonQuery();
+            //            }
+            //        }
 
-                    if (bool.Parse(data.Root.Element("receiving_is_update").Value))
-                    {
-                        cmndProdtLocMapType.CommandText = "tProduct";
-                        cmndProdtLocMapType.CommandType = CommandType.TableDirect;
-                        cmndProdtLocMapType.IndexName
-                            = "PK_ProductLocationMapTypeOnProductRefnoAndLocationMapRefnoAndProductLocationMapTypeEnum";
-                        if (drProdLocMapType.Seek(
-                            DbSeekOptions.FirstEqual,
-                            new object[] 
-                {
-                  int.Parse(data.Root.Element("prod_refno").Value), 
-                  int.Parse(data.Root.Element("receiving_old_location_refno").Value), 
-                  (int)SysCommon.ProdLocMapTypes.Receiving 
-                }))
-                        {
-                            cmndProdtLocMapType.CommandType = CommandType.Text;
-                            cmndProdtLocMapType.IndexName = string.Empty;
+            //        if (bool.Parse(data.Root.Element("receiving_is_update").Value))
+            //        {
+            //            cmndProdtLocMapType.CommandText = "tProduct";
+            //            cmndProdtLocMapType.CommandType = CommandType.TableDirect;
+            //            cmndProdtLocMapType.IndexName
+            //                = "PK_ProductLocationMapTypeOnProductRefnoAndLocationMapRefnoAndProductLocationMapTypeEnum";
+            //            if (drProdLocMapType.Seek(
+            //                DbSeekOptions.FirstEqual,
+            //                new object[] 
+            //    {
+            //      int.Parse(data.Root.Element("prod_refno").Value), 
+            //      int.Parse(data.Root.Element("receiving_old_location_refno").Value), 
+            //      (int)SysCommon.ProdLocMapTypes.Receiving 
+            //    }))
+            //            {
+            //                cmndProdtLocMapType.CommandType = CommandType.Text;
+            //                cmndProdtLocMapType.IndexName = string.Empty;
 
-                            StringBuilder sql = new StringBuilder();
-                            sql.Append("UPDATE tProductLocationMapType");
-                            sql.AppendFormat(
-                                " SET LocationMapRefno = {0}",
-                                int.Parse(data.Root.Element("receiving_new_location_refno").Value));
-                            sql.AppendFormat(
-                                " WHERE ProductRefno = {0}",
-                                int.Parse(data.Root.Element("prod_refno").Value));
-                            sql.AppendFormat(
-                                " AND WarehouseLocationMapRefno = {0}",
-                                int.Parse(data.Root.Element("receiving_warehouse_location_refno").Value));
-                            sql.AppendFormat(
-                                " AND LocationMapRefno = {0}",
-                                int.Parse(data.Root.Element("receiving_old_location_refno").Value));
-                            sql.AppendFormat(
-                                " AND ProductLocationMapTypeEnum = {0}",
-                                (int)SysCommon.ProdLocMapTypes.Receiving);
+            //                StringBuilder sql = new StringBuilder();
+            //                sql.Append("UPDATE tProductLocationMapType");
+            //                sql.AppendFormat(
+            //                    " SET LocationMapRefno = {0}",
+            //                    int.Parse(data.Root.Element("receiving_new_location_refno").Value));
+            //                sql.AppendFormat(
+            //                    " WHERE ProductRefno = {0}",
+            //                    int.Parse(data.Root.Element("prod_refno").Value));
+            //                sql.AppendFormat(
+            //                    " AND WarehouseLocationMapRefno = {0}",
+            //                    int.Parse(data.Root.Element("receiving_warehouse_location_refno").Value));
+            //                sql.AppendFormat(
+            //                    " AND LocationMapRefno = {0}",
+            //                    int.Parse(data.Root.Element("receiving_old_location_refno").Value));
+            //                sql.AppendFormat(
+            //                    " AND ProductLocationMapTypeEnum = {0}",
+            //                    (int)SysCommon.ProdLocMapTypes.Receiving);
 
-                            cmndProdtLocMapType.CommandText = sql.ToString();
-                            cmndProdtLocMapType.ExecuteNonQuery();
-                        }
-                        else
-                        {
-                            cmndProdtLocMapType.CommandType = CommandType.Text;
-                            cmndProdtLocMapType.IndexName = string.Empty;
+            //                cmndProdtLocMapType.CommandText = sql.ToString();
+            //                cmndProdtLocMapType.ExecuteNonQuery();
+            //            }
+            //            else
+            //            {
+            //                cmndProdtLocMapType.CommandType = CommandType.Text;
+            //                cmndProdtLocMapType.IndexName = string.Empty;
 
-                            StringBuilder sql = new StringBuilder();
-                            sql.Append("INSERT INTO tProductLocationMapType");
-                            sql.Append(" (ProductRefno, WarehouseLocationMapRefno, LocationMapRefno, ProductLocationMapTypeEnum)");
-                            sql.AppendFormat(
-                                " VALUES ({0}, {1}, {2}, {3})",
-                                int.Parse(data.Root.Element("prod_refno").Value),
-                                int.Parse(data.Root.Element("receiving_warehouse_location_refno").Value),
-                                int.Parse(data.Root.Element("receiving_new_location_refno").Value),
-                                (int)SysCommon.ProdLocMapTypes.Receiving);
+            //                StringBuilder sql = new StringBuilder();
+            //                sql.Append("INSERT INTO tProductLocationMapType");
+            //                sql.Append(" (ProductRefno, WarehouseLocationMapRefno, LocationMapRefno, ProductLocationMapTypeEnum)");
+            //                sql.AppendFormat(
+            //                    " VALUES ({0}, {1}, {2}, {3})",
+            //                    int.Parse(data.Root.Element("prod_refno").Value),
+            //                    int.Parse(data.Root.Element("receiving_warehouse_location_refno").Value),
+            //                    int.Parse(data.Root.Element("receiving_new_location_refno").Value),
+            //                    (int)SysCommon.ProdLocMapTypes.Receiving);
 
-                            cmndProdtLocMapType.CommandText = sql.ToString();
-                            cmndProdtLocMapType.ExecuteNonQuery();
-                        }
-                    }
-                }
-            }
+            //                cmndProdtLocMapType.CommandText = sql.ToString();
+            //                cmndProdtLocMapType.ExecuteNonQuery();
+            //            }
+            //        }
+            //    }
+            //}
         }
 
         #endregion

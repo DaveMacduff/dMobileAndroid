@@ -2,7 +2,7 @@ namespace dMobile.Controller
 {
   using System;
   using System.Data;
-  
+  using System.Data.SQLite;
   using System.Text;
   using System.Windows.Forms;
   using System.Xml;
@@ -73,7 +73,7 @@ namespace dMobile.Controller
             using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
             {
               cmndItem.CommandType = CommandType.Text;
-              cmndItem.IndexName = string.Empty;
+              //cmndItem.IndexName = string.Empty;
               cmndItem.CommandText = "UPDATE tActivityItemReceiving " 
                   + "SET ActivityItemReceivingStringFKRefno = \'" + this.NewItemFKRefno + "\', "
                   + "ActivityItemReceivingFKRefno = " + this.NewItemFKRefno
@@ -205,66 +205,66 @@ namespace dMobile.Controller
     /// <param name="data"></param>
     public override void Insert(XDocument data)
     {
-      this.FillActDetailObjFromXML(data);
+      //this.FillActDetailObjFromXML(data);
 
-      if (this.SysEnv.SysSettings.IsDisconnectedMode)
-      {
-        int actDetailRefno = this.InsertDetailDisconnected();
+      //if (this.SysEnv.SysSettings.IsDisconnectedMode)
+      //{
+      //  int actDetailRefno = this.InsertDetailDisconnected();
 
-        using (SQLiteCommand cmndDetailRecv = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-        {
-          cmndDetailRecv.CommandText = "tActivityDetailReceiving";
-          cmndDetailRecv.CommandType = CommandType.TableDirect;
-          cmndDetailRecv.IndexName = "UQ_ActivityDetailReceivingOnActivityDetailReceivingFKRefno";
+      //  using (SQLiteCommand cmndDetailRecv = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+      //  {
+      //    cmndDetailRecv.CommandText = "tActivityDetailReceiving";
+      //    cmndDetailRecv.CommandType = CommandType.TableDirect;
+      //    cmndDetailRecv.IndexName = "UQ_ActivityDetailReceivingOnActivityDetailReceivingFKRefno";
 
-          using (SqlCeResultSet rsDetailRecv = cmndDetailRecv.ExecuteResultSet(ResultSetOptions.Updatable))
-          {
-            SqlCeUpdatableRecord recDetailRecv = rsDetailRecv.CreateRecord();
+      //    using (SqlCeResultSet rsDetailRecv = cmndDetailRecv.ExecuteResultSet(ResultSetOptions.Updatable))
+      //    {
+      //      SqlCeUpdatableRecord recDetailRecv = rsDetailRecv.CreateRecord();
 
-            recDetailRecv.SetInt32((int)SysCommon.ActDetailReceivingFields.ActDetailRefno, actDetailRefno);
-            recDetailRecv.SetInt32((int)SysCommon.ActDetailReceivingFields.FKRefno, this.FKRefno);
+      //      recDetailRecv.SetInt32((int)SysCommon.ActDetailReceivingFields.ActDetailRefno, actDetailRefno);
+      //      recDetailRecv.SetInt32((int)SysCommon.ActDetailReceivingFields.FKRefno, this.FKRefno);
 
-            rsDetailRecv.Insert(recDetailRecv);
+      //      rsDetailRecv.Insert(recDetailRecv);
 
-            this.IsUpdateView = true;
-          }
-        }
-      }
-      else
-      {
-        if (this.InsertDetail(
-            this.CreateSubmitXML(
-            XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"))))
-        {
-          using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-          {
-            cmndItem.IndexName = string.Empty;
-            cmndItem.CommandType = CommandType.Text;
-            cmndItem.CommandText = "UPDATE tActivityItemReceiving "
-                + "SET ActivityItemReceivingStringFKRefno = \'" + this.NewItemFKRefno + "\',"
-                + "ActivityItemReceivingFKRefno = " + this.NewItemFKRefno
-                + " WHERE tActivityItemReceiving.ActivityItemRefno = " + this.ActItem.Refno;
-            cmndItem.ExecuteNonQuery();
-          }
+      //      this.IsUpdateView = true;
+      //    }
+      //  }
+      //}
+      //else
+      //{
+      //  if (this.InsertDetail(
+      //      this.CreateSubmitXML(
+      //      XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"))))
+      //  {
+      //    using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+      //    {
+      //      cmndItem.IndexName = string.Empty;
+      //      cmndItem.CommandType = CommandType.Text;
+      //      cmndItem.CommandText = "UPDATE tActivityItemReceiving "
+      //          + "SET ActivityItemReceivingStringFKRefno = \'" + this.NewItemFKRefno + "\',"
+      //          + "ActivityItemReceivingFKRefno = " + this.NewItemFKRefno
+      //          + " WHERE tActivityItemReceiving.ActivityItemRefno = " + this.ActItem.Refno;
+      //      cmndItem.ExecuteNonQuery();
+      //    }
 
-          string oldSort = this.ActItem.DataViewItems.Sort;
-          this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
+      //    string oldSort = this.ActItem.DataViewItems.Sort;
+      //    this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
 
-          int rowIdx = this.ActItem.DataViewItems.Find(new object[] { this.ActItem.Refno });
-          if (rowIdx != -1)
-          {
-            DataRowView rowView = this.ActItem.DataViewItems[rowIdx];
-            rowView.BeginEdit();
-            rowView["ActivityItemReceivingFKRefno"] = this.NewItemFKRefno;
-            rowView["ActivityItemReceivingStringFKRefno"] = this.NewItemFKRefno.ToString();
-            rowView.EndEdit();
-          }
+      //    int rowIdx = this.ActItem.DataViewItems.Find(new object[] { this.ActItem.Refno });
+      //    if (rowIdx != -1)
+      //    {
+      //      DataRowView rowView = this.ActItem.DataViewItems[rowIdx];
+      //      rowView.BeginEdit();
+      //      rowView["ActivityItemReceivingFKRefno"] = this.NewItemFKRefno;
+      //      rowView["ActivityItemReceivingStringFKRefno"] = this.NewItemFKRefno.ToString();
+      //      rowView.EndEdit();
+      //    }
 
-          this.ActItem.DataViewItems.Sort = oldSort;
-        }
-      }
+      //    this.ActItem.DataViewItems.Sort = oldSort;
+      //  }
+      //}
 
-      this.InsertUpdateDataViewDetail("ActivityDetailReceivingFKRefno", "ActivityDetailReceivingFKRefno");
+      //this.InsertUpdateDataViewDetail("ActivityDetailReceivingFKRefno", "ActivityDetailReceivingFKRefno");
     }
 
     /// <summary>

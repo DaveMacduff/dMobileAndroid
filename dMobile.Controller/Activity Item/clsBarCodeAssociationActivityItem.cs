@@ -2,7 +2,7 @@ namespace dMobile.Controller
 {
   using System;
   using System.Data;
-  
+  using System.Data.SQLite;
   using System.Text;
   using System.Windows.Forms;
   using System.Xml;
@@ -97,7 +97,7 @@ namespace dMobile.Controller
             + "INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno "
             + "WHERE tProductUnit.ProductUnitRefno = " + prodUnitRefno;
 
-        using (SqliteDataReader drProdUnit = cmndProdUnit.ExecuteReader())
+        using (SQLiteDataReader drProdUnit = cmndProdUnit.ExecuteReader())
         {
           if (drProdUnit.Read())
           {
@@ -127,7 +127,7 @@ namespace dMobile.Controller
             + "AND tProductUnitBarCode.ProductUnitBarCodeModifier1 = \'" 
             + data.Root.Element("ProductUnitBarCodeModifier1").Value + "\'";
 
-        using (SqliteDataReader drProdUnitBarCode = cmndProdUnitBarCode.ExecuteReader())
+        using (SQLiteDataReader drProdUnitBarCode = cmndProdUnitBarCode.ExecuteReader())
         {
           if (drProdUnitBarCode.Read())
           {
@@ -165,7 +165,7 @@ namespace dMobile.Controller
 
       if (!isProdUnitBarCodeFound)
       {
-        using (SqlCeTransaction barCodeTrx = DatabaseConnection.GetInstance().SQLConn.BeginTransaction(
+        using (SQLiteTransaction barCodeTrx = DatabaseConnection.GetInstance().SQLConn.BeginTransaction(
             IsolationLevel.ReadCommitted))
         {
           try
@@ -199,7 +199,7 @@ namespace dMobile.Controller
               {
                 cmndProdUnitBarCodeID.Transaction = barCodeTrx;
                 cmndProdUnitBarCodeID.CommandText = "SELECT @@IDENTITY FROM tProductUnitBarCode";
-                cmndProdUnitBarCodeID.IndexName = "PK_ProductUnitBarCodeOnProductUnitBarCodeRefno";
+                //cmndProdUnitBarCodeID.IndexName = "PK_ProductUnitBarCodeOnProductUnitBarCodeRefno";
 
                 prodUnitBarCodeRefno = Convert.ToInt32(cmndProdUnitBarCodeID.ExecuteScalar());
               }
@@ -261,7 +261,7 @@ namespace dMobile.Controller
 
             barCodeTrx.Commit();
           }
-          catch (SqlCeException ex)
+          catch (SQLiteException ex)
           {
             barCodeTrx.Rollback();
             throw ex;

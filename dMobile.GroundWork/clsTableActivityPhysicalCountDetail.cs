@@ -2,7 +2,7 @@ namespace dMobile.GroundWork
 {
   using System;
   using System.Data;
-  
+  using System.Data.SQLite;
   using System.Text;
   using System.Xml;
   using System.Xml.Linq;
@@ -50,7 +50,7 @@ namespace dMobile.GroundWork
                 + " FROM tActivityItem" 
                 + " WHERE tActivityItem.ActivityItemSubType = " + (int)SysCommon.ActSubTypes.PhysicalCounts;
 
-            using (SqliteDataReader drCountItem = cmndCountItem.ExecuteReader())
+            using (SQLiteDataReader drCountItem = cmndCountItem.ExecuteReader())
             {
               while (drCountItem.Read())
               {
@@ -95,7 +95,7 @@ namespace dMobile.GroundWork
         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding physical count details complete.", true);
 #endif
       }
-      catch (SqlCeException ex)
+      catch (SQLiteException ex)
       {
 #if MULTILANGUAGE
         this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), true);
@@ -176,7 +176,7 @@ namespace dMobile.GroundWork
         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging physical count details complete.", true);
 #endif
       }
-      catch (SqlCeException ex)
+      catch (SQLiteException ex)
       {
 #if MULTILANGUAGE
         this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), true);
@@ -223,7 +223,7 @@ namespace dMobile.GroundWork
 #endif
         }
       }
-      catch (SqlCeException ex)
+      catch (SQLiteException ex)
       {
 #if MULTILANGUAGE
         throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredPhysicalCountDetailsStatusFailed), ex);
@@ -248,41 +248,41 @@ namespace dMobile.GroundWork
     {
       int actItemCountFKRefno = 0;
 
-      using (SQLiteCommand cmndItemCount = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-      {
-        cmndItemCount.CommandText = "tActivityItemCount";
-        cmndItemCount.CommandType = CommandType.TableDirect;
-        cmndItemCount.IndexName = "PK_ActivityItemCountOnActivityItemRefno";
-        using (SqliteDataReader drItemCount = cmndItemCount.ExecuteReader())
-        {
-          if (drItemCount.Seek(DbSeekOptions.FirstEqual, new object[] { actItemCountRefno }))
-          {
-            if (drItemCount.Read())
-            {
-              actItemCountFKRefno = Convert.ToInt32(drItemCount.GetValue((int)SysCommon.ActItemCountFields.FKRefno));
-            }
-            else
-            {
-#if MULTILANGUAGE
-              throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DritemcountreadFailed));
-#else
-              throw new Exception("drItemCount.Read() failed.");
-#endif
-            }
-          }
-          else
-          {
-            throw new Exception(
-                string.Format(
-#if MULTILANGUAGE
-                Translator.GetInstance().Translate(TranslatorVocabulary.UnableToLocateTheItemPhysicalCountRefnoInTactivityitemcount),
-#else
-                "Unable to locate the item physical count refno {0} in tActivityItemCount.",
-#endif
-                actItemCountRefno));
-          }
-        }
-      }
+//      using (SQLiteCommand cmndItemCount = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+//      {
+//        cmndItemCount.CommandText = "tActivityItemCount";
+//        cmndItemCount.CommandType = CommandType.TableDirect;
+//        cmndItemCount.IndexName = "PK_ActivityItemCountOnActivityItemRefno";
+//        using (SQLiteDataReader drItemCount = cmndItemCount.ExecuteReader())
+//        {
+//          if (drItemCount.Seek(DbSeekOptions.FirstEqual, new object[] { actItemCountRefno }))
+//          {
+//            if (drItemCount.Read())
+//            {
+//              actItemCountFKRefno = Convert.ToInt32(drItemCount.GetValue((int)SysCommon.ActItemCountFields.FKRefno));
+//            }
+//            else
+//            {
+//#if MULTILANGUAGE
+//              throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DritemcountreadFailed));
+//#else
+//              throw new Exception("drItemCount.Read() failed.");
+//#endif
+//            }
+//          }
+//          else
+//          {
+//            throw new Exception(
+//                string.Format(
+//#if MULTILANGUAGE
+//                Translator.GetInstance().Translate(TranslatorVocabulary.UnableToLocateTheItemPhysicalCountRefnoInTactivityitemcount),
+//#else
+//                "Unable to locate the item physical count refno {0} in tActivityItemCount.",
+//#endif
+//                actItemCountRefno));
+//          }
+//        }
+//      }
 
       return this.SendComm(this.Create(actItemCountFKRefno));
     }
@@ -294,308 +294,308 @@ namespace dMobile.GroundWork
     /// <param name="actItemCountRefno"></param>
     protected override void Save(string reqData, int actItemCountRefno)
     {
-      SqlCeConnection conn = DatabaseConnection.GetInstance().SQLConn;
-      string errMsg = string.Empty;
+//      SQLiteConnection conn = DatabaseConnection.GetInstance().SQLConn;
+//      string errMsg = string.Empty;
 
-      try
-      {
-        using (DataSet ds = new DataSet())
-        {
-#if MULTILANGUAGE
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.ReadingReceivedData), false);
-#else
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
-#endif
-          ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
+//      try
+//      {
+//        using (DataSet ds = new DataSet())
+//        {
+//#if MULTILANGUAGE
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.ReadingReceivedData), false);
+//#else
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
+//#endif
+//          ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
 
-#if MULTILANGUAGE
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingPhysicalCountDetails), false);
-#else
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving physical count details.", false);
-#endif
-          if (ds.Tables.Count != 0)
-          {
-            int progMax = Convert.ToInt32(ds.Tables["tActivityDetailCount"].Rows.Count);
+//#if MULTILANGUAGE
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingPhysicalCountDetails), false);
+//#else
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving physical count details.", false);
+//#endif
+//          if (ds.Tables.Count != 0)
+//          {
+//            int progMax = Convert.ToInt32(ds.Tables["tActivityDetailCount"].Rows.Count);
 
-            this.DataAccessStatusOutHandler(
-                this,
-                EventArgs.Empty,
-#if MULTILANGUAGE
-                string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.Records), progMax),
-#else
-                string.Format("Records {0}.", progMax),
-#endif
-                false);
+//            this.DataAccessStatusOutHandler(
+//                this,
+//                EventArgs.Empty,
+//#if MULTILANGUAGE
+//                string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.Records), progMax),
+//#else
+//                string.Format("Records {0}.", progMax),
+//#endif
+//                false);
 
-            using (SQLiteCommand cmndDetailCount = conn.CreateCommand())
-            {
-              cmndDetailCount.CommandText = "tActivityDetailCount";
-              cmndDetailCount.CommandType = CommandType.TableDirect;
-              cmndDetailCount.IndexName = "UQ_ActivityDetailCountOnActivityDetailCountFKRefno";
+//            using (SQLiteCommand cmndDetailCount = conn.CreateCommand())
+//            {
+//              cmndDetailCount.CommandText = "tActivityDetailCount";
+//              cmndDetailCount.CommandType = CommandType.TableDirect;
+//              cmndDetailCount.IndexName = "UQ_ActivityDetailCountOnActivityDetailCountFKRefno";
 
-              using (SqlCeResultSet rsDetailCount =
-                  cmndDetailCount.ExecuteResultSet(ResultSetOptions.Updatable))
-              {
-                SqlCeUpdatableRecord recDetailCount = rsDetailCount.CreateRecord();
+//              using (SqlCeResultSet rsDetailCount =
+//                  cmndDetailCount.ExecuteResultSet(ResultSetOptions.Updatable))
+//              {
+//                SqlCeUpdatableRecord recDetailCount = rsDetailCount.CreateRecord();
 
-                using (SQLiteCommand cmndDetail = conn.CreateCommand())
-                {
-                  cmndDetail.CommandText = "tActivityDetail";
-                  cmndDetail.CommandType = CommandType.TableDirect;
-                  cmndDetail.IndexName = "PK_ActivityDetailOnActivityDetailRefno";
+//                using (SQLiteCommand cmndDetail = conn.CreateCommand())
+//                {
+//                  cmndDetail.CommandText = "tActivityDetail";
+//                  cmndDetail.CommandType = CommandType.TableDirect;
+//                  cmndDetail.IndexName = "PK_ActivityDetailOnActivityDetailRefno";
 
-                  using (SqlCeResultSet rsDetail = cmndDetail.ExecuteResultSet(ResultSetOptions.Updatable))
-                  {
-                    SqlCeUpdatableRecord recDetail = rsDetail.CreateRecord();
+//                  using (SqlCeResultSet rsDetail = cmndDetail.ExecuteResultSet(ResultSetOptions.Updatable))
+//                  {
+//                    SqlCeUpdatableRecord recDetail = rsDetail.CreateRecord();
 
-                    using (SQLiteCommand cmndExtra = conn.CreateCommand())
-                    {
-                      cmndExtra.CommandText = "tActivityDetailExtra";
-                      cmndExtra.CommandType = CommandType.TableDirect;
-                      cmndExtra.IndexName = "PK_ActivityDetailExtraOnActivityDetailRefno";
+//                    using (SQLiteCommand cmndExtra = conn.CreateCommand())
+//                    {
+//                      cmndExtra.CommandText = "tActivityDetailExtra";
+//                      cmndExtra.CommandType = CommandType.TableDirect;
+//                      cmndExtra.IndexName = "PK_ActivityDetailExtraOnActivityDetailRefno";
 
-                      using (SqlCeResultSet rsExtra = cmndExtra.ExecuteResultSet(ResultSetOptions.Updatable))
-                      {
-                        SqlCeUpdatableRecord recExtra = rsExtra.CreateRecord();
+//                      using (SqlCeResultSet rsExtra = cmndExtra.ExecuteResultSet(ResultSetOptions.Updatable))
+//                      {
+//                        SqlCeUpdatableRecord recExtra = rsExtra.CreateRecord();
 
-                        using (SQLiteCommand cmndItemCount = conn.CreateCommand())
-                        {
-                          cmndItemCount.CommandText = "tActivityItemCount";
-                          cmndItemCount.CommandType = CommandType.TableDirect;
-                          cmndItemCount.IndexName = "PK_ActivityItemCountOnActivityItemRefno";
+//                        using (SQLiteCommand cmndItemCount = conn.CreateCommand())
+//                        {
+//                          cmndItemCount.CommandText = "tActivityItemCount";
+//                          cmndItemCount.CommandType = CommandType.TableDirect;
+//                          cmndItemCount.IndexName = "PK_ActivityItemCountOnActivityItemRefno";
 
-                          using (SqliteDataReader drItemCount = cmndItemCount.ExecuteReader())
-                          {
-                            using (SQLiteCommand cmndLocMapSlot = conn.CreateCommand())
-                            {
-                              cmndLocMapSlot.CommandText = "tLocationMapSlot";
-                              cmndLocMapSlot.CommandType = CommandType.TableDirect;
-                              cmndLocMapSlot.IndexName = "UQ_LocationMapSlotOnLocationMapSlotFKRefno";
+//                          using (SQLiteDataReader drItemCount = cmndItemCount.ExecuteReader())
+//                          {
+//                            using (SQLiteCommand cmndLocMapSlot = conn.CreateCommand())
+//                            {
+//                              cmndLocMapSlot.CommandText = "tLocationMapSlot";
+//                              cmndLocMapSlot.CommandType = CommandType.TableDirect;
+//                              cmndLocMapSlot.IndexName = "UQ_LocationMapSlotOnLocationMapSlotFKRefno";
 
-                              using (SqliteDataReader drLocMapSlot = cmndLocMapSlot.ExecuteReader())
-                              {
-                                using (SQLiteCommand cmndLocMapSection = conn.CreateCommand())
-                                {
-                                  cmndLocMapSection.CommandText = "tLocationMapSection";
-                                  cmndLocMapSection.CommandType = CommandType.TableDirect;
-                                  cmndLocMapSection.IndexName = "UQ_LocationMapSectionOnLocationMapSectionFKRefno";
+//                              using (SQLiteDataReader drLocMapSlot = cmndLocMapSlot.ExecuteReader())
+//                              {
+//                                using (SQLiteCommand cmndLocMapSection = conn.CreateCommand())
+//                                {
+//                                  cmndLocMapSection.CommandText = "tLocationMapSection";
+//                                  cmndLocMapSection.CommandType = CommandType.TableDirect;
+//                                  cmndLocMapSection.IndexName = "UQ_LocationMapSectionOnLocationMapSectionFKRefno";
 
-                                  using (SqliteDataReader drLocMapSection = cmndLocMapSection.ExecuteReader())
-                                  {
-                                    using (SQLiteCommand cmndLocMapWhs = conn.CreateCommand())
-                                    {
-                                      cmndLocMapWhs.CommandText = "tLocationMapWarehouse";
-                                      cmndLocMapWhs.CommandType = CommandType.TableDirect;
-                                      cmndLocMapWhs.IndexName =
-                                          "UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno";
+//                                  using (SQLiteDataReader drLocMapSection = cmndLocMapSection.ExecuteReader())
+//                                  {
+//                                    using (SQLiteCommand cmndLocMapWhs = conn.CreateCommand())
+//                                    {
+//                                      cmndLocMapWhs.CommandText = "tLocationMapWarehouse";
+//                                      cmndLocMapWhs.CommandType = CommandType.TableDirect;
+//                                      cmndLocMapWhs.IndexName =
+//                                          "UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno";
 
-                                      using (SqliteDataReader drLocMapWhs = cmndLocMapWhs.ExecuteReader())
-                                      {
-                                        using (SQLiteCommand cmndSchemeVar = conn.CreateCommand())
-                                        {
-                                          cmndSchemeVar.CommandText = "tProductSchemeVariant";
-                                          cmndSchemeVar.CommandType = CommandType.TableDirect;
-                                          cmndSchemeVar.IndexName = "UQ_ProductSchemeVariantOnProductSchemeVariantNo";
+//                                      using (SQLiteDataReader drLocMapWhs = cmndLocMapWhs.ExecuteReader())
+//                                      {
+//                                        using (SQLiteCommand cmndSchemeVar = conn.CreateCommand())
+//                                        {
+//                                          cmndSchemeVar.CommandText = "tProductSchemeVariant";
+//                                          cmndSchemeVar.CommandType = CommandType.TableDirect;
+//                                          cmndSchemeVar.IndexName = "UQ_ProductSchemeVariantOnProductSchemeVariantNo";
 
-                                          using (SqliteDataReader drSchemeVar = cmndSchemeVar.ExecuteReader())
-                                          {
-                                            using (SQLiteCommand cmndDetailSchemeVarXRef = conn.CreateCommand())
-                                            {
-                                              cmndDetailSchemeVarXRef.CommandText =
-                                                  "tActivityDetailProductSchemeVariantXRef";
-                                              cmndDetailSchemeVarXRef.CommandType = CommandType.TableDirect;
-                                              cmndDetailSchemeVarXRef.IndexName =
-                                                  "PK_ActivityDetailProductSchemeVariantXRefOnActivityDetailRefnoAndProductSchemeVariantRefno";
+//                                          using (SQLiteDataReader drSchemeVar = cmndSchemeVar.ExecuteReader())
+//                                          {
+//                                            using (SQLiteCommand cmndDetailSchemeVarXRef = conn.CreateCommand())
+//                                            {
+//                                              cmndDetailSchemeVarXRef.CommandText =
+//                                                  "tActivityDetailProductSchemeVariantXRef";
+//                                              cmndDetailSchemeVarXRef.CommandType = CommandType.TableDirect;
+//                                              cmndDetailSchemeVarXRef.IndexName =
+//                                                  "PK_ActivityDetailProductSchemeVariantXRefOnActivityDetailRefnoAndProductSchemeVariantRefno";
 
-                                              using (SqlCeResultSet rsDetailSchemeVarXRef =
-                                                  cmndDetailSchemeVarXRef.ExecuteResultSet(ResultSetOptions.Updatable))
-                                              {
-                                                SqlCeUpdatableRecord recDetailSchemeVarXRef =
-                                                    rsDetailSchemeVarXRef.CreateRecord();
+//                                              using (SqlCeResultSet rsDetailSchemeVarXRef =
+//                                                  cmndDetailSchemeVarXRef.ExecuteResultSet(ResultSetOptions.Updatable))
+//                                              {
+//                                                SqlCeUpdatableRecord recDetailSchemeVarXRef =
+//                                                    rsDetailSchemeVarXRef.CreateRecord();
 
-                                                using (SQLiteCommand cmndID = conn.CreateCommand())
-                                                {
-                                                  cmndID.CommandText = "SELECT @@IDENTITY FROM tActivityDetail";
-                                                  cmndID.CommandType = CommandType.Text;
+//                                                using (SQLiteCommand cmndID = conn.CreateCommand())
+//                                                {
+//                                                  cmndID.CommandText = "SELECT @@IDENTITY FROM tActivityDetail";
+//                                                  cmndID.CommandType = CommandType.Text;
 
-                                                  int actDetailRefno = 0;
-                                                  int progValue = 0;
-                                                  int actDetailPhysicalFKRefno = 0;
+//                                                  int actDetailRefno = 0;
+//                                                  int progValue = 0;
+//                                                  int actDetailPhysicalFKRefno = 0;
 
-                                                  this.DataAccessProgressOutHandler(
-                                                      this,
-                                                      EventArgs.Empty,
-                                                      0,
-                                                      0,
-                                                      progMax);
+//                                                  this.DataAccessProgressOutHandler(
+//                                                      this,
+//                                                      EventArgs.Empty,
+//                                                      0,
+//                                                      0,
+//                                                      progMax);
 
-                                                  if (drItemCount.Seek(
-                                                      DbSeekOptions.FirstEqual,
-                                                      new object[] { actItemCountRefno }))
-                                                  {
-                                                    if (!drItemCount.Read())
-                                                    {
-#if MULTILANGUAGE
-                                                      throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DritemcountreadFailed));
-#else
-                                                      throw new Exception("drItemCount.Read() failed.");
-#endif
-                                                    }
-                                                  }
-                                                  else
-                                                  {
-                                                    throw new Exception(
-                                                      string.Format(
-                                                      "Unable to locate the activity item refno {0} in tActivityItemCount",
-                                                      actItemCountRefno));
-                                                  }
+//                                                  if (drItemCount.Seek(
+//                                                      DbSeekOptions.FirstEqual,
+//                                                      new object[] { actItemCountRefno }))
+//                                                  {
+//                                                    if (!drItemCount.Read())
+//                                                    {
+//#if MULTILANGUAGE
+//                                                      throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DritemcountreadFailed));
+//#else
+//                                                      throw new Exception("drItemCount.Read() failed.");
+//#endif
+//                                                    }
+//                                                  }
+//                                                  else
+//                                                  {
+//                                                    throw new Exception(
+//                                                      string.Format(
+//                                                      "Unable to locate the activity item refno {0} in tActivityItemCount",
+//                                                      actItemCountRefno));
+//                                                  }
 
-                                                  foreach (DataRow drow in ds.Tables["tActivityDetailCount"].Rows)
-                                                  {
-                                                    errMsg = "Arguments:";
+//                                                  foreach (DataRow drow in ds.Tables["tActivityDetailCount"].Rows)
+//                                                  {
+//                                                    errMsg = "Arguments:";
 
-                                                    recDetail.SetInt32(
-                                                        (int)SysCommon.ActDetailFields.SubType,
-                                                        (int)SysCommon.ActSubTypes.PhysicalCounts);
-                                                    recDetail.SetInt32(
-                                                        (int)SysCommon.ActDetailFields.ActivityItemRefno,
-                                                        actItemCountRefno);
-                                                    recDetail.SetInt32(
-                                                        (int)SysCommon.ActDetailFields.ProductUnitRefno,
-                                                        Convert.ToInt32(drItemCount.GetValue(
-                                                        (int)SysCommon.ActItemCountFields.ProdUnitRefno)));
+//                                                    recDetail.SetInt32(
+//                                                        (int)SysCommon.ActDetailFields.SubType,
+//                                                        (int)SysCommon.ActSubTypes.PhysicalCounts);
+//                                                    recDetail.SetInt32(
+//                                                        (int)SysCommon.ActDetailFields.ActivityItemRefno,
+//                                                        actItemCountRefno);
+//                                                    recDetail.SetInt32(
+//                                                        (int)SysCommon.ActDetailFields.ProductUnitRefno,
+//                                                        Convert.ToInt32(drItemCount.GetValue(
+//                                                        (int)SysCommon.ActItemCountFields.ProdUnitRefno)));
 
-                                                    this.SaveDetailLocation(
-                                                        drow,
-                                                        drLocMapSlot,
-                                                        drLocMapSection,
-                                                        drLocMapWhs,
-                                                        ref recDetail,
-                                                        true);
+//                                                    this.SaveDetailLocation(
+//                                                        drow,
+//                                                        drLocMapSlot,
+//                                                        drLocMapSection,
+//                                                        drLocMapWhs,
+//                                                        ref recDetail,
+//                                                        true);
 
-                                                    this.SaveDetail(drow, ref recDetail, true);
+//                                                    this.SaveDetail(drow, ref recDetail, true);
 
-                                                    rsDetail.Insert(recDetail);
+//                                                    rsDetail.Insert(recDetail);
 
-                                                    actDetailRefno = Convert.ToInt32(cmndID.ExecuteScalar());
+//                                                    actDetailRefno = Convert.ToInt32(cmndID.ExecuteScalar());
 
-                                                    recDetailCount.SetInt32(
-                                                        (int)SysCommon.ActDetailCountFields.ActDetailRefno,
-                                                        actDetailRefno);
+//                                                    recDetailCount.SetInt32(
+//                                                        (int)SysCommon.ActDetailCountFields.ActDetailRefno,
+//                                                        actDetailRefno);
 
-                                                    actDetailPhysicalFKRefno = Convert.ToInt32(drow["f01"]);
-                                                    errMsg += Environment.NewLine 
-                                                        + "Detail fk refno " + actDetailPhysicalFKRefno;
-                                                    recDetailCount.SetInt32(
-                                                        (int)SysCommon.ActDetailCountFields.FKRefno,
-                                                        actDetailPhysicalFKRefno);
+//                                                    actDetailPhysicalFKRefno = Convert.ToInt32(drow["f01"]);
+//                                                    errMsg += Environment.NewLine 
+//                                                        + "Detail fk refno " + actDetailPhysicalFKRefno;
+//                                                    recDetailCount.SetInt32(
+//                                                        (int)SysCommon.ActDetailCountFields.FKRefno,
+//                                                        actDetailPhysicalFKRefno);
 
-                                                    rsDetailCount.Insert(recDetailCount);
+//                                                    rsDetailCount.Insert(recDetailCount);
 
-                                                    if (this.SaveCommonDetailVariant(
-                                                        drow,
-                                                        drSchemeVar,
-                                                        ref recDetailSchemeVarXRef,
-                                                        actDetailRefno,
-                                                        true))
-                                                    {
-                                                      rsDetailSchemeVarXRef.Insert(recDetailSchemeVarXRef);
-                                                    }
+//                                                    if (this.SaveCommonDetailVariant(
+//                                                        drow,
+//                                                        drSchemeVar,
+//                                                        ref recDetailSchemeVarXRef,
+//                                                        actDetailRefno,
+//                                                        true))
+//                                                    {
+//                                                      rsDetailSchemeVarXRef.Insert(recDetailSchemeVarXRef);
+//                                                    }
 
-                                                    this.SaveDetailExtra(
-                                                        drow,
-                                                        ref recExtra,
-                                                        actDetailRefno,
-                                                        true);
+//                                                    this.SaveDetailExtra(
+//                                                        drow,
+//                                                        ref recExtra,
+//                                                        actDetailRefno,
+//                                                        true);
 
-                                                    rsExtra.Insert(recExtra);
+//                                                    rsExtra.Insert(recExtra);
 
-                                                    progValue++;
-                                                    if (progValue % 10 == 0)
-                                                    {
-                                                      this.DataAccessProgressOutHandler(
-                                                          this,
-                                                          EventArgs.Empty,
-                                                          progValue,
-                                                          0,
-                                                          progMax);
-                                                    }
-                                                  }
+//                                                    progValue++;
+//                                                    if (progValue % 10 == 0)
+//                                                    {
+//                                                      this.DataAccessProgressOutHandler(
+//                                                          this,
+//                                                          EventArgs.Empty,
+//                                                          progValue,
+//                                                          0,
+//                                                          progMax);
+//                                                    }
+//                                                  }
 
-                                                  this.DataAccessProgressOutHandler(
-                                                      this,
-                                                      EventArgs.Empty,
-                                                      progMax,
-                                                      0,
-                                                      progMax);
-                                                }
-                                              }
-                                            }
+//                                                  this.DataAccessProgressOutHandler(
+//                                                      this,
+//                                                      EventArgs.Empty,
+//                                                      progMax,
+//                                                      0,
+//                                                      progMax);
+//                                                }
+//                                              }
+//                                            }
 
-                                            drSchemeVar.Close();
-                                          }
-                                        }
+//                                            drSchemeVar.Close();
+//                                          }
+//                                        }
 
-                                        drLocMapWhs.Close();
-                                      }
-                                    }
+//                                        drLocMapWhs.Close();
+//                                      }
+//                                    }
 
-                                    drLocMapSection.Close();
-                                  }
-                                }
+//                                    drLocMapSection.Close();
+//                                  }
+//                                }
 
-                                drLocMapSlot.Close();
-                              }
-                            }
+//                                drLocMapSlot.Close();
+//                              }
+//                            }
 
-                            drItemCount.Close();
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
+//                            drItemCount.Close();
+//                          }
+//                        }
+//                      }
+//                    }
+//                  }
+//                }
+//              }
+//            }
+//          }
 
-#if MULTILANGUAGE
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingPhysicalCountDetailsComplete), false);
-#else
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving physical count details complete.", false);
-#endif
-        }
-      }
-      catch (SqlCeException ex)
-      {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), true);
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingPhysicalCountDetailsFailed), true);
-#else
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving physical count details failed.", true);
-#endif
+//#if MULTILANGUAGE
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingPhysicalCountDetailsComplete), false);
+//#else
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving physical count details complete.", false);
+//#endif
+//        }
+//      }
+//      catch (SQLiteException ex)
+//      {
+//#if MULTILANGUAGE
+//        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), true);
+//        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingPhysicalCountDetailsFailed), true);
+//#else
+//        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
+//        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving physical count details failed.", true);
+//#endif
 
-        // Duplicate key violations
-        if (ex.NativeError == 25016)
-        {
-#if MULTILANGUAGE
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.UniquenessViolation), false);
-          throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.UniquenessViolation) + Environment.NewLine + errMsg, ex);
-#else
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Uniqueness violation.", false);
-          throw new Exception("Uniqueness violation." + Environment.NewLine + errMsg, ex);
-#endif
-        }
+//        // Duplicate key violations
+//        if (ex.NativeError == 25016)
+//        {
+//#if MULTILANGUAGE
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.UniquenessViolation), false);
+//          throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.UniquenessViolation) + Environment.NewLine + errMsg, ex);
+//#else
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Uniqueness violation.", false);
+//          throw new Exception("Uniqueness violation." + Environment.NewLine + errMsg, ex);
+//#endif
+//        }
 
-        throw new Exception(
-#if MULTILANGUAGE
-            Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredSavingPhysicalCountDetailsFailed) + Environment.NewLine + errMsg,
-#else
-            "Database exception occurred. Saving physical count details failed." + Environment.NewLine + errMsg,
-#endif
-            ex);
-      }
+//        throw new Exception(
+//#if MULTILANGUAGE
+//            Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredSavingPhysicalCountDetailsFailed) + Environment.NewLine + errMsg,
+//#else
+//            "Database exception occurred. Saving physical count details failed." + Environment.NewLine + errMsg,
+//#endif
+//            ex);
+//      }
     }
 
     /// <summary>

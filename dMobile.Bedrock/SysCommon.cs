@@ -9,10 +9,8 @@ namespace dMobile.Bedrock
     using System.Reflection;
     using System.Runtime.InteropServices;
     using System.Text;
-    using System.Windows.Forms;
     using System.Xml;
     using System.Xml.Schema;
-    using Microsoft.VisualBasic;
 
     public struct SProductSchemeData
     {
@@ -1819,15 +1817,15 @@ namespace dMobile.Bedrock
         {
             SysEnvironment sysEnv = SysEnvironment.GetInstance();
             string current = DateTime.Now.ToString("yyyy\'-\'MM\'-\'dd\'T\'HH\':\'mm\':\'ss");
-            string revision = DateAndTime.DateSerial(1900, 1, 1).ToString("yyyy\'-\'MM\'-\'dd\'T\'HH\':\'mm\':\'ss");
+            //string revision = DateAndTime.DateSerial(1900, 1, 1).ToString("yyyy\'-\'MM\'-\'dd\'T\'HH\':\'mm\':\'ss");
             if (useRefreshedDataLast)
             {
-                revision = sysEnv.RefreshOpt.RefreshedDataLast.ToString("yyyy\'-\'MM\'-\'dd\'T\'HH\':\'mm\':\'ss");
+                //revision = sysEnv.RefreshOpt.RefreshedDataLast.ToString("yyyy\'-\'MM\'-\'dd\'T\'HH\':\'mm\':\'ss");
             }
 
             string def = ("<device_id>" + sysEnv.DeviceID + "</device_id>")
                 + ("<login_id>" + sysEnv.ContactLog.LoginID + "</login_id>")
-                + ("<revision_datetime>" + revision + "</revision_datetime>")
+                //+ ("<revision_datetime>" + revision + "</revision_datetime>")
                 + ("<stamp>" + current + "</stamp>");
 
             return def;
@@ -2200,26 +2198,26 @@ namespace dMobile.Bedrock
             //oSnd.Play()
 
             bool result = false;
-#if MULTILANGUAGE
-      string errorMsg = Translator.GetInstance().Translate(TranslatorVocabulary.AnUnanticipatedErrorOccuredInDmobile) + Constants.vbCrLf +
-#else
-            string errorMsg = "An Unanticipated Error Occured in dMobile: " + Constants.vbCrLf +
-#endif
- "Assembly: " + assembly + Constants.vbCrLf + "Class: " + fullClassName +
-                Constants.vbCrLf + "Method: " + reportingMethod + Constants.vbCrLf + "Type: " +
-                ex.GetType().ToString() + Constants.vbCrLf + "Message: " + ex.Message.ToString() +
-#if MULTILANGUAGE
-          Constants.vbCrLf + Translator.GetInstance().Translate(TranslatorVocabulary.DoYouWishToContinue);
-#else
- Constants.vbCrLf + "DO YOU WISH TO CONTINUE?";
-#endif
+//#if MULTILANGUAGE
+//      string errorMsg = Translator.GetInstance().Translate(TranslatorVocabulary.AnUnanticipatedErrorOccuredInDmobile) + Constants.vbCrLf +
+//#else
+//            string errorMsg = "An Unanticipated Error Occured in dMobile: " + Constants.vbCrLf +
+//#endif
+// "Assembly: " + assembly + Constants.vbCrLf + "Class: " + fullClassName +
+//                Constants.vbCrLf + "Method: " + reportingMethod + Constants.vbCrLf + "Type: " +
+//                ex.GetType().ToString() + Constants.vbCrLf + "Message: " + ex.Message.ToString() +
+//#if MULTILANGUAGE
+//          Constants.vbCrLf + Translator.GetInstance().Translate(TranslatorVocabulary.DoYouWishToContinue);
+//#else
+// Constants.vbCrLf + "DO YOU WISH TO CONTINUE?";
+//#endif
 
-            result = !(Interaction.MsgBox(errorMsg, MsgBoxStyle.YesNo,
-#if MULTILANGUAGE
-          Translator.GetInstance().Translate(TranslatorVocabulary.DmobileErrorOccurredDoYouWishToContinue)) == MsgBoxResult.No);
-#else
- "dMobile Error Occurred Do you wish to continue!") == MsgBoxResult.No);
-#endif
+//            result = !(Interaction.MsgBox(errorMsg, MsgBoxStyle.YesNo,
+//#if MULTILANGUAGE
+//          Translator.GetInstance().Translate(TranslatorVocabulary.DmobileErrorOccurredDoYouWishToContinue)) == MsgBoxResult.No);
+//#else
+// "dMobile Error Occurred Do you wish to continue!") == MsgBoxResult.No);
+//#endif
 
             return result;
         }
@@ -2237,21 +2235,21 @@ namespace dMobile.Bedrock
             }
 
             StringBuilder newData = new StringBuilder();
-            char ch = '\0';
-            for (int index = 0; index <= inData.Length - 1; index++)
-            {
-                ch = inData[index];
+            //char ch = '\0';
+            //for (int index = 0; index <= inData.Length - 1; index++)
+            //{
+            //    ch = inData[index];
 
-                // remove any characters outside the valid UTF-8 range as well as all control characters
-                // except tabs and new lines
-                ////if ((&HFD > AscW(ch) And AscW(ch) > &H1F) Or ch = "\t" Or ch = "\n" Or ch = "\r")
-                ////newString.Append(ch)
+            //    // remove any characters outside the valid UTF-8 range as well as all control characters
+            //    // except tabs and new lines
+            //    ////if ((&HFD > AscW(ch) And AscW(ch) > &H1F) Or ch = "\t" Or ch = "\n" Or ch = "\r")
+            //    ////newString.Append(ch)
 
-                if (0xfd > Strings.AscW(ch) & Strings.AscW(ch) > 0x1f)
-                {
-                    newData.Append(ch);
-                }
-            }
+            //    if (0xfd > Strings.AscW(ch) & Strings.AscW(ch) > 0x1f)
+            //    {
+            //        newData.Append(ch);
+            //    }
+            //}
 
             return newData.ToString();
         }
@@ -2834,17 +2832,17 @@ namespace dMobile.Bedrock
             memoryInfo.Append("Avail Virtual: " + memStatus.dwAvailVirtual + Environment.NewLine);
 #endif
 
-            // Show the available memory.
-            MessageBox.Show(
-                memoryInfo.ToString(),
-#if MULTILANGUAGE
-          Translator.GetInstance().Translate(TranslatorVocabulary.MemoryUsage), 
-#else
- "Memory Usage",
-#endif
- MessageBoxButtons.OK,
-                MessageBoxIcon.None,
-                MessageBoxDefaultButton.Button1);
+//            // Show the available memory.
+//            MessageBox.Show(
+//                memoryInfo.ToString(),
+//#if MULTILANGUAGE
+//          Translator.GetInstance().Translate(TranslatorVocabulary.MemoryUsage), 
+//#else
+// "Memory Usage",
+//#endif
+// MessageBoxButtons.OK,
+//                MessageBoxIcon.None,
+//                MessageBoxDefaultButton.Button1);
         }
 
         #endregion
@@ -2899,60 +2897,60 @@ namespace dMobile.Bedrock
         /// </summary>
         /// <param name="ctl"></param>
         /// <remarks></remarks>
-        public static void SetFocusAndSelectValueToNumericUpDown(UpDownBase ctl)
-        {
-            ctl.Capture = true;
-            IntPtr hWnd = GetCapture();
-            ctl.Capture = false;
-            IntPtr hBuddy = GetWindow(hWnd, GW_CHILD);
-            SetFocus(hBuddy);
-            SendMessage(hBuddy, EM_SETSEL, 0, -1);
-        }
+        //public static void SetFocusAndSelectValueToNumericUpDown(UpDownBase ctl)
+        //{
+        //    ctl.Capture = true;
+        //    IntPtr hWnd = GetCapture();
+        //    ctl.Capture = false;
+        //    IntPtr hBuddy = GetWindow(hWnd, GW_CHILD);
+        //    SetFocus(hBuddy);
+        //    SendMessage(hBuddy, EM_SETSEL, 0, -1);
+        //}
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="ctl"></param>
         /// <remarks></remarks>
-        public static void SetFocusAndSelectValueToDomainUpDown(UpDownBase ctl)
-        {
-            ctl.Capture = true;
-            IntPtr hWnd = GetCapture();
-            ctl.Capture = false;
-            IntPtr hBuddy = GetWindow(hWnd, GW_CHILD);
-            SetFocus(hBuddy);
-            SendMessage(hBuddy, EM_SETSEL, 0, -1);
-        }
+        //public static void SetFocusAndSelectValueToDomainUpDown(UpDownBase ctl)
+        //{
+        //    ctl.Capture = true;
+        //    IntPtr hWnd = GetCapture();
+        //    ctl.Capture = false;
+        //    IntPtr hBuddy = GetWindow(hWnd, GW_CHILD);
+        //    SetFocus(hBuddy);
+        //    SendMessage(hBuddy, EM_SETSEL, 0, -1);
+        //}
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="ctl"></param>
         /// <remarks></remarks>
-        public static void SelectValueInNumericUpDown(UpDownBase ctl)
-        {
-            ctl.Capture = true;
-            IntPtr hWnd = GetCapture();
-            ctl.Capture = false;
-            IntPtr hBuddy = GetWindow(hWnd, GW_CHILD);
-            ////SetFocus(hBuddy)
-            SendMessage(hBuddy, EM_SETSEL, 0, -1);
-        }
+        //public static void SelectValueInNumericUpDown(UpDownBase ctl)
+        //{
+        //    ctl.Capture = true;
+        //    IntPtr hWnd = GetCapture();
+        //    ctl.Capture = false;
+        //    IntPtr hBuddy = GetWindow(hWnd, GW_CHILD);
+        //    ////SetFocus(hBuddy)
+        //    SendMessage(hBuddy, EM_SETSEL, 0, -1);
+        //}
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="ctl"></param>
         /// <remarks></remarks>
-        public static void SelectValueInDomainUpDown(UpDownBase ctl)
-        {
-            ctl.Capture = true;
-            IntPtr hWnd = GetCapture();
-            ctl.Capture = false;
-            IntPtr hBuddy = GetWindow(hWnd, GW_CHILD);
-            ////SetFocus(hBuddy)
-            SendMessage(hBuddy, EM_SETSEL, 0, -1);
-        }
+        //public static void SelectValueInDomainUpDown(UpDownBase ctl)
+        //{
+        //    ctl.Capture = true;
+        //    IntPtr hWnd = GetCapture();
+        //    ctl.Capture = false;
+        //    IntPtr hBuddy = GetWindow(hWnd, GW_CHILD);
+        //    ////SetFocus(hBuddy)
+        //    SendMessage(hBuddy, EM_SETSEL, 0, -1);
+        //}
 
         #endregion
     }

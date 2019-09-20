@@ -2,7 +2,7 @@ namespace dMobile.GroundWork
 {
   using System;
   using System.Data;
-  
+  using System.Data.SQLite;
   using dMobile.Bedrock;
 
   public class TableActivityDetailProductSchemeVariantXRef : TableBase
@@ -50,7 +50,7 @@ namespace dMobile.GroundWork
 #endif
           true);
       }
-      catch (SqlCeException ex)
+      catch (SQLiteException ex)
       {
 #if MULTILANGUAGE
         this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), true);

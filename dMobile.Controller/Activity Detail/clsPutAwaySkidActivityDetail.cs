@@ -2,7 +2,7 @@ namespace dMobile.Controller
 {
   using System;
   using System.Data;
-  
+  using System.Data.SQLite;
   using System.Windows.Forms;
   using System.Xml;
   using System.Xml.Linq;

@@ -5,7 +5,6 @@ namespace dMobile.Bedrock
     using System.Net;
     using System.Net.Sockets;
     using System.Text;
-    using Microsoft.VisualBasic;
 
     /// <summary>
     /// Handles Communication via a socket to send and receive data
@@ -16,8 +15,8 @@ namespace dMobile.Bedrock
         #region Fields
 
         private string serverIP;
-        private string sendEOM = "</WAIT_EOM>" + Strings.Chr(20);
-        private string receiveEOM = "</EOM>" + Strings.Chr(20);
+        private string sendEOM = "</WAIT_EOM>" /*+ Strings.Chr(20)*/;
+        private string receiveEOM = "</EOM>" /*+ Strings.Chr(20)*/;
         private int recvBuffSize = 32768;
         private int connTotalRetries = 3;
         private int sendTotalRetries = 3;

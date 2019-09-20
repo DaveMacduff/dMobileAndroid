@@ -2,7 +2,7 @@ namespace dMobile.GroundWork
 {
   using System;
   using System.Data;
-  
+  using System.Data.SQLite;
   using System.Text;
   using System.Xml;
   using System.Xml.Linq;
@@ -50,7 +50,7 @@ namespace dMobile.GroundWork
                 + "FROM tActivity "
                 + "WHERE tActivity.ActivitySubType = " + (int)SysCommon.ActSubTypes.TicketFinished;
 
-            using (SqliteDataReader drActivity = cmndActivity.ExecuteReader())
+            using (SQLiteDataReader drActivity = cmndActivity.ExecuteReader())
             {
               while (drActivity.Read())
               {
@@ -95,7 +95,7 @@ namespace dMobile.GroundWork
         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding finished ticket items complete.", true);
 #endif
       }
-      catch (SqlCeException ex)
+      catch (SQLiteException ex)
       {
 #if MULTILANGUAGE
         this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), true);
@@ -179,7 +179,7 @@ namespace dMobile.GroundWork
         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging finished ticket items complete.", true);
 #endif
       }
-      catch (SqlCeException ex)
+      catch (SQLiteException ex)
       {
 #if MULTILANGUAGE
         this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), true);
@@ -226,7 +226,7 @@ namespace dMobile.GroundWork
               true);
         }
       }
-      catch (SqlCeException ex)
+      catch (SQLiteException ex)
       {
 #if MULTILANGUAGE
         throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredFinishedTicketItemsStatusFailed), ex);
@@ -251,42 +251,42 @@ namespace dMobile.GroundWork
     {
       int actProductionFKRefno = 0;
 
-      using (SQLiteCommand cmndFinished = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-      {
-        cmndFinished.CommandText = "tActivityProductionFinished";
-        cmndFinished.CommandType = CommandType.TableDirect;
-        cmndFinished.IndexName = "PK_ActivityProductionFinishedOnActivityRefno";
+//      using (SQLiteCommand cmndFinished = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+//      {
+//        cmndFinished.CommandText = "tActivityProductionFinished";
+//        cmndFinished.CommandType = CommandType.TableDirect;
+//        cmndFinished.IndexName = "PK_ActivityProductionFinishedOnActivityRefno";
 
-        using (SqliteDataReader drFinished = cmndFinished.ExecuteReader())
-        {
-          if (drFinished.Seek(DbSeekOptions.FirstEqual, new object[] { actRefno }))
-          {
-            if (drFinished.Read())
-            {
-              actProductionFKRefno = drFinished.GetInt32((int)SysCommon.ActProdFinishedFields.FKRefno);
-            }
-            else
-            {
-#if MULTILANGUAGE
-              throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DrfinishedreadFailed));
-#else
-              throw new Exception("drFinished.Read() failed.");
-#endif
-            }
-          }
-          else
-          {
-            throw new Exception(
-#if MULTILANGUAGE
-                string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.UnableToLocateTheActivityProductionTicketFinishedRefnoIn)
-#else
-                string.Format("Unable to locate the activity production ticket finished refno {0} in "
-#endif
-                + "tActivityProductionFinished.", actRefno));
-          }
-        }
+//        using (SQLiteDataReader drFinished = cmndFinished.ExecuteReader())
+//        {
+//          if (drFinished.Seek(DbSeekOptions.FirstEqual, new object[] { actRefno }))
+//          {
+//            if (drFinished.Read())
+//            {
+//              actProductionFKRefno = drFinished.GetInt32((int)SysCommon.ActProdFinishedFields.FKRefno);
+//            }
+//            else
+//            {
+//#if MULTILANGUAGE
+//              throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DrfinishedreadFailed));
+//#else
+//              throw new Exception("drFinished.Read() failed.");
+//#endif
+//            }
+//          }
+//          else
+//          {
+//            throw new Exception(
+//#if MULTILANGUAGE
+//                string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.UnableToLocateTheActivityProductionTicketFinishedRefnoIn)
+//#else
+//                string.Format("Unable to locate the activity production ticket finished refno {0} in "
+//#endif
+//                + "tActivityProductionFinished.", actRefno));
+//          }
+//        }
 
-      }
+//      }
 
       return this.SendComm(this.Create(actProductionFKRefno));
     }
@@ -298,266 +298,266 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     protected override void Save(string reqData, int actRefno)
     {
-      SqlCeConnection conn = DatabaseConnection.GetInstance().SQLConn;
-      string errMsg = string.Empty;
+//      SQLiteConnection conn = DatabaseConnection.GetInstance().SQLConn;
+//      string errMsg = string.Empty;
 
-      try
-      {
-        using (DataSet ds = new DataSet())
-        {
-#if MULTILANGUAGE
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.ReadingReceivedData), false);
-#else
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
-#endif
-          ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
+//      try
+//      {
+//        using (DataSet ds = new DataSet())
+//        {
+//#if MULTILANGUAGE
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.ReadingReceivedData), false);
+//#else
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
+//#endif
+//          ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
 
-#if MULTILANGUAGE
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingFinishedTicketItems), false);
-#else
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving finished ticket items.", false);
-#endif
-          if (ds.Tables.Count != 0)
-          {
-            int progMax = Convert.ToInt32(ds.Tables["tActivityItemProduction"].Rows.Count);
+//#if MULTILANGUAGE
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingFinishedTicketItems), false);
+//#else
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving finished ticket items.", false);
+//#endif
+//          if (ds.Tables.Count != 0)
+//          {
+//            int progMax = Convert.ToInt32(ds.Tables["tActivityItemProduction"].Rows.Count);
 
-#if MULTILANGUAGE
-            this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.Recordsz), progMax), false);
-#else
-            this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
-#endif
+//#if MULTILANGUAGE
+//            this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.Recordsz), progMax), false);
+//#else
+//            this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
+//#endif
 
-            using (SQLiteCommand cmndItemProd = conn.CreateCommand())
-            {
-              cmndItemProd.CommandText = "tActivityItemProduction";
-              cmndItemProd.CommandType = CommandType.TableDirect;
-              cmndItemProd.IndexName = "PK_ActivityItemProductionOnActivityItemRefno";
+//            using (SQLiteCommand cmndItemProd = conn.CreateCommand())
+//            {
+//              cmndItemProd.CommandText = "tActivityItemProduction";
+//              cmndItemProd.CommandType = CommandType.TableDirect;
+//              cmndItemProd.IndexName = "PK_ActivityItemProductionOnActivityItemRefno";
 
-              using (SQLiteCommand cmndItemFinished = conn.CreateCommand())
-              {
-                cmndItemFinished.CommandText = "tActivityItemProductionFinished";
-                cmndItemFinished.CommandType = CommandType.TableDirect;
-                cmndItemFinished.IndexName = "UQ_ActivityItemProductionFinishedOnActivityItemProductionFinishedFKRefno";
+//              using (SQLiteCommand cmndItemFinished = conn.CreateCommand())
+//              {
+//                cmndItemFinished.CommandText = "tActivityItemProductionFinished";
+//                cmndItemFinished.CommandType = CommandType.TableDirect;
+//                cmndItemFinished.IndexName = "UQ_ActivityItemProductionFinishedOnActivityItemProductionFinishedFKRefno";
 
-                using (SQLiteCommand cmndItem = conn.CreateCommand())
-                {
-                  cmndItem.CommandText = "tActivityItem";
-                  cmndItem.CommandType = CommandType.TableDirect;
+//                using (SQLiteCommand cmndItem = conn.CreateCommand())
+//                {
+//                  cmndItem.CommandText = "tActivityItem";
+//                  cmndItem.CommandType = CommandType.TableDirect;
 
-                  using (SqlCeResultSet rsActItem = cmndItem.ExecuteResultSet(ResultSetOptions.Updatable))
-                  {
-                    SqlCeUpdatableRecord recActItem = rsActItem.CreateRecord();
+//                  using (SqlCeResultSet rsActItem = cmndItem.ExecuteResultSet(ResultSetOptions.Updatable))
+//                  {
+//                    SqlCeUpdatableRecord recActItem = rsActItem.CreateRecord();
 
-                    using (SqlCeResultSet rsActItemFinished = cmndItemFinished.ExecuteResultSet(ResultSetOptions.Updatable))
-                    {
-                      SqlCeUpdatableRecord recActItemFinished = rsActItemFinished.CreateRecord();
+//                    using (SqlCeResultSet rsActItemFinished = cmndItemFinished.ExecuteResultSet(ResultSetOptions.Updatable))
+//                    {
+//                      SqlCeUpdatableRecord recActItemFinished = rsActItemFinished.CreateRecord();
 
-                      using (SQLiteCommand cmndProdUnit = conn.CreateCommand())
-                      {
-                        cmndProdUnit.CommandText = "tProductUnit";
-                        cmndProdUnit.CommandType = CommandType.TableDirect;
-                        cmndProdUnit.IndexName = "UQ_ProductUnitOnProductRefnoAndUnitRefnoAndProductUnitIsBC";
+//                      using (SQLiteCommand cmndProdUnit = conn.CreateCommand())
+//                      {
+//                        cmndProdUnit.CommandText = "tProductUnit";
+//                        cmndProdUnit.CommandType = CommandType.TableDirect;
+//                        cmndProdUnit.IndexName = "UQ_ProductUnitOnProductRefnoAndUnitRefnoAndProductUnitIsBC";
 
-                        using (SqliteDataReader drProdUnit = cmndProdUnit.ExecuteReader())
-                        {
-                          using (SQLiteCommand cmndGetProduct = conn.CreateCommand())
-                          {
-                            cmndGetProduct.CommandText = "tProduct";
-                            cmndGetProduct.IndexName = "UQ_ProductOnProductFKRefno";
-                            cmndGetProduct.CommandType = CommandType.TableDirect;
+//                        using (SQLiteDataReader drProdUnit = cmndProdUnit.ExecuteReader())
+//                        {
+//                          using (SQLiteCommand cmndGetProduct = conn.CreateCommand())
+//                          {
+//                            cmndGetProduct.CommandText = "tProduct";
+//                            cmndGetProduct.IndexName = "UQ_ProductOnProductFKRefno";
+//                            cmndGetProduct.CommandType = CommandType.TableDirect;
 
-                            using (SqliteDataReader drProd = cmndGetProduct.ExecuteReader())
-                            {
-                              using (SQLiteCommand cmndGetUnit = conn.CreateCommand())
-                              {
-                                cmndGetUnit.CommandText = "tUnit";
-                                cmndGetUnit.IndexName = "UQ_UnitOnUnitCode";
-                                cmndGetUnit.CommandType = CommandType.TableDirect;
+//                            using (SQLiteDataReader drProd = cmndGetProduct.ExecuteReader())
+//                            {
+//                              using (SQLiteCommand cmndGetUnit = conn.CreateCommand())
+//                              {
+//                                cmndGetUnit.CommandText = "tUnit";
+//                                cmndGetUnit.IndexName = "UQ_UnitOnUnitCode";
+//                                cmndGetUnit.CommandType = CommandType.TableDirect;
 
-                                using (SqliteDataReader drUnit = cmndGetUnit.ExecuteReader())
-                                {
-                                  using (SQLiteCommand cmndLocMapWhs = conn.CreateCommand())
-                                  {
-                                    cmndLocMapWhs.CommandText = "tLocationMapWarehouse";
-                                    cmndLocMapWhs.CommandType = CommandType.TableDirect;
-                                    cmndLocMapWhs.IndexName = "UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno";
+//                                using (SQLiteDataReader drUnit = cmndGetUnit.ExecuteReader())
+//                                {
+//                                  using (SQLiteCommand cmndLocMapWhs = conn.CreateCommand())
+//                                  {
+//                                    cmndLocMapWhs.CommandText = "tLocationMapWarehouse";
+//                                    cmndLocMapWhs.CommandType = CommandType.TableDirect;
+//                                    cmndLocMapWhs.IndexName = "UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno";
 
-                                    using (SqliteDataReader drLocMapWhs = cmndLocMapWhs.ExecuteReader())
-                                    {
-                                      using (SQLiteCommand cmndID = conn.CreateCommand())
-                                      {
-                                        cmndID.CommandText = "SELECT @@IDENTITY";
-                                        cmndID.CommandType = CommandType.Text;
+//                                    using (SQLiteDataReader drLocMapWhs = cmndLocMapWhs.ExecuteReader())
+//                                    {
+//                                      using (SQLiteCommand cmndID = conn.CreateCommand())
+//                                      {
+//                                        cmndID.CommandText = "SELECT @@IDENTITY";
+//                                        cmndID.CommandType = CommandType.Text;
 
-                                        using (SqlCeResultSet rsActItemProd
-                                            = cmndItemProd.ExecuteResultSet(ResultSetOptions.Updatable))
-                                        {
-                                          SqlCeUpdatableRecord recActItemProd = rsActItemProd.CreateRecord();
+//                                        using (SqlCeResultSet rsActItemProd
+//                                            = cmndItemProd.ExecuteResultSet(ResultSetOptions.Updatable))
+//                                        {
+//                                          SqlCeUpdatableRecord recActItemProd = rsActItemProd.CreateRecord();
 
-                                          int actItemRefno = 0;
-                                          int progValue = 0;
-                                          int prodUnitRefno = 0;
-                                          int locMapRefno = 0;
+//                                          int actItemRefno = 0;
+//                                          int progValue = 0;
+//                                          int prodUnitRefno = 0;
+//                                          int locMapRefno = 0;
 
-                                          this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
+//                                          this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
 
-                                          foreach (DataRow drow in ds.Tables["tActivityItemProduction"].Rows)
-                                          {
-                                            errMsg = "Arguments:";
+//                                          foreach (DataRow drow in ds.Tables["tActivityItemProduction"].Rows)
+//                                          {
+//                                            errMsg = "Arguments:";
 
-                                            recActItem.SetInt32(
-                                                (int)SysCommon.ActItemFields.SubType,
-                                                (int)SysCommon.ActSubTypes.TicketFinished);
-                                            recActItem.SetInt32(
-                                                (int)SysCommon.ActItemFields.Status,
-                                                (int)SysCommon.ActStatus.NoChange);
-                                            recActItem.SetInt32((int)SysCommon.ActItemFields.ActRefno, actRefno);
+//                                            recActItem.SetInt32(
+//                                                (int)SysCommon.ActItemFields.SubType,
+//                                                (int)SysCommon.ActSubTypes.TicketFinished);
+//                                            recActItem.SetInt32(
+//                                                (int)SysCommon.ActItemFields.Status,
+//                                                (int)SysCommon.ActStatus.NoChange);
+//                                            recActItem.SetInt32((int)SysCommon.ActItemFields.ActRefno, actRefno);
 
-                                            rsActItem.Insert(recActItem);
+//                                            rsActItem.Insert(recActItem);
 
-                                            actItemRefno = Convert.ToInt32(cmndID.ExecuteScalar());
+//                                            actItemRefno = Convert.ToInt32(cmndID.ExecuteScalar());
 
-                                            prodUnitRefno = this.GetProductUnitRefnoFromDataRow(
-                                                drow,
-                                                ref errMsg,
-                                                drProd,
-                                                drUnit,
-                                                drProdUnit,
-                                                false);
+//                                            prodUnitRefno = this.GetProductUnitRefnoFromDataRow(
+//                                                drow,
+//                                                ref errMsg,
+//                                                drProd,
+//                                                drUnit,
+//                                                drProdUnit,
+//                                                false);
 
-                                            recActItemProd.SetInt32(
-                                                (int)SysCommon.ActItemProdFields.ActItemRefno,
-                                                actItemRefno);
-                                            recActItemProd.SetInt32(
-                                                (int)SysCommon.ActItemProdFields.ActivityItemSubType,
-                                                (int)SysCommon.ActSubTypes.TicketFinished);
-                                            recActItemProd.SetInt32(
-                                                (int)SysCommon.ActItemProdFields.ProdUnitRefno,
-                                                prodUnitRefno);
+//                                            recActItemProd.SetInt32(
+//                                                (int)SysCommon.ActItemProdFields.ActItemRefno,
+//                                                actItemRefno);
+//                                            recActItemProd.SetInt32(
+//                                                (int)SysCommon.ActItemProdFields.ActivityItemSubType,
+//                                                (int)SysCommon.ActSubTypes.TicketFinished);
+//                                            recActItemProd.SetInt32(
+//                                                (int)SysCommon.ActItemProdFields.ProdUnitRefno,
+//                                                prodUnitRefno);
 
-                                            locMapRefno = this.GetWhsLocMapRefnoFromDataRow(
-                                                drow,
-                                                ref errMsg,
-                                                drLocMapWhs);
-                                            recActItemProd.SetInt32(
-                                                (int)SysCommon.ActItemProdFields.LocMapRefno,
-                                                locMapRefno);
+//                                            locMapRefno = this.GetWhsLocMapRefnoFromDataRow(
+//                                                drow,
+//                                                ref errMsg,
+//                                                drLocMapWhs);
+//                                            recActItemProd.SetInt32(
+//                                                (int)SysCommon.ActItemProdFields.LocMapRefno,
+//                                                locMapRefno);
 
-                                            recActItemProd.SetDecimal(
-                                                (int)SysCommon.ActItemProdFields.Quantity,
-                                                Convert.ToDecimal(drow["ActivityItemProductionQuantity"]));
-                                            recActItemProd.SetDecimal(
-                                                (int)SysCommon.ActItemProdFields.BaseQuantity,
-                                                Convert.ToDecimal(drow["ActivityItemProductionBaseQuantity"]));
-                                            recActItemProd.SetDecimal(
-                                                (int)SysCommon.ActItemProdFields.WeightQuantity,
-                                                Convert.ToDecimal(drow["ActivityItemProductionWeightQuantity"]));
-                                            recActItemProd.SetString(
-                                                (int)SysCommon.ActItemProdFields.Description,
-                                                drow["ActivityItemProductionDescription"].ToString());
-                                            recActItemProd.SetDecimal(
-                                                (int)SysCommon.ActItemProdFields.QuantityExpected,
-                                                Convert.ToDecimal(drow["ActivityItemProductionQuantityExpected"]));
-                                            recActItemProd.SetDecimal(
-                                                (int)SysCommon.ActItemProdFields.BaseQuantityExpected,
-                                                Convert.ToDecimal(drow["ActivityItemProductionBaseQuantityExpected"]));
-                                            recActItemProd.SetDecimal(
-                                                (int)SysCommon.ActItemProdFields.WeightQuantityExpected,
-                                                Convert.ToDecimal(drow["ActivityItemProductionWeightQuantityExpected"]));
+//                                            recActItemProd.SetDecimal(
+//                                                (int)SysCommon.ActItemProdFields.Quantity,
+//                                                Convert.ToDecimal(drow["ActivityItemProductionQuantity"]));
+//                                            recActItemProd.SetDecimal(
+//                                                (int)SysCommon.ActItemProdFields.BaseQuantity,
+//                                                Convert.ToDecimal(drow["ActivityItemProductionBaseQuantity"]));
+//                                            recActItemProd.SetDecimal(
+//                                                (int)SysCommon.ActItemProdFields.WeightQuantity,
+//                                                Convert.ToDecimal(drow["ActivityItemProductionWeightQuantity"]));
+//                                            recActItemProd.SetString(
+//                                                (int)SysCommon.ActItemProdFields.Description,
+//                                                drow["ActivityItemProductionDescription"].ToString());
+//                                            recActItemProd.SetDecimal(
+//                                                (int)SysCommon.ActItemProdFields.QuantityExpected,
+//                                                Convert.ToDecimal(drow["ActivityItemProductionQuantityExpected"]));
+//                                            recActItemProd.SetDecimal(
+//                                                (int)SysCommon.ActItemProdFields.BaseQuantityExpected,
+//                                                Convert.ToDecimal(drow["ActivityItemProductionBaseQuantityExpected"]));
+//                                            recActItemProd.SetDecimal(
+//                                                (int)SysCommon.ActItemProdFields.WeightQuantityExpected,
+//                                                Convert.ToDecimal(drow["ActivityItemProductionWeightQuantityExpected"]));
 
-                                            rsActItemProd.Insert(recActItemProd);
+//                                            rsActItemProd.Insert(recActItemProd);
 
-                                            recActItemFinished.SetInt32(
-                                                (int)SysCommon.ActItemProdFinishedFields.ActItemRefno,
-                                                actItemRefno);
+//                                            recActItemFinished.SetInt32(
+//                                                (int)SysCommon.ActItemProdFinishedFields.ActItemRefno,
+//                                                actItemRefno);
 
-                                            int actItemProductionFKRefno =
-                                                Convert.ToInt32(drow["ActivityItemProductionFKRefno"]);
-                                            errMsg += Environment.NewLine + "Item fk refno " + actItemProductionFKRefno;
-                                            recActItemFinished.SetInt32(
-                                              (int)SysCommon.ActItemProdFinishedFields.FKRefno,
-                                              actItemProductionFKRefno);
-                                            recActItemFinished.SetString(
-                                              (int)SysCommon.ActItemProdFinishedFields.StringFKRefno,
-                                              actItemProductionFKRefno.ToString());
+//                                            int actItemProductionFKRefno =
+//                                                Convert.ToInt32(drow["ActivityItemProductionFKRefno"]);
+//                                            errMsg += Environment.NewLine + "Item fk refno " + actItemProductionFKRefno;
+//                                            recActItemFinished.SetInt32(
+//                                              (int)SysCommon.ActItemProdFinishedFields.FKRefno,
+//                                              actItemProductionFKRefno);
+//                                            recActItemFinished.SetString(
+//                                              (int)SysCommon.ActItemProdFinishedFields.StringFKRefno,
+//                                              actItemProductionFKRefno.ToString());
 
-                                            rsActItemFinished.Insert(recActItemFinished);
+//                                            rsActItemFinished.Insert(recActItemFinished);
 
-                                            progValue++;
-                                            if (progValue % 100 == 0)
-                                            {
-                                              this.DataAccessProgressOutHandler(
-                                                  this,
-                                                  EventArgs.Empty,
-                                                  progValue,
-                                                  0,
-                                                  progMax);
-                                            }
-                                          }
+//                                            progValue++;
+//                                            if (progValue % 100 == 0)
+//                                            {
+//                                              this.DataAccessProgressOutHandler(
+//                                                  this,
+//                                                  EventArgs.Empty,
+//                                                  progValue,
+//                                                  0,
+//                                                  progMax);
+//                                            }
+//                                          }
 
-                                          this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
-                                        }
-                                      }
+//                                          this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
+//                                        }
+//                                      }
 
-                                      drLocMapWhs.Close();
-                                    }
-                                  }
+//                                      drLocMapWhs.Close();
+//                                    }
+//                                  }
 
-                                  drUnit.Close();
-                                }
-                              }
+//                                  drUnit.Close();
+//                                }
+//                              }
 
-                              drProd.Close();
-                            }
-                          }
+//                              drProd.Close();
+//                            }
+//                          }
 
-                          drProdUnit.Close();
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
+//                          drProdUnit.Close();
+//                        }
+//                      }
+//                    }
+//                  }
+//                }
+//              }
+//            }
+//          }
 
-#if MULTILANGUAGE
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingFinishedTicketItemsComplete), false);
-#else
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving finished ticket items complete.", false);
-#endif
-        }
-      }
-      catch (SqlCeException ex)
-      {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), false);
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingFinishedTicketItemsFailed), false);
-#else
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving finished ticket items failed.", false);
-#endif
+//#if MULTILANGUAGE
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingFinishedTicketItemsComplete), false);
+//#else
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving finished ticket items complete.", false);
+//#endif
+//        }
+//      }
+//      catch (SQLiteException ex)
+//      {
+//#if MULTILANGUAGE
+//        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), false);
+//        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingFinishedTicketItemsFailed), false);
+//#else
+//        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
+//        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving finished ticket items failed.", false);
+//#endif
 
-        // Duplicate key violations
-        if (ex.NativeError == 25016)
-        {
-#if MULTILANGUAGE
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.UniquenessViolation), false);
-          throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.UniquenessViolation) + Environment.NewLine + errMsg, ex);
-#else
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Uniqueness violation.", false);
-          throw new Exception("Uniqueness violation." + Environment.NewLine + errMsg, ex);
-#endif
-        }
+//        // Duplicate key violations
+//        if (ex.NativeError == 25016)
+//        {
+//#if MULTILANGUAGE
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.UniquenessViolation), false);
+//          throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.UniquenessViolation) + Environment.NewLine + errMsg, ex);
+//#else
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Uniqueness violation.", false);
+//          throw new Exception("Uniqueness violation." + Environment.NewLine + errMsg, ex);
+//#endif
+//        }
 
-        throw new Exception(
-#if MULTILANGUAGE
-            Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredSavingFinishedTicketItemsFailed) + Environment.NewLine + errMsg,
-#else
-            "Database exception occurred. Saving finished ticket items failed." + Environment.NewLine + errMsg,
-#endif
-            ex);
-      }
+//        throw new Exception(
+//#if MULTILANGUAGE
+//            Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredSavingFinishedTicketItemsFailed) + Environment.NewLine + errMsg,
+//#else
+//            "Database exception occurred. Saving finished ticket items failed." + Environment.NewLine + errMsg,
+//#endif
+//            ex);
+//      }
     }
 
     /// <summary>

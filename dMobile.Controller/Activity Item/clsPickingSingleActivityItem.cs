@@ -2,7 +2,7 @@ namespace dMobile.Controller
 {
   using System;
   using System.Data;
-  
+  using System.Data.SQLite;
   using System.Text;
   using System.Windows.Forms;
   using System.Xml;
@@ -411,23 +411,23 @@ namespace dMobile.Controller
     public override string GetComment(int idx)
     {
       string itemCmnt = base.GetComment(idx);
-      using (SQLiteCommand cmndItemPickCmnt = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-      {
-        cmndItemPickCmnt.CommandType = CommandType.TableDirect;
-        cmndItemPickCmnt.CommandText = "tActivityItemPickingComment";
-        cmndItemPickCmnt.IndexName = "PK_ActivityItemPickingCommentOnActivityItemRefno";
+      //using (SQLiteCommand cmndItemPickCmnt = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+      //{
+      //  cmndItemPickCmnt.CommandType = CommandType.TableDirect;
+      //  cmndItemPickCmnt.CommandText = "tActivityItemPickingComment";
+      //  cmndItemPickCmnt.IndexName = "PK_ActivityItemPickingCommentOnActivityItemRefno";
 
-        using (SqliteDataReader drItemPickCmnt = cmndItemPickCmnt.ExecuteReader())
-        {
-          if (drItemPickCmnt.Seek(DbSeekOptions.FirstEqual, new object[] { idx }))
-          {
-            if (drItemPickCmnt.Read())
-            {
-              itemCmnt = drItemPickCmnt["ActivityItemPickingCommentComment"].ToString();
-            }
-          }
-        }
-      }
+      //  using (SQLiteDataReader drItemPickCmnt = cmndItemPickCmnt.ExecuteReader())
+      //  {
+      //    if (drItemPickCmnt.Seek(DbSeekOptions.FirstEqual, new object[] { idx }))
+      //    {
+      //      if (drItemPickCmnt.Read())
+      //      {
+      //        itemCmnt = drItemPickCmnt["ActivityItemPickingCommentComment"].ToString();
+      //      }
+      //    }
+      //  }
+      //}
 
       return itemCmnt;
     }
@@ -832,7 +832,7 @@ namespace dMobile.Controller
       ////  cmndItem.CommandType = CommandType.Text;
       ////  cmndItem.CommandText = sql.ToString();
 
-      ////  using (SqliteDataReader drItem = cmndItem.ExecuteReader())
+      ////  using (SQLiteDataReader drItem = cmndItem.ExecuteReader())
       ////  {
       ////    if (drItem.Read())
       ////    {
@@ -940,7 +940,7 @@ namespace dMobile.Controller
       {
         cmndItem.CommandText = "tActivityItemPicking";
         cmndItem.CommandType = CommandType.Text;
-        cmndItem.IndexName = string.Empty;
+        //cmndItem.IndexName = string.Empty;
         cmndItem.CommandText = "UPDATE tActivityItemPicking "
             + "SET ActivityItemPickingQuantityShipped = " 
             + this.DataViewItems[idx]["ActivityItemPickingQuantityShipped"] + "," 

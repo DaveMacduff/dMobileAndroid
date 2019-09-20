@@ -2,7 +2,7 @@ namespace dMobile.Controller
 {
   using System;
   using System.Data;
-  
+  using System.Data.SQLite;
   using System.Text;
   using System.Windows.Forms;
   using System.Xml;
@@ -73,7 +73,7 @@ namespace dMobile.Controller
             using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
             {
               cmndItem.CommandType = CommandType.Text;
-              cmndItem.IndexName = string.Empty;
+              //cmndItem.IndexName = string.Empty;
               cmndItem.CommandText = "UPDATE tActivityItemProductionMaterial " 
                   + "SET ActivityItemProductionMaterialStringFKRefno = \'" + this.NewItemFKRefno + "\', "
                   + "ActivityItemProductionMaterialFKRefno = " + this.NewItemFKRefno +
@@ -141,67 +141,67 @@ namespace dMobile.Controller
     /// <param name="data"></param>
     public override void Insert(XDocument data)
     {
-      this.FillActDetailObjFromXML(data);
+      //this.FillActDetailObjFromXML(data);
 
-      if (this.SysEnv.SysSettings.IsDisconnectedMode)
-      {
-        int actDetailRefno = this.InsertDetailDisconnected();
+      //if (this.SysEnv.SysSettings.IsDisconnectedMode)
+      //{
+      //  int actDetailRefno = this.InsertDetailDisconnected();
 
-        using (SQLiteCommand cmndDetailMaterial = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-        {
-          cmndDetailMaterial.CommandText = "tActivityDetailProductionMaterial";
-          cmndDetailMaterial.CommandType = CommandType.TableDirect;
-          cmndDetailMaterial.IndexName =
-              "UQ_ActivityDetailProductionMaterialOnActivityDetailProductionMaterialFKRefno";
+      //  using (SQLiteCommand cmndDetailMaterial = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+      //  {
+      //    cmndDetailMaterial.CommandText = "tActivityDetailProductionMaterial";
+      //    cmndDetailMaterial.CommandType = CommandType.TableDirect;
+      //    cmndDetailMaterial.IndexName =
+      //        "UQ_ActivityDetailProductionMaterialOnActivityDetailProductionMaterialFKRefno";
 
-          using (SqlCeResultSet rsDetailMaterial = cmndDetailMaterial.ExecuteResultSet(ResultSetOptions.Updatable))
-          {
-            SqlCeUpdatableRecord recDetailMaterial = rsDetailMaterial.CreateRecord();
-            recDetailMaterial.SetInt32((int)SysCommon.ActDetailProdMaterialFields.ActDetailRefno, actDetailRefno);
-            recDetailMaterial.SetInt32((int)SysCommon.ActDetailProdMaterialFields.FKRefno, this.FKRefno);
-            rsDetailMaterial.Insert(recDetailMaterial);
+      //    using (SqlCeResultSet rsDetailMaterial = cmndDetailMaterial.ExecuteResultSet(ResultSetOptions.Updatable))
+      //    {
+      //      SqlCeUpdatableRecord recDetailMaterial = rsDetailMaterial.CreateRecord();
+      //      recDetailMaterial.SetInt32((int)SysCommon.ActDetailProdMaterialFields.ActDetailRefno, actDetailRefno);
+      //      recDetailMaterial.SetInt32((int)SysCommon.ActDetailProdMaterialFields.FKRefno, this.FKRefno);
+      //      rsDetailMaterial.Insert(recDetailMaterial);
 
-            this.IsUpdateView = true;
-          }
-        }
-      }
-      else
-      {
-        if (this.InsertDetail(
-            this.CreateSubmitXML(
-            XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"))))
-        {
-          using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-          {
-            cmndItem.IndexName = string.Empty;
-            cmndItem.CommandType = CommandType.Text;
-            cmndItem.CommandText = "UPDATE tActivityItemProductionMaterial "
-                + "SET ActivityItemProductionMaterialStringFKRefno = \'" + this.NewItemFKRefno + "\',"
-                + "ActivityItemProductionMaterialFKRefno = " + this.NewItemFKRefno
-                + " WHERE tActivityItemProductionMaterial.ActivityItemRefno = " + this.ActItem.Refno;
-            cmndItem.ExecuteNonQuery();
-          }
+      //      this.IsUpdateView = true;
+      //    }
+      //  }
+      //}
+      //else
+      //{
+      //  if (this.InsertDetail(
+      //      this.CreateSubmitXML(
+      //      XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"))))
+      //  {
+      //    using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+      //    {
+      //      cmndItem.IndexName = string.Empty;
+      //      cmndItem.CommandType = CommandType.Text;
+      //      cmndItem.CommandText = "UPDATE tActivityItemProductionMaterial "
+      //          + "SET ActivityItemProductionMaterialStringFKRefno = \'" + this.NewItemFKRefno + "\',"
+      //          + "ActivityItemProductionMaterialFKRefno = " + this.NewItemFKRefno
+      //          + " WHERE tActivityItemProductionMaterial.ActivityItemRefno = " + this.ActItem.Refno;
+      //      cmndItem.ExecuteNonQuery();
+      //    }
 
-          string oldSort = this.ActItem.DataViewItems.Sort;
-          this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
+      //    string oldSort = this.ActItem.DataViewItems.Sort;
+      //    this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
 
-          int rowIdx = this.ActItem.DataViewItems.Find(new object[] { this.ActItem.Refno });
-          if (rowIdx != -1)
-          {
-            DataRowView rowView = this.ActItem.DataViewItems[rowIdx];
-            rowView.BeginEdit();
-            rowView["ActivityItemProductionMaterialFKRefno"] = this.NewItemFKRefno;
-            rowView["ActivityItemProductionMaterialStringFKRefno"] = this.NewItemFKRefno.ToString();
-            rowView.EndEdit();
-          }
+      //    int rowIdx = this.ActItem.DataViewItems.Find(new object[] { this.ActItem.Refno });
+      //    if (rowIdx != -1)
+      //    {
+      //      DataRowView rowView = this.ActItem.DataViewItems[rowIdx];
+      //      rowView.BeginEdit();
+      //      rowView["ActivityItemProductionMaterialFKRefno"] = this.NewItemFKRefno;
+      //      rowView["ActivityItemProductionMaterialStringFKRefno"] = this.NewItemFKRefno.ToString();
+      //      rowView.EndEdit();
+      //    }
 
-          this.ActItem.DataViewItems.Sort = oldSort;
-        }
-      }
+      //    this.ActItem.DataViewItems.Sort = oldSort;
+      //  }
+      //}
 
-      this.InsertUpdateDataViewDetail(
-          "ActivityDetailProductionMaterialFKRefno", 
-          "ActivityDetailProductionMaterialFKRefno");
+      //this.InsertUpdateDataViewDetail(
+      //    "ActivityDetailProductionMaterialFKRefno", 
+      //    "ActivityDetailProductionMaterialFKRefno");
     }
 
     /// <summary>

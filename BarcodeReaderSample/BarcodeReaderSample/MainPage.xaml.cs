@@ -32,49 +32,49 @@ namespace BarcodeReaderSample
 
         private async void PopulateReaderPicker()
         {
-            try
-            {
-                // Queries the list of readers that are connected to the mobile computer.
-                IList<BarcodeReaderInfo> readerList = await BarcodeReader.GetConnectedBarcodeReaders();
-                if (readerList.Count > 0)
-                {
-                    foreach (BarcodeReaderInfo reader in readerList)
-                    {
-                        mReaderPicker.Items.Add(reader.ScannerName);
-                    }
-                }
-                else
-                {
-                    mReaderPicker.Items.Add(DEFAULT_READER_KEY);
-                }
-            }
-            catch (Exception ex)
-            {
-                mReaderPicker.Items.Add(DEFAULT_READER_KEY);
-                await DisplayAlert("Error", "Failed to query connected readers, " + ex.Message, "OK");
-            }
+            //try
+            //{
+            //    // Queries the list of readers that are connected to the mobile computer.
+            //    IList<BarcodeReaderInfo> readerList = await BarcodeReader.GetConnectedBarcodeReaders();
+            //    if (readerList.Count > 0)
+            //    {
+            //        foreach (BarcodeReaderInfo reader in readerList)
+            //        {
+            //            mReaderPicker.Items.Add(reader.ScannerName);
+            //        }
+            //    }
+            //    else
+            //    {
+            //        mReaderPicker.Items.Add(DEFAULT_READER_KEY);
+            //    }
+            //}
+            //catch (Exception ex)
+            //{
+            //    mReaderPicker.Items.Add(DEFAULT_READER_KEY);
+            //    await DisplayAlert("Error", "Failed to query connected readers, " + ex.Message, "OK");
+            //}
 
-            mReaderPicker.SelectedIndex = 0;
+            //mReaderPicker.SelectedIndex = 0;
         }
 
         private void UpdateBarcodeInfo(string data, string symbology, DateTime timestamp)
         {
-            mScanDataEditor.Text = data;
-            mSymbologyLabel.Text = "Symbology: " + symbology;
-            mTimestampLabel.Text = "Timestamp: " + timestamp.ToString();
+            //mScanDataEditor.Text = data;
+            //mSymbologyLabel.Text = "Symbology: " + symbology;
+            //mTimestampLabel.Text = "Timestamp: " + timestamp.ToString();
         }
 
         private string GetSelectedReaderName()
         {
-            int selIndex = mReaderPicker.SelectedIndex;
-            if (selIndex >= 0)
-            {
-                return mReaderPicker.Items[selIndex];
-            }
-            else
-            {
+            //int selIndex = mReaderPicker.SelectedIndex;
+            //if (selIndex >= 0)
+            //{
+            //    return mReaderPicker.Items[selIndex];
+            //}
+            //else
+            //{
                 return null;
-            }
+            //}
         }
 
         #endregion // Manage UI Controls
@@ -141,28 +141,28 @@ namespace BarcodeReaderSample
         // Event handler for the BarcodeDataReady event.
         private async void MBarcodeReader_BarcodeDataReady(object sender, BarcodeDataArgs e)
         {
-            // Update the barcode information in the UI thread.
-            mUIContext.Post(_ => {
-                UpdateBarcodeInfo(e.Data, e.SymbologyName, e.TimeStamp);
-            }
-                , null);
+            //// Update the barcode information in the UI thread.
+            //mUIContext.Post(_ => {
+            //    UpdateBarcodeInfo(e.Data, e.SymbologyName, e.TimeStamp);
+            //}
+            //    , null);
 
-            if (mContinuousScan)
-            {
-                mTotalContinuousScanCount++;
+            //if (mContinuousScan)
+            //{
+            //    mTotalContinuousScanCount++;
  
-                // Measure and display the performance.
-                mUIContext.Post(_ => {
-                    mCountValueLabel.Text = mTotalContinuousScanCount.ToString();
-                }
-                , null);
-            } //endif (mContinuousScan)
-            else if (mSoftOneShotScanStarted)
-            {
-                // Turn off the software trigger.
-                await mSelectedReader.SoftwareTriggerAsync(false);
-                mSoftOneShotScanStarted = false;
-            }
+            //    // Measure and display the performance.
+            //    mUIContext.Post(_ => {
+            //        mCountValueLabel.Text = mTotalContinuousScanCount.ToString();
+            //    }
+            //    , null);
+            //} //endif (mContinuousScan)
+            //else if (mSoftOneShotScanStarted)
+            //{
+            //    // Turn off the software trigger.
+            //    await mSelectedReader.SoftwareTriggerAsync(false);
+            //    mSoftOneShotScanStarted = false;
+            //}
         }
 
         /// <summary>
@@ -171,39 +171,39 @@ namespace BarcodeReaderSample
         /// </summary>
         public async void OpenBarcodeReader()
         {
-            if (mOpenReader) // Open Reader switch is in the On state.
-            {
-                mSelectedReader = GetBarcodeReader(GetSelectedReaderName());
-                if (!mSelectedReader.IsReaderOpened)
-                {
-                    BarcodeReader.Result result = await mSelectedReader.OpenAsync();
+            //if (mOpenReader) // Open Reader switch is in the On state.
+            //{
+            //    mSelectedReader = GetBarcodeReader(GetSelectedReaderName());
+            //    if (!mSelectedReader.IsReaderOpened)
+            //    {
+            //        BarcodeReader.Result result = await mSelectedReader.OpenAsync();
 
-                    if (result.Code == BarcodeReader.Result.Codes.SUCCESS ||
-                        result.Code == BarcodeReader.Result.Codes.READER_ALREADY_OPENED)
-                    {
-                        SetScannerAndSymbologySettings();
+            //        if (result.Code == BarcodeReader.Result.Codes.SUCCESS ||
+            //            result.Code == BarcodeReader.Result.Codes.READER_ALREADY_OPENED)
+            //        {
+            //            SetScannerAndSymbologySettings();
 
-                        // Prevent user from selecting another reader.
-                        mReaderPicker.IsEnabled = false;
+            //            // Prevent user from selecting another reader.
+            //            mReaderPicker.IsEnabled = false;
 
-                        // Turn on the Enable Scanning switch.
-                        mEnableScanningSwitch.IsToggled = true;
-                        // Enable the Enable Scanning switch.
-                        mEnableScanningLabel.IsEnabled = true;
-                        mEnableScanningSwitch.IsEnabled = true;
+            //            // Turn on the Enable Scanning switch.
+            //            mEnableScanningSwitch.IsToggled = true;
+            //            // Enable the Enable Scanning switch.
+            //            mEnableScanningLabel.IsEnabled = true;
+            //            mEnableScanningSwitch.IsEnabled = true;
 
-                        // Clear barcode data information
-                        mScanDataEditor.Text = "";
-                        mSymbologyLabel.Text = "";
-                        mTimestampLabel.Text = "";
-                    }
-                    else
-                    {
-                        await DisplayAlert("Error", "OpenAsync failed, Code:" + result.Code +
-                            " Message:" + result.Message, "OK");
-                    }
-                }
-            } //endif (mOpenReader)
+            //            // Clear barcode data information
+            //            mScanDataEditor.Text = "";
+            //            mSymbologyLabel.Text = "";
+            //            mTimestampLabel.Text = "";
+            //        }
+            //        else
+            //        {
+            //            await DisplayAlert("Error", "OpenAsync failed, Code:" + result.Code +
+            //                " Message:" + result.Message, "OK");
+        //}
+    //}
+            //} //endif (mOpenReader)
         }
 
         /// <summary>
@@ -212,41 +212,41 @@ namespace BarcodeReaderSample
         /// </summary>
         public async void CloseBarcodeReader()
         {
-            if (mSelectedReader != null && mSelectedReader.IsReaderOpened)
-            {
-                if (mSoftOneShotScanStarted || mSoftContinuousScanStarted)
-                {
-                    // Turn off the software trigger.
-                    await mSelectedReader.SoftwareTriggerAsync(false);
-                    mSoftOneShotScanStarted = false;
-                    mSoftContinuousScanStarted = false;
-                }
+            //if (mSelectedReader != null && mSelectedReader.IsReaderOpened)
+            //{
+            //    if (mSoftOneShotScanStarted || mSoftContinuousScanStarted)
+            //    {
+            //        // Turn off the software trigger.
+            //        await mSelectedReader.SoftwareTriggerAsync(false);
+            //        mSoftOneShotScanStarted = false;
+            //        mSoftContinuousScanStarted = false;
+            //    }
 
-                BarcodeReader.Result result = await mSelectedReader.CloseAsync();
-                if (result.Code == BarcodeReader.Result.Codes.SUCCESS)
-                {
-                    mScanButton.IsEnabled = false;
-                    // Allow user to select another reader.
-                    mReaderPicker.IsEnabled = true;
+            //    BarcodeReader.Result result = await mSelectedReader.CloseAsync();
+            //    if (result.Code == BarcodeReader.Result.Codes.SUCCESS)
+            //    {
+            //        mScanButton.IsEnabled = false;
+            //        // Allow user to select another reader.
+            //        mReaderPicker.IsEnabled = true;
 
-                    // Disable the Enable Scanning switch.
-                    mEnableScanningLabel.IsEnabled = false;
-                    mEnableScanningSwitch.IsEnabled = false;
-                    // Turn off the Enable Scanning switch.
-                    mEnableScanningSwitch.IsToggled = false;
+            //        // Disable the Enable Scanning switch.
+            //        mEnableScanningLabel.IsEnabled = false;
+            //        mEnableScanningSwitch.IsEnabled = false;
+            //        // Turn off the Enable Scanning switch.
+            //        mEnableScanningSwitch.IsToggled = false;
 
-                    // Turn off the Continuous switch.
-                    mContinuousSwitch.IsToggled = false;
-                    // Disable the Continuous switch
-                    mContinuousLabel.IsEnabled = false;
-                    mContinuousSwitch.IsEnabled = false;
-                }
-                else
-                {
-                    await DisplayAlert("Error", "CloseAsync failed, Code:" + result.Code +
-                        " Message:" + result.Message, "OK");
-                }
-            }
+            //        // Turn off the Continuous switch.
+            //        mContinuousSwitch.IsToggled = false;
+            //        // Disable the Continuous switch
+            //        mContinuousLabel.IsEnabled = false;
+            //        mContinuousSwitch.IsEnabled = false;
+            //    }
+            //    else
+            //    {
+            //        await DisplayAlert("Error", "CloseAsync failed, Code:" + result.Code +
+            //            " Message:" + result.Message, "OK");
+            //    }
+            //}
         }
 
         private async void SetScannerAndSymbologySettings()
@@ -299,82 +299,82 @@ namespace BarcodeReaderSample
 
         private async void EnableScanningSwitch_Toggled(object sender, ToggledEventArgs e)
         {
-            mScanButton.IsEnabled = e.Value;
-            mContinuousLabel.IsEnabled = e.Value;
-            mContinuousSwitch.IsEnabled = e.Value;
+            //mScanButton.IsEnabled = e.Value;
+            //mContinuousLabel.IsEnabled = e.Value;
+            //mContinuousSwitch.IsEnabled = e.Value;
 
-            if (mSelectedReader != null && mSelectedReader.IsReaderOpened)
-            {
-                BarcodeReader.Result result = await mSelectedReader.EnableAsync(e.Value); // Enables or disables barcode reader
-                if (result.Code != BarcodeReader.Result.Codes.SUCCESS)
-                {
-                    await DisplayAlert("Error", "EnableAsync failed, Code:" + result.Code +
-                                        " Message:" + result.Message, "OK");
-                }
-            }
+            //if (mSelectedReader != null && mSelectedReader.IsReaderOpened)
+            //{
+            //    BarcodeReader.Result result = await mSelectedReader.EnableAsync(e.Value); // Enables or disables barcode reader
+            //    if (result.Code != BarcodeReader.Result.Codes.SUCCESS)
+            //    {
+            //        await DisplayAlert("Error", "EnableAsync failed, Code:" + result.Code +
+            //                            " Message:" + result.Message, "OK");
+            //    }
+            //}
         }
 
         private async void ContinuousSwitch_Toggled(object sender, ToggledEventArgs e)
         {
-            if (mSelectedReader != null && mSelectedReader.IsReaderOpened)
-            {
-                BarcodeReader.Result result;
+            //if (mSelectedReader != null && mSelectedReader.IsReaderOpened)
+            //{
+            //    BarcodeReader.Result result;
 
-                mContinuousScan = e.Value;
-                mCountValueLabel.IsVisible = mContinuousScan;
-                if (mContinuousScan)
-                {
-                    mTotalContinuousScanCount = 0;
-                    // Clear the scan count display.
-                    mCountValueLabel.Text = "";
+            //    mContinuousScan = e.Value;
+            //    mCountValueLabel.IsVisible = mContinuousScan;
+            //    if (mContinuousScan)
+            //    {
+            //        mTotalContinuousScanCount = 0;
+            //        // Clear the scan count display.
+            //        mCountValueLabel.Text = "";
 
-                    // Set the trigger scan mode to continuous. In the continuous scan mode, it
-                    // continuously decodes unique barcodes when the scan trigger is pressed until
-                    // the trigger is released. Please see the SDK User Guide for more information
-                    // if you would like to scan the same barcode multiple times.
-                    // Note: These settings apply to scanning using the hardware scan button and
-                    // the SCAN button on the UI. If you use the UI SCAN button to trigger
-                    // the scanner to start continuous scan, this app will release the scan trigger
-                    // when the Continuous switch is in the off position.
-                    Dictionary<string, object> settings = new Dictionary<string, object>()
-                    {
-                        {mSelectedReader.SettingKeys.TriggerScanMode, mSelectedReader.SettingValues.TriggerScanMode_Continuous }
-                    };
+            //        // Set the trigger scan mode to continuous. In the continuous scan mode, it
+            //        // continuously decodes unique barcodes when the scan trigger is pressed until
+            //        // the trigger is released. Please see the SDK User Guide for more information
+            //        // if you would like to scan the same barcode multiple times.
+            //        // Note: These settings apply to scanning using the hardware scan button and
+            //        // the SCAN button on the UI. If you use the UI SCAN button to trigger
+            //        // the scanner to start continuous scan, this app will release the scan trigger
+            //        // when the Continuous switch is in the off position.
+            //        Dictionary<string, object> settings = new Dictionary<string, object>()
+            //        {
+            //            {mSelectedReader.SettingKeys.TriggerScanMode, mSelectedReader.SettingValues.TriggerScanMode_Continuous }
+            //        };
 
-                    result = await mSelectedReader.SetAsync(settings);
-                    if (result.Code != BarcodeReader.Result.Codes.SUCCESS)
-                    {
-                        await DisplayAlert("Error", "Failed to set continuous scan mode, Code:" + result.Code +
-                                            " Message:" + result.Message, "OK");
-                    }
-                }
-                else
-                {
-                    if (mSoftContinuousScanStarted)
-                    {
-                        mSoftContinuousScanStarted = false;
-                        // Turn off the software trigger.
-                        result = await mSelectedReader.SoftwareTriggerAsync(false);
-                        if (result.Code != BarcodeReader.Result.Codes.SUCCESS)
-                        {
-                            await DisplayAlert("Error", "Failed to turn off software trigger, Code:" + result.Code +
-                                " Message:" + result.Message, "OK");
-                        }
-                    }
-                    // Set trigger scan mode to one shot.
-                    Dictionary<string, object> settings = new Dictionary<string, object>()
-                    {
-                        {mSelectedReader.SettingKeys.TriggerScanMode, mSelectedReader.SettingValues.TriggerScanMode_OneShot }
-                    };
+            //        result = await mSelectedReader.SetAsync(settings);
+            //        if (result.Code != BarcodeReader.Result.Codes.SUCCESS)
+            //        {
+            //            await DisplayAlert("Error", "Failed to set continuous scan mode, Code:" + result.Code +
+            //                                " Message:" + result.Message, "OK");
+            //        }
+            //    }
+            //    else
+            //    {
+            //        if (mSoftContinuousScanStarted)
+            //        {
+            //            mSoftContinuousScanStarted = false;
+            //            // Turn off the software trigger.
+            //            result = await mSelectedReader.SoftwareTriggerAsync(false);
+            //            if (result.Code != BarcodeReader.Result.Codes.SUCCESS)
+            //            {
+            //                await DisplayAlert("Error", "Failed to turn off software trigger, Code:" + result.Code +
+            //                    " Message:" + result.Message, "OK");
+            //            }
+            //        }
+            //        // Set trigger scan mode to one shot.
+            //        Dictionary<string, object> settings = new Dictionary<string, object>()
+            //        {
+            //            {mSelectedReader.SettingKeys.TriggerScanMode, mSelectedReader.SettingValues.TriggerScanMode_OneShot }
+            //        };
 
-                    result = await mSelectedReader.SetAsync(settings);
-                    if (result.Code != BarcodeReader.Result.Codes.SUCCESS)
-                    {
-                        await DisplayAlert("Error", "Failed to set one shot scan mode, Code:" + result.Code +
-                                            " Message:" + result.Message, "OK");
-                    }
-                }
-            }
+            //        result = await mSelectedReader.SetAsync(settings);
+            //        if (result.Code != BarcodeReader.Result.Codes.SUCCESS)
+            //        {
+            //            await DisplayAlert("Error", "Failed to set one shot scan mode, Code:" + result.Code +
+            //                                " Message:" + result.Message, "OK");
+            //        }
+            //    }
+            //}
         }
 
         public async void OnScanButtonClicked(object sender, EventArgs args)

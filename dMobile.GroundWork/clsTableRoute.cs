@@ -2,7 +2,7 @@ namespace dMobile.GroundWork
 {
   using System;
   using System.Data;
-  
+  using System.Data.SQLite;
   using System.Text;
   using System.Xml;
   using System.Xml.Linq;
@@ -85,53 +85,53 @@ namespace dMobile.GroundWork
     {
       int routeRefno = 0;
 
-      try
-      {
-        using (SQLiteCommand cmndRoute = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-        {
-          cmndRoute.CommandText = "tRoute";
-          cmndRoute.IndexName = "UQ_RouteOnRouteCode";
-          cmndRoute.CommandType = CommandType.TableDirect;
+//      try
+//      {
+//        using (SQLiteCommand cmndRoute = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+//        {
+//          cmndRoute.CommandText = "tRoute";
+//          cmndRoute.IndexName = "UQ_RouteOnRouteCode";
+//          cmndRoute.CommandType = CommandType.TableDirect;
 
-          using (SqliteDataReader drRoute = cmndRoute.ExecuteReader())
-          {
-            if (drRoute.Seek(DbSeekOptions.FirstEqual, new object[] { routeCode }))
-            {
-              if (drRoute.Read())
-              {
-                routeRefno = Convert.ToInt32(drRoute.GetValue((int)SysCommon.RouteFields.Refno));
-              }
-              else
-              {
-#if MULTILANGUAGE
-                throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DrroutereadFailed));
-#else
-                throw new Exception("drRoute.Read() failed.");
-#endif
-              }
-            }
-            else
-            {
-              throw new Exception(
-#if MULTILANGUAGE
-                string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.UnableToLocateRouteRefnoFromRouteCodeInTroute), routeCode));
-#else
-                string.Format("Unable To Locate Route Refno From Route Code {0} In tRoute", routeCode));
-#endif
-            }
+//          using (SQLiteDataReader drRoute = cmndRoute.ExecuteReader())
+//          {
+//            if (drRoute.Seek(DbSeekOptions.FirstEqual, new object[] { routeCode }))
+//            {
+//              if (drRoute.Read())
+//              {
+//                routeRefno = Convert.ToInt32(drRoute.GetValue((int)SysCommon.RouteFields.Refno));
+//              }
+//              else
+//              {
+//#if MULTILANGUAGE
+//                throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DrroutereadFailed));
+//#else
+//                throw new Exception("drRoute.Read() failed.");
+//#endif
+//              }
+//            }
+//            else
+//            {
+//              throw new Exception(
+//#if MULTILANGUAGE
+//                string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.UnableToLocateRouteRefnoFromRouteCodeInTroute), routeCode));
+//#else
+//                string.Format("Unable To Locate Route Refno From Route Code {0} In tRoute", routeCode));
+//#endif
+//            }
 
-            drRoute.Close();
-          }
-        }
-      }
-      catch (SqlCeException ex)
-      {
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredGetirouterefnofromroutecodeFailed), ex);
-#else
-        throw new Exception("Database exception occurred. GetiRouteRefnoFromRouteCode failed.", ex);
-#endif
-      }
+//            drRoute.Close();
+//          }
+//        }
+//      }
+//      catch (SQLiteException ex)
+//      {
+//#if MULTILANGUAGE
+//        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredGetirouterefnofromroutecodeFailed), ex);
+//#else
+//        throw new Exception("Database exception occurred. GetiRouteRefnoFromRouteCode failed.", ex);
+//#endif
+//      }
 
       return routeRefno;
     }
@@ -164,7 +164,7 @@ namespace dMobile.GroundWork
               true);
         }
       }
-      catch (SqlCeException ex)
+      catch (SQLiteException ex)
       {
 #if MULTILANGUAGE
         throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredRoutesStatusFailed), ex);
@@ -203,7 +203,7 @@ namespace dMobile.GroundWork
         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging routes complete.", true);
 #endif
       }
-      catch (SqlCeException ex)
+      catch (SQLiteException ex)
       {
 #if MULTILANGUAGE
         this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), true);
@@ -232,150 +232,150 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     protected override void Save(string reqData)
     {
-      string errMsg = string.Empty;
+//      string errMsg = string.Empty;
 
-      try
-      {
-        using (DataSet ds = new DataSet())
-        {
-#if MULTILANGUAGE
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.ReadingReceivedData), false);
-#else
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
-#endif
-          ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
+//      try
+//      {
+//        using (DataSet ds = new DataSet())
+//        {
+//#if MULTILANGUAGE
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.ReadingReceivedData), false);
+//#else
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
+//#endif
+//          ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
 
-#if MULTILANGUAGE
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingRoutes), false);
-#else
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving routes.", false);
-#endif
-          if (ds.Tables.Count != 0)
-          {
-            int progMax = Convert.ToInt32(ds.Tables["tRoute"].Rows.Count);
+//#if MULTILANGUAGE
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingRoutes), false);
+//#else
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving routes.", false);
+//#endif
+//          if (ds.Tables.Count != 0)
+//          {
+//            int progMax = Convert.ToInt32(ds.Tables["tRoute"].Rows.Count);
 
-            this.DataAccessStatusOutHandler(
-                this, 
-                EventArgs.Empty, 
-#if MULTILANGUAGE
-                string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.Recordsz), progMax), 
-#else
-                string.Format("Records {0}", progMax), 
-#endif
-                false);
+//            this.DataAccessStatusOutHandler(
+//                this, 
+//                EventArgs.Empty, 
+//#if MULTILANGUAGE
+//                string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.Recordsz), progMax), 
+//#else
+//                string.Format("Records {0}", progMax), 
+//#endif
+//                false);
 
-            using (SQLiteCommand cmndRoute = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-            {
-              cmndRoute.CommandText = "tRoute";
-              cmndRoute.CommandType = CommandType.TableDirect;
-              cmndRoute.IndexName = "UQ_RouteOnRouteCode";
+//            using (SQLiteCommand cmndRoute = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+//            {
+//              cmndRoute.CommandText = "tRoute";
+//              cmndRoute.CommandType = CommandType.TableDirect;
+//              cmndRoute.IndexName = "UQ_RouteOnRouteCode";
 
-              using (SqliteDataReader drRoute = cmndRoute.ExecuteReader())
-              {
-                using (SqlCeResultSet rs = cmndRoute.ExecuteResultSet(ResultSetOptions.Updatable))
-                {
-                  SqlCeUpdatableRecord rec = rs.CreateRecord();
-                  int progValue = 0;
-                  bool isRouteFound = false;
-                  string routeDesc = string.Empty;
-                  string routeDayOfWeek = string.Empty;
-                  string routeCode = string.Empty;
+//              using (SQLiteDataReader drRoute = cmndRoute.ExecuteReader())
+//              {
+//                using (SqlCeResultSet rs = cmndRoute.ExecuteResultSet(ResultSetOptions.Updatable))
+//                {
+//                  SqlCeUpdatableRecord rec = rs.CreateRecord();
+//                  int progValue = 0;
+//                  bool isRouteFound = false;
+//                  string routeDesc = string.Empty;
+//                  string routeDayOfWeek = string.Empty;
+//                  string routeCode = string.Empty;
 
-                  this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
+//                  this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
 
-                  foreach (DataRow drow in ds.Tables["tRoute"].Rows)
-                  {
-                    routeCode = Convert.ToString(drow["RouteCode"]);
-                    errMsg = "Route code \'" + routeCode + "\'";
-                    routeDayOfWeek = Convert.ToString(drow["RouteDayOfWeek"]);
-                    errMsg += Environment.NewLine + "Route dow \'" + routeDayOfWeek + "\'";
-                    routeDesc = Convert.ToString(drow["RouteDescription"]);
-                    errMsg += Environment.NewLine + "Route desc \'" + routeDesc + "\'";
+//                  foreach (DataRow drow in ds.Tables["tRoute"].Rows)
+//                  {
+//                    routeCode = Convert.ToString(drow["RouteCode"]);
+//                    errMsg = "Route code \'" + routeCode + "\'";
+//                    routeDayOfWeek = Convert.ToString(drow["RouteDayOfWeek"]);
+//                    errMsg += Environment.NewLine + "Route dow \'" + routeDayOfWeek + "\'";
+//                    routeDesc = Convert.ToString(drow["RouteDescription"]);
+//                    errMsg += Environment.NewLine + "Route desc \'" + routeDesc + "\'";
 
-                    isRouteFound = false;
-                    if (SysEnv.RefreshOpt.RefreshDataChangesOnly)
-                    {
-                      cmndRoute.CommandText = "tRoute";
-                      cmndRoute.CommandType = CommandType.TableDirect;
-                      cmndRoute.IndexName = "UQ_RouteOnRouteCode";
+//                    isRouteFound = false;
+//                    if (SysEnv.RefreshOpt.RefreshDataChangesOnly)
+//                    {
+//                      cmndRoute.CommandText = "tRoute";
+//                      cmndRoute.CommandType = CommandType.TableDirect;
+//                      cmndRoute.IndexName = "UQ_RouteOnRouteCode";
 
-                      if (drRoute.Seek(DbSeekOptions.FirstEqual, new object[] { routeCode }))
-                      {
-                        isRouteFound = true;
+//                      if (drRoute.Seek(DbSeekOptions.FirstEqual, new object[] { routeCode }))
+//                      {
+//                        isRouteFound = true;
 
-                        cmndRoute.CommandType = CommandType.Text;
-                        cmndRoute.IndexName = string.Empty;
-                        cmndRoute.CommandText = "UPDATE tRoute "
-                            + "SET RouteDescription = \'" + routeDesc + "\', " 
-                            + "RouteDayOfWeek = \'" + routeDayOfWeek + "\' " 
-                            + "WHERE RouteCode = \'" + routeCode + "\'";
-                        cmndRoute.ExecuteNonQuery();
-                      }
-                    }
+//                        cmndRoute.CommandType = CommandType.Text;
+//                        cmndRoute.IndexName = string.Empty;
+//                        cmndRoute.CommandText = "UPDATE tRoute "
+//                            + "SET RouteDescription = \'" + routeDesc + "\', " 
+//                            + "RouteDayOfWeek = \'" + routeDayOfWeek + "\' " 
+//                            + "WHERE RouteCode = \'" + routeCode + "\'";
+//                        cmndRoute.ExecuteNonQuery();
+//                      }
+//                    }
 
-                    if (!isRouteFound)
-                    {
-                      cmndRoute.CommandText = "tRoute";
-                      cmndRoute.CommandType = CommandType.TableDirect;
-                      cmndRoute.IndexName = "UQ_RouteOnRouteCode";
+//                    if (!isRouteFound)
+//                    {
+//                      cmndRoute.CommandText = "tRoute";
+//                      cmndRoute.CommandType = CommandType.TableDirect;
+//                      cmndRoute.IndexName = "UQ_RouteOnRouteCode";
                       
-                      rec.SetString((int)SysCommon.RouteFields.Code, routeCode);
-                      rec.SetString((int)SysCommon.RouteFields.Description, routeDesc);
-                      rec.SetString((int)SysCommon.RouteFields.DayOfWeek, routeDayOfWeek);
+//                      rec.SetString((int)SysCommon.RouteFields.Code, routeCode);
+//                      rec.SetString((int)SysCommon.RouteFields.Description, routeDesc);
+//                      rec.SetString((int)SysCommon.RouteFields.DayOfWeek, routeDayOfWeek);
 
-                      rs.Insert(rec);
-                    }
+//                      rs.Insert(rec);
+//                    }
 
-                    progValue++;
-                    if (progValue % 100 == 0)
-                    {
-                      this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
-                    }
-                  }
+//                    progValue++;
+//                    if (progValue % 100 == 0)
+//                    {
+//                      this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
+//                    }
+//                  }
 
-                  this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
-                }
+//                  this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
+//                }
 
-                drRoute.Close();
-              }
-            }
-          }
+//                drRoute.Close();
+//              }
+//            }
+//          }
 
-#if MULTILANGUAGE
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingRoutesComplete), false);
-#else
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving routes complete.", false);
-#endif
-        }
-      }
-      catch (SqlCeException ex)
-      {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), false);
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingRoutesFailed), false);
-#else
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving routes failed.", false);
-#endif
+//#if MULTILANGUAGE
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingRoutesComplete), false);
+//#else
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving routes complete.", false);
+//#endif
+//        }
+//      }
+//      catch (SQLiteException ex)
+//      {
+//#if MULTILANGUAGE
+//        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), false);
+//        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingRoutesFailed), false);
+//#else
+//        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
+//        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving routes failed.", false);
+//#endif
 
-        // Duplicate key violations
-        if (ex.NativeError == 25016)
-        {
-#if MULTILANGUAGE
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.UniquenessViolation), false);
-          throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.UniquenessViolation) + Environment.NewLine + errMsg, ex);
-#else
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Uniqueness violation.", false);
-          throw new Exception("Uniqueness violation." + Environment.NewLine + errMsg, ex);
-#endif
-        }
+//        // Duplicate key violations
+//        if (ex.NativeError == 25016)
+//        {
+//#if MULTILANGUAGE
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.UniquenessViolation), false);
+//          throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.UniquenessViolation) + Environment.NewLine + errMsg, ex);
+//#else
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Uniqueness violation.", false);
+//          throw new Exception("Uniqueness violation." + Environment.NewLine + errMsg, ex);
+//#endif
+//        }
 
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredSavingRoutesFailed) + Environment.NewLine + errMsg, ex);
-#else
-        throw new Exception("Database exception occurred. Saving routes failed." + Environment.NewLine + errMsg, ex);
-#endif
-      }
+//#if MULTILANGUAGE
+//        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredSavingRoutesFailed) + Environment.NewLine + errMsg, ex);
+//#else
+//        throw new Exception("Database exception occurred. Saving routes failed." + Environment.NewLine + errMsg, ex);
+//#endif
+//      }
     }
 
     /// <summary>

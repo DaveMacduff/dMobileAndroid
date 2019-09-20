@@ -1,6 +1,5 @@
 namespace dMobile.Bedrock
 {
-    using System.Windows.Forms;
     using System.Xml.Linq;
 
     public interface IAppArea
@@ -31,7 +30,7 @@ namespace dMobile.Bedrock
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        UserControl GetCallingControl();
+        //UserControl GetCallingControl();
 
         /// <summary>
         /// Gets the controls description for display purposes within the window menu.

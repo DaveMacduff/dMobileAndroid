@@ -2,7 +2,7 @@ namespace dMobile.GroundWork
 {
   using System;
   using System.Data;
-  
+  using System.Data.SQLite;
   using System.Text;
   using System.Xml;
   using System.Xml.Linq;
@@ -103,7 +103,7 @@ namespace dMobile.GroundWork
         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging slot coordinates complete.", true);
 #endif
       }
-      catch (SqlCeException ex)
+      catch (SQLiteException ex)
       {
 #if MULTILANGUAGE
         this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), true);
@@ -148,7 +148,7 @@ namespace dMobile.GroundWork
               true);
         }
       }
-      catch (SqlCeException ex)
+      catch (SQLiteException ex)
       {
 #if MULTILANGUAGE
         throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredSlotCoordinatesStatusFailed), ex);
@@ -171,167 +171,167 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     protected override void Save(string reqData)
     {
-      string errMsg = string.Empty;
+//      string errMsg = string.Empty;
       
-      try
-      {
-        using (DataSet ds = new DataSet())
-        {
-#if MULTILANGUAGE
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.ReadingReceivedData), false);
-#else
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
-#endif
-          ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
+//      try
+//      {
+//        using (DataSet ds = new DataSet())
+//        {
+//#if MULTILANGUAGE
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.ReadingReceivedData), false);
+//#else
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
+//#endif
+//          ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
 
-#if MULTILANGUAGE
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingSlotCoordinates), false);
-#else
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving slot coordinates.", false);
-#endif
-          if (ds.Tables.Count != 0)
-          {
-            int progMax = Convert.ToInt32(ds.Tables["tLocationMapSlotCoordinate"].Rows.Count);
+//#if MULTILANGUAGE
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingSlotCoordinates), false);
+//#else
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving slot coordinates.", false);
+//#endif
+//          if (ds.Tables.Count != 0)
+//          {
+//            int progMax = Convert.ToInt32(ds.Tables["tLocationMapSlotCoordinate"].Rows.Count);
 
-            this.DataAccessStatusOutHandler(
-                this, 
-                EventArgs.Empty, 
-#if MULTILANGUAGE
-                string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.Recordsz), progMax), 
-#else
-                string.Format("Records {0}", progMax), 
-#endif
-                false);
+//            this.DataAccessStatusOutHandler(
+//                this, 
+//                EventArgs.Empty, 
+//#if MULTILANGUAGE
+//                string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.Recordsz), progMax), 
+//#else
+//                string.Format("Records {0}", progMax), 
+//#endif
+//                false);
 
-            using (SQLiteCommand cmndSlotCoord = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-            {
-              cmndSlotCoord.CommandText = "tLocationMapSlotCoordinate";
-              cmndSlotCoord.IndexName = "UQ_LocationMapSlotCoordOnLocationMapSlotCoordEnumAndLocationMapSlotCoordCode";
-              cmndSlotCoord.CommandType = CommandType.TableDirect;
+//            using (SQLiteCommand cmndSlotCoord = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+//            {
+//              cmndSlotCoord.CommandText = "tLocationMapSlotCoordinate";
+//              cmndSlotCoord.IndexName = "UQ_LocationMapSlotCoordOnLocationMapSlotCoordEnumAndLocationMapSlotCoordCode";
+//              cmndSlotCoord.CommandType = CommandType.TableDirect;
 
-              using (SqliteDataReader drSlotCoord = cmndSlotCoord.ExecuteReader())
-              {
-                using (SqlCeResultSet rs = cmndSlotCoord.ExecuteResultSet(ResultSetOptions.Updatable))
-                {
-                  SqlCeUpdatableRecord rec = rs.CreateRecord();
-                  int progValue = 0;
-                  bool isSlotCoordFound = false;
-                  int slotCoordType = (int)SysCommon.LocMapSlotCoordTypes.Coord1;
-                  string slotCoordCode = string.Empty;
+//              using (SQLiteDataReader drSlotCoord = cmndSlotCoord.ExecuteReader())
+//              {
+//                using (SqlCeResultSet rs = cmndSlotCoord.ExecuteResultSet(ResultSetOptions.Updatable))
+//                {
+//                  SqlCeUpdatableRecord rec = rs.CreateRecord();
+//                  int progValue = 0;
+//                  bool isSlotCoordFound = false;
+//                  int slotCoordType = (int)SysCommon.LocMapSlotCoordTypes.Coord1;
+//                  string slotCoordCode = string.Empty;
 
-                  this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
+//                  this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
 
-                  foreach (DataRow drow in ds.Tables["tLocationMapSlotCoordinate"].Rows)
-                  {
-                    slotCoordCode = drow["LocationMapSlotCoordinateCode"].ToString();
-                    errMsg = "Coordinate code \'" + slotCoordCode + "\'";
+//                  foreach (DataRow drow in ds.Tables["tLocationMapSlotCoordinate"].Rows)
+//                  {
+//                    slotCoordCode = drow["LocationMapSlotCoordinateCode"].ToString();
+//                    errMsg = "Coordinate code \'" + slotCoordCode + "\'";
 
-                    slotCoordType = Convert.ToInt32(drow["LocationMapSlotCoordinateEnum"]);
-                    switch (slotCoordType)
-                    {
-                      case (int)SysCommon.LocMapSlotCoordTypes.Coord1:
-                        errMsg += Environment.NewLine + "Type coordinate 1";
-                        break;
+//                    slotCoordType = Convert.ToInt32(drow["LocationMapSlotCoordinateEnum"]);
+//                    switch (slotCoordType)
+//                    {
+//                      case (int)SysCommon.LocMapSlotCoordTypes.Coord1:
+//                        errMsg += Environment.NewLine + "Type coordinate 1";
+//                        break;
                       
-                      case (int)SysCommon.LocMapSlotCoordTypes.Coord2:
-                        errMsg += Environment.NewLine + "Type coordinate 2";
-                        break;
+//                      case (int)SysCommon.LocMapSlotCoordTypes.Coord2:
+//                        errMsg += Environment.NewLine + "Type coordinate 2";
+//                        break;
                       
-                      case (int)SysCommon.LocMapSlotCoordTypes.Coord3:
-                        errMsg += Environment.NewLine + "Type coordinate 3";
-                        break;
+//                      case (int)SysCommon.LocMapSlotCoordTypes.Coord3:
+//                        errMsg += Environment.NewLine + "Type coordinate 3";
+//                        break;
 
-                      default:
-#if MULTILANGUAGE
-                        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.UnidentifiedSlotCoordinateEnumType) + slotCoordType);
-#else
-                        throw new Exception("Unidentified slot coordinate enum type " + slotCoordType);
-#endif
-                    }
+//                      default:
+//#if MULTILANGUAGE
+//                        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.UnidentifiedSlotCoordinateEnumType) + slotCoordType);
+//#else
+//                        throw new Exception("Unidentified slot coordinate enum type " + slotCoordType);
+//#endif
+//                    }
 
-                    isSlotCoordFound = false;
-                    if (SysEnv.RefreshOpt.RefreshDataChangesOnly)
-                    {
-                      cmndSlotCoord.CommandText = "tLocationMapSlotCoordinate";
-                      cmndSlotCoord.CommandType = CommandType.TableDirect;
-                      cmndSlotCoord.IndexName = 
-                          "UQ_LocationMapSlotCoordOnLocationMapSlotCoordEnumAndLocationMapSlotCoordCode";
+//                    isSlotCoordFound = false;
+//                    if (SysEnv.RefreshOpt.RefreshDataChangesOnly)
+//                    {
+//                      cmndSlotCoord.CommandText = "tLocationMapSlotCoordinate";
+//                      cmndSlotCoord.CommandType = CommandType.TableDirect;
+//                      cmndSlotCoord.IndexName = 
+//                          "UQ_LocationMapSlotCoordOnLocationMapSlotCoordEnumAndLocationMapSlotCoordCode";
 
-                      if (drSlotCoord.Seek(DbSeekOptions.FirstEqual, new object[] { slotCoordType, slotCoordCode }))
-                      {
-                        isSlotCoordFound = true;
-                      }
-                    }
+//                      if (drSlotCoord.Seek(DbSeekOptions.FirstEqual, new object[] { slotCoordType, slotCoordCode }))
+//                      {
+//                        isSlotCoordFound = true;
+//                      }
+//                    }
 
-                    if (!isSlotCoordFound)
-                    {
-                      cmndSlotCoord.CommandText = "tLocationMapSlotCoordinate";
-                      cmndSlotCoord.CommandType = CommandType.TableDirect;
-                      cmndSlotCoord.IndexName = 
-                          "UQ_LocationMapSlotCoordOnLocationMapSlotCoordEnumAndLocationMapSlotCoordCode";
+//                    if (!isSlotCoordFound)
+//                    {
+//                      cmndSlotCoord.CommandText = "tLocationMapSlotCoordinate";
+//                      cmndSlotCoord.CommandType = CommandType.TableDirect;
+//                      cmndSlotCoord.IndexName = 
+//                          "UQ_LocationMapSlotCoordOnLocationMapSlotCoordEnumAndLocationMapSlotCoordCode";
 
-                      rec.SetInt32(
-                          (int)SysCommon.LocMapSlotCoordFields.EnumType, 
-                          Convert.ToInt32(drow["LocationMapSlotCoordinateEnum"]));
-                      rec.SetString(
-                          (int)SysCommon.LocMapSlotCoordFields.Code, 
-                          drow["LocationMapSlotCoordinateCode"].ToString());
+//                      rec.SetInt32(
+//                          (int)SysCommon.LocMapSlotCoordFields.EnumType, 
+//                          Convert.ToInt32(drow["LocationMapSlotCoordinateEnum"]));
+//                      rec.SetString(
+//                          (int)SysCommon.LocMapSlotCoordFields.Code, 
+//                          drow["LocationMapSlotCoordinateCode"].ToString());
 
-                      rs.Insert(rec);
-                    }
+//                      rs.Insert(rec);
+//                    }
 
-                    progValue++;
-                    if (progValue % 100 == 0)
-                    {
-                      this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
-                    }
-                  }
+//                    progValue++;
+//                    if (progValue % 100 == 0)
+//                    {
+//                      this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
+//                    }
+//                  }
 
-                  this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
-                }
+//                  this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
+//                }
 
-                drSlotCoord.Close();
-              }
-            }
-          }
+//                drSlotCoord.Close();
+//              }
+//            }
+//          }
 
-#if MULTILANGUAGE
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingSlotCoordinatesComplete), false);
-#else
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving slot coordinates complete.", false);
-#endif
-        }
-      }
-      catch (SqlCeException ex)
-      {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), false);
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingSlotCoordinatesFailed), false);
-#else
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving slot coordinates failed.", false);
-#endif
+//#if MULTILANGUAGE
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingSlotCoordinatesComplete), false);
+//#else
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving slot coordinates complete.", false);
+//#endif
+//        }
+//      }
+//      catch (SQLiteException ex)
+//      {
+//#if MULTILANGUAGE
+//        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), false);
+//        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingSlotCoordinatesFailed), false);
+//#else
+//        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
+//        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving slot coordinates failed.", false);
+//#endif
 
-        // Duplicate key violations
-        if (ex.NativeError == 25016)
-        {
-#if MULTILANGUAGE
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.UniquenessViolation), false);
-          throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.UniquenessViolation) + Environment.NewLine + errMsg, ex);
-#else
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Uniqueness violation.", false);
-          throw new Exception("Uniqueness violation." + Environment.NewLine + errMsg, ex);
-#endif
-        }
+//        // Duplicate key violations
+//        if (ex.NativeError == 25016)
+//        {
+//#if MULTILANGUAGE
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.UniquenessViolation), false);
+//          throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.UniquenessViolation) + Environment.NewLine + errMsg, ex);
+//#else
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Uniqueness violation.", false);
+//          throw new Exception("Uniqueness violation." + Environment.NewLine + errMsg, ex);
+//#endif
+//        }
 
-        throw new Exception(
-#if MULTILANGUAGE
-            Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredSavingSlotCoordinatesFailed) + Environment.NewLine + errMsg,
-#else
-            "Database exception occurred. Saving slot coordinates failed." + Environment.NewLine + errMsg,
-#endif
-            ex);
-      }
+//        throw new Exception(
+//#if MULTILANGUAGE
+//            Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredSavingSlotCoordinatesFailed) + Environment.NewLine + errMsg,
+//#else
+//            "Database exception occurred. Saving slot coordinates failed." + Environment.NewLine + errMsg,
+//#endif
+//            ex);
+//      }
     }
 
     /// <summary>

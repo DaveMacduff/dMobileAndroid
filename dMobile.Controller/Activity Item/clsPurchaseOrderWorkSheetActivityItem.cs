@@ -2,7 +2,7 @@ namespace dMobile.Controller
 {
   using System;
   using System.Data;
-  
+  using System.Data.SQLite;
   using System.Text;
   using System.Windows.Forms;
   using System.Xml;
@@ -146,192 +146,192 @@ namespace dMobile.Controller
     public override void Insert(XDocument data, bool askToInsertAsNewItem)
     {
       // DialogResult dlgResult = DialogResult.None;
-      int prodUnitRefno = int.Parse(data.Root.Element("ProductUnitRefno").Value);
-      int actRefno = 0;
+      //int prodUnitRefno = int.Parse(data.Root.Element("ProductUnitRefno").Value);
+      //int actRefno = 0;
 
-      this.LocMap.CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(this.LocMap.LoginWhsLocMapRefno);
+      //this.LocMap.CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(this.LocMap.LoginWhsLocMapRefno);
 
-      if (prodUnitRefno != 0)
-      {
-        if (this.SysEnv.SysSettings.IsDisconnectedMode)
-        {
-          using (SQLiteCommand cmndActSheetItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-          {
-            cmndActSheetItem.CommandText = "tActivityItemPurchaseOrderWorkSheet";
-            cmndActSheetItem.CommandType = CommandType.TableDirect;
-            cmndActSheetItem.IndexName 
-                = "UQ_ActivityItemPurchaseOrderWorkSheetOnActivityItemPurchaseOrderWorkSheetFKRefno";
+      //if (prodUnitRefno != 0)
+      //{
+      //  if (this.SysEnv.SysSettings.IsDisconnectedMode)
+      //  {
+      //    using (SQLiteCommand cmndActSheetItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+      //    {
+      //      cmndActSheetItem.CommandText = "tActivityItemPurchaseOrderWorkSheet";
+      //      cmndActSheetItem.CommandType = CommandType.TableDirect;
+      //      cmndActSheetItem.IndexName 
+      //          = "UQ_ActivityItemPurchaseOrderWorkSheetOnActivityItemPurchaseOrderWorkSheetFKRefno";
 
-            using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-            {
-              cmndItem.CommandText = "tActivityItem";
-              cmndItem.CommandType = CommandType.TableDirect;
+      //      using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+      //      {
+      //        cmndItem.CommandText = "tActivityItem";
+      //        cmndItem.CommandType = CommandType.TableDirect;
 
-              using (SQLiteCommand cmndAct = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-              {
-                cmndAct.CommandText = "tActivity";
-                cmndAct.CommandType = CommandType.TableDirect;
+      //        using (SQLiteCommand cmndAct = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+      //        {
+      //          cmndAct.CommandText = "tActivity";
+      //          cmndAct.CommandType = CommandType.TableDirect;
 
-                using (SqlCeResultSet rsAct = cmndAct.ExecuteResultSet(ResultSetOptions.Updatable))
-                {
-                  SqlCeUpdatableRecord recAct = rsAct.CreateRecord();
+      //          using (SqlCeResultSet rsAct = cmndAct.ExecuteResultSet(ResultSetOptions.Updatable))
+      //          {
+      //            SqlCeUpdatableRecord recAct = rsAct.CreateRecord();
 
-                  using (SQLiteCommand cmndID = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                  {
-                    cmndID.CommandText = "SELECT @@IDENTITY FROM tActivity";
-                    cmndID.CommandType = CommandType.Text;
+      //            using (SQLiteCommand cmndID = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+      //            {
+      //              cmndID.CommandText = "SELECT @@IDENTITY FROM tActivity";
+      //              cmndID.CommandType = CommandType.Text;
 
-                    using (SQLiteCommand cmndIDItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                    {
-                      cmndIDItem.CommandText = "SELECT @@IDENTITY FROM tActivityItem";
-                      cmndIDItem.CommandType = CommandType.Text;
+      //              using (SQLiteCommand cmndIDItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+      //              {
+      //                cmndIDItem.CommandText = "SELECT @@IDENTITY FROM tActivityItem";
+      //                cmndIDItem.CommandType = CommandType.Text;
 
-                      using (SqlCeResultSet rs = cmndActSheetItem.ExecuteResultSet(ResultSetOptions.Updatable))
-                      {
-                        SqlCeUpdatableRecord rec = rs.CreateRecord();
+      //                using (SqlCeResultSet rs = cmndActSheetItem.ExecuteResultSet(ResultSetOptions.Updatable))
+      //                {
+      //                  SqlCeUpdatableRecord rec = rs.CreateRecord();
 
-                        using (SqlCeResultSet rsActItem = cmndItem.ExecuteResultSet(ResultSetOptions.Updatable))
-                        {
-                          SqlCeUpdatableRecord recActItem = rsActItem.CreateRecord();
+      //                  using (SqlCeResultSet rsActItem = cmndItem.ExecuteResultSet(ResultSetOptions.Updatable))
+      //                  {
+      //                    SqlCeUpdatableRecord recActItem = rsActItem.CreateRecord();
 
-                          recAct.SetInt32(
-                              (int)SysCommon.ActFields.SubType, 
-                              (int)SysCommon.ActSubTypes.PurchaseOrderWorkSheet);
-                          recAct.SetInt32((int)SysCommon.ActFields.Status, (int)SysCommon.ActStatus.Inserted);
-                          rsAct.Insert(recAct);
+      //                    recAct.SetInt32(
+      //                        (int)SysCommon.ActFields.SubType, 
+      //                        (int)SysCommon.ActSubTypes.PurchaseOrderWorkSheet);
+      //                    recAct.SetInt32((int)SysCommon.ActFields.Status, (int)SysCommon.ActStatus.Inserted);
+      //                    rsAct.Insert(recAct);
 
-                          actRefno = Convert.ToInt32(cmndID.ExecuteScalar());
+      //                    actRefno = Convert.ToInt32(cmndID.ExecuteScalar());
 
-                          this.ActHdr.Refno = actRefno;
-                          this.ActHdr.FKRefno = actRefno;
+      //                    this.ActHdr.Refno = actRefno;
+      //                    this.ActHdr.FKRefno = actRefno;
 
-                          recActItem.SetInt32(
-                              (int)SysCommon.ActItemFields.SubType, 
-                              (int)SysCommon.ActSubTypes.PurchaseOrderWorkSheet);
-                          recActItem.SetInt32(
-                              (int)SysCommon.ActItemFields.Status, 
-                              (int)SysCommon.ActStatus.Inserted);
-                          recActItem.SetInt32((int)SysCommon.ActItemFields.ActRefno, this.ActHdr.Refno);
+      //                    recActItem.SetInt32(
+      //                        (int)SysCommon.ActItemFields.SubType, 
+      //                        (int)SysCommon.ActSubTypes.PurchaseOrderWorkSheet);
+      //                    recActItem.SetInt32(
+      //                        (int)SysCommon.ActItemFields.Status, 
+      //                        (int)SysCommon.ActStatus.Inserted);
+      //                    recActItem.SetInt32((int)SysCommon.ActItemFields.ActRefno, this.ActHdr.Refno);
 
-                          rsActItem.Insert(recActItem);
+      //                    rsActItem.Insert(recActItem);
                           
-                          this.Refno = Convert.ToInt32(cmndIDItem.ExecuteScalar());
+      //                    this.Refno = Convert.ToInt32(cmndIDItem.ExecuteScalar());
 
-                          rec.SetInt32((int)SysCommon.ActItemWorkSheetFields.ActItemRefno, this.Refno);
-                          rec.SetInt32(
-                              (int)SysCommon.ActItemWorkSheetFields.ActItemSubType, 
-                              (int)SysCommon.ActSubTypes.PurchaseOrderWorkSheet);
-                          rec.SetInt32((int)SysCommon.ActItemWorkSheetFields.FKRefno, this.Refno * -1);
-                          rec.SetString(
-                              (int)SysCommon.ActItemWorkSheetFields.StringFKRefno, 
-                              (this.Refno * -1).ToString());
-                          rec.SetInt32((int)SysCommon.ActItemWorkSheetFields.ProdUnitRefno, prodUnitRefno);
-                          rec.SetInt32(
-                              (int)SysCommon.ActItemWorkSheetFields.WhsLocMapRefno, 
-                              this.LocMap.CurrLocMap.WhsLocMapRefno);
-                          rec.SetDecimal(
-                              (int)SysCommon.ActItemWorkSheetFields.QuantityOrdered, 
-                              decimal.Parse(data.Root.Element("alt_qty").Value));
-                          rec.SetDecimal(
-                              (int)SysCommon.ActItemWorkSheetFields.BaseQuantityOrdered, 
-                              decimal.Parse(data.Root.Element("base_qty").Value));
-                          rec.SetDecimal(
-                              (int)SysCommon.ActItemWorkSheetFields.WeightQuantityOrdered, 
-                              decimal.Parse(data.Root.Element("wt_qty").Value));
-                          rs.Insert(rec);
+      //                    rec.SetInt32((int)SysCommon.ActItemWorkSheetFields.ActItemRefno, this.Refno);
+      //                    rec.SetInt32(
+      //                        (int)SysCommon.ActItemWorkSheetFields.ActItemSubType, 
+      //                        (int)SysCommon.ActSubTypes.PurchaseOrderWorkSheet);
+      //                    rec.SetInt32((int)SysCommon.ActItemWorkSheetFields.FKRefno, this.Refno * -1);
+      //                    rec.SetString(
+      //                        (int)SysCommon.ActItemWorkSheetFields.StringFKRefno, 
+      //                        (this.Refno * -1).ToString());
+      //                    rec.SetInt32((int)SysCommon.ActItemWorkSheetFields.ProdUnitRefno, prodUnitRefno);
+      //                    rec.SetInt32(
+      //                        (int)SysCommon.ActItemWorkSheetFields.WhsLocMapRefno, 
+      //                        this.LocMap.CurrLocMap.WhsLocMapRefno);
+      //                    rec.SetDecimal(
+      //                        (int)SysCommon.ActItemWorkSheetFields.QuantityOrdered, 
+      //                        decimal.Parse(data.Root.Element("alt_qty").Value));
+      //                    rec.SetDecimal(
+      //                        (int)SysCommon.ActItemWorkSheetFields.BaseQuantityOrdered, 
+      //                        decimal.Parse(data.Root.Element("base_qty").Value));
+      //                    rec.SetDecimal(
+      //                        (int)SysCommon.ActItemWorkSheetFields.WeightQuantityOrdered, 
+      //                        decimal.Parse(data.Root.Element("wt_qty").Value));
+      //                    rs.Insert(rec);
 
-                          this.FKRefno = this.Refno * -1;
+      //                    this.FKRefno = this.Refno * -1;
 
-                          this.ProdInfo = ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
-                          this.ProdInfo.Scheme = ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
-                          this.IsUpdateView = true;
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-        else
-        {
-          string xmlSend = this.CreateSubmitXML(data);
-          string reqData = SysCommon.SubmitComm(xmlSend);
-          if (reqData.Length > 0)
-          {
-            XmlDocument xmlDoc = new XmlDocument();
-            xmlDoc.LoadXml(reqData);
+      //                    this.ProdInfo = ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
+      //                    this.ProdInfo.Scheme = ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
+      //                    this.IsUpdateView = true;
+      //                  }
+      //                }
+      //              }
+      //            }
+      //          }
+      //        }
+      //      }
+      //    }
+      //  }
+      //  else
+      //  {
+      //    string xmlSend = this.CreateSubmitXML(data);
+      //    string reqData = SysCommon.SubmitComm(xmlSend);
+      //    if (reqData.Length > 0)
+      //    {
+      //      XmlDocument xmlDoc = new XmlDocument();
+      //      xmlDoc.LoadXml(reqData);
 
-            // check if result is an error message
-            if (reqData.Contains("<message>ERROR</message>"))
-            {
-              string errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
-              if (errorDetail.Contains("MSGBOX-"))
-              {
-                throw new MessageOnlyException(errorDetail);
-              }
-              else
-              {
-                throw new Exception(errorDetail);
-              }
-            }
-            else
-            {
-              this.IsUpdateView = true;
-              this.NewActItemFKRefno = int.Parse(xmlDoc.DocumentElement["itm_refno"].InnerText);
-              this.FKRefno = int.Parse(xmlDoc.DocumentElement["itm_refno"].InnerText);
-              this.ActHdr.FKRefno = this.FKRefno;
-              this.Refno = this.FKRefno * -1;
-            }
-          }
-        }
-      }
+      //      // check if result is an error message
+      //      if (reqData.Contains("<message>ERROR</message>"))
+      //      {
+      //        string errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
+      //        if (errorDetail.Contains("MSGBOX-"))
+      //        {
+      //          throw new MessageOnlyException(errorDetail);
+      //        }
+      //        else
+      //        {
+      //          throw new Exception(errorDetail);
+      //        }
+      //      }
+      //      else
+      //      {
+      //        this.IsUpdateView = true;
+      //        this.NewActItemFKRefno = int.Parse(xmlDoc.DocumentElement["itm_refno"].InnerText);
+      //        this.FKRefno = int.Parse(xmlDoc.DocumentElement["itm_refno"].InnerText);
+      //        this.ActHdr.FKRefno = this.FKRefno;
+      //        this.Refno = this.FKRefno * -1;
+      //      }
+      //    }
+      //  }
+      //}
 
-      if (this.IsUpdateView && this.DataViewItems != null)
-      {
-        DataRowView rowView = null;
-        string oldSort = DataViewItems.Sort;
-        int rowIdx = 0;
-        this.DataViewItems.Sort = "ActivityItemPurchaseOrderWorkSheetFKRefno";
-        if (this.FKRefno > 0)
-        {
-          rowIdx = this.DataViewItems.Find(new object[] { this.FKRefno });
-          if (rowIdx > -1)
-          {
-            rowView = this.DataViewItems[rowIdx];
-          }
-        }
+      //if (this.IsUpdateView && this.DataViewItems != null)
+      //{
+      //  DataRowView rowView = null;
+      //  string oldSort = DataViewItems.Sort;
+      //  int rowIdx = 0;
+      //  this.DataViewItems.Sort = "ActivityItemPurchaseOrderWorkSheetFKRefno";
+      //  if (this.FKRefno > 0)
+      //  {
+      //    rowIdx = this.DataViewItems.Find(new object[] { this.FKRefno });
+      //    if (rowIdx > -1)
+      //    {
+      //      rowView = this.DataViewItems[rowIdx];
+      //    }
+      //  }
 
-        if (rowView == null)
-        {
-          rowView = this.DataViewItems.AddNew();
-          rowView["ActivityItemRefno"] = this.Refno;
-          rowView["ProductUnitRefno"] = this.ProdInfo.UnitRefno;
-          rowView["ProductRefno"] = this.ProdInfo.Refno;
-          rowView["ProductCode"] = this.ProdInfo.Code;
-          rowView["ProductDescription"] = this.ProdInfo.Desc;
-          rowView["ProductUnitSizeDescription"] = this.ProdInfo.UnitSizeDesc;
-          rowView["UnitCode"] = this.ProdInfo.UnitCode;
-          rowView["ActivityItemPurchaseOrderWorkSheetFKRefno"] = this.FKRefno;
-          rowView["ActivityItemPurchaseOrderWorkSheetStringFKRefno"] = this.FKRefno.ToString();
-        }
+      //  if (rowView == null)
+      //  {
+      //    rowView = this.DataViewItems.AddNew();
+      //    rowView["ActivityItemRefno"] = this.Refno;
+      //    rowView["ProductUnitRefno"] = this.ProdInfo.UnitRefno;
+      //    rowView["ProductRefno"] = this.ProdInfo.Refno;
+      //    rowView["ProductCode"] = this.ProdInfo.Code;
+      //    rowView["ProductDescription"] = this.ProdInfo.Desc;
+      //    rowView["ProductUnitSizeDescription"] = this.ProdInfo.UnitSizeDesc;
+      //    rowView["UnitCode"] = this.ProdInfo.UnitCode;
+      //    rowView["ActivityItemPurchaseOrderWorkSheetFKRefno"] = this.FKRefno;
+      //    rowView["ActivityItemPurchaseOrderWorkSheetStringFKRefno"] = this.FKRefno.ToString();
+      //  }
 
-        rowView["ActivityItemStatus"] = SysCommon.ActStatus.NoChange;
-        rowView["LocationMapRefno"] = this.LocMap.LoginWhsLocMapRefno;
-        rowView["ActivityItemPurchaseOrderWorkSheetQuantityOrdered"] 
-            = Math.Round(decimal.Parse(data.Root.Element("alt_qty").Value), 3);
-        rowView["ActivityItemPurchaseOrderWorkSheetBaseQuantityOrdered"] 
-            = Math.Round(decimal.Parse(data.Root.Element("base_qty").Value), 3);
-        rowView["ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered"] 
-            = Math.Round(decimal.Parse(data.Root.Element("wt_qty").Value), 3);
+      //  rowView["ActivityItemStatus"] = SysCommon.ActStatus.NoChange;
+      //  rowView["LocationMapRefno"] = this.LocMap.LoginWhsLocMapRefno;
+      //  rowView["ActivityItemPurchaseOrderWorkSheetQuantityOrdered"] 
+      //      = Math.Round(decimal.Parse(data.Root.Element("alt_qty").Value), 3);
+      //  rowView["ActivityItemPurchaseOrderWorkSheetBaseQuantityOrdered"] 
+      //      = Math.Round(decimal.Parse(data.Root.Element("base_qty").Value), 3);
+      //  rowView["ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered"] 
+      //      = Math.Round(decimal.Parse(data.Root.Element("wt_qty").Value), 3);
 
-        rowView["LocationCode"] = this.LocMap.LoginWhsLocMapRefno;
-        rowView["LocationName"] = this.LocMap.CurrLocMap.WhsName;
-        rowView.EndEdit();
+      //  rowView["LocationCode"] = this.LocMap.LoginWhsLocMapRefno;
+      //  rowView["LocationName"] = this.LocMap.CurrLocMap.WhsName;
+      //  rowView.EndEdit();
 
-        this.DataViewItems.Sort = oldSort;
-      }
+      //  this.DataViewItems.Sort = oldSort;
+      //}
     }
 
     /// <summary>
@@ -738,7 +738,7 @@ namespace dMobile.Controller
         sql.AppendFormat("AND tActivityItemPurchaseOrderWorkSheet.ProductUnitRefno = {0} ", prodUnitRefno);
         cmndItem.CommandText = sql.ToString();
 
-        using (SqliteDataReader drItem = cmndItem.ExecuteReader())
+        using (SQLiteDataReader drItem = cmndItem.ExecuteReader())
         {
           if (drItem.Read())
           {
@@ -848,7 +848,7 @@ namespace dMobile.Controller
       {
         cmndItem.CommandText = "tActivityItemPurchaseOrderWorkSheet";
         cmndItem.CommandType = CommandType.Text;
-        cmndItem.IndexName = string.Empty;
+        //cmndItem.IndexName = string.Empty;
         cmndItem.CommandText = "UPDATE tActivityItemPurchaseOrderWorkSheet "
             + "SET ActivityItemPurchaseOrderWorkSheetQuantityOrdered = " 
             + this.DataViewItems[idx]["ActivityItemPurchaseOrderWorkSheetQuantityOrdered"] + "," 

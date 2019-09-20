@@ -2,7 +2,7 @@ namespace dMobile.Controller
 {
   using System;
   using System.Data;
-  
+  using System.Data.SQLite;
   using System.Text;
   using System.Windows.Forms;
   using System.Xml;
@@ -147,23 +147,23 @@ namespace dMobile.Controller
     public override string GetComment(int selectedIndex)
     {
       string cmmt = base.GetComment(selectedIndex);
-      using (SQLiteCommand cmndItemRecvCmnt = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-      {
-        cmndItemRecvCmnt.CommandType = CommandType.TableDirect;
-        cmndItemRecvCmnt.CommandText = "tActivityItemReceivingComment";
-        cmndItemRecvCmnt.IndexName = "PK_ActivityItemReceivingCommentOnActivityItemRefno";
+      //using (SQLiteCommand cmndItemRecvCmnt = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+      //{
+      //  cmndItemRecvCmnt.CommandType = CommandType.TableDirect;
+      //  cmndItemRecvCmnt.CommandText = "tActivityItemReceivingComment";
+      //  cmndItemRecvCmnt.IndexName = "PK_ActivityItemReceivingCommentOnActivityItemRefno";
 
-        using (SqliteDataReader drItemRecvCmnt = cmndItemRecvCmnt.ExecuteReader())
-        {
-          if (drItemRecvCmnt.Seek(DbSeekOptions.FirstEqual, new object[] { selectedIndex }))
-          {
-            if (drItemRecvCmnt.Read())
-            {
-              cmmt = drItemRecvCmnt["ActivityItemReceivingCommentComment"].ToString();
-            }
-          }
-        }
-      }
+      //  using (SQLiteDataReader drItemRecvCmnt = cmndItemRecvCmnt.ExecuteReader())
+      //  {
+      //    if (drItemRecvCmnt.Seek(DbSeekOptions.FirstEqual, new object[] { selectedIndex }))
+      //    {
+      //      if (drItemRecvCmnt.Read())
+      //      {
+      //        cmmt = drItemRecvCmnt["ActivityItemReceivingCommentComment"].ToString();
+      //      }
+      //    }
+      //  }
+      //}
 
       return cmmt;
     }
@@ -581,7 +581,7 @@ namespace dMobile.Controller
         cmndItem.CommandType = CommandType.Text;
         cmndItem.CommandText = sql.ToString();
 
-        using (SqliteDataReader drItem = cmndItem.ExecuteReader())
+        using (SQLiteDataReader drItem = cmndItem.ExecuteReader())
         {
           if (drItem.Read())
           {
@@ -684,7 +684,7 @@ namespace dMobile.Controller
       using (SQLiteCommand cmndItemRecv = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
       {
         cmndItemRecv.CommandType = CommandType.Text;
-        cmndItemRecv.IndexName = string.Empty;
+        //cmndItemRecv.IndexName = string.Empty;
         cmndItemRecv.CommandText = "UPDATE tActivityItemReceiving "
             + "SET ActivityItemReceivingQuantityReceived = ActivityItemReceivingQuantityReceived + " 
             + this.DataViewItems[idx]["ActivityItemReceivingQuantityReceived"] + "," 
@@ -708,7 +708,7 @@ namespace dMobile.Controller
       using (SQLiteCommand cmndItemRecv = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
       {
         cmndItemRecv.CommandType = System.Data.CommandType.Text;
-        cmndItemRecv.IndexName = string.Empty;
+        //cmndItemRecv.IndexName = string.Empty;
         cmndItemRecv.CommandText = "SELECT SUM(tActivityItemReceiving.ActivityItemReceivingQuantityOrdered) AS "
             + "Ordered,"
             + "SUM(tActivityItemReceiving.ActivityItemReceivingQuantityReceived) AS Received "
@@ -717,7 +717,7 @@ namespace dMobile.Controller
             + "tActivityItem.ActivityItemRefno "
             + string.Format("WHERE tActivityItem.ActivityRefno = {0}", this.ActHdr.Refno);
 
-        using (SqliteDataReader dr = cmndItemRecv.ExecuteReader())
+        using (SQLiteDataReader dr = cmndItemRecv.ExecuteReader())
         {
 #if MULTILANGUAGE
           msg = Translator.GetInstance().Translate(TranslatorVocabulary.TotalReceived);

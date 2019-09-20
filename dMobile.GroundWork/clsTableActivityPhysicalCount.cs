@@ -2,7 +2,7 @@ namespace dMobile.GroundWork
 {
   using System;
   using System.Data;
-  
+  using System.Data.SQLite;
   using System.Text;
   using System.Xml;
   using System.Xml.Linq;
@@ -112,7 +112,7 @@ namespace dMobile.GroundWork
               true);
         }
       }
-      catch (SqlCeException ex)
+      catch (SQLiteException ex)
       {
 #if MULTILANGUAGE
         throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredPhysicalCountsStatusFailed), ex);
@@ -157,7 +157,7 @@ namespace dMobile.GroundWork
         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging physical counts complete.", true);
 #endif
       }
-      catch (SqlCeException ex)
+      catch (SQLiteException ex)
       {
 #if MULTILANGUAGE
         this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), true);
@@ -186,232 +186,232 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     protected override void Save(string reqData)
     {
-      SqlCeConnection conn = DatabaseConnection.GetInstance().SQLConn;
-      string errMsg = string.Empty;
+//      SQLiteConnection conn = DatabaseConnection.GetInstance().SQLConn;
+//      string errMsg = string.Empty;
 
-      try
-      {
-        using (DataSet ds = new DataSet())
-        {
-#if MULTILANGUAGE
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.ReadingReceivedData), false);
-#else
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
-#endif
-          ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
+//      try
+//      {
+//        using (DataSet ds = new DataSet())
+//        {
+//#if MULTILANGUAGE
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.ReadingReceivedData), false);
+//#else
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
+//#endif
+//          ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
 
-#if MULTILANGUAGE
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingPhysicalCounts), false);
-#else
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving physical counts.", false);
-#endif
-          if (ds.Tables.Count != 0)
-          {
-            int progMax = Convert.ToInt32(ds.Tables["tActivityCount"].Rows.Count);
+//#if MULTILANGUAGE
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingPhysicalCounts), false);
+//#else
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving physical counts.", false);
+//#endif
+//          if (ds.Tables.Count != 0)
+//          {
+//            int progMax = Convert.ToInt32(ds.Tables["tActivityCount"].Rows.Count);
 
-            this.DataAccessStatusOutHandler(
-                this, 
-                EventArgs.Empty, 
-#if MULTILANGUAGE
-                string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.Recordsz), progMax),
-#else
-                string.Format("Records {0}", progMax),
-#endif
-                false);
+//            this.DataAccessStatusOutHandler(
+//                this, 
+//                EventArgs.Empty, 
+//#if MULTILANGUAGE
+//                string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.Recordsz), progMax),
+//#else
+//                string.Format("Records {0}", progMax),
+//#endif
+//                false);
 
-            using (SQLiteCommand cmndCount = conn.CreateCommand())
-            {
-              cmndCount.CommandText = "tActivityCount";
-              cmndCount.CommandType = CommandType.TableDirect;
-              cmndCount.IndexName = "UQ_ActivityCountOnActivityCountFKRefno";
+//            using (SQLiteCommand cmndCount = conn.CreateCommand())
+//            {
+//              cmndCount.CommandText = "tActivityCount";
+//              cmndCount.CommandType = CommandType.TableDirect;
+//              cmndCount.IndexName = "UQ_ActivityCountOnActivityCountFKRefno";
 
-              using (SQLiteCommand cmndAct = conn.CreateCommand())
-              {
-                cmndAct.CommandText = "tActivity";
-                cmndAct.CommandType = CommandType.TableDirect;
+//              using (SQLiteCommand cmndAct = conn.CreateCommand())
+//              {
+//                cmndAct.CommandText = "tActivity";
+//                cmndAct.CommandType = CommandType.TableDirect;
 
-                using (SqlCeResultSet rsAct = cmndAct.ExecuteResultSet(ResultSetOptions.Updatable))
-                {
-                  SqlCeUpdatableRecord recAct = rsAct.CreateRecord();
+//                using (SqlCeResultSet rsAct = cmndAct.ExecuteResultSet(ResultSetOptions.Updatable))
+//                {
+//                  SqlCeUpdatableRecord recAct = rsAct.CreateRecord();
 
-                  using (SQLiteCommand cmndID = conn.CreateCommand())
-                  {
-                    cmndID.CommandText = "SELECT @@IDENTITY";
-                    cmndID.CommandType = CommandType.Text;
+//                  using (SQLiteCommand cmndID = conn.CreateCommand())
+//                  {
+//                    cmndID.CommandText = "SELECT @@IDENTITY";
+//                    cmndID.CommandType = CommandType.Text;
 
-                    using (SQLiteCommand cmndWhs = conn.CreateCommand())
-                    {
-                      cmndWhs.CommandText = "tLocationMapWarehouse";
-                      cmndWhs.IndexName = "UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno";
-                      cmndWhs.CommandType = CommandType.TableDirect;
+//                    using (SQLiteCommand cmndWhs = conn.CreateCommand())
+//                    {
+//                      cmndWhs.CommandText = "tLocationMapWarehouse";
+//                      cmndWhs.IndexName = "UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno";
+//                      cmndWhs.CommandType = CommandType.TableDirect;
 
-                      using (SqliteDataReader drWhs = cmndWhs.ExecuteReader())
-                      {
-                        using (SqlCeResultSet rs = cmndCount.ExecuteResultSet(ResultSetOptions.Updatable))
-                        {
-                          SqlCeUpdatableRecord rec = rs.CreateRecord();
-                          int actRefno = 0;
-                          int progValue = 0;
-                          int whsLocMapRefno = 0;
-                          string actCountTypeDesc = string.Empty;
-                          int countFKRefno = 0;
+//                      using (SQLiteDataReader drWhs = cmndWhs.ExecuteReader())
+//                      {
+//                        using (SqlCeResultSet rs = cmndCount.ExecuteResultSet(ResultSetOptions.Updatable))
+//                        {
+//                          SqlCeUpdatableRecord rec = rs.CreateRecord();
+//                          int actRefno = 0;
+//                          int progValue = 0;
+//                          int whsLocMapRefno = 0;
+//                          string actCountTypeDesc = string.Empty;
+//                          int countFKRefno = 0;
 
-                          this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
+//                          this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
 
-                          foreach (DataRow drow in ds.Tables["tActivityCount"].Rows)
-                          {
-                            errMsg = "Arguments:";
+//                          foreach (DataRow drow in ds.Tables["tActivityCount"].Rows)
+//                          {
+//                            errMsg = "Arguments:";
 
-                            recAct.SetInt32(
-                                (int)SysCommon.ActFields.SubType, 
-                                (int)SysCommon.ActSubTypes.PhysicalCounts);
+//                            recAct.SetInt32(
+//                                (int)SysCommon.ActFields.SubType, 
+//                                (int)SysCommon.ActSubTypes.PhysicalCounts);
 
-                            recAct.SetInt32((int)SysCommon.ActFields.Status, 0);
+//                            recAct.SetInt32((int)SysCommon.ActFields.Status, 0);
 
-                            rsAct.Insert(recAct);
+//                            rsAct.Insert(recAct);
 
-                            actRefno = Convert.ToInt32(cmndID.ExecuteScalar());
+//                            actRefno = Convert.ToInt32(cmndID.ExecuteScalar());
 
-                            rec.SetInt32((int)SysCommon.ActCountFields.ActRefno, actRefno);
-                            rec.SetInt32(
-                                (int)SysCommon.ActCountFields.ActSubType, 
-                                (int)SysCommon.ActSubTypes.PhysicalCounts);
+//                            rec.SetInt32((int)SysCommon.ActCountFields.ActRefno, actRefno);
+//                            rec.SetInt32(
+//                                (int)SysCommon.ActCountFields.ActSubType, 
+//                                (int)SysCommon.ActSubTypes.PhysicalCounts);
 
-                            countFKRefno = Convert.ToInt32(drow["ActivityCountFKRefno"]);
-                            errMsg += Environment.NewLine + "FK refno " + countFKRefno;
-                            rec.SetInt32((int)SysCommon.ActCountFields.FKRefno, countFKRefno);
-                            rec.SetString(
-                                (int)SysCommon.ActCountFields.StringFKRefno,
-                                countFKRefno.ToString());
+//                            countFKRefno = Convert.ToInt32(drow["ActivityCountFKRefno"]);
+//                            errMsg += Environment.NewLine + "FK refno " + countFKRefno;
+//                            rec.SetInt32((int)SysCommon.ActCountFields.FKRefno, countFKRefno);
+//                            rec.SetString(
+//                                (int)SysCommon.ActCountFields.StringFKRefno,
+//                                countFKRefno.ToString());
 
-                            whsLocMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, ref errMsg, drWhs);
-                            rec.SetInt32((int)SysCommon.ActCountFields.WhsLocMapRefno, whsLocMapRefno);
+//                            whsLocMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, ref errMsg, drWhs);
+//                            rec.SetInt32((int)SysCommon.ActCountFields.WhsLocMapRefno, whsLocMapRefno);
 
-                            rec.SetInt32(
-                                (int)SysCommon.ActCountFields.Type, 
-                                Convert.ToInt32(drow["ActivityCountType"]));
+//                            rec.SetInt32(
+//                                (int)SysCommon.ActCountFields.Type, 
+//                                Convert.ToInt32(drow["ActivityCountType"]));
 
-                            // To remove time - convert twice
-                            DateTime dt = Convert.ToDateTime(drow["ActivityCountDateTime"]);
-                            rec.SetDateTime(
-                                (int)SysCommon.ActCountFields.DateTime,
-                                DateTime.Parse(dt.ToShortDateString()));
+//                            // To remove time - convert twice
+//                            DateTime dt = Convert.ToDateTime(drow["ActivityCountDateTime"]);
+//                            rec.SetDateTime(
+//                                (int)SysCommon.ActCountFields.DateTime,
+//                                DateTime.Parse(dt.ToShortDateString()));
 
-                            switch (Convert.ToInt32(drow["ActivityCountType"]))
-                            {
-                              case (int)SysCommon.ActCountTypeFields.PhysicalCountByWarehouse:
-#if MULTILANGUAGE
-                                actCountTypeDesc = Translator.GetInstance().Translate(TranslatorVocabulary.StandardPhysicalCountByWarehouse);
-#else
-                                actCountTypeDesc = "Standard Physical Count By Warehouse";
-#endif
-                                break;
+//                            switch (Convert.ToInt32(drow["ActivityCountType"]))
+//                            {
+//                              case (int)SysCommon.ActCountTypeFields.PhysicalCountByWarehouse:
+//#if MULTILANGUAGE
+//                                actCountTypeDesc = Translator.GetInstance().Translate(TranslatorVocabulary.StandardPhysicalCountByWarehouse);
+//#else
+//                                actCountTypeDesc = "Standard Physical Count By Warehouse";
+//#endif
+//                                break;
 
-                              case (int)SysCommon.ActCountTypeFields.CycleCountByWarehouse:
-#if MULTILANGUAGE
-                                actCountTypeDesc = Translator.GetInstance().Translate(TranslatorVocabulary.CycleCountByWarehouse);
-#else
-                                actCountTypeDesc = "Cycle Count By Warehouse";
-#endif
-                                break;
+//                              case (int)SysCommon.ActCountTypeFields.CycleCountByWarehouse:
+//#if MULTILANGUAGE
+//                                actCountTypeDesc = Translator.GetInstance().Translate(TranslatorVocabulary.CycleCountByWarehouse);
+//#else
+//                                actCountTypeDesc = "Cycle Count By Warehouse";
+//#endif
+//                                break;
 
-                              case (int)SysCommon.ActCountTypeFields.CycleCountBySection:
-#if MULTILANGUAGE
-                                actCountTypeDesc = Translator.GetInstance().Translate(TranslatorVocabulary.CycleCountBySection);
-#else
-                                actCountTypeDesc = "Cycle Count By Section";
-#endif
-                                break;
+//                              case (int)SysCommon.ActCountTypeFields.CycleCountBySection:
+//#if MULTILANGUAGE
+//                                actCountTypeDesc = Translator.GetInstance().Translate(TranslatorVocabulary.CycleCountBySection);
+//#else
+//                                actCountTypeDesc = "Cycle Count By Section";
+//#endif
+//                                break;
 
-                              case (int)SysCommon.ActCountTypeFields.CycleCountBySlot:
-#if MULTILANGUAGE
-                                actCountTypeDesc = Translator.GetInstance().Translate(TranslatorVocabulary.CycleCountBySlot);
-#else
-                                actCountTypeDesc = "Cycle Count By Slot";
-#endif
-                                break;
+//                              case (int)SysCommon.ActCountTypeFields.CycleCountBySlot:
+//#if MULTILANGUAGE
+//                                actCountTypeDesc = Translator.GetInstance().Translate(TranslatorVocabulary.CycleCountBySlot);
+//#else
+//                                actCountTypeDesc = "Cycle Count By Slot";
+//#endif
+//                                break;
 
-                              case (int)SysCommon.ActCountTypeFields.BaseCycleCountByWarehouse:
-#if MULTILANGUAGE
-                                actCountTypeDesc = Translator.GetInstance().Translate(TranslatorVocabulary.BaseCycleCountByWarehouse);
-#else
-                                actCountTypeDesc = "Base Cycle Count By Warehouse";
-#endif
-                                break;
-                            }
+//                              case (int)SysCommon.ActCountTypeFields.BaseCycleCountByWarehouse:
+//#if MULTILANGUAGE
+//                                actCountTypeDesc = Translator.GetInstance().Translate(TranslatorVocabulary.BaseCycleCountByWarehouse);
+//#else
+//                                actCountTypeDesc = "Base Cycle Count By Warehouse";
+//#endif
+//                                break;
+//                            }
 
-                            errMsg += Environment.NewLine + "Type \'" + actCountTypeDesc + "\'";
-                            rec.SetString((int)SysCommon.ActCountFields.TypeDescription, actCountTypeDesc);
+//                            errMsg += Environment.NewLine + "Type \'" + actCountTypeDesc + "\'";
+//                            rec.SetString((int)SysCommon.ActCountFields.TypeDescription, actCountTypeDesc);
 
-                            // <wo="14563" comment="receiving strings up to 75 in length when database wants max 60. This is the viewable description when selecting line item." />
-                            string incomingDescription = ReduceWhitespace(drow["ActivityCountDescription"].ToString());
-                            if (incomingDescription.Length > 60)
-                                incomingDescription = incomingDescription.Replace(" ", string.Empty); // remove all spaces
-                            if (incomingDescription.Length > 60)
-                                incomingDescription = incomingDescription.Substring(0, 60); // truncate the end if we need to.
+//                            // <wo="14563" comment="receiving strings up to 75 in length when database wants max 60. This is the viewable description when selecting line item." />
+//                            string incomingDescription = ReduceWhitespace(drow["ActivityCountDescription"].ToString());
+//                            if (incomingDescription.Length > 60)
+//                                incomingDescription = incomingDescription.Replace(" ", string.Empty); // remove all spaces
+//                            if (incomingDescription.Length > 60)
+//                                incomingDescription = incomingDescription.Substring(0, 60); // truncate the end if we need to.
 
-                            rec.SetString(
-                                (int)SysCommon.ActCountFields.Description, 
-                                incomingDescription);
+//                            rec.SetString(
+//                                (int)SysCommon.ActCountFields.Description, 
+//                                incomingDescription);
 
-                            rs.Insert(rec);
+//                            rs.Insert(rec);
 
-                            progValue++;
-                            if (progValue % 10 == 0)
-                            {
-                              this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
-                            }
-                          }
+//                            progValue++;
+//                            if (progValue % 10 == 0)
+//                            {
+//                              this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
+//                            }
+//                          }
 
-                          this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
-                        }
+//                          this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
+//                        }
 
-                        drWhs.Close();
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
+//                        drWhs.Close();
+//                      }
+//                    }
+//                  }
+//                }
+//              }
+//            }
+//          }
 
-#if MULTILANGUAGE
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingPhysicalCountsComplete), false);
-#else
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving physical counts complete.", false);
-#endif
-        }
-      }
-      catch (SqlCeException ex)
-      {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), true);
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingPhysicalCountsFailed), true);
-#else
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving physical counts failed.", true);
-#endif
+//#if MULTILANGUAGE
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingPhysicalCountsComplete), false);
+//#else
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving physical counts complete.", false);
+//#endif
+//        }
+//      }
+//      catch (SQLiteException ex)
+//      {
+//#if MULTILANGUAGE
+//        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), true);
+//        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingPhysicalCountsFailed), true);
+//#else
+//        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
+//        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving physical counts failed.", true);
+//#endif
 
-        // Duplicate key violations
-        if (ex.NativeError == 25016)
-        {
-#if MULTILANGUAGE
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.UniquenessViolation), false);
-          throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.UniquenessViolation) + Environment.NewLine + errMsg, ex);
-#else
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Uniqueness violation.", false);
-          throw new Exception("Uniqueness violation." + Environment.NewLine + errMsg, ex);
-#endif
-        }
+//        // Duplicate key violations
+//        if (ex.NativeError == 25016)
+//        {
+//#if MULTILANGUAGE
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.UniquenessViolation), false);
+//          throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.UniquenessViolation) + Environment.NewLine + errMsg, ex);
+//#else
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Uniqueness violation.", false);
+//          throw new Exception("Uniqueness violation." + Environment.NewLine + errMsg, ex);
+//#endif
+//        }
 
-        throw new Exception(
-#if MULTILANGUAGE
-            Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredSavingPhysicalCountsFailed) + Environment.NewLine + errMsg,
-#else
-            "Database exception occurred. Saving physical counts failed." + Environment.NewLine + errMsg,
-#endif
-            ex);
-      }
+//        throw new Exception(
+//#if MULTILANGUAGE
+//            Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredSavingPhysicalCountsFailed) + Environment.NewLine + errMsg,
+//#else
+//            "Database exception occurred. Saving physical counts failed." + Environment.NewLine + errMsg,
+//#endif
+//            ex);
+//      }
     }
 
 

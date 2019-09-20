@@ -2,7 +2,7 @@ namespace dMobile.GroundWork
 {
   using System;
   using System.Data;
-  
+  using System.Data.SQLite;
   using System.Text;
   using System.Xml;
   using System.Xml.Linq;
@@ -104,7 +104,7 @@ namespace dMobile.GroundWork
         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging warehouses complete.", true);
 #endif
       }
-      catch (SqlCeException ex)
+      catch (SQLiteException ex)
       {
 #if MULTILANGUAGE
         this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), true);
@@ -132,55 +132,55 @@ namespace dMobile.GroundWork
     {
       int whsLocMapRefno = 0;
 
-      try
-      {
-        using (SQLiteCommand cmndGetWhs = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-        {
-          cmndGetWhs.CommandText = "tLocationMapWarehouse";
-          cmndGetWhs.IndexName = "UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno";
-          cmndGetWhs.CommandType = CommandType.TableDirect;
+//      try
+//      {
+//        using (SQLiteCommand cmndGetWhs = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+//        {
+//          cmndGetWhs.CommandText = "tLocationMapWarehouse";
+//          cmndGetWhs.IndexName = "UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno";
+//          cmndGetWhs.CommandType = CommandType.TableDirect;
 
-          using (SqliteDataReader drWhs = cmndGetWhs.ExecuteReader())
-          {
-            if (drWhs.Seek(DbSeekOptions.FirstEqual, new object[] { locMapWhsFKRefno }))
-            {
-              if (drWhs.Read())
-              {
-                whsLocMapRefno = drWhs.GetInt32((int)SysCommon.LocMapWhsFields.LocMapRefno);
-              }
-              else
-              {
-#if MULTILANGUAGE
-                throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DrwhsreadFailed));
-#else
-                throw new Exception("drWhs.Read() failed.");
-#endif
-              }
-            }
-            else
-            {
-              throw new Exception(
-                string.Format(
-#if MULTILANGUAGE
-                  Translator.GetInstance().Translate(TranslatorVocabulary.UnableToLocateWarehouseRefnoUsingTheWarehouseFkRefnoInTlocationmapwarehouse),
-#else
-                  "Unable to locate warehouse refno using the warehouse fk refno {0} in tLocationMapWarehouse.",
-#endif
-                  locMapWhsFKRefno));
-            }
+//          using (SQLiteDataReader drWhs = cmndGetWhs.ExecuteReader())
+//          {
+//            if (drWhs.Seek(DbSeekOptions.FirstEqual, new object[] { locMapWhsFKRefno }))
+//            {
+//              if (drWhs.Read())
+//              {
+//                whsLocMapRefno = drWhs.GetInt32((int)SysCommon.LocMapWhsFields.LocMapRefno);
+//              }
+//              else
+//              {
+//#if MULTILANGUAGE
+//                throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DrwhsreadFailed));
+//#else
+//                throw new Exception("drWhs.Read() failed.");
+//#endif
+//              }
+//            }
+//            else
+//            {
+//              throw new Exception(
+//                string.Format(
+//#if MULTILANGUAGE
+//                  Translator.GetInstance().Translate(TranslatorVocabulary.UnableToLocateWarehouseRefnoUsingTheWarehouseFkRefnoInTlocationmapwarehouse),
+//#else
+//                  "Unable to locate warehouse refno using the warehouse fk refno {0} in tLocationMapWarehouse.",
+//#endif
+//                  locMapWhsFKRefno));
+//            }
 
-            drWhs.Close();
-          }
-        }
-      }
-      catch (SqlCeException ex)
-      {
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredGetlocmapwhsrefnofromlocwhsfkrefnoFailed), ex);
-#else
-        throw new Exception("Database exception occurred. GetLocMapWhsRefnoFromLocWhsFKRefno failed.", ex);
-#endif
-      }
+//            drWhs.Close();
+//          }
+//        }
+//      }
+//      catch (SQLiteException ex)
+//      {
+//#if MULTILANGUAGE
+//        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredGetlocmapwhsrefnofromlocwhsfkrefnoFailed), ex);
+//#else
+//        throw new Exception("Database exception occurred. GetLocMapWhsRefnoFromLocWhsFKRefno failed.", ex);
+//#endif
+//      }
 
       return whsLocMapRefno;
     }
@@ -194,55 +194,55 @@ namespace dMobile.GroundWork
     {
       int locMapWhsFKRefno = 0;
 
-      try
-      {
-        using (SQLiteCommand cmndGetWhs = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-        {
-          cmndGetWhs.CommandText = "tLocationMapWarehouse";
-          cmndGetWhs.IndexName = "PK_LocationMapWarehouseOnLocationMapRefno";
-          cmndGetWhs.CommandType = CommandType.TableDirect;
+//      try
+//      {
+//        using (SQLiteCommand cmndGetWhs = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+//        {
+//          cmndGetWhs.CommandText = "tLocationMapWarehouse";
+//          cmndGetWhs.IndexName = "PK_LocationMapWarehouseOnLocationMapRefno";
+//          cmndGetWhs.CommandType = CommandType.TableDirect;
 
-          using (SqliteDataReader drWhs = cmndGetWhs.ExecuteReader())
-          {
-            if (drWhs.Seek(DbSeekOptions.FirstEqual, new object[] { locMapWhsRefno }))
-            {
-              if (drWhs.Read())
-              {
-                locMapWhsFKRefno = drWhs.GetInt32((int)SysCommon.LocMapWhsFields.FKRefno);
-              }
-              else
-              {
-#if MULTILANGUAGE
-                throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DrwhsreadFailed));
-#else
-                throw new Exception("drWhs.Read() failed.");
-#endif
-              }
-            }
-            else
-            {
-              throw new Exception(
-                string.Format(
-#if MULTILANGUAGE
-                  Translator.GetInstance().Translate(TranslatorVocabulary.UnableToLocateWarehouseFkRefnoUsingTheWarehouseRefnoInTlocationmapwarehouse),
-#else
-                  "Unable to locate warehouse fk refno using the warehouse refno {0} in tLocationMapWarehouse.",
-#endif
-                  locMapWhsRefno));
-            }
+//          using (SQLiteDataReader drWhs = cmndGetWhs.ExecuteReader())
+//          {
+//            if (drWhs.Seek(DbSeekOptions.FirstEqual, new object[] { locMapWhsRefno }))
+//            {
+//              if (drWhs.Read())
+//              {
+//                locMapWhsFKRefno = drWhs.GetInt32((int)SysCommon.LocMapWhsFields.FKRefno);
+//              }
+//              else
+//              {
+//#if MULTILANGUAGE
+//                throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DrwhsreadFailed));
+//#else
+//                throw new Exception("drWhs.Read() failed.");
+//#endif
+//              }
+//            }
+//            else
+//            {
+//              throw new Exception(
+//                string.Format(
+//#if MULTILANGUAGE
+//                  Translator.GetInstance().Translate(TranslatorVocabulary.UnableToLocateWarehouseFkRefnoUsingTheWarehouseRefnoInTlocationmapwarehouse),
+//#else
+//                  "Unable to locate warehouse fk refno using the warehouse refno {0} in tLocationMapWarehouse.",
+//#endif
+//                  locMapWhsRefno));
+//            }
 
-            drWhs.Close();
-          }
-        }
-      }
-      catch (SqlCeException ex)
-      {
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredGetlocmapwhsfkrefnofromlocmapwhsrefnoFailed), ex);
-#else
-        throw new Exception("Database exception occurred. GetLocMapWhsFKRefnoFromLocMapWhsRefno failed.", ex);
-#endif
-      }
+//            drWhs.Close();
+//          }
+//        }
+//      }
+//      catch (SQLiteException ex)
+//      {
+//#if MULTILANGUAGE
+//        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredGetlocmapwhsfkrefnofromlocmapwhsrefnoFailed), ex);
+//#else
+//        throw new Exception("Database exception occurred. GetLocMapWhsFKRefnoFromLocMapWhsRefno failed.", ex);
+//#endif
+//      }
 
       return locMapWhsFKRefno;
     }
@@ -275,7 +275,7 @@ namespace dMobile.GroundWork
               true);
         }
       }
-      catch (SqlCeException ex)
+      catch (SQLiteException ex)
       {
 #if MULTILANGUAGE
         throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredWarehousesStatusFailed), ex);
@@ -308,185 +308,185 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     protected override void Save(string reqData)
     {
-      string errMsg = string.Empty;
-      SqlCeConnection conn = DatabaseConnection.GetInstance().SQLConn;
+//      string errMsg = string.Empty;
+//      SQLiteConnection conn = DatabaseConnection.GetInstance().SQLConn;
 
-      try
-      {
-        using (DataSet ds = new DataSet())
-        {
-#if MULTILANGUAGE
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.ReadingReceivedData), false);
-#else
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
-#endif
-          ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
+//      try
+//      {
+//        using (DataSet ds = new DataSet())
+//        {
+//#if MULTILANGUAGE
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.ReadingReceivedData), false);
+//#else
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
+//#endif
+//          ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
 
-#if MULTILANGUAGE
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingWarehouses), false);
-#else
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving warehouses.", false);
-#endif
-          if (ds.Tables.Count != 0)
-          {
-            int progMax = Convert.ToInt32(ds.Tables["tLocationMapWarehouse"].Rows.Count);
+//#if MULTILANGUAGE
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingWarehouses), false);
+//#else
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving warehouses.", false);
+//#endif
+//          if (ds.Tables.Count != 0)
+//          {
+//            int progMax = Convert.ToInt32(ds.Tables["tLocationMapWarehouse"].Rows.Count);
 
-            this.DataAccessStatusOutHandler(
-                this, 
-                EventArgs.Empty, 
-#if MULTILANGUAGE
-                string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.Recordsz), progMax),
-#else
-                string.Format("Records {0}", progMax),
-#endif
-                false);
+//            this.DataAccessStatusOutHandler(
+//                this, 
+//                EventArgs.Empty, 
+//#if MULTILANGUAGE
+//                string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.Recordsz), progMax),
+//#else
+//                string.Format("Records {0}", progMax),
+//#endif
+//                false);
 
-            using (SQLiteCommand cmndWhs = conn.CreateCommand())
-            {
-              cmndWhs.CommandText = "tLocationMapWarehouse";
-              cmndWhs.CommandType = CommandType.TableDirect;
-              cmndWhs.IndexName = "UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno";
+//            using (SQLiteCommand cmndWhs = conn.CreateCommand())
+//            {
+//              cmndWhs.CommandText = "tLocationMapWarehouse";
+//              cmndWhs.CommandType = CommandType.TableDirect;
+//              cmndWhs.IndexName = "UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno";
 
-              using (SqliteDataReader drWhs = cmndWhs.ExecuteReader())
-              {
-                using (SQLiteCommand cmndLocMap = conn.CreateCommand())
-                {
-                  cmndLocMap.CommandText = "tLocationMap";
-                  cmndLocMap.CommandType = CommandType.TableDirect;
+//              using (SQLiteDataReader drWhs = cmndWhs.ExecuteReader())
+//              {
+//                using (SQLiteCommand cmndLocMap = conn.CreateCommand())
+//                {
+//                  cmndLocMap.CommandText = "tLocationMap";
+//                  cmndLocMap.CommandType = CommandType.TableDirect;
 
-                  using (SqlCeResultSet rsLocMap = cmndLocMap.ExecuteResultSet(ResultSetOptions.Updatable))
-                  {
-                    SqlCeUpdatableRecord recLocMap = rsLocMap.CreateRecord();
+//                  using (SqlCeResultSet rsLocMap = cmndLocMap.ExecuteResultSet(ResultSetOptions.Updatable))
+//                  {
+//                    SqlCeUpdatableRecord recLocMap = rsLocMap.CreateRecord();
 
-                    using (SQLiteCommand cmndID = conn.CreateCommand())
-                    {
-                      cmndID.CommandText = "SELECT @@IDENTITY";
-                      cmndID.CommandType = CommandType.Text;
+//                    using (SQLiteCommand cmndID = conn.CreateCommand())
+//                    {
+//                      cmndID.CommandText = "SELECT @@IDENTITY";
+//                      cmndID.CommandType = CommandType.Text;
 
-                      using (SqlCeResultSet rs = cmndWhs.ExecuteResultSet(ResultSetOptions.Updatable))
-                      {
-                        SqlCeUpdatableRecord rec = rs.CreateRecord();
-                        int locMapRefno = 0;
-                        int progValue = 0;
-                        bool isLocMapWhsFound = false;
-                        int locMapWhsFKRefno = 0;
-                        int locMapWhsCode = 0;
-                        string locMapWhsName = string.Empty;
-                        string locMapWhsBarCode = string.Empty;
+//                      using (SqlCeResultSet rs = cmndWhs.ExecuteResultSet(ResultSetOptions.Updatable))
+//                      {
+//                        SqlCeUpdatableRecord rec = rs.CreateRecord();
+//                        int locMapRefno = 0;
+//                        int progValue = 0;
+//                        bool isLocMapWhsFound = false;
+//                        int locMapWhsFKRefno = 0;
+//                        int locMapWhsCode = 0;
+//                        string locMapWhsName = string.Empty;
+//                        string locMapWhsBarCode = string.Empty;
 
-                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
+//                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
 
-                        foreach (DataRow drow in ds.Tables["tLocationMapWarehouse"].Rows)
-                        {
-                          locMapWhsFKRefno = Convert.ToInt32(drow["LocationMapWarehouseFKRefno"]);
+//                        foreach (DataRow drow in ds.Tables["tLocationMapWarehouse"].Rows)
+//                        {
+//                          locMapWhsFKRefno = Convert.ToInt32(drow["LocationMapWarehouseFKRefno"]);
 
-                          errMsg = "Whs fk refno " + locMapWhsFKRefno;
-                          locMapWhsCode = Convert.ToInt32(drow["LocationMapWarehouseCode"]);
-                          errMsg += Environment.NewLine + "Whs code " + locMapWhsCode;
-                          locMapWhsName = drow["LocationMapWarehouseName"].ToString();
-                          errMsg += Environment.NewLine + "Whs name \'" + locMapWhsCode + "\'";
-                          locMapWhsBarCode = drow["LocationMapWarehouseBarCode"].ToString();
-                          errMsg += Environment.NewLine + "Whs bar code \'" + locMapWhsBarCode + "\'";
+//                          errMsg = "Whs fk refno " + locMapWhsFKRefno;
+//                          locMapWhsCode = Convert.ToInt32(drow["LocationMapWarehouseCode"]);
+//                          errMsg += Environment.NewLine + "Whs code " + locMapWhsCode;
+//                          locMapWhsName = drow["LocationMapWarehouseName"].ToString();
+//                          errMsg += Environment.NewLine + "Whs name \'" + locMapWhsCode + "\'";
+//                          locMapWhsBarCode = drow["LocationMapWarehouseBarCode"].ToString();
+//                          errMsg += Environment.NewLine + "Whs bar code \'" + locMapWhsBarCode + "\'";
 
-                          isLocMapWhsFound = false;
-                          if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly)
-                          {
-                            cmndWhs.CommandText = "tLocationMapWarehouse";
-                            cmndWhs.CommandType = CommandType.TableDirect;
-                            cmndWhs.IndexName = "UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno";
+//                          isLocMapWhsFound = false;
+//                          if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly)
+//                          {
+//                            cmndWhs.CommandText = "tLocationMapWarehouse";
+//                            cmndWhs.CommandType = CommandType.TableDirect;
+//                            cmndWhs.IndexName = "UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno";
 
-                            if (drWhs.Seek(DbSeekOptions.FirstEqual, new object[] { locMapWhsFKRefno }))
-                            {
-                              isLocMapWhsFound = true;
-                              cmndWhs.CommandType = CommandType.Text;
-                              cmndWhs.IndexName = string.Empty;
-                              cmndWhs.CommandText = "UPDATE tLocationMapWarehouse " +
-                                  "SET LocationMapWarehouseCode = " + locMapWhsCode.ToString() + ", " +
-                                  "LocationMapWarehouseName = \'" + locMapWhsName + "\', " +
-                                  "LocationMapWarehouseBarCode = \'" + locMapWhsBarCode + "\' " +
-                                  "WHERE LocationMapWarehouseFKRefno = " + locMapWhsFKRefno.ToString();
-                              cmndWhs.ExecuteScalar();
-                            }
-                          }
+//                            if (drWhs.Seek(DbSeekOptions.FirstEqual, new object[] { locMapWhsFKRefno }))
+//                            {
+//                              isLocMapWhsFound = true;
+//                              cmndWhs.CommandType = CommandType.Text;
+//                              cmndWhs.IndexName = string.Empty;
+//                              cmndWhs.CommandText = "UPDATE tLocationMapWarehouse " +
+//                                  "SET LocationMapWarehouseCode = " + locMapWhsCode.ToString() + ", " +
+//                                  "LocationMapWarehouseName = \'" + locMapWhsName + "\', " +
+//                                  "LocationMapWarehouseBarCode = \'" + locMapWhsBarCode + "\' " +
+//                                  "WHERE LocationMapWarehouseFKRefno = " + locMapWhsFKRefno.ToString();
+//                              cmndWhs.ExecuteScalar();
+//                            }
+//                          }
 
-                          if (!isLocMapWhsFound)
-                          {
-                            cmndWhs.CommandText = "tLocationMapWarehouse";
-                            cmndWhs.CommandType = CommandType.TableDirect;
-                            cmndWhs.IndexName = "UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno";
+//                          if (!isLocMapWhsFound)
+//                          {
+//                            cmndWhs.CommandText = "tLocationMapWarehouse";
+//                            cmndWhs.CommandType = CommandType.TableDirect;
+//                            cmndWhs.IndexName = "UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno";
 
-                            recLocMap.SetInt32(
-                              Convert.ToInt32(SysCommon.LocMapFields.SubType), 
-                              Convert.ToInt32(SysCommon.LocMapSubTypes.Warehouse));
-                            rsLocMap.Insert(recLocMap);
-                            locMapRefno = Convert.ToInt32(cmndID.ExecuteScalar());
+//                            recLocMap.SetInt32(
+//                              Convert.ToInt32(SysCommon.LocMapFields.SubType), 
+//                              Convert.ToInt32(SysCommon.LocMapSubTypes.Warehouse));
+//                            rsLocMap.Insert(recLocMap);
+//                            locMapRefno = Convert.ToInt32(cmndID.ExecuteScalar());
 
-                            rec.SetInt32(Convert.ToInt32(SysCommon.LocMapWhsFields.LocMapRefno), locMapRefno);
-                            rec.SetInt32(
-                              Convert.ToInt32(SysCommon.LocMapWhsFields.LocMapSubType), 
-                              Convert.ToInt32(SysCommon.LocMapSubTypes.Warehouse));
-                            rec.SetInt32(Convert.ToInt32(SysCommon.LocMapWhsFields.Code), locMapWhsCode);
-                            rec.SetString(Convert.ToInt32(SysCommon.LocMapWhsFields.Name), locMapWhsName);
-                            rec.SetString(Convert.ToInt32(SysCommon.LocMapWhsFields.BarCode), locMapWhsBarCode);
-                            rec.SetInt32(Convert.ToInt32(SysCommon.LocMapWhsFields.FKRefno), locMapWhsFKRefno);
-                            rs.Insert(rec);
-                          }
+//                            rec.SetInt32(Convert.ToInt32(SysCommon.LocMapWhsFields.LocMapRefno), locMapRefno);
+//                            rec.SetInt32(
+//                              Convert.ToInt32(SysCommon.LocMapWhsFields.LocMapSubType), 
+//                              Convert.ToInt32(SysCommon.LocMapSubTypes.Warehouse));
+//                            rec.SetInt32(Convert.ToInt32(SysCommon.LocMapWhsFields.Code), locMapWhsCode);
+//                            rec.SetString(Convert.ToInt32(SysCommon.LocMapWhsFields.Name), locMapWhsName);
+//                            rec.SetString(Convert.ToInt32(SysCommon.LocMapWhsFields.BarCode), locMapWhsBarCode);
+//                            rec.SetInt32(Convert.ToInt32(SysCommon.LocMapWhsFields.FKRefno), locMapWhsFKRefno);
+//                            rs.Insert(rec);
+//                          }
 
-                          progValue++;
-                          if (progValue % 100 == 0)
-                          {
-                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
-                          }
-                        }
+//                          progValue++;
+//                          if (progValue % 100 == 0)
+//                          {
+//                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
+//                          }
+//                        }
 
-                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
-                      }
-                    }
-                  }
-                }
+//                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
+//                      }
+//                    }
+//                  }
+//                }
 
-                drWhs.Close();
-              }
-            }
-          }
+//                drWhs.Close();
+//              }
+//            }
+//          }
 
-#if MULTILANGUAGE
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingWarehousesComplete), false);
-#else
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving warehouses complete.", false);
-#endif
-        }
-      }
-      catch (SqlCeException ex)
-      {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), false);
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingWarehousesFailed), false);
-#else
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving warehouses failed.", false);
-#endif
+//#if MULTILANGUAGE
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingWarehousesComplete), false);
+//#else
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving warehouses complete.", false);
+//#endif
+//        }
+//      }
+//      catch (SQLiteException ex)
+//      {
+//#if MULTILANGUAGE
+//        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), false);
+//        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingWarehousesFailed), false);
+//#else
+//        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
+//        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving warehouses failed.", false);
+//#endif
 
-        // Duplicate key violations
-        if (ex.NativeError == 25016)
-        {
-#if MULTILANGUAGE
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.UniquenessViolation), false);
-          throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.UniquenessViolation) + Environment.NewLine + errMsg, ex);
-#else
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Uniqueness violation.", false);
-          throw new Exception("Uniqueness violation." + Environment.NewLine + errMsg, ex);
-#endif
-        }
+//        // Duplicate key violations
+//        if (ex.NativeError == 25016)
+//        {
+//#if MULTILANGUAGE
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.UniquenessViolation), false);
+//          throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.UniquenessViolation) + Environment.NewLine + errMsg, ex);
+//#else
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Uniqueness violation.", false);
+//          throw new Exception("Uniqueness violation." + Environment.NewLine + errMsg, ex);
+//#endif
+//        }
 
-        throw new Exception(
-#if MULTILANGUAGE
-            Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredSavingWarehousesFailed) + Environment.NewLine + errMsg,
-#else
-            "Database exception occurred. Saving warehouses failed." + Environment.NewLine + errMsg,
-#endif
-            ex);
-      }
+//        throw new Exception(
+//#if MULTILANGUAGE
+//            Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredSavingWarehousesFailed) + Environment.NewLine + errMsg,
+//#else
+//            "Database exception occurred. Saving warehouses failed." + Environment.NewLine + errMsg,
+//#endif
+//            ex);
+//      }
     }
 
     /// <summary>

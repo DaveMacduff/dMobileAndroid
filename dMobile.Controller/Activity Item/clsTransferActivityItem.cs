@@ -2,7 +2,7 @@ namespace dMobile.Controller
 {
   using System;
   using System.Data;
-  
+  using System.Data.SQLite;
   using System.Text;
   using System.Windows.Forms;
   using System.Xml;
@@ -158,87 +158,87 @@ namespace dMobile.Controller
     /// <param name="askToInsertAsNewItem"></param>
     public override void Insert(XDocument data, bool askToInsertAsNewItem)
     {
-      int prodUnitRefno = int.Parse(data.Root.Element("ProductUnitRefno").Value);
+      //int prodUnitRefno = int.Parse(data.Root.Element("ProductUnitRefno").Value);
 
-      using (SQLiteCommand cmndActTransferItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-      {
-        cmndActTransferItem.CommandText = "tActivityItemTransfer";
-        cmndActTransferItem.CommandType = CommandType.TableDirect;
-        cmndActTransferItem.IndexName = "UQ_ActivityItemTransferOnActivityItemTransferFKRefno";
+      //using (SQLiteCommand cmndActTransferItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+      //{
+      //  cmndActTransferItem.CommandText = "tActivityItemTransfer";
+      //  cmndActTransferItem.CommandType = CommandType.TableDirect;
+      //  cmndActTransferItem.IndexName = "UQ_ActivityItemTransferOnActivityItemTransferFKRefno";
 
-        using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-        {
-          cmndItem.CommandText = "tActivityItem";
-          cmndItem.CommandType = CommandType.TableDirect;
+      //  using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+      //  {
+      //    cmndItem.CommandText = "tActivityItem";
+      //    cmndItem.CommandType = CommandType.TableDirect;
 
-          using (SQLiteCommand cmndID = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-          {
-            cmndID.CommandText = "SELECT @@IDENTITY";
-            cmndID.CommandType = CommandType.Text;
+      //    using (SQLiteCommand cmndID = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+      //    {
+      //      cmndID.CommandText = "SELECT @@IDENTITY";
+      //      cmndID.CommandType = CommandType.Text;
 
-            using (SqlCeResultSet rs = cmndActTransferItem.ExecuteResultSet(ResultSetOptions.Updatable))
-            {
-              SqlCeUpdatableRecord rec = rs.CreateRecord();
+      //      using (SqlCeResultSet rs = cmndActTransferItem.ExecuteResultSet(ResultSetOptions.Updatable))
+      //      {
+      //        SqlCeUpdatableRecord rec = rs.CreateRecord();
 
-              using (SqlCeResultSet rsActItem = cmndItem.ExecuteResultSet(ResultSetOptions.Updatable))
-              {
-                SqlCeUpdatableRecord recActItem = rsActItem.CreateRecord();
+      //        using (SqlCeResultSet rsActItem = cmndItem.ExecuteResultSet(ResultSetOptions.Updatable))
+      //        {
+      //          SqlCeUpdatableRecord recActItem = rsActItem.CreateRecord();
 
-                recActItem.SetInt32((int)SysCommon.ActItemFields.SubType, (int)SysCommon.ActSubTypes.Transfers);
-                recActItem.SetInt32((int)SysCommon.ActItemFields.Status, (int)SysCommon.ActStatus.NoChange);
-                recActItem.SetInt32((int)SysCommon.ActItemFields.ActRefno, this.ActHdr.Refno);
+      //          recActItem.SetInt32((int)SysCommon.ActItemFields.SubType, (int)SysCommon.ActSubTypes.Transfers);
+      //          recActItem.SetInt32((int)SysCommon.ActItemFields.Status, (int)SysCommon.ActStatus.NoChange);
+      //          recActItem.SetInt32((int)SysCommon.ActItemFields.ActRefno, this.ActHdr.Refno);
 
-                rsActItem.Insert(recActItem);
+      //          rsActItem.Insert(recActItem);
 
-                this.Refno = Convert.ToInt32(cmndID.ExecuteScalar());
+      //          this.Refno = Convert.ToInt32(cmndID.ExecuteScalar());
 
-                this.FKRefno = this.Refno * -1;
-                rec.SetInt32((int)SysCommon.ActItemTransferFields.ActItemRefno, this.Refno);
-                rec.SetInt32((int)SysCommon.ActItemTransferFields.ActItemSubType, (int)SysCommon.ActSubTypes.Transfers);
-                rec.SetInt32((int)SysCommon.ActItemTransferFields.FKRefno, this.FKRefno);
-                rec.SetString((int)SysCommon.ActItemTransferFields.StringFKRefno, this.FKRefno.ToString());
-                rec.SetInt32((int)SysCommon.ActItemTransferFields.ProductUnitRefno, prodUnitRefno);
-                rec.SetInt32(
-                    (int)SysCommon.ActItemTransferFields.TransferFromWhsLocMapRefno, 
-                    this.LocMap.CurrLocMap.WhsLocMapRefno);
-                rec.SetDecimal((int)SysCommon.ActItemTransferFields.RequiredQuantity, 0);
-                rec.SetDecimal((int)SysCommon.ActItemTransferFields.Quantity, 0);
-                rec.SetDecimal((int)SysCommon.ActItemTransferFields.BaseQuantity, 0);
-                rec.SetDecimal((int)SysCommon.ActItemTransferFields.WeightQuantity, 0);
+      //          this.FKRefno = this.Refno * -1;
+      //          rec.SetInt32((int)SysCommon.ActItemTransferFields.ActItemRefno, this.Refno);
+      //          rec.SetInt32((int)SysCommon.ActItemTransferFields.ActItemSubType, (int)SysCommon.ActSubTypes.Transfers);
+      //          rec.SetInt32((int)SysCommon.ActItemTransferFields.FKRefno, this.FKRefno);
+      //          rec.SetString((int)SysCommon.ActItemTransferFields.StringFKRefno, this.FKRefno.ToString());
+      //          rec.SetInt32((int)SysCommon.ActItemTransferFields.ProductUnitRefno, prodUnitRefno);
+      //          rec.SetInt32(
+      //              (int)SysCommon.ActItemTransferFields.TransferFromWhsLocMapRefno, 
+      //              this.LocMap.CurrLocMap.WhsLocMapRefno);
+      //          rec.SetDecimal((int)SysCommon.ActItemTransferFields.RequiredQuantity, 0);
+      //          rec.SetDecimal((int)SysCommon.ActItemTransferFields.Quantity, 0);
+      //          rec.SetDecimal((int)SysCommon.ActItemTransferFields.BaseQuantity, 0);
+      //          rec.SetDecimal((int)SysCommon.ActItemTransferFields.WeightQuantity, 0);
                 
-                rs.Insert(rec);
+      //          rs.Insert(rec);
 
-                this.ProdInfo = ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
-                this.ProdInfo.Scheme = ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
+      //          this.ProdInfo = ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
+      //          this.ProdInfo.Scheme = ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
 
-                if (this.DataViewItems != null)
-                {
-                  DataRowView rowView = this.DataViewItems.AddNew();
-                  rowView["ActivityItemRefno"] = this.Refno;
-                  rowView["ActivityItemTransferFKRefno"] = this.FKRefno;
-                  rowView["ActivityItemTransferStringFKRefno"] = this.FKRefno.ToString();
-                  rowView["ProductUnitRefno"] = prodUnitRefno;
-                  rowView["ProductRefno"] = int.Parse(data.Root.Element("ProductRefno").Value);
-                  rowView["ProductCode"] = data.Root.Element("ProductCode").Value;
-                  rowView["ProductDescription"] = data.Root.Element("ProductDescription").Value;
-                  rowView["UnitCode"] = data.Root.Element("UnitCode").Value;
-                  rowView["ProductUnitBC"] = data.Root.Element("ProductUnitBC").Value;
-                  rowView["ProductUnitSizeDescription"] = data.Root.Element("ProductUnitSizeDescription").Value;
-                  rowView["LocationMapRefno"] = this.LocMap.CurrLocMap.WhsLocMapRefno;
-                  rowView["LocationCode"] = this.LocMap.CurrLocMap.WhsCode;
-                  rowView["LocationName"] = this.LocMap.CurrLocMap.WhsName;
-                  rowView["ActivityItemStatus"] = SysCommon.ActStatus.Inserted;
-                  rowView["ActivityItemTransferRequiredQuantity"] = 0;
-                  rowView["ActivityItemTransferQuantity"] = 0;
-                  rowView["ActivityItemTransferBaseQuantity"] = 0;
-                  rowView["ActivityItemTransferWeightQuantity"] = 0;
-                  rowView.EndEdit();
-                }
-              }
-            }
-          }
-        }
-      }
+      //          if (this.DataViewItems != null)
+      //          {
+      //            DataRowView rowView = this.DataViewItems.AddNew();
+      //            rowView["ActivityItemRefno"] = this.Refno;
+      //            rowView["ActivityItemTransferFKRefno"] = this.FKRefno;
+      //            rowView["ActivityItemTransferStringFKRefno"] = this.FKRefno.ToString();
+      //            rowView["ProductUnitRefno"] = prodUnitRefno;
+      //            rowView["ProductRefno"] = int.Parse(data.Root.Element("ProductRefno").Value);
+      //            rowView["ProductCode"] = data.Root.Element("ProductCode").Value;
+      //            rowView["ProductDescription"] = data.Root.Element("ProductDescription").Value;
+      //            rowView["UnitCode"] = data.Root.Element("UnitCode").Value;
+      //            rowView["ProductUnitBC"] = data.Root.Element("ProductUnitBC").Value;
+      //            rowView["ProductUnitSizeDescription"] = data.Root.Element("ProductUnitSizeDescription").Value;
+      //            rowView["LocationMapRefno"] = this.LocMap.CurrLocMap.WhsLocMapRefno;
+      //            rowView["LocationCode"] = this.LocMap.CurrLocMap.WhsCode;
+      //            rowView["LocationName"] = this.LocMap.CurrLocMap.WhsName;
+      //            rowView["ActivityItemStatus"] = SysCommon.ActStatus.Inserted;
+      //            rowView["ActivityItemTransferRequiredQuantity"] = 0;
+      //            rowView["ActivityItemTransferQuantity"] = 0;
+      //            rowView["ActivityItemTransferBaseQuantity"] = 0;
+      //            rowView["ActivityItemTransferWeightQuantity"] = 0;
+      //            rowView.EndEdit();
+      //          }
+      //        }
+      //      }
+      //    }
+      //  }
+      //}
     }
 
     /// <summary>
@@ -537,7 +537,7 @@ namespace dMobile.Controller
             + this.LocMap.CurrLocMap.WhsLocMapRefno
             + " AND tActivityItemTransfer.ProductUnitRefno = " + prodUnitRefno;
 
-        using (SqliteDataReader drItem = cmndItem.ExecuteReader())
+        using (SQLiteDataReader drItem = cmndItem.ExecuteReader())
         {
           if (drItem.Read())
           {
@@ -649,7 +649,7 @@ namespace dMobile.Controller
       {
         cmndItem.CommandText = "tActivityItemTransfer";
         cmndItem.CommandType = CommandType.Text;
-        cmndItem.IndexName = string.Empty;
+        //cmndItem.IndexName = string.Empty;
         cmndItem.CommandText = "UPDATE tActivityItemTransfer "
             + "SET ActivityItemTransferQuantity = " 
             + this.DataViewItems[idx]["ActivityItemTransferQuantity"] + "," 

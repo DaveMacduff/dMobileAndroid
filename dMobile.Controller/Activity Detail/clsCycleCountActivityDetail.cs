@@ -2,7 +2,7 @@ namespace dMobile.Controller
 {
     using System;
     using System.Data;
-    
+    using System.Data.SQLite;
     using System.Text;
     using System.Windows.Forms;
     using System.Xml;
@@ -73,7 +73,7 @@ namespace dMobile.Controller
                         using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
                         {
                             cmndItem.CommandType = CommandType.Text;
-                            cmndItem.IndexName = string.Empty;
+                            //cmndItem.IndexName = string.Empty;
                             cmndItem.CommandText = "UPDATE tActivityItemCount "
                                 + "SET ActivityItemCountStringFKRefno = \'" + this.NewItemFKRefno + "\', "
                                 + "ActivityItemCountFKRefno = " + this.NewItemFKRefno
@@ -138,96 +138,96 @@ namespace dMobile.Controller
         /// <param name="data"></param>
         public override void Insert(XDocument data)
         {
-            this.FillActDetailObjFromXML(data);
+            //this.FillActDetailObjFromXML(data);
 
-            if (this.SysEnv.SysSettings.IsDisconnectedMode)
-            {
-                int actDetailRefno = this.InsertDetailDisconnected();
+            //if (this.SysEnv.SysSettings.IsDisconnectedMode)
+            //{
+            //    int actDetailRefno = this.InsertDetailDisconnected();
 
-                using (SQLiteCommand cmndDetailAdj = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                {
-                    cmndDetailAdj.CommandText = "tActivityDetailCount";
-                    cmndDetailAdj.CommandType = CommandType.TableDirect;
-                    cmndDetailAdj.IndexName = "UQ_ActivityDetailCountOnActivityDetailCountFKRefno";
+            //    using (SQLiteCommand cmndDetailAdj = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+            //    {
+            //        cmndDetailAdj.CommandText = "tActivityDetailCount";
+            //        cmndDetailAdj.CommandType = CommandType.TableDirect;
+            //        cmndDetailAdj.IndexName = "UQ_ActivityDetailCountOnActivityDetailCountFKRefno";
 
-                    using (SqlCeResultSet rsDetail = cmndDetailAdj.ExecuteResultSet(ResultSetOptions.Updatable))
-                    {
-                        SqlCeUpdatableRecord recDetail = rsDetail.CreateRecord();
+            //        using (SqlCeResultSet rsDetail = cmndDetailAdj.ExecuteResultSet(ResultSetOptions.Updatable))
+            //        {
+            //            SqlCeUpdatableRecord recDetail = rsDetail.CreateRecord();
 
-                        recDetail.SetInt32((int)SysCommon.ActDetailAdjFields.ActDetailRefno, actDetailRefno);
-                        recDetail.SetInt32((int)SysCommon.ActDetailAdjFields.FKRefno, this.FKRefno);
+            //            recDetail.SetInt32((int)SysCommon.ActDetailAdjFields.ActDetailRefno, actDetailRefno);
+            //            recDetail.SetInt32((int)SysCommon.ActDetailAdjFields.FKRefno, this.FKRefno);
 
-                        rsDetail.Insert(recDetail);
+            //            rsDetail.Insert(recDetail);
 
-                        this.IsUpdateView = true;
-                    }
-                }
-            }
-            else
-            {
-                if (this.InsertDetail(
-                    this.CreateSubmitXML(
-                    XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"))))
-                {
-                    bool newDetail = true;
+            //            this.IsUpdateView = true;
+            //        }
+            //    }
+            //}
+            //else
+            //{
+            //    if (this.InsertDetail(
+            //        this.CreateSubmitXML(
+            //        XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"))))
+            //    {
+            //        bool newDetail = true;
 
-                    // Check for a FK already existing with that value.
-                    // if it does, add or subtract from it and then return false for new detail
-                    int x = -1;
-                    for (int i = 0; i < ActItem.DataViewItems.Count; i++)
-                    {
-                        if ((int)ActItem.DataViewItems[i]["ActivityItemCountFKRefno"] == ActItem.FKRefno)
-                        {
-                            x = i;
-                            break;
-                        }
-                    }
-                    if (x != -1)
-                    {
-                        // There already exists a FK.
-                        // Delete the newline and add the details to the existing line
-                        newDetail = false;
-                        ActItem.DataViewItems[x]["ActivityItemCountQuantity"] = (decimal)ActItem.DataViewItems[x]["ActivityItemCountQuantity"] + Quantity;
-                        ActItem.DataViewItems[x]["ActivityItemCountBaseQuantity"] = (decimal)ActItem.DataViewItems[x]["ActivityItemCountBaseQuantity"] + BaseQuantity;
-                        ActItem.DataViewItems[x]["ActivityItemCountWeightQuantity"] = (decimal)ActItem.DataViewItems[x]["ActivityItemCountWeightQuantity"] + WeightQuantity;
-                        ActItem.DataViewItems[ActItem.DataViewItems.Count - 1].Delete();
-                    }
+            //        // Check for a FK already existing with that value.
+            //        // if it does, add or subtract from it and then return false for new detail
+            //        int x = -1;
+            //        for (int i = 0; i < ActItem.DataViewItems.Count; i++)
+            //        {
+            //            if ((int)ActItem.DataViewItems[i]["ActivityItemCountFKRefno"] == ActItem.FKRefno)
+            //            {
+            //                x = i;
+            //                break;
+            //            }
+            //        }
+            //        if (x != -1)
+            //        {
+            //            // There already exists a FK.
+            //            // Delete the newline and add the details to the existing line
+            //            newDetail = false;
+            //            ActItem.DataViewItems[x]["ActivityItemCountQuantity"] = (decimal)ActItem.DataViewItems[x]["ActivityItemCountQuantity"] + Quantity;
+            //            ActItem.DataViewItems[x]["ActivityItemCountBaseQuantity"] = (decimal)ActItem.DataViewItems[x]["ActivityItemCountBaseQuantity"] + BaseQuantity;
+            //            ActItem.DataViewItems[x]["ActivityItemCountWeightQuantity"] = (decimal)ActItem.DataViewItems[x]["ActivityItemCountWeightQuantity"] + WeightQuantity;
+            //            ActItem.DataViewItems[ActItem.DataViewItems.Count - 1].Delete();
+            //        }
 
-                    if (newDetail)
-                    {
-
-
-                        using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                        {
-                            cmndItem.IndexName = string.Empty;
-                            cmndItem.CommandType = CommandType.Text;
-                            cmndItem.CommandText = "UPDATE tActivityItemCount "
-                                + "SET ActivityItemCountStringFKRefno = \'" + this.NewItemFKRefno + "\',"
-                                + "ActivityItemCountFKRefno = " + this.NewItemFKRefno
-                                + " WHERE tActivityItemCount.ActivityItemRefno = " + this.ActItem.Refno; //<WO ID="14711" comment="Changed Refno to FKRefno. They are the same when no barcode modifier present. Opposite +/- when modifier exists." />
-                            cmndItem.ExecuteNonQuery();
-                        }
-
-                        string oldSort = this.ActItem.DataViewItems.Sort;
-                        this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
+            //        if (newDetail)
+            //        {
 
 
-                        int rowIdx = this.ActItem.DataViewItems.Find(new object[] { this.ActItem.Refno });
-                        if (rowIdx != -1)
-                        {
-                            DataRowView rowView = this.ActItem.DataViewItems[rowIdx];
-                            rowView.BeginEdit();
-                            rowView["ActivityItemCountFKRefno"] = this.NewItemFKRefno;
-                            rowView["ActivityItemCountStringFKRefno"] = this.NewItemFKRefno.ToString();
-                            rowView.EndEdit();
-                        }
+            //            using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+            //            {
+            //                cmndItem.IndexName = string.Empty;
+            //                cmndItem.CommandType = CommandType.Text;
+            //                cmndItem.CommandText = "UPDATE tActivityItemCount "
+            //                    + "SET ActivityItemCountStringFKRefno = \'" + this.NewItemFKRefno + "\',"
+            //                    + "ActivityItemCountFKRefno = " + this.NewItemFKRefno
+            //                    + " WHERE tActivityItemCount.ActivityItemRefno = " + this.ActItem.Refno; //<WO ID="14711" comment="Changed Refno to FKRefno. They are the same when no barcode modifier present. Opposite +/- when modifier exists." />
+            //                cmndItem.ExecuteNonQuery();
+            //            }
 
-                        this.ActItem.DataViewItems.Sort = oldSort;
-                    }
-                }
-            }
+            //            string oldSort = this.ActItem.DataViewItems.Sort;
+            //            this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
 
-            this.InsertUpdateDataViewDetail("ActivityDetailCountFKRefno", "ActivityDetailCountFKRefno");
+
+            //            int rowIdx = this.ActItem.DataViewItems.Find(new object[] { this.ActItem.Refno });
+            //            if (rowIdx != -1)
+            //            {
+            //                DataRowView rowView = this.ActItem.DataViewItems[rowIdx];
+            //                rowView.BeginEdit();
+            //                rowView["ActivityItemCountFKRefno"] = this.NewItemFKRefno;
+            //                rowView["ActivityItemCountStringFKRefno"] = this.NewItemFKRefno.ToString();
+            //                rowView.EndEdit();
+            //            }
+
+            //            this.ActItem.DataViewItems.Sort = oldSort;
+            //        }
+            //    }
+            //}
+
+            //this.InsertUpdateDataViewDetail("ActivityDetailCountFKRefno", "ActivityDetailCountFKRefno");
         }
 
         /// <summary>

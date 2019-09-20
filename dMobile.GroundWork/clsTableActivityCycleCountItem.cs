@@ -95,7 +95,7 @@ namespace dMobile.GroundWork
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding cycle count items complete.", true);
 #endif
             }
-            catch (SqlCeException ex)
+            catch (SQLiteException ex)
             {
 #if MULTILANGUAGE
         this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), true);
@@ -156,7 +156,7 @@ namespace dMobile.GroundWork
               true);
                 }
             }
-            catch (SqlCeException ex)
+            catch (SQLiteException ex)
             {
 #if MULTILANGUAGE
         throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredCycleCountItemsStatusFailed), ex);
@@ -208,7 +208,7 @@ namespace dMobile.GroundWork
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging cycle count items complete.", true);
 #endif
             }
-            catch (SqlCeException ex)
+            catch (SQLiteException ex)
             {
 #if MULTILANGUAGE
         DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), true);
@@ -236,37 +236,37 @@ namespace dMobile.GroundWork
             string reqData = string.Empty;
             int actCountFKRefno = 0;
 
-            using (SQLiteCommand cmndCount = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-            {
-                cmndCount.CommandText = "tActivityCount";
-                cmndCount.CommandType = CommandType.TableDirect;
-                cmndCount.IndexName = "PK_ActivityCountOnActivityRefno";
-                using (SQLiteDataReader drCount = cmndCount.ExecuteReader())
-                {
-                    if (drCount.Seek(DbSeekOptions.FirstEqual, new object[] { actRefno }))
-                    {
-                        if (drCount.Read())
-                        {
-                            actCountFKRefno = Convert.ToInt32(drCount.GetValue((int)SysCommon.ActCountFields.FKRefno));
-                        }
-                        else
-                        {
-                            throw new Exception("drCount.Read() failed.");
-                        }
-                    }
-                    else
-                    {
-                        throw new Exception(
-#if MULTILANGUAGE
-                string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.UnableToLocateTheCycleCountRefnoInTactivitycount), actRefno));
-#else
-                string.Format("Unable to locate the cycle count refno {0} in tActivityCount", actRefno));
-#endif
-                    }
-                }
-            }
+//            using (SQLiteCommand cmndCount = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+//            {
+//                cmndCount.CommandText = "tActivityCount";
+//                cmndCount.CommandType = CommandType.TableDirect;
+//                cmndCount.IndexName = "PK_ActivityCountOnActivityRefno";
+//                using (SQLiteDataReader drCount = cmndCount.ExecuteReader())
+//                {
+//                    if (drCount.Seek(DbSeekOptions.FirstEqual, new object[] { actRefno }))
+//                    {
+//                        if (drCount.Read())
+//                        {
+//                            actCountFKRefno = Convert.ToInt32(drCount.GetValue((int)SysCommon.ActCountFields.FKRefno));
+//                        }
+//                        else
+//                        {
+//                            throw new Exception("drCount.Read() failed.");
+//                        }
+//                    }
+//                    else
+//                    {
+//                        throw new Exception(
+//#if MULTILANGUAGE
+//                string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.UnableToLocateTheCycleCountRefnoInTactivitycount), actRefno));
+//#else
+//                string.Format("Unable to locate the cycle count refno {0} in tActivityCount", actRefno));
+//#endif
+//                    }
+//                }
+//            }
 
-            reqData = this.SendComm(this.Create(actCountFKRefno));
+//            reqData = this.SendComm(this.Create(actCountFKRefno));
 
             return reqData;
         }
@@ -278,361 +278,361 @@ namespace dMobile.GroundWork
         /// <param name="actRefno">The actRefno<see cref="int"/></param>
         protected override void Save(string reqData, int actRefno)
         {
-            SQLiteConnection conn = DatabaseConnection.GetInstance().SQLConn;
-            string errMsg = string.Empty;
+//            SQLiteConnection conn = DatabaseConnection.GetInstance().SQLConn;
+//            string errMsg = string.Empty;
 
-            try
-            {
-                using (DataSet ds = new DataSet())
-                {
-#if MULTILANGUAGE
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.ReadingReceivedData), false);
-#else
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
-#endif
-                    ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
+//            try
+//            {
+//                using (DataSet ds = new DataSet())
+//                {
+//#if MULTILANGUAGE
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.ReadingReceivedData), false);
+//#else
+//                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
+//#endif
+//                    ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
 
-#if MULTILANGUAGE
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingCycleCountItems), false);
-#else
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving cycle count items.", false);
-#endif
+//#if MULTILANGUAGE
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingCycleCountItems), false);
+//#else
+//                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving cycle count items.", false);
+//#endif
 
-                    // Receiving schema but no data results in no table being created in the dataset.
-                    if (ds.Tables.Count != 0)
-                    {
-                        int progMax = Convert.ToInt32(ds.Tables["tActivityItemCount"].Rows.Count);
+//                    // Receiving schema but no data results in no table being created in the dataset.
+//                    if (ds.Tables.Count != 0)
+//                    {
+//                        int progMax = Convert.ToInt32(ds.Tables["tActivityItemCount"].Rows.Count);
 
-                        this.DataAccessStatusOutHandler(
-                            this,
-                            EventArgs.Empty,
-#if MULTILANGUAGE
-                string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.Recordsz), progMax),
-#else
-                string.Format("Records {0}", progMax),
-#endif
-                false);
+//                        this.DataAccessStatusOutHandler(
+//                            this,
+//                            EventArgs.Empty,
+//#if MULTILANGUAGE
+//                string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.Recordsz), progMax),
+//#else
+//                string.Format("Records {0}", progMax),
+//#endif
+//                false);
 
-                        using (SQLiteCommand cmndCountItem = conn.CreateCommand())
-                        {
-                            cmndCountItem.CommandText = "tActivityItemCount";
-                            cmndCountItem.CommandType = CommandType.TableDirect;
-                            cmndCountItem.IndexName = "UQ_ActivityItemCountOnActivityItemCountFKRefno";
+//                        using (SQLiteCommand cmndCountItem = conn.CreateCommand())
+//                        {
+//                            cmndCountItem.CommandText = "tActivityItemCount";
+//                            cmndCountItem.CommandType = CommandType.TableDirect;
+//                            cmndCountItem.IndexName = "UQ_ActivityItemCountOnActivityItemCountFKRefno";
 
-                            using (SQLiteCommand cmndActItem = conn.CreateCommand())
-                            {
-                                cmndActItem.CommandText = "tActivityItem";
-                                cmndActItem.CommandType = CommandType.TableDirect;
+//                            using (SQLiteCommand cmndActItem = conn.CreateCommand())
+//                            {
+//                                cmndActItem.CommandText = "tActivityItem";
+//                                cmndActItem.CommandType = CommandType.TableDirect;
 
-                                using (SqlCeResultSet rsActItem = cmndActItem.ExecuteResultSet(ResultSetOptions.Updatable))
-                                {
-                                    SqlCeUpdatableRecord recActItem = rsActItem.CreateRecord();
+//                                using (SqlCeResultSet rsActItem = cmndActItem.ExecuteResultSet(ResultSetOptions.Updatable))
+//                                {
+//                                    SqlCeUpdatableRecord recActItem = rsActItem.CreateRecord();
 
-                                    using (SQLiteCommand cmndProdUnit = conn.CreateCommand())
-                                    {
-                                        cmndProdUnit.CommandText = "tProductUnit";
-                                        cmndProdUnit.CommandType = CommandType.TableDirect;
-                                        cmndProdUnit.IndexName = "UQ_ProductUnitOnProductRefnoAndUnitRefnoAndProductUnitIsBC";
+//                                    using (SQLiteCommand cmndProdUnit = conn.CreateCommand())
+//                                    {
+//                                        cmndProdUnit.CommandText = "tProductUnit";
+//                                        cmndProdUnit.CommandType = CommandType.TableDirect;
+//                                        cmndProdUnit.IndexName = "UQ_ProductUnitOnProductRefnoAndUnitRefnoAndProductUnitIsBC";
 
-                                        using (SQLiteDataReader drProdUnit = cmndProdUnit.ExecuteReader())
-                                        {
-                                            using (SQLiteCommand cmndProd = conn.CreateCommand())
-                                            {
-                                                cmndProd.CommandText = "tProduct";
-                                                cmndProd.IndexName = "UQ_ProductOnProductFKRefno";
-                                                cmndProd.CommandType = CommandType.TableDirect;
+//                                        using (SQLiteDataReader drProdUnit = cmndProdUnit.ExecuteReader())
+//                                        {
+//                                            using (SQLiteCommand cmndProd = conn.CreateCommand())
+//                                            {
+//                                                cmndProd.CommandText = "tProduct";
+//                                                cmndProd.IndexName = "UQ_ProductOnProductFKRefno";
+//                                                cmndProd.CommandType = CommandType.TableDirect;
 
-                                                using (SQLiteDataReader drProd = cmndProd.ExecuteReader())
-                                                {
-                                                    using (SQLiteCommand cmndUnit = conn.CreateCommand())
-                                                    {
-                                                        cmndUnit.CommandText = "tUnit";
-                                                        cmndUnit.IndexName = "UQ_UnitOnUnitCode";
-                                                        cmndUnit.CommandType = CommandType.TableDirect;
+//                                                using (SQLiteDataReader drProd = cmndProd.ExecuteReader())
+//                                                {
+//                                                    using (SQLiteCommand cmndUnit = conn.CreateCommand())
+//                                                    {
+//                                                        cmndUnit.CommandText = "tUnit";
+//                                                        cmndUnit.IndexName = "UQ_UnitOnUnitCode";
+//                                                        cmndUnit.CommandType = CommandType.TableDirect;
 
-                                                        using (SQLiteDataReader drUnit = cmndUnit.ExecuteReader())
-                                                        {
-                                                            using (SQLiteCommand cmndLocMapSlot = conn.CreateCommand())
-                                                            {
-                                                                cmndLocMapSlot.CommandText = "tLocationMapSlot";
-                                                                cmndLocMapSlot.CommandType = CommandType.TableDirect;
-                                                                cmndLocMapSlot.IndexName = "UQ_LocationMapSlotOnLocationMapSlotFKRefno";
+//                                                        using (SQLiteDataReader drUnit = cmndUnit.ExecuteReader())
+//                                                        {
+//                                                            using (SQLiteCommand cmndLocMapSlot = conn.CreateCommand())
+//                                                            {
+//                                                                cmndLocMapSlot.CommandText = "tLocationMapSlot";
+//                                                                cmndLocMapSlot.CommandType = CommandType.TableDirect;
+//                                                                cmndLocMapSlot.IndexName = "UQ_LocationMapSlotOnLocationMapSlotFKRefno";
 
-                                                                using (SQLiteDataReader drLocMapSlot = cmndLocMapSlot.ExecuteReader())
-                                                                {
-                                                                    using (SQLiteCommand cmndLocMapSect = conn.CreateCommand())
-                                                                    {
-                                                                        cmndLocMapSect.CommandText = "tLocationMapSection";
-                                                                        cmndLocMapSect.CommandType = CommandType.TableDirect;
-                                                                        cmndLocMapSect.IndexName = "UQ_LocationMapSectionOnLocationMapSectionFKRefno";
+//                                                                using (SQLiteDataReader drLocMapSlot = cmndLocMapSlot.ExecuteReader())
+//                                                                {
+//                                                                    using (SQLiteCommand cmndLocMapSect = conn.CreateCommand())
+//                                                                    {
+//                                                                        cmndLocMapSect.CommandText = "tLocationMapSection";
+//                                                                        cmndLocMapSect.CommandType = CommandType.TableDirect;
+//                                                                        cmndLocMapSect.IndexName = "UQ_LocationMapSectionOnLocationMapSectionFKRefno";
 
-                                                                        using (SQLiteDataReader drLocMapSect = cmndLocMapSect.ExecuteReader())
-                                                                        {
-                                                                            using (SQLiteCommand cmndLocMapWhs = conn.CreateCommand())
-                                                                            {
-                                                                                cmndLocMapWhs.CommandText = "tLocationMapWarehouse";
-                                                                                cmndLocMapWhs.CommandType = CommandType.TableDirect;
-                                                                                cmndLocMapWhs.IndexName = "UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno";
+//                                                                        using (SQLiteDataReader drLocMapSect = cmndLocMapSect.ExecuteReader())
+//                                                                        {
+//                                                                            using (SQLiteCommand cmndLocMapWhs = conn.CreateCommand())
+//                                                                            {
+//                                                                                cmndLocMapWhs.CommandText = "tLocationMapWarehouse";
+//                                                                                cmndLocMapWhs.CommandType = CommandType.TableDirect;
+//                                                                                cmndLocMapWhs.IndexName = "UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno";
 
-                                                                                using (SQLiteDataReader drLocMapWhs = cmndLocMapWhs.ExecuteReader())
-                                                                                {
-                                                                                    using (SQLiteCommand cmndID = conn.CreateCommand())
-                                                                                    {
-                                                                                        cmndID.CommandText = "SELECT @@IDENTITY";
-                                                                                        cmndID.CommandType = CommandType.Text;
+//                                                                                using (SQLiteDataReader drLocMapWhs = cmndLocMapWhs.ExecuteReader())
+//                                                                                {
+//                                                                                    using (SQLiteCommand cmndID = conn.CreateCommand())
+//                                                                                    {
+//                                                                                        cmndID.CommandText = "SELECT @@IDENTITY";
+//                                                                                        cmndID.CommandType = CommandType.Text;
 
-                                                                                        using (SqlCeResultSet rsCountItem =
-                                                                                            cmndCountItem.ExecuteResultSet(ResultSetOptions.Updatable))
-                                                                                        {
-                                                                                            SqlCeUpdatableRecord recCountItem = rsCountItem.CreateRecord();
-                                                                                            int actItemRefno = 0;
-                                                                                            int progValue = 0;
-                                                                                            int prodUnitRefno = 0;
-                                                                                            int locMapRefno = 0;
-                                                                                            int locMapWhsFKRefno = 0;
-                                                                                            int locMapSectFKRefno = 0;
-                                                                                            int locMapSlotFKRefno = 0;
-                                                                                            int countItemFKRefno = 0;
+//                                                                                        using (SqlCeResultSet rsCountItem =
+//                                                                                            cmndCountItem.ExecuteResultSet(ResultSetOptions.Updatable))
+//                                                                                        {
+//                                                                                            SqlCeUpdatableRecord recCountItem = rsCountItem.CreateRecord();
+//                                                                                            int actItemRefno = 0;
+//                                                                                            int progValue = 0;
+//                                                                                            int prodUnitRefno = 0;
+//                                                                                            int locMapRefno = 0;
+//                                                                                            int locMapWhsFKRefno = 0;
+//                                                                                            int locMapSectFKRefno = 0;
+//                                                                                            int locMapSlotFKRefno = 0;
+//                                                                                            int countItemFKRefno = 0;
 
-                                                                                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
+//                                                                                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
 
-                                                                                            foreach (DataRow drow in ds.Tables["tActivityItemCount"].Rows)
-                                                                                            {
-#if MULTILANGUAGE
-                                                errMsg = Translator.GetInstance().Translate(TranslatorVocabulary.Arguments);
-#else
-                                                                                                errMsg = "Arguments:";
-#endif
+//                                                                                            foreach (DataRow drow in ds.Tables["tActivityItemCount"].Rows)
+//                                                                                            {
+//#if MULTILANGUAGE
+//                                                errMsg = Translator.GetInstance().Translate(TranslatorVocabulary.Arguments);
+//#else
+//                                                                                                errMsg = "Arguments:";
+//#endif
 
-                                                                                                recActItem.SetInt32(
-                                                                                                    (int)SysCommon.ActItemFields.SubType,
-                                                                                                    (int)SysCommon.ActSubTypes.CycleCounts);
-                                                                                                recActItem.SetInt32(
-                                                                                                    (int)SysCommon.ActItemFields.Status, 0);
-                                                                                                recActItem.SetInt32(
-                                                                                                    (int)SysCommon.ActItemFields.ActRefno, actRefno);
+//                                                                                                recActItem.SetInt32(
+//                                                                                                    (int)SysCommon.ActItemFields.SubType,
+//                                                                                                    (int)SysCommon.ActSubTypes.CycleCounts);
+//                                                                                                recActItem.SetInt32(
+//                                                                                                    (int)SysCommon.ActItemFields.Status, 0);
+//                                                                                                recActItem.SetInt32(
+//                                                                                                    (int)SysCommon.ActItemFields.ActRefno, actRefno);
 
-                                                                                                rsActItem.Insert(recActItem);
+//                                                                                                rsActItem.Insert(recActItem);
 
-                                                                                                actItemRefno = Convert.ToInt32(cmndID.ExecuteScalar());
+//                                                                                                actItemRefno = Convert.ToInt32(cmndID.ExecuteScalar());
 
-                                                                                                prodUnitRefno = this.GetProductUnitRefnoFromDataRow(
-                                                                                                    drow,
-                                                                                                    ref errMsg,
-                                                                                                    drProd,
-                                                                                                    drUnit,
-                                                                                                    drProdUnit,
-                                                                                                    true);
+//                                                                                                prodUnitRefno = this.GetProductUnitRefnoFromDataRow(
+//                                                                                                    drow,
+//                                                                                                    ref errMsg,
+//                                                                                                    drProd,
+//                                                                                                    drUnit,
+//                                                                                                    drProdUnit,
+//                                                                                                    true);
 
-                                                                                                // Cannot use this.SaveDetailLocation() f00 tags are not the same.
-                                                                                                locMapRefno = 0;
+//                                                                                                // Cannot use this.SaveDetailLocation() f00 tags are not the same.
+//                                                                                                locMapRefno = 0;
 
-                                                                                                if (locMapRefno == 0)
-                                                                                                {
-                                                                                                    locMapSlotFKRefno = Convert.ToInt32(drow["f08"]);
-                                                                                                    if (drLocMapSlot.Seek(
-                                                                                                        DbSeekOptions.FirstEqual,
-                                                                                                        new object[] { locMapSlotFKRefno }))
-                                                                                                    {
-                                                                                                        if (drLocMapSlot.Read())
-                                                                                                        {
-                                                                                                            locMapRefno = Convert.ToInt32(
-                                                                                                                drLocMapSlot.GetValue(
-                                                                                                                (int)SysCommon.LocMapSlotFields.LocMapRefno));
-                                                                                                        }
-                                                                                                        else
-                                                                                                        {
-                                                                                                            throw new Exception("drLocMapSlot.Read() failed.");
-                                                                                                        }
-                                                                                                    }
-                                                                                                }
+//                                                                                                if (locMapRefno == 0)
+//                                                                                                {
+//                                                                                                    locMapSlotFKRefno = Convert.ToInt32(drow["f08"]);
+//                                                                                                    if (drLocMapSlot.Seek(
+//                                                                                                        DbSeekOptions.FirstEqual,
+//                                                                                                        new object[] { locMapSlotFKRefno }))
+//                                                                                                    {
+//                                                                                                        if (drLocMapSlot.Read())
+//                                                                                                        {
+//                                                                                                            locMapRefno = Convert.ToInt32(
+//                                                                                                                drLocMapSlot.GetValue(
+//                                                                                                                (int)SysCommon.LocMapSlotFields.LocMapRefno));
+//                                                                                                        }
+//                                                                                                        else
+//                                                                                                        {
+//                                                                                                            throw new Exception("drLocMapSlot.Read() failed.");
+//                                                                                                        }
+//                                                                                                    }
+//                                                                                                }
 
-                                                                                                if (locMapRefno == 0)
-                                                                                                {
-                                                                                                    locMapSectFKRefno = Convert.ToInt32(drow["f07"]);
-                                                                                                    if (drLocMapSect.Seek(
-                                                                                                        DbSeekOptions.FirstEqual, new object[] { locMapSectFKRefno }))
-                                                                                                    {
-                                                                                                        if (drLocMapSect.Read())
-                                                                                                        {
-                                                                                                            locMapRefno = Convert.ToInt32(
-                                                                                                                drLocMapSect.GetValue(
-                                                                                                                (int)SysCommon.LocMapSectFields.LocMapRefno));
-                                                                                                        }
-                                                                                                        else
-                                                                                                        {
-                                                                                                            throw new Exception("drLocMapSection.Read() failed.");
-                                                                                                        }
-                                                                                                    }
-                                                                                                }
+//                                                                                                if (locMapRefno == 0)
+//                                                                                                {
+//                                                                                                    locMapSectFKRefno = Convert.ToInt32(drow["f07"]);
+//                                                                                                    if (drLocMapSect.Seek(
+//                                                                                                        DbSeekOptions.FirstEqual, new object[] { locMapSectFKRefno }))
+//                                                                                                    {
+//                                                                                                        if (drLocMapSect.Read())
+//                                                                                                        {
+//                                                                                                            locMapRefno = Convert.ToInt32(
+//                                                                                                                drLocMapSect.GetValue(
+//                                                                                                                (int)SysCommon.LocMapSectFields.LocMapRefno));
+//                                                                                                        }
+//                                                                                                        else
+//                                                                                                        {
+//                                                                                                            throw new Exception("drLocMapSection.Read() failed.");
+//                                                                                                        }
+//                                                                                                    }
+//                                                                                                }
 
-                                                                                                if (locMapRefno == 0)
-                                                                                                {
-                                                                                                    locMapWhsFKRefno = Convert.ToInt32(drow["f06"]);
-                                                                                                    if (drLocMapWhs.Seek(
-                                                                                                        DbSeekOptions.FirstEqual, new object[] { locMapWhsFKRefno }))
-                                                                                                    {
-                                                                                                        if (drLocMapWhs.Read())
-                                                                                                        {
-                                                                                                            locMapRefno = Convert.ToInt32(
-                                                                                                                drLocMapWhs.GetValue(
-                                                                                                                (int)SysCommon.LocMapWhsFields.LocMapRefno));
-                                                                                                        }
-                                                                                                        else
-                                                                                                        {
-                                                                                                            throw new Exception("drLocMapWhs.Read() failed.");
-                                                                                                        }
-                                                                                                    }
-                                                                                                }
+//                                                                                                if (locMapRefno == 0)
+//                                                                                                {
+//                                                                                                    locMapWhsFKRefno = Convert.ToInt32(drow["f06"]);
+//                                                                                                    if (drLocMapWhs.Seek(
+//                                                                                                        DbSeekOptions.FirstEqual, new object[] { locMapWhsFKRefno }))
+//                                                                                                    {
+//                                                                                                        if (drLocMapWhs.Read())
+//                                                                                                        {
+//                                                                                                            locMapRefno = Convert.ToInt32(
+//                                                                                                                drLocMapWhs.GetValue(
+//                                                                                                                (int)SysCommon.LocMapWhsFields.LocMapRefno));
+//                                                                                                        }
+//                                                                                                        else
+//                                                                                                        {
+//                                                                                                            throw new Exception("drLocMapWhs.Read() failed.");
+//                                                                                                        }
+//                                                                                                    }
+//                                                                                                }
 
-                                                                                                if (locMapRefno == 0)
-                                                                                                {
-                                                                                                    throw new Exception(
-#if MULTILANGUAGE
-                                                      string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.UnableToIndentifyTheLocationMapRefno)
-#else
-                                                      string.Format("Unable to indentify the location map refno.{0}"
-#endif
-                                                      + "Whs FK Refno {1}{2} Section FK Refno {3}{4} "
-                                                                                                        + "Slot FK Refno {5}",
-                                                                                                        Environment.NewLine,
-                                                                                                        locMapWhsFKRefno,
-                                                                                                        Environment.NewLine,
-                                                                                                        locMapSectFKRefno,
-                                                                                                        Environment.NewLine,
-                                                                                                        locMapSlotFKRefno));
-                                                                                                }
+//                                                                                                if (locMapRefno == 0)
+//                                                                                                {
+//                                                                                                    throw new Exception(
+//#if MULTILANGUAGE
+//                                                      string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.UnableToIndentifyTheLocationMapRefno)
+//#else
+//                                                      string.Format("Unable to indentify the location map refno.{0}"
+//#endif
+//                                                      + "Whs FK Refno {1}{2} Section FK Refno {3}{4} "
+//                                                                                                        + "Slot FK Refno {5}",
+//                                                                                                        Environment.NewLine,
+//                                                                                                        locMapWhsFKRefno,
+//                                                                                                        Environment.NewLine,
+//                                                                                                        locMapSectFKRefno,
+//                                                                                                        Environment.NewLine,
+//                                                                                                        locMapSlotFKRefno));
+//                                                                                                }
 
-                                                                                                recCountItem.SetInt32(
-                                                                                                    (int)SysCommon.ActItemCountFields.LocMapRefno,
-                                                                                                    locMapRefno);
+//                                                                                                recCountItem.SetInt32(
+//                                                                                                    (int)SysCommon.ActItemCountFields.LocMapRefno,
+//                                                                                                    locMapRefno);
 
-                                                                                                recCountItem.SetInt32(
-                                                                                                    (int)SysCommon.ActItemCountFields.ActItemRefno,
-                                                                                                    actItemRefno);
-                                                                                                recCountItem.SetInt32(
-                                                                                                    (int)SysCommon.ActItemCountFields.ActItemSubType,
-                                                                                                    (int)SysCommon.ActSubTypes.CycleCounts);
+//                                                                                                recCountItem.SetInt32(
+//                                                                                                    (int)SysCommon.ActItemCountFields.ActItemRefno,
+//                                                                                                    actItemRefno);
+//                                                                                                recCountItem.SetInt32(
+//                                                                                                    (int)SysCommon.ActItemCountFields.ActItemSubType,
+//                                                                                                    (int)SysCommon.ActSubTypes.CycleCounts);
 
-                                                                                                countItemFKRefno = Convert.ToInt32(drow["f02"]);
-                                                                                                errMsg += Environment.NewLine + "Item fk refno " + countItemFKRefno;
-                                                                                                recCountItem.SetInt32(
-                                                                                                    (int)SysCommon.ActItemCountFields.FKRefno,
-                                                                                                    countItemFKRefno);
-                                                                                                recCountItem.SetString(
-                                                                                                    (int)SysCommon.ActItemCountFields.StringFKRefno,
-                                                                                                    Convert.ToString(countItemFKRefno));
+//                                                                                                countItemFKRefno = Convert.ToInt32(drow["f02"]);
+//                                                                                                errMsg += Environment.NewLine + "Item fk refno " + countItemFKRefno;
+//                                                                                                recCountItem.SetInt32(
+//                                                                                                    (int)SysCommon.ActItemCountFields.FKRefno,
+//                                                                                                    countItemFKRefno);
+//                                                                                                recCountItem.SetString(
+//                                                                                                    (int)SysCommon.ActItemCountFields.StringFKRefno,
+//                                                                                                    Convert.ToString(countItemFKRefno));
 
-                                                                                                recCountItem.SetInt32(
-                                                                                                    (int)SysCommon.ActItemCountFields.ProdUnitRefno,
-                                                                                                    prodUnitRefno);
-                                                                                                recCountItem.SetDecimal(
-                                                                                                    (int)SysCommon.ActItemCountFields.QuantityOnHand,
-                                                                                                    Convert.ToDecimal(drow["f09"]));
-                                                                                                recCountItem.SetDecimal(
-                                                                                                    (int)SysCommon.ActItemCountFields.BaseQuantityOnHand,
-                                                                                                    Convert.ToDecimal(drow["f10"]));
-                                                                                                recCountItem.SetDecimal(
-                                                                                                    (int)SysCommon.ActItemCountFields.WeightQuantityOnHand,
-                                                                                                    Convert.ToDecimal(drow["f11"]));
-                                                                                                recCountItem.SetDecimal(
-                                                                                                    (int)SysCommon.ActItemCountFields.Quantity,
-                                                                                                    Convert.ToDecimal(drow["f12"]));
-                                                                                                recCountItem.SetDecimal(
-                                                                                                    (int)SysCommon.ActItemCountFields.BaseQuantity,
-                                                                                                    Convert.ToDecimal(drow["f13"]));
-                                                                                                recCountItem.SetDecimal(
-                                                                                                    (int)SysCommon.ActItemCountFields.WeightQuantity,
-                                                                                                    Convert.ToDecimal(drow["f14"]));
+//                                                                                                recCountItem.SetInt32(
+//                                                                                                    (int)SysCommon.ActItemCountFields.ProdUnitRefno,
+//                                                                                                    prodUnitRefno);
+//                                                                                                recCountItem.SetDecimal(
+//                                                                                                    (int)SysCommon.ActItemCountFields.QuantityOnHand,
+//                                                                                                    Convert.ToDecimal(drow["f09"]));
+//                                                                                                recCountItem.SetDecimal(
+//                                                                                                    (int)SysCommon.ActItemCountFields.BaseQuantityOnHand,
+//                                                                                                    Convert.ToDecimal(drow["f10"]));
+//                                                                                                recCountItem.SetDecimal(
+//                                                                                                    (int)SysCommon.ActItemCountFields.WeightQuantityOnHand,
+//                                                                                                    Convert.ToDecimal(drow["f11"]));
+//                                                                                                recCountItem.SetDecimal(
+//                                                                                                    (int)SysCommon.ActItemCountFields.Quantity,
+//                                                                                                    Convert.ToDecimal(drow["f12"]));
+//                                                                                                recCountItem.SetDecimal(
+//                                                                                                    (int)SysCommon.ActItemCountFields.BaseQuantity,
+//                                                                                                    Convert.ToDecimal(drow["f13"]));
+//                                                                                                recCountItem.SetDecimal(
+//                                                                                                    (int)SysCommon.ActItemCountFields.WeightQuantity,
+//                                                                                                    Convert.ToDecimal(drow["f14"]));
 
-                                                                                                rsCountItem.Insert(recCountItem);
+//                                                                                                rsCountItem.Insert(recCountItem);
 
-                                                                                                progValue++;
-                                                                                                if (progValue % 10 == 0)
-                                                                                                {
-                                                                                                    this.DataAccessProgressOutHandler(
-                                                                                                        this,
-                                                                                                        EventArgs.Empty,
-                                                                                                        progValue,
-                                                                                                        0,
-                                                                                                        progMax);
-                                                                                                }
-                                                                                            }
+//                                                                                                progValue++;
+//                                                                                                if (progValue % 10 == 0)
+//                                                                                                {
+//                                                                                                    this.DataAccessProgressOutHandler(
+//                                                                                                        this,
+//                                                                                                        EventArgs.Empty,
+//                                                                                                        progValue,
+//                                                                                                        0,
+//                                                                                                        progMax);
+//                                                                                                }
+//                                                                                            }
 
-                                                                                            this.DataAccessProgressOutHandler(
-                                                                                                this,
-                                                                                                EventArgs.Empty,
-                                                                                                progMax,
-                                                                                                0,
-                                                                                                progMax);
-                                                                                        }
-                                                                                    }
+//                                                                                            this.DataAccessProgressOutHandler(
+//                                                                                                this,
+//                                                                                                EventArgs.Empty,
+//                                                                                                progMax,
+//                                                                                                0,
+//                                                                                                progMax);
+//                                                                                        }
+//                                                                                    }
 
-                                                                                    drLocMapWhs.Close();
-                                                                                }
-                                                                            }
+//                                                                                    drLocMapWhs.Close();
+//                                                                                }
+//                                                                            }
 
-                                                                            drLocMapSect.Close();
-                                                                        }
-                                                                    }
+//                                                                            drLocMapSect.Close();
+//                                                                        }
+//                                                                    }
 
-                                                                    drLocMapSlot.Close();
-                                                                }
-                                                            }
+//                                                                    drLocMapSlot.Close();
+//                                                                }
+//                                                            }
 
-                                                            drUnit.Close();
-                                                        }
-                                                    }
+//                                                            drUnit.Close();
+//                                                        }
+//                                                    }
 
-                                                    drProd.Close();
-                                                }
-                                            }
+//                                                    drProd.Close();
+//                                                }
+//                                            }
 
-                                            drProdUnit.Close();
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
+//                                            drProdUnit.Close();
+//                                        }
+//                                    }
+//                                }
+//                            }
+//                        }
+//                    }
 
-#if MULTILANGUAGE
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingCycleCountItemsComplete), false);
-#else
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving cycle count items complete.", false);
-#endif
-                }
-            }
-            catch (SqlCeException ex)
-            {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), true);
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingCycleCountItemsFailed), true);
-#else
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving cycle count items failed.", true);
-#endif
+//#if MULTILANGUAGE
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingCycleCountItemsComplete), false);
+//#else
+//                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving cycle count items complete.", false);
+//#endif
+//                }
+//            }
+//            catch (SQLiteException ex)
+//            {
+//#if MULTILANGUAGE
+//        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), true);
+//        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingCycleCountItemsFailed), true);
+//#else
+//                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
+//                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving cycle count items failed.", true);
+//#endif
 
-                // Duplicate key violations
-                if (ex.NativeError == 25016)
-                {
-#if MULTILANGUAGE
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.UniquenessViolation), false);
-          throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.UniquenessViolation) + Environment.NewLine + errMsg, ex);
-#else
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Uniqueness violation.", false);
-                    throw new Exception("Uniqueness violation." + Environment.NewLine + errMsg, ex);
-#endif
-                }
+//                // Duplicate key violations
+//                if (ex.NativeError == 25016)
+//                {
+//#if MULTILANGUAGE
+//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.UniquenessViolation), false);
+//          throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.UniquenessViolation) + Environment.NewLine + errMsg, ex);
+//#else
+//                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Uniqueness violation.", false);
+//                    throw new Exception("Uniqueness violation." + Environment.NewLine + errMsg, ex);
+//#endif
+//                }
 
-                throw new Exception(
-#if MULTILANGUAGE
-            Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredSavingCycleCountItemsFailed) + Environment.NewLine + errMsg,
-#else
-            "Database exception occurred. Saving cycle count items failed." + Environment.NewLine + errMsg,
-#endif
-            ex);
-            }
+//                throw new Exception(
+//#if MULTILANGUAGE
+//            Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredSavingCycleCountItemsFailed) + Environment.NewLine + errMsg,
+//#else
+//            "Database exception occurred. Saving cycle count items failed." + Environment.NewLine + errMsg,
+//#endif
+//            ex);
+//            }
         }
 
         /// <summary>
