@@ -1,13 +1,7 @@
-﻿using System;
-
-using Android.App;
+﻿using Android.App;
 using Android.Content.PM;
-using Android.Runtime;
-using Android.Views;
-using Android.Widget;
 using Android.OS;
 using dMobile.View;
-using dMobile.GroundWork;
 
 namespace dMobile.Droid
 {

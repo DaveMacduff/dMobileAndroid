@@ -1,7 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:local="clr-namespace:BarcodeReaderSample"
              x:Class="dMobile.View.MainPage">
 
     <ContentPage.Padding>
@@ -23,7 +22,7 @@
 
             <!--display title-->
 
-            <Label Grid.Row="0" Text="This is a test" TextColor="White" BackgroundColor="Maroon" HorizontalTextAlignment="Center" VerticalOptions="Start" HorizontalOptions="FillAndExpand"/>
+            <Label Grid.Row="0" Text="This is a test" TextColor="Black" BackgroundColor="White" HorizontalTextAlignment="Center" VerticalOptions="Start" HorizontalOptions="FillAndExpand"/>
 
 
             <Grid Grid.Row="1">
