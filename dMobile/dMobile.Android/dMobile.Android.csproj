@@ -54,7 +54,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Xamarin.Forms" Version="3.4.0.1008975" />
+    <PackageReference Include="Honeywell.BarcodeReader">
+      <Version>1.32.7.10</Version>
+    </PackageReference>
+    <PackageReference Include="Xamarin.Forms" Version="3.4.0.1039999" />
     <PackageReference Include="Xamarin.Android.Support.Design" Version="27.0.2.1" />
     <PackageReference Include="Xamarin.Android.Support.v7.AppCompat" Version="27.0.2.1" />
     <PackageReference Include="Xamarin.Android.Support.v4" Version="27.0.2.1" />
@@ -97,14 +100,27 @@
     <Folder Include="Resources\drawable\" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\dMobile.BarCodeScanner\dMobile.BarCodeScanner.csproj">
+      <Project>{5a612bc6-514c-4d1b-bfc4-0c2106c186f4}</Project>
+      <Name>dMobile.BarCodeScanner</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\dMobile.Bedrock\dMobile.Bedrock.csproj">
+      <Project>{9a5c51a9-39e9-45f8-9d5e-18d88c91a321}</Project>
+      <Name>dMobile.Bedrock</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\dMobile.Controller\dMobile.Controller.csproj">
+      <Project>{f6d4c2e7-a009-4a49-8fc5-0793f7166fb0}</Project>
+      <Name>dMobile.Controller</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\dMobile.GroundWork\dMobile.GroundWork.csproj">
       <Project>{07468172-3797-4CD2-8E9F-535A7AFD58B3}</Project>
       <Name>dMobile.GroundWork</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\dMobile.View\dMobile.View.csproj">
-      <Project>{72e29573-47af-4882-8cab-9014b3679126}</Project>
-      <Name>dMobile.View</Name>
+    <ProjectReference Include="..\..\dMobile.Resources\dMobile.Resources.csproj">
+      <Project>{40fa21c1-9078-4713-9da0-66a15f03f5c8}</Project>
+      <Name>dMobile.Resources</Name>
     </ProjectReference>
   </ItemGroup>
+  <Import Project="..\..\dMobile.View\dMobile.View.projitems" Label="Shared" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
 </Project>
