@@ -1,0 +1,610 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\Xamarin.Forms.3.4.0.1039999\build\Xamarin.Forms.props" Condition="Exists('..\packages\Xamarin.Forms.3.4.0.1039999\build\Xamarin.Forms.props')" />
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{CCCAE296-5421-4C29-BFBA-8A1A72006E19}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>dMobile.View</RootNamespace>
+    <AssemblyName>dMobile.View</AssemblyName>
+    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Honeywell.AIDC.CrossPlatform.BarcodeReader, Version=1.32.7.10, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Honeywell.BarcodeReader.1.32.7.10\lib\portable-net45+wpa81+MonoAndroid41+Xamarin.iOS\Honeywell.AIDC.CrossPlatform.BarcodeReader.dll</HintPath>
+    </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data.SQLite">
+      <HintPath>..\..\Users\zack_\Downloads\sqlite-netFx-source-1.0.111.0\bin\2017\Debug\bin\System.Data.SQLite.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
+    <Reference Include="Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Xamarin.Forms.3.4.0.1039999\lib\netstandard2.0\Xamarin.Forms.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Xamarin.Forms.Platform, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Xamarin.Forms.3.4.0.1039999\lib\netstandard2.0\Xamarin.Forms.Platform.dll</HintPath>
+    </Reference>
+    <Reference Include="Xamarin.Forms.Xaml, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Xamarin.Forms.3.4.0.1039999\lib\netstandard2.0\Xamarin.Forms.Xaml.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Activity\ActivityConvertUnit.xaml.cs">
+      <DependentUpon>ActivityConvertUnit.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Activity\ucActivityConvertProduct.xaml.cs">
+      <DependentUpon>ucActivityConvertProduct.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Activity\ucActivityConvertProductDetail.xaml.cs">
+      <DependentUpon>ucActivityConvertProductDetail.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Activity\ucActivityConvertUnitEdit.xaml.cs">
+      <DependentUpon>ucActivityConvertUnitEdit.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Activity\ucActivityDeboxLabelCount.xaml.cs">
+      <DependentUpon>ucActivityDeboxLabelCount.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Activity\ucActivityDetail.xaml.cs">
+      <DependentUpon>ucActivityDetail.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Activity\ucActivityDetailEdit.xaml.cs">
+      <DependentUpon>ucActivityDetailEdit.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Activity\ucActivityDetailInventoryInquiry.xaml.cs">
+      <DependentUpon>ucActivityDetailInventoryInquiry.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Activity\ucActivityDetailSkid.xaml.cs">
+      <DependentUpon>ucActivityDetailSkid.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Activity\ucActivityHdr.xaml.cs">
+      <DependentUpon>ucActivityHdr.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Activity\ucActivityHdrAdjustmentFilter.xaml.cs">
+      <DependentUpon>ucActivityHdrAdjustmentFilter.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Activity\ucActivityHdrCycleCountFilter.xaml.cs">
+      <DependentUpon>ucActivityHdrCycleCountFilter.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Activity\ucActivityHdrPhysicalCountFilter.xaml.cs">
+      <DependentUpon>ucActivityHdrPhysicalCountFilter.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Activity\ucActivityHdrPickingFilter.xaml.cs">
+      <DependentUpon>ucActivityHdrPickingFilter.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Activity\ucActivityHdrPickingSelectCriteria.xaml.cs">
+      <DependentUpon>ucActivityHdrPickingSelectCriteria.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Activity\ucActivityHdrProductionTicketFilter.xaml.cs">
+      <DependentUpon>ucActivityHdrProductionTicketFilter.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Activity\ucActivityHdrReceivingFilter.xaml.cs">
+      <DependentUpon>ucActivityHdrReceivingFilter.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Activity\ucActivityHdrReleaseByOrder.xaml.cs">
+      <DependentUpon>ucActivityHdrReleaseByOrder.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Activity\ucActivityHdrReturnsFilter.xaml.cs">
+      <DependentUpon>ucActivityHdrReturnsFilter.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Activity\ucActivityHdrSkidInfo.xaml.cs">
+      <DependentUpon>ucActivityHdrSkidInfo.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Activity\ucActivityHdrTransferFilter.xaml.cs">
+      <DependentUpon>ucActivityHdrTransferFilter.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Activity\ucActivityInventoryInquiry.xaml.cs">
+      <DependentUpon>ucActivityInventoryInquiry.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Activity\ucActivityItem.xaml.cs">
+      <DependentUpon>ucActivityItem.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Activity\ucActivityItemInventoryInquiry.xaml.cs">
+      <DependentUpon>ucActivityItemInventoryInquiry.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Activity\ucActivityItemInventoryInquirySummary.xaml.cs">
+      <DependentUpon>ucActivityItemInventoryInquirySummary.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Activity\ucActivityItemPurchaseOrderWorkSheetEdit.xaml.cs">
+      <DependentUpon>ucActivityItemPurchaseOrderWorkSheetEdit.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Activity\ucActivityItemSingle.xaml.cs">
+      <DependentUpon>ucActivityItemSingle.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Activity\ucActivityMoveInventory.xaml.cs">
+      <DependentUpon>ucActivityMoveInventory.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Activity\ucActivityMoveSkid.xaml.cs">
+      <DependentUpon>ucActivityMoveSkid.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Activity\ucActivityProductLabel.xaml.cs">
+      <DependentUpon>ucActivityProductLabel.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Activity\ucActivityPurchaseOrderWorkSheet.xaml.cs">
+      <DependentUpon>ucActivityPurchaseOrderWorkSheet.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Activity\ucActivityRemoveFromSkid.xaml.cs">
+      <DependentUpon>ucActivityRemoveFromSkid.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Activity\ucActivityScanBarCodes.xaml.cs">
+      <DependentUpon>ucActivityScanBarCodes.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Activity\ucActivityShippingLabelEdit.xaml.cs">
+      <DependentUpon>ucActivityShippingLabelEdit.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Activity\ucActivitySkidPutAway.xaml.cs">
+      <DependentUpon>ucActivitySkidPutAway.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\App.xaml.cs">
+      <DependentUpon>App.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="EventArgs\ApplicationAreaEventArgs.cs" />
+    <Compile Include="Forms\FormAddManualDetailOverride.xaml.cs">
+      <DependentUpon>FormAddManualDetailOverride.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\FormDialogContainer.xaml.cs">
+      <DependentUpon>FormDialogContainer.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\FormErrorReport.xaml.cs">
+      <DependentUpon>FormErrorReport.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\FormMain.xaml.cs">
+      <DependentUpon>FormMain.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\FormShipLabelQuantity.xaml.cs">
+      <DependentUpon>FormShipLabelQuantity.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\FormAssociateBarCodeOverride.xaml.cs">
+      <DependentUpon>FormAssociateBarCodeOverride.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\frmDialogContainer.xaml.cs">
+      <DependentUpon>frmDialogContainer.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\frmMain.xaml.cs">
+      <DependentUpon>frmMain.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Menus\ucInventoryAdjustmentsMenu.xaml.cs">
+      <DependentUpon>ucInventoryAdjustmentsMenu.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Menus\ucInventoryCountsMenu.xaml.cs">
+      <DependentUpon>ucInventoryCountsMenu.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Menus\ucInventoryMenu.xaml.cs">
+      <DependentUpon>ucInventoryMenu.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Menus\ucInventoryMovementMenu.xaml.cs">
+      <DependentUpon>ucInventoryMovementMenu.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Menus\ucMainMenu.xaml.cs">
+      <DependentUpon>ucMainMenu.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Menus\ucOptionsMenu.xaml.cs">
+      <DependentUpon>ucOptionsMenu.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Menus\ucProductionTicketMenu.xaml.cs">
+      <DependentUpon>ucProductionTicketMenu.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Menus\ucPurchaseOrdersMenu.xaml.cs">
+      <DependentUpon>ucPurchaseOrdersMenu.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Menus\ucSalesOrdersMenu.xaml.cs">
+      <DependentUpon>ucSalesOrdersMenu.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Menus\ucUtilitiesMenu.xaml.cs">
+      <DependentUpon>ucUtilitiesMenu.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Exceptions\MessageOnlyException.cs" />
+    <Compile Include="Options\ucAbout.xaml.cs">
+      <DependentUpon>ucAbout.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Options\ucCommunicationSetup.xaml.cs">
+      <DependentUpon>ucCommunicationSetup.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Options\ucCommunicationSetupAdvanced.xaml.cs">
+      <DependentUpon>ucCommunicationSetupAdvanced.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Options\ucRefreshDataOptions.xaml.cs">
+      <DependentUpon>ucRefreshDataOptions.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Options\ucRefreshDataStatus.xaml.cs">
+      <DependentUpon>ucRefreshDataStatus.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Options\ucSetupDefaults.xaml.cs">
+      <DependentUpon>ucSetupDefaults.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Options\ucSubmitBatch.xaml.cs">
+      <DependentUpon>ucSubmitBatch.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Options\ucSubmitBatchFilter.xaml.cs">
+      <DependentUpon>ucSubmitBatchFilter.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\SplashStartup.xaml.cs">
+      <DependentUpon>SplashStartup.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="SysShared.cs" />
+    <Compile Include="Test Pages\BarcodeScannerSample.xaml.cs">
+      <DependentUpon>BarcodeScannerSample.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\MainPage.xaml.cs">
+      <DependentUpon>MainPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Pages\MasterPage.xaml.cs">
+      <DependentUpon>MasterPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="MasterPageItem.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Test Pages\TestPage.xaml.cs">
+      <DependentUpon>TestPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ucLoginStartup.xaml.cs">
+      <DependentUpon>ucLoginStartup.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ucSelectProduct.xaml.cs">
+      <DependentUpon>ucSelectProduct.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ucSelectProductUnit.xaml.cs">
+      <DependentUpon>ucSelectProductUnit.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ucSelectSkid.xaml.cs">
+      <DependentUpon>ucSelectSkid.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ucSetLocationMap.xaml.cs">
+      <DependentUpon>ucSetLocationMap.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Utilities\ucAssignDefaultLocation.xaml.cs">
+      <DependentUpon>ucAssignDefaultLocation.xaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Activity\ActivityConvertUnit.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Activity\ucActivityConvertProduct.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Activity\ucActivityConvertProductDetail.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Activity\ucActivityConvertUnitEdit.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Activity\ucActivityDeboxLabelCount.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Activity\ucActivityDetail.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Activity\ucActivityDetailEdit.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Activity\ucActivityDetailInventoryInquiry.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Activity\ucActivityDetailSkid.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Activity\ucActivityHdr.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Activity\ucActivityHdrAdjustmentFilter.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Activity\ucActivityHdrCycleCountFilter.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Activity\ucActivityHdrPhysicalCountFilter.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Activity\ucActivityHdrPickingFilter.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Activity\ucActivityHdrPickingSelectCriteria.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Activity\ucActivityHdrProductionTicketFilter.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Activity\ucActivityHdrReceivingFilter.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Activity\ucActivityHdrReleaseByOrder.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Activity\ucActivityHdrReturnsFilter.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Activity\ucActivityHdrSkidInfo.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Activity\ucActivityHdrTransferFilter.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Activity\ucActivityInventoryInquiry.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Activity\ucActivityItem.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Activity\ucActivityItemInventoryInquiry.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Activity\ucActivityItemInventoryInquirySummary.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Activity\ucActivityItemPurchaseOrderWorkSheetEdit.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Activity\ucActivityItemSingle.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Activity\ucActivityMoveInventory.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Activity\ucActivityMoveSkid.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Activity\ucActivityProductLabel.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Activity\ucActivityPurchaseOrderWorkSheet.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Activity\ucActivityRemoveFromSkid.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Activity\ucActivityScanBarCodes.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Activity\ucActivityShippingLabelEdit.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Activity\ucActivitySkidPutAway.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Pages\App.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Test Pages\BarcodeScannerSample.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Pages\MainPage.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Pages\MasterPage.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Test Pages\TestPage.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Forms\FormAddManualDetailOverride.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\dMobile.BarCodeScanner\dMobile.BarCodeScanner.csproj">
+      <Project>{5a612bc6-514c-4d1b-bfc4-0c2106c186f4}</Project>
+      <Name>dMobile.BarCodeScanner</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\dMobile.Bedrock\dMobile.Bedrock.csproj">
+      <Project>{9a5c51a9-39e9-45f8-9d5e-18d88c91a321}</Project>
+      <Name>dMobile.Bedrock</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\dMobile.Controller\dMobile.Controller.csproj">
+      <Project>{f6d4c2e7-a009-4a49-8fc5-0793f7166fb0}</Project>
+      <Name>dMobile.Controller</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\dMobile.GroundWork\dMobile.GroundWork.csproj">
+      <Project>{07468172-3797-4cd2-8e9f-535a7afd58b3}</Project>
+      <Name>dMobile.GroundWork</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\dMobile.Resources\dMobile.Resources.csproj">
+      <Project>{40fa21c1-9078-4713-9da0-66a15f03f5c8}</Project>
+      <Name>dMobile.Resources</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Menus\ucInventoryAdjustmentsMenu.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Menus\ucInventoryCountsMenu.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Menus\ucInventoryMenu.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Menus\ucInventoryMovementMenu.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Menus\ucMainMenu.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Menus\ucOptionsMenu.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Menus\ucProductionTicketMenu.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Menus\ucPurchaseOrdersMenu.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Menus\ucSalesOrdersMenu.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Menus\ucUtilitiesMenu.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Options\ucAbout.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Options\ucCommunicationSetup.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Options\ucCommunicationSetupAdvanced.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Options\ucRefreshDataOptions.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Options\ucRefreshDataStatus.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Options\ucSetupDefaults.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Options\ucSubmitBatch.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Options\ucSubmitBatchFilter.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Utilities\ucAssignDefaultLocation.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Forms\FormDialogContainer.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Forms\FormErrorReport.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Forms\FormMain.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Forms\FormShipLabelQuantity.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Forms\FormAssociateBarCodeOverride.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Forms\frmDialogContainer.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Forms\frmMain.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Pages\SplashStartup.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Views\ucLoginStartup.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Views\ucSelectProduct.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Views\ucSelectProductUnit.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Views\ucSelectSkid.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Views\ucSetLocationMap.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Xamarin.Forms.3.4.0.1039999\build\Xamarin.Forms.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.Forms.3.4.0.1039999\build\Xamarin.Forms.props'))" />
+    <Error Condition="!Exists('..\packages\Xamarin.Forms.3.4.0.1039999\build\Xamarin.Forms.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.Forms.3.4.0.1039999\build\Xamarin.Forms.targets'))" />
+  </Target>
+  <Import Project="..\packages\Xamarin.Forms.3.4.0.1039999\build\Xamarin.Forms.targets" Condition="Exists('..\packages\Xamarin.Forms.3.4.0.1039999\build\Xamarin.Forms.targets')" />
+</Project>

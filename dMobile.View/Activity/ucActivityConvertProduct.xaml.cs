@@ -9,7 +9,6 @@ using Xamarin.Forms.Xaml;
 
 namespace dMobile.View.Activity
 {
-	[XamlCompilation(XamlCompilationOptions.Compile)]
 	public partial class ucActivityConvertProduct : ContentPage
 	{
 		public ucActivityConvertProduct ()
