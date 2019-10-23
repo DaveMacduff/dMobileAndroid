@@ -1,4 +1,5 @@
-﻿namespace dMobile.BarCodeScanner
+﻿using System;
+namespace dMobile.BarCodeScanner
 {
   /// <summary>
   /// This is the barcode scanner class factory for LXE devices.
@@ -7,7 +8,8 @@
   {
     public override BarCodeScanner GetBarCodeScanner()
     {
-      return new LXEBarCodeScanner();
+      throw new NotImplementedException("No Implemented");
+      //return new LXEBarCodeScanner();
     }
   }
 }

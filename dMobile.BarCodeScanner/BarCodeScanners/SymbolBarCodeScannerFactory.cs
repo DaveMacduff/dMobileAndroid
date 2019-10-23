@@ -1,4 +1,6 @@
-﻿namespace dMobile.BarCodeScanner
+﻿using System;
+
+namespace dMobile.BarCodeScanner
 {
   /// <summary>
   /// This is the barcode scanner class factory for Symbol devices.
@@ -7,7 +9,8 @@
   {
     public override BarCodeScanner GetBarCodeScanner()
     {
-      return new SymbolBarCodeScanner();
+      throw new NotImplementedException("No Implemented");
+      //return new SymbolBarCodeScanner();
     }
   }
 }

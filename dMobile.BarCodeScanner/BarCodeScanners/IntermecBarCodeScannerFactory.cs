@@ -1,4 +1,6 @@
-﻿namespace dMobile.BarCodeScanner
+﻿using System;
+
+namespace dMobile.BarCodeScanner
 {
   /// <summary>
   /// This is the barcode scanner class factory for Intermec devices.
@@ -7,7 +9,8 @@
   {
     public override BarCodeScanner GetBarCodeScanner()
     {
-      return new IntermecBarCodeScanner();
+        throw new NotImplementedException("No Implemented");
+      //return new IntermecBarCodeScanner();
     }
   }
 }
