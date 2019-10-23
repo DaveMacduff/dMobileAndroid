@@ -96,8 +96,7 @@ namespace dMobile.Bedrock
         {
             XmlSerializer serializer = new XmlSerializer(typeof(SystemSettings));
 
-            // use relection to get the current assembly path for the database
-            string appDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase);
+            string appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
             string fullPathToMyFile = Path.Combine(appDir, SystemSettingsTasks.FileName);
 
             if (!File.Exists(fullPathToMyFile))
@@ -488,7 +487,7 @@ namespace dMobile.Bedrock
             try
             {
                 // use relection to get the current assembly path for the database
-                string appDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase);
+                string appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
                 string fullPathToMyFile = Path.Combine(appDir, SystemSettingsTasks.FileName);
 
                 // Create a FileStream to write with.

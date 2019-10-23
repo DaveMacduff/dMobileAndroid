@@ -120,7 +120,8 @@ namespace dMobile.Bedrock
         /// <remarks></remarks>
         public CommunicationSetup()
         {
-            this.strFilePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase) + "\\";
+            //this.strFilePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase) + "\\";
+            this.strFilePath = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
             this.strFileASCIIZ = Path.Combine(this.strFilePath, this.strFileName);
         }
 
@@ -439,7 +440,7 @@ namespace dMobile.Bedrock
             CommunicationSetup commSetup = new CommunicationSetup();
 
             // use relection to get the current assembly path for the database
-            string appDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase);
+            string appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
             string fullPathToMyFile = Path.Combine(appDir, this.fileName);
 
             if (!File.Exists(fullPathToMyFile))
@@ -470,7 +471,7 @@ namespace dMobile.Bedrock
             try
             {
                 // use relection to get the current assembly path for the database
-                string appDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase);
+                string appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
                 string fullPathToMyFile = Path.Combine(appDir, this.fileName);
 
                 // Create a FileStream to write with.

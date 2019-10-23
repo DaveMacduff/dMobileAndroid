@@ -1621,27 +1621,27 @@ namespace dMobile.Bedrock
     /// <returns>Object of type BarCodeSettings</returns>
     public SysBarCodeSettings LoadData()
     {
-      XmlSerializer serializer = new XmlSerializer(typeof(SysBarCodeSettings));
-      SysBarCodeSettings barCodeSettings = new SysBarCodeSettings();
+            XmlSerializer serializer = new XmlSerializer(typeof(SysBarCodeSettings));
+            SysBarCodeSettings barCodeSettings = new SysBarCodeSettings();
 
-      // use relection to get the current assembly path for the database
-      string appDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase);
-      string fullPathToMyFile = Path.Combine(appDir, this.FileName);
+            // use relection to get the current assembly path for the database
+            string appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+            string fullPathToMyFile = Path.Combine(appDir, this.FileName);
 
-      if (!File.Exists(fullPathToMyFile))
-      {
-        this.SaveData(ref barCodeSettings);
-      }
+            if (!File.Exists(fullPathToMyFile))
+            {
+                this.SaveData(ref barCodeSettings);
+            }
 
-      // Create a FileStream to read with.
-      using (FileStream reader = new FileStream(fullPathToMyFile, FileMode.Open))
-      {
-        // Deserialize the stream to the object, and close the TextReader
-        barCodeSettings = (SysBarCodeSettings)serializer.Deserialize(reader);
-        reader.Close();
-      }
+            // Create a FileStream to read with.
+            using (FileStream reader = new FileStream(fullPathToMyFile, FileMode.Open))
+            {
+                // Deserialize the stream to the object, and close the TextReader
+                barCodeSettings = (SysBarCodeSettings)serializer.Deserialize(reader);
+                reader.Close();
+            }
 
-      return barCodeSettings;
+            return barCodeSettings;
     }
 
     /// <summary>
@@ -1657,7 +1657,7 @@ namespace dMobile.Bedrock
       try
       {
         // use relection to get the current assembly path for the database
-        string appDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase);
+        string appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
         string fullPathToMyFile = Path.Combine(appDir, this.FileName);
 
         // Create a FileStream to write with.

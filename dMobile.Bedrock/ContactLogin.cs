@@ -231,7 +231,7 @@ namespace dMobile.Bedrock
             ContactLogin contactLogin = new ContactLogin();
 
             // use relection to get the current assembly path for the database
-            string appDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase);
+            string appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
             string fullPathToMyFile = Path.Combine(appDir, this.fileName);
 
             if (!File.Exists(fullPathToMyFile))
@@ -264,7 +264,7 @@ namespace dMobile.Bedrock
             try
             {
                 // use relection to get the current assembly path for the database
-                string appDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase);
+                string appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
                 string fullPathToMyFile = Path.Combine(appDir, this.fileName);
 
                 // Create a FileStream to write with.
