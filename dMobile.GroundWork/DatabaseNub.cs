@@ -2676,8 +2676,8 @@ namespace dMobile.GroundWork
     {
       string sqlTable = "CREATE TABLE tContact"
           + "("
-          + "ContactRefno int NOT NULL CONSTRAINT PK_ContactOnContactRefno PRIMARY KEY,"
-          + "ContactSubType int NOT NULL"
+          + "ContactRefno INTEGER NOT NULL CONSTRAINT PK_ContactOnContactRefno PRIMARY KEY,"
+          + "ContactSubType INTEGER NOT NULL"
           + ")";
 
       if (this.OnNubStatOut != null)
@@ -2705,9 +2705,9 @@ namespace dMobile.GroundWork
     {
       string sqlTable = "CREATE TABLE tContactUser"
           + "("
-          + "ContactRefno int NOT NULL CONSTRAINT PK_UserOnContactRefno PRIMARY KEY,"
-          + "ContactSubType int NOT NULL,"
-          + "ContactUserCode int NOT NULL,"
+          + "ContactRefno INTEGER NOT NULL CONSTRAINT PK_UserOnContactRefno PRIMARY KEY,"
+          + "ContactSubType INTEGER NOT NULL,"
+          + "ContactUserCode INTEGER NOT NULL,"
           + "ContactUserName nvarchar(20),"
           + "ContactUserPassword nvarchar(6),"
           + "ContactUserIsAllowedAssociateProductBarCode bit NOT NULL,"
@@ -2752,9 +2752,9 @@ namespace dMobile.GroundWork
     {
       string sqlTable = "CREATE TABLE tContactCustomer"
           + "("
-          + "ContactRefno int NOT NULL CONSTRAINT PK_UserOnContactRefno PRIMARY KEY,"
-          + "ContactSubType int NOT NULL,"
-          + "ContactCustomerFKRefno int NOT NULL,"
+          + "ContactRefno INTEGER NOT NULL CONSTRAINT PK_UserOnContactRefno PRIMARY KEY,"
+          + "ContactSubType INTEGER NOT NULL,"
+          + "ContactCustomerFKRefno INTEGER NOT NULL,"
           + "ContactCustomerCode nvarchar(8) NOT NULL,"
           + "ContactCustomerName nvarchar(40) NOT NULL,"
           + "CONSTRAINT ContactCustomerToContactOnContactRefno FOREIGN KEY (ContactRefno) REFERENCES tContact(ContactRefno) ON DELETE CASCADE ON UPDATE CASCADE"
@@ -2801,10 +2801,10 @@ namespace dMobile.GroundWork
     {
       string sqlTable = "CREATE TABLE tContactCustomerShipTo"
           + "("
-          + "ContactRefno int NOT NULL CONSTRAINT PK_UserOnContactRefno PRIMARY KEY,"
-          + "ContactSubType int NOT NULL,"
-          + "CustomerContactRefno int NOT NULL,"
-          + "ContactCustomerShipToFKRefno int NOT NULL,"
+          + "ContactRefno INTEGER NOT NULL CONSTRAINT PK_UserOnContactRefno PRIMARY KEY,"
+          + "ContactSubType INTEGER NOT NULL,"
+          + "CustomerContactRefno INTEGER NOT NULL,"
+          + "ContactCustomerShipToFKRefno INTEGER NOT NULL,"
           + "ContactCustomerShipToCode nvarchar(8) NOT NULL,"
           + "ContactCustomerShipToName nvarchar(40) NOT NULL," 
           + "CONSTRAINT ContactCustomerShipToContactOnContactRefno FOREIGN KEY (ContactRefno) REFERENCES tContact(ContactRefno) ON DELETE CASCADE ON UPDATE CASCADE, "
@@ -2858,9 +2858,9 @@ namespace dMobile.GroundWork
     {
       string sqlTable = "CREATE TABLE tContactVendor"
           + "("
-          + "ContactRefno int NOT NULL CONSTRAINT PK_UserOnContactRefno PRIMARY KEY,"
-          + "ContactSubType int NOT NULL,"
-          + "ContactVendorFKRefno int NOT NULL,"
+          + "ContactRefno INTEGER NOT NULL CONSTRAINT PK_UserOnContactRefno PRIMARY KEY,"
+          + "ContactSubType INTEGER NOT NULL,"
+          + "ContactVendorFKRefno INTEGER NOT NULL,"
           + "ContactVendorCode nvarchar(8) NOT NULL,"
           + "ContactVendorName nvarchar(40) NOT NULL, "
           + "CONSTRAINT ContactVendorToContactOnContactRefno FOREIGN KEY (ContactRefno) REFERENCES tContact(ContactRefno) ON DELETE CASCADE ON UPDATE CASCADE"
@@ -2907,10 +2907,10 @@ namespace dMobile.GroundWork
     {
       string sqlTable = "CREATE TABLE tContactVendorSupplier"
           + "("
-          + "ContactRefno int NOT NULL CONSTRAINT PK_UserOnContactRefno PRIMARY KEY,"
-          + "ContactSubType int NOT NULL,"
-          + "VendorContactRefno int NOT NULL,"
-          + "ContactVendorSupplierFKRefno int NOT NULL,"
+          + "ContactRefno INTEGER NOT NULL CONSTRAINT PK_UserOnContactRefno PRIMARY KEY,"
+          + "ContactSubType INTEGER NOT NULL,"
+          + "VendorContactRefno INTEGER NOT NULL,"
+          + "ContactVendorSupplierFKRefno INTEGER NOT NULL,"
           + "ContactVendorSupplierCode nvarchar(8) NOT NULL,"
           + "ContactVendorSupplierName nvarchar(40) NOT NULL, "
           + "CONSTRAINT ContactVendorSupplierToContactOnContactRefno FOREIGN KEY (ContactRefno) REFERENCES tContact(ContactRefno) ON DELETE CASCADE ON UPDATE CASCADE, "
@@ -2964,8 +2964,8 @@ namespace dMobile.GroundWork
     {
       string sqlTable = "CREATE TABLE tReasonCode"
           + "("
-          + "ReasonCodeRefno int NOT NULL CONSTRAINT PK_ReasonCodeOnReasonCodeRefno PRIMARY KEY,"
-          + "ReasonCodeFKRefno int NOT NULL,"
+          + "ReasonCodeRefno INTEGER NOT NULL CONSTRAINT PK_ReasonCodeOnReasonCodeRefno PRIMARY KEY,"
+          + "ReasonCodeFKRefno INTEGER NOT NULL,"
           + "ReasonCodeCode nvarchar(4) NOT NULL,"
           + "ReasonCodeDescription nvarchar(25) NOT NULL"
           + ")";
@@ -2998,8 +2998,8 @@ namespace dMobile.GroundWork
     {
       string sqlTable = "CREATE TABLE tActivityItemReasonCodeXRef"
           + "("
-          + "ActivityItemRefno int NOT NULL,"
-          + "ReasonCodeRefno int NOT NULL, "
+          + "ActivityItemRefno INTEGER NOT NULL,"
+          + "ReasonCodeRefno INTEGER NOT NULL, "
           + "CONSTRAINT ActivityItemReasonCodeXRefTactItemOnActivityItemRefno FOREIGN KEY (ActivityItemRefno) REFERENCES tActivityItem(ActivityItemRefno) ON DELETE CASCADE ON UPDATE CASCADE, "
           + "CONSTRAINT ActivityItemReasonCodeXRefToReasonCodeOnReasonCodeRefno FOREIGN KEY (ReasonCodeRefno) REFERENCES tReasonCode(ReasonCodeRefno) ON DELETE CASCADE ON UPDATE CASCADE"
           + ")";
@@ -3048,10 +3048,10 @@ namespace dMobile.GroundWork
     {
       string sqlTable = "CREATE TABLE tActivityItemConvertUnit"
           + "("
-          + "ActivityItemRefno int NOT NULL CONSTRAINT PK_ActivityItemConvertUnitOnActivityItemRefno PRIMARY KEY,"
-          + "ActivityItemSubType int NOT NULL,"
-          + "ActivityItemConvertUnitType int NOT NULL,"
-          + "ProductUnitRefno int NOT NULL"
+          + "ActivityItemRefno INTEGER NOT NULL CONSTRAINT PK_ActivityItemConvertUnitOnActivityItemRefno PRIMARY KEY,"
+          + "ActivityItemSubType INTEGER NOT NULL,"
+          + "ActivityItemConvertUnitType INTEGER NOT NULL,"
+          + "ProductUnitRefno INTEGER NOT NULL"
           + ")";
 
       if (this.OnNubStatOut != null)
@@ -3090,8 +3090,8 @@ namespace dMobile.GroundWork
     {
       string sqlTable = "CREATE TABLE tActivityDetailConvertUnit"
           + "("
-          + "ActivityDetailRefno int NOT NULL CONSTRAINT PK_ActivityDetailConvertUnitOnActivityDetailRefno PRIMARY KEY,"
-          + "ActivityDetailConvertUnitFKRefno int NOT NULL "
+          + "ActivityDetailRefno INTEGER NOT NULL CONSTRAINT PK_ActivityDetailConvertUnitOnActivityDetailRefno PRIMARY KEY,"
+          + "ActivityDetailConvertUnitFKRefno INTEGER NOT NULL "
           + ")";
 
       if (this.OnNubStatOut != null)
@@ -3124,10 +3124,10 @@ namespace dMobile.GroundWork
     {
       string sqlTable = "CREATE TABLE tActivityItemMoveInventory"
           + "("
-          + "ActivityItemRefno int NOT NULL CONSTRAINT PK_ActivityItemMoveInventoryOnActivityItemRefno PRIMARY KEY,"
-          + "ActivityItemSubType int NOT NULL,"
-          + "ActivityItemMoveInventoryType int NOT NULL,"
-          + "ProductUnitRefno int NOT NULL"
+          + "ActivityItemRefno INTEGER NOT NULL CONSTRAINT PK_ActivityItemMoveInventoryOnActivityItemRefno PRIMARY KEY,"
+          + "ActivityItemSubType INTEGER NOT NULL,"
+          + "ActivityItemMoveInventoryType INTEGER NOT NULL,"
+          + "ProductUnitRefno INTEGER NOT NULL"
           + ")";
 
       if (this.OnNubStatOut != null)
@@ -3166,8 +3166,8 @@ namespace dMobile.GroundWork
     {
       string sqlTable = "CREATE TABLE tActivityDetailMoveInventory"
           + "("
-          + "ActivityDetailRefno int NOT NULL CONSTRAINT PK_ActivityDetailMoveInventoryOnActivityDetailRefno PRIMARY KEY,"
-          + "ActivityDetailMoveInventoryFKRefno int NOT NULL "
+          + "ActivityDetailRefno INTEGER NOT NULL CONSTRAINT PK_ActivityDetailMoveInventoryOnActivityDetailRefno PRIMARY KEY,"
+          + "ActivityDetailMoveInventoryFKRefno INTEGER NOT NULL "
           + ")";
 
       if (this.OnNubStatOut != null)
@@ -3201,12 +3201,12 @@ namespace dMobile.GroundWork
     {
       string sqlTable = "CREATE TABLE tActivityAdjustment"
           + "("
-          + "ActivityRefno int NOT NULL CONSTRAINT PK_ActivityAdjustmentOnActivityRefno PRIMARY KEY,"
-          + "ActivitySubType int NOT NULL,"
-          + "ActivityAdjustmentFKRefno int NOT NULL,"
+          + "ActivityRefno INTEGER NOT NULL CONSTRAINT PK_ActivityAdjustmentOnActivityRefno PRIMARY KEY,"
+          + "ActivitySubType INTEGER NOT NULL,"
+          + "ActivityAdjustmentFKRefno INTEGER NOT NULL,"
           + "ActivityAdjustmentStringFKRefno nvarchar(8) NOT NULL,"
-          + "ActivityAdjustmentType int NOT NULL,"
-          + "WarehouseLocationMapRefno int NOT NULL,"
+          + "ActivityAdjustmentType INTEGER NOT NULL,"
+          + "WarehouseLocationMapRefno INTEGER NOT NULL,"
           + "ActivityAdjustmentDateTime datetime NOT NULL,"
           + "ActivityAdjustmentDescription nvarchar(40) NOT NULL,"
           + "ActivityAdjustmentTypeDescription nvarchar(20) NOT NULL, "
@@ -3258,12 +3258,12 @@ namespace dMobile.GroundWork
     {
       string sqlTable = "CREATE TABLE tActivityItemAdjustment"
           + "("
-          + "ActivityItemRefno int NOT NULL CONSTRAINT PK_ActivityItemAdjustmentOnActivityItemRefno PRIMARY KEY,"
-          + "ActivityItemSubType int NOT NULL,"
-          + "ActivityItemAdjustmentFKRefno int NOT NULL,"
+          + "ActivityItemRefno INTEGER NOT NULL CONSTRAINT PK_ActivityItemAdjustmentOnActivityItemRefno PRIMARY KEY,"
+          + "ActivityItemSubType INTEGER NOT NULL,"
+          + "ActivityItemAdjustmentFKRefno INTEGER NOT NULL,"
           + "ActivityItemAdjustmentStringFKRefno nvarchar(8) NOT NULL,"
-          + "ProductUnitRefno int NOT NULL,"
-          + "WarehouseLocationMapRefno int NOT NULL,"
+          + "ProductUnitRefno INTEGER NOT NULL,"
+          + "WarehouseLocationMapRefno INTEGER NOT NULL,"
           + "ActivityItemAdjustmentQuantity numeric(11, 3) NOT NULL,"
           + "ActivityItemAdjustmentBaseQuantity numeric(11, 3) NOT NULL,"
           + "ActivityItemAdjustmentWeightQuantity numeric(11, 3) NOT NULL,"
@@ -3323,8 +3323,8 @@ namespace dMobile.GroundWork
     {
       string sqlTable = "CREATE TABLE tActivityDetailAdjustment"
           + "("
-          + "ActivityDetailRefno int NOT NULL CONSTRAINT PK_ActivityDetailAdjustmentOnActivityDetailRefno PRIMARY KEY,"
-          + "ActivityDetailAdjustmentFKRefno int NOT NULL, "
+          + "ActivityDetailRefno INTEGER NOT NULL CONSTRAINT PK_ActivityDetailAdjustmentOnActivityDetailRefno PRIMARY KEY,"
+          + "ActivityDetailAdjustmentFKRefno INTEGER NOT NULL, "
           + "CONSTRAINT ActivityDetailAdjustmentTactDetailOnActivityDetailRefno FOREIGN KEY (ActivityDetailRefno) REFERENCES tActivityDetail(ActivityDetailRefno) ON DELETE CASCADE ON UPDATE CASCADE"
           + ")";
 
@@ -3359,9 +3359,9 @@ namespace dMobile.GroundWork
     {
       string sqlTable = "CREATE TABLE tActivityProduction"
           + "("
-          + "ActivityRefno int NOT NULL CONSTRAINT PK_ActivityProductionOnActivityRefno PRIMARY KEY,"
-          + "ActivitySubType int NOT NULL,"
-          + "WarehouseLocationMapRefno int NOT NULL,"
+          + "ActivityRefno INTEGER NOT NULL CONSTRAINT PK_ActivityProductionOnActivityRefno PRIMARY KEY,"
+          + "ActivitySubType INTEGER NOT NULL,"
+          + "WarehouseLocationMapRefno INTEGER NOT NULL,"
           + "ActivityProductionDateTime datetime NOT NULL,"
           + "ActivityProductionDescription nvarchar(25) NOT NULL, "
           + "CONSTRAINT ActivityProductionToActivityOnActivityRefno FOREIGN KEY (ActivityRefno) REFERENCES tActivity(ActivityRefno) ON DELETE CASCADE ON UPDATE CASCADE, "
@@ -3407,8 +3407,8 @@ namespace dMobile.GroundWork
     {
       string sqlTable = "CREATE TABLE tActivityProductionFinished"
           + "("
-          + "ActivityRefno int NOT NULL,"
-          + "ActivityProductionFKRefno int NOT NULL,"
+          + "ActivityRefno INTEGER NOT NULL,"
+          + "ActivityProductionFKRefno INTEGER NOT NULL,"
           + "ActivityProductionStringFKRefno nvarchar(8) NOT NULL,"
           + "ActivityProductionFinishedDefaultLogisticUnitBatchLotNumber nvarchar(20) NOT NULL, "
           + "CONSTRAINT ActivityProductionFinishedToActivityProductionOnActivityRefno FOREIGN KEY (ActivityRefno) REFERENCES tActivityProduction(ActivityRefno) ON DELETE CASCADE ON UPDATE CASCADE"
@@ -3448,8 +3448,8 @@ namespace dMobile.GroundWork
     {
       string sqlTable = "CREATE TABLE tActivityProductionMaterial"
           + "("
-          + "ActivityRefno int NOT NULL,"
-          + "ActivityProductionFKRefno int NOT NULL,"
+          + "ActivityRefno INTEGER NOT NULL,"
+          + "ActivityProductionFKRefno INTEGER NOT NULL,"
           + "ActivityProductionStringFKRefno nvarchar(8) NOT NULL, "
           + "CONSTRAINT ActivityProductionMaterialToActivityProductionOnActivityRefno FOREIGN KEY (ActivityRefno) REFERENCES tActivityProduction(ActivityRefno) ON DELETE CASCADE ON UPDATE CASCADE"
           + ")";
@@ -3488,8 +3488,8 @@ namespace dMobile.GroundWork
     {
       string sqlTable = "CREATE TABLE tActivityProductionByProduct"
           + "("
-          + "ActivityRefno int NOT NULL,"
-          + "ActivityProductionFKRefno int NOT NULL,"
+          + "ActivityRefno INTEGER NOT NULL,"
+          + "ActivityProductionFKRefno INTEGER NOT NULL,"
           + "ActivityProductionStringFKRefno nvarchar(8) NOT NULL, "
           + "CONSTRAINT ActivityProductionByProductToActivityProductionOnActivityRefno FOREIGN KEY (ActivityRefno) REFERENCES tActivityProduction(ActivityRefno) ON DELETE CASCADE ON UPDATE CASCADE"
           + ")";
@@ -3528,10 +3528,10 @@ namespace dMobile.GroundWork
     {
       string sqlTable = "CREATE TABLE tActivityItemProduction"
           + "("
-          + "ActivityItemRefno int NOT NULL CONSTRAINT PK_ActivityItemProductionOnActivityItemRefno PRIMARY KEY,"
-          + "ActivityItemSubType int NOT NULL,"
-          + "ProductUnitRefno int NOT NULL,"
-          + "LocationMapRefno int NOT NULL,"
+          + "ActivityItemRefno INTEGER NOT NULL CONSTRAINT PK_ActivityItemProductionOnActivityItemRefno PRIMARY KEY,"
+          + "ActivityItemSubType INTEGER NOT NULL,"
+          + "ProductUnitRefno INTEGER NOT NULL,"
+          + "LocationMapRefno INTEGER NOT NULL,"
           + "ActivityItemProductionQuantity numeric(11, 3) NOT NULL,"
           + "ActivityItemProductionBaseQuantity numeric(11, 3) NOT NULL,"
           + "ActivityItemProductionWeightQuantity numeric(11, 3) NOT NULL,"
@@ -3589,9 +3589,9 @@ namespace dMobile.GroundWork
     {
       string sqlTable = "CREATE TABLE tActivityItemProductionFinished"
           + "("
-          + "ActivityItemRefno int NOT NULL CONSTRAINT PK_ActivityItemProductionFinishedOnActivityItemRefno "
+          + "ActivityItemRefno INTEGER NOT NULL CONSTRAINT PK_ActivityItemProductionFinishedOnActivityItemRefno "
           + "PRIMARY KEY,"
-          + "ActivityItemProductionFinishedFKRefno int NOT NULL,"
+          + "ActivityItemProductionFinishedFKRefno INTEGER NOT NULL,"
           + "ActivityItemProductionFinishedStringFKRefno nvarchar(8) NOT NULL, "
           + "CONSTRAINT ActivityItemProductionFinishedTactItemProductionOnActivityRefno FOREIGN KEY (ActivityItemRefno) REFERENCES tActivityItemProduction(ActivityItemRefno) ON DELETE CASCADE ON UPDATE CASCADE"
           + ")";
@@ -3627,9 +3627,9 @@ namespace dMobile.GroundWork
     {
       string sqlTable = "CREATE TABLE tActivityItemProductionMaterial"
           + "("
-          + "ActivityItemRefno int NOT NULL CONSTRAINT PK_ActivityItemProductionMaterialOnActivityItemRefno "
+          + "ActivityItemRefno INTEGER NOT NULL CONSTRAINT PK_ActivityItemProductionMaterialOnActivityItemRefno "
           + "PRIMARY KEY,"
-          + "ActivityItemProductionMaterialFKRefno int NOT NULL,"
+          + "ActivityItemProductionMaterialFKRefno INTEGER NOT NULL,"
           + "ActivityItemProductionMaterialStringFKRefno nvarchar(8) NOT NULL, "
           + "CONSTRAINT ActivityItemProductionMaterialTactItemProductionOnActivityRefno FOREIGN KEY (ActivityItemRefno) REFERENCES tActivityItemProduction(ActivityItemRefno) ON DELETE CASCADE ON UPDATE CASCADE"
           + ")";
@@ -3665,9 +3665,9 @@ namespace dMobile.GroundWork
     {
       string sqlTable = "CREATE TABLE tActivityItemProductionByProduct"
           + "("
-          + "ActivityItemRefno int NOT NULL CONSTRAINT PK_ActivityItemProductionByProductOnActivityItemRefno "
+          + "ActivityItemRefno INTEGER NOT NULL CONSTRAINT PK_ActivityItemProductionByProductOnActivityItemRefno "
           + "PRIMARY KEY,"
-          + "ActivityItemProductionByProductFKRefno int NOT NULL,"
+          + "ActivityItemProductionByProductFKRefno INTEGER NOT NULL,"
           + "ActivityItemProductionByProductStringFKRefno nvarchar(8) NOT NULL, "
           + "CONSTRAINT ActivityItemProductionByProductTactItemProductionOnActivityRefno FOREIGN KEY (ActivityItemRefno) REFERENCES tActivityItemProduction(ActivityItemRefno) ON DELETE CASCADE ON UPDATE CASCADE"
           + ")";
@@ -3703,9 +3703,9 @@ namespace dMobile.GroundWork
     {
       string sqlTable = "CREATE TABLE tActivityDetailProductionFinished"
           + "("
-          + "ActivityDetailRefno int NOT NULL CONSTRAINT PK_ActivityDetailProductionFinishedOnActivityDetailRefno "
+          + "ActivityDetailRefno INTEGER NOT NULL CONSTRAINT PK_ActivityDetailProductionFinishedOnActivityDetailRefno "
           + "PRIMARY KEY,"
-          + "ActivityDetailProductionFinishedFKRefno int NOT NULL, "
+          + "ActivityDetailProductionFinishedFKRefno INTEGER NOT NULL, "
           + "CONSTRAINT ActivityDetailProductionFinishedTactDetailOnActivityDetailRefno FOREIGN KEY (ActivityDetailRefno) REFERENCES tActivityDetail(ActivityDetailRefno) ON DELETE CASCADE ON UPDATE CASCADE"
           + ")";
 
@@ -3740,9 +3740,9 @@ namespace dMobile.GroundWork
     {
       string sqlTable = "CREATE TABLE tActivityDetailProductionMaterial"
           + "("
-          + "ActivityDetailRefno int NOT NULL CONSTRAINT PK_ActivityDetailProductionMaterialOnActivityDetailRefno "
+          + "ActivityDetailRefno INTEGER NOT NULL CONSTRAINT PK_ActivityDetailProductionMaterialOnActivityDetailRefno "
           + "PRIMARY KEY,"
-          + "ActivityDetailProductionMaterialFKRefno int NOT NULL, "
+          + "ActivityDetailProductionMaterialFKRefno INTEGER NOT NULL, "
           + "CONSTRAINT ActivityDetailProductionMaterialTactDetailOnActivityDetailRefno FOREIGN KEY (ActivityDetailRefno) REFERENCES tActivityDetail(ActivityDetailRefno) ON DELETE CASCADE ON UPDATE CASCADE"
           + ")";
 
@@ -3777,9 +3777,9 @@ namespace dMobile.GroundWork
     {
       string sqlTable = "CREATE TABLE tActivityDetailProductionByProduct"
           + "("
-          + "ActivityDetailRefno int NOT NULL CONSTRAINT PK_ActivityDetailProductionByProductOnActivityDetailRefno "
+          + "ActivityDetailRefno INTEGER NOT NULL CONSTRAINT PK_ActivityDetailProductionByProductOnActivityDetailRefno "
           + "PRIMARY KEY,"
-          + "ActivityDetailProductionByProductFKRefno int NOT NULL, "
+          + "ActivityDetailProductionByProductFKRefno INTEGER NOT NULL, "
           + "CONSTRAINT ActivityDetailProductionByProductTactDetailOnActivityDetailRefno FOREIGN KEY (ActivityDetailRefno) REFERENCES tActivityDetail(ActivityDetailRefno) ON DELETE CASCADE ON UPDATE CASCADE"
           + ")";
 
@@ -3814,7 +3814,7 @@ namespace dMobile.GroundWork
     {
       string sqlTable = "CREATE TABLE tFamily"
           + "("
-          + "FamilyRefno int NOT NULL CONSTRAINT PK_FamilyOnFamilyRefno PRIMARY KEY,"
+          + "FamilyRefno INTEGER NOT NULL CONSTRAINT PK_FamilyOnFamilyRefno PRIMARY KEY,"
           + "FamilyCode nvarchar(20) NOT NULL"
           + ")";
 
