@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<custompages:DMobileContentPage
+             xmlns:custompages="clr-namespace:dMobile.View.CustomPages"
+             xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:Helpers="clr-namespace:dMobile.View.Helpers"
+             x:Class="dMobile.View.Test_Pages.DatabaseRequestPage">
+    <ContentPage.Content>
+        <AbsoluteLayout>
+            <StackLayout Orientation="Vertical" AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0,0,1,1">
+                <Button x:Name="btnCreateDatabase" Clicked="BtnCreateDatabase_Clicked" Text="Create Database" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" />
+                <Button x:Name="btnTableContactUser" Clicked="BtnTableContactUser_Clicked" Text="Request tContactUser" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" />
+                <!--<Button x:Name="btnTestSpinner" Clicked="BtnTestSpinner_Clicked" Text="Test the loading spinner" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" />-->
+                <Button x:Name="btnTableLocationMapWarehouse" Clicked="BtnTableLocationMapWarehouse_Clicked" Text="Request tLocationMapWarehouse" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" />
+            </StackLayout>
+            
+            <ActivityIndicator IsVisible="{Binding Loading}" 
+                               IsRunning="{Binding Loading}" 
+                               Color="Black" 
+                               AbsoluteLayout.LayoutFlags="All" 
+                               AbsoluteLayout.LayoutBounds="0.5,0.5,0.3,0.3"/>
+            
+        </AbsoluteLayout>
+        
+    </ContentPage.Content>
+</custompages:DMobileContentPage>
