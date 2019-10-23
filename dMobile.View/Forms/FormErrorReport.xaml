@@ -1,10 +1,35 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<ContentView xmlns="http://xamarin.com/schemas/2014/forms" 
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="dMobile.View.Forms.FormErrorReport">
-  <ContentView.Content>
-      <StackLayout>
-          <Label Text="Hello Xamarin.Forms!" />
-      </StackLayout>
-  </ContentView.Content>
-</ContentView>
+<custompages:DialogModal
+            xmlns:custompages="clr-namespace:dMobile.View.CustomPages.Modal" 
+            xmlns="http://xamarin.com/schemas/2014/forms" 
+            xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+            xmlns:Custom="clr-namespace:dMobile.View.CustomControls"
+            x:Class="dMobile.View.Forms.FormErrorReport">
+  <ContentPage.Content>
+        <Grid Padding="10" VerticalOptions="Center" >
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <Label x:Name="labelExceptionReport" Grid.Row="0" Text="Error Report" />
+
+            <Custom:BorderedEditor x:Name="textBoxExData" Grid.Row="1" Grid.RowSpan="4" IsReadOnly="True" />
+
+            <Button x:Name="buttonSupportDetail" Grid.Row="5" Text="Support Detail" Clicked="buttonSupportDetail_Click"/>
+            <Button x:Name="buttonSendReport" Grid.Row="6" Text="Send Report" Clicked="ButtonSendReport_Clicked"/>
+            <Button x:Name="buttonContinue" Grid.Row="7" Text="Continue" Clicked="buttonContinue_Click"/>
+
+        </Grid>
+    </ContentPage.Content>
+</custompages:DialogModal>

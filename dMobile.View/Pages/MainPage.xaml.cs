@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Threading;
 using Xamarin.Forms;
-using dMobileResources = dMobile.Resources.Properties.Resources;
 
 namespace dMobile.View
 {
@@ -17,7 +14,7 @@ namespace dMobile.View
 
         void OnItemSelected(object sender, SelectedItemChangedEventArgs e)
         {
-            var item = e.SelectedItem as MasterPageItem;
+            MasterPageItem item = e.SelectedItem as MasterPageItem;
 
             if (item != null)
             {

@@ -2,14 +2,17 @@
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:dMobile.View"
+             xmlns:testPage="clr-namespace:dMobile.View.Test_Pages"
              x:Class="dMobile.View.MasterPage"
              Padding="0,40,0,0"
-             Title="Test Master Page">
+             Title="MasterPage">
     <StackLayout>
         <ListView x:Name="listView" x:FieldModifier="public">
             <ListView.ItemsSource>
                 <x:Array Type="{x:Type local:MasterPageItem}">
-                    <local:MasterPageItem Title="Test Page" TargetType="{x:Type local:TestPage} "/>
+                    <local:MasterPageItem Title="Login" TargetType="{x:Type local:ucLoginStartup} "/>
+                    <local:MasterPageItem Title="Database Requests" TargetType="{x:Type testPage:DatabaseRequestPage} "/>
+                    <local:MasterPageItem Title="Modals" TargetType="{x:Type local:TestPage} "/>
                     <local:MasterPageItem Title="Barcode Scanner" TargetType="{x:Type local:BarcodeScannerSample} "/>
                 </x:Array>
             </ListView.ItemsSource>

@@ -1,10 +1,52 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<ContentView xmlns="http://xamarin.com/schemas/2014/forms" 
+<custompages:DMobileContentPage
+             xmlns:custompages="clr-namespace:dMobile.View.CustomPages"
+             xmlns="http://xamarin.com/schemas/2014/forms" 
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:Custom="clr-namespace:dMobile.View.CustomControls"
+             xmlns:Helpers="clr-namespace:dMobile.View.Helpers"
              x:Class="dMobile.View.ucLoginStartup">
-  <ContentView.Content>
-      <StackLayout>
-          <Label Text="Hello Xamarin.Forms!" />
-      </StackLayout>
-  </ContentView.Content>
-</ContentView>
+    <ContentPage.Content>
+        <AbsoluteLayout>
+            <Grid Padding="25" VerticalOptions="Start" AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0,0,1,1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <!--<Image Grid.Row="0" Source="TestImage.png" HeightRequest="58" WidthRequest="240" HorizontalOptions="Center" />-->
+            
+            <Label x:Name="lblLoginID" Grid.Row="1" Text="Login ID" />
+            <Entry x:Name="txtLoginID" Grid.Row="2" Grid.ColumnSpan="2" TextChanged="IdentifyChangesMade" Keyboard="Numeric" />
+
+            <Label x:Name="lblLoginPassword" Grid.Row="3" Text="Password" />
+            <Entry x:Name="txtLoginPassword" Grid.Row="4" IsPassword="True" Grid.ColumnSpan="2" TextChanged="IdentifyChangesMade" />
+
+            <Label x:Name="lblWarehouse" Grid.Row="5" Text="Warehouse" />
+            <!--<Picker x:Name="lstWarehouse" Grid.Row="6" Grid.ColumnSpan="2" />-->
+            <Custom:CustomPicker x:Name="lstWarehouse" Grid.Row="6" Grid.ColumnSpan="2" />
+
+            <Button x:Name="cmdLogin" Grid.Row="8" Grid.ColumnSpan="2" Text="Login" Clicked="cmdLogin_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+
+        </Grid>
+        
+        <ActivityIndicator IsVisible="{Binding Loading}" 
+                            IsRunning="{Binding Loading}" 
+                            Color="Black" 
+                            AbsoluteLayout.LayoutFlags="All" 
+                            AbsoluteLayout.LayoutBounds="0.5,0.5,0.3,0.3"/>
+        </AbsoluteLayout>
+    </ContentPage.Content>
+</custompages:DMobileContentPage>

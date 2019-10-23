@@ -7,6 +7,7 @@ namespace dMobile.View
         public App()
         {
             InitializeComponent();
+            //MainPage = new ucLoginStartup();
             MainPage = new MainPage();
         }
     }

@@ -4,7 +4,9 @@
              x:Class="dMobile.View.TestPage">
     <ContentPage.Content>
         <StackLayout Orientation="Vertical">
-            <Button Text="Press me for alert" Clicked="Button_Clicked" />
+            <Button Text="Form Associate Barcode Override" Clicked="Button_Clicked" />
+            <Button Text="Form Error Report" Clicked="Button_Clicked_1"/>
+            <Button x:Name="TestButton" Text="Test Resource String NewLine" Clicked="Button_Clicked_2"/>
         </StackLayout>
     </ContentPage.Content>
 </ContentPage>

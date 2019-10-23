@@ -48,22 +48,22 @@ namespace dMobile.Bedrock
         /// <summary>
         /// 
         /// </summary>
-        private int hostIPAddressComponent1 = 127;
+        private int hostIPAddressComponent1 = 192;
 
         /// <summary>
         /// 
         /// </summary>
-        private int hostIPAddressComponent2 = 0;
+        private int hostIPAddressComponent2 = 168;
 
         /// <summary>
         /// 
         /// </summary>
-        private int hostIPAddressComponent3 = 0;
+        private int hostIPAddressComponent3 = 50;
 
         /// <summary>
         /// 
         /// </summary>
-        private int hostIPAddressComponent4 = 1;
+        private int hostIPAddressComponent4 = 177;
 
         /// <summary>
         /// 
