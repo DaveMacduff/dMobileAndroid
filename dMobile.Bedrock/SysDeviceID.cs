@@ -13,9 +13,6 @@
         {
             string deviceID = string.Empty;
 
-            // Return OpenNETCF.WindowsCE.DeviceManagement.GetDeviceID()
-            //// Return OpenNETCF.WindowsCE.DeviceManagement.GetDeviceGuid().ToString()
-
             NetworkInterface nic = null;
             foreach (NetworkInterface ni in NetworkInterface.GetAllNetworkInterfaces())
             {
@@ -32,8 +29,7 @@
             // If then MAC address is not known then fall back to device id
             if (string.IsNullOrEmpty(deviceID))
             {
-                //TODO: Get Device ID
-                //deviceID = OpenNETCF.WindowsCE.DeviceManagement.GetDeviceID();
+                deviceID = Android.Provider.Settings.Secure.GetString(Android.App.Application.Context.ContentResolver, Android.Provider.Settings.Secure.AndroidId);
             }
 
             return deviceID;
