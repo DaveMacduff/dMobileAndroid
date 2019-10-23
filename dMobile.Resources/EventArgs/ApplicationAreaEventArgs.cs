@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace dMobile.View
+namespace dMobile.Resources.EventArg
 {
     public class AppEventArgs : EventArgs
     {
