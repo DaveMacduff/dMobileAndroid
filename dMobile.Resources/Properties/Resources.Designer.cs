@@ -61,11 +61,192 @@ namespace dMobile.Resources.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to testing.
+        ///   Looks up a localized string similar to All modules enabled. Bypassing device licenses..
         /// </summary>
-        public static string Testing {
+        public static string AllModulesEnabledBypassingDeviceLicenses {
             get {
-                return ResourceManager.GetString("Testing", resourceCulture);
+                return ResourceManager.GetString("AllModulesEnabledBypassingDeviceLicenses", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Barcode.
+        /// </summary>
+        public static string Barcode {
+            get {
+                return ResourceManager.GetString("Barcode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Bar Code Association.
+        /// </summary>
+        public static string BarCodeAssociation {
+            get {
+                return ResourceManager.GetString("BarCodeAssociation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cancel.
+        /// </summary>
+        public static string Cancel {
+            get {
+                return ResourceManager.GetString("Cancel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Continue.
+        /// </summary>
+        public static string Continue {
+            get {
+                return ResourceManager.GetString("Continue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to dMobile.
+        /// </summary>
+        public static string DMobile {
+            get {
+                return ResourceManager.GetString("DMobile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Entered data failed validation..
+        /// </summary>
+        public static string EnteredDataFailedValidation {
+            get {
+                return ResourceManager.GetString("EnteredDataFailedValidation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error.
+        /// </summary>
+        public static string Error {
+            get {
+                return ResourceManager.GetString("Error", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Exception Report.
+        /// </summary>
+        public static string ExceptionReport {
+            get {
+                return ResourceManager.GetString("ExceptionReport", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid login id.
+        /// </summary>
+        public static string InvalidLoginId {
+            get {
+                return ResourceManager.GetString("InvalidLoginId", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid login password.
+        /// </summary>
+        public static string InvalidLoginPassword {
+            get {
+                return ResourceManager.GetString("InvalidLoginPassword", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Login.
+        /// </summary>
+        public static string Login {
+            get {
+                return ResourceManager.GetString("Login", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Login ID.
+        /// </summary>
+        public static string LoginID {
+            get {
+                return ResourceManager.GetString("LoginID", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to OK.
+        /// </summary>
+        public static string OK {
+            get {
+                return ResourceManager.GetString("OK", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Password.
+        /// </summary>
+        public static string Password {
+            get {
+                return ResourceManager.GetString("Password", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Permission denied.
+        /// </summary>
+        public static string PermissionDenied {
+            get {
+                return ResourceManager.GetString("PermissionDenied", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Send Report.
+        /// </summary>
+        public static string SendReport {
+            get {
+                return ResourceManager.GetString("SendReport", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Support Detail.
+        /// </summary>
+        public static string SupportDetail {
+            get {
+                return ResourceManager.GetString("SupportDetail", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Test String 
+        ///Below new line.
+        /// </summary>
+        public static string TestStringBelowNewLine {
+            get {
+                return ResourceManager.GetString("TestStringBelowNewLine", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unsupported SysCommon.ShowErrorMessageType called..
+        /// </summary>
+        public static string UnsupportedSysCommonShowErrorMessageTypeCalled {
+            get {
+                return ResourceManager.GetString("UnsupportedSysCommonShowErrorMessageTypeCalled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Warehouse.
+        /// </summary>
+        public static string Warehouse {
+            get {
+                return ResourceManager.GetString("Warehouse", resourceCulture);
             }
         }
     }

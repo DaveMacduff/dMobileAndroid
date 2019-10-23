@@ -25,6 +25,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <RegisterForComInterop>false</RegisterForComInterop>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -127,6 +128,10 @@
     <ProjectReference Include="..\dMobile.Bedrock\dMobile.Bedrock.csproj">
       <Project>{9a5c51a9-39e9-45f8-9d5e-18d88c91a321}</Project>
       <Name>dMobile.Bedrock</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\dMobile.Resources\dMobile.Resources.csproj">
+      <Project>{40fa21c1-9078-4713-9da0-66a15f03f5c8}</Project>
+      <Name>dMobile.Resources</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

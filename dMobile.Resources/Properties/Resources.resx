@@ -97,7 +97,68 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.3500.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Testing" xml:space="preserve">
-    <value>testing</value>
+  <data name="Continue" xml:space="preserve">
+    <value>Continue</value>
+  </data>
+  <data name="SendReport" xml:space="preserve">
+    <value>Send Report</value>
+  </data>
+  <data name="SupportDetail" xml:space="preserve">
+    <value>Support Detail</value>
+  </data>
+  <data name="LoginID" xml:space="preserve">
+    <value>Login ID</value>
+  </data>
+  <data name="Password" xml:space="preserve">
+    <value>Password</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="OK" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="ExceptionReport" xml:space="preserve">
+    <value>Exception Report</value>
+  </data>
+  <data name="BarCodeAssociation" xml:space="preserve">
+    <value>Bar Code Association</value>
+  </data>
+  <data name="PermissionDenied" xml:space="preserve">
+    <value>Permission denied</value>
+  </data>
+  <data name="Error" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="InvalidLoginPassword" xml:space="preserve">
+    <value>Invalid login password</value>
+  </data>
+  <data name="Barcode" xml:space="preserve">
+    <value>Barcode</value>
+  </data>
+  <data name="InvalidLoginId" xml:space="preserve">
+    <value>Invalid login id</value>
+  </data>
+  <data name="TestStringBelowNewLine" xml:space="preserve">
+    <value>Test String 
+Below new line</value>
+  </data>
+  <data name="UnsupportedSysCommonShowErrorMessageTypeCalled" xml:space="preserve">
+    <value>Unsupported SysCommon.ShowErrorMessageType called.</value>
+  </data>
+  <data name="AllModulesEnabledBypassingDeviceLicenses" xml:space="preserve">
+    <value>All modules enabled. Bypassing device licenses.</value>
+  </data>
+  <data name="DMobile" xml:space="preserve">
+    <value>dMobile</value>
+  </data>
+  <data name="EnteredDataFailedValidation" xml:space="preserve">
+    <value>Entered data failed validation.</value>
+  </data>
+  <data name="Login" xml:space="preserve">
+    <value>Login</value>
+  </data>
+  <data name="Warehouse" xml:space="preserve">
+    <value>Warehouse</value>
   </data>
 </root>
