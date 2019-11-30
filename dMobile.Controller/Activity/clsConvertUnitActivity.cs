@@ -2,7 +2,6 @@ namespace dMobile.Controller
 {
     using System;
     using System.Data;
-    using System.Windows.Forms;
     using System.Xml.Linq;
     using dMobile.Bedrock;
 
@@ -90,14 +89,14 @@ namespace dMobile.Controller
             throw new NotImplementedException();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="dataGridMain"></param>
-        public override void DesignDataGrid(DataGrid dataGridMain)
-        {
-            throw new NotImplementedException();
-        }
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        ///// <param name="dataGridMain"></param>
+        //public override void DesignDataGrid(DataGrid dataGridMain)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
         /// <summary>
         ///

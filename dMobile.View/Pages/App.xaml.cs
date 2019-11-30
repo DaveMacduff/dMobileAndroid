@@ -1,4 +1,5 @@
-﻿using Xamarin.Forms;
+﻿using dMobile.View.Test_Pages;
+using Xamarin.Forms;
 
 namespace dMobile.View
 {
@@ -7,8 +8,11 @@ namespace dMobile.View
         public App()
         {
             InitializeComponent();
-            //MainPage = new ucLoginStartup();
-            MainPage = new MainPage();
+
+            // TODO: Remove next line
+            //MainPage = new NavigationPage(new MemoryTestPage());
+
+            MainPage = new NavigationPage(new ucLoginStartup());
         }
     }
 }

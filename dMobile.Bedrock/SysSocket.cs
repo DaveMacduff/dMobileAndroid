@@ -15,8 +15,8 @@ namespace dMobile.Bedrock
         #region Fields
 
         private string serverIP;
-        private string sendEOM = "</WAIT_EOM>" /*+ Strings.Chr(20)*/;
-        private string receiveEOM = "</EOM>" /*+ Strings.Chr(20)*/;
+        private string sendEOM = "</WAIT_EOM>" + (char)20;
+        private string receiveEOM = "</EOM>" + (char)20;
         private int recvBuffSize = 32768;
         private int connTotalRetries = 3;
         private int sendTotalRetries = 3;
@@ -819,6 +819,7 @@ namespace dMobile.Bedrock
                         if (socket.Poll((this.SysEnv.SysSock.ReceiveTimeOutMilliseconds * 1000) + 1, SelectMode.SelectRead))
                         {
                             bytesReceived = socket.Receive(bytes, bytes.Length, SocketFlags.None);
+
                             if (this.OnSysSocketStatusOut != null)
                             {
 #if MULTILANGUAGE

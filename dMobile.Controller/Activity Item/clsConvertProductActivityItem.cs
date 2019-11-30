@@ -2,8 +2,7 @@
 {
     using System;
     using System.Data;
-    using System.Text;
-    using System.Windows.Forms;
+    using System.Text;    
     using System.Xml;
     using System.Xml.Linq;
     using dMobile.Bedrock;
@@ -144,15 +143,15 @@
             }
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="dataGridMain"></param>
-        /// <remarks></remarks>
-        public override void DesignDataGrid(DataGrid dataGridMain)
-        {
-            throw new NotImplementedException();
-        }
+        ///// <summary>
+        /////
+        ///// </summary>
+        ///// <param name="dataGridMain"></param>
+        ///// <remarks></remarks>
+        //public override void DesignDataGrid(DataGrid dataGridMain)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
         /// <summary>
         /// 

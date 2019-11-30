@@ -31,8 +31,8 @@ namespace dMobile.GroundWork
     {
       string reqData = string.Empty;
       
-      GC.Collect();
-      GC.WaitForPendingFinalizers();
+      //GC.Collect();
+      //GC.WaitForPendingFinalizers();
 
       try
       {

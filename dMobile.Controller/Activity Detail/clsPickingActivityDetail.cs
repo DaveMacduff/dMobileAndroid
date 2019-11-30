@@ -4,7 +4,6 @@ namespace dMobile.Controller
   using System.Data;
   using System.Data.SQLite;
   using System.Text;
-  using System.Windows.Forms;
   using System.Xml;
   using System.Xml.Linq;
   using dMobile.Bedrock;
@@ -795,13 +794,13 @@ namespace dMobile.Controller
       return this.DataViewDetails;
     }
 
-    /// <summary>
-    ///
-    /// </summary>
-    /// <param name="dataGridMain"></param>
-    /// <remarks></remarks>
-    public override void DesignDataGrid(DataGrid dataGridMain)
-    {
+    ///// <summary>
+    /////
+    ///// </summary>
+    ///// <param name="dataGridMain"></param>
+    ///// <remarks></remarks>
+    //public override void DesignDataGrid(DataGrid dataGridMain)
+    //{
 //      int colWidthFactor = 1;
 
 //      if (SysEnv.IsWindowsMobile6Device)
@@ -916,7 +915,7 @@ namespace dMobile.Controller
 //      dataGridMain.TableStyles.Add(dataGridStyle);
 //      dataGridMain.RowHeadersVisible = false;
 //      dataGridMain.ColumnHeadersVisible = true;
-    }
+    //}
 
     /// <summary>
     /// 

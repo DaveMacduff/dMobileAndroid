@@ -4,7 +4,6 @@ namespace dMobile.Controller
   using System.Data;
   using System.Data.SQLite;
   using System.Text;
-  using System.Windows.Forms;
   using System.Xml.Linq;
   using dMobile.Bedrock;
   using dMobile.GroundWork;
@@ -55,59 +54,59 @@ namespace dMobile.Controller
     /// </summary>
     /// <remarks></remarks>
     ///
-    public override void DesignDataGrid(DataGrid dataGridMain)
-    {
-      int colWidthFactor = 1;
+//    public override void DesignDataGrid(DataGrid dataGridMain)
+//    {
+//      int colWidthFactor = 1;
 
-      if (SysEnv.IsWindowsMobile6Device)
-      {
-        colWidthFactor = 2;
-      }
+//      if (SysEnv.IsWindowsMobile6Device)
+//      {
+//        colWidthFactor = 2;
+//      }
 
-      if (dataGridMain.TableStyles.Count > 0)
-      {
-        dataGridMain.TableStyles.Clear();
-      }
+//      if (dataGridMain.TableStyles.Count > 0)
+//      {
+//        dataGridMain.TableStyles.Clear();
+//      }
 
-      DataGridTableStyle dataGridStyle = new DataGridTableStyle();
-      dataGridStyle.MappingName = this.MainGridMappingName;
+//      DataGridTableStyle dataGridStyle = new DataGridTableStyle();
+//      dataGridStyle.MappingName = this.MainGridMappingName;
 
-      DataGridTextBoxColumn dataGridCol = new DataGridTextBoxColumn();
-      dataGridCol.MappingName = "ProductCode";
-#if MULTILANGUAGE
-      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.ProductId);
-#else
-      dataGridCol.HeaderText = "Product ID";
-#endif
-      dataGridCol.Width = 65 * colWidthFactor;
-      dataGridStyle.GridColumnStyles.Add(dataGridCol);
+//      DataGridTextBoxColumn dataGridCol = new DataGridTextBoxColumn();
+//      dataGridCol.MappingName = "ProductCode";
+//#if MULTILANGUAGE
+//      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.ProductId);
+//#else
+//      dataGridCol.HeaderText = "Product ID";
+//#endif
+//      dataGridCol.Width = 65 * colWidthFactor;
+//      dataGridStyle.GridColumnStyles.Add(dataGridCol);
 
-      dataGridCol = new DataGridTextBoxColumn();
-      dataGridCol.MappingName = "ActivityItemPurchaseOrderWorkSheetQuantityOrdered";
-#if MULTILANGUAGE
-      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Ordered);
-#else
-      dataGridCol.HeaderText = "Ordered";
-#endif
-      dataGridCol.Width = 52 * colWidthFactor;
-      dataGridCol.Format = "0.000";
-      dataGridStyle.GridColumnStyles.Add(dataGridCol);
+//      dataGridCol = new DataGridTextBoxColumn();
+//      dataGridCol.MappingName = "ActivityItemPurchaseOrderWorkSheetQuantityOrdered";
+//#if MULTILANGUAGE
+//      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Ordered);
+//#else
+//      dataGridCol.HeaderText = "Ordered";
+//#endif
+//      dataGridCol.Width = 52 * colWidthFactor;
+//      dataGridCol.Format = "0.000";
+//      dataGridStyle.GridColumnStyles.Add(dataGridCol);
 
-      dataGridCol = new DataGridTextBoxColumn();
-      dataGridCol.MappingName = "ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered";
-#if MULTILANGUAGE
-      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Weight);
-#else
-      dataGridCol.HeaderText = "Weight";
-#endif
-      dataGridCol.Width = 52 * colWidthFactor;
-      dataGridCol.Format = "0.000";
-      dataGridStyle.GridColumnStyles.Add(dataGridCol);
+//      dataGridCol = new DataGridTextBoxColumn();
+//      dataGridCol.MappingName = "ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered";
+//#if MULTILANGUAGE
+//      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Weight);
+//#else
+//      dataGridCol.HeaderText = "Weight";
+//#endif
+//      dataGridCol.Width = 52 * colWidthFactor;
+//      dataGridCol.Format = "0.000";
+//      dataGridStyle.GridColumnStyles.Add(dataGridCol);
 
-      dataGridMain.TableStyles.Add(dataGridStyle);
-      dataGridMain.RowHeadersVisible = false;
-      dataGridMain.ColumnHeadersVisible = true;
-    }
+//      dataGridMain.TableStyles.Add(dataGridStyle);
+//      dataGridMain.RowHeadersVisible = false;
+//      dataGridMain.ColumnHeadersVisible = true;
+//    }
 
     /// <summary>
     ///

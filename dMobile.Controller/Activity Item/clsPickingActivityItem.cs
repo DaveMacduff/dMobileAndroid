@@ -4,7 +4,6 @@ namespace dMobile.Controller
   using System.Data;
   using System.Data.SQLite;
   using System.Text;
-  using System.Windows.Forms;
   using System.Xml;
   using System.Xml.Linq;
   using dMobile.Bedrock;
@@ -136,26 +135,26 @@ namespace dMobile.Controller
           switch (this.SysEnv.SysSettings.PickQtyOverWarn)
           {
             case SysCommon.ActPickingQtyOverValLevels.ValidateWarnAndContinue:
-              if (MessageBox.Show(
-#if MULTILANGUAGE
-                  ex.Message + Environment.NewLine + Translator.GetInstance().Translate(TranslatorVocabulary.Continue),
-                  Translator.GetInstance().Translate(TranslatorVocabulary.QuantityOver),
-#else
-                  ex.Message + Environment.NewLine + "Continue?",
-                  "Quantity Over",
-#endif
-                  MessageBoxButtons.YesNo,
-                  MessageBoxIcon.Question,
-                  MessageBoxDefaultButton.Button2) == DialogResult.No)
-              {
-                throw new IsReadyToApplyException(ex.Message, true, false);
-              }
-              else
-              {
-                ////throw new IsReadyToApplyException(ex.Message, true, true);
-              }
-
-              break;
+                            // TODO: DisplayAlert
+                            //              if (MessageBox.Show(
+                            //#if MULTILANGUAGE
+                            //                  ex.Message + Environment.NewLine + Translator.GetInstance().Translate(TranslatorVocabulary.Continue),
+                            //                  Translator.GetInstance().Translate(TranslatorVocabulary.QuantityOver),
+                            //#else
+                            //                  ex.Message + Environment.NewLine + "Continue?",
+                            //                  "Quantity Over",
+                            //#endif
+                            //                  MessageBoxButtons.YesNo,
+                            //                  MessageBoxIcon.Question,
+                            //                  MessageBoxDefaultButton.Button2) == DialogResult.No)
+                            //              {
+                            //                throw new IsReadyToApplyException(ex.Message, true, false);
+                            //              }
+                            //              else
+                            //              {
+                            throw new IsReadyToApplyException(ex.Message, true, true);
+                            //              }
+                            //break;
 
             case SysCommon.ActPickingQtyOverValLevels.ValidateWarnAndStop:
               throw new IsReadyToApplyException(ex.Message, false, false);
@@ -362,6 +361,7 @@ namespace dMobile.Controller
     /// <param name="askToInsertAsNewItem"></param>
     public override void Insert(XDocument data, bool askToInsertAsNewItem)
     {
+    // TODO: SQL
       //int foundActItemRefno = 0;
       //DialogResult result = DialogResult.None;
       //int prodUnitRefno = int.Parse(data.Root.Element("ProductUnitRefno").Value);
@@ -533,110 +533,110 @@ namespace dMobile.Controller
       }
     }
 
-    /// <summary>
-    ///
-    /// </summary>
-    /// <param name="dataGridMain"></param>
-    /// <remarks></remarks>
-    public override void DesignDataGrid(DataGrid dataGridMain)
-    {
-      int columnWidthFactor = 1;
+//    /// <summary>
+//    ///
+//    /// </summary>
+//    /// <param name="dataGridMain"></param>
+//    /// <remarks></remarks>
+//    public override void DesignDataGrid(DataGrid dataGridMain)
+//    {
+//      int columnWidthFactor = 1;
 
-      if (this.SysEnv.IsWindowsMobile6Device)
-      {
-        columnWidthFactor = 2;
-      }
+//      if (this.SysEnv.IsWindowsMobile6Device)
+//      {
+//        columnWidthFactor = 2;
+//      }
 
-      if (dataGridMain.TableStyles.Count > 0)
-      {
-        dataGridMain.TableStyles.Clear();
-      }
+//      if (dataGridMain.TableStyles.Count > 0)
+//      {
+//        dataGridMain.TableStyles.Clear();
+//      }
 
-      DataGridTableStyle dataGridTableStyle = new DataGridTableStyle();
-      dataGridTableStyle.MappingName = this.MainGridMappingName;
+//      DataGridTableStyle dataGridTableStyle = new DataGridTableStyle();
+//      dataGridTableStyle.MappingName = this.MainGridMappingName;
 
-      DataGridTextBoxColumn dataGridCol = new DataGridTextBoxColumn();
-      dataGridCol.MappingName = "ActivityItemRefno";
-      dataGridCol.HeaderText = string.Empty;
-      dataGridCol.Width = -1;
-      dataGridTableStyle.GridColumnStyles.Add(dataGridCol);
+//      DataGridTextBoxColumn dataGridCol = new DataGridTextBoxColumn();
+//      dataGridCol.MappingName = "ActivityItemRefno";
+//      dataGridCol.HeaderText = string.Empty;
+//      dataGridCol.Width = -1;
+//      dataGridTableStyle.GridColumnStyles.Add(dataGridCol);
 
-      dataGridCol = new DataGridTextBoxColumn();
-      dataGridCol.MappingName = "IsActivityItemPickingComment";
-#if MULTILANGUAGE
-      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.C);
-#else
-      dataGridCol.HeaderText = "C";
-#endif
-      dataGridCol.Width = 12 * columnWidthFactor;
-      dataGridTableStyle.GridColumnStyles.Add(dataGridCol);
+//      dataGridCol = new DataGridTextBoxColumn();
+//      dataGridCol.MappingName = "IsActivityItemPickingComment";
+//#if MULTILANGUAGE
+//      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.C);
+//#else
+//      dataGridCol.HeaderText = "C";
+//#endif
+//      dataGridCol.Width = 12 * columnWidthFactor;
+//      dataGridTableStyle.GridColumnStyles.Add(dataGridCol);
 
-      dataGridCol = new DataGridTextBoxColumn();
-      dataGridCol.MappingName = "ProductCode";
-#if MULTILANGUAGE
-      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.ProductId);
-#else
-      dataGridCol.HeaderText = "Product ID";
-#endif
-      dataGridCol.Width = 65 * columnWidthFactor;
-      dataGridTableStyle.GridColumnStyles.Add(dataGridCol);
+//      dataGridCol = new DataGridTextBoxColumn();
+//      dataGridCol.MappingName = "ProductCode";
+//#if MULTILANGUAGE
+//      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.ProductId);
+//#else
+//      dataGridCol.HeaderText = "Product ID";
+//#endif
+//      dataGridCol.Width = 65 * columnWidthFactor;
+//      dataGridTableStyle.GridColumnStyles.Add(dataGridCol);
 
-      dataGridCol = new DataGridTextBoxColumn();
-      dataGridCol.MappingName = "ProductUnitBC";
-      dataGridCol.HeaderText = string.Empty;
-      dataGridCol.Width = 20 * columnWidthFactor;
-      dataGridTableStyle.GridColumnStyles.Add(dataGridCol);
+//      dataGridCol = new DataGridTextBoxColumn();
+//      dataGridCol.MappingName = "ProductUnitBC";
+//      dataGridCol.HeaderText = string.Empty;
+//      dataGridCol.Width = 20 * columnWidthFactor;
+//      dataGridTableStyle.GridColumnStyles.Add(dataGridCol);
 
-      dataGridCol = new DataGridTextBoxColumn();
-      dataGridCol.MappingName = "UnitCode";
-      dataGridCol.HeaderText = string.Empty;
-      dataGridCol.Width = 22 * columnWidthFactor;
-      dataGridTableStyle.GridColumnStyles.Add(dataGridCol);
+//      dataGridCol = new DataGridTextBoxColumn();
+//      dataGridCol.MappingName = "UnitCode";
+//      dataGridCol.HeaderText = string.Empty;
+//      dataGridCol.Width = 22 * columnWidthFactor;
+//      dataGridTableStyle.GridColumnStyles.Add(dataGridCol);
 
-      dataGridCol = new DataGridTextBoxColumn();
-      dataGridCol.MappingName = "ActivityItemPickingQuantityOrdered";
-#if MULTILANGUAGE
-      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Ordered);
-#else
-      dataGridCol.HeaderText = "Ordered";
-#endif
-      dataGridCol.Width = 52 * columnWidthFactor;
-      dataGridCol.Format = "0.000";
-      dataGridTableStyle.GridColumnStyles.Add(dataGridCol);
+//      dataGridCol = new DataGridTextBoxColumn();
+//      dataGridCol.MappingName = "ActivityItemPickingQuantityOrdered";
+//#if MULTILANGUAGE
+//      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Ordered);
+//#else
+//      dataGridCol.HeaderText = "Ordered";
+//#endif
+//      dataGridCol.Width = 52 * columnWidthFactor;
+//      dataGridCol.Format = "0.000";
+//      dataGridTableStyle.GridColumnStyles.Add(dataGridCol);
 
-      dataGridCol = new DataGridTextBoxColumn();
-      dataGridCol.MappingName = "ActivityItemPickingQuantityShipped";
-#if MULTILANGUAGE
-      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Shippedzz);
-#else
-      dataGridCol.HeaderText = "Shipped";
-#endif
-      dataGridCol.Width = 52 * columnWidthFactor;
-      dataGridCol.Format = "0.000";
-      dataGridTableStyle.GridColumnStyles.Add(dataGridCol);
+//      dataGridCol = new DataGridTextBoxColumn();
+//      dataGridCol.MappingName = "ActivityItemPickingQuantityShipped";
+//#if MULTILANGUAGE
+//      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Shippedzz);
+//#else
+//      dataGridCol.HeaderText = "Shipped";
+//#endif
+//      dataGridCol.Width = 52 * columnWidthFactor;
+//      dataGridCol.Format = "0.000";
+//      dataGridTableStyle.GridColumnStyles.Add(dataGridCol);
 
-      if (this.SysEnv.SysSettings.IsPickShowItemQtyAvail)
-      {
-        dataGridCol = new DataGridTextBoxColumn();
-        dataGridCol.MappingName = "ActivityItemPickingQuantityAvailable";
-#if MULTILANGUAGE
-        dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Available);
-#else
-        dataGridCol.HeaderText = "Available";
-#endif
-        dataGridCol.Width = 52 * columnWidthFactor;
-        dataGridTableStyle.GridColumnStyles.Add(dataGridCol);
-      }
+//      if (this.SysEnv.SysSettings.IsPickShowItemQtyAvail)
+//      {
+//        dataGridCol = new DataGridTextBoxColumn();
+//        dataGridCol.MappingName = "ActivityItemPickingQuantityAvailable";
+//#if MULTILANGUAGE
+//        dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Available);
+//#else
+//        dataGridCol.HeaderText = "Available";
+//#endif
+//        dataGridCol.Width = 52 * columnWidthFactor;
+//        dataGridTableStyle.GridColumnStyles.Add(dataGridCol);
+//      }
 
-      ////dataGridCol.MappingName = string.Empty
-      ////dataGridCol.HeaderText = "R"
-      ////dataGridCol.Width = 12 * colWidthFactor
-      ////dataGridStyle.GridColumnStyles.Add(dataGridCol)
+//      ////dataGridCol.MappingName = string.Empty
+//      ////dataGridCol.HeaderText = "R"
+//      ////dataGridCol.Width = 12 * colWidthFactor
+//      ////dataGridStyle.GridColumnStyles.Add(dataGridCol)
 
-      dataGridMain.TableStyles.Add(dataGridTableStyle);
-      dataGridMain.RowHeadersVisible = false;
-      dataGridMain.ColumnHeadersVisible = true;
-    }
+//      dataGridMain.TableStyles.Add(dataGridTableStyle);
+//      dataGridMain.RowHeadersVisible = false;
+//      dataGridMain.ColumnHeadersVisible = true;
+//    }
 
     /// <summary>
     ///

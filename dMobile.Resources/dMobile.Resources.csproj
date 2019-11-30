@@ -42,7 +42,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Custom\StringWriterUTF8.cs" />
     <Compile Include="Enums\DialogResult.cs" />
     <Compile Include="EventArgs\ApplicationAreaEventArgs.cs" />
     <Compile Include="EventArgs\KeyEventArgs.cs" />

@@ -4,7 +4,6 @@ namespace dMobile.Controller
   using System.Data;
   using System.Data.SQLite;
   using System.Text;
-  using System.Windows.Forms;
   using System.Xml.Linq;
   using dMobile.Bedrock;
   using dMobile.GroundWork;
@@ -191,62 +190,62 @@ namespace dMobile.Controller
       return this.DataViewHdrs;
     }
 
-    /// <summary>
-    ///
-    /// </summary>
-    /// <remarks></remarks>
-    public override void DesignDataGrid(DataGrid dataGridMain)
-    {
-      if (dataGridMain.TableStyles.Count > 0)
-      {
-        dataGridMain.TableStyles.Clear();
-      }
+//    /// <summary>
+//    ///
+//    /// </summary>
+//    /// <remarks></remarks>
+//    public override void DesignDataGrid(DataGrid dataGridMain)
+//    {
+//      if (dataGridMain.TableStyles.Count > 0)
+//      {
+//        dataGridMain.TableStyles.Clear();
+//      }
 
-      DataGridTableStyle dataGridStyle = new DataGridTableStyle();
-      dataGridStyle.MappingName = this.MainGridMappingName;
+//      DataGridTableStyle dataGridStyle = new DataGridTableStyle();
+//      dataGridStyle.MappingName = this.MainGridMappingName;
 
-      DataGridTextBoxColumn dataGridCol1 = new DataGridTextBoxColumn();
-      dataGridCol1.MappingName = "ProductCode";
-#if MULTILANGUAGE
-      dataGridCol1.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Productz);
-#else
-      dataGridCol1.HeaderText = "Product";
-#endif
-      dataGridCol1.Width = 65;
-      dataGridStyle.GridColumnStyles.Add(dataGridCol1);
+//      DataGridTextBoxColumn dataGridCol1 = new DataGridTextBoxColumn();
+//      dataGridCol1.MappingName = "ProductCode";
+//#if MULTILANGUAGE
+//      dataGridCol1.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Productz);
+//#else
+//      dataGridCol1.HeaderText = "Product";
+//#endif
+//      dataGridCol1.Width = 65;
+//      dataGridStyle.GridColumnStyles.Add(dataGridCol1);
 
-      DataGridTextBoxColumn dataGridCol2 = new DataGridTextBoxColumn();
-      dataGridCol2.MappingName = "ProductUnitBC";
-      dataGridCol2.HeaderText = string.Empty;
-      dataGridCol2.Width = 12;
-      dataGridStyle.GridColumnStyles.Add(dataGridCol2);
+//      DataGridTextBoxColumn dataGridCol2 = new DataGridTextBoxColumn();
+//      dataGridCol2.MappingName = "ProductUnitBC";
+//      dataGridCol2.HeaderText = string.Empty;
+//      dataGridCol2.Width = 12;
+//      dataGridStyle.GridColumnStyles.Add(dataGridCol2);
 
-      DataGridTextBoxColumn dataGridCol3 = new DataGridTextBoxColumn();
-      dataGridCol3.MappingName = "UnitCode";
-      dataGridCol3.HeaderText = string.Empty;
-      dataGridCol3.Width = 22;
-      dataGridStyle.GridColumnStyles.Add(dataGridCol3);
+//      DataGridTextBoxColumn dataGridCol3 = new DataGridTextBoxColumn();
+//      dataGridCol3.MappingName = "UnitCode";
+//      dataGridCol3.HeaderText = string.Empty;
+//      dataGridCol3.Width = 22;
+//      dataGridStyle.GridColumnStyles.Add(dataGridCol3);
 
-      DataGridTextBoxColumn dataGridCol4 = new DataGridTextBoxColumn();
-      dataGridCol4.MappingName = "ProductUnitBarCodeCode";
-#if MULTILANGUAGE
-      dataGridCol4.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.BarCodez);
-#else
-      dataGridCol4.HeaderText = "Bar Code";
-#endif
-      dataGridCol4.Width = 130;
-      dataGridStyle.GridColumnStyles.Add(dataGridCol4);
+//      DataGridTextBoxColumn dataGridCol4 = new DataGridTextBoxColumn();
+//      dataGridCol4.MappingName = "ProductUnitBarCodeCode";
+//#if MULTILANGUAGE
+//      dataGridCol4.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.BarCodez);
+//#else
+//      dataGridCol4.HeaderText = "Bar Code";
+//#endif
+//      dataGridCol4.Width = 130;
+//      dataGridStyle.GridColumnStyles.Add(dataGridCol4);
 
-      DataGridTextBoxColumn dataGridCol5 = new DataGridTextBoxColumn();
-      dataGridCol5.MappingName = "ProductUnitBarCodeModifier1";
-      dataGridCol5.HeaderText = string.Empty;
-      dataGridCol5.Width = 12;
-      dataGridStyle.GridColumnStyles.Add(dataGridCol5);
+//      DataGridTextBoxColumn dataGridCol5 = new DataGridTextBoxColumn();
+//      dataGridCol5.MappingName = "ProductUnitBarCodeModifier1";
+//      dataGridCol5.HeaderText = string.Empty;
+//      dataGridCol5.Width = 12;
+//      dataGridStyle.GridColumnStyles.Add(dataGridCol5);
 
-      dataGridMain.TableStyles.Add(dataGridStyle);
-      dataGridMain.RowHeadersVisible = false;
-      dataGridMain.ColumnHeadersVisible = true;
-    }
+//      dataGridMain.TableStyles.Add(dataGridStyle);
+//      dataGridMain.RowHeadersVisible = false;
+//      dataGridMain.ColumnHeadersVisible = true;
+//    }
 
     /// <summary>
     ///

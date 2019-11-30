@@ -1,22 +1,32 @@
-﻿using System;
-using Xamarin.Forms;
-
-namespace dMobile.View
+﻿namespace dMobile.View
 {
+    using System;
+    using Xamarin.Forms;
+    using Xamarin.Forms.Xaml;
+
+    /// <summary>
+    /// Defines the <see cref="MainPage" />
+    /// </summary>
+    [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class MainPage : MasterDetailPage
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MainPage"/> class.
+        /// </summary>
         public MainPage()
         {
             InitializeComponent();
-
             masterPage.listView.ItemSelected += OnItemSelected;
         }
 
-        void OnItemSelected(object sender, SelectedItemChangedEventArgs e)
+        /// <summary>
+        /// The OnItemSelected
+        /// </summary>
+        /// <param name="sender">The sender<see cref="object"/></param>
+        /// <param name="e">The e<see cref="SelectedItemChangedEventArgs"/></param>
+        private void OnItemSelected(object sender, SelectedItemChangedEventArgs e)
         {
-            MasterPageItem item = e.SelectedItem as MasterPageItem;
-
-            if (item != null)
+            if (e.SelectedItem is MasterPageItem item)
             {
                 Detail = new NavigationPage((Page)Activator.CreateInstance(item.TargetType));
                 masterPage.listView.SelectedItem = null;

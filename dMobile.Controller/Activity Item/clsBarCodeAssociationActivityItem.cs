@@ -4,7 +4,6 @@ namespace dMobile.Controller
   using System.Data;
   using System.Data.SQLite;
   using System.Text;
-  using System.Windows.Forms;
   using System.Xml;
   using System.Xml.Linq;
   using dMobile.Bedrock;
@@ -140,24 +139,25 @@ namespace dMobile.Controller
             {
               // bar code is associated to a different product
               isProdUnitBarCodeFound = true;
-              MessageBox.Show(
-                  string.Format(
-#if MULTILANGUAGE
-                  Translator.GetInstance().Translate(TranslatorVocabulary.ScannedBarCodeIsAlreadyAssociatedToADifferentProduct), 
-#else
-                  "Scanned bar code is already associated to a different product {0} {1} {2}.", 
-#endif
-                  prodCode, 
-                  prodUnitBC, 
-                  unitCode), 
-#if MULTILANGUAGE
-                  Translator.GetInstance().Translate(TranslatorVocabulary.BarCodez), 
-#else
-                  "Bar Code", 
-#endif
-                  MessageBoxButtons.OK, 
-                  MessageBoxIcon.Hand, 
-                  MessageBoxDefaultButton.Button1);
+// TODO: DisplayAlert
+//              MessageBox.Show(
+//                  string.Format(
+//#if MULTILANGUAGE
+//                  Translator.GetInstance().Translate(TranslatorVocabulary.ScannedBarCodeIsAlreadyAssociatedToADifferentProduct), 
+//#else
+//                  "Scanned bar code is already associated to a different product {0} {1} {2}.", 
+//#endif
+//                  prodCode, 
+//                  prodUnitBC, 
+//                  unitCode), 
+//#if MULTILANGUAGE
+//                  Translator.GetInstance().Translate(TranslatorVocabulary.BarCodez), 
+//#else
+//                  "Bar Code", 
+//#endif
+//                  MessageBoxButtons.OK, 
+//                  MessageBoxIcon.Hand, 
+//                  MessageBoxDefaultButton.Button1);
             }
           }
         }
@@ -275,15 +275,15 @@ namespace dMobile.Controller
       }
     }
 
-    /// <summary>
-    ///
-    /// </summary>
-    /// <param name="dataGridMain"></param>
-    /// <remarks></remarks>
-    public override void DesignDataGrid(DataGrid dataGridMain)
-    {
-      throw new NotImplementedException();
-    }
+    ///// <summary>
+    /////
+    ///// </summary>
+    ///// <param name="dataGridMain"></param>
+    ///// <remarks></remarks>
+    //public override void DesignDataGrid(DataGrid dataGridMain)
+    //{
+    //  throw new NotImplementedException();
+    //}
 
     /// <summary>
     /// 

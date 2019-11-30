@@ -9,6 +9,7 @@ using Xamarin.Forms.Xaml;
 
 namespace dMobile.View
 {
+    [XamlCompilation(XamlCompilationOptions.Compile)]
 	public partial class MasterPage : ContentPage
 	{
 		public MasterPage ()

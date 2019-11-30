@@ -4,7 +4,6 @@ namespace dMobile.Controller
   using System.Data;
   using System.Data.SQLite;
   using System.Text;
-  using System.Windows.Forms;
   using System.Xml;
   using System.Xml.Linq;
   using dMobile.Bedrock;
@@ -72,8 +71,8 @@ namespace dMobile.Controller
       string comment = base.GetComment(selectedIndex);
       using (SQLiteCommand cmndItemReturnsComment = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
       {
-        cmndItemReturnsComment.CommandType = CommandType.TableDirect;
-        cmndItemReturnsComment.CommandText = "SELECT ActivityItemRefno FROM tActivityItemReturnsComment WHERE ActivityItemRefno = @selectedIndex";
+        cmndItemReturnsComment.CommandType = CommandType.Text;
+        cmndItemReturnsComment.CommandText = "SELECT * FROM tActivityItemReturnsComment WHERE ActivityItemRefno = @selectedIndex";
         cmndItemReturnsComment.Parameters.Add(new SQLiteParameter("@selectedIndex", selectedIndex));
 
         //cmndItemReturnsComment.IndexName = "PK_ActivityItemReturnsCommentOnActivityItemRefno";
@@ -187,85 +186,85 @@ namespace dMobile.Controller
       }
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="dataGridMain"></param>
-    public override void DesignDataGrid(DataGrid dataGridMain)
-    {
-      int columnWidthFactor = 1;
+//    /// <summary>
+//    /// 
+//    /// </summary>
+//    /// <param name="dataGridMain"></param>
+//    public override void DesignDataGrid(DataGrid dataGridMain)
+//    {
+//      int columnWidthFactor = 1;
 
-      if (this.SysEnv.IsWindowsMobile6Device)
-      {
-        columnWidthFactor = 2;
-      }
+//      if (this.SysEnv.IsWindowsMobile6Device)
+//      {
+//        columnWidthFactor = 2;
+//      }
 
-      if (dataGridMain.TableStyles.Count > 0)
-      {
-        dataGridMain.TableStyles.Clear();
-      }
+//      if (dataGridMain.TableStyles.Count > 0)
+//      {
+//        dataGridMain.TableStyles.Clear();
+//      }
 
-      DataGridTableStyle dataGridStyle = new DataGridTableStyle();
-      dataGridStyle.MappingName = this.MainGridMappingName;
+//      DataGridTableStyle dataGridStyle = new DataGridTableStyle();
+//      dataGridStyle.MappingName = this.MainGridMappingName;
 
-      DataGridTextBoxColumn dataGridCol = new DataGridTextBoxColumn();
-      dataGridCol.MappingName = "ActivityItemRefno";
-      dataGridCol.HeaderText = string.Empty;
-      dataGridCol.Width = -1;
-      dataGridStyle.GridColumnStyles.Add(dataGridCol);
+//      DataGridTextBoxColumn dataGridCol = new DataGridTextBoxColumn();
+//      dataGridCol.MappingName = "ActivityItemRefno";
+//      dataGridCol.HeaderText = string.Empty;
+//      dataGridCol.Width = -1;
+//      dataGridStyle.GridColumnStyles.Add(dataGridCol);
 
-      dataGridCol = new DataGridTextBoxColumn();
-      dataGridCol.MappingName = "IsActivityItemReturnsComment";
-#if MULTILANGUAGE
-      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.C);
-#else
-      dataGridCol.HeaderText = "C";
-#endif
-      dataGridCol.Width = 12 * columnWidthFactor;
-      dataGridStyle.GridColumnStyles.Add(dataGridCol);
+//      dataGridCol = new DataGridTextBoxColumn();
+//      dataGridCol.MappingName = "IsActivityItemReturnsComment";
+//#if MULTILANGUAGE
+//      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.C);
+//#else
+//      dataGridCol.HeaderText = "C";
+//#endif
+//      dataGridCol.Width = 12 * columnWidthFactor;
+//      dataGridStyle.GridColumnStyles.Add(dataGridCol);
 
-      dataGridCol = new DataGridTextBoxColumn();
-      dataGridCol.MappingName = "ProductCode";
-#if MULTILANGUAGE
-      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.ProductId);
-#else
-      dataGridCol.HeaderText = "Product ID";
-#endif
-      dataGridCol.Width = 65 * columnWidthFactor;
-      dataGridStyle.GridColumnStyles.Add(dataGridCol);
+//      dataGridCol = new DataGridTextBoxColumn();
+//      dataGridCol.MappingName = "ProductCode";
+//#if MULTILANGUAGE
+//      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.ProductId);
+//#else
+//      dataGridCol.HeaderText = "Product ID";
+//#endif
+//      dataGridCol.Width = 65 * columnWidthFactor;
+//      dataGridStyle.GridColumnStyles.Add(dataGridCol);
 
-      dataGridCol = new DataGridTextBoxColumn();
-      dataGridCol.MappingName = "ProductUnitBC";
-      dataGridCol.HeaderText = string.Empty;
-      dataGridCol.Width = 20 * columnWidthFactor;
-      dataGridStyle.GridColumnStyles.Add(dataGridCol);
+//      dataGridCol = new DataGridTextBoxColumn();
+//      dataGridCol.MappingName = "ProductUnitBC";
+//      dataGridCol.HeaderText = string.Empty;
+//      dataGridCol.Width = 20 * columnWidthFactor;
+//      dataGridStyle.GridColumnStyles.Add(dataGridCol);
 
-      dataGridCol = new DataGridTextBoxColumn();
-      dataGridCol.MappingName = "UnitCode";
-      dataGridCol.HeaderText = string.Empty;
-      dataGridCol.Width = 22 * columnWidthFactor;
-      dataGridStyle.GridColumnStyles.Add(dataGridCol);
+//      dataGridCol = new DataGridTextBoxColumn();
+//      dataGridCol.MappingName = "UnitCode";
+//      dataGridCol.HeaderText = string.Empty;
+//      dataGridCol.Width = 22 * columnWidthFactor;
+//      dataGridStyle.GridColumnStyles.Add(dataGridCol);
 
-      dataGridCol = new DataGridTextBoxColumn();
-      dataGridCol.MappingName = "ActivityItemReturnsQuantityReturned";
-#if MULTILANGUAGE
-      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Returned);
-#else
-      dataGridCol.HeaderText = "Returned";
-#endif
-      dataGridCol.Width = 52 * columnWidthFactor;
-      dataGridCol.Format = "0.000";
-      dataGridStyle.GridColumnStyles.Add(dataGridCol);
+//      dataGridCol = new DataGridTextBoxColumn();
+//      dataGridCol.MappingName = "ActivityItemReturnsQuantityReturned";
+//#if MULTILANGUAGE
+//      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Returned);
+//#else
+//      dataGridCol.HeaderText = "Returned";
+//#endif
+//      dataGridCol.Width = 52 * columnWidthFactor;
+//      dataGridCol.Format = "0.000";
+//      dataGridStyle.GridColumnStyles.Add(dataGridCol);
 
-      ////dataGridCol.MappingName = string.Empty
-      ////dataGridCol.HeaderText = "R"
-      ////dataGridCol.Width = 12 * colWidthFactor
-      ////dataGridStyle.GridColumnStyles.Add(dataGridCol)
+//      ////dataGridCol.MappingName = string.Empty
+//      ////dataGridCol.HeaderText = "R"
+//      ////dataGridCol.Width = 12 * colWidthFactor
+//      ////dataGridStyle.GridColumnStyles.Add(dataGridCol)
 
-      dataGridMain.TableStyles.Add(dataGridStyle);
-      dataGridMain.RowHeadersVisible = false;
-      dataGridMain.ColumnHeadersVisible = true;
-    }
+//      dataGridMain.TableStyles.Add(dataGridStyle);
+//      dataGridMain.RowHeadersVisible = false;
+//      dataGridMain.ColumnHeadersVisible = true;
+//    }
 
     /// <summary>
     ///

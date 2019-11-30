@@ -17,7 +17,7 @@
     /// Defines the <see cref="FormAssociateBarCodeOverride" />
     /// </summary>
     [XamlCompilation(XamlCompilationOptions.Compile)]
-    public partial class FormAssociateBarCodeOverride : DialogModal
+    public partial class FormAssociateBarCodeOverride : DMobileModal
     {
         /// <summary>
         /// Defines the userCode

@@ -18,6 +18,9 @@ using Resource = dMobile.Resources.Properties.Resources;
 using dMobile.Resources.Enums;
 using Android.Views;
 using dMobile.View.CustomPages;
+using dMobile.View.Menus;
+using Android.Widget;
+using dMobile.View.Types;
 
 namespace dMobile.View
 {
@@ -42,6 +45,10 @@ namespace dMobile.View
         public ucLoginStartup()
         {
             InitializeComponent();
+
+            // TODO: login title
+            this.Title = "dMobile Login";
+
             this.cmdLogin.Text = Resource.Login;
             this.lblLoginID.Text = Resource.LoginID;
             this.lblLoginPassword.Text = Resource.Password;
@@ -320,11 +327,13 @@ namespace dMobile.View
 
             try
             {
-                LoginStartup_GotFocus(this, new EventArgs());
+                this.LoginStartup_GotFocus(this, new EventArgs());
             }
             catch (Exception ex)
             {
-                DisplayAlert("Error", "LoginStartup_GotFocus threw an error: " + ex.Message, "OK");
+                // TODO: Alert commented out for testing
+                //DisplayAlert(Resource.Error, "LoginStartup_GotFocus threw an error: " + ex.Message, Resource.OK);
+                Console.WriteLine("LoginStartup_GotFocus error: " + ex.Message);
             }
 
             MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), (keyPressed) =>
@@ -346,6 +355,7 @@ namespace dMobile.View
                         {
                             //this.CallingControl = new ucMainMenu();
                             this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                            Device.BeginInvokeOnMainThread(async () => await this.Close());
                         }
                     }
                 }
@@ -447,7 +457,7 @@ namespace dMobile.View
                     isReadyToSave = false;
                 }
 
-                if (this.lstWarehouse.Items.Count > 0 && Convert.ToInt32(this.lstWarehouse.SelectedItem) <= 0)
+                if (this.lstWarehouse.Items.Count > 0 && Convert.ToInt32(this.lstWarehouse.SelectedValue) <= 0)
                 {
                     isReadyToSave = false;
                 }
@@ -455,14 +465,15 @@ namespace dMobile.View
             catch (SQLiteException ex)
             {
                 FormErrorReport errReport = new FormErrorReport(SysCommon.ActSubTypes.LoginStartup, ex);
-                {
-                    errReport.ShowDialog().ContinueWith(result => { });
-                }
+                Device.BeginInvokeOnMainThread(async () => await errReport.ShowDialog());
+                isReadyToSave = false;
+
             }
             catch (Exception ex)
             {
                 FormErrorReport errReport = new FormErrorReport(SysCommon.ActSubTypes.LoginStartup, ex);
-                errReport.ShowDialog().ContinueWith(result => { });
+                Device.BeginInvokeOnMainThread(async () => await errReport.ShowDialog());
+                isReadyToSave = false;
             }
 
             return isReadyToSave;
@@ -497,12 +508,12 @@ namespace dMobile.View
                         {
                             // do nothing if login failed
                             FormErrorReport errReport = new FormErrorReport(SysCommon.ActSubTypes.LoginStartup, ex);
-                            errReport.ShowDialog().ContinueWith(result => { });
+                            Device.BeginInvokeOnMainThread(async () => await errReport.ShowDialog());
                         }
                         catch (Exception ex)
                         {
                             FormErrorReport errReport = new FormErrorReport(SysCommon.ActSubTypes.LoginStartup, ex);
-                            errReport.ShowDialog().ContinueWith(result => { });
+                            Device.BeginInvokeOnMainThread(async () => await errReport.ShowDialog());
                         }
                     }
                 }
@@ -559,7 +570,7 @@ namespace dMobile.View
                         this.SysEnv.ContactLog.LoginPassword = string.Empty;
                     }
 
-                    this.SysEnv.ContactLog.WarehouseLocationMapRefno = Convert.ToInt32(this.lstWarehouse.SelectedItem);
+                    this.SysEnv.ContactLog.WarehouseLocationMapRefno = Convert.ToInt32(this.lstWarehouse.SelectedValue);
                     this.SysEnv.ContactLog.IsLoggedIn = true;
                     this.SysEnv.ContactLog.IsAllowedAssociateProductBarCode = this.IsAllowedAssocBarCode;
                     this.SysEnv.ContactLog.IsAllowedPickingModuleOverridePicker = this.IsAllowedOverridePicker;
@@ -581,12 +592,12 @@ namespace dMobile.View
                         {
                             // do nothing if login failed
                             FormErrorReport errReport = new FormErrorReport(SysCommon.ActSubTypes.LoginStartup, ex);
-                            errReport.ShowDialog().ContinueWith(result => { });
+                            Device.BeginInvokeOnMainThread(async () => await errReport.ShowDialog());
                         }
                         catch (Exception ex)
                         {
                             FormErrorReport errReport = new FormErrorReport(SysCommon.ActSubTypes.LoginStartup, ex);
-                            errReport.ShowDialog().ContinueWith(result => { });
+                            Device.BeginInvokeOnMainThread(async () => await errReport.ShowDialog());
                         }
                     }
 
@@ -596,8 +607,6 @@ namespace dMobile.View
                     saveComplete = this.SysEnv.ContactLog.SaveData(ref tempContactLogin);
                     locMap.LoginWhsLocMapRefno = this.SysEnv.ContactLog.WarehouseLocationMapRefno;
                     locMap.CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(locMap.LoginWhsLocMapRefno);
-
-
 
                     this.ChangesMade = false;
                 }
@@ -614,10 +623,10 @@ namespace dMobile.View
             catch (Exception ex)
             {
                 FormErrorReport errReport = new FormErrorReport(SysCommon.ActSubTypes.LoginStartup, ex);
-                errReport.ShowDialog().ContinueWith(result =>
+                Device.BeginInvokeOnMainThread(async () => await errReport.ShowDialog().ContinueWith(result =>
                 {
-                    Application.Current.Quit();
-                });
+                        Application.Current.Quit();
+                }));
 
                 saveComplete = false;
             }
@@ -766,33 +775,29 @@ namespace dMobile.View
         /// <remarks></remarks>
         private void LoadData()
         {
-
-            DataView dataViewLocMapWhs = null;
+            List<Warehouse> dataViewLocMapWhs = new List<Warehouse>();
 
             this.txtLoginID.Text = this.SysEnv.ContactLog.LoginID.ToString();
             this.txtLoginPassword.Text = this.SysEnv.ContactLog.LoginPassword;
 
-            string strSQLCmnd = "SELECT tLocationMapWarehouse.LocationMapRefno, "
-                + "CAST(tLocationMapWarehouse.LocationMapWarehouseCode AS NVARCHAR(3)) + \' \' +"
-                + " tLocationMapWarehouse.LocationMapWarehouseName AS WarehouseCodeName "
-                + "FROM tLocationMapWarehouse";
-
-            using (SQLiteDataAdapter myDataAdapter = new SQLiteDataAdapter(
-                strSQLCmnd, DatabaseConnection.GetInstance().SQLConn))
+            using (SQLiteCommand cmnd = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
             {
-                using (DataSet myDataSet = new DataSet())
+                cmnd.CommandText = "SELECT LocationMapRefno, LocationMapWarehouseName FROM tLocationMapWarehouse";
+
+                using(SQLiteDataReader reader = cmnd.ExecuteReader())
                 {
-                    myDataAdapter.Fill(myDataSet);
-                    dataViewLocMapWhs = myDataSet.Tables[0].DefaultView;
-                    dataViewLocMapWhs.Table.TableName = "tWarehouses";
+                    while (reader.Read())
+                    {
+                        dataViewLocMapWhs.Add(new Warehouse(reader.GetInt32(0), reader.GetString(1)));
+                    }
                 }
             }
-
-            // TODO: fix these
+            
             this.lstWarehouse.ItemsSource = dataViewLocMapWhs;
-            //this.lstWarehouse.DisplayMember = "WarehouseCodeName";
-            //this.lstWarehouse.ValueMember = "LocationMapRefno";
-            this.lstWarehouse.SelectedItem = this.SysEnv.ContactLog.WarehouseLocationMapRefno;
+            this.lstWarehouse.ItemDisplayBinding = new Binding("DisplayName");
+            this.lstWarehouse.SelectedIndex = this.SysEnv.ContactLog.WarehouseLocationMapRefno;
+            Warehouse selectedWarehouse = (Warehouse)this.lstWarehouse.SelectedItem;
+            this.lstWarehouse.SelectedValue = selectedWarehouse.Id;
         }
 
         /// <summary>
@@ -886,6 +891,7 @@ namespace dMobile.View
                         drUser.Close();
                         //}
                     }
+
                 }
 
                 if (sender == this.txtLoginID)
@@ -932,12 +938,10 @@ namespace dMobile.View
                 {
                     if (this.lstWarehouse.Items.Count > 0)
                     {
-                        this.SysEnv.ContactLog.WarehouseLocationMapRefno = Convert.ToInt32(
-                            this.lstWarehouse.SelectedItem);
-                        if (Convert.ToInt32(this.lstWarehouse.SelectedItem) <= 0)
+                        this.SysEnv.ContactLog.WarehouseLocationMapRefno = Convert.ToInt32(this.lstWarehouse.SelectedValue);
+                        if (Convert.ToInt32(this.lstWarehouse.SelectedValue) <= 0)
                         {
-                            // TODO: Resource strings
-                            throw new Exceptions.MessageOnlyException("Selected warehouse required.");
+                            throw new Exceptions.MessageOnlyException(Resource.SelectedWarehouseRequired);
                         }
                     }
                     else
@@ -987,31 +991,34 @@ namespace dMobile.View
         {
             this.Loading = true;
 
-                try
+            try
+            {
+                await Task.Run(() =>
                 {
-                    await Task.Run(() =>
-                    {
-                        if (this.SaveChanges())
-                        {
-                            // <WO ID="14734" Comment="Show message after login when data is older than 48 hours" />
-                            if (SysEnv == null ||
-                                SysEnv.RefreshOpt == null ||
-                                SysEnv.RefreshOpt.RefreshedDataLast == null ||
-                                (DateTime.Now - this.SysEnv.RefreshOpt.RefreshedDataLast).TotalHours > 48)
-                            {
-                                // TODO: Resource strings
-                                DisplayAlert("Refresh Required", "Data is out of date, please refresh immediately", "OK");
-                            }
+                    this.ValidateEntry(sender, new CancelEventArgs());
 
-                            //this.CallingControl = new ucMainMenu();
-                            this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                    if (this.SaveChanges())
+                    {
+                        // <WO ID="14734" Comment="Show message after login when data is older than 48 hours" />
+                        if (SysEnv == null ||
+                            SysEnv.RefreshOpt == null ||
+                            SysEnv.RefreshOpt.RefreshedDataLast == null ||
+                            (DateTime.Now - this.SysEnv.RefreshOpt.RefreshedDataLast).TotalHours > 48)
+                        {
+                            Device.BeginInvokeOnMainThread(async () => await DisplayAlert(Resource.RefreshRequired, Resource.DataIsOutOfDatePleaseRefreshImmediately, Resource.OK));
                         }
-                    });
-                }
-                catch (Exception ex)
-                {
-                   //await DisplayAlert("Err", ex.Message, "OK");
-                }
+
+                        //this.CallingControl = new ucMainMenu();
+                        Device.BeginInvokeOnMainThread(() => Application.Current.MainPage = new MainPage());
+
+                        this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert(Resource.Error, ex.Message, Resource.OK);
+            }
 
             this.Loading = false;
         }
@@ -1022,9 +1029,10 @@ namespace dMobile.View
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        private void txtLoginID_GotFocus(object sender, EventArgs e)
+        private void txtLoginID_GotFocus(object sender, FocusEventArgs e)
         {
-            //txtLoginID.SelectAll();
+            this.txtLoginID.CursorPosition = 0;
+            this.txtLoginID.SelectionLength = this.txtLoginID.Text.Length;
         }
 
         /// <summary>
@@ -1033,9 +1041,11 @@ namespace dMobile.View
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        private void txtLoginPassword_GotFocus(object sender, EventArgs e)
+        private void txtLoginPassword_GotFocus(object sender, FocusEventArgs e)
         {
             //this.txtLoginPassword.SelectAll();
+            this.txtLoginPassword.CursorPosition = 0;
+            this.txtLoginPassword.SelectionLength = this.txtLoginPassword.Text.Length;
         }
 
         /// <summary>
@@ -1045,6 +1055,7 @@ namespace dMobile.View
         /// <param name="e"></param>
         private async void PictureBoxLogo_DoubleClick(object sender, EventArgs e)
         {
+            // TODO: Add logo
             if (this.IsEnableAllModuleBypassLicense)
             {
                 //this.txtLoginPassword.BackColor = SystemColors.Window;

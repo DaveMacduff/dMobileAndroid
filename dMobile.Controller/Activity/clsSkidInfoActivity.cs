@@ -3,7 +3,6 @@ namespace dMobile.Controller
     using System;
     using System.Data;
     using System.Diagnostics.CodeAnalysis;
-    using System.Windows.Forms;
     using System.Xml.Linq;
     using dMobile.Bedrock;
 
@@ -209,93 +208,93 @@ namespace dMobile.Controller
             throw new NotImplementedException();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="dataGridMain"></param>
-        public override void DesignDataGrid(DataGrid dataGridMain)
-        {
-            int colWidthFactor = 1;
+//        /// <summary>
+//        /// 
+//        /// </summary>
+//        /// <param name="dataGridMain"></param>
+//        public override void DesignDataGrid(DataGrid dataGridMain)
+//        {
+//            int colWidthFactor = 1;
 
-            if (this.SysEnv.IsWindowsMobile6Device)
-            {
-                colWidthFactor = 2;
-            }
+//            if (this.SysEnv.IsWindowsMobile6Device)
+//            {
+//                colWidthFactor = 2;
+//            }
 
-            if (dataGridMain.TableStyles.Count > 0)
-            {
-                dataGridMain.TableStyles.Clear();
-            }
+//            if (dataGridMain.TableStyles.Count > 0)
+//            {
+//                dataGridMain.TableStyles.Clear();
+//            }
 
-            DataGridTableStyle dataGridStyle = new DataGridTableStyle();
-            dataGridStyle.MappingName = this.MainGridMappingName;
+//            DataGridTableStyle dataGridStyle = new DataGridTableStyle();
+//            dataGridStyle.MappingName = this.MainGridMappingName;
 
-            DataGridTextBoxColumn dataGridCol = new DataGridTextBoxColumn();
-            dataGridCol.MappingName = "SkidCode";
-#if MULTILANGUAGE
-      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Codezz);
-#else
-            dataGridCol.HeaderText = "Code";
-#endif
-            dataGridCol.Width = 200 * colWidthFactor;
-            dataGridStyle.GridColumnStyles.Add(dataGridCol);
+//            DataGridTextBoxColumn dataGridCol = new DataGridTextBoxColumn();
+//            dataGridCol.MappingName = "SkidCode";
+//#if MULTILANGUAGE
+//      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Codezz);
+//#else
+//            dataGridCol.HeaderText = "Code";
+//#endif
+//            dataGridCol.Width = 200 * colWidthFactor;
+//            dataGridStyle.GridColumnStyles.Add(dataGridCol);
 
-            dataGridCol = new DataGridTextBoxColumn();
-            dataGridCol.MappingName = "ProductCode";
-            dataGridCol.HeaderText = string.Empty;
-            dataGridCol.Width = 80 * colWidthFactor;
-            dataGridStyle.GridColumnStyles.Add(dataGridCol);
+//            dataGridCol = new DataGridTextBoxColumn();
+//            dataGridCol.MappingName = "ProductCode";
+//            dataGridCol.HeaderText = string.Empty;
+//            dataGridCol.Width = 80 * colWidthFactor;
+//            dataGridStyle.GridColumnStyles.Add(dataGridCol);
 
-            dataGridCol = new DataGridTextBoxColumn();
-            dataGridCol.MappingName = "ProductUnitBC";
-            dataGridCol.HeaderText = string.Empty;
-            dataGridCol.Width = 20 * colWidthFactor;
-            dataGridStyle.GridColumnStyles.Add(dataGridCol);
+//            dataGridCol = new DataGridTextBoxColumn();
+//            dataGridCol.MappingName = "ProductUnitBC";
+//            dataGridCol.HeaderText = string.Empty;
+//            dataGridCol.Width = 20 * colWidthFactor;
+//            dataGridStyle.GridColumnStyles.Add(dataGridCol);
 
-            dataGridCol = new DataGridTextBoxColumn();
-            dataGridCol.MappingName = "Quantity";
-#if MULTILANGUAGE
-      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Qtyzzz);
-#else
-            dataGridCol.HeaderText = "Qty";
-#endif
-            dataGridCol.Width = 52 * colWidthFactor;
-            dataGridCol.Format = "0.000";
-            dataGridStyle.GridColumnStyles.Add(dataGridCol);
+//            dataGridCol = new DataGridTextBoxColumn();
+//            dataGridCol.MappingName = "Quantity";
+//#if MULTILANGUAGE
+//      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Qtyzzz);
+//#else
+//            dataGridCol.HeaderText = "Qty";
+//#endif
+//            dataGridCol.Width = 52 * colWidthFactor;
+//            dataGridCol.Format = "0.000";
+//            dataGridStyle.GridColumnStyles.Add(dataGridCol);
 
-            dataGridCol = new DataGridTextBoxColumn();
-            dataGridCol.MappingName = "UnitCode";
-            dataGridCol.HeaderText = string.Empty;
-            dataGridCol.Width = 30 * colWidthFactor;
-            dataGridStyle.GridColumnStyles.Add(dataGridCol);
+//            dataGridCol = new DataGridTextBoxColumn();
+//            dataGridCol.MappingName = "UnitCode";
+//            dataGridCol.HeaderText = string.Empty;
+//            dataGridCol.Width = 30 * colWidthFactor;
+//            dataGridStyle.GridColumnStyles.Add(dataGridCol);
 
-            dataGridCol = new DataGridTextBoxColumn();
-            dataGridCol.MappingName = "WeightQuantity";
-#if MULTILANGUAGE
-      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Weight);
-#else
-            dataGridCol.HeaderText = "Weight";
-#endif
-            dataGridCol.Width = 52 * colWidthFactor;
-            dataGridCol.Format = "0.000";
-            dataGridStyle.GridColumnStyles.Add(dataGridCol);
+//            dataGridCol = new DataGridTextBoxColumn();
+//            dataGridCol.MappingName = "WeightQuantity";
+//#if MULTILANGUAGE
+//      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Weight);
+//#else
+//            dataGridCol.HeaderText = "Weight";
+//#endif
+//            dataGridCol.Width = 52 * colWidthFactor;
+//            dataGridCol.Format = "0.000";
+//            dataGridStyle.GridColumnStyles.Add(dataGridCol);
 
-            dataGridCol = new DataGridTextBoxColumn();
-            dataGridCol.MappingName = "WeightUnitCode";
-            dataGridCol.HeaderText = string.Empty;
-            dataGridCol.Width = 30 * colWidthFactor;
-            dataGridStyle.GridColumnStyles.Add(dataGridCol);
+//            dataGridCol = new DataGridTextBoxColumn();
+//            dataGridCol.MappingName = "WeightUnitCode";
+//            dataGridCol.HeaderText = string.Empty;
+//            dataGridCol.Width = 30 * colWidthFactor;
+//            dataGridStyle.GridColumnStyles.Add(dataGridCol);
 
-            dataGridCol = new DataGridTextBoxColumn();
-            dataGridCol.MappingName = "LocationName";
-            dataGridCol.HeaderText = string.Empty;
-            dataGridCol.Width = 150 * colWidthFactor;
-            dataGridStyle.GridColumnStyles.Add(dataGridCol);
+//            dataGridCol = new DataGridTextBoxColumn();
+//            dataGridCol.MappingName = "LocationName";
+//            dataGridCol.HeaderText = string.Empty;
+//            dataGridCol.Width = 150 * colWidthFactor;
+//            dataGridStyle.GridColumnStyles.Add(dataGridCol);
 
-            dataGridMain.TableStyles.Add(dataGridStyle);
-            dataGridMain.RowHeadersVisible = false;
-            dataGridMain.ColumnHeadersVisible = true;
-        }
+//            dataGridMain.TableStyles.Add(dataGridStyle);
+//            dataGridMain.RowHeadersVisible = false;
+//            dataGridMain.ColumnHeadersVisible = true;
+//        }
 
         /// <summary>
         ///

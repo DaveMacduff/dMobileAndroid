@@ -1817,15 +1817,15 @@ namespace dMobile.Bedrock
         {
             SysEnvironment sysEnv = SysEnvironment.GetInstance();
             string current = DateTime.Now.ToString("yyyy\'-\'MM\'-\'dd\'T\'HH\':\'mm\':\'ss");
-            //string revision = DateAndTime.DateSerial(1900, 1, 1).ToString("yyyy\'-\'MM\'-\'dd\'T\'HH\':\'mm\':\'ss");
+            string revision = new DateTime(1900, 1, 1).ToString("yyyy\'-\'MM\'-\'dd\'T\'HH\':\'mm\':\'ss");
             if (useRefreshedDataLast)
             {
-                //revision = sysEnv.RefreshOpt.RefreshedDataLast.ToString("yyyy\'-\'MM\'-\'dd\'T\'HH\':\'mm\':\'ss");
+                revision = sysEnv.RefreshOpt.RefreshedDataLast.ToString("yyyy\'-\'MM\'-\'dd\'T\'HH\':\'mm\':\'ss");
             }
 
             string def = ("<device_id>" + sysEnv.DeviceID + "</device_id>")
                 + ("<login_id>" + sysEnv.ContactLog.LoginID + "</login_id>")
-                //+ ("<revision_datetime>" + revision + "</revision_datetime>")
+                + ("<revision_datetime>" + revision + "</revision_datetime>")
                 + ("<stamp>" + current + "</stamp>");
 
             return def;
@@ -1968,7 +1968,7 @@ namespace dMobile.Bedrock
                 {
                     bytesSent = sysEnv.SysSock.SendRequest(sysSock, sendData);
                     compressedData = sysEnv.SysSock.ReceiveResponse(sysSock);
-                    sysSock.Close();
+                    
                     recvData = Compress.UnZip(compressedData.ToArray());
 
                     // Only errors from the comm server will contain reserved xml characters that need special handling.
@@ -2000,7 +2000,8 @@ namespace dMobile.Bedrock
                 throw new Exception("SubmitComm socket error occurred.", ex);
 #endif
             }
-
+ 
+            sysSock.Close();
             return recvData;
         }
 

@@ -1,9 +1,13 @@
 ﻿namespace dMobile.View.Test_Pages
 {
+    using dMobile.Bedrock;
     using dMobile.GroundWork;
     using dMobile.View.CustomPages;
     using System;
+    using System.Data;
+    using System.Data.SQLite;
     using System.Threading.Tasks;
+    using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
 
     /// <summary>
@@ -94,6 +98,10 @@
             }
 
             this.Loading = false;
+        }
+
+        private void CustomSwitch_Clicked(object sender, EventArgs e)
+        {
         }
     }
 }

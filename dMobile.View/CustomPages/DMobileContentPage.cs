@@ -28,6 +28,9 @@
             }
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DMobileContentPage"/> class.
+        /// </summary>
         public DMobileContentPage()
         {
             this.BindingContext = this;
@@ -42,7 +45,8 @@
         {
             try
             {
-                await App.Current.MainPage.Navigation.PushAsync(this);
+                MasterDetailPage mainPage = (MasterDetailPage)Application.Current.MainPage;
+                await mainPage.Detail.Navigation.PushAsync(this);
             }
             catch (Exception ex)
             {
@@ -58,7 +62,8 @@
         {
             try
             {
-                await App.Current.MainPage.Navigation.PopAsync();
+                MasterDetailPage mainPage = (MasterDetailPage)Application.Current.MainPage;
+                await mainPage.Detail.Navigation.PopAsync();
             }
             catch (Exception ex)
             {

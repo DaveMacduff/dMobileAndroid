@@ -4,7 +4,6 @@ namespace dMobile.Controller
   using System.Data;
   using System.Data.SQLite;
   using System.Text;
-  using System.Windows.Forms;
   using System.Xml.Linq;
   using dMobile.Bedrock;
   using dMobile.GroundWork;
@@ -50,67 +49,67 @@ namespace dMobile.Controller
 #endif
     }
 
-    /// <summary>
-    ///
-    /// </summary>
-    /// <remarks></remarks>
-    ///
-    public override void DesignDataGrid(DataGrid dataGridMain)
-    {
-      int colWidthFactor = 1;
+//    /// <summary>
+//    ///
+//    /// </summary>
+//    /// <remarks></remarks>
+//    ///
+//    public override void DesignDataGrid(DataGrid dataGridMain)
+//    {
+//      int colWidthFactor = 1;
 
-      if (this.SysEnv.IsWindowsMobile6Device)
-      {
-        colWidthFactor = 2;
-      }
+//      if (this.SysEnv.IsWindowsMobile6Device)
+//      {
+//        colWidthFactor = 2;
+//      }
 
-      if (dataGridMain.TableStyles.Count > 0)
-      {
-        dataGridMain.TableStyles.Clear();
-      }
+//      if (dataGridMain.TableStyles.Count > 0)
+//      {
+//        dataGridMain.TableStyles.Clear();
+//      }
 
-      if (dataGridMain.TableStyles.Count > 0)
-      {
-        dataGridMain.TableStyles.Clear();
-      }
+//      if (dataGridMain.TableStyles.Count > 0)
+//      {
+//        dataGridMain.TableStyles.Clear();
+//      }
 
-      DataGridTableStyle dataGridStyle = new DataGridTableStyle();
-      dataGridStyle.MappingName = this.MainGridMappingName;
+//      DataGridTableStyle dataGridStyle = new DataGridTableStyle();
+//      dataGridStyle.MappingName = this.MainGridMappingName;
 
-      DataGridTextBoxColumn dataGridCol = new DataGridTextBoxColumn();
-      dataGridCol.MappingName = "ActivityReceivingPONumber";
-#if MULTILANGUAGE
-      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Po);
-#else
-      dataGridCol.HeaderText = "PO #";
-#endif
-      dataGridCol.Width = 55 * colWidthFactor;
-      dataGridStyle.GridColumnStyles.Add(dataGridCol);
+//      DataGridTextBoxColumn dataGridCol = new DataGridTextBoxColumn();
+//      dataGridCol.MappingName = "ActivityReceivingPONumber";
+//#if MULTILANGUAGE
+//      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Po);
+//#else
+//      dataGridCol.HeaderText = "PO #";
+//#endif
+//      dataGridCol.Width = 55 * colWidthFactor;
+//      dataGridStyle.GridColumnStyles.Add(dataGridCol);
 
-      dataGridCol = new DataGridTextBoxColumn();
-      dataGridCol.MappingName = "ActivityReceivingIssuedDateTime";
-#if MULTILANGUAGE
-      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Issued);
-#else
-      dataGridCol.HeaderText = "Issued";
-#endif
-      dataGridCol.Width = 65 * colWidthFactor;
-      dataGridStyle.GridColumnStyles.Add(dataGridCol);
+//      dataGridCol = new DataGridTextBoxColumn();
+//      dataGridCol.MappingName = "ActivityReceivingIssuedDateTime";
+//#if MULTILANGUAGE
+//      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Issued);
+//#else
+//      dataGridCol.HeaderText = "Issued";
+//#endif
+//      dataGridCol.Width = 65 * colWidthFactor;
+//      dataGridStyle.GridColumnStyles.Add(dataGridCol);
 
-      dataGridCol = new DataGridTextBoxColumn();
-      dataGridCol.MappingName = "ActivityReceivingArrivalDateTime";
-#if MULTILANGUAGE
-      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Arrived);
-#else
-      dataGridCol.HeaderText = "Arrived";
-#endif
-      dataGridCol.Width = 65 * colWidthFactor;
-      dataGridStyle.GridColumnStyles.Add(dataGridCol);
+//      dataGridCol = new DataGridTextBoxColumn();
+//      dataGridCol.MappingName = "ActivityReceivingArrivalDateTime";
+//#if MULTILANGUAGE
+//      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Arrived);
+//#else
+//      dataGridCol.HeaderText = "Arrived";
+//#endif
+//      dataGridCol.Width = 65 * colWidthFactor;
+//      dataGridStyle.GridColumnStyles.Add(dataGridCol);
 
-      dataGridMain.TableStyles.Add(dataGridStyle);
-      dataGridMain.RowHeadersVisible = false;
-      dataGridMain.ColumnHeadersVisible = true;
-    }
+//      dataGridMain.TableStyles.Add(dataGridStyle);
+//      dataGridMain.RowHeadersVisible = false;
+//      dataGridMain.ColumnHeadersVisible = true;
+//    }
 
     /// <summary>
     ///

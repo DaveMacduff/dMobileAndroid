@@ -374,11 +374,11 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     private void CreateTableActivity()
     {
-      string sqlTable = "CREATE TABLE tActivity"
+      string sqlTable = "CREATE TABLE IF NOT EXISTS tActivity"
           + "("
-          + "ActivityRefno int NOT NULL CONSTRAINT PK_ActivityOnActivityRefno PRIMARY KEY,"
-          + "ActivityStatus int NOT NULL,"
-          + "ActivitySubType int NOT NULL"
+          + "ActivityRefno INTEGER NOT NULL CONSTRAINT PK_ActivityOnActivityRefno PRIMARY KEY,"
+          + "ActivityStatus INTEGER NOT NULL,"
+          + "ActivitySubType INTEGER NOT NULL"
           + ")";
 
       if (this.OnNubStatOut != null)
@@ -393,7 +393,7 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityOnActivityRefnoAndActivitySubType "
+      string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ActivityOnActivityRefnoAndActivitySubType "
           + "ON tActivity(ActivityRefno ASC, ActivitySubType ASC)";
       this.RunDDLCommand(sqlNdx);
     }
@@ -404,10 +404,10 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     private void CreateTableActivityDetailProductSchemeVariantXRef()
     {
-      string sqlTable = "CREATE TABLE tActivityDetailProductSchemeVariantXRef"
+      string sqlTable = "CREATE TABLE IF NOT EXISTS tActivityDetailProductSchemeVariantXRef"
           + "("
-          + "ActivityDetailRefno int NOT NULL,"
-          + "ProductSchemeVariantRefno int NOT NULL, "
+          + "ActivityDetailRefno INTEGER NOT NULL,"
+          + "ProductSchemeVariantRefno INTEGER NOT NULL, "
           + "CONSTRAINT ActivityDetailProductSchemeVariantXRefTactDetailOnActivityDetailRefno FOREIGN KEY (ActivityDetailRefno) REFERENCES tActivityDetail(ActivityDetailRefno) ON DELETE CASCADE ON UPDATE CASCADE, "
           + "CONSTRAINT ActivityDetailProductSchemeVariantXRefToProductSchemeVariantOnProductSchemeVariantRefno FOREIGN KEY (ProductSchemeVariantRefno) " 
           + "REFERENCES tProductSchemeVariant(ProductSchemeVariantRefno) ON DELETE CASCADE ON UPDATE CASCADE"
@@ -425,16 +425,16 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE INDEX "
+      string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS "
           + "PK_ActivityDetailProductSchemeVariantXRefOnActivityDetailRefnoAndProductSchemeVariantRefno ON "
           + "tActivityDetailProductSchemeVariantXRef(ActivityDetailRefno ASC, ProductSchemeVariantRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityDetailProductSchemeVariantXRefOnActivityDetailRefno ON "
+      sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ActivityDetailProductSchemeVariantXRefOnActivityDetailRefno ON "
           + "tActivityDetailProductSchemeVariantXRef(ActivityDetailRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE INDEX FK_ActivityDetailProductSchemeVariantXRefOnProductSchemeVariantRefno "
+      sqlNdx = "CREATE INDEX IF NOT EXISTS FK_ActivityDetailProductSchemeVariantXRefOnProductSchemeVariantRefno "
           + "ON tActivityDetailProductSchemeVariantXRef(ProductSchemeVariantRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
@@ -457,12 +457,12 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     private void CreateTableActivityItem()
     {
-      string sqlTable = "CREATE TABLE tActivityItem"
+      string sqlTable = "CREATE TABLE IF NOT EXISTS tActivityItem"
           + "("
-          + "ActivityItemRefno int NOT NULL CONSTRAINT PK_ActivityItemOnActivityItemRefno PRIMARY KEY,"
-          + "ActivityItemSubType int NOT NULL,"
-          + "ActivityItemStatus int NOT NULL,"
-          + "ActivityRefno int NOT NULL, "
+          + "ActivityItemRefno INTEGER NOT NULL CONSTRAINT PK_ActivityItemOnActivityItemRefno PRIMARY KEY,"
+          + "ActivityItemSubType INTEGER NOT NULL,"
+          + "ActivityItemStatus INTEGER NOT NULL,"
+          + "ActivityRefno INTEGER NOT NULL, "
           + "CONSTRAINT ActivityItemToActivityOnActivityRefno FOREIGN KEY (ActivityRefno) REFERENCES tActivity(ActivityRefno) ON DELETE CASCADE ON UPDATE CASCADE"
           + ")";
 
@@ -478,11 +478,11 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityDetailOnActivityItemRefnoAndActivityItemSubType "
+      string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ActivityDetailOnActivityItemRefnoAndActivityItemSubType "
           + "ON tActivityItem(ActivityItemRefno ASC, ActivityItemSubType ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE INDEX FK_ActivityItemOnActivityRefno ON tActivityItem(ActivityRefno ASC)";
+      sqlNdx = "CREATE INDEX IF NOT EXISTS FK_ActivityItemOnActivityRefno ON tActivityItem(ActivityRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
       //string alterTable = "ALTER TABLE tActivityItem ADD CONSTRAINT ActivityItemToActivityOnActivityRefno "
@@ -496,15 +496,15 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     private void CreateTableActivityDetail()
     {
-      string sqlTable = "CREATE TABLE tActivityDetail"
+      string sqlTable = "CREATE TABLE IF NOT EXISTS tActivityDetail"
           + "("
-          + "ActivityDetailRefno int NOT NULL "
+          + "ActivityDetailRefno INTEGER NOT NULL "
           + "CONSTRAINT PK_ActivityDetailOnActivityDetailRefno PRIMARY KEY,"
-          + "ActivityDetailSubType int NOT NULL,"
-          + "ActivityDetailStatus int NOT NULL,"
-          + "ActivityItemRefno int NOT NULL,"
-          + "LocationMapRefno int NOT NULL,"
-          + "ProductUnitRefno int NOT NULL,"
+          + "ActivityDetailSubType INTEGER NOT NULL,"
+          + "ActivityDetailStatus INTEGER NOT NULL,"
+          + "ActivityItemRefno INTEGER NOT NULL,"
+          + "LocationMapRefno INTEGER NOT NULL,"
+          + "ProductUnitRefno INTEGER NOT NULL,"
           + "ActivityDetailUniqueSchemeID nvarchar(80),"
           + "ActivityDetailSchemeID nvarchar(80),"
           + "ActivityDetailQuantity numeric(11, 3) NOT NULL,"
@@ -535,23 +535,23 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityDetailOnActivityDetailRefnoAndActivityDetailSubType "
+      string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ActivityDetailOnActivityDetailRefnoAndActivityDetailSubType "
           + "ON tActivityDetail(ActivityDetailRefno ASC, ActivityDetailSubType ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE INDEX ActivityDetailOnActivityDetailUniqueSchemeID ON "
+      sqlNdx = "CREATE INDEX IF NOT EXISTS ActivityDetailOnActivityDetailUniqueSchemeID ON "
           + "tActivityDetail(ActivityDetailUniqueSchemeID ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE INDEX FK_ActivityDetailOnActivityItemRefno ON "
+      sqlNdx = "CREATE INDEX IF NOT EXISTS FK_ActivityDetailOnActivityItemRefno ON "
           + "tActivityDetail(ActivityItemRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE INDEX FK_ActivityDetailOnLocationMapRefno ON "
+      sqlNdx = "CREATE INDEX IF NOT EXISTS FK_ActivityDetailOnLocationMapRefno ON "
           + "tActivityDetail(LocationMapRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE INDEX FK_ActivityDetailOnProductUnitRefno ON "
+      sqlNdx = "CREATE INDEX IF NOT EXISTS FK_ActivityDetailOnProductUnitRefno ON "
           + "tActivityDetail(ProductUnitRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
@@ -577,10 +577,10 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     private void CreateTableActivityDetailExtra()
     {
-      string sqlTable = "CREATE TABLE tActivityDetailExtra"
+      string sqlTable = "CREATE TABLE IF NOT EXISTS tActivityDetailExtra"
           + "("
-          + "ActivityDetailRefno int NOT NULL CONSTRAINT PK_ActivityDetailExtraOnActivityDetailRefno PRIMARY KEY,"
-          + "ActivityDetailSubType int NOT NULL,"
+          + "ActivityDetailRefno INTEGER NOT NULL CONSTRAINT PK_ActivityDetailExtraOnActivityDetailRefno PRIMARY KEY,"
+          + "ActivityDetailSubType INTEGER NOT NULL,"
           + "ActivityDetailExtra1Text nvarchar(10) NOT NULL,"
           + "ActivityDetailExtra2Text nvarchar(10) NOT NULL,"
           + "ActivityDetailExtra3Text nvarchar(10) NOT NULL,"
@@ -601,7 +601,7 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityDetailExtraOnActivityDetailRefnoAndActivityDetailSubType "
+      string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ActivityDetailExtraOnActivityDetailRefnoAndActivityDetailSubType "
           + "ON tActivityDetailExtra(ActivityDetailRefno ASC, ActivityDetailSubType ASC)";
       this.RunDDLCommand(sqlNdx);
 
@@ -618,14 +618,14 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     private void CreateTableActivityCount()
     {
-      string sqlTable = "CREATE TABLE tActivityCount"
+      string sqlTable = "CREATE TABLE IF NOT EXISTS tActivityCount"
           + "("
-          + "ActivityRefno int NOT NULL CONSTRAINT PK_ActivityCountOnActivityRefno PRIMARY KEY,"
-          + "ActivitySubType int NOT NULL,"
-          + "ActivityCountFKRefno int NOT NULL,"
+          + "ActivityRefno INTEGER NOT NULL CONSTRAINT PK_ActivityCountOnActivityRefno PRIMARY KEY,"
+          + "ActivitySubType INTEGER NOT NULL,"
+          + "ActivityCountFKRefno INTEGER NOT NULL,"
           + "ActivityCountStringFKRefno nvarchar(8) NOT NULL,"
-          + "WarehouseLocationMapRefno int NOT NULL,"
-          + "ActivityCountType int NOT NULL,"
+          + "WarehouseLocationMapRefno INTEGER NOT NULL,"
+          + "ActivityCountType INTEGER NOT NULL,"
           + "ActivityCountDateTime datetime NOT NULL,"
           + "ActivityCountTypeDescription nvarchar(60) NOT NULL,"
           + "ActivityCountDescription nvarchar(60) NOT NULL, "
@@ -645,15 +645,15 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityCountOnActivityRefnoAndActivitySubType ON "
+      string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ActivityCountOnActivityRefnoAndActivitySubType ON "
           + "tActivityCount(ActivityRefno ASC, ActivitySubType ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityCountOnActivityCountFKRefno ON "
+      sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ActivityCountOnActivityCountFKRefno ON "
           + "tActivityCount(ActivityCountFKRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE INDEX FK_ActivityCountOnWarehouseLocationMapRefno ON "
+      sqlNdx = "CREATE INDEX IF NOT EXISTS FK_ActivityCountOnWarehouseLocationMapRefno ON "
           + "tActivityCount(WarehouseLocationMapRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
@@ -674,13 +674,13 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     private void CreateTableActivityPicking()
     {
-      string sqlTable = "CREATE TABLE tActivityPicking"
+      string sqlTable = "CREATE TABLE IF NOT EXISTS tActivityPicking"
           + "("
-          + "ActivityRefno int NOT NULL CONSTRAINT PK_ActivityPickingOnActivityRefno PRIMARY KEY,"
-          + "ActivitySubType int NOT NULL,"
-          + "ActivityPickingFKRefno int NOT NULL,"
+          + "ActivityRefno INTEGER NOT NULL CONSTRAINT PK_ActivityPickingOnActivityRefno PRIMARY KEY,"
+          + "ActivitySubType INTEGER NOT NULL,"
+          + "ActivityPickingFKRefno INTEGER NOT NULL,"
           + "ActivityPickingStringFKRefno nvarchar(8) NOT NULL,"
-          + "WarehouseLocationMapRefno int NOT NULL,"
+          + "WarehouseLocationMapRefno INTEGER NOT NULL,"
           + "ActivityPickingOrderedDateTime datetime NOT NULL,"
           + "ActivityPickingDeliveryDateTime datetime NOT NULL,"
           + "ActivityPickingCustomerContactName nvarchar(40) NOT NULL,"
@@ -702,15 +702,15 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityPickingOnActivityRefnoAndActivitySubType "
+      string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ActivityPickingOnActivityRefnoAndActivitySubType "
           + "ON tActivityPicking(ActivityRefno ASC, ActivitySubType ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityPickingOnActivityPickingFKRefno ON "
+      sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ActivityPickingOnActivityPickingFKRefno ON "
           + "tActivityPicking(ActivityPickingFKRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE INDEX FK_ActivityPickingOnWarehouseLocationMapRefno ON "
+      sqlNdx = "CREATE INDEX IF NOT EXISTS FK_ActivityPickingOnWarehouseLocationMapRefno ON "
           + "tActivityPicking(WarehouseLocationMapRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
@@ -732,13 +732,13 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     private void CreateTableActivityReturns()
     {
-      string sqlTable = "CREATE TABLE tActivityReturns"
+      string sqlTable = "CREATE TABLE IF NOT EXISTS tActivityReturns"
           + "("
-          + "ActivityRefno int NOT NULL CONSTRAINT PK_ActivityReturnsOnActivityRefno PRIMARY KEY,"
-          + "ActivitySubType int NOT NULL,"
-          + "ActivityReturnsFKRefno int NOT NULL,"
+          + "ActivityRefno INTEGER NOT NULL CONSTRAINT PK_ActivityReturnsOnActivityRefno PRIMARY KEY,"
+          + "ActivitySubType INTEGER NOT NULL,"
+          + "ActivityReturnsFKRefno INTEGER NOT NULL,"
           + "ActivityReturnsStringFKRefno nvarchar(8) NOT NULL,"
-          + "WarehouseLocationMapRefno int NOT NULL,"
+          + "WarehouseLocationMapRefno INTEGER NOT NULL,"
           + "ActivityReturnsOrderedDateTime datetime NOT NULL,"
           + "ActivityReturnsDeliveryDateTime datetime NOT NULL,"
           + "ActivityReturnsCustomerContactName nvarchar(40) NOT NULL,"
@@ -759,15 +759,15 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityReturnsOnActivityRefnoAndActivitySubType "
+      string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ActivityReturnsOnActivityRefnoAndActivitySubType "
           + "ON tActivityReturns(ActivityRefno ASC, ActivitySubType ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityReturnsOnActivityReturnsFKRefno ON "
+      sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ActivityReturnsOnActivityReturnsFKRefno ON "
           + "tActivityReturns(ActivityReturnsFKRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE INDEX FK_ActivityReturnsOnWarehouseLocationMapRefno ON "
+      sqlNdx = "CREATE INDEX IF NOT EXISTS FK_ActivityReturnsOnWarehouseLocationMapRefno ON "
           + "tActivityReturns(WarehouseLocationMapRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
@@ -789,11 +789,11 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     private void CreateTableActivityPickingRoute()
     {
-      string sqlTable = "CREATE TABLE tActivityPickingRoute"
+      string sqlTable = "CREATE TABLE IF NOT EXISTS tActivityPickingRoute"
           + "("
-          + "PickingActivityRefno int NOT NULL,"
-          + "RouteRefno int NOT NULL,"
-          + "RouteStop int NOT NULL, "
+          + "PickingActivityRefno INTEGER NOT NULL,"
+          + "RouteRefno INTEGER NOT NULL,"
+          + "RouteStop INTEGER NOT NULL, "
           + "CONSTRAINT ActivityPickingRouteToActivityPickingOnPickingActivityRefnoAndActivityRefno FOREIGN KEY (PickingActivityRefno) REFERENCES tActivityPicking(ActivityRefno) ON DELETE CASCADE ON UPDATE CASCADE, "
           + "CONSTRAINT ActivityPickingRouteToRouteOnRouteRefno FOREIGN KEY (RouteRefno) REFERENCES tRoute(RouteRefno) ON DELETE CASCADE ON UPDATE CASCADE"
           + ")";
@@ -810,15 +810,15 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityPickingRouteOnPickingActivityRefnoAndRouteRefno "
+      string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ActivityPickingRouteOnPickingActivityRefnoAndRouteRefno "
           + "ON tActivityPickingRoute(PickingActivityRefno ASC, RouteRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE INDEX FK_ActivityPickingRouteOnPickingActivityRefno ON "
+      sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS FK_ActivityPickingRouteOnPickingActivityRefno ON "
           + "tActivityPickingRoute(PickingActivityRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE INDEX FK_ActivityPickingRouteOnRouteRefno ON tActivityPickingRoute(RouteRefno ASC)";
+      sqlNdx = "CREATE INDEX IF NOT EXISTS FK_ActivityPickingRouteOnRouteRefno ON tActivityPickingRoute(RouteRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
       //string alterTable = "ALTER TABLE tActivityPickingRoute ADD CONSTRAINT "
@@ -839,14 +839,14 @@ namespace dMobile.GroundWork
     private void CreateTableActivityReceiving()
     {
       // TODO: tActivityReceiving.ActivityReceivingVendorSupplierGTINCompanyPrefix is not being used as of Apr 4/2014
-      string sqlTable = "CREATE TABLE tActivityReceiving"
+      string sqlTable = "CREATE TABLE IF NOT EXISTS tActivityReceiving"
           + "("
-          + "ActivityRefno int NOT NULL CONSTRAINT PK_ActivityReceivingOnActivityRefno PRIMARY KEY,"
-          + "ActivitySubType int NOT NULL,"
-          + "ActivityReceivingFKRefno int NOT NULL,"
+          + "ActivityRefno INTEGER NOT NULL CONSTRAINT PK_ActivityReceivingOnActivityRefno PRIMARY KEY,"
+          + "ActivitySubType INTEGER NOT NULL,"
+          + "ActivityReceivingFKRefno INTEGER NOT NULL,"
           + "ActivityReceivingStringFKRefno nvarchar(8) NOT NULL,"
           + "ActivityReceivingPONumber nvarchar(8) NOT NULL,"
-          + "WarehouseLocationMapRefno int NOT NULL,"
+          + "WarehouseLocationMapRefno INTEGER NOT NULL,"
           + "ActivityReceivingIssuedDateTime datetime NOT NULL,"
           + "ActivityReceivingArrivalDateTime datetime NOT NULL,"
           + "ActivityReceivingVendorContactName nvarchar(40) NOT NULL,"
@@ -868,19 +868,19 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityReceivingOnActivityRefnoAndActivitySubType "
+      string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ActivityReceivingOnActivityRefnoAndActivitySubType "
           + "ON tActivityReceiving(ActivityRefno ASC, ActivitySubType ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityReceivingOnActivityReceivingFKRefno ON "
+      sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ActivityReceivingOnActivityReceivingFKRefno ON "
           + "tActivityReceiving(ActivityReceivingFKRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityReceivingOnActivityReceivingPONumber ON "
+      sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ActivityReceivingOnActivityReceivingPONumber ON "
           + "tActivityReceiving(ActivityReceivingPONumber ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE INDEX FK_ActivityReceivingOnWarehouseLocationMapRefno ON "
+      sqlNdx = "CREATE INDEX IF NOT EXISTS FK_ActivityReceivingOnWarehouseLocationMapRefno ON "
           + "tActivityReceiving(WarehouseLocationMapRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
@@ -901,13 +901,13 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     private void CreateTableActivityTransfer()
     {
-      string sqlTable = "CREATE TABLE tActivityTransfer"
+      string sqlTable = "CREATE TABLE IF NOT EXISTS tActivityTransfer"
           + "("
-          + "ActivityRefno int NOT NULL CONSTRAINT PK_ActivityTransferOnActivityRefno PRIMARY KEY,"
-          + "ActivitySubType int NOT NULL,"
-          + "ActivityTransferFKRefno int NOT NULL,"
+          + "ActivityRefno INTEGER NOT NULL CONSTRAINT PK_ActivityTransferOnActivityRefno PRIMARY KEY,"
+          + "ActivitySubType INTEGER NOT NULL,"
+          + "ActivityTransferFKRefno INTEGER NOT NULL,"
           + "ActivityTransferStringFKRefno nvarchar(8) NOT NULL,"
-          + "TransferToWarehouseLocationMapRefno int NOT NULL,"
+          + "TransferToWarehouseLocationMapRefno INTEGER NOT NULL,"
           + "ActivityTransferDescription nvarchar(30) NOT NULL,"
           + "ActivityTransferDateTime datetime NOT NULL,"
           + "ActivityTransferArrivalDateTime datetime NOT NULL, "
@@ -928,15 +928,15 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityTransferOnActivityRefnoAndActivitySubType ON "
+      string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ActivityTransferOnActivityRefnoAndActivitySubType ON "
           + "tActivityTransfer(ActivityRefno ASC, ActivitySubType ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityTransferOnActivityTransferFKRefno ON "
+      sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ActivityTransferOnActivityTransferFKRefno ON "
           + "tActivityTransfer(ActivityTransferFKRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE INDEX FK_ActivityTransferOnTransferToWarehouseLocationMapRefno ON "
+      sqlNdx = "CREATE INDEX IF NOT EXISTS FK_ActivityTransferOnTransferToWarehouseLocationMapRefno ON "
           + "tActivityTransfer(TransferToWarehouseLocationMapRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
@@ -957,14 +957,14 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     private void CreateTableActivityItemCount()
     {
-      string sqlTable = "CREATE TABLE tActivityItemCount"
+      string sqlTable = "CREATE TABLE IF NOT EXISTS tActivityItemCount"
           + "("
-          + "ActivityItemRefno int NOT NULL CONSTRAINT PK_ActivityItemCountOnActivityItemRefno PRIMARY KEY,"
-          + "ActivityItemSubType int NOT NULL,"
-          + "ActivityItemCountFKRefno int NOT NULL,"
+          + "ActivityItemRefno INTEGER NOT NULL CONSTRAINT PK_ActivityItemCountOnActivityItemRefno PRIMARY KEY,"
+          + "ActivityItemSubType INTEGER NOT NULL,"
+          + "ActivityItemCountFKRefno INTEGER NOT NULL,"
           + "ActivityItemCountStringFKRefno nvarchar(8) NOT NULL,"
-          + "ProductUnitRefno int NOT NULL,"
-          + "LocationMapRefno int NOT NULL,"
+          + "ProductUnitRefno INTEGER NOT NULL,"
+          + "LocationMapRefno INTEGER NOT NULL,"
           + "ActivityItemCountQuantityOnHand numeric(11, 3) NOT NULL,"
           + "ActivityItemCountBaseQuantityOnHand numeric(11, 3) NOT NULL,"
           + "ActivityItemCountWeightQuantityOnHand numeric(11, 3) NOT NULL,"
@@ -988,11 +988,11 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityItemCountOnActivityItemRefnoAndActivityItemSubType "
+      string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ActivityItemCountOnActivityItemRefnoAndActivityItemSubType "
           + "ON tActivityItemCount(ActivityItemRefno ASC, ActivityItemSubType ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityItemCountOnActivityItemCountFKRefno ON "
+      sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ActivityItemCountOnActivityItemCountFKRefno ON "
           + "tActivityItemCount(ActivityItemCountFKRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
@@ -1020,14 +1020,14 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     private void CreateTableActivityItemPicking()
     {
-      string sqlTable = "CREATE TABLE tActivityItemPicking"
+      string sqlTable = "CREATE TABLE IF NOT EXISTS tActivityItemPicking"
           + "("
-          + "ActivityItemRefno int NOT NULL CONSTRAINT PK_ActivityItemPickingOnActivityItemRefno PRIMARY KEY,"
-          + "ActivityItemSubType int NOT NULL,"
-          + "ActivityItemPickingFKRefno int NOT NULL,"
+          + "ActivityItemRefno INTEGER NOT NULL CONSTRAINT PK_ActivityItemPickingOnActivityItemRefno PRIMARY KEY,"
+          + "ActivityItemSubType INTEGER NOT NULL,"
+          + "ActivityItemPickingFKRefno INTEGER NOT NULL,"
           + "ActivityItemPickingStringFKRefno nvarchar(8) NOT NULL,"
-          + "ProductUnitRefno int NOT NULL,"
-          + "WarehouseLocationMapRefno int NOT NULL,"
+          + "ProductUnitRefno INTEGER NOT NULL,"
+          + "WarehouseLocationMapRefno INTEGER NOT NULL,"
           + "ActivityItemPickingQuantityOrdered numeric(11, 3) NOT NULL,"
           + "ActivityItemPickingBaseQuantityOrdered numeric(11, 3) NOT NULL,"
           + "ActivityItemPickingWeightQuantityOrdered numeric(11, 3) NOT NULL,"
@@ -1057,15 +1057,15 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityItemPickingOnActivityItemRefnoAndActivityItemSubType"
+      string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ActivityItemPickingOnActivityItemRefnoAndActivityItemSubType"
           + " ON tActivityItemPicking(ActivityItemRefno ASC, ActivityItemSubType ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityItemPickingOnActivityItemPickingFKRefno ON "
+      sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ActivityItemPickingOnActivityItemPickingFKRefno ON "
           + "tActivityItemPicking(ActivityItemPickingFKRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE INDEX FK_ActivityItemPickingOnWarehouseLocationMapRefno ON "
+      sqlNdx = "CREATE INDEX IF NOT EXISTS FK_ActivityItemPickingOnWarehouseLocationMapRefno ON "
           + "tActivityItemPicking(WarehouseLocationMapRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
@@ -1092,14 +1092,14 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     private void CreateTableActivityItemReturns()
     {
-      string sqlTable = "CREATE TABLE tActivityItemReturns"
+      string sqlTable = "CREATE TABLE IF NOT EXISTS tActivityItemReturns"
           + "("
-          + "ActivityItemRefno int NOT NULL CONSTRAINT PK_ActivityItemReturnsOnActivityItemRefno PRIMARY KEY,"
-          + "ActivityItemSubType int NOT NULL,"
-          + "ActivityItemReturnsFKRefno int NOT NULL,"
+          + "ActivityItemRefno INTEGER NOT NULL CONSTRAINT PK_ActivityItemReturnsOnActivityItemRefno PRIMARY KEY,"
+          + "ActivityItemSubType INTEGER NOT NULL,"
+          + "ActivityItemReturnsFKRefno INTEGER NOT NULL,"
           + "ActivityItemReturnsStringFKRefno nvarchar(8) NOT NULL,"
-          + "ProductUnitRefno int NOT NULL,"
-          + "WarehouseLocationMapRefno int NOT NULL,"
+          + "ProductUnitRefno INTEGER NOT NULL,"
+          + "WarehouseLocationMapRefno INTEGER NOT NULL,"
           + "ActivityItemReturnsQuantityReturned numeric(11, 3) NOT NULL,"
           + "ActivityItemReturnsBaseQuantityReturned numeric(11, 3) NOT NULL,"
           + "ActivityItemReturnsWeightQuantityReturned numeric(11, 3) NOT NULL,"
@@ -1122,15 +1122,15 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityItemReturnsOnActivityItemRefnoAndActivityItemSubType"
+      string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ActivityItemReturnsOnActivityItemRefnoAndActivityItemSubType"
           + " ON tActivityItemReturns(ActivityItemRefno ASC, ActivityItemSubType ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityItemReturnsOnActivityItemReturnsFKRefno ON "
+      sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ActivityItemReturnsOnActivityItemReturnsFKRefno ON "
           + "tActivityItemReturns(ActivityItemReturnsFKRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE INDEX FK_ActivityItemReturnsOnWarehouseLocationMapRefno ON "
+      sqlNdx = "CREATE INDEX IF NOT EXISTS FK_ActivityItemReturnsOnWarehouseLocationMapRefno ON "
           + "tActivityItemReturns(WarehouseLocationMapRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
@@ -1157,9 +1157,9 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     private void CreateTableActivityItemPickingComment()
     {
-      string sqlTable = "CREATE TABLE tActivityItemPickingComment"
+      string sqlTable = "CREATE TABLE IF NOT EXISTS tActivityItemPickingComment"
           + "("
-          + "ActivityItemRefno int NOT NULL CONSTRAINT PK_ActivityItemPickingCommentOnActivityItemRefno PRIMARY KEY,"
+          + "ActivityItemRefno INTEGER NOT NULL CONSTRAINT PK_ActivityItemPickingCommentOnActivityItemRefno PRIMARY KEY,"
           + "ActivityItemPickingCommentComment nvarchar(255) NOT NULL, "
           + "CONSTRAINT ActivityItemPickingCommentTactItemOnActivityItemRefno FOREIGN KEY (ActivityItemRefno) REFERENCES tActivityItemPicking(ActivityItemRefno) ON DELETE CASCADE ON UPDATE CASCADE"
           + ")";
@@ -1188,9 +1188,9 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     private void CreateTableActivityItemReturnsComment()
     {
-      string sqlTable = "CREATE TABLE tActivityItemReturnsComment"
+      string sqlTable = "CREATE TABLE IF NOT EXISTS tActivityItemReturnsComment"
           + "("
-          + "ActivityItemRefno int NOT NULL CONSTRAINT PK_ActivityItemReturnsCommentOnActivityItemRefno PRIMARY KEY,"
+          + "ActivityItemRefno INTEGER NOT NULL CONSTRAINT PK_ActivityItemReturnsCommentOnActivityItemRefno PRIMARY KEY,"
           + "ActivityItemReturnsCommentComment nvarchar(255) NOT NULL, "
           + "CONSTRAINT ActivityItemReturnsCommentTactItemOnActivityItemRefno FOREIGN KEY (ActivityItemRefno) REFERENCES tActivityItemReturns(ActivityItemRefno) ON DELETE CASCADE ON UPDATE CASCADE"
           + ")";
@@ -1219,14 +1219,14 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     private void CreateTableActivityItemReceiving()
     {
-      string sqlTable = "CREATE TABLE tActivityItemReceiving"
+      string sqlTable = "CREATE TABLE IF NOT EXISTS tActivityItemReceiving"
           + "("
-          + "ActivityItemRefno int NOT NULL CONSTRAINT PK_ActivityItemReceivingOnActivityItemRefno PRIMARY KEY,"
-          + "ActivityItemSubType int NOT NULL,"
-          + "ActivityItemReceivingFKRefno int NOT NULL,"
+          + "ActivityItemRefno INTEGER NOT NULL CONSTRAINT PK_ActivityItemReceivingOnActivityItemRefno PRIMARY KEY,"
+          + "ActivityItemSubType INTEGER NOT NULL,"
+          + "ActivityItemReceivingFKRefno INTEGER NOT NULL,"
           + "ActivityItemReceivingStringFKRefno nvarchar(8) NOT NULL,"
-          + "ProductUnitRefno int NOT NULL,"
-          + "WarehouseLocationMapRefno int NOT NULL,"
+          + "ProductUnitRefno INTEGER NOT NULL,"
+          + "WarehouseLocationMapRefno INTEGER NOT NULL,"
           + "ActivityItemReceivingQuantityOrdered numeric(11, 3) NOT NULL,"
           + "ActivityItemReceivingBaseQuantityOrdered numeric(11, 3) NOT NULL,"
           + "ActivityItemReceivingWeightQuantityOrdered numeric(11, 3) NOT NULL,"
@@ -1255,15 +1255,15 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityItemReceivingOnActivityItemRefnoAndActivityItemSubType"
+      string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ActivityItemReceivingOnActivityItemRefnoAndActivityItemSubType"
           + " ON tActivityItemReceiving(ActivityItemRefno ASC, ActivityItemSubType ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityItemReceivingOnActivityItemReceivingFKRefno ON "
+      sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ActivityItemReceivingOnActivityItemReceivingFKRefno ON "
           + "tActivityItemReceiving(ActivityItemReceivingFKRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE INDEX FK_ActivityItemReceivingOnWarehouseLocationMapRefno ON "
+      sqlNdx = "CREATE INDEX IF NOT EXISTS FK_ActivityItemReceivingOnWarehouseLocationMapRefno ON "
           + "tActivityItemReceiving(WarehouseLocationMapRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
@@ -1289,15 +1289,15 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     private void CreateTableActivityItemPurchaseOrderWorkSheet()
     {
-      string sqlTable = "CREATE TABLE tActivityItemPurchaseOrderWorkSheet"
+      string sqlTable = "CREATE TABLE IF NOT EXISTS tActivityItemPurchaseOrderWorkSheet"
           + "("
-          + "ActivityItemRefno int NOT NULL CONSTRAINT PK_ActivityItemPurchaseOrderWorkSheetOnActivityItemRefno "
+          + "ActivityItemRefno INTEGER NOT NULL CONSTRAINT PK_ActivityItemPurchaseOrderWorkSheetOnActivityItemRefno "
           + "PRIMARY KEY,"
-          + "ActivityItemSubType int NOT NULL,"
-          + "ActivityItemPurchaseOrderWorkSheetFKRefno int NOT NULL,"
+          + "ActivityItemSubType INTEGER NOT NULL,"
+          + "ActivityItemPurchaseOrderWorkSheetFKRefno INTEGER NOT NULL,"
           + "ActivityItemPurchaseOrderWorkSheetStringFKRefno nvarchar(8) NOT NULL,"
-          + "ProductUnitRefno int NOT NULL,"
-          + "WarehouseLocationMapRefno int NOT NULL,"
+          + "ProductUnitRefno INTEGER NOT NULL,"
+          + "WarehouseLocationMapRefno INTEGER NOT NULL,"
           + "ActivityItemPurchaseOrderWorkSheetQuantityOrdered numeric(11, 3) NOT NULL,"
           + "ActivityItemPurchaseOrderWorkSheetBaseQuantityOrdered numeric(11, 3) NOT NULL,"
           + "ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered numeric(11, 3) NOT NULL, "
@@ -1318,17 +1318,17 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE INDEX "
+      string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS "
           + "UQ_ActivityItemPurchaseOrderWorkSheetOnActivityItemRefnoAndActivityItemSubType ON "
           + "tActivityItemPurchaseOrderWorkSheet(ActivityItemRefno ASC, ActivityItemSubType ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE INDEX "
+      sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS "
           + "UQ_ActivityItemPurchaseOrderWorkSheetOnActivityItemPurchaseOrderWorkSheetFKRefno ON "
           + "tActivityItemPurchaseOrderWorkSheet(ActivityItemPurchaseOrderWorkSheetFKRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE INDEX FK_ActivityItemPurchaseOrderWorkSheetOnWarehouseLocationMapRefno ON "
+      sqlNdx = "CREATE INDEX IF NOT EXISTS FK_ActivityItemPurchaseOrderWorkSheetOnWarehouseLocationMapRefno ON "
           + "tActivityItemPurchaseOrderWorkSheet(WarehouseLocationMapRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
@@ -1355,9 +1355,9 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     private void CreateTableActivityItemReceivingComment()
     {
-      string sqlTable = "CREATE TABLE tActivityItemReceivingComment"
+      string sqlTable = "CREATE TABLE IF NOT EXISTS tActivityItemReceivingComment"
           + "("
-          + "ActivityItemRefno int NOT NULL CONSTRAINT PK_ActivityItemReceivingCommentOnActivityItemRefno PRIMARY KEY,"
+          + "ActivityItemRefno INTEGER NOT NULL CONSTRAINT PK_ActivityItemReceivingCommentOnActivityItemRefno PRIMARY KEY,"
           + "ActivityItemReceivingCommentComment nvarchar(255) NOT NULL, "
           + "CONSTRAINT ActivityItemReceivingCommentTactItemOnActivityItemRefno FOREIGN KEY (ActivityItemRefno) REFERENCES tActivityItemReceiving(ActivityItemRefno) ON DELETE CASCADE ON UPDATE CASCADE"
           + ")";
@@ -1386,14 +1386,14 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     private void CreateTableActivityItemTransfer()
     {
-      string sqlTable = "CREATE TABLE tActivityItemTransfer"
+      string sqlTable = "CREATE TABLE IF NOT EXISTS tActivityItemTransfer"
           + "("
-          + "ActivityItemRefno int NOT NULL CONSTRAINT PK_ActivityItemTransferOnActivityItemRefno PRIMARY KEY,"
-          + "ActivityItemSubType int NOT NULL,"
-          + "ActivityItemTransferFKRefno int NOT NULL,"
+          + "ActivityItemRefno INTEGER NOT NULL CONSTRAINT PK_ActivityItemTransferOnActivityItemRefno PRIMARY KEY,"
+          + "ActivityItemSubType INTEGER NOT NULL,"
+          + "ActivityItemTransferFKRefno INTEGER NOT NULL,"
           + "ActivityItemTransferStringFKRefno nvarchar(8) NOT NULL,"
-          + "ProductUnitRefno int NOT NULL,"
-          + "TransferFromWarehouseLocationMapRefno int NOT NULL,"
+          + "ProductUnitRefno INTEGER NOT NULL,"
+          + "TransferFromWarehouseLocationMapRefno INTEGER NOT NULL,"
           + "ActivityItemTransferRequiredQuantity numeric(11, 3) NOT NULL,"
           + "ActivityItemTransferQuantity numeric(11, 3) NOT NULL,"
           + "ActivityItemTransferBaseQuantity numeric(11, 3) NOT NULL,"
@@ -1416,15 +1416,15 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityItemTransferOnActivityItemRefnoAndActivityItemSubType"
+      string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ActivityItemTransferOnActivityItemRefnoAndActivityItemSubType"
           + " ON tActivityItemTransfer(ActivityItemRefno ASC, ActivityItemSubType ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityItemTransferOnActivityItemTransferFKRefno ON "
+      sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ActivityItemTransferOnActivityItemTransferFKRefno ON "
           + "tActivityItemTransfer(ActivityItemTransferFKRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE INDEX FK_ActivityItemTransferOnTransferFromWarehouseLocationMapRefno ON "
+      sqlNdx = "CREATE INDEX IF NOT EXISTS FK_ActivityItemTransferOnTransferFromWarehouseLocationMapRefno ON "
           + "tActivityItemTransfer(TransferFromWarehouseLocationMapRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
@@ -1451,10 +1451,10 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     private void CreateTableActivityItemBarCodeAssociationXRef()
     {
-      string sqlTable = "CREATE TABLE tActivityItemBarCodeAssociationXRef"
+      string sqlTable = "CREATE TABLE IF NOT EXISTS tActivityItemBarCodeAssociationXRef"
           + "("
-          + "ActivityItemRefno int NOT NULL,"
-          + "ProductUnitBarCodeRefno int NOT NULL, "
+          + "ActivityItemRefno INTEGER NOT NULL,"
+          + "ProductUnitBarCodeRefno INTEGER NOT NULL, "
           + "CONSTRAINT ActivityItemBarCodeAssociationXRefTactItemOnActivityItemRefno FOREIGN KEY (ActivityItemRefno) REFERENCES tActivityItem(ActivityItemRefno) ON DELETE CASCADE ON UPDATE CASCADE, "
           + "CONSTRAINT ActivityItemBarCodeAssociationXRefToProductUnitBarCodeOnProductUnitBarCodeRefno FOREIGN KEY (ProductUnitBarCodeRefno) REFERENCES tProductUnitBarCode(ProductUnitBarCodeRefno) ON DELETE CASCADE ON UPDATE CASCADE"
           + ")";
@@ -1471,16 +1471,16 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE INDEX "
+      string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS "
           + "PK_ActivityItemBarCodeAssociationXRefOnActivityItemRefnoAndProductUnitBarCodeRefno ON "
           + "tActivityItemBarCodeAssociationXRef(ActivityItemRefno ASC, ProductUnitBarCodeRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE INDEX FK_ActivityItemBarCodeAssociationXRefOnActivityItemRefno ON "
+      sqlNdx = "CREATE INDEX IF NOT EXISTS FK_ActivityItemBarCodeAssociationXRefOnActivityItemRefno ON "
           + "tActivityItemBarCodeAssociationXRef(ActivityItemRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE INDEX FK_ActivityItemBarCodeAssociationXRefOnProductUnitBarCodeRefno ON "
+      sqlNdx = "CREATE INDEX IF NOT EXISTS FK_ActivityItemBarCodeAssociationXRefOnProductUnitBarCodeRefno ON "
           + "tActivityItemBarCodeAssociationXRef(ProductUnitBarCodeRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
@@ -1502,10 +1502,10 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     private void CreateTableActivityDetailCount()
     {
-      string sqlTable = "CREATE TABLE tActivityDetailCount"
+      string sqlTable = "CREATE TABLE IF NOT EXISTS tActivityDetailCount"
           + "("
-          + "ActivityDetailRefno int NOT NULL CONSTRAINT PK_ActivityDetailCountOnActivityDetailRefno PRIMARY KEY,"
-          + "ActivityDetailCountFKRefno int NOT NULL, "
+          + "ActivityDetailRefno INTEGER NOT NULL CONSTRAINT PK_ActivityDetailCountOnActivityDetailRefno PRIMARY KEY,"
+          + "ActivityDetailCountFKRefno INTEGER NOT NULL, "
           + "CONSTRAINT ActivityDetailCountTactDetailOnActivityDetailRefno FOREIGN KEY (ActivityDetailRefno) REFERENCES tActivityDetail(ActivityDetailRefno) ON DELETE CASCADE ON UPDATE CASCADE"
           + ")";
 
@@ -1521,7 +1521,7 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityDetailCountOnActivityDetailCountFKRefno ON "
+      string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ActivityDetailCountOnActivityDetailCountFKRefno ON "
           + "tActivityDetailCount(ActivityDetailCountFKRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
@@ -1537,10 +1537,10 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     private void CreateTableActivityDetailPicking()
     {
-      string sqlTable = "CREATE TABLE tActivityDetailPicking"
+      string sqlTable = "CREATE TABLE IF NOT EXISTS tActivityDetailPicking"
           + "("
-          + "ActivityDetailRefno int NOT NULL CONSTRAINT PK_ActivityDetailPickingOnActivityDetailRefno PRIMARY KEY,"
-          + "ActivityDetailPickingFKRefno int NOT NULL,"
+          + "ActivityDetailRefno INTEGER NOT NULL CONSTRAINT PK_ActivityDetailPickingOnActivityDetailRefno PRIMARY KEY,"
+          + "ActivityDetailPickingFKRefno INTEGER NOT NULL,"
           + "ActivityDetailPickingIsConfirmed bit NOT NULL, "
           + "CONSTRAINT ActivityDetailPickingTactDetailOnActivityDetailRefno FOREIGN KEY (ActivityDetailRefno) REFERENCES tActivityDetail(ActivityDetailRefno) ON DELETE CASCADE ON UPDATE CASCADE"
           + ")";
@@ -1557,7 +1557,7 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityDetailPickingOnActivityDetailPickingFKRefno ON "
+      string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ActivityDetailPickingOnActivityDetailPickingFKRefno ON "
           + "tActivityDetailPicking(ActivityDetailPickingFKRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
@@ -1573,10 +1573,10 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     private void CreateTableActivityDetailReturns()
     {
-      string sqlTable = "CREATE TABLE tActivityDetailReturns" 
+      string sqlTable = "CREATE TABLE IF NOT EXISTS tActivityDetailReturns" 
                 + "(" 
-                + "ActivityDetailRefno int NOT NULL CONSTRAINT PK_ActivityDetailReturnsOnActivityDetailRefno PRIMARY KEY," 
-                + "ActivityDetailReturnsFKRefno int NOT NULL," 
+                + "ActivityDetailRefno INTEGER NOT NULL CONSTRAINT PK_ActivityDetailReturnsOnActivityDetailRefno PRIMARY KEY," 
+                + "ActivityDetailReturnsFKRefno INTEGER NOT NULL," 
                 + "ActivityDetailReturnsIsConfirmed bit NOT NULL, " 
                 + "CONSTRAINT ActivityDetailReturnsTactDetailOnActivityDetailRefno FOREIGN KEY (ActivityDetailRefno) REFERENCES tActivityDetail(ActivityDetailRefno) ON DELETE CASCADE ON UPDATE CASCADE"
                 + ")";
@@ -1592,7 +1592,7 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityDetailReturnsOnActivityDetailReturnsFKRefno ON "
+      string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ActivityDetailReturnsOnActivityDetailReturnsFKRefno ON "
           + "tActivityDetailReturns(ActivityDetailReturnsFKRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
@@ -1608,10 +1608,10 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     private void CreateTableActivityDetailReceiving()
     {
-      string sqlTable = "CREATE TABLE tActivityDetailReceiving"
+      string sqlTable = "CREATE TABLE IF NOT EXISTS tActivityDetailReceiving"
           + "("
-          + "ActivityDetailRefno int NOT NULL CONSTRAINT PK_ActivityDetailReceivingOnActivityDetailRefno PRIMARY KEY,"
-          + "ActivityDetailReceivingFKRefno int NOT NULL, "
+          + "ActivityDetailRefno INTEGER NOT NULL CONSTRAINT PK_ActivityDetailReceivingOnActivityDetailRefno PRIMARY KEY,"
+          + "ActivityDetailReceivingFKRefno INTEGER NOT NULL, "
           + "CONSTRAINT ActivityDetailReceivingTactDetailOnActivityDetailRefno FOREIGN KEY (ActivityDetailRefno) REFERENCES tActivityDetail(ActivityDetailRefno) ON DELETE CASCADE ON UPDATE CASCADE"
           + ")";
 
@@ -1627,7 +1627,7 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityDetailReceivingOnActivityDetailReceivingFKRefno ON "
+      string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ActivityDetailReceivingOnActivityDetailReceivingFKRefno ON "
           + "tActivityDetailReceiving(ActivityDetailReceivingFKRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
@@ -1643,10 +1643,10 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     private void CreateTableActivityDetailTransfer()
     {
-      string sqlTable = "CREATE TABLE tActivityDetailTransfer"
+      string sqlTable = "CREATE TABLE IF NOT EXISTS tActivityDetailTransfer"
           + "("
-          + "ActivityDetailRefno int NOT NULL CONSTRAINT PK_ActivityDetailTransferOnActivityDetailRefno PRIMARY KEY,"
-          + "ActivityDetailTransferFKRefno int NOT NULL,"
+          + "ActivityDetailRefno INTEGER NOT NULL CONSTRAINT PK_ActivityDetailTransferOnActivityDetailRefno PRIMARY KEY,"
+          + "ActivityDetailTransferFKRefno INTEGER NOT NULL,"
           + "ActivityDetailTransferIsConfirmed bit NOT NULL, "
           + "CONSTRAINT ActivityDetailTransferTactDetailOnActivityDetailRefno FOREIGN KEY (ActivityDetailRefno) REFERENCES tActivityDetail(ActivityDetailRefno) ON DELETE CASCADE ON UPDATE CASCADE"
           + ")";
@@ -1663,7 +1663,7 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityDetailTransferOnActivityDetailTransferFKRefno ON "
+      string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ActivityDetailTransferOnActivityDetailTransferFKRefno ON "
           + "tActivityDetailTransfer(ActivityDetailTransferFKRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
@@ -1679,9 +1679,9 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     private void CreateTableUnit()
     {
-      string sqlTable = "CREATE TABLE tUnit"
+      string sqlTable = "CREATE TABLE IF NOT EXISTS tUnit"
           + "("
-          + "UnitRefno int NOT NULL CONSTRAINT PK_UnitOnUnitRefno PRIMARY KEY,"
+          + "UnitRefno INTEGER NOT NULL CONSTRAINT PK_UnitOnUnitRefno PRIMARY KEY,"
           + "UnitCode nvarchar(2) NOT NULL"
           + ")";
 
@@ -1697,7 +1697,7 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE INDEX UQ_UnitOnUnitCode ON tUnit(UnitCode ASC)";
+      string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_UnitOnUnitCode ON tUnit(UnitCode ASC)";
       this.RunDDLCommand(sqlNdx);
     }
 
@@ -1707,9 +1707,9 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     private void CreateTableRoute()
     {
-      string sqlTable = "CREATE TABLE tRoute"
+      string sqlTable = "CREATE TABLE IF NOT EXISTS tRoute"
           + "("
-          + "RouteRefno int NOT NULL CONSTRAINT PK_RouteOnRouteRefno PRIMARY KEY,"
+          + "RouteRefno INTEGER NOT NULL CONSTRAINT PK_RouteOnRouteRefno PRIMARY KEY,"
           + "RouteCode nvarchar(5) NOT NULL,"
           + "RouteDescription nvarchar(35) NOT NULL,"
           + "RouteDayOfWeek nvarchar(3) NOT NULL"
@@ -1727,10 +1727,10 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE INDEX UQ_RouteOnRouteCode ON tRoute(RouteCode ASC)";
+      string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_RouteOnRouteCode ON tRoute(RouteCode ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE INDEX RouteOnRouteDescription ON tRoute(RouteDescription ASC)";
+      sqlNdx = "CREATE INDEX IF NOT EXISTS RouteOnRouteDescription ON tRoute(RouteDescription ASC)";
       this.RunDDLCommand(sqlNdx);
     }
 
@@ -1740,10 +1740,10 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     private void CreateTableLocationMap()
     {
-      string sqlTable = "CREATE TABLE tLocationMap"
+      string sqlTable = "CREATE TABLE IF NOT EXISTS tLocationMap"
           + "("
-          + "LocationMapRefno int NOT NULL CONSTRAINT PK_LocationMapOnLocationMapRefno PRIMARY KEY,"
-          + "LocationMapSubType int NOT NULL"
+          + "LocationMapRefno INTEGER NOT NULL CONSTRAINT PK_LocationMapOnLocationMapRefno PRIMARY KEY,"
+          + "LocationMapSubType INTEGER NOT NULL"
           + ")";
 
       if (this.OnNubStatOut != null)
@@ -1758,7 +1758,7 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE INDEX UQ_LocationMapOnLocationMapRefnoAndLocationMapSubType ON "
+      string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_LocationMapOnLocationMapRefnoAndLocationMapSubType ON "
           + "tLocationMap(LocationMapRefno ASC, LocationMapSubType ASC)";
       this.RunDDLCommand(sqlNdx);
     }
@@ -1769,13 +1769,13 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     private void CreateTableLocationMapWarehouse()
     {
-      string sqlTable = "CREATE TABLE tLocationMapWarehouse"
+      string sqlTable = "CREATE TABLE IF NOT EXISTS tLocationMapWarehouse"
           + "("
-          + "LocationMapRefno int NOT NULL CONSTRAINT PK_LocationMapWarehouseOnLocationMapRefno PRIMARY KEY,"
-          + "LocationMapSubType int NOT NULL,"
+          + "LocationMapRefno INTEGER NOT NULL CONSTRAINT PK_LocationMapWarehouseOnLocationMapRefno PRIMARY KEY,"
+          + "LocationMapSubType INTEGER NOT NULL,"
           + "LocationMapWarehouseName nvarchar(22) NOT NULL,"
-          + "LocationMapWarehouseCode int NOT NULL,"
-          + "LocationMapWarehouseFKRefno int NOT NULL,"
+          + "LocationMapWarehouseCode INTEGER NOT NULL,"
+          + "LocationMapWarehouseFKRefno INTEGER NOT NULL,"
           + "LocationMapWarehouseBarCode nvarchar(13) NOT NULL,"
           + "CONSTRAINT LocationMapWarehouseToLocationMapOnLocationMapRefno FOREIGN KEY (LocationMapRefno) REFERENCES "
           + "tLocationMap(LocationMapRefno) ON DELETE CASCADE ON UPDATE CASCADE" 
@@ -1819,23 +1819,23 @@ namespace dMobile.GroundWork
             //this.RunDDLCommand(alterTable);
 
 
-            string sqlNdx = "CREATE UNIQUE INDEX UQ_LocationMapWarehouseOnLocationMapRefnoAndLocationMapSubType "
+            string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_LocationMapWarehouseOnLocationMapRefnoAndLocationMapSubType "
                 + "ON tLocationMapWarehouse(LocationMapRefno ASC, LocationMapSubType ASC)";
             this.RunDDLCommand(sqlNdx);
 
-            sqlNdx = "CREATE UNIQUE INDEX UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno ON "
+            sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno ON "
                 + "tLocationMapWarehouse(LocationMapWarehouseFKRefno ASC)";
             this.RunDDLCommand(sqlNdx);
 
-            sqlNdx = "CREATE UNIQUE INDEX UQ_LocationMapWarehouseOnLocationMapWarehouseName ON "
+            sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_LocationMapWarehouseOnLocationMapWarehouseName ON "
                 + "tLocationMapWarehouse(LocationMapWarehouseName ASC)";
             this.RunDDLCommand(sqlNdx);
 
-            sqlNdx = "CREATE UNIQUE INDEX UQ_LocationMapWarehouseOnLocationMapWarehouseCode ON "
+            sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_LocationMapWarehouseOnLocationMapWarehouseCode ON "
                 + "tLocationMapWarehouse(LocationMapWarehouseCode ASC)";
             this.RunDDLCommand(sqlNdx);
 
-            sqlNdx = "CREATE UNIQUE INDEX UQ_LocationMapWarehouseOnLocationMapWarehouseBarCode ON "
+            sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_LocationMapWarehouseOnLocationMapWarehouseBarCode ON "
                 + "tLocationMapWarehouse(LocationMapWarehouseBarCode ASC)";
             this.RunDDLCommand(sqlNdx);
 
@@ -1851,14 +1851,14 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     private void CreateTableLocationMapSection()
     {
-        string sqlTable = "CREATE TABLE tLocationMapSection"
+        string sqlTable = "CREATE TABLE IF NOT EXISTS tLocationMapSection"
             + "("
-            + "LocationMapRefno int NOT NULL CONSTRAINT PK_LocationMapSectionOnLocationMapRefno PRIMARY KEY,"
-            + "LocationMapSubType int NOT NULL,"
-            + "WarehouseLocationMapRefno int NOT NULL,"
-            + "LocationMapSectionCode int NOT NULL,"
+            + "LocationMapRefno INTEGER NOT NULL CONSTRAINT PK_LocationMapSectionOnLocationMapRefno PRIMARY KEY,"
+            + "LocationMapSubType INTEGER NOT NULL,"
+            + "WarehouseLocationMapRefno INTEGER NOT NULL,"
+            + "LocationMapSectionCode INTEGER NOT NULL,"
             + "LocationMapSectionName nvarchar(10),"
-            + "LocationMapSectionFKRefno int NOT NULL,"
+            + "LocationMapSectionFKRefno INTEGER NOT NULL,"
             + "LocationMapSectionBarCode nvarchar(13),"
             + "CONSTRAINT LocationMapSectionToLocationMapOnLocationMapRefno "
             + "FOREIGN KEY (LocationMapRefno) "
@@ -1878,27 +1878,27 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE INDEX FK_LocationMapSectionOnWarehouseLocationMapRefno ON "
+      string sqlNdx = "CREATE INDEX IF NOT EXISTS FK_LocationMapSectionOnWarehouseLocationMapRefno ON "
           + "tLocationMapSection(WarehouseLocationMapRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE INDEX UQ_LocationMapSectionOnLocationMapRefnoAndLocationMapSubType ON "
+      sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_LocationMapSectionOnLocationMapRefnoAndLocationMapSubType ON "
           + "tLocationMapSection(LocationMapRefno ASC, LocationMapSubType ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE INDEX UQ_LocationMapSectionOnLocationMapSectionFKRefno ON "
+      sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_LocationMapSectionOnLocationMapSectionFKRefno ON "
           + "tLocationMapSection(LocationMapSectionFKRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE INDEX UQ_LocationMapSectionOnWarehouseLocationMapRefnoLocationMapSectionName"
+      sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_LocationMapSectionOnWarehouseLocationMapRefnoLocationMapSectionName"
           + " ON tLocationMapSection(WarehouseLocationMapRefno ASC, LocationMapSectionName ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE INDEX UQ_LocationMapSectionOnLocationMapSectionCode ON "
+      sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_LocationMapSectionOnLocationMapSectionCode ON "
           + "tLocationMapSection(LocationMapSectionCode ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE INDEX UQ_LocationMapSectionOnLocationMapSectionBarCode ON "
+      sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_LocationMapSectionOnLocationMapSectionBarCode ON "
           + "tLocationMapSection(LocationMapSectionBarCode ASC)";
       this.RunDDLCommand(sqlNdx);
 
@@ -1914,10 +1914,10 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     private void CreateTableLocationMapSlotCoordinate()
     {
-      string sqlTable = "CREATE TABLE tLocationMapSlotCoordinate"
+      string sqlTable = "CREATE TABLE IF NOT EXISTS tLocationMapSlotCoordinate"
           + "("
-          + "LocationMapSlotCoordinateRefno int NOT NULL CONSTRAINT PK_LocationMapSlotCoordinateRefno PRIMARY KEY,"
-          + "LocationMapSlotCoordinateEnum int NOT NULL,"
+          + "LocationMapSlotCoordinateRefno INTEGER NOT NULL CONSTRAINT PK_LocationMapSlotCoordinateRefno PRIMARY KEY,"
+          + "LocationMapSlotCoordinateEnum INTEGER NOT NULL,"
           + "LocationMapSlotCoordinateCode nvarchar(10) NOT NULL"
           + ")";
 
@@ -1933,7 +1933,7 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE INDEX "
+      string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS "
           + "UQ_LocationMapSlotCoordOnLocationMapSlotCoordEnumAndLocationMapSlotCoordCode ON "
           + "tLocationMapSlotCoordinate(LocationMapSlotCoordinateEnum ASC, LocationMapSlotCoordinateCode ASC)";
       this.RunDDLCommand(sqlNdx);
@@ -1947,19 +1947,19 @@ namespace dMobile.GroundWork
     {
       //// LocationMapSlotCode is a de-normalized agregate of the coordinates 1+2+3
 
-      string sqlTable = "CREATE TABLE tLocationMapSlot"
+      string sqlTable = "CREATE TABLE IF NOT EXISTS tLocationMapSlot"
           + "("
-          + "LocationMapRefno int NOT NULL CONSTRAINT PK_LocationMapSlotOnLocationMapRefno PRIMARY KEY,"
-          + "LocationMapSubType int NOT NULL,"
-          + "SectionLocationMapRefno int NOT NULL,"
-          + "LocationMapSlotCode int NOT NULL,"
+          + "LocationMapRefno INTEGER NOT NULL CONSTRAINT PK_LocationMapSlotOnLocationMapRefno PRIMARY KEY,"
+          + "LocationMapSubType INTEGER NOT NULL,"
+          + "SectionLocationMapRefno INTEGER NOT NULL,"
+          + "LocationMapSlotCode INTEGER NOT NULL,"
           + "LocationMapSlotName nvarchar(10) NOT NULL,"
-          + "SlotCoord1LocationMapRefno int NOT NULL,"
-          + "SlotCoord2LocationMapRefno int NOT NULL,"
-          + "SlotCoord3LocationMapRefno int NOT NULL,"
-          + "LocationMapSlotFKRefno int NOT NULL,"
+          + "SlotCoord1LocationMapRefno INTEGER NOT NULL,"
+          + "SlotCoord2LocationMapRefno INTEGER NOT NULL,"
+          + "SlotCoord3LocationMapRefno INTEGER NOT NULL,"
+          + "LocationMapSlotFKRefno INTEGER NOT NULL,"
           + "LocationMapSlotBarCode nvarchar(13) NOT NULL,"
-          + "WarehouseLocationMapRefno int NOT NULL,"
+          + "WarehouseLocationMapRefno INTEGER NOT NULL,"
           + "CONSTRAINT LocationMapSlotToLocationMapOnLocationMapRefno "
           + "FOREIGN KEY (LocationMapRefno) REFERENCES tLocationMap(LocationMapRefno) "
           + "ON DELETE CASCADE ON UPDATE CASCADE,"
@@ -1985,43 +1985,43 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE INDEX FK_LocationMapSlotOnSectionLocationMapRefno ON "
+      string sqlNdx = "CREATE INDEX IF NOT EXISTS FK_LocationMapSlotOnSectionLocationMapRefno ON "
           + "tLocationMapSlot(SectionLocationMapRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE INDEX FK_LocationMapSlotOnWarehouseLocationMapRefno ON "
+      sqlNdx = "CREATE INDEX IF NOT EXISTS FK_LocationMapSlotOnWarehouseLocationMapRefno ON "
           + "tLocationMapSlot(WarehouseLocationMapRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE INDEX FK_LocationMapSlotOnSlotCoord1LocationMapRefno ON "
+      sqlNdx = "CREATE INDEX IF NOT EXISTS FK_LocationMapSlotOnSlotCoord1LocationMapRefno ON "
           + "tLocationMapSlot(SlotCoord1LocationMapRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE INDEX FK_LocationMapSlotOnSlotCoord2LocationMapRefno ON "
+      sqlNdx = "CREATE INDEX IF NOT EXISTS FK_LocationMapSlotOnSlotCoord2LocationMapRefno ON "
           + "tLocationMapSlot(SlotCoord2LocationMapRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE INDEX FK_LocationMapSlotOnSlotCoord3LocationMapRefno ON "
+      sqlNdx = "CREATE INDEX IF NOT EXISTS FK_LocationMapSlotOnSlotCoord3LocationMapRefno ON "
           + "tLocationMapSlot(SlotCoord3LocationMapRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE INDEX UQ_LocationMapSlotOnLocationMapRefnoAndLocationMapSubType ON "
+      sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_LocationMapSlotOnLocationMapRefnoAndLocationMapSubType ON "
           + "tLocationMapSlot(LocationMapRefno ASC, LocationMapSubType ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE INDEX UQ_LocationMapSlotOnLocationMapSlotFKRefno ON "
+      sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_LocationMapSlotOnLocationMapSlotFKRefno ON "
           + "tLocationMapSlot(LocationMapSlotFKRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE INDEX UQ_LocationMapSlotOnLocationMapSlotCode ON "
+      sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_LocationMapSlotOnLocationMapSlotCode ON "
           + "tLocationMapSlot(LocationMapSlotCode ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE INDEX UQ_LocationMapSlotOnSectionLocationMapRefnoAndLocationMapSlotCode ON "
+      sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_LocationMapSlotOnSectionLocationMapRefnoAndLocationMapSlotCode ON "
           + "tLocationMapSlot(SectionLocationMapRefno ASC, LocationMapSlotCode ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE INDEX UQ_LocationMapSlotOnLocationMapSlotBarCode ON "
+      sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_LocationMapSlotOnLocationMapSlotBarCode ON "
           + "tLocationMapSlot(LocationMapSlotBarCode ASC)";
       this.RunDDLCommand(sqlNdx);
 
@@ -2058,10 +2058,10 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     private void CreateTableLocationMapType()
     {
-      string sqlTable = "CREATE TABLE tLocationMapType"
+      string sqlTable = "CREATE TABLE IF NOT EXISTS tLocationMapType"
           + "("
-          + "LocationMapRefno int NOT NULL,"
-          + "LocationMapTypeEnum int NOT NULL,"
+          + "LocationMapRefno INTEGER NOT NULL,"
+          + "LocationMapTypeEnum INTEGER NOT NULL,"
           + "CONSTRAINT LocationMapTypeToLocationMapOnLocationMapRefno "
           + "FOREIGN KEY (LocationMapRefno) REFERENCES tLocationMap(LocationMapRefno) "
           + "ON DELETE CASCADE ON UPDATE CASCADE"
@@ -2079,11 +2079,11 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE INDEX PK_LocationMapTypeOnLocationMapRefnoAndLocationMapTypeEnum ON "
+      string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS PK_LocationMapTypeOnLocationMapRefnoAndLocationMapTypeEnum ON "
           + "tLocationMapType(LocationMapRefno ASC, LocationMapTypeEnum ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE INDEX FK_LocationMapTypeOnLocationMapRefno ON "
+      sqlNdx = "CREATE INDEX IF NOT EXISTS FK_LocationMapTypeOnLocationMapRefno ON "
           + "tLocationMapType(LocationMapRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
@@ -2099,10 +2099,10 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     private void CreateTableProductSchemeVariantXRef()
     {
-      string sqlTable = "CREATE TABLE tProductSchemeVariantXRef"
+      string sqlTable = "CREATE TABLE IF NOT EXISTS tProductSchemeVariantXRef"
           + "("
-          + "ProductSchemeRefno int NOT NULL,"
-          + "ProductSchemeVariantRefno int NOT NULL, "
+          + "ProductSchemeRefno INTEGER NOT NULL,"
+          + "ProductSchemeVariantRefno INTEGER NOT NULL, "
           + "CONSTRAINT ProductSchemeVariantXRefToProductSchemeVariantOnProductSchemeVariantRefno " 
           + "FOREIGN KEY (ProductSchemeVariantRefno) REFERENCES tProductSchemeVariant(ProductSchemeVariantRefno) ON DELETE CASCADE ON UPDATE CASCADE, "
           + "CONSTRAINT ProductSchemeVariantXRefToProductSchemeOnProductSchemeRefno FOREIGN KEY (ProductSchemeRefno) REFERENCES tProductScheme(ProductSchemeRefno) "
@@ -2121,16 +2121,16 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE INDEX "
+      string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS "
           + "PK_ProductSchemeVariantXRefOnProductSchemeRefnoAndProductSchemeVariantRefno ON "
           + "tProductSchemeVariantXRef(ProductSchemeRefno ASC, ProductSchemeVariantRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE INDEX FK_ProductSchemeVariantXRefOnProductSchemeRefno ON "
+      sqlNdx = "CREATE INDEX IF NOT EXISTS FK_ProductSchemeVariantXRefOnProductSchemeRefno ON "
           + "tProductSchemeVariantXRef(ProductSchemeRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE INDEX FK_ProductSchemeVariantXRefOnProductSchemeVariantRefno ON "
+      sqlNdx = "CREATE INDEX IF NOT EXISTS FK_ProductSchemeVariantXRefOnProductSchemeVariantRefno ON "
           + "tProductSchemeVariantXRef(ProductSchemeVariantRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
@@ -2152,10 +2152,10 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     private void CreateTableProductSchemeLotNumberXRef()
     {
-      string sqlTable = "CREATE TABLE tProductSchemeLotNumberXRef"
+      string sqlTable = "CREATE TABLE IF NOT EXISTS tProductSchemeLotNumberXRef"
           + "("
-          + "ProductSchemeRefno int NOT NULL,"
-          + "ProductSchemeLotNumberRefno int NOT NULL, "
+          + "ProductSchemeRefno INTEGER NOT NULL,"
+          + "ProductSchemeLotNumberRefno INTEGER NOT NULL, "
           + "CONSTRAINT ProductSchemeLotNumberXRefToProductSchemeLotNumberOnProductSchemeLotNumberRefno " 
           + "FOREIGN KEY (ProductSchemeLotNumberRefno) REFERENCES tProductSchemeLotNumber(ProductSchemeLotNumberRefno) ON DELETE CASCADE ON UPDATE CASCADE "
           + "CONSTRAINT ProductSchemeLotNumberXRefToProductSchemeOnProductSchemeRefno " 
@@ -2174,16 +2174,16 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE INDEX "
+      string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS "
           + "PK_ProductSchemeLotNumberXRefOnProductSchemeRefnoAndProductSchemeLotNumberRefno ON "
           + "tProductSchemeLotNumberXRef(ProductSchemeRefno ASC, ProductSchemeLotNumberRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE INDEX FK_ProductSchemeLotNumberXRefOnProductSchemeRefno ON "
+      sqlNdx = "CREATE INDEX IF NOT EXISTS FK_ProductSchemeLotNumberXRefOnProductSchemeRefno ON "
           + "tProductSchemeLotNumberXRef(ProductSchemeRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE INDEX FK_ProductSchemeLotNumberXRefOnProductSchemeLotNumberRefno ON "
+      sqlNdx = "CREATE INDEX IF NOT EXISTS FK_ProductSchemeLotNumberXRefOnProductSchemeLotNumberRefno ON "
           + "tProductSchemeLotNumberXRef(ProductSchemeLotNumberRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
@@ -2205,9 +2205,9 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     private void CreateTableProductScheme()
     {
-      string sqlTable = "CREATE TABLE tProductScheme"
+      string sqlTable = "CREATE TABLE IF NOT EXISTS tProductScheme"
           + "("
-          + "ProductSchemeRefno int NOT NULL CONSTRAINT PK_ProductSchemeOnProductSchemeRefno PRIMARY KEY,"
+          + "ProductSchemeRefno INTEGER NOT NULL CONSTRAINT PK_ProductSchemeOnProductSchemeRefno PRIMARY KEY,"
           + "ProductSchemeCode nvarchar(10) NOT NULL,"
           + "ProductSchemeIsSerialTracked bit NOT NULL,"
           + "ProductSchemeIsProductionDateTracked bit NOT NULL,"
@@ -2218,11 +2218,11 @@ namespace dMobile.GroundWork
           + "ProductSchemeIsProductionDateUniqueComponent bit NOT NULL,"
           + "ProductSchemeIsBestBeforeDateUniqueComponent bit NOT NULL,"
           + "ProductSchemeIsVariantUniqueComponent bit NOT NULL,"
-          + "ProductSchemeExtra1Type int NOT NULL,"
-          + "ProductSchemeExtra2Type int NOT NULL,"
-          + "ProductSchemeExtra3Type int NOT NULL,"
-          + "ProductSchemeExtra4Type int NOT NULL,"
-          + "ProductSchemeExtra5Type int NOT NULL,"
+          + "ProductSchemeExtra1Type INTEGER NOT NULL,"
+          + "ProductSchemeExtra2Type INTEGER NOT NULL,"
+          + "ProductSchemeExtra3Type INTEGER NOT NULL,"
+          + "ProductSchemeExtra4Type INTEGER NOT NULL,"
+          + "ProductSchemeExtra5Type INTEGER NOT NULL,"
           + "ProductSchemeExtra1Caption nvarchar(10) NOT NULL,"
           + "ProductSchemeExtra2Caption nvarchar(10) NOT NULL,"
           + "ProductSchemeExtra3Caption nvarchar(10) NOT NULL,"
@@ -2250,7 +2250,7 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE INDEX UQ_ProductSchemeOnProductSchemeCode ON "
+      string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ProductSchemeOnProductSchemeCode ON "
           + "tProductScheme(ProductSchemeCode ASC)";
       this.RunDDLCommand(sqlNdx);
     }
@@ -2261,13 +2261,13 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     private void CreateTableProductSchemeVariant()
     {
-      string sqlTable = "CREATE TABLE tProductSchemeVariant"
+      string sqlTable = "CREATE TABLE IF NOT EXISTS tProductSchemeVariant"
           + "("
-          + "ProductSchemeVariantRefno int NOT NULL CONSTRAINT "
+          + "ProductSchemeVariantRefno INTEGER NOT NULL CONSTRAINT "
           + "PK_ProductSchemeVariantOnProductSchemeVariantRefno PRIMARY KEY,"
           + "ProductSchemeVariantCode nvarchar(5) NOT NULL,"
           + "ProductSchemeVariantDescription nvarchar(30) NOT NULL,"
-          + "ProductSchemeVariantNo int NOT NULL,"
+          + "ProductSchemeVariantNo INTEGER NOT NULL,"
           + "ProductSchemeVariantIsDefault bit NOT NULL "
           + ")";
 
@@ -2283,11 +2283,11 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE INDEX UQ_ProductSchemeVariantOnProductSchemeVariantCode ON "
+      string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ProductSchemeVariantOnProductSchemeVariantCode ON "
           + "tProductSchemeVariant(ProductSchemeVariantCode ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE INDEX UQ_ProductSchemeVariantOnProductSchemeVariantNo ON "
+      sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ProductSchemeVariantOnProductSchemeVariantNo ON "
           + "tProductSchemeVariant(ProductSchemeVariantNo ASC)";
       this.RunDDLCommand(sqlNdx);
     }
@@ -2298,9 +2298,9 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     private void CreateTableProductSchemeLotNumber()
     {
-      string sqlTable = "CREATE TABLE tProductSchemeLotNumber"
+      string sqlTable = "CREATE TABLE IF NOT EXISTS tProductSchemeLotNumber"
           + "("
-          + "ProductSchemeLotNumberRefno int NOT NULL CONSTRAINT "
+          + "ProductSchemeLotNumberRefno INTEGER NOT NULL CONSTRAINT "
           + "PK_ProductSchemeLotNumberOnProductSchemeLotNumberRefno PRIMARY KEY,"
           + "ProductSchemeLotNumberCode nvarchar(20) NOT NULL,"
           + "ProductSchemeLotNumberCodeDefault nvarchar(20) NOT NULL"
@@ -2318,7 +2318,7 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE INDEX UQ_ProductSchemeLotNumberOnProductSchemeLotNumberCode ON "
+      string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ProductSchemeLotNumberOnProductSchemeLotNumberCode ON "
           + "tProductSchemeLotNumber(ProductSchemeLotNumberCode ASC)";
       this.RunDDLCommand(sqlNdx);
     }
@@ -2329,13 +2329,13 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     private void CreateTableProduct()
     {
-      string sqlTable = "CREATE TABLE tProduct" 
+      string sqlTable = "CREATE TABLE IF NOT EXISTS tProduct" 
           + "(" 
-          + "ProductRefno int NOT NULL CONSTRAINT PK_ProductOnProductRefno PRIMARY KEY," 
-          + "ProductSchemeRefno int NOT NULL," 
-          + "FamilyRefno int NOT NULL," 
+          + "ProductRefno INTEGER NOT NULL CONSTRAINT PK_ProductOnProductRefno PRIMARY KEY," 
+          + "ProductSchemeRefno INTEGER NOT NULL," 
+          + "FamilyRefno INTEGER NOT NULL," 
           + "ProductCode nvarchar(10) NOT NULL," 
-          + "ProductFKRefno int NOT NULL," 
+          + "ProductFKRefno INTEGER NOT NULL," 
           + "ProductDescription nvarchar(25) NOT NULL," 
           + "ProductIsCatchCount bit NOT NULL," 
           + "ProductIsCatchWeight bit NOT NULL," 
@@ -2359,16 +2359,16 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE INDEX FK_ProductOnProductSchemeRefno ON tProduct(ProductSchemeRefno ASC)";
+      string sqlNdx = "CREATE INDEX IF NOT EXISTS FK_ProductOnProductSchemeRefno ON tProduct(ProductSchemeRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE INDEX UQ_ProductOnProductCode ON tProduct(ProductCode ASC)";
+      sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ProductOnProductCode ON tProduct(ProductCode ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE INDEX ProductOnProductDescription ON tProduct(ProductDescription ASC)";
+      sqlNdx = "CREATE INDEX IF NOT EXISTS ProductOnProductDescription ON tProduct(ProductDescription ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE INDEX UQ_ProductOnProductFKRefno ON tProduct(ProductFKRefno ASC)";
+      sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ProductOnProductFKRefno ON tProduct(ProductFKRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
       //string alterTable = "ALTER TABLE tProduct ADD CONSTRAINT ProductToProductSchemeOnProductSchemeRefno " 
@@ -2383,13 +2383,13 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     private void CreateTableProductUnit()
     {
-      string sqlTable = "CREATE TABLE tProductUnit" 
+      string sqlTable = "CREATE TABLE IF NOT EXISTS tProductUnit" 
           + "(" 
-          + "ProductUnitRefno int NOT NULL CONSTRAINT PK_ProductUnitOnProductUnitRefno PRIMARY KEY," 
-          + "ProductRefno int NOT NULL," 
-          + "UnitRefno int NOT NULL," 
-          + "BaseUnitRefno int NOT NULL," 
-          + "WtUnitRefno int NOT NULL," 
+          + "ProductUnitRefno INTEGER NOT NULL CONSTRAINT PK_ProductUnitOnProductUnitRefno PRIMARY KEY," 
+          + "ProductRefno INTEGER NOT NULL," 
+          + "UnitRefno INTEGER NOT NULL," 
+          + "BaseUnitRefno INTEGER NOT NULL," 
+          + "WtUnitRefno INTEGER NOT NULL," 
           + "ProductUnitIsBC bit NOT NULL," 
           + "ProductUnitBC nvarchar(1) NOT NULL," 
           + "ProductUnitWeight numeric(11, 3) NOT NULL," 
@@ -2415,19 +2415,19 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE INDEX FK_ProductUnitOnProductRefno ON tProductUnit(ProductRefno ASC)";
+      string sqlNdx = "CREATE INDEX IF NOT EXISTS FK_ProductUnitOnProductRefno ON tProductUnit(ProductRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE INDEX FK_ProductUnitOnUnitRefno ON tProductUnit(UnitRefno ASC)";
+      sqlNdx = "CREATE INDEX IF NOT EXISTS FK_ProductUnitOnUnitRefno ON tProductUnit(UnitRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE INDEX FK_ProductUnitOnBaseUnitRefno ON tProductUnit(BaseUnitRefno ASC)";
+      sqlNdx = "CREATE INDEX IF NOT EXISTS FK_ProductUnitOnBaseUnitRefno ON tProductUnit(BaseUnitRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE INDEX FK_ProductUnitOnWtUnitRefno ON tProductUnit(WtUnitRefno ASC)";
+      sqlNdx = "CREATE INDEX IF NOT EXISTS FK_ProductUnitOnWtUnitRefno ON tProductUnit(WtUnitRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE INDEX UQ_ProductUnitOnProductRefnoAndUnitRefnoAndProductUnitIsBC " 
+      sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ProductUnitOnProductRefnoAndUnitRefnoAndProductUnitIsBC " 
           + "ON tProductUnit(ProductRefno ASC, UnitRefno ASC, ProductUnitIsBC ASC)";
       this.RunDDLCommand(sqlNdx);
 
@@ -2455,16 +2455,16 @@ namespace dMobile.GroundWork
     private void CreateTableProductUnitBarCode()
     {
       // 255 max len for a 1D barcode
-      string sqlTable = "CREATE TABLE tProductUnitBarCode"
+      string sqlTable = "CREATE TABLE IF NOT EXISTS tProductUnitBarCode"
           + "("
-          + "ProductUnitBarCodeRefno int NOT NULL CONSTRAINT "
+          + "ProductUnitBarCodeRefno INTEGER NOT NULL CONSTRAINT "
           + "PK_ProductUnitBarCodeOnProductUnitBarCodeRefno PRIMARY KEY,"
-          + "ProductUnitRefno int NOT NULL,"
+          + "ProductUnitRefno INTEGER NOT NULL,"
           + "ProductUnitBarCodeCode nvarchar(20) NOT NULL,"
           + "ProductUnitBarCodeRaw nvarchar(255) NOT NULL,"
-          + "ProductUnitBarCodeSymbologyEnum int NOT NULL,"
+          + "ProductUnitBarCodeSymbologyEnum INTEGER NOT NULL,"
           + "ProductUnitBarCodeModifier1 nvarchar(1) NOT NULL,"
-          + "ProductUnitBarCodeStatus int NOT NULL, "
+          + "ProductUnitBarCodeStatus INTEGER NOT NULL, "
           + "CONSTRAINT ProductUnitBarCodeToProductUnitOnProductUnitRefno FOREIGN KEY (ProductUnitRefno) REFERENCES tProductUnit(ProductUnitRefno) ON DELETE CASCADE ON UPDATE CASCADE"
           + ")";
 
@@ -2480,11 +2480,11 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE INDEX FK_ProductUnitBarCodeOnProductUnitRefno ON "
+      string sqlNdx = "CREATE INDEX IF NOT EXISTS FK_ProductUnitBarCodeOnProductUnitRefno ON "
           + "tProductUnitBarCode(ProductUnitRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE INDEX "
+      sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS "
           + "UQ_ProductUnitBarCodeOnProductUnitBarCodeCodeAndProductUnitBarCodeModifier1 ON "
           + "tProductUnitBarCode(ProductUnitBarCodeCode ASC, ProductUnitBarCodeModifier1 ASC)";
       this.RunDDLCommand(sqlNdx);
@@ -2501,10 +2501,10 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     private void CreateTableProductUnitRelation()
     {
-      string sqlTable = "CREATE TABLE tProductUnitRelation"
+      string sqlTable = "CREATE TABLE IF NOT EXISTS tProductUnitRelation"
           + "("
-          + "ProductUnit1Refno int NOT NULL,"
-          + "ProductUnit2Refno int NOT NULL,"
+          + "ProductUnit1Refno INTEGER NOT NULL,"
+          + "ProductUnit2Refno INTEGER NOT NULL,"
           + "ProductUnitRelationFactor numeric(12, 6) NOT NULL, "
           + "CONSTRAINT ProductUnitRelationToProductUnitOnProductUnit1RefnoAndProductUnitRefno FOREIGN KEY (ProductUnit1Refno) REFERENCES tProductUnit(ProductUnitRefno), "
           + "CONSTRAINT ProductUnitRelationToProductUnitOnProductUnit2RefnoAndProductUnitRefno FOREIGN KEY (ProductUnit2Refno) REFERENCES tProductUnit(ProductUnitRefno)"
@@ -2522,15 +2522,15 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE INDEX PK_ProductUnitRelationOnProductUnit1RefnoAndProductUnit2Refno "
+      string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS PK_ProductUnitRelationOnProductUnit1RefnoAndProductUnit2Refno "
           + "ON tProductUnitRelation(ProductUnit1Refno, ProductUnit2Refno)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE INDEX FK_ProductUnitRelationOnProductUnit1Refno ON "
+      sqlNdx = "CREATE INDEX IF NOT EXISTS FK_ProductUnitRelationOnProductUnit1Refno ON "
           + "tProductUnitRelation(ProductUnit1Refno)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE INDEX FK_ProductUnitRelationOnProductUnit2Refno ON "
+      sqlNdx = "CREATE INDEX IF NOT EXISTS FK_ProductUnitRelationOnProductUnit2Refno ON "
           + "tProductUnitRelation(ProductUnit2Refno)";
       this.RunDDLCommand(sqlNdx);
 
@@ -2548,11 +2548,11 @@ namespace dMobile.GroundWork
     /// </summary>
     private void CreateTableWarehouseLocationMapType()
     {
-      string sqlTable = "CREATE TABLE tWarehouseLocationMapType"
+      string sqlTable = "CREATE TABLE IF NOT EXISTS tWarehouseLocationMapType"
           + "("
-          + "WarehouseLocationMapRefno int NOT NULL,"
-          + "WarehouseLocationMapTypeEnum int NOT NULL,"
-          + "LocationMapRefno int NOT NULL, "
+          + "WarehouseLocationMapRefno INTEGER NOT NULL,"
+          + "WarehouseLocationMapTypeEnum INTEGER NOT NULL,"
+          + "LocationMapRefno INTEGER NOT NULL, "
           + "CONSTRAINT WarehouseLocationMapTypeToLocationMapOnLocationMapRefno "
           + "FOREIGN KEY (LocationMapRefno) REFERENCES tLocationMap(LocationMapRefno) "
           + "ON DELETE CASCADE ON UPDATE CASCADE, "
@@ -2572,21 +2572,21 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE INDEX "
+      string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS "
           + "PK_WarehouseLocationMapTypeOnWarehouseLocationMapRefnoAndLocationMapRefnoAndWarehouseLocationMapTypeEnum ON "
           + "tWarehouseLocationMapType(WarehouseLocationMapRefno, LocationMapRefno, WarehouseLocationMapTypeEnum)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE INDEX "
+      sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS "
           + "UQ_WarehouseLocationMapTypeOnWarehouseLocationMapRefnoAndWarehouseLocationMapTypeEnum ON "
           + "tWarehouseLocationMapType(WarehouseLocationMapRefno, WarehouseLocationMapTypeEnum)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE INDEX FK_WarehouseLocationMapTypeOnWarehouseLocationMapRefno ON "
+      sqlNdx = "CREATE INDEX IF NOT EXISTS FK_WarehouseLocationMapTypeOnWarehouseLocationMapRefno ON "
           + "tWarehouseLocationMapType(WarehouseLocationMapRefno)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE INDEX FK_WarehouseLocationMapTypeOnLocationMapRefno ON "
+      sqlNdx = "CREATE INDEX IF NOT EXISTS FK_WarehouseLocationMapTypeOnLocationMapRefno ON "
           + "tWarehouseLocationMapType(LocationMapRefno)";
       this.RunDDLCommand(sqlNdx);
 
@@ -2607,12 +2607,12 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     private void CreateTableProductLocationMapType()
     {
-      string sqlTable = "CREATE TABLE tProductLocationMapType"
+      string sqlTable = "CREATE TABLE IF NOT EXISTS tProductLocationMapType"
           + "("
-          + "ProductRefno int NOT NULL,"
-          + "WarehouseLocationMapRefno int NOT NULL,"
-          + "ProductLocationMapTypeEnum int NOT NULL,"
-          + "LocationMapRefno int NOT NULL, "
+          + "ProductRefno INTEGER NOT NULL,"
+          + "WarehouseLocationMapRefno INTEGER NOT NULL,"
+          + "ProductLocationMapTypeEnum INTEGER NOT NULL,"
+          + "LocationMapRefno INTEGER NOT NULL, "
           + "CONSTRAINT ProductLocationMapTypeToProductOnProductRefno FOREIGN KEY (ProductRefno) REFERENCES tProduct(ProductRefno) ON DELETE CASCADE ON UPDATE CASCADE, "
           + "CONSTRAINT ProductLocationMapTypeToLocationMapOnLocationMapRefno FOREIGN KEY (LocationMapRefno) REFERENCES tLocationMap(LocationMapRefno) ON DELETE CASCADE ON UPDATE CASCADE, "
           + "CONSTRAINT ProductLocationMapTypeToLocationMapOnWarehouseLocationMapRefno FOREIGN KEY (WarehouseLocationMapRefno) REFERENCES tLocationMap(LocationMapRefno)"
@@ -2630,25 +2630,25 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE INDEX "
+      string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS "
           + "PK_ProductLocationMapTypeOnProductRefnoAndLocationMapRefnoAndProductLocationMapTypeEnum ON "
           + "tProductLocationMapType(ProductRefno, LocationMapRefno, ProductLocationMapTypeEnum)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE INDEX "
+      sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS "
           + "FK_ProductLocationMapTypeOnWarehouseLocationMapRefnoAndProductRefnoAndProductLocationMapTypeEnum ON "
           + "tProductLocationMapType(WarehouseLocationMapRefno, ProductRefno, ProductLocationMapTypeEnum)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE INDEX FK_ProductLocationMapTypeOnProductRefno ON "
+      sqlNdx = "CREATE INDEX IF NOT EXISTS FK_ProductLocationMapTypeOnProductRefno ON "
           + "tProductLocationMapType(ProductRefno)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE INDEX FK_ProductLocationMapTypeOnWarehouseLocationMapRefno ON "
+      sqlNdx = "CREATE INDEX IF NOT EXISTS FK_ProductLocationMapTypeOnWarehouseLocationMapRefno ON "
           + "tProductLocationMapType(WarehouseLocationMapRefno)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE INDEX FK_ProductLocationMapTypeOnLocationMapRefno ON "
+      sqlNdx = "CREATE INDEX IF NOT EXISTS FK_ProductLocationMapTypeOnLocationMapRefno ON "
           + "tProductLocationMapType(LocationMapRefno)";
       this.RunDDLCommand(sqlNdx);
 
@@ -2674,7 +2674,7 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     private void CreateTableContact()
     {
-      string sqlTable = "CREATE TABLE tContact"
+      string sqlTable = "CREATE TABLE IF NOT EXISTS tContact"
           + "("
           + "ContactRefno INTEGER NOT NULL CONSTRAINT PK_ContactOnContactRefno PRIMARY KEY,"
           + "ContactSubType INTEGER NOT NULL"
@@ -2692,7 +2692,7 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE INDEX UQ_ContactOnContactRefnoAndContactSubType ON "
+      string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ContactOnContactRefnoAndContactSubType ON "
           + "tContact(ContactRefno ASC, ContactSubType ASC)";
       this.RunDDLCommand(sqlNdx);
     }
@@ -2703,7 +2703,7 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     private void CreateTableContactUser()
     {
-      string sqlTable = "CREATE TABLE tContactUser"
+      string sqlTable = "CREATE TABLE IF NOT EXISTS tContactUser"
           + "("
           + "ContactRefno INTEGER NOT NULL CONSTRAINT PK_UserOnContactRefno PRIMARY KEY,"
           + "ContactSubType INTEGER NOT NULL,"
@@ -2729,14 +2729,14 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE INDEX UQ_ContactUserOnContactRefnoAndContactSubType ON "
+      string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ContactUserOnContactRefnoAndContactSubType ON "
           + "tContactUser(ContactRefno ASC, ContactSubType ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE INDEX UQ_ContactUserOnContactUserCode ON tContactUser(ContactUserCode ASC)";
+      sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ContactUserOnContactUserCode ON tContactUser(ContactUserCode ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE INDEX UQ_ContactUserOnContactUserName ON tContactUser(ContactUserName ASC)";
+      sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ContactUserOnContactUserName ON tContactUser(ContactUserName ASC)";
       this.RunDDLCommand(sqlNdx);
 
       //string alterTable = "ALTER TABLE tContactUser ADD CONSTRAINT ContactUserToContactOnContactRefno FOREIGN KEY "
@@ -2750,7 +2750,7 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     private void CreateTableContactCustomer()
     {
-      string sqlTable = "CREATE TABLE tContactCustomer"
+      string sqlTable = "CREATE TABLE IF NOT EXISTS tContactCustomer"
           + "("
           + "ContactRefno INTEGER NOT NULL CONSTRAINT PK_UserOnContactRefno PRIMARY KEY,"
           + "ContactSubType INTEGER NOT NULL,"
@@ -2772,19 +2772,19 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE INDEX UQ_ContactCustomerOnContactRefnoAndContactSubType ON "
+      string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ContactCustomerOnContactRefnoAndContactSubType ON "
           + "tContactCustomer(ContactRefno ASC, ContactSubType ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE INDEX UQ_ContactCustomerOnContactCustomerFKRefno ON "
+      sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ContactCustomerOnContactCustomerFKRefno ON "
           + "tContactCustomer(ContactCustomerFKRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE INDEX UQ_ContactCustomerOnContactCustomerCode ON "
+      sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ContactCustomerOnContactCustomerCode ON "
           + "tContactCustomer(ContactCustomerCode ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE INDEX UQ_ContactCustomerOnContactCustomerName ON "
+      sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ContactCustomerOnContactCustomerName ON "
           + "tContactCustomer(ContactCustomerName ASC)";
       this.RunDDLCommand(sqlNdx);
 
@@ -2799,7 +2799,7 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     private void CreateTableContactCustomerShipTo()
     {
-      string sqlTable = "CREATE TABLE tContactCustomerShipTo"
+      string sqlTable = "CREATE TABLE IF NOT EXISTS tContactCustomerShipTo"
           + "("
           + "ContactRefno INTEGER NOT NULL CONSTRAINT PK_UserOnContactRefno PRIMARY KEY,"
           + "ContactSubType INTEGER NOT NULL,"
@@ -2823,19 +2823,19 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE INDEX UQ_ContactCustomerShipToOnContactRefnoAndContactSubType ON "
+      string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ContactCustomerShipToOnContactRefnoAndContactSubType ON "
           + "tContactCustomerShipTo(ContactRefno ASC, ContactSubType ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE INDEX UQ_ContactCustomerShipToOnContactCustomerShipToFKRefno ON "
+      sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ContactCustomerShipToOnContactCustomerShipToFKRefno ON "
           + "tContactCustomerShipTo(ContactCustomerShipToFKRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE INDEX UQ_ContactCustomerShipToOnContactCustomerShipToCode ON "
+      sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ContactCustomerShipToOnContactCustomerShipToCode ON "
           + "tContactCustomerShipTo(ContactCustomerShipToCode ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE INDEX UQ_ContactCustomerShipToOnContactCustomerShipToName ON "
+      sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ContactCustomerShipToOnContactCustomerShipToName ON "
           + "tContactCustomerShipTo(ContactCustomerShipToName ASC)";
       this.RunDDLCommand(sqlNdx);
 
@@ -2856,7 +2856,7 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     private void CreateTableContactVendor()
     {
-      string sqlTable = "CREATE TABLE tContactVendor"
+      string sqlTable = "CREATE TABLE IF NOT EXISTS tContactVendor"
           + "("
           + "ContactRefno INTEGER NOT NULL CONSTRAINT PK_UserOnContactRefno PRIMARY KEY,"
           + "ContactSubType INTEGER NOT NULL,"
@@ -2878,19 +2878,19 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE INDEX UQ_ContactVendorOnContactRefnoAndContactSubType ON "
+      string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ContactVendorOnContactRefnoAndContactSubType ON "
           + "tContactVendor(ContactRefno ASC, ContactSubType ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE INDEX UQ_ContactVendorOnContactVendorFKRefno ON "
+      sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ContactVendorOnContactVendorFKRefno ON "
           + "tContactVendor(ContactVendorFKRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE INDEX UQ_ContactVendorOnContactVendorCode ON "
+      sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ContactVendorOnContactVendorCode ON "
           + "tContactVendor(ContactVendorCode ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE INDEX UQ_ContactVendorOnContactVendorName ON "
+      sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ContactVendorOnContactVendorName ON "
           + "tContactVendor(ContactVendorName ASC)";
       this.RunDDLCommand(sqlNdx);
 
@@ -2905,7 +2905,7 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     private void CreateTableContactVendorSupplier()
     {
-      string sqlTable = "CREATE TABLE tContactVendorSupplier"
+      string sqlTable = "CREATE TABLE IF NOT EXISTS tContactVendorSupplier"
           + "("
           + "ContactRefno INTEGER NOT NULL CONSTRAINT PK_UserOnContactRefno PRIMARY KEY,"
           + "ContactSubType INTEGER NOT NULL,"
@@ -2929,19 +2929,19 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE INDEX UQ_ContactVendorSupplierOnContactRefnoAndContactSubType ON "
+      string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ContactVendorSupplierOnContactRefnoAndContactSubType ON "
           + "tContactVendorSupplier(ContactRefno ASC, ContactSubType ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE INDEX UQ_ContactVendorSupplierOnContactVendorSupplierFKRefno ON "
+      sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ContactVendorSupplierOnContactVendorSupplierFKRefno ON "
           + "tContactVendorSupplier(ContactVendorSupplierFKRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE INDEX UQ_ContactVendorSupplierOnContactVendorSupplierCode ON "
+      sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ContactVendorSupplierOnContactVendorSupplierCode ON "
           + "tContactVendorSupplier(ContactVendorSupplierCode ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE INDEX UQ_ContactVendorSupplierOnContactVendorSupplierName ON "
+      sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ContactVendorSupplierOnContactVendorSupplierName ON "
           + "tContactVendorSupplier(ContactVendorSupplierName ASC)";
       this.RunDDLCommand(sqlNdx);
 
@@ -2962,7 +2962,7 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     private void CreateTableReasonCode()
     {
-      string sqlTable = "CREATE TABLE tReasonCode"
+      string sqlTable = "CREATE TABLE IF NOT EXISTS tReasonCode"
           + "("
           + "ReasonCodeRefno INTEGER NOT NULL CONSTRAINT PK_ReasonCodeOnReasonCodeRefno PRIMARY KEY,"
           + "ReasonCodeFKRefno INTEGER NOT NULL,"
@@ -2982,11 +2982,11 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityOnReasonCodeFKRefno ON "
+      string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ActivityOnReasonCodeFKRefno ON "
           + "tReasonCode(ReasonCodeFKRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityOnReasonCodeCode ON tReasonCode(ReasonCodeCode ASC)";
+      sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ActivityOnReasonCodeCode ON tReasonCode(ReasonCodeCode ASC)";
       this.RunDDLCommand(sqlNdx);
     }
 
@@ -2996,7 +2996,7 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     private void CreateTableActivityItemReasonCodeXRef()
     {
-      string sqlTable = "CREATE TABLE tActivityItemReasonCodeXRef"
+      string sqlTable = "CREATE TABLE IF NOT EXISTS tActivityItemReasonCodeXRef"
           + "("
           + "ActivityItemRefno INTEGER NOT NULL,"
           + "ReasonCodeRefno INTEGER NOT NULL, "
@@ -3016,16 +3016,16 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE INDEX "
+      string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS "
           + "PK_ActivityItemReasonCodeXRefOnActivityItemRefnoAndReasonCodeRefno ON "
           + "tActivityItemReasonCodeXRef(ActivityItemRefno ASC, ReasonCodeRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE INDEX FK_ActivityItemReasonCodeXRefOnActivityItemRefno ON "
+      sqlNdx = "CREATE INDEX IF NOT EXISTS FK_ActivityItemReasonCodeXRefOnActivityItemRefno ON "
           + "tActivityItemReasonCodeXRef(ActivityItemRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE INDEX FK_ActivityItemReasonCodeXRefOnReasonCodeRefno ON "
+      sqlNdx = "CREATE INDEX IF NOT EXISTS FK_ActivityItemReasonCodeXRefOnReasonCodeRefno ON "
           + "tActivityItemReasonCodeXRef(ReasonCodeRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
@@ -3046,7 +3046,7 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     private void CreateTableActivityItemConvertUnit()
     {
-      string sqlTable = "CREATE TABLE tActivityItemConvertUnit"
+      string sqlTable = "CREATE TABLE IF NOT EXISTS tActivityItemConvertUnit"
           + "("
           + "ActivityItemRefno INTEGER NOT NULL CONSTRAINT PK_ActivityItemConvertUnitOnActivityItemRefno PRIMARY KEY,"
           + "ActivityItemSubType INTEGER NOT NULL,"
@@ -3088,7 +3088,7 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     private void CreateTableActivityDetailConvertUnit()
     {
-      string sqlTable = "CREATE TABLE tActivityDetailConvertUnit"
+      string sqlTable = "CREATE TABLE IF NOT EXISTS tActivityDetailConvertUnit"
           + "("
           + "ActivityDetailRefno INTEGER NOT NULL CONSTRAINT PK_ActivityDetailConvertUnitOnActivityDetailRefno PRIMARY KEY,"
           + "ActivityDetailConvertUnitFKRefno INTEGER NOT NULL "
@@ -3122,7 +3122,7 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     private void CreateTableActivityItemMoveInventory()
     {
-      string sqlTable = "CREATE TABLE tActivityItemMoveInventory"
+      string sqlTable = "CREATE TABLE IF NOT EXISTS tActivityItemMoveInventory"
           + "("
           + "ActivityItemRefno INTEGER NOT NULL CONSTRAINT PK_ActivityItemMoveInventoryOnActivityItemRefno PRIMARY KEY,"
           + "ActivityItemSubType INTEGER NOT NULL,"
@@ -3164,7 +3164,7 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     private void CreateTableActivityDetailMoveInventory()
     {
-      string sqlTable = "CREATE TABLE tActivityDetailMoveInventory"
+      string sqlTable = "CREATE TABLE IF NOT EXISTS tActivityDetailMoveInventory"
           + "("
           + "ActivityDetailRefno INTEGER NOT NULL CONSTRAINT PK_ActivityDetailMoveInventoryOnActivityDetailRefno PRIMARY KEY,"
           + "ActivityDetailMoveInventoryFKRefno INTEGER NOT NULL "
@@ -3199,7 +3199,7 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     private void CreateTableActivityAdjustment()
     {
-      string sqlTable = "CREATE TABLE tActivityAdjustment"
+      string sqlTable = "CREATE TABLE IF NOT EXISTS tActivityAdjustment"
           + "("
           + "ActivityRefno INTEGER NOT NULL CONSTRAINT PK_ActivityAdjustmentOnActivityRefno PRIMARY KEY,"
           + "ActivitySubType INTEGER NOT NULL,"
@@ -3226,15 +3226,15 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityAdjustmentOnActivityRefnoAndActivitySubType ON "
+      string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ActivityAdjustmentOnActivityRefnoAndActivitySubType ON "
           + "tActivityAdjustment(ActivityRefno ASC, ActivitySubType ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityAdjustmentOnActivityAdjustmentFKRefno ON "
+      sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ActivityAdjustmentOnActivityAdjustmentFKRefno ON "
           + "tActivityAdjustment(ActivityAdjustmentFKRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE INDEX FK_ActivityAdjustmentOnWarehouseLocationMapRefno ON "
+      sqlNdx = "CREATE INDEX IF NOT EXISTS FK_ActivityAdjustmentOnWarehouseLocationMapRefno ON "
           + "tActivityAdjustment(WarehouseLocationMapRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
@@ -3256,7 +3256,7 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     private void CreateTableActivityItemAdjustment()
     {
-      string sqlTable = "CREATE TABLE tActivityItemAdjustment"
+      string sqlTable = "CREATE TABLE IF NOT EXISTS tActivityItemAdjustment"
           + "("
           + "ActivityItemRefno INTEGER NOT NULL CONSTRAINT PK_ActivityItemAdjustmentOnActivityItemRefno PRIMARY KEY,"
           + "ActivityItemSubType INTEGER NOT NULL,"
@@ -3285,16 +3285,16 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE INDEX "
+      string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS "
           + "UQ_ActivityItemAdjustmentOnActivityItemRefnoAndActivityItemSubType ON "
           + "tActivityItemAdjustment(ActivityItemRefno ASC, ActivityItemSubType ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityItemAdjustmentOnActivityItemAdjustmentFKRefno ON "
+      sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ActivityItemAdjustmentOnActivityItemAdjustmentFKRefno ON "
           + "tActivityItemAdjustment(ActivityItemAdjustmentFKRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE INDEX FK_ActivityItemAdjustmentOnWarehouseLocationMapRefno ON "
+      sqlNdx = "CREATE INDEX IF NOT EXISTS FK_ActivityItemAdjustmentOnWarehouseLocationMapRefno ON "
           + "tActivityItemAdjustment(WarehouseLocationMapRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
@@ -3321,7 +3321,7 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     private void CreateTableActivityDetailAdjustment()
     {
-      string sqlTable = "CREATE TABLE tActivityDetailAdjustment"
+      string sqlTable = "CREATE TABLE IF NOT EXISTS tActivityDetailAdjustment"
           + "("
           + "ActivityDetailRefno INTEGER NOT NULL CONSTRAINT PK_ActivityDetailAdjustmentOnActivityDetailRefno PRIMARY KEY,"
           + "ActivityDetailAdjustmentFKRefno INTEGER NOT NULL, "
@@ -3340,7 +3340,7 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE INDEX "
+      string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS "
           + "UQ_ActivityDetailAdjustmentOnActivityDetailAdjustmentFKRefno ON "
           + "tActivityDetailAdjustment(ActivityDetailAdjustmentFKRefno ASC)";
       this.RunDDLCommand(sqlNdx);
@@ -3357,7 +3357,7 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     private void CreateTableActivityProduction()
     {
-      string sqlTable = "CREATE TABLE tActivityProduction"
+      string sqlTable = "CREATE TABLE IF NOT EXISTS tActivityProduction"
           + "("
           + "ActivityRefno INTEGER NOT NULL CONSTRAINT PK_ActivityProductionOnActivityRefno PRIMARY KEY,"
           + "ActivitySubType INTEGER NOT NULL,"
@@ -3380,11 +3380,11 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityProductionOnActivityRefnoAndActivitySubType ON "
+      string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ActivityProductionOnActivityRefnoAndActivitySubType ON "
           + "tActivityProduction(ActivityRefno ASC, ActivitySubType ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE INDEX FK_ActivityProductionOnWarehouseLocationMapRefno ON "
+      sqlNdx = "CREATE INDEX IF NOT EXISTS FK_ActivityProductionOnWarehouseLocationMapRefno ON "
           + "tActivityProduction(WarehouseLocationMapRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
@@ -3405,7 +3405,7 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     private void CreateTableActivityProductionFinished()
     {
-      string sqlTable = "CREATE TABLE tActivityProductionFinished"
+      string sqlTable = "CREATE TABLE IF NOT EXISTS tActivityProductionFinished"
           + "("
           + "ActivityRefno INTEGER NOT NULL,"
           + "ActivityProductionFKRefno INTEGER NOT NULL,"
@@ -3426,11 +3426,11 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE INDEX PK_ActivityProductionFinishedOnActivityRefno ON "
+      string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS PK_ActivityProductionFinishedOnActivityRefno ON "
           + "tActivityProductionFinished(ActivityRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityProductionFinishedOnActivityProductionFKRefno ON "
+      sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ActivityProductionFinishedOnActivityProductionFKRefno ON "
           + "tActivityProductionFinished(ActivityProductionFKRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
@@ -3446,7 +3446,7 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     private void CreateTableActivityProductionMaterial()
     {
-      string sqlTable = "CREATE TABLE tActivityProductionMaterial"
+      string sqlTable = "CREATE TABLE IF NOT EXISTS tActivityProductionMaterial"
           + "("
           + "ActivityRefno INTEGER NOT NULL,"
           + "ActivityProductionFKRefno INTEGER NOT NULL,"
@@ -3466,11 +3466,11 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE INDEX PK_ActivityProductionMaterialOnActivityRefno ON "
+      string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS PK_ActivityProductionMaterialOnActivityRefno ON "
           + "tActivityProductionMaterial(ActivityRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityProductionMaterialOnActivityProductionFKRefno ON "
+      sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ActivityProductionMaterialOnActivityProductionFKRefno ON "
           + "tActivityProductionMaterial(ActivityProductionFKRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
@@ -3486,7 +3486,7 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     private void CreateTableActivityProductionByProduct()
     {
-      string sqlTable = "CREATE TABLE tActivityProductionByProduct"
+      string sqlTable = "CREATE TABLE IF NOT EXISTS tActivityProductionByProduct"
           + "("
           + "ActivityRefno INTEGER NOT NULL,"
           + "ActivityProductionFKRefno INTEGER NOT NULL,"
@@ -3506,11 +3506,11 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE INDEX PK_ActivityProductionByProductOnActivityRefno ON "
+      string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS PK_ActivityProductionByProductOnActivityRefno ON "
           + "tActivityProductionByProduct(ActivityRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE UNIQUE INDEX UQ_ActivityProductionByProductOnActivityProductionFKRefno ON "
+      sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ActivityProductionByProductOnActivityProductionFKRefno ON "
           + "tActivityProductionByProduct(ActivityProductionFKRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
@@ -3526,7 +3526,7 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     private void CreateTableActivityItemProduction()
     {
-      string sqlTable = "CREATE TABLE tActivityItemProduction"
+      string sqlTable = "CREATE TABLE IF NOT EXISTS tActivityItemProduction"
           + "("
           + "ActivityItemRefno INTEGER NOT NULL CONSTRAINT PK_ActivityItemProductionOnActivityItemRefno PRIMARY KEY,"
           + "ActivityItemSubType INTEGER NOT NULL,"
@@ -3556,12 +3556,12 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE INDEX "
+      string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS "
           + "UQ_ActivityItemProductionOnActivityItemRefnoAndActivityItemSubType ON "
           + "tActivityItemProduction(ActivityItemRefno ASC, ActivityItemSubType ASC)";
       this.RunDDLCommand(sqlNdx);
 
-      sqlNdx = "CREATE INDEX FK_ActivityItemProductionOnLocationMapRefno ON "
+      sqlNdx = "CREATE INDEX IF NOT EXISTS FK_ActivityItemProductionOnLocationMapRefno ON "
           + "tActivityItemProduction(LocationMapRefno ASC)";
       this.RunDDLCommand(sqlNdx);
 
@@ -3587,7 +3587,7 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     private void CreateTableActivityItemProductionFinished()
     {
-      string sqlTable = "CREATE TABLE tActivityItemProductionFinished"
+      string sqlTable = "CREATE TABLE IF NOT EXISTS tActivityItemProductionFinished"
           + "("
           + "ActivityItemRefno INTEGER NOT NULL CONSTRAINT PK_ActivityItemProductionFinishedOnActivityItemRefno "
           + "PRIMARY KEY,"
@@ -3608,7 +3608,7 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE INDEX "
+      string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS "
           + "UQ_ActivityItemProductionFinishedOnActivityItemProductionFinishedFKRefno ON "
           + "tActivityItemProductionFinished(ActivityItemProductionFinishedFKRefno ASC)";
       this.RunDDLCommand(sqlNdx);
@@ -3625,7 +3625,7 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     private void CreateTableActivityItemProductionMaterial()
     {
-      string sqlTable = "CREATE TABLE tActivityItemProductionMaterial"
+      string sqlTable = "CREATE TABLE IF NOT EXISTS tActivityItemProductionMaterial"
           + "("
           + "ActivityItemRefno INTEGER NOT NULL CONSTRAINT PK_ActivityItemProductionMaterialOnActivityItemRefno "
           + "PRIMARY KEY,"
@@ -3646,7 +3646,7 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE INDEX "
+      string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS "
           + "UQ_ActivityItemProductionMaterialOnActivityItemProductionMaterialFKRefno ON "
           + "tActivityItemProductionMaterial(ActivityItemProductionMaterialFKRefno ASC)";
       this.RunDDLCommand(sqlNdx);
@@ -3663,7 +3663,7 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     private void CreateTableActivityItemProductionByProduct()
     {
-      string sqlTable = "CREATE TABLE tActivityItemProductionByProduct"
+      string sqlTable = "CREATE TABLE IF NOT EXISTS tActivityItemProductionByProduct"
           + "("
           + "ActivityItemRefno INTEGER NOT NULL CONSTRAINT PK_ActivityItemProductionByProductOnActivityItemRefno "
           + "PRIMARY KEY,"
@@ -3684,7 +3684,7 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE INDEX "
+      string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS "
           + "UQ_ActivityItemProductionByProductOnActivityItemProductionByProductFKRefno ON "
           + "tActivityItemProductionByProduct(ActivityItemProductionByProductFKRefno ASC)";
       this.RunDDLCommand(sqlNdx);
@@ -3701,7 +3701,7 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     private void CreateTableActivityDetailProductionFinished()
     {
-      string sqlTable = "CREATE TABLE tActivityDetailProductionFinished"
+      string sqlTable = "CREATE TABLE IF NOT EXISTS tActivityDetailProductionFinished"
           + "("
           + "ActivityDetailRefno INTEGER NOT NULL CONSTRAINT PK_ActivityDetailProductionFinishedOnActivityDetailRefno "
           + "PRIMARY KEY,"
@@ -3721,7 +3721,7 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE INDEX "
+      string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS "
           + "UQ_ActivityDetailProductionFinishedOnActivityDetailProductionFinishedFKRefno ON "
           + "tActivityDetailProductionFinished(ActivityDetailProductionFinishedFKRefno ASC)";
       this.RunDDLCommand(sqlNdx);
@@ -3738,7 +3738,7 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     private void CreateTableActivityDetailProductionMaterial()
     {
-      string sqlTable = "CREATE TABLE tActivityDetailProductionMaterial"
+      string sqlTable = "CREATE TABLE IF NOT EXISTS tActivityDetailProductionMaterial"
           + "("
           + "ActivityDetailRefno INTEGER NOT NULL CONSTRAINT PK_ActivityDetailProductionMaterialOnActivityDetailRefno "
           + "PRIMARY KEY,"
@@ -3758,7 +3758,7 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE INDEX "
+      string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS "
           + "UQ_ActivityDetailProductionMaterialOnActivityDetailProductionMaterialFKRefno ON "
           + "tActivityDetailProductionMaterial(ActivityDetailProductionMaterialFKRefno ASC)";
       this.RunDDLCommand(sqlNdx);
@@ -3775,7 +3775,7 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     private void CreateTableActivityDetailProductionByProduct()
     {
-      string sqlTable = "CREATE TABLE tActivityDetailProductionByProduct"
+      string sqlTable = "CREATE TABLE IF NOT EXISTS tActivityDetailProductionByProduct"
           + "("
           + "ActivityDetailRefno INTEGER NOT NULL CONSTRAINT PK_ActivityDetailProductionByProductOnActivityDetailRefno "
           + "PRIMARY KEY,"
@@ -3795,7 +3795,7 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE INDEX "
+      string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS "
           + "UQ_ActivityDetailProductionByProductOnActivityDetailProductionByProductFKRefno ON "
           + "tActivityDetailProductionByProduct(ActivityDetailProductionByProductFKRefno ASC)";
       this.RunDDLCommand(sqlNdx);
@@ -3812,7 +3812,7 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     private void CreateTableFamily()
     {
-      string sqlTable = "CREATE TABLE tFamily"
+      string sqlTable = "CREATE TABLE IF NOT EXISTS tFamily"
           + "("
           + "FamilyRefno INTEGER NOT NULL CONSTRAINT PK_FamilyOnFamilyRefno PRIMARY KEY,"
           + "FamilyCode nvarchar(20) NOT NULL"
@@ -3830,7 +3830,7 @@ namespace dMobile.GroundWork
 
       this.RunDDLCommand(sqlTable);
 
-      string sqlNdx = "CREATE UNIQUE INDEX UQ_FamilyOnFamilyCode ON tFamily(FamilyCode ASC)";
+      string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_FamilyOnFamilyCode ON tFamily(FamilyCode ASC)";
       this.RunDDLCommand(sqlNdx);
     }
 

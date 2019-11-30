@@ -7,10 +7,28 @@
     using Resource = dMobile.Resources.Properties.Resources;
 
     /// <summary>
-    /// Defines the <see cref="DialogModal" />
+    /// Defines the <see cref="DMobileModal" />
     /// </summary>
-    public class DialogModal : ContentPage
+    public class DMobileModal : ContentPage
     {
+        /// <summary>
+        /// Defines the loading
+        /// </summary>
+        private bool loading;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether Loading
+        /// </summary>
+        public bool Loading
+        {
+            get { return loading; }
+            set
+            {
+                loading = value;
+                this.OnPropertyChanged();
+            }
+        }
+
         /// <summary>
         /// Gets the Closed
         /// Checks if content page has been close
@@ -31,11 +49,13 @@
         private TaskCompletionSource<bool> Tcs { get; set; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="DialogModal"/> class.
+        /// Initializes a new instance of the <see cref="DMobileModal"/> class.
         /// </summary>
-        public DialogModal()
+        public DMobileModal()
         {
             Tcs = new TaskCompletionSource<bool>();
+            this.BindingContext = this;
+            this.Loading = false;
         }
 
         /// <summary>
@@ -45,7 +65,15 @@
         {
             base.OnDisappearing();
 
-            Tcs.SetResult(true);
+            try
+            {
+                Tcs.SetResult(true);
+            }
+            catch (Exception ex)
+            {
+                // TODO: logging
+                Console.WriteLine(ex);
+            }
         }
 
         /// <summary>
@@ -56,7 +84,16 @@
         {
             try
             {
-                await App.Current.MainPage.Navigation.PushModalAsync(this);
+
+                if (Application.Current.MainPage is MasterDetailPage mainPage)
+                {
+                    await mainPage.Detail.Navigation.PushModalAsync(this);
+                }
+                else
+                {
+                    await Application.Current.MainPage.Navigation.PushModalAsync(this);
+                }
+
                 await this.Closed;
             }
             catch (Exception ex)
@@ -75,7 +112,15 @@
         {
             try
             {
-                await App.Current.MainPage.Navigation.PopModalAsync();
+
+                if (Application.Current.MainPage is MasterDetailPage mainPage)
+                {
+                    await mainPage.Detail.Navigation.PopModalAsync();
+                }
+                else
+                {
+                    await Application.Current.MainPage.Navigation.PopModalAsync();
+                }
             }
             catch (Exception ex)
             {

@@ -4,11 +4,9 @@ namespace dMobile.GroundWork
     using System;
     using System.Data;
     using System.Data.SQLite;
-    using System.IO;
     using System.Text;
     using System.Xml;
     using System.Xml.Linq;
-    using dMobile.Resources.Custom;
 
     /// <summary>
     /// Defines the <see cref="TableLocationMapWarehouse" />
@@ -31,16 +29,14 @@ namespace dMobile.GroundWork
         {
             try
             {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SeedingWarehouses), true);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding warehouses.", true);
-#endif
 
                 string reqData = string.Empty;
 
-                GC.Collect();
-                GC.WaitForPendingFinalizers();
+                // TODO: Uncomment GC calls
+                //GC.Collect();
+                //GC.WaitForPendingFinalizers();
 
                 reqData = this.Send();
                 if (0 < reqData.Length)
@@ -55,25 +51,16 @@ namespace dMobile.GroundWork
                     this.Save(reqData);
                 }
 
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SeedingWarehousesComplete), true);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding warehouses complete.", true);
-#endif
             }
             catch (Exception ex)
             {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SeedingWarehousesFailed), true);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding warehouses failed.", true);
-#endif
 
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.SeedingWarehousesFailed), ex);
-#else
+                // TODO: Resource strings
                 throw new Exception("Seeding warehouses failed.", ex);
-#endif
             }
         }
 
@@ -84,41 +71,27 @@ namespace dMobile.GroundWork
         {
             try
             {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingWarehouses), true);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging warehouses.", true);
-#endif
 
                 using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
                 {
-                    cmndPurge.CommandText = "DELETE FROM tLocationMap WHERE LocationMapSubType = "
-                        + SysCommon.LocMapSubTypes.Warehouse.ToString();
+                    cmndPurge.CommandText = "DELETE FROM tLocationMapWarehouse WHERE LocationMapSubType = @locationMapSubType";
                     cmndPurge.CommandType = CommandType.Text;
+                    cmndPurge.Parameters.Add(new SQLiteParameter("@locationMapSubType", Convert.ToInt32(SysCommon.LocMapSubTypes.Warehouse)));
                     cmndPurge.ExecuteNonQuery();
                 }
 
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingWarehousesComplete), true);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging warehouses complete.", true);
-#endif
             }
             catch (SQLiteException ex)
             {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), true);
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingWarehousesFailed), true);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging warehouses failed.", true);
-#endif
 
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredPurgingWarehousesFailed), ex);
-#else
                 throw new Exception("Database exception occurred. Purging warehouses failed.", ex);
-#endif
             }
         }
 
@@ -131,6 +104,7 @@ namespace dMobile.GroundWork
         {
             int whsLocMapRefno = 0;
 
+            // TODO: SQL
             //      try
             //      {
             //        using (SQLiteCommand cmndGetWhs = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
@@ -193,6 +167,7 @@ namespace dMobile.GroundWork
         {
             int locMapWhsFKRefno = 0;
 
+            // TODO: SQL
             //      try
             //      {
             //        using (SQLiteCommand cmndGetWhs = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
@@ -263,24 +238,13 @@ namespace dMobile.GroundWork
 
                     rowsAffected = Convert.ToInt32(cmndStatus.ExecuteScalar());
 
-                    this.DataAccessStatusOutHandler(
-                        this,
-                        EventArgs.Empty,
-#if MULTILANGUAGE
-              string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.Warehouses), rowsAffected), 
-#else
-              string.Format("{0} warehouses.", rowsAffected),
-#endif
-              true);
+                    // TODO: Resource strings
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} warehouses.", rowsAffected), true);
                 }
             }
             catch (SQLiteException ex)
             {
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredWarehousesStatusFailed), ex);
-#else
                 throw new Exception("Database exception occurred. Warehouses status failed.", ex);
-#endif
             }
 
             return rowsAffected;
@@ -302,165 +266,136 @@ namespace dMobile.GroundWork
         protected override void Save(string reqData)
         {
             string errMsg = string.Empty;
+
             SQLiteConnection conn = DatabaseConnection.GetInstance().SQLConn;
 
             try
             {
                 using (DataSet ds = new DataSet())
                 {
-#if MULTILANGUAGE
-                      this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.ReadingReceivedData), false);
-#else
+                    // TODO: Resource strings
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
-#endif
+
                     ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
 
-#if MULTILANGUAGE
-                      this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingWarehouses), false);
-#else
+                    // TODO: Resource strings
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving warehouses.", false);
-#endif
+
                     if (ds.Tables.Count != 0)
                     {
                         int progMax = Convert.ToInt32(ds.Tables["tLocationMapWarehouse"].Rows.Count);
 
-                        this.DataAccessStatusOutHandler(
-                            this,
-                            EventArgs.Empty,
-#if MULTILANGUAGE
-                            string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.Recordsz), progMax),
-#else
-                            string.Format("Records {0}", progMax),
-#endif
-                            false);
+                        // TODO: Resource strings
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
 
                         using (SQLiteCommand cmndWhs = conn.CreateCommand())
+                        using (SQLiteCommand cmndLocMap = conn.CreateCommand())
+                        using (SQLiteTransaction transaction = conn.BeginTransaction())
                         {
-                            using (SQLiteCommand cmndLocMap = conn.CreateCommand())
+                            cmndLocMap.CommandText = "INSERT INTO tLocationMap (LocationMapSubType) VALUES (@locationMapSubType)";
+                            cmndLocMap.CommandType = CommandType.Text;
+                            cmndLocMap.Parameters.Add(new SQLiteParameter("@locationMapSubType", Convert.ToInt32(SysCommon.LocMapSubTypes.Warehouse)));
+
+                            int progValue = 0;
+                            bool isLocMapWhsFound = false;
+                            int locMapWhsFKRefno = 0;
+                            int locMapWhsCode = 0;
+                            string locMapWhsName = string.Empty;
+                            string locMapWhsBarCode = string.Empty;
+
+                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
+
+                            foreach (DataRow drow in ds.Tables["tLocationMapWarehouse"].Rows)
                             {
-                                cmndLocMap.CommandText = "INSERT INTO tLocationMap (LocationMapSubType) VALUES (@locationMapSubType)";
-                                cmndLocMap.CommandType = CommandType.Text;
+                                locMapWhsFKRefno = Convert.ToInt32(drow["LocationMapWarehouseFKRefno"]);
 
-                                using (SQLiteCommand cmndID = conn.CreateCommand())
+                                errMsg = "Whs fk refno " + locMapWhsFKRefno;
+                                locMapWhsCode = Convert.ToInt32(drow["LocationMapWarehouseCode"]);
+                                errMsg += Environment.NewLine + "Whs code " + locMapWhsCode;
+                                locMapWhsName = drow["LocationMapWarehouseName"].ToString();
+                                errMsg += Environment.NewLine + "Whs name \'" + locMapWhsCode + "\'";
+                                locMapWhsBarCode = drow["LocationMapWarehouseBarCode"].ToString();
+                                errMsg += Environment.NewLine + "Whs bar code \'" + locMapWhsBarCode + "\'";
+
+                                isLocMapWhsFound = false;
+
+                                cmndWhs.CommandText = "SELECT LocationMapWarehouseFKRefno FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = @locMapWhsFKRefno";
+                                cmndWhs.CommandType = CommandType.Text;
+                                cmndWhs.Parameters.Add(new SQLiteParameter("@locMapWhsFKRefno", locMapWhsFKRefno));
+                                //cmndWhs.IndexName = "UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno";
+
+                                using (SQLiteDataReader drWhs = cmndWhs.ExecuteReader())
                                 {
-                                    cmndID.CommandText = "SELECT last_insert_rowid()";
-                                    cmndID.CommandType = CommandType.Text;
-
-                                    int locMapRefno = 0;
-                                    int progValue = 0;
-                                    bool isLocMapWhsFound = false;
-                                    int locMapWhsFKRefno = 0;
-                                    int locMapWhsCode = 0;
-                                    string locMapWhsName = string.Empty;
-                                    string locMapWhsBarCode = string.Empty;
-
-                                    this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
-
-                                    foreach (DataRow drow in ds.Tables["tLocationMapWarehouse"].Rows)
+                                    if (drWhs.Read())
                                     {
-                                        locMapWhsFKRefno = Convert.ToInt32(drow["LocationMapWarehouseFKRefno"]);
-
-                                        errMsg = "Whs fk refno " + locMapWhsFKRefno;
-                                        locMapWhsCode = Convert.ToInt32(drow["LocationMapWarehouseCode"]);
-                                        errMsg += Environment.NewLine + "Whs code " + locMapWhsCode;
-                                        locMapWhsName = drow["LocationMapWarehouseName"].ToString();
-                                        errMsg += Environment.NewLine + "Whs name \'" + locMapWhsCode + "\'";
-                                        locMapWhsBarCode = drow["LocationMapWarehouseBarCode"].ToString();
-                                        errMsg += Environment.NewLine + "Whs bar code \'" + locMapWhsBarCode + "\'";
-
-                                        isLocMapWhsFound = false;
-
+                                        isLocMapWhsFound = true;
 
                                         if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly)
                                         {
-                                            cmndWhs.CommandText = "SELECT LocationMapWarehouseFKRefno FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = @locMapWhsFKRefno";
                                             cmndWhs.CommandType = CommandType.Text;
-                                            cmndWhs.Parameters.Add(new SQLiteParameter("@locMapWhsFKRefno", locMapWhsFKRefno));
-                                            //cmndWhs.IndexName = "UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno";
-
-                                            using (SQLiteDataReader drWhs = cmndWhs.ExecuteReader())
-                                            {
-                                                if (drWhs.Read())
-                                                {
-                                                    isLocMapWhsFound = true;
-                                                    cmndWhs.CommandType = CommandType.Text;
-                                                    cmndWhs.CommandText = "UPDATE tLocationMapWarehouse " +
-                                                        "SET LocationMapWarehouseCode = " + locMapWhsCode.ToString() + ", " +
-                                                        "LocationMapWarehouseName = \'" + locMapWhsName + "\', " +
-                                                        "LocationMapWarehouseBarCode = \'" + locMapWhsBarCode + "\' " +
-                                                        "WHERE LocationMapWarehouseFKRefno = " + locMapWhsFKRefno.ToString();
-                                                    cmndWhs.ExecuteScalar();
-                                                }
-
-                                                drWhs.Close();
-                                            }
-                                        }
-
-                                        if (!isLocMapWhsFound)
-                                        {
-                                            locMapRefno = Convert.ToInt32(cmndID.ExecuteScalar());
-
-                                            cmndLocMap.Parameters.Add(new SQLiteParameter("@locationMapSubType", Convert.ToInt32(SysCommon.LocMapSubTypes.Warehouse)));
-                                            cmndLocMap.ExecuteNonQuery();
-
-                                            // TODO: Insert here
-                                            cmndWhs.Parameters.Clear();
-                                            cmndWhs.CommandType = CommandType.Text;
-                                            cmndWhs.CommandText = "INSERT INTO tLocationMapWarehouse " +
-                                            "(LocationMapRefno, " +
-                                            "LocationMapSubType, " +
-                                            "LocationMapWarehouseName, " +
-                                            "LocationMapWarehouseCode, " +
-                                            "LocationMapWarehouseFKRefno, " +
-                                            "LocationMapWarehouseBarCode) " +
-                                            "VALUES " +
-                                            "(@locationMapRefno, " +
-                                            "@locationMapSubType, " +
-                                            "@locationMapWarehouseName, " +
-                                            "@locationMapWarehouseCode, " +
-                                            "@locationMapWarehouseFKRefno, " +
-                                            "@locationMapWarehouseBarCode)";
-                                            cmndWhs.Parameters.Add(new SQLiteParameter("@locationMapRefno", locMapRefno));
-                                            cmndWhs.Parameters.Add(new SQLiteParameter("@locationMapSubType", Convert.ToInt32(SysCommon.LocMapSubTypes.Warehouse)));
-                                            cmndWhs.Parameters.Add(new SQLiteParameter("@locationMapWarehouseName", locMapWhsName));
-                                            cmndWhs.Parameters.Add(new SQLiteParameter("@locationMapWarehouseCode", locMapWhsCode));
-                                            cmndWhs.Parameters.Add(new SQLiteParameter("@locationMapWarehouseFKRefno", locMapWhsFKRefno));
-                                            cmndWhs.Parameters.Add(new SQLiteParameter("@locationMapWarehouseBarCode", locMapWhsBarCode));
-
-                                            cmndWhs.ExecuteNonQuery();
-                                        }
-
-                                        progValue++;
-                                        if (progValue % 100 == 0)
-                                        {
-                                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
+                                            cmndWhs.CommandText = "UPDATE tLocationMapWarehouse " +
+                                                "SET LocationMapWarehouseCode = " + locMapWhsCode.ToString() + ", " +
+                                                "LocationMapWarehouseName = \'" + locMapWhsName + "\', " +
+                                                "LocationMapWarehouseBarCode = \'" + locMapWhsBarCode + "\' " +
+                                                "WHERE LocationMapWarehouseFKRefno = " + locMapWhsFKRefno.ToString();
+                                            cmndWhs.ExecuteScalar();
                                         }
                                     }
 
-                                    this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
+                                    drWhs.Close();
+                                }
+
+                                if (!isLocMapWhsFound)
+                                {
+                                    cmndLocMap.ExecuteNonQuery();
+
+                                    cmndWhs.Parameters.Clear();
+                                    cmndWhs.CommandType = CommandType.Text;
+                                    cmndWhs.CommandText = "INSERT INTO tLocationMapWarehouse " +
+                                    "(LocationMapSubType, " +
+                                    "LocationMapWarehouseName, " +
+                                    "LocationMapWarehouseCode, " +
+                                    "LocationMapWarehouseFKRefno, " +
+                                    "LocationMapWarehouseBarCode) " +
+                                    "VALUES " +
+                                    "(@locationMapSubType, " +
+                                    "@locationMapWarehouseName, " +
+                                    "@locationMapWarehouseCode, " +
+                                    "@locationMapWarehouseFKRefno, " +
+                                    "@locationMapWarehouseBarCode)";
+                                    cmndWhs.Parameters.Add(new SQLiteParameter("@locationMapSubType", Convert.ToInt32(SysCommon.LocMapSubTypes.Warehouse)));
+                                    cmndWhs.Parameters.Add(new SQLiteParameter("@locationMapWarehouseName", locMapWhsName));
+                                    cmndWhs.Parameters.Add(new SQLiteParameter("@locationMapWarehouseCode", locMapWhsCode));
+                                    cmndWhs.Parameters.Add(new SQLiteParameter("@locationMapWarehouseFKRefno", locMapWhsFKRefno));
+                                    cmndWhs.Parameters.Add(new SQLiteParameter("@locationMapWarehouseBarCode", locMapWhsBarCode));
+
+                                    cmndWhs.ExecuteNonQuery();
+                                }
+
+                                progValue++;
+                                if (progValue % 100 == 0)
+                                {
+                                    this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
                                 }
                             }
 
+                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
+
+                            transaction.Commit();
                         }
                     }
 
-#if MULTILANGUAGE
-                      this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingWarehousesComplete), false);
-#else
+                    // TODO: Resource strings
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving warehouses complete.", false);
-#endif
                 }
             }
             catch (SQLiteException ex)
             {
-#if MULTILANGUAGE
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), false);
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingWarehousesFailed), false);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving warehouses failed.", false);
-#endif
 
+                // TODO: SQLite native error codes?
                 //                // Duplicate key violations
                 //                if (ex.NativeError == 25016)
                 //                {
@@ -473,13 +408,8 @@ namespace dMobile.GroundWork
                 //#endif
                 //                }
 
-                throw new Exception(
-#if MULTILANGUAGE
-                        Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredSavingWarehousesFailed) + Environment.NewLine + errMsg,
-#else
-                        "Database exception occurred. Saving warehouses failed." + Environment.NewLine + errMsg,
-#endif
-                        ex);
+                // TODO: Resource strings
+                throw new Exception("Database exception occurred. Saving warehouses failed." + Environment.NewLine + errMsg, ex);
             }
         }
 
@@ -505,7 +435,6 @@ namespace dMobile.GroundWork
             xml.Flush();
             xml.Close();
 
-            string test = xmlString.ToString();
             return xmlString.ToString();
         }
     }

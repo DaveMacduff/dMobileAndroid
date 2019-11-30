@@ -2,8 +2,8 @@ namespace dMobile.GroundWork
 {
   using System;
   using System.Data;
-  
-  using System.Text;
+    using System.Data.SQLite;
+    using System.Text;
   using System.Xml;
   using System.Xml.Linq;
   using dMobile.Bedrock;
@@ -31,8 +31,8 @@ namespace dMobile.GroundWork
     {
       string reqData = string.Empty;
 
-      GC.Collect();
-      GC.WaitForPendingFinalizers();
+      //GC.Collect();
+      //GC.WaitForPendingFinalizers();
 
       try
       {
@@ -85,38 +85,38 @@ namespace dMobile.GroundWork
     {
       int rowsAffected = 0;
 
-//      try
-//      {
-//        using (SQLiteCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-//        {
-//          cmndStatus.CommandText = "SELECT COUNT(tActivity.ActivityRefno)" 
-//              + " FROM tActivity" 
-//              + " WHERE tActivity.ActivitySubType = " + (int)SysCommon.ActSubTypes.CycleCounts;
-//          cmndStatus.CommandType = CommandType.Text;
+            try
+            {
+                using (SQLiteCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                {
+                    cmndStatus.CommandText = "SELECT COUNT(tActivity.ActivityRefno)"
+                        + " FROM tActivity"
+                        + " WHERE tActivity.ActivitySubType = " + (int)SysCommon.ActSubTypes.CycleCounts;
+                    cmndStatus.CommandType = CommandType.Text;
 
-//          rowsAffected = Convert.ToInt32(cmndStatus.ExecuteScalar());
-          
-//          this.DataAccessStatusOutHandler(
-//              this, 
-//              EventArgs.Empty, 
-//#if MULTILANGUAGE
-//              string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.CycleCountsz), rowsAffected),
-//#else
-//              string.Format("{0} cycle count(s)", rowsAffected),
-//#endif
-//              true);
-//        }
-//      }
-//      catch (SQLiteException ex)
-//      {
-//#if MULTILANGUAGE
-//        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredCycleCountsStatusFailed), ex);
-//#else
-//        throw new Exception("Database exception occurred. Cycle counts status failed.", ex);
-//#endif
-//      }
+                    rowsAffected = Convert.ToInt32(cmndStatus.ExecuteScalar());
 
-      return rowsAffected;
+                    this.DataAccessStatusOutHandler(
+                        this,
+                        EventArgs.Empty,
+#if MULTILANGUAGE
+              string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.CycleCountsz), rowsAffected),
+#else
+              string.Format("{0} cycle count(s)", rowsAffected),
+#endif
+              true);
+                }
+            }
+            catch (SQLiteException ex)
+            {
+#if MULTILANGUAGE
+        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredCycleCountsStatusFailed), ex);
+#else
+                throw new Exception("Database exception occurred. Cycle counts status failed.", ex);
+#endif
+            }
+
+            return rowsAffected;
     }
 
     /// <summary>

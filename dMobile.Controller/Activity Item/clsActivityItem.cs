@@ -3,7 +3,6 @@ namespace dMobile.Controller
   using System;
   using System.Data;
   using System.Data.SQLite;
-  using System.Windows.Forms;
   using System.Xml.Linq;
   using dMobile.Bedrock;
   using dMobile.GroundWork;
@@ -556,7 +555,7 @@ namespace dMobile.Controller
     /// 
     /// </summary>
     /// <param name="dg"></param>
-    public abstract void DesignDataGrid(DataGrid dg);
+    //public abstract void DesignDataGrid(DataGrid dg);
 
     /// <summary>
     /// 

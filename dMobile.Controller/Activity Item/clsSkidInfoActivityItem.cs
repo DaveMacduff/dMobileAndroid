@@ -2,7 +2,6 @@ namespace dMobile.Controller
 {
   using System;
   using System.Data;
-  using System.Windows.Forms;
   using System.Xml.Linq;
 
   public class SkidInfoActItem : ActItem
@@ -81,14 +80,14 @@ namespace dMobile.Controller
       return string.Empty;
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="dg"></param>
-    public override void DesignDataGrid(DataGrid dg)
-    {
-      throw new NotImplementedException();
-    }
+    ///// <summary>
+    ///// 
+    ///// </summary>
+    ///// <param name="dg"></param>
+    //public override void DesignDataGrid(DataGrid dg)
+    //{
+    //  throw new NotImplementedException();
+    //}
 
     /// <summary>
     /// 

@@ -2,7 +2,6 @@
 {
     using System;
     using System.Data;
-    using System.Windows.Forms;
     using System.Xml.Linq;
     using dMobile.Bedrock;
 
@@ -102,14 +101,14 @@
             throw new NotImplementedException();
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <remarks></remarks>
-        public override void DesignDataGrid(DataGrid dataGridMain)
-        {
-            throw new NotImplementedException();
-        }
+        ///// <summary>
+        /////
+        ///// </summary>
+        ///// <remarks></remarks>
+        //public override void DesignDataGrid(DataGrid dataGridMain)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
         /// <summary>
         /// 

@@ -4,7 +4,6 @@ namespace dMobile.Controller
   using System.Data;
   using System.Data.SQLite;
   using System.Text;
-  using System.Windows.Forms;
   using System.Xml;
   using System.Xml.Linq;
   using dMobile.Bedrock;
@@ -250,16 +249,17 @@ namespace dMobile.Controller
       }
       catch (Exception ex)
       {
-        MessageBox.Show(
-#if MULTILANGUAGE
-            string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.GetFullUnitLabelQuantityFailed) + Environment.NewLine + " {0}", ex.Message, null), 
-#else
-            string.Format("Get full unit label quantity failed." + Environment.NewLine + " {0}", ex.Message, null), 
-#endif
-            this.GetControlDescription(), 
-            MessageBoxButtons.OK, 
-            MessageBoxIcon.Exclamation, 
-            MessageBoxDefaultButton.Button1);
+                // TODO: DisplayAlert
+//        MessageBox.Show(
+//#if MULTILANGUAGE
+//            string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.GetFullUnitLabelQuantityFailed) + Environment.NewLine + " {0}", ex.Message, null), 
+//#else
+//            string.Format("Get full unit label quantity failed." + Environment.NewLine + " {0}", ex.Message, null), 
+//#endif
+//            this.GetControlDescription(), 
+//            MessageBoxButtons.OK, 
+//            MessageBoxIcon.Exclamation, 
+//            MessageBoxDefaultButton.Button1);
       }
 
       return labelQty;
@@ -309,12 +309,13 @@ namespace dMobile.Controller
         {
           isBeingPicked = true;
           string errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
-          MessageBox.Show(
-              errorDetail, 
-              this.GetControlDescription(), 
-              MessageBoxButtons.OK, 
-              MessageBoxIcon.Hand, 
-              MessageBoxDefaultButton.Button1);
+          // TODO: DisplayAlert
+          //MessageBox.Show(
+          //    errorDetail, 
+          //    this.GetControlDescription(), 
+          //    MessageBoxButtons.OK, 
+          //    MessageBoxIcon.Hand, 
+          //    MessageBoxDefaultButton.Button1);
         }
       }
 
@@ -369,12 +370,13 @@ namespace dMobile.Controller
           if (reqData.Contains("<message>ERROR</message>"))
           {
             string errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
-            MessageBox.Show(
-                errorDetail, 
-                this.GetControlDescription(), 
-                MessageBoxButtons.OK, 
-                MessageBoxIcon.Hand, 
-                MessageBoxDefaultButton.Button1);
+            // TODO: DisplayAlert
+            //MessageBox.Show(
+            //    errorDetail, 
+            //    this.GetControlDescription(), 
+            //    MessageBoxButtons.OK, 
+            //    MessageBoxIcon.Hand, 
+            //    MessageBoxDefaultButton.Button1);
           }
           else
           {
@@ -394,64 +396,65 @@ namespace dMobile.Controller
     {
       bool isReleased = false;
 
-      if (MessageBox.Show(
-#if MULTILANGUAGE
-          string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.ReleaseOrder), this.FKRefno),
-#else
-          string.Format("Release order# {0} ?", this.FKRefno),
-#endif
-          this.GetControlDescription(),
-          MessageBoxButtons.YesNo,
-          MessageBoxIcon.Question,
-          MessageBoxDefaultButton.Button2) == DialogResult.Yes)
-      {
-        string reqResult = string.Empty;
-        StringBuilder xmlString = new StringBuilder();
-        XmlWriter xml = XmlWriter.Create(xmlString);
+            // TODO: DisplayAlert and logic
+//      if (MessageBox.Show(
+//#if MULTILANGUAGE
+//          string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.ReleaseOrder), this.FKRefno),
+//#else
+//          string.Format("Release order# {0} ?", this.FKRefno),
+//#endif
+//          this.GetControlDescription(),
+//          MessageBoxButtons.YesNo,
+//          MessageBoxIcon.Question,
+//          MessageBoxDefaultButton.Button2) == DialogResult.Yes)
+//      {
+//        string reqResult = string.Empty;
+//        StringBuilder xmlString = new StringBuilder();
+//        XmlWriter xml = XmlWriter.Create(xmlString);
 
-        XDocument request = XDocument.Parse(
-            "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" 
-            + "<imclient>" 
-            + "<command>" 
-            + "<action>RELEASE SALES ORDER BY ORDER</action>" 
-            + "</command>" 
-            + SysCommon.GetRequestDefaults(false)
-            + ("<refno>" + this.FKRefno.ToString() + "</refno>")
-            + "</imclient>");
+//        XDocument request = XDocument.Parse(
+//            "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" 
+//            + "<imclient>" 
+//            + "<command>" 
+//            + "<action>RELEASE SALES ORDER BY ORDER</action>" 
+//            + "</command>" 
+//            + SysCommon.GetRequestDefaults(false)
+//            + ("<refno>" + this.FKRefno.ToString() + "</refno>")
+//            + "</imclient>");
 
-        request.Save(xml);
-        xml.Flush();
-        xml.Close();
+//        request.Save(xml);
+//        xml.Flush();
+//        xml.Close();
 
-        reqResult = SysCommon.SubmitComm(xmlString.ToString());
-        if (reqResult.Length > 0)
-        {
-          if (reqResult.Contains("<message>ERROR</message>"))
-          {
-            XmlDocument docError = new XmlDocument();
-            docError.LoadXml(reqResult);
-            string errorDetail = docError.DocumentElement["detail"].InnerText;
-            throw new Exception(string.Format(
-#if MULTILANGUAGE
-                Translator.GetInstance().Translate(TranslatorVocabulary.ReleaseOrderFailed) + Environment.NewLine + errorDetail,
-#else
-                "Release order# {0} failed." + Environment.NewLine + errorDetail,
-#endif
-                this.FKRefno,
-                null));
-          }
+//        reqResult = SysCommon.SubmitComm(xmlString.ToString());
+//        if (reqResult.Length > 0)
+//        {
+//          if (reqResult.Contains("<message>ERROR</message>"))
+//          {
+//            XmlDocument docError = new XmlDocument();
+//            docError.LoadXml(reqResult);
+//            string errorDetail = docError.DocumentElement["detail"].InnerText;
+//            throw new Exception(string.Format(
+//#if MULTILANGUAGE
+//                Translator.GetInstance().Translate(TranslatorVocabulary.ReleaseOrderFailed) + Environment.NewLine + errorDetail,
+//#else
+//                "Release order# {0} failed." + Environment.NewLine + errorDetail,
+//#endif
+//                this.FKRefno,
+//                null));
+//          }
 
-          isReleased = true;
-        }
-        else
-        {
-#if MULTILANGUAGE
-          throw new Exception(string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.ReleaseOrderFailed), FKRefno));
-#else
-          throw new Exception(string.Format("Release order# {0} failed.", FKRefno));
-#endif
-        }
-      }
+//          isReleased = true;
+//        }
+//        else
+//        {
+//#if MULTILANGUAGE
+//          throw new Exception(string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.ReleaseOrderFailed), FKRefno));
+//#else
+//          throw new Exception(string.Format("Release order# {0} failed.", FKRefno));
+//#endif
+//        }
+//      }
 
       return isReleased;
     }
@@ -609,29 +612,31 @@ namespace dMobile.Controller
             switch (this.SysEnv.SysSettings.PickQtyUnderWarn)
             {
               case SysCommon.ActPickingQtyUnderValLevels.ValidateWarnAndContinue:
-                if (MessageBox.Show(
-#if MULTILANGUAGE
-                    ex.Message + Environment.NewLine + Translator.GetInstance().Translate(TranslatorVocabulary.Continue),
-#else
-                    ex.Message + Environment.NewLine + "Continue?",
-#endif
-                    this.GetControlDescription(),
-                    MessageBoxButtons.YesNo,
-                    MessageBoxIcon.Question,
-                    MessageBoxDefaultButton.Button2) == DialogResult.No)
-                {
-                  isResult = false;
-                }
+                    // TODO: DisplayAlert
+//                if (MessageBox.Show(
+//#if MULTILANGUAGE
+//                    ex.Message + Environment.NewLine + Translator.GetInstance().Translate(TranslatorVocabulary.Continue),
+//#else
+//                    ex.Message + Environment.NewLine + "Continue?",
+//#endif
+//                    this.GetControlDescription(),
+//                    MessageBoxButtons.YesNo,
+//                    MessageBoxIcon.Question,
+//                    MessageBoxDefaultButton.Button2) == DialogResult.No)
+//                {
+//                  isResult = false;
+//                }
 
                 break;
 
               case SysCommon.ActPickingQtyUnderValLevels.ValidateWarnAndStop:
-                MessageBox.Show(
-                    ex.Message,
-                    this.GetControlDescription(),
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Hand,
-                    MessageBoxDefaultButton.Button1);
+                // TODO: DisplayAlert
+                //MessageBox.Show(
+                //    ex.Message,
+                //    this.GetControlDescription(),
+                //    MessageBoxButtons.OK,
+                //    MessageBoxIcon.Hand,
+                //    MessageBoxDefaultButton.Button1);
                 isResult = false;
                 break;
             }
@@ -682,86 +687,86 @@ namespace dMobile.Controller
 #endif
     }
 
-    /// <summary>
-    ///
-    /// </summary>
-    /// <remarks></remarks>
-    public override void DesignDataGrid(DataGrid dataGridMain)
-    {
-      int colWidthFactor = 1;
+//    /// <summary>
+//    ///
+//    /// </summary>
+//    /// <remarks></remarks>
+//    public override void DesignDataGrid(DataGrid dataGridMain)
+//    {
+//      int colWidthFactor = 1;
 
-      if (this.SysEnv.IsWindowsMobile6Device)
-      {
-        colWidthFactor = 2;
-      }
+//      if (this.SysEnv.IsWindowsMobile6Device)
+//      {
+//        colWidthFactor = 2;
+//      }
 
-      if (dataGridMain.TableStyles.Count > 0)
-      {
-        dataGridMain.TableStyles.Clear();
-      }
+//      if (dataGridMain.TableStyles.Count > 0)
+//      {
+//        dataGridMain.TableStyles.Clear();
+//      }
 
-      DataGridTableStyle dataGridStyle = new DataGridTableStyle();
-      dataGridStyle.MappingName = this.MainGridMappingName;
+//      DataGridTableStyle dataGridStyle = new DataGridTableStyle();
+//      dataGridStyle.MappingName = this.MainGridMappingName;
 
-      DataGridTextBoxColumn dataGridCol = new DataGridTextBoxColumn();
-      dataGridCol.MappingName = "ActivityPickingStringFKRefno";
-#if MULTILANGUAGE
-      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Order);
-#else
-      dataGridCol.HeaderText = "Order #";
-#endif
-      dataGridCol.Width = 50 * colWidthFactor;
-      dataGridStyle.GridColumnStyles.Add(dataGridCol);
+//      DataGridTextBoxColumn dataGridCol = new DataGridTextBoxColumn();
+//      dataGridCol.MappingName = "ActivityPickingStringFKRefno";
+//#if MULTILANGUAGE
+//      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Order);
+//#else
+//      dataGridCol.HeaderText = "Order #";
+//#endif
+//      dataGridCol.Width = 50 * colWidthFactor;
+//      dataGridStyle.GridColumnStyles.Add(dataGridCol);
 
-      dataGridCol = new DataGridTextBoxColumn();
-      dataGridCol.MappingName = "ActivityPickingDeliveryDateTime";
-#if MULTILANGUAGE
-      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.DelDate);
-#else
-      dataGridCol.HeaderText = "Del Date";
-#endif
-      dataGridCol.Width = 65 * colWidthFactor;
-      dataGridStyle.GridColumnStyles.Add(dataGridCol);
+//      dataGridCol = new DataGridTextBoxColumn();
+//      dataGridCol.MappingName = "ActivityPickingDeliveryDateTime";
+//#if MULTILANGUAGE
+//      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.DelDate);
+//#else
+//      dataGridCol.HeaderText = "Del Date";
+//#endif
+//      dataGridCol.Width = 65 * colWidthFactor;
+//      dataGridStyle.GridColumnStyles.Add(dataGridCol);
 
-      if (!this.SysEnv.SysSettings.IsPickHideRouteCol)
-      {
-        dataGridCol = new DataGridTextBoxColumn();
-        dataGridCol.MappingName = "RouteCode";
-#if MULTILANGUAGE
-        dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Route);
-#else
-        dataGridCol.HeaderText = "Route";
-#endif
-        dataGridCol.Width = 45 * colWidthFactor;
-        dataGridCol.NullText = string.Empty;
-        dataGridStyle.GridColumnStyles.Add(dataGridCol);
+//      if (!this.SysEnv.SysSettings.IsPickHideRouteCol)
+//      {
+//        dataGridCol = new DataGridTextBoxColumn();
+//        dataGridCol.MappingName = "RouteCode";
+//#if MULTILANGUAGE
+//        dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Route);
+//#else
+//        dataGridCol.HeaderText = "Route";
+//#endif
+//        dataGridCol.Width = 45 * colWidthFactor;
+//        dataGridCol.NullText = string.Empty;
+//        dataGridStyle.GridColumnStyles.Add(dataGridCol);
 
-        dataGridCol = new DataGridTextBoxColumn();
-        dataGridCol.MappingName = "RouteStop";
-#if MULTILANGUAGE
-        dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Stop);
-#else
-        dataGridCol.HeaderText = "Stop";
-#endif
-        dataGridCol.Width = 45 * colWidthFactor;
-        dataGridCol.NullText = string.Empty;
-        dataGridStyle.GridColumnStyles.Add(dataGridCol);
-      }
+//        dataGridCol = new DataGridTextBoxColumn();
+//        dataGridCol.MappingName = "RouteStop";
+//#if MULTILANGUAGE
+//        dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Stop);
+//#else
+//        dataGridCol.HeaderText = "Stop";
+//#endif
+//        dataGridCol.Width = 45 * colWidthFactor;
+//        dataGridCol.NullText = string.Empty;
+//        dataGridStyle.GridColumnStyles.Add(dataGridCol);
+//      }
 
-      dataGridCol = new DataGridTextBoxColumn();
-      dataGridCol.MappingName = "ActivityPickingCustomerShipToInfo";
-#if MULTILANGUAGE
-      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.ShipTo);
-#else
-      dataGridCol.HeaderText = "Ship To";
-#endif
-      dataGridCol.Width = 100 * colWidthFactor;
-      dataGridStyle.GridColumnStyles.Add(dataGridCol);
+//      dataGridCol = new DataGridTextBoxColumn();
+//      dataGridCol.MappingName = "ActivityPickingCustomerShipToInfo";
+//#if MULTILANGUAGE
+//      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.ShipTo);
+//#else
+//      dataGridCol.HeaderText = "Ship To";
+//#endif
+//      dataGridCol.Width = 100 * colWidthFactor;
+//      dataGridStyle.GridColumnStyles.Add(dataGridCol);
 
-      dataGridMain.TableStyles.Add(dataGridStyle);
-      dataGridMain.RowHeadersVisible = false;
-      dataGridMain.ColumnHeadersVisible = true;
-    }
+//      dataGridMain.TableStyles.Add(dataGridStyle);
+//      dataGridMain.RowHeadersVisible = false;
+//      dataGridMain.ColumnHeadersVisible = true;
+//    }
 
     /// <summary>
     ///
@@ -1203,67 +1208,67 @@ namespace dMobile.Controller
           this.FKRefno,
           locMap.WhsName,
           locMap.SectName);
+// TODO: DisplayAlert and logic
+//      if (MessageBox.Show(
+//          msg,
+//          this.GetControlDescription(),
+//          MessageBoxButtons.YesNo,
+//          MessageBoxIcon.Question,
+//          MessageBoxDefaultButton.Button2) == DialogResult.Yes)
+//      {
+//        string reqData = string.Empty;
+//        StringBuilder xmlString = new StringBuilder();
+//        XmlWriter xml = XmlWriter.Create(xmlString);
+//        XDocument request = null;
 
-      if (MessageBox.Show(
-          msg,
-          this.GetControlDescription(),
-          MessageBoxButtons.YesNo,
-          MessageBoxIcon.Question,
-          MessageBoxDefaultButton.Button2) == DialogResult.Yes)
-      {
-        string reqData = string.Empty;
-        StringBuilder xmlString = new StringBuilder();
-        XmlWriter xml = XmlWriter.Create(xmlString);
-        XDocument request = null;
+//        request = XDocument.Parse(
+//            "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" 
+//            + "<imclient>" 
+//            + "<command>" 
+//            + "<action>RELEASE SALES ORDER BY ORDER ITEM SECTION</action>" 
+//            + "</command>" 
+//            + SysCommon.GetRequestDefaults(false)
+//            + ("<refno>" + this.FKRefno.ToString() + "</refno>") 
+//            + ("<whs_id>" + locMap.WhsFKRefno + "</whs_id>") 
+//            + ("<sect_refno>" + locMap.SectFKRefno + "</sect_refno>") 
+//            + "</imclient>");
 
-        request = XDocument.Parse(
-            "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" 
-            + "<imclient>" 
-            + "<command>" 
-            + "<action>RELEASE SALES ORDER BY ORDER ITEM SECTION</action>" 
-            + "</command>" 
-            + SysCommon.GetRequestDefaults(false)
-            + ("<refno>" + this.FKRefno.ToString() + "</refno>") 
-            + ("<whs_id>" + locMap.WhsFKRefno + "</whs_id>") 
-            + ("<sect_refno>" + locMap.SectFKRefno + "</sect_refno>") 
-            + "</imclient>");
+//        request.Save(xml);
+//        xml.Flush();
+//        xml.Close();
 
-        request.Save(xml);
-        xml.Flush();
-        xml.Close();
+//        reqData = SysCommon.SubmitComm(xmlString.ToString());
+//        if (reqData.Length > 0)
+//        {
+//          if (reqData.Contains("<message>ERROR</message>"))
+//          {
+//            XmlDocument docError = new XmlDocument();
+//            docError.LoadXml(reqData);
+//            string errorDetail = docError.DocumentElement["detail"].InnerText;
+//            throw new Exception(string.Format(
+//#if MULTILANGUAGE
+//                Translator.GetInstance().Translate(TranslatorVocabulary.ReleaseOrderByOrderItemSectionFailed) + Environment.NewLine + errorDetail,
+//#else
+//                "Release order# {0} by order item section {1} failed." + Environment.NewLine + errorDetail,
+//#endif
+//                this.FKRefno.ToString(),
+//                locMap.SectName));
+//          }
 
-        reqData = SysCommon.SubmitComm(xmlString.ToString());
-        if (reqData.Length > 0)
-        {
-          if (reqData.Contains("<message>ERROR</message>"))
-          {
-            XmlDocument docError = new XmlDocument();
-            docError.LoadXml(reqData);
-            string errorDetail = docError.DocumentElement["detail"].InnerText;
-            throw new Exception(string.Format(
-#if MULTILANGUAGE
-                Translator.GetInstance().Translate(TranslatorVocabulary.ReleaseOrderByOrderItemSectionFailed) + Environment.NewLine + errorDetail,
-#else
-                "Release order# {0} by order item section {1} failed." + Environment.NewLine + errorDetail,
-#endif
-                this.FKRefno.ToString(),
-                locMap.SectName));
-          }
-
-          isReleased = true;
-        }
-        else
-        {
-          throw new Exception(string.Format(
-#if MULTILANGUAGE
-              Translator.GetInstance().Translate(TranslatorVocabulary.ReleaseOrderByOrderItemSectionFailed),
-#else
-              "Release order# {0} by order item section {1} failed.",
-#endif
-              this.FKRefno,
-              locMap.SectName));
-        }
-      }
+//          isReleased = true;
+//        }
+//        else
+//        {
+//          throw new Exception(string.Format(
+//#if MULTILANGUAGE
+//              Translator.GetInstance().Translate(TranslatorVocabulary.ReleaseOrderByOrderItemSectionFailed),
+//#else
+//              "Release order# {0} by order item section {1} failed.",
+//#endif
+//              this.FKRefno,
+//              locMap.SectName));
+//        }
+//      }
 
       return isReleased;
     }

@@ -4,7 +4,6 @@ namespace dMobile.Controller
   using System.Data;
   using System.Data.SQLite;
   using System.Text;
-  using System.Windows.Forms;
   using System.Xml;
   using System.Xml.Linq;
   using dMobile.Bedrock;
@@ -23,88 +22,90 @@ namespace dMobile.Controller
       this.FullClassName = typeof(ReleaseByOrderActivity).FullName;
     }
 
-    #endregion
+        #endregion
 
-    #region Public Members
+        #region Public Members
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="idx"></param>
-    /// <returns></returns>
-    public override bool ChangeStatus(int idx)
-    {
-      bool isResult = false;
-
-      if (this.SysEnv.SysSettings.IsRelByOrder && !this.SysEnv.SysSettings.IsDisconnectedMode)
-      {
-        if (MessageBox.Show(
-#if MULTILANGUAGE
-            string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.ReleaseOrderToInvoiceStatus), this.FKRefno), 
-            Translator.GetInstance().Translate(TranslatorVocabulary.ReleaseOrderz), 
-#else
-            string.Format("Release Order# {0} To Invoice Status?", this.FKRefno), 
-            "Release Order", 
-#endif
-            MessageBoxButtons.YesNo, 
-            MessageBoxIcon.Question, 
-            MessageBoxDefaultButton.Button2) == DialogResult.Yes)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="idx"></param>
+        /// <returns></returns>
+        public override bool ChangeStatus(int idx)
         {
+            bool isResult = false;
 
-          GC.Collect();
-          GC.WaitForPendingFinalizers();
-
-          string sendReq = string.Empty;
-          StringBuilder xmlString = new StringBuilder();
-          XmlWriter xml = XmlWriter.Create(xmlString);
-
-          XDocument request = XDocument.Parse(
-              "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" 
-              + "<imclient>" 
-              + "<command>" 
-              + "<action>RELEASE SALES ORDER BY ORDER</action>" 
-              + "</command>" 
-              + SysCommon.GetRequestDefaults(false)
-              + ("<refno>" + this.FKRefno + "</refno>") 
-              + "</imclient>");
-
-          request.Save(xml);
-          xml.Flush();
-          xml.Close();
-
-          string reqData = SysCommon.SubmitComm(xmlString.ToString());
-          if (reqData.Length > 0)
-          {
-            if (reqData.Contains("<message>ERROR</message>"))
+            if (this.SysEnv.SysSettings.IsRelByOrder && !this.SysEnv.SysSettings.IsDisconnectedMode)
             {
-              XmlDocument docError = new XmlDocument();
-              docError.LoadXml(reqData);
-              string errorDetail = docError.DocumentElement["detail"].InnerText;
-              throw new Exception(
-#if MULTILANGUAGE
-                  string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.ReleaseOrderToInvoiceStatusFailed) + Environment.NewLine + errorDetail, 
-#else
-                  string.Format("Release order # {0} to invoice status failed." + Environment.NewLine + errorDetail, 
-#endif
-                  this.FKRefno, 
-                  null));
+                // TODO: DisplayAlert and logic
+                //        if (MessageBox.Show(
+                //#if MULTILANGUAGE
+                //            string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.ReleaseOrderToInvoiceStatus), this.FKRefno), 
+                //            Translator.GetInstance().Translate(TranslatorVocabulary.ReleaseOrderz), 
+                //#else
+                //            string.Format("Release Order# {0} To Invoice Status?", this.FKRefno), 
+                //            "Release Order", 
+                //#endif
+                //            MessageBoxButtons.YesNo, 
+                //            MessageBoxIcon.Question, 
+                //            MessageBoxDefaultButton.Button2) == DialogResult.Yes)
+                //        {
+
+                //          GC.Collect();
+                //          GC.WaitForPendingFinalizers();
+
+                //          string sendReq = string.Empty;
+                //          StringBuilder xmlString = new StringBuilder();
+                //          XmlWriter xml = XmlWriter.Create(xmlString);
+
+                //          XDocument request = XDocument.Parse(
+                //              "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" 
+                //              + "<imclient>" 
+                //              + "<command>" 
+                //              + "<action>RELEASE SALES ORDER BY ORDER</action>" 
+                //              + "</command>" 
+                //              + SysCommon.GetRequestDefaults(false)
+                //              + ("<refno>" + this.FKRefno + "</refno>") 
+                //              + "</imclient>");
+
+                //          request.Save(xml);
+                //          xml.Flush();
+                //          xml.Close();
+
+                //          string reqData = SysCommon.SubmitComm(xmlString.ToString());
+                //          if (reqData.Length > 0)
+                //          {
+                //            if (reqData.Contains("<message>ERROR</message>"))
+                //            {
+                //              XmlDocument docError = new XmlDocument();
+                //              docError.LoadXml(reqData);
+                //              string errorDetail = docError.DocumentElement["detail"].InnerText;
+                //              throw new Exception(
+                //#if MULTILANGUAGE
+                //                  string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.ReleaseOrderToInvoiceStatusFailed) + Environment.NewLine + errorDetail, 
+                //#else
+                //                  string.Format("Release order # {0} to invoice status failed." + Environment.NewLine + errorDetail, 
+                //#endif
+                //                  this.FKRefno, 
+                //                  null));
+                //            }
+                //          }
+                //          else
+                //          {
+                //#if MULTILANGUAGE
+                //            throw new Exception(string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.ReleaseOrderToInvoiceStatusFailed), this.FKRefno));
+                //#else
+                //            throw new Exception(string.Format("Release order # {0} to invoice status failed.", this.FKRefno));
+                //#endif
+                //          }
+
+                //          isResult = true;
+                //        }
+                //      }
+
             }
-          }
-          else
-          {
-#if MULTILANGUAGE
-            throw new Exception(string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.ReleaseOrderToInvoiceStatusFailed), this.FKRefno));
-#else
-            throw new Exception(string.Format("Release order # {0} to invoice status failed.", this.FKRefno));
-#endif
-          }
-
-          isResult = true;
+                return isResult;
         }
-      }
-
-      return isResult;
-    }
 
     /// <summary>
     ///
@@ -130,83 +131,83 @@ namespace dMobile.Controller
 #endif
     }
 
-    /// <summary>
-    ///
-    /// </summary>
-    /// <remarks></remarks>
-    public override void DesignDataGrid(DataGrid dataGridMain)
-    {
-      int colWidthFactor = 1;
+//    /// <summary>
+//    ///
+//    /// </summary>
+//    /// <remarks></remarks>
+//    public override void DesignDataGrid(DataGrid dataGridMain)
+//    {
+//      int colWidthFactor = 1;
 
-      if (this.SysEnv.IsWindowsMobile6Device)
-      {
-        colWidthFactor = 2;
-      }
+//      if (this.SysEnv.IsWindowsMobile6Device)
+//      {
+//        colWidthFactor = 2;
+//      }
 
-      if (dataGridMain.TableStyles.Count > 0)
-      {
-        dataGridMain.TableStyles.Clear();
-      }
+//      if (dataGridMain.TableStyles.Count > 0)
+//      {
+//        dataGridMain.TableStyles.Clear();
+//      }
 
-      DataGridTableStyle dataGridStyle = new DataGridTableStyle();
-      dataGridStyle.MappingName = this.MainGridMappingName;
+//      DataGridTableStyle dataGridStyle = new DataGridTableStyle();
+//      dataGridStyle.MappingName = this.MainGridMappingName;
 
-      DataGridTextBoxColumn dataGridCol = new DataGridTextBoxColumn();
-      dataGridCol.MappingName = "ActivityPickingStringFKRefno";
-#if MULTILANGUAGE
-      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Order);
-#else
-      dataGridCol.HeaderText = "Order #";
-#endif
-      dataGridCol.Width = 50 * colWidthFactor;
-      dataGridStyle.GridColumnStyles.Add(dataGridCol);
+//      DataGridTextBoxColumn dataGridCol = new DataGridTextBoxColumn();
+//      dataGridCol.MappingName = "ActivityPickingStringFKRefno";
+//#if MULTILANGUAGE
+//      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Order);
+//#else
+//      dataGridCol.HeaderText = "Order #";
+//#endif
+//      dataGridCol.Width = 50 * colWidthFactor;
+//      dataGridStyle.GridColumnStyles.Add(dataGridCol);
 
-      dataGridCol = new DataGridTextBoxColumn();
-      dataGridCol.MappingName = "ActivityPickingOrderedDateTime";
-#if MULTILANGUAGE
-      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.OrderDate);
-#else
-      dataGridCol.HeaderText = "Order Date";
-#endif
-      dataGridCol.Width = 70 * colWidthFactor;
-      dataGridStyle.GridColumnStyles.Add(dataGridCol);
+//      dataGridCol = new DataGridTextBoxColumn();
+//      dataGridCol.MappingName = "ActivityPickingOrderedDateTime";
+//#if MULTILANGUAGE
+//      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.OrderDate);
+//#else
+//      dataGridCol.HeaderText = "Order Date";
+//#endif
+//      dataGridCol.Width = 70 * colWidthFactor;
+//      dataGridStyle.GridColumnStyles.Add(dataGridCol);
 
-      dataGridCol = new DataGridTextBoxColumn();
-      dataGridCol.MappingName = "ActivityPickingDeliveryDateTime";
-#if MULTILANGUAGE
-      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.DelDate);
-#else
-      dataGridCol.HeaderText = "Del Date";
-#endif
-      dataGridCol.Width = 65 * colWidthFactor;
-      dataGridStyle.GridColumnStyles.Add(dataGridCol);
+//      dataGridCol = new DataGridTextBoxColumn();
+//      dataGridCol.MappingName = "ActivityPickingDeliveryDateTime";
+//#if MULTILANGUAGE
+//      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.DelDate);
+//#else
+//      dataGridCol.HeaderText = "Del Date";
+//#endif
+//      dataGridCol.Width = 65 * colWidthFactor;
+//      dataGridStyle.GridColumnStyles.Add(dataGridCol);
 
-      dataGridCol = new DataGridTextBoxColumn();
-      dataGridCol.MappingName = "RouteCode";
-#if MULTILANGUAGE
-      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Route);
-#else
-      dataGridCol.HeaderText = "Route";
-#endif
-      dataGridCol.Width = 45 * colWidthFactor;
-      dataGridCol.NullText = string.Empty;
-      dataGridStyle.GridColumnStyles.Add(dataGridCol);
+//      dataGridCol = new DataGridTextBoxColumn();
+//      dataGridCol.MappingName = "RouteCode";
+//#if MULTILANGUAGE
+//      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Route);
+//#else
+//      dataGridCol.HeaderText = "Route";
+//#endif
+//      dataGridCol.Width = 45 * colWidthFactor;
+//      dataGridCol.NullText = string.Empty;
+//      dataGridStyle.GridColumnStyles.Add(dataGridCol);
 
-      dataGridCol = new DataGridTextBoxColumn();
-      dataGridCol.MappingName = "RouteStop";
-#if MULTILANGUAGE
-      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Stop);
-#else
-      dataGridCol.HeaderText = "Stop";
-#endif
-      dataGridCol.Width = 45 * colWidthFactor;
-      dataGridCol.NullText = string.Empty;
-      dataGridStyle.GridColumnStyles.Add(dataGridCol);
+//      dataGridCol = new DataGridTextBoxColumn();
+//      dataGridCol.MappingName = "RouteStop";
+//#if MULTILANGUAGE
+//      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Stop);
+//#else
+//      dataGridCol.HeaderText = "Stop";
+//#endif
+//      dataGridCol.Width = 45 * colWidthFactor;
+//      dataGridCol.NullText = string.Empty;
+//      dataGridStyle.GridColumnStyles.Add(dataGridCol);
 
-      dataGridMain.TableStyles.Add(dataGridStyle);
-      dataGridMain.RowHeadersVisible = false;
-      dataGridMain.ColumnHeadersVisible = true;
-    }
+//      dataGridMain.TableStyles.Add(dataGridStyle);
+//      dataGridMain.RowHeadersVisible = false;
+//      dataGridMain.ColumnHeadersVisible = true;
+//    }
 
     /// <summary>
     ///

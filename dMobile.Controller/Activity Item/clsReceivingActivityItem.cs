@@ -4,7 +4,6 @@ namespace dMobile.Controller
   using System.Data;
   using System.Data.SQLite;
   using System.Text;
-  using System.Windows.Forms;
   using System.Xml;
   using System.Xml.Linq;
   using dMobile.Bedrock;
@@ -259,91 +258,91 @@ namespace dMobile.Controller
       }
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="dataGridMain"></param>
-    public override void DesignDataGrid(DataGrid dataGridMain)
-    {
-      int colWidthFactor = 1;
+//    /// <summary>
+//    /// 
+//    /// </summary>
+//    /// <param name="dataGridMain"></param>
+//    public override void DesignDataGrid(DataGrid dataGridMain)
+//    {
+//      int colWidthFactor = 1;
 
-      if (this.SysEnv.IsWindowsMobile6Device)
-      {
-        colWidthFactor = 2;
-      }
+//      if (this.SysEnv.IsWindowsMobile6Device)
+//      {
+//        colWidthFactor = 2;
+//      }
 
-      if (dataGridMain.TableStyles.Count > 0)
-      {
-        dataGridMain.TableStyles.Clear();
-      }
+//      if (dataGridMain.TableStyles.Count > 0)
+//      {
+//        dataGridMain.TableStyles.Clear();
+//      }
 
-      DataGridTableStyle dataGridStyle = new DataGridTableStyle();
-      dataGridStyle.MappingName = this.MainGridMappingName;
+//      DataGridTableStyle dataGridStyle = new DataGridTableStyle();
+//      dataGridStyle.MappingName = this.MainGridMappingName;
 
-      DataGridTextBoxColumn dataGridCol = new DataGridTextBoxColumn();
-      dataGridCol.MappingName = "ActivityItemRefno";
-      dataGridCol.HeaderText = string.Empty;
-      dataGridCol.Width = -1;
-      dataGridStyle.GridColumnStyles.Add(dataGridCol);
+//      DataGridTextBoxColumn dataGridCol = new DataGridTextBoxColumn();
+//      dataGridCol.MappingName = "ActivityItemRefno";
+//      dataGridCol.HeaderText = string.Empty;
+//      dataGridCol.Width = -1;
+//      dataGridStyle.GridColumnStyles.Add(dataGridCol);
 
-      dataGridCol = new DataGridTextBoxColumn();
-      dataGridCol.MappingName = "IsActivityItemReceivingComment";
-#if MULTILANGUAGE
-      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.C);
-#else
-      dataGridCol.HeaderText = "C";
-#endif
-      dataGridCol.Width = 12 * colWidthFactor;
-      dataGridStyle.GridColumnStyles.Add(dataGridCol);
+//      dataGridCol = new DataGridTextBoxColumn();
+//      dataGridCol.MappingName = "IsActivityItemReceivingComment";
+//#if MULTILANGUAGE
+//      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.C);
+//#else
+//      dataGridCol.HeaderText = "C";
+//#endif
+//      dataGridCol.Width = 12 * colWidthFactor;
+//      dataGridStyle.GridColumnStyles.Add(dataGridCol);
 
-      dataGridCol = new DataGridTextBoxColumn();
-      dataGridCol.MappingName = "ProductCode";
-#if MULTILANGUAGE
-      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.ProductId);
-#else
-      dataGridCol.HeaderText = "Product ID";
-#endif
-      dataGridCol.Width = 65 * colWidthFactor;
-      dataGridStyle.GridColumnStyles.Add(dataGridCol);
+//      dataGridCol = new DataGridTextBoxColumn();
+//      dataGridCol.MappingName = "ProductCode";
+//#if MULTILANGUAGE
+//      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.ProductId);
+//#else
+//      dataGridCol.HeaderText = "Product ID";
+//#endif
+//      dataGridCol.Width = 65 * colWidthFactor;
+//      dataGridStyle.GridColumnStyles.Add(dataGridCol);
 
-      dataGridCol = new DataGridTextBoxColumn();
-      dataGridCol.MappingName = "ProductUnitBC";
-      dataGridCol.HeaderText = string.Empty;
-      dataGridCol.Width = 20 * colWidthFactor;
-      dataGridStyle.GridColumnStyles.Add(dataGridCol);
+//      dataGridCol = new DataGridTextBoxColumn();
+//      dataGridCol.MappingName = "ProductUnitBC";
+//      dataGridCol.HeaderText = string.Empty;
+//      dataGridCol.Width = 20 * colWidthFactor;
+//      dataGridStyle.GridColumnStyles.Add(dataGridCol);
 
-      dataGridCol = new DataGridTextBoxColumn();
-      dataGridCol.MappingName = "UnitCode";
-      dataGridCol.HeaderText = string.Empty;
-      dataGridCol.Width = 22 * colWidthFactor;
-      dataGridStyle.GridColumnStyles.Add(dataGridCol);
+//      dataGridCol = new DataGridTextBoxColumn();
+//      dataGridCol.MappingName = "UnitCode";
+//      dataGridCol.HeaderText = string.Empty;
+//      dataGridCol.Width = 22 * colWidthFactor;
+//      dataGridStyle.GridColumnStyles.Add(dataGridCol);
 
-      dataGridCol = new DataGridTextBoxColumn();
-      dataGridCol.MappingName = "ActivityItemReceivingQuantityOrdered";
-#if MULTILANGUAGE
-      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Ordered);
-#else
-      dataGridCol.HeaderText = "Ordered";
-#endif
-      dataGridCol.Width = 52 * colWidthFactor;
-      dataGridCol.Format = "0.000";
-      dataGridStyle.GridColumnStyles.Add(dataGridCol);
+//      dataGridCol = new DataGridTextBoxColumn();
+//      dataGridCol.MappingName = "ActivityItemReceivingQuantityOrdered";
+//#if MULTILANGUAGE
+//      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Ordered);
+//#else
+//      dataGridCol.HeaderText = "Ordered";
+//#endif
+//      dataGridCol.Width = 52 * colWidthFactor;
+//      dataGridCol.Format = "0.000";
+//      dataGridStyle.GridColumnStyles.Add(dataGridCol);
 
-      dataGridCol = new DataGridTextBoxColumn();
-      dataGridCol.MappingName = "ActivityItemReceivingQuantityReceived";
-#if MULTILANGUAGE
-      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Received);
-#else
-      dataGridCol.HeaderText = "Received";
-#endif
-      dataGridCol.Width = 52 * colWidthFactor;
-      dataGridCol.Format = "0.000";
-      dataGridStyle.GridColumnStyles.Add(dataGridCol);
+//      dataGridCol = new DataGridTextBoxColumn();
+//      dataGridCol.MappingName = "ActivityItemReceivingQuantityReceived";
+//#if MULTILANGUAGE
+//      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Received);
+//#else
+//      dataGridCol.HeaderText = "Received";
+//#endif
+//      dataGridCol.Width = 52 * colWidthFactor;
+//      dataGridCol.Format = "0.000";
+//      dataGridStyle.GridColumnStyles.Add(dataGridCol);
 
-      dataGridMain.TableStyles.Add(dataGridStyle);
-      dataGridMain.RowHeadersVisible = false;
-      dataGridMain.ColumnHeadersVisible = true;
-    }
+//      dataGridMain.TableStyles.Add(dataGridStyle);
+//      dataGridMain.RowHeadersVisible = false;
+//      dataGridMain.ColumnHeadersVisible = true;
+//    }
 
     /// <summary>
     /// 
@@ -765,24 +764,25 @@ namespace dMobile.Controller
           switch (this.SysEnv.SysSettings.RecvQtyOverWarn)
           {
             case SysCommon.ActReceivingQtyOverValLevels.ValidateWarnAndContinue:
-              if (MessageBox.Show(
-#if MULTILANGUAGE
-                  ex.Message + Environment.NewLine + Translator.GetInstance().Translate(TranslatorVocabulary.Continue),
-                  Translator.GetInstance().Translate(TranslatorVocabulary.QuantityOver),
-#else
-                  ex.Message + Environment.NewLine + "Continue?",
-                  "Quantity Over",
-#endif
-                  MessageBoxButtons.YesNo,
-                  MessageBoxIcon.Question,
-                  MessageBoxDefaultButton.Button2) == DialogResult.No)
-              {
+// TODO: DisplayAlert
+//              if (MessageBox.Show(
+//#if MULTILANGUAGE
+//                  ex.Message + Environment.NewLine + Translator.GetInstance().Translate(TranslatorVocabulary.Continue),
+//                  Translator.GetInstance().Translate(TranslatorVocabulary.QuantityOver),
+//#else
+//                  ex.Message + Environment.NewLine + "Continue?",
+//                  "Quantity Over",
+//#endif
+//                  MessageBoxButtons.YesNo,
+//                  MessageBoxIcon.Question,
+//                  MessageBoxDefaultButton.Button2) == DialogResult.No)
+//              {
                 throw new IsReadyToApplyException(ex.Message, true, false);
-              }
-              else
-              {
-                ////throw new IsReadyToApplyException(ex.Message, true, true);
-              }
+              //}
+              //else
+              //{
+              //  ////throw new IsReadyToApplyException(ex.Message, true, true);
+              //}
 
               break;
 

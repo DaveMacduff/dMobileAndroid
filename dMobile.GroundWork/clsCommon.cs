@@ -13,6 +13,7 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     public static bool IsDataBaseDataExist()
     {
+      // TODO: Fix dataStatus() requests
       int prodCount = new TableProduct().DataStatus();
       int schemeCount = new TableProductScheme().DataStatus();
       int whsCount = new TableLocationMapWarehouse().DataStatus();

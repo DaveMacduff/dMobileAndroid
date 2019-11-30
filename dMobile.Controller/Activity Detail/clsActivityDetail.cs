@@ -3,7 +3,6 @@ namespace dMobile.Controller
     using System;
     using System.Data;
     using System.Data.SQLite;
-    using System.Windows.Forms;
     using System.Xml;
     using System.Xml.Linq;
     using dMobile.Bedrock;
@@ -373,7 +372,7 @@ namespace dMobile.Controller
 
         public abstract DataView GetDataView(bool isSubmitBatch);
 
-        public abstract void DesignDataGrid(DataGrid dgGrid);
+        //public abstract void DesignDataGrid(DataGrid dgGrid);
 
         public abstract void SelectDetail(int selectedIndex);
 

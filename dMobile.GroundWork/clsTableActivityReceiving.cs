@@ -29,8 +29,8 @@ namespace dMobile.GroundWork
     /// <remarks></remarks>
     public override void Request()
     {
-      GC.Collect();
-      GC.WaitForPendingFinalizers();
+      //GC.Collect();
+      //GC.WaitForPendingFinalizers();
 
       try
       {

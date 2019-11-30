@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<custompages:DialogModal
+<custompages:DMobileModal
     xmlns:custompages="clr-namespace:dMobile.View.CustomPages.Modal"
             xmlns="http://xamarin.com/schemas/2014/forms" 
             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
@@ -32,4 +32,4 @@
         </Grid>
         
     </ContentPage.Content>
-</custompages:DialogModal>
+</custompages:DMobileModal>

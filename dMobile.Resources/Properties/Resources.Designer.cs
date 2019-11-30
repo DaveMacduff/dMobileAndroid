@@ -61,6 +61,24 @@ namespace dMobile.Resources.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to About.
+        /// </summary>
+        public static string About {
+            get {
+                return ResourceManager.GetString("About", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Adjustments.
+        /// </summary>
+        public static string Adjustments {
+            get {
+                return ResourceManager.GetString("Adjustments", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to All modules enabled. Bypassing device licenses..
         /// </summary>
         public static string AllModulesEnabledBypassingDeviceLicenses {
@@ -97,6 +115,24 @@ namespace dMobile.Resources.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Comm, Setup.
+        /// </summary>
+        public static string CommSetup {
+            get {
+                return ResourceManager.GetString("CommSetup", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Confirm refresh data?.
+        /// </summary>
+        public static string ConfirmRefreshData {
+            get {
+                return ResourceManager.GetString("ConfirmRefreshData", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Continue.
         /// </summary>
         public static string Continue {
@@ -106,11 +142,92 @@ namespace dMobile.Resources.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Counts.
+        /// </summary>
+        public static string Counts {
+            get {
+                return ResourceManager.GetString("Counts", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Database creation completed..
+        /// </summary>
+        public static string DatabaseCreationCompleted {
+            get {
+                return ResourceManager.GetString("DatabaseCreationCompleted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Database missing..
+        /// </summary>
+        public static string DatabaseMissing {
+            get {
+                return ResourceManager.GetString("DatabaseMissing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Data failed validation. Check your data..
+        /// </summary>
+        public static string DataFailedValidationCheckYourData {
+            get {
+                return ResourceManager.GetString("DataFailedValidationCheckYourData", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Data is out of date, please refresh immediately.
+        /// </summary>
+        public static string DataIsOutOfDatePleaseRefreshImmediately {
+            get {
+                return ResourceManager.GetString("DataIsOutOfDatePleaseRefreshImmediately", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Data Status.
+        /// </summary>
+        public static string DataStatus {
+            get {
+                return ResourceManager.GetString("DataStatus", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Data status failed..
+        /// </summary>
+        public static string DataStatusFailed {
+            get {
+                return ResourceManager.GetString("DataStatusFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to dMobile.
         /// </summary>
         public static string DMobile {
             get {
                 return ResourceManager.GetString("DMobile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to dMobile Purge Activity Data.
+        /// </summary>
+        public static string DMobilePurgeActivityData {
+            get {
+                return ResourceManager.GetString("DMobilePurgeActivityData", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to dMobile Refresh Data Status.
+        /// </summary>
+        public static string DMobileRefreshDataStatus {
+            get {
+                return ResourceManager.GetString("DMobileRefreshDataStatus", resourceCulture);
             }
         }
         
@@ -142,6 +259,15 @@ namespace dMobile.Resources.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Found .
+        /// </summary>
+        public static string Found {
+            get {
+                return ResourceManager.GetString("Found", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Invalid login id.
         /// </summary>
         public static string InvalidLoginId {
@@ -156,6 +282,42 @@ namespace dMobile.Resources.Properties {
         public static string InvalidLoginPassword {
             get {
                 return ResourceManager.GetString("InvalidLoginPassword", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Inventory.
+        /// </summary>
+        public static string Inventory {
+            get {
+                return ResourceManager.GetString("Inventory", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to IsReadyToSave.
+        /// </summary>
+        public static string IsReadyToSave {
+            get {
+                return ResourceManager.GetString("IsReadyToSave", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Last refresh.
+        /// </summary>
+        public static string LastRefresh {
+            get {
+                return ResourceManager.GetString("LastRefresh", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Locating database..
+        /// </summary>
+        public static string LocatingDatabase {
+            get {
+                return ResourceManager.GetString("LocatingDatabase", resourceCulture);
             }
         }
         
@@ -178,11 +340,47 @@ namespace dMobile.Resources.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Main Menu.
+        /// </summary>
+        public static string MainMenu {
+            get {
+                return ResourceManager.GetString("MainMenu", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No.
+        /// </summary>
+        public static string No {
+            get {
+                return ResourceManager.GetString("No", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to OK.
         /// </summary>
         public static string OK {
             get {
                 return ResourceManager.GetString("OK", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Options.
+        /// </summary>
+        public static string Options {
+            get {
+                return ResourceManager.GetString("Options", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Options Menu.
+        /// </summary>
+        public static string OptionsMenu {
+            get {
+                return ResourceManager.GetString("OptionsMenu", resourceCulture);
             }
         }
         
@@ -205,6 +403,177 @@ namespace dMobile.Resources.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Production.
+        /// </summary>
+        public static string Production {
+            get {
+                return ResourceManager.GetString("Production", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Production Tickets.
+        /// </summary>
+        public static string ProductionTickets {
+            get {
+                return ResourceManager.GetString("ProductionTickets", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Purchase Orders.
+        /// </summary>
+        public static string PurchaseOrders {
+            get {
+                return ResourceManager.GetString("PurchaseOrders", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Purchase Order Work Sheet.
+        /// </summary>
+        public static string PurchaseOrderWorkSheet {
+            get {
+                return ResourceManager.GetString("PurchaseOrderWorkSheet", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Purge Data Completed.
+        /// </summary>
+        public static string PurgeDataCompleted {
+            get {
+                return ResourceManager.GetString("PurgeDataCompleted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Receiving And Put Away.
+        /// </summary>
+        public static string ReceivingAndPutAway {
+            get {
+                return ResourceManager.GetString("ReceivingAndPutAway", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Refresh changes only.
+        /// </summary>
+        public static string RefreshChangesOnly {
+            get {
+                return ResourceManager.GetString("RefreshChangesOnly", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Refresh Data.
+        /// </summary>
+        public static string RefreshData {
+            get {
+                return ResourceManager.GetString("RefreshData", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Refresh Data Changes Only.
+        /// </summary>
+        public static string RefreshDataChangesOnly {
+            get {
+                return ResourceManager.GetString("RefreshDataChangesOnly", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Refresh Data Completed.
+        /// </summary>
+        public static string RefreshDataCompleted {
+            get {
+                return ResourceManager.GetString("RefreshDataCompleted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Refresh data failed..
+        /// </summary>
+        public static string RefreshDataFailed {
+            get {
+                return ResourceManager.GetString("RefreshDataFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Refresh Data Options.
+        /// </summary>
+        public static string RefreshDataOptions {
+            get {
+                return ResourceManager.GetString("RefreshDataOptions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Refresh Minutes: {0}.
+        /// </summary>
+        public static string RefreshMinutes0 {
+            get {
+                return ResourceManager.GetString("RefreshMinutes0", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Refresh Required.
+        /// </summary>
+        public static string RefreshRequired {
+            get {
+                return ResourceManager.GetString("RefreshRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Replenishment.
+        /// </summary>
+        public static string Replenishment {
+            get {
+                return ResourceManager.GetString("Replenishment", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sales Orders.
+        /// </summary>
+        public static string SalesOrders {
+            get {
+                return ResourceManager.GetString("SalesOrders", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Seeding system users.
+        /// </summary>
+        public static string SeedingSystemUsers {
+            get {
+                return ResourceManager.GetString("SeedingSystemUsers", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Select/Deselect All.
+        /// </summary>
+        public static string SelectDeselectAll {
+            get {
+                return ResourceManager.GetString("SelectDeselectAll", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Selected warehouse required..
+        /// </summary>
+        public static string SelectedWarehouseRequired {
+            get {
+                return ResourceManager.GetString("SelectedWarehouseRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Send Report.
         /// </summary>
         public static string SendReport {
@@ -214,11 +583,47 @@ namespace dMobile.Resources.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Setup Defaults.
+        /// </summary>
+        public static string SetupDefaults {
+            get {
+                return ResourceManager.GetString("SetupDefaults", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Some expected data was not refreshed. Recommend refreshing data again..
+        /// </summary>
+        public static string SomeExpectedDataWasNotRefreshedRecommendRefreshingDataAgain {
+            get {
+                return ResourceManager.GetString("SomeExpectedDataWasNotRefreshedRecommendRefreshingDataAgain", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Submit Batch.
+        /// </summary>
+        public static string SubmitBatch {
+            get {
+                return ResourceManager.GetString("SubmitBatch", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Support Detail.
         /// </summary>
         public static string SupportDetail {
             get {
                 return ResourceManager.GetString("SupportDetail", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to System Data.
+        /// </summary>
+        public static string SystemData {
+            get {
+                return ResourceManager.GetString("SystemData", resourceCulture);
             }
         }
         
@@ -233,6 +638,15 @@ namespace dMobile.Resources.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Transfers.
+        /// </summary>
+        public static string Transfers {
+            get {
+                return ResourceManager.GetString("Transfers", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unsupported SysCommon.ShowErrorMessageType called..
         /// </summary>
         public static string UnsupportedSysCommonShowErrorMessageTypeCalled {
@@ -242,11 +656,38 @@ namespace dMobile.Resources.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Utilities.
+        /// </summary>
+        public static string Utilities {
+            get {
+                return ResourceManager.GetString("Utilities", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Warehouse.
         /// </summary>
         public static string Warehouse {
             get {
                 return ResourceManager.GetString("Warehouse", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Warning! Unsubmitted data exists and will be lost. Continue with refresh data?.
+        /// </summary>
+        public static string WarningUnsubmittedDataExistsAndWillBeLostContinueWithRefreshData {
+            get {
+                return ResourceManager.GetString("WarningUnsubmittedDataExistsAndWillBeLostContinueWithRefreshData", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Yes.
+        /// </summary>
+        public static string Yes {
+            get {
+                return ResourceManager.GetString("Yes", resourceCulture);
             }
         }
     }

@@ -4,6 +4,7 @@ using Xamarin.Forms.Platform.Android;
 using dMobile.Droid.CustomRenderers;
 using dMobile.View.CustomControls;
 using PickerRenderer = Xamarin.Forms.Platform.Android.AppCompat.PickerRenderer;
+using Android.Graphics;
 
 [assembly: ExportRenderer(typeof(CustomPicker), typeof(CustomPickerRenderer))]
 namespace dMobile.Droid.CustomRenderers

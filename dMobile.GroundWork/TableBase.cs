@@ -5,6 +5,7 @@ namespace dMobile.GroundWork
     using System.Data;
     using System.Data.SQLite;
     using System.Xml.Linq;
+    using Xamarin.Forms;
 
     /// <summary>
     /// Defines the <see cref="TableBase" />
@@ -252,8 +253,7 @@ namespace dMobile.GroundWork
         /// <param name="dataAccessEventListener"></param>
         public void RegisterDataAccessListenerStatusOut(IDataAccessEventListener dataAccessEventListener)
         {
-            this.OnDataAccessStatusOut += new OnDataAccessStatusOutEventHandler(
-                dataAccessEventListener.OnDataAccessStatusOut);
+            this.OnDataAccessStatusOut += new OnDataAccessStatusOutEventHandler(dataAccessEventListener.OnDataAccessStatusOut);
         }
 
         /// <summary>
@@ -905,33 +905,27 @@ namespace dMobile.GroundWork
         {
             int locMapRefno = 0;
 
-//            int locMapWhsFKRefno = Convert.ToInt32(drow["LocationMapWarehouseFKRefno"]);
-//            errMsg += Environment.NewLine + "Whs " + locMapWhsFKRefno;
+            int locMapWhsFKRefno = Convert.ToInt32(drow["LocationMapWarehouseFKRefno"]);
+            errMsg += Environment.NewLine + "Whs " + locMapWhsFKRefno;
 
-//            if (drWhs.Seek(DbSeekOptions.FirstEqual, new object[] { locMapWhsFKRefno }))
-//            {
-//                if (drWhs.Read())
-//                {
-//                    locMapRefno = drWhs.GetInt32((int)SysCommon.LocMapWhsFields.LocMapRefno);
-//                }
-//                else
-//                {
-//#if MULTILANGUAGE
-//          throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DrwhsreadFailed) + Environment.NewLine + errMsg);
-//#else
-//                    throw new Exception("drWhs.Read() failed." + Environment.NewLine + errMsg);
-//#endif
-//                }
-//            }
+            //if (drWhs.Seek(DbSeekOptions.FirstEqual, new object[] { locMapWhsFKRefno }))
+            //{
+                if (drWhs.Read())
+                {
+                    locMapRefno = drWhs.GetInt32((int)SysCommon.LocMapWhsFields.LocMapRefno);
+                }
+                else
+                {
+                    // TODO: Resource String
+                    throw new Exception("drWhs.Read() failed." + Environment.NewLine + errMsg);
+                }
+            //}
 
-//            if (locMapRefno == 0)
-//            {
-//#if MULTILANGUAGE
-//        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.UnableToLocateTheLocationMapRefno) + Environment.NewLine + errMsg);
-//#else
-//                throw new Exception("Unable to locate the location map refno." + Environment.NewLine + errMsg);
-//#endif
-//            }
+            if (locMapRefno == 0)
+            {
+                // TODO: Resource String
+                throw new Exception("Unable to locate the location map refno." + Environment.NewLine + errMsg);
+            }
 
             return locMapRefno;
         }

@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<custompages:DMobileContentPage
+    xmlns:custompages="clr-namespace:dMobile.View.CustomPages"
+    xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:Helpers="clr-namespace:dMobile.View.Helpers"
+    x:Class="dMobile.View.Test_Pages.MemoryTestPage">
+    <ContentPage.Content>
+        <AbsoluteLayout>
+            <Grid AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0,0,1,1" Padding="10" >
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Button x:Name="button" Text="Start Test 1 insert" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" Clicked="Button_Clicked" Grid.Row="0"/>
+                <Label x:Name="value" Grid.Row="1"/>
+                <Label x:Name="timeElapsed" Grid.Row="2"/>
+
+                <Button x:Name="button2" Text="Start Test 2 insert" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" Clicked="Button2_Clicked" Grid.Row="3"/>
+                <Label x:Name="value2" Grid.Row="4"/>
+                <Label x:Name="timeElapsed2" Grid.Row="5"/>
+
+                <Button x:Name="buttonClear" Text="Clear Tables" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" Clicked="ButtonClear_Clicked" Grid.Row="6"/>
+
+            </Grid>
+
+            <ActivityIndicator IsVisible="{Binding Loading}" 
+                               IsRunning="{Binding Loading}" 
+                               Color="Black" 
+                               AbsoluteLayout.LayoutFlags="All" 
+                               AbsoluteLayout.LayoutBounds="0.5,0.5,0.3,0.3"/>
+        </AbsoluteLayout>
+    </ContentPage.Content>
+</custompages:DMobileContentPage>

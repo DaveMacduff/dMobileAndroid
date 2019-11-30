@@ -4,7 +4,6 @@ namespace dMobile.Controller
     using System.Data;
     using System.Data.SQLite;
     using System.Text;
-    using System.Windows.Forms;
     using System.Xml.Linq;
     using dMobile.Bedrock;
     using dMobile.GroundWork;
@@ -47,61 +46,61 @@ namespace dMobile.Controller
 #endif
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="dataGridMain"></param>
-        public override void DesignDataGrid(DataGrid dataGridMain)
-        {
-            int colWidthFactor = 1;
+//        /// <summary>
+//        /// 
+//        /// </summary>
+//        /// <param name="dataGridMain"></param>
+//        public override void DesignDataGrid(DataGrid dataGridMain)
+//        {
+//            int colWidthFactor = 1;
 
-            if (SysEnv.IsWindowsMobile6Device)
-            {
-                colWidthFactor = 2;
-            }
+//            if (SysEnv.IsWindowsMobile6Device)
+//            {
+//                colWidthFactor = 2;
+//            }
 
-            if (dataGridMain.TableStyles.Count > 0)
-            {
-                dataGridMain.TableStyles.Clear();
-            }
+//            if (dataGridMain.TableStyles.Count > 0)
+//            {
+//                dataGridMain.TableStyles.Clear();
+//            }
 
-            DataGridTableStyle dataGridStyle = new DataGridTableStyle();
-            dataGridStyle.MappingName = this.MainGridMappingName;
+//            DataGridTableStyle dataGridStyle = new DataGridTableStyle();
+//            dataGridStyle.MappingName = this.MainGridMappingName;
 
-            DataGridTextBoxColumn dataGridCol1 = new DataGridTextBoxColumn();
-            dataGridCol1.MappingName = "ActivityCountStringFKRefno";
-#if MULTILANGUAGE
-            dataGridCol1.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Countz);
-#else
-            dataGridCol1.HeaderText = "Count#";
-#endif
-            dataGridCol1.Width = 50 * colWidthFactor;
-            dataGridStyle.GridColumnStyles.Add(dataGridCol1);
+//            DataGridTextBoxColumn dataGridCol1 = new DataGridTextBoxColumn();
+//            dataGridCol1.MappingName = "ActivityCountStringFKRefno";
+//#if MULTILANGUAGE
+//            dataGridCol1.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Countz);
+//#else
+//            dataGridCol1.HeaderText = "Count#";
+//#endif
+//            dataGridCol1.Width = 50 * colWidthFactor;
+//            dataGridStyle.GridColumnStyles.Add(dataGridCol1);
 
-            DataGridTextBoxColumn dataGridCol2 = new DataGridTextBoxColumn();
-            dataGridCol2.MappingName = "ActivityCountDateTime";
-#if MULTILANGUAGE
-            dataGridCol2.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Date);
-#else
-            dataGridCol2.HeaderText = "Date";
-#endif
-            dataGridCol2.Width = 58 * colWidthFactor;
-            dataGridStyle.GridColumnStyles.Add(dataGridCol2);
+//            DataGridTextBoxColumn dataGridCol2 = new DataGridTextBoxColumn();
+//            dataGridCol2.MappingName = "ActivityCountDateTime";
+//#if MULTILANGUAGE
+//            dataGridCol2.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Date);
+//#else
+//            dataGridCol2.HeaderText = "Date";
+//#endif
+//            dataGridCol2.Width = 58 * colWidthFactor;
+//            dataGridStyle.GridColumnStyles.Add(dataGridCol2);
 
-            DataGridTextBoxColumn dataGridCol3 = new DataGridTextBoxColumn();
-            dataGridCol3.MappingName = "ActivityCountTypeDescription";
-#if MULTILANGUAGE
-            dataGridCol3.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.CountType);
-#else
-            dataGridCol3.HeaderText = "Count Type";
-#endif
-            dataGridCol3.Width = 118 * colWidthFactor;
-            dataGridStyle.GridColumnStyles.Add(dataGridCol3);
+//            DataGridTextBoxColumn dataGridCol3 = new DataGridTextBoxColumn();
+//            dataGridCol3.MappingName = "ActivityCountTypeDescription";
+//#if MULTILANGUAGE
+//            dataGridCol3.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.CountType);
+//#else
+//            dataGridCol3.HeaderText = "Count Type";
+//#endif
+//            dataGridCol3.Width = 118 * colWidthFactor;
+//            dataGridStyle.GridColumnStyles.Add(dataGridCol3);
 
-            dataGridMain.TableStyles.Add(dataGridStyle);
-            dataGridMain.RowHeadersVisible = false;
-            dataGridMain.ColumnHeadersVisible = true;
-        }
+//            dataGridMain.TableStyles.Add(dataGridStyle);
+//            dataGridMain.RowHeadersVisible = false;
+//            dataGridMain.ColumnHeadersVisible = true;
+//        }
 
         /// <summary>
         /// 

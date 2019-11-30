@@ -4,7 +4,6 @@ namespace dMobile.Controller
     using System.Data;
     using System.Data.SQLite;
     using System.Text;
-    using System.Windows.Forms;
     using System.Xml.Linq;
     using dMobile.Bedrock;
 
@@ -86,15 +85,15 @@ namespace dMobile.Controller
             }
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="dataGridMain"></param>
-        /// <remarks></remarks>
-        public override void DesignDataGrid(DataGrid dataGridMain)
-        {
-            throw new NotImplementedException();
-        }
+        ///// <summary>
+        /////
+        ///// </summary>
+        ///// <param name="dataGridMain"></param>
+        ///// <remarks></remarks>
+        //public override void DesignDataGrid(DataGrid dataGridMain)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
         /// <summary>
         /// 
@@ -183,6 +182,7 @@ namespace dMobile.Controller
         /// <param name="data"></param>
         public override void Update(XDocument data)
         {
+            // TODO: SQL
             ////MyBase.UpdateActivityItem(xmlParams)
 
             ////<?xml version="1.0" encoding="utf-16" standalone="yes"?>

@@ -12,7 +12,7 @@
     /// Defines the <see cref="FormErrorReport" />
     /// </summary>
     [XamlCompilation(XamlCompilationOptions.Compile)]
-    public partial class FormErrorReport : DialogModal
+    public partial class FormErrorReport : DMobileModal
     {
         /// <summary>
         /// Defines the exData
