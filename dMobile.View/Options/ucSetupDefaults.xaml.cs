@@ -1,20 +1,1024 @@
-﻿using System;
+﻿using dMobile.View.CustomPages;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using System.ComponentModel;
+using System.Data;
+using System.Xml.Linq;
+using dMobile.Bedrock;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
+using System.Data.SQLite;
+using dMobile.View.Forms;
+using dMobile.Resources.Enums;
+using Android.Views;
 
 namespace dMobile.View.Options
 {
     [XamlCompilation(XamlCompilationOptions.Compile)]
-    public partial class ucSetupDefaults : ContentPage
+    public partial class ucSetupDefaults : DMobileContentPage, IAppPublisher
     {
+        //private UserControl callingControl = new ucOptionsMenu();
+        private bool isControlLoaded;
+        private bool isChangesMade;
+        private SysEnvironment sysEnv;
+        private PrinterSettings prnSettings;
+        private ReqCloseHandler reqCloseEvent;
+        private ReqSaveEnableHandler reqSaveEnableEvent;
+        private ReqSaveDisableHandler reqSaveDisableEvent;
+        private ReqCancelEnableHandler reqCancelEnableEvent;
+        private ReqCancelDisableHandler reqCancelDisableEvent;
+        private SysCommon.ActSubTypes actSubType;
+
         public ucSetupDefaults()
         {
-            InitializeComponent();
+            this.InitializeComponent();
+
+            this.Title = this.GetControlDescription();
+            this.IsChangesMade = false;
+            this.IsControlLoaded = false;
+
+            if (!DesignMode.IsDesignModeEnabled)
+            {
+                sysEnv = SysEnvironment.GetInstance();
+                prnSettings = new PrinterSettings().LoadData();
+                actSubType = SysCommon.ActSubTypes.SetupDefaults;
+
+                try
+                {
+                    this.ucSetupDefaults_GotFocus(this, new EventArgs());
+                }
+                catch (Exception ex)
+                {
+                    DisplayAlert("Error", "ucSetupDefaults_GotFocus exception: " + ex.Message, "OK");
+                }
+            }
+
+            // TODO: Resource strings
+            this.tabSetupDefaults.Text = "Setup";
+            this.lblDisconnectMode.Text = "Disconnected Mode";
+            this.lblDisconnectedModeLoadDetail.Text = "Adjustments";
+            this.lblVerifyLocationWhenProductChanged.Text = "Verify Location";
+            this.lblPrintProductLabelsAsBatch.Text = "Print Product Labels as a Batch";
+            this.lblEnableShippingMobilePrinter.Text = "Shipping Label Printer";
+            this.lblEnableShelfMobilePrinter.Text = "Shelf Label Printer";
+            this.lblEnableProductMobilePrinter.Text = "Product Label Printer";
+            this.btnSave.Text = "Save";
+        }
+
+        public delegate void ReqCloseHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
+        public delegate void ReqCancelDisableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
+        public delegate void ReqSaveDisableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
+        public delegate void ReqCancelEnableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
+        public delegate void ReqSaveEnableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
+
+          /// <summary>
+        /// The OnAppearing
+        /// </summary>
+        protected override void OnAppearing()
+        {
+            base.OnAppearing();
+
+            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), (keyPressed) =>
+            {
+                // TODO: Verify keycodes
+                Enum.TryParse(keyPressed, out Keycode keycode);
+
+                if (keycode == Keycode.Enter)
+                {
+                    this.BtnSave_Clicked(this, new EventArgs());
+
+                    //if (this.SaveChanges())
+                    //{
+                    //    this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                    //}
+                }
+                else if (keycode == Keycode.Escape)
+                {
+                    if (this.CancelChanges())
+                    {
+                        this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                    }
+                }
+                else if (keycode == Keycode.F1)
+                {
+                    this.BtnSave_Clicked(this, new EventArgs());
+
+                    //if (this.SaveChanges())
+                    //{
+                    //    this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                    //}
+                }
+            });
+        }
+
+        /// <summary>
+        /// The OnDisappearing
+        /// </summary>
+        protected override void OnDisappearing()
+        {
+                base.OnDisappearing();
+                MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
+        }
+
+        public event ReqCloseHandler ReqClose
+        {
+            add
+            {
+                this.ReqCloseEvent = (ReqCloseHandler)Delegate.Combine(this.ReqCloseEvent, value);
+            }
+
+            remove
+            {
+                this.ReqCloseEvent = (ReqCloseHandler)Delegate.Remove(this.ReqCloseEvent, value);
+            }
+        }
+
+        public event ReqSaveEnableHandler ReqSaveEnable
+        {
+            add
+            {
+                this.ReqSaveEnableEvent = (ReqSaveEnableHandler)Delegate.Combine(this.ReqSaveEnableEvent, value);
+            }
+
+            remove
+            {
+                this.ReqSaveEnableEvent = (ReqSaveEnableHandler)Delegate.Remove(this.ReqSaveEnableEvent, value);
+            }
+        }
+
+        public event ReqSaveDisableHandler ReqSaveDisable
+        {
+            add
+            {
+                this.ReqSaveDisableEvent = (ReqSaveDisableHandler)Delegate.Combine(this.ReqSaveDisableEvent, value);
+            }
+
+            remove
+            {
+                this.ReqSaveDisableEvent = (ReqSaveDisableHandler)Delegate.Remove(this.ReqSaveDisableEvent, value);
+            }
+        }
+
+        public event ReqCancelEnableHandler ReqCancelEnable
+        {
+            add
+            {
+                this.ReqCancelEnableEvent = (ReqCancelEnableHandler)Delegate.Combine(this.ReqCancelEnableEvent, value);
+            }
+
+            remove
+            {
+                this.ReqCancelEnableEvent = (ReqCancelEnableHandler)Delegate.Remove(this.ReqCancelEnableEvent, value);
+            }
+        }
+
+        public event ReqCancelDisableHandler ReqCancelDisable
+        {
+            add
+            {
+                this.ReqCancelDisableEvent = (ReqCancelDisableHandler)Delegate.Combine(this.ReqCancelDisableEvent, value);
+            }
+
+            remove
+            {
+                this.ReqCancelDisableEvent = (ReqCancelDisableHandler)Delegate.Remove(this.ReqCancelDisableEvent, value);
+            }
+        }
+
+        private SysCommon.ActSubTypes ActSubType
+        {
+            get
+            {
+                return this.actSubType;
+            }
+
+            set
+            {
+                this.actSubType = value;
+            }
+        }
+
+        private ReqCloseHandler ReqCloseEvent
+        {
+            get
+            {
+                return this.reqCloseEvent;
+            }
+
+            set
+            {
+                this.reqCloseEvent = value;
+            }
+        }
+
+        private ReqSaveEnableHandler ReqSaveEnableEvent
+        {
+            get
+            {
+                return this.reqSaveEnableEvent;
+            }
+
+            set
+            {
+                this.reqSaveEnableEvent = value;
+            }
+        }
+
+        private ReqSaveDisableHandler ReqSaveDisableEvent
+        {
+            get
+            {
+                return this.reqSaveDisableEvent;
+            }
+
+            set
+            {
+                this.reqSaveDisableEvent = value;
+            }
+        }
+
+        private ReqCancelEnableHandler ReqCancelEnableEvent
+        {
+            get
+            {
+                return this.reqCancelEnableEvent;
+            }
+
+            set
+            {
+                this.reqCancelEnableEvent = value;
+            }
+        }
+
+        private ReqCancelDisableHandler ReqCancelDisableEvent
+        {
+            get
+            {
+                return this.reqCancelDisableEvent;
+            }
+
+            set
+            {
+                this.reqCancelDisableEvent = value;
+            }
+        }
+
+        private PrinterSettings PrnSettings
+        {
+            get
+            {
+                return this.prnSettings;
+            }
+
+            set
+            {
+                this.prnSettings = value;
+            }
+        }
+
+        public bool IsChangesMade
+        {
+            get
+            {
+                return this.isChangesMade;
+            }
+
+            set
+            {
+                this.isChangesMade = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private bool IsControlLoaded
+        {
+            get
+            {
+                return this.isControlLoaded;
+            }
+
+            set
+            {
+                this.isControlLoaded = value;
+            }
+        }
+
+        //private UserControl CallingControl
+        //{
+        //    get
+        //    {
+        //        return this.callingControl;
+        //    }
+
+        //    set
+        //    {
+        //        this.callingControl = value;
+        //    }
+        //}
+
+        private SysEnvironment SysEnv
+        {
+            get
+            {
+                return this.sysEnv;
+            }
+
+            set
+            {
+                this.sysEnv = value;
+            }
+        }
+
+        /// <summary>
+        /// Unregister the bar code scan event handler and disable the scanner.
+        /// </summary>
+        /// <remarks></remarks>
+        public void ScannerDisable()
+        {
+        }
+
+        /// <summary>
+        /// Registers the bar code scan event handler and enables the scanner.
+        /// </summary>
+        /// <remarks></remarks>
+        public void ScannerEnable()
+        {
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns></returns>
+        /// <remarks></remarks>
+        public bool IsReadyToSave()
+        {
+            bool isReadyToSave = false;
+
+            try
+            {
+                isReadyToSave = true;
+            }
+            catch (Exceptions.MessageOnlyException ex)
+            {
+                isReadyToSave = false;
+                ex.Show(this.ActSubType);
+            }
+            catch (Exception ex)
+            {
+                isReadyToSave = false;
+
+                Device.BeginInvokeOnMainThread(async () => 
+                {
+                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, /*this, */ex);
+                    await errRpt.ShowDialog();
+                });
+            }
+
+            return isReadyToSave;
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns></returns>
+        /// <remarks></remarks>
+        public bool IsReadyToClose()
+        {
+            bool isReadyToClose = true;
+
+            try
+            {
+                if (this.IsChangesMade)
+                {
+                    // Perform any checks or changes needed to allow a rollback or form close.
+                    // Set IsReadyToClose = false if checks fail.
+                }
+
+                if (isReadyToClose)
+                {
+                    // NOTE: This code is needed to clean up the scanner driver.
+                    // Symbol had threading issues without this call when dMobile was terminating.
+                    // All user controls that initalize a bar code need this code.
+                    // The parent form (not a user control) will call scanner.terminate and dispose
+                    // of the scanner instance upon exiting dMobile.
+                    this.ScannerDisable();
+                }
+            }
+            catch (Exceptions.MessageOnlyException ex)
+            {
+                isReadyToClose = false;
+                ex.Show(this.ActSubType);
+            }
+            catch (Exception ex)
+            {
+                // Non message only exceptions will allow the close to continue.
+                // We do not want to get caught not being able to 'escape' the control.
+                isReadyToClose = true;
+
+                Device.BeginInvokeOnMainThread(async () => 
+                {
+                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex);
+                    await errRpt.ShowDialog();
+                });
+            }
+
+            return isReadyToClose;
+        }
+
+        ///// <summary>
+        /////
+        ///// </summary>
+        ///// <returns></returns>
+        ///// <remarks></remarks>
+        //public UserControl GetCallingControl()
+        //{
+        //    return new ucOptionsMenu();
+        //}
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns></returns>
+        /// <remarks></remarks>
+        public string GetControlDescription()
+        {
+            // TODO: Resource Strings
+            return "Setup Defaults";
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns></returns>
+        /// <remarks></remarks>
+        public async Task<bool> SaveChanges()
+        {
+            bool saveComplete = false;
+
+            try
+            {
+                if (this.IsReadyToSave())
+                {
+                    if (this.IsChangesMade && !(this.chkDisconnectMode.IsToggled == this.SysEnv.SysSettings.IsDisconnectedMode && this.chkDisconnectedModeLoadDetail.IsToggled == this.SysEnv.SysSettings.IsDisconnectedModeLoadDetail))
+                    {
+                        await DisplayAlert(this.GetControlDescription(), "Confirm disconnected mode changes?" + Environment.NewLine + "This will purge any unsubmitted data.", "Yes", "No").ContinueWith((result) =>
+                        {
+                            if (result.Result)
+                            {
+                                FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucRefreshDataStatus, SysCommon.ActSubTypes.PurgeActivityData /*this*/);
+                                Device.BeginInvokeOnMainThread(async () => await form.DisplayControl.ShowDialog());
+                                XDocument xmlDoc = form.DisplayControlData;
+                            }
+                            else
+                            {
+                                Device.BeginInvokeOnMainThread(() =>
+                                {
+                                    this.chkDisconnectMode.IsToggled = this.SysEnv.SysSettings.IsDisconnectedMode;
+                                    this.chkDisconnectedModeLoadDetail.IsToggled = this.SysEnv.SysSettings.IsDisconnectedModeLoadDetail;
+                                    this.chkVerifyLocationWhenProductChanged.IsToggled = this.SysEnv.SysSettings.IsVerifyProductLocation;
+                                    this.chkPrintProductLabelsAsBatch.IsToggled = this.SysEnv.SysSettings.IsPrintProductLabelsAsBatch;
+                                });
+                            }
+                        });
+                    }
+                    else
+                    {
+                        this.chkDisconnectMode.IsToggled = this.SysEnv.SysSettings.IsDisconnectedMode;
+                        this.chkDisconnectedModeLoadDetail.IsToggled = this.SysEnv.SysSettings.IsDisconnectedModeLoadDetail;
+                        this.chkVerifyLocationWhenProductChanged.IsToggled = this.SysEnv.SysSettings.IsVerifyProductLocation;
+                        this.chkPrintProductLabelsAsBatch.IsToggled = this.SysEnv.SysSettings.IsPrintProductLabelsAsBatch;
+                    }
+                    
+                    this.SysEnv.SysSettings.IsDisconnectedMode = this.chkDisconnectMode.IsToggled;
+                    this.SysEnv.SysSettings.IsDisconnectedModeLoadDetail = this.chkDisconnectedModeLoadDetail.IsToggled;
+                    this.SysEnv.SysSettings.IsVerifyProductLocation = this.chkVerifyLocationWhenProductChanged.IsToggled;
+                    this.SysEnv.SysSettings.IsPrintProductLabelsAsBatch = this.chkPrintProductLabelsAsBatch.IsToggled;
+
+                    SystemSettings tempSystemSettings = this.SysEnv.SysSettings;
+                    SystemSettingsTasks.SaveData(ref tempSystemSettings);
+                    this.SysEnv.SysSettings = tempSystemSettings;
+
+                    this.PrnSettings.ShippingLabelPrinterName = string.Empty;
+                    this.PrnSettings.IsEnabledShippingLabelPrinter = this.chkEnableShippingMobilePrinter.IsToggled;
+
+                    if (this.PrnSettings.IsEnabledShippingLabelPrinter)
+                    {
+                        if (this.cboShippingMobilePrinter.Items.Count > 0 && this.cboShippingMobilePrinter.SelectedIndex > -1)
+                        {
+                            this.PrnSettings.ShippingLabelPrinterName = this.cboShippingMobilePrinter.SelectedItem.ToString();
+                        }
+                    }
+
+                    this.PrnSettings.ShelfLabelPrinterName = string.Empty;
+                    this.PrnSettings.IsEnabledShelfLabelPrinter = this.chkEnableShelfMobilePrinter.IsToggled;
+
+                    if (this.PrnSettings.IsEnabledShelfLabelPrinter)
+                    {
+                        if (this.cboShelfMobilePrinter.Items.Count > 0 && this.cboShelfMobilePrinter.SelectedIndex > -1)
+                        {
+                            this.PrnSettings.ShelfLabelPrinterName = this.cboShelfMobilePrinter.SelectedItem.ToString();
+                        }
+                    }
+
+                    this.PrnSettings.ProductLabelPrinterName = string.Empty;
+
+                    if (this.PrnSettings.IsEnabledProductLabelPrinter)
+                    {
+                        this.PrnSettings.IsEnabledProductLabelPrinter = this.chkEnableProductMobilePrinter.IsToggled;
+
+                        if (this.cboProductMobilePrinter.Items.Count > 0 && this.cboProductMobilePrinter.SelectedIndex > -1)
+                        {
+                            this.PrnSettings.ProductLabelPrinterName = this.cboProductMobilePrinter.SelectedItem.ToString();
+                        }
+                    }
+
+                    PrinterSettings tempPrnSettings = this.PrnSettings;
+                    this.PrnSettings.SaveData(ref tempPrnSettings);
+                    this.PrnSettings = tempPrnSettings;
+
+                    this.IsChangesMade = false;
+                    saveComplete = true;
+                }
+                else
+                {
+                    // IsReadyToSave will raise errors for invalid data. This is a catch all 
+                    // in the event that IsReadyToSave just returns false.
+
+                    // TODO: Resource Strings
+                    throw new MessageOnlyException("Data failed validation. Check your data.");
+                }
+            }
+            catch (Exceptions.MessageOnlyException ex)
+            {
+                saveComplete = false;
+                ex.Show(this.ActSubType);
+            }
+            catch (Exception ex)
+            {
+                Device.BeginInvokeOnMainThread(async () => 
+                {
+                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex);
+                    await errRpt.ShowDialog();
+                });
+            }
+
+            return saveComplete;
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns></returns>
+        /// <remarks></remarks>
+        public bool CancelChanges()
+        {
+            bool cancelChanges = true;
+
+            try
+            {
+                // IsReadyToClose checks if any changes where made.
+                if (this.IsReadyToClose())
+                {
+                    // Expect the control to close.
+                }
+                else
+                {
+                    // If changes where made.
+                    // By reloading, restoring the last valid state we should be able to close the control
+                    // on the second CancelChanges attempt.
+                    // Methods that could be called to restore the control to a closable state.
+                    // ClearProperties();
+                    // DisplayData();
+                    this.LoadData();
+                    cancelChanges = false;
+                    this.IsChangesMade = false;
+                }
+            }
+            catch (Exceptions.MessageOnlyException ex)
+            {
+                cancelChanges = false;
+                ex.Show(this.ActSubType);
+            }
+            catch (Exception ex)
+            {
+                cancelChanges = true;
+
+                Device.BeginInvokeOnMainThread(async () => 
+                {
+                    FormErrorReport errorReport = new FormErrorReport(this.ActSubType, /*this,*/ ex);
+                    await errorReport.ShowDialog();
+                });
+            }
+
+            return cancelChanges;
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns></returns>
+        /// <remarks></remarks>
+        public XDocument GetXML()
+        {
+            XDocument xmldocParams = XDocument.Parse(
+                "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
+                + "<params>"
+                + "</params>");
+
+            return xmldocParams;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="appEventListener"></param>
+        public void RegisterReqClose(IAppListener appEventListener)
+        {
+            this.ReqClose += new ReqCloseHandler(appEventListener.ReqClose);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="appEventListener"></param>
+        public void UnregisterReqClose(IAppListener appEventListener)
+        {
+            this.ReqClose -= new ReqCloseHandler(appEventListener.ReqClose);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="appEventListener"></param>
+        public void RegisterReqSaveEnable(IAppListener appEventListener)
+        {
+            this.ReqSaveEnable += new ReqSaveEnableHandler(appEventListener.ReqSaveEnable);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="appEventListener"></param>
+        public void UnregisterReqSaveEnable(IAppListener appEventListener)
+        {
+            this.ReqSaveEnable -= new ReqSaveEnableHandler(appEventListener.ReqSaveEnable);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="appEventListener"></param>
+        public void RegisterReqSaveDisable(IAppListener appEventListener)
+        {
+            this.ReqSaveDisable += new ReqSaveDisableHandler(appEventListener.ReqSaveDisable);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="appEventListener"></param>
+        public void UnregisterReqSaveDisable(IAppListener appEventListener)
+        {
+            this.ReqSaveDisable -= new ReqSaveDisableHandler(appEventListener.ReqSaveDisable);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="appEventListener"></param>
+        public void RegisterReqCancelEnable(IAppListener appEventListener)
+        {
+            this.ReqCancelEnable += new ReqCancelEnableHandler(appEventListener.ReqCancelEnable);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="appEventListener"></param>
+        public void UnregisterReqCancelEnable(IAppListener appEventListener)
+        {
+            this.ReqCancelEnable -= new ReqCancelEnableHandler(appEventListener.ReqCancelEnable);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="appEventListener"></param>
+        public void RegisterReqCancelDisable(IAppListener appEventListener)
+        {
+            this.ReqSaveDisable += new ReqSaveDisableHandler(appEventListener.ReqCancelDisable);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="appEventListener"></param>
+        public void UnregisterReqCancelDisable(IAppListener appEventListener)
+        {
+            this.ReqSaveDisable -= new ReqSaveDisableHandler(appEventListener.ReqCancelDisable);
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        /// <remarks></remarks>
+        private void ucSetupDefaults_GotFocus(object sender, EventArgs e)
+        {
+            if (!SysEnvironment.GetInstance().IsApplicationExitInvoked)
+            {
+                this.LoadData();
+                this.IsControlLoaded = true;
+                //this.chkDisconnectMode.Focus();
+
+                this.ReqCancelEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                this.ReqSaveEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+            }
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        /// <remarks></remarks>
+        private void IdentifyChangesMade(object sender, EventArgs e)
+        {
+            try
+            {
+                if (this.IsControlLoaded)
+                {
+                    this.IsChangesMade = true;
+                }
+            }
+            catch (Exceptions.MessageOnlyException ex)
+            {
+                // Do not set the IsChangesMade. MessageOnlyException is really not and error. 
+                // Allow the validation to handle the setting for IsChangesMade.
+                ex.Show(this.ActSubType);
+            }
+            catch (Exception ex)
+            {
+                this.IsChangesMade = true;
+
+                Device.BeginInvokeOnMainThread(async () => 
+                {
+                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex);
+                    await errRpt.ShowDialog();
+                });
+            }
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <remarks></remarks>
+        private void LoadData()
+        {
+            if (!this.IsControlLoaded)
+            {
+                this.chkDisconnectMode.IsToggled = this.SysEnv.SysSettings.IsDisconnectedMode;
+                this.chkDisconnectedModeLoadDetail.IsToggled = this.SysEnv.SysSettings.IsDisconnectedModeLoadDetail;
+                this.chkVerifyLocationWhenProductChanged.IsToggled = this.SysEnv.SysSettings.IsVerifyProductLocation;
+                this.chkPrintProductLabelsAsBatch.IsToggled = this.SysEnv.SysSettings.IsPrintProductLabelsAsBatch;
+
+                this.cboShippingMobilePrinter.Items.Clear();
+
+                foreach (PrinterSettings.PrinterInfo prnDef in this.PrnSettings.AllPrinters)
+                {
+                    this.cboShippingMobilePrinter.Items.Add(prnDef.Name);
+                }
+
+                bool isPrinterMatchFound = false;
+                this.chkEnableShippingMobilePrinter.IsToggled = false;
+
+                if (this.cboShippingMobilePrinter.Items.Count > 0 && !string.IsNullOrEmpty(this.PrnSettings.ShippingLabelPrinterName))
+                {
+                    for (int idx = 0; idx <= this.cboShippingMobilePrinter.Items.Count - 1; idx++)
+                    {
+                        if (this.cboShippingMobilePrinter.Items[idx].ToString() == this.PrnSettings.ShippingLabelPrinterName)
+                        {
+                            isPrinterMatchFound = true;
+                            this.cboShippingMobilePrinter.SelectedIndex = idx;
+                            this.PrnSettings.IsEnabledShippingLabelPrinter = true;
+                            this.PrnSettings.ShippingLabelPrinterName = this.cboShippingMobilePrinter.Items[idx].ToString();
+                            break;
+                        }
+                    }
+
+                    if (!isPrinterMatchFound)
+                    {
+                        this.PrnSettings.ShippingLabelPrinterName = string.Empty;
+                    }
+                }
+
+                this.chkEnableShippingMobilePrinter.IsToggled = this.PrnSettings.IsEnabledShippingLabelPrinter;
+
+                this.cboShelfMobilePrinter.Items.Clear();
+
+                foreach (PrinterSettings.PrinterInfo prnDef in this.PrnSettings.AllPrinters)
+                {
+                    this.cboShelfMobilePrinter.Items.Add(prnDef.Name);
+                }
+
+                isPrinterMatchFound = false;
+                this.PrnSettings.IsEnabledShelfLabelPrinter = false;
+
+                if (this.cboShelfMobilePrinter.Items.Count > 0)
+                {
+                    for (int idx = 0; idx <= this.cboShelfMobilePrinter.Items.Count - 1; idx++)
+                    {
+                        if (this.cboShelfMobilePrinter.Items[idx].ToString() == this.PrnSettings.ShelfLabelPrinterName)
+                        {
+                            isPrinterMatchFound = true;
+                            this.cboShelfMobilePrinter.SelectedIndex = idx;
+                            this.PrnSettings.IsEnabledShelfLabelPrinter = true;
+                            this.PrnSettings.ShelfLabelPrinterName = this.cboShelfMobilePrinter.Items[idx].ToString();
+                            break;
+                        }
+                    }
+
+                    if (!isPrinterMatchFound)
+                    {
+                        this.PrnSettings.ShelfLabelPrinterName = string.Empty;
+                    }
+                }
+
+                this.chkEnableShelfMobilePrinter.IsToggled = this.PrnSettings.IsEnabledShelfLabelPrinter;
+
+                this.cboProductMobilePrinter.Items.Clear();
+
+                foreach (PrinterSettings.PrinterInfo prnDef in this.PrnSettings.AllPrinters)
+                {
+                    this.cboProductMobilePrinter.Items.Add(prnDef.Name);
+                }
+
+                isPrinterMatchFound = false;
+                this.PrnSettings.IsEnabledProductLabelPrinter = false;
+
+                if (this.cboProductMobilePrinter.Items.Count > 0)
+                {
+                    for (int idx = 0; idx <= this.cboProductMobilePrinter.Items.Count - 1; idx++)
+                    {
+                        if (this.cboProductMobilePrinter.Items[idx].ToString() == this.PrnSettings.ProductLabelPrinterName)
+                        {
+                            isPrinterMatchFound = true;
+                            cboProductMobilePrinter.SelectedIndex = idx;
+                            this.PrnSettings.IsEnabledProductLabelPrinter = true;
+                            this.PrnSettings.ProductLabelPrinterName = this.cboProductMobilePrinter.Items[idx].ToString();
+                            break;
+                        }
+                    }
+
+                    if (!isPrinterMatchFound)
+                    {
+                        this.PrnSettings.ProductLabelPrinterName = string.Empty;
+                    }
+                }
+
+                this.chkEnableProductMobilePrinter.IsToggled = this.PrnSettings.IsEnabledProductLabelPrinter;
+            }
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        /// <remarks></remarks>
+        private void ValidateEntry(object sender, CancelEventArgs e)
+        {
+            try
+            {
+                // Disconnected Mode
+                if (sender == this.chkDisconnectMode)
+                {
+                    // Cannot turn off disconnected mode if there are unsubmitted transactions
+                    bool isUnSubmittedTrx = false;
+                    int rowsAffected = 0;
+
+                    using (SQLiteCommand cmndActivity = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                    {
+                        cmndActivity.CommandType = CommandType.Text;
+                        cmndActivity.CommandText = "SELECT COUNT(*) FROM tActivity WHERE tActivity.ActivityStatus <> " + (int)SysCommon.ActStatus.NoChange;
+
+                        rowsAffected = Convert.ToInt32(cmndActivity.ExecuteScalar());
+
+                        if (rowsAffected > 0)
+                        {
+                            isUnSubmittedTrx = true;
+                        }
+
+                        if (!isUnSubmittedTrx)
+                        {
+                            cmndActivity.CommandText = "SELECT COUNT(*) FROM tActivityItem WHERE tActivityItem.ActivityItemStatus <> " + (int)SysCommon.ActStatus.NoChange;
+
+                            rowsAffected = Convert.ToInt32(cmndActivity.ExecuteScalar());
+
+                            if (rowsAffected > 0)
+                            {
+                                isUnSubmittedTrx = true;
+                            }
+                        }
+
+                        if (!isUnSubmittedTrx)
+                        {
+                            cmndActivity.CommandText = "SELECT COUNT(*) FROM tActivityDetail WHERE tActivityDetail.ActivityDetailStatus <> " + (int)SysCommon.ActStatus.NoChange;
+
+                            rowsAffected = Convert.ToInt32(cmndActivity.ExecuteScalar());
+
+                            if (rowsAffected > 0)
+                            {
+                                isUnSubmittedTrx = true;
+                            }
+                        }
+                    }
+
+                    if (isUnSubmittedTrx)
+                    {
+                        e.Cancel = true;
+                    }
+                }
+            }
+            catch (SQLiteException ex)
+            {
+                e.Cancel = true;
+
+                Device.BeginInvokeOnMainThread(async () => 
+                {
+                    FormErrorReport errorReport = new FormErrorReport(this.ActSubType, /*this,*/ ex);
+                    await errorReport.ShowDialog();
+                });
+            }
+            catch (Exceptions.MessageOnlyException ex)
+            {
+                e.Cancel = false;
+                ex.Show(this.ActSubType);
+            }
+            catch (Exception ex)
+            {
+                e.Cancel = true;
+
+                Device.BeginInvokeOnMainThread(async () => 
+                {
+                    FormErrorReport errorReport = new FormErrorReport(this.ActSubType, /*this,*/ ex);
+                    await errorReport.ShowDialog();
+                });
+            }
+        }
+
+        private void ChkEnableShippingMobilePrinter_Toggled(object sender, ToggledEventArgs e)
+        {
+            this.IdentifyChangesMade(sender, new EventArgs());
+
+            //if (this.chkEnableShippingMobilePrinter.IsToggled)
+            //{
+            //    cboShippingMobilePrinter.IsEnabled = true;
+            //}
+            //else
+            //{
+            //    cboShippingMobilePrinter.IsEnabled = false;
+            //}
+        }
+
+        private void ChkDisconnectMode_Toggled(object sender, ToggledEventArgs e)
+        {
+            this.ValidateEntry(sender, new CancelEventArgs());
+            this.IdentifyChangesMade(sender, new EventArgs());
+        }
+
+        private void ChkDisconnectedModeLoadDetail_Toggled(object sender, ToggledEventArgs e)
+        {
+            this.IdentifyChangesMade(sender, new EventArgs());
+        }
+
+        private void ChkVerifyLocationWhenProductChanged_Toggled(object sender, ToggledEventArgs e)
+        {
+            this.IdentifyChangesMade(sender, new EventArgs());
+        }
+
+        private void ChkPrintProductLabelsAsBatch_Toggled(object sender, ToggledEventArgs e)
+        {
+            this.IdentifyChangesMade(sender, new EventArgs());
+        }
+
+        private void ChkEnableShelfMobilePrinter_Toggled(object sender, ToggledEventArgs e)
+        {
+            this.IdentifyChangesMade(sender, new EventArgs());
+        }
+
+        private void ChkEnableProductMobilePrinter_Toggled(object sender, ToggledEventArgs e)
+        {
+            this.IdentifyChangesMade(sender, new EventArgs());
+        }
+
+        private async void BtnSave_Clicked(object sender, EventArgs e)
+        {
+            await this.SaveChanges();
         }
     }
 }

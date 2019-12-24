@@ -72,7 +72,7 @@ namespace dMobile.View.Exceptions
         /// 
         /// </summary>
         /// <param name="control"></param>
-        public void Show(/*UserControl control, */SysCommon.ActSubTypes actSubType)
+        public void Show(/*UserControl control, */ SysCommon.ActSubTypes actSubType)
         {
             switch (this.ShowMessageType)
             {

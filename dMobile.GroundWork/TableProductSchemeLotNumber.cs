@@ -255,6 +255,8 @@ namespace dMobile.GroundWork
                                     cmndSchemeLot.Parameters.Add(new SQLiteParameter("@productSchemeLotNumberCode", schemeLotCode));
                                     cmndSchemeLot.Parameters.Add(new SQLiteParameter("@productSchemeLotNumberCodeDefault", schemeLotCodeDefault));
 
+                                    cmndSchemeLot.ExecuteNonQuery();
+
                                     //rec.SetString((int)SysCommon.ProdSchemeLotNumberFields.Code, schemeLotCode);
                                     //rec.SetString((int)SysCommon.ProdSchemeLotNumberFields.CodeDefault, schemeLotCodeDefault);
 

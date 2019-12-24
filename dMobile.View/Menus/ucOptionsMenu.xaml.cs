@@ -33,6 +33,15 @@
             if (!DesignMode.IsDesignModeEnabled)
             {
                 sysEnv = SysEnvironment.GetInstance();
+
+                try
+                {
+                    this.ucOptionsMenu_GotFocus(this, new EventArgs());
+                }
+                catch (Exception ex)
+                {
+                    DisplayAlert("Error", "ucOptionsMenu_GotFocus exception: " + ex.Message, "OK");
+                }
             }
 
             this.cmdSetupDefaults.Text = "1) " + Resource.SetupDefaults;
@@ -414,10 +423,12 @@
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        public void cmdSetupDefaults_Click(object sender, EventArgs e)
+        public async void cmdSetupDefaults_Click(object sender, EventArgs e)
         {
             // TODO: Add control
             //this.CallingControl = new ucSetupDefaults();
+            ucSetupDefaults setupDefaults = new ucSetupDefaults();
+            await setupDefaults.Show();
             this.DisableControls();
             this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
             this.IsControlLoaded = false;
@@ -513,6 +524,7 @@
                 this.IsControlLoaded = true;
 
                 CommunicationSetup commSetup = new CommunicationSetup();
+
                 if (File.Exists(commSetup.strFileASCIIZ))
                 {
                     this.cmdRefreshData.IsEnabled = true;

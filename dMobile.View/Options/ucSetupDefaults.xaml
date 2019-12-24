@@ -1,12 +1,87 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="dMobile.View.Options.ucSetupDefaults">
+<custompages:DMobileContentPage
+        xmlns:custompages="clr-namespace:dMobile.View.CustomPages"
+        xmlns="http://xamarin.com/schemas/2014/forms"
+        xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+        xmlns:Custom="clr-namespace:dMobile.View.CustomControls"
+        x:Class="dMobile.View.Options.ucSetupDefaults"
+        x:Name="thisPage">
     <ContentPage.Content>
-        <StackLayout>
-            <Label Text="Welcome to Xamarin.Forms!"
-                VerticalOptions="CenterAndExpand" 
-                HorizontalOptions="CenterAndExpand" />
-        </StackLayout>
+        <AbsoluteLayout>
+            <Grid AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0,0,1,1"  Padding="10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <ScrollView AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0,0,1,1" Grid.Row="0">
+
+                    <Grid AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0,0,1,1">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <Grid VerticalOptions="Start" Grid.Row="0">
+                            <Label x:Name="tabSetupDefaults" Text="Setup" FontAttributes="Bold"/>
+                        </Grid>
+
+                        <Frame VerticalOptions="Start" Grid.Row="2" Padding="5" HasShadow="True" OutlineColor="White">
+                            <Grid>
+                                <Label x:Name="lblDisconnectMode" Text="Disconnected Mode" VerticalTextAlignment="Center"/>
+                                <Custom:CustomSwitch x:Name="chkDisconnectMode" Toggled="ChkDisconnectMode_Toggled"/>
+
+                                <Label x:Name="lblDisconnectedModeLoadDetail" Text="Adjustments" VerticalTextAlignment="Center" Grid.Row="1" />
+                                <Custom:CustomSwitch x:Name="chkDisconnectedModeLoadDetail" Grid.Row="1" Toggled="ChkDisconnectedModeLoadDetail_Toggled"/>
+
+                                <Label x:Name="lblVerifyLocationWhenProductChanged" Text="Verify Location" VerticalTextAlignment="Center" Grid.Row="2" />
+                                <Custom:CustomSwitch x:Name="chkVerifyLocationWhenProductChanged" Grid.Row="2" Toggled="ChkVerifyLocationWhenProductChanged_Toggled"/>
+
+                                <Label x:Name="lblPrintProductLabelsAsBatch" Text="Print Product Labels as a Batch" VerticalTextAlignment="Center" Grid.Row="3" />
+                                <Custom:CustomSwitch x:Name="chkPrintProductLabelsAsBatch" Grid.Row="3" Toggled="ChkPrintProductLabelsAsBatch_Toggled"/>
+                            </Grid>
+                        </Frame>
+
+                        <Grid VerticalOptions="Start" Grid.Row="6">
+                            <Label x:Name="tabSetupDefaultsPrinters" Text="Portable Printers" FontAttributes="Bold"/>
+                        </Grid>
+
+                        <Frame VerticalOptions="Start" Grid.Row="8" Padding="5" HasShadow="True" OutlineColor="White">
+                            <Grid>
+                                <Label x:Name="lblEnableShippingMobilePrinter" Text="Shipping Label Printer" VerticalTextAlignment="Center" />
+                                <Custom:CustomSwitch x:Name="chkEnableShippingMobilePrinter" Toggled="ChkEnableShippingMobilePrinter_Toggled"/>
+
+                                <Custom:CustomPicker x:Name="cboShippingMobilePrinter" Grid.Row="1" SelectedIndexChanged="IdentifyChangesMade"/>
+
+                                <Label x:Name="lblEnableShelfMobilePrinter" Text="Shelf Label Printer" VerticalTextAlignment="Center" Grid.Row="2" />
+                                <Custom:CustomSwitch x:Name="chkEnableShelfMobilePrinter" Grid.Row="2" Toggled="ChkEnableShelfMobilePrinter_Toggled"/>
+
+                                <Custom:CustomPicker x:Name="cboShelfMobilePrinter" Grid.Row="3" SelectedIndexChanged="IdentifyChangesMade"/>
+
+                                <Label x:Name="lblEnableProductMobilePrinter" Text="Product Label Printer" VerticalTextAlignment="Center" Grid.Row="4" />
+                                <Custom:CustomSwitch x:Name="chkEnableProductMobilePrinter" Grid.Row="4" Toggled="ChkEnableProductMobilePrinter_Toggled"/>
+
+                                <Custom:CustomPicker x:Name="cboProductMobilePrinter" Grid.Row="5" SelectedIndexChanged="IdentifyChangesMade"/>
+                            </Grid>
+                        </Frame>
+                    </Grid>
+                </ScrollView>
+
+                <Button x:Name="btnSave" Text="Save" Grid.Row="1" Clicked="BtnSave_Clicked" IsEnabled="{Binding IsChangesMade}"/>
+            </Grid>
+
+            <ActivityIndicator IsVisible="{Binding Loading}" 
+                               IsRunning="{Binding Loading}" 
+                               Color="Black" 
+                               AbsoluteLayout.LayoutFlags="All" 
+                               AbsoluteLayout.LayoutBounds="0.5,0.5,0.3,0.3"/>
+            
+        </AbsoluteLayout>
     </ContentPage.Content>
-</ContentPage>
+</custompages:DMobileContentPage>

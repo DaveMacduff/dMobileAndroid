@@ -722,6 +722,7 @@ namespace dMobile.GroundWork
                 catch (SQLiteException ex)
                 {
                     transaction.Rollback();
+                    transaction.Dispose();
 
                     // TODO: Resource Strings
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);

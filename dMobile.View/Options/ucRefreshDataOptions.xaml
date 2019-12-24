@@ -1,10 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <custompages:DMobileContentPage
-             xmlns:custompages="clr-namespace:dMobile.View.CustomPages"
-             xmlns="http://xamarin.com/schemas/2014/forms"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:Custom="clr-namespace:dMobile.View.CustomControls"
-             x:Class="dMobile.View.Options.ucRefreshDataOptions">
+            xmlns:custompages="clr-namespace:dMobile.View.CustomPages"
+            xmlns="http://xamarin.com/schemas/2014/forms"
+            xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+            xmlns:Custom="clr-namespace:dMobile.View.CustomControls"
+            xmlns:Helpers="clr-namespace:dMobile.View.Helpers"
+            x:Class="dMobile.View.Options.ucRefreshDataOptions">
     <ContentPage.Content>
         <AbsoluteLayout>
             <Grid AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0,0,1,1" Padding="10" >
@@ -48,8 +49,8 @@
                 </Frame>
 
                 <Grid VerticalOptions="End" Grid.Row="2">
-                    <Button x:Name="cmdRefreshData" Text="Refresh Data" Clicked="cmdRefreshData_Click" />
-                    <Button x:Name="cmdDataStatus" Text="Data Status" Grid.Row="0" Grid.Column="1" Clicked="cmdDataStatus_Click" />
+                    <Button x:Name="cmdRefreshData" Text="Refresh Data" Clicked="cmdRefreshData_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                    <Button x:Name="cmdDataStatus" Text="Data Status" Grid.Row="0" Grid.Column="1" Clicked="cmdDataStatus_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
                 </Grid>
 
             </Grid>

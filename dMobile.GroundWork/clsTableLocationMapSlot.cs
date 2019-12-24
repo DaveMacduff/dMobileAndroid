@@ -563,7 +563,7 @@ namespace dMobile.GroundWork
 
                                 //recID.SetInt32((int)SysCommon.LocMapFields.SubType, (int)SysCommon.LocMapSubTypes.Slot);
 
-                                cmndID.CommandText = "SELECT last_insert_rowid() tLocationMap";
+                                cmndID.CommandText = "SELECT last_insert_rowid() FROM tLocationMap";
                                 cmndID.CommandType = CommandType.Text;
 
                                 locMapRefno = Convert.ToInt32(cmndID.ExecuteScalar());
@@ -606,6 +606,8 @@ namespace dMobile.GroundWork
                                 cmndSlot.Parameters.Add(new SQLiteParameter("@locationMapSlotFKRefno", slotFKRefno));
                                 cmndSlot.Parameters.Add(new SQLiteParameter("@locationMapSlotBarCode", slotBarCode));
                                 cmndSlot.Parameters.Add(new SQLiteParameter("@warehouseLocationMapRefno", whsLocMapRefno));
+
+                                cmndSlot.ExecuteNonQuery();
 
                                 //rec.SetInt32((int)SysCommon.LocMapSlotFields.SectLocMapRefno, sectLocMapRefno);
                                 //rec.SetInt32((int)SysCommon.LocMapSlotFields.WhsLocMapRefno, whsLocMapRefno);

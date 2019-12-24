@@ -90,8 +90,8 @@ namespace dMobile.Bedrock
     /// <remarks></remarks>
     public CycleCountSettings()
     {
-      strFilePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase) + "\\";
-      strFileASCIIZ = Path.Combine(strFilePath, strFileName);
+        strFilePath = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+        strFileASCIIZ = Path.Combine(strFilePath, strFileName);
     }
 
     /// <summary>
@@ -121,7 +121,7 @@ namespace dMobile.Bedrock
       CycleCountSettings oCycleCountSettings = new CycleCountSettings();
 
       // use relection to get the current assembly path for the database
-      string strAppDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase);
+      string strAppDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
       string strFullPathToMyFile = Path.Combine(strAppDir, m_strFileName);
 
       if (!File.Exists(strFullPathToMyFile))
@@ -152,7 +152,7 @@ namespace dMobile.Bedrock
       try
       {
         // use relection to get the current assembly path for the database
-        string strAppDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase);
+        string strAppDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
         string strFullPathToMyFile = Path.Combine(strAppDir, m_strFileName);
 
         // Create a FileStream to write with.

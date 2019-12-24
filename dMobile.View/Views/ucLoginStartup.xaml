@@ -35,7 +35,7 @@
 
             <Label x:Name="lblWarehouse" Grid.Row="5" Text="Warehouse" />
             <!--<Picker x:Name="lstWarehouse" Grid.Row="6" Grid.ColumnSpan="2" />-->
-            <Custom:CustomPicker x:Name="lstWarehouse" Grid.Row="6" Grid.ColumnSpan="2" />
+            <Custom:CustomPicker x:Name="lstWarehouse" Grid.Row="6" Grid.ColumnSpan="2" SelectedIndexChanged="LstWarehouse_SelectedIndexChanged"/>
 
             <Button x:Name="cmdLogin" Grid.Row="7" Grid.ColumnSpan="2" Grid.RowSpan="1" Text="Login" Clicked="cmdLogin_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
 

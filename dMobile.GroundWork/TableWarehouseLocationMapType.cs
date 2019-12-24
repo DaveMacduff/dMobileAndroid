@@ -209,32 +209,32 @@ namespace dMobile.GroundWork
             int whsLocMapRefno = 0;
             string errMsg = string.Empty;
 
-            try
+            using (SQLiteCommand cmndLocMapType = conn.CreateCommand())
+            using (SQLiteCommand cmndLocMapTypeUpdate = conn.CreateCommand())
+            using (SQLiteCommand cmndWhs = conn.CreateCommand())
+            using (SQLiteCommand cmndSect = conn.CreateCommand())
+            using (SQLiteCommand cmndSlot = conn.CreateCommand())
+            using (SQLiteTransaction transaction = conn.BeginTransaction())
             {
-                using (DataSet ds = new DataSet())
+                try
                 {
-                    // TODO: Resource Strings
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
-
-                    ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
-
-                    // TODO: Resource Strings
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving warehouse locations.", false);
-
-                    if (ds.Tables.Count != 0)
+                    using (DataSet ds = new DataSet())
                     {
-                        int progMax = Convert.ToInt32(ds.Tables["seg"].Rows.Count);
+                        // TODO: Resource Strings
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
+
+                        ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
 
                         // TODO: Resource Strings
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving warehouse locations.", false);
 
-                        using (SQLiteCommand cmndLocMapType = conn.CreateCommand())
-                        using (SQLiteCommand cmndLocMapTypeUpdate = conn.CreateCommand())
-                        using (SQLiteCommand cmndWhs = conn.CreateCommand())
-                        using (SQLiteCommand cmndSect = conn.CreateCommand())
-                        using (SQLiteCommand cmndSlot = conn.CreateCommand())
-                        using (SQLiteTransaction transaction = conn.BeginTransaction())
+                        if (ds.Tables.Count != 0)
                         {
+                            int progMax = Convert.ToInt32(ds.Tables["seg"].Rows.Count);
+
+                            // TODO: Resource Strings
+                            this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
+
                             //cmndLocMapType.CommandText = "tWarehouseLocationMapType";
                             //cmndLocMapType.CommandType = CommandType.TableDirect;
                             //cmndLocMapType.IndexName = "UQ_WarehouseLocationMapTypeOnWarehouseLocationMapRefnoAndWarehouseLocationMapTypeEnum";
@@ -484,6 +484,7 @@ namespace dMobile.GroundWork
                                     cmndLocMapType.Parameters.Add(new SQLiteParameter("@warehouseLocationMapRefno", whsLocMapRefno));
                                     cmndLocMapType.Parameters.Add(new SQLiteParameter("@warehouseLocationMapTypeEnum", whsLocMapType));
                                     cmndLocMapType.Parameters.Add(new SQLiteParameter("@locationMapRefno", locMapRefno));
+                                    cmndLocMapType.ExecuteNonQuery();
 
                                     //rec.SetInt32(Convert.ToInt32(SysCommon.WhsLocMapTypeFields.WhsLocMapRefno), whsLocMapRefno);
                                     //rec.SetInt32(Convert.ToInt32(SysCommon.WhsLocMapTypeFields.EnumType), whsLocMapType);
@@ -505,41 +506,45 @@ namespace dMobile.GroundWork
                         }
 
                         //         drSlot.Close();
+                        //}
+                        //}
+
+                        //    drSect.Close();
+                        //}
+                        //}
+
+                        //drWhs.Close();
+                        //}
+                        //}
+                        //}
+                        //}
+                        //}
+                        //}
+
+                        // TODO: Resource Strings
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving warehouse locations complete.", false);
                     }
-                    //}
+                }
+                catch (SQLiteException ex)
+                {
+                    transaction.Rollback();
+                    transaction.Dispose();
 
-                    //    drSect.Close();
-                    //}
-                    //}
+                    // TODO: Resource Strings
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving warehouse locations failed.", false);
 
-                    //drWhs.Close();
-                    //}
-                    //}
-                    //}
-                    //}
-                    //}
+                    //// Duplicate key violations
+                    //if (ex.NativeError == 25016)
+                    //{
+                    //    // TODO: Resource Strings
+                    //    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Uniqueness violation.", false);
+                    //    throw new Exception("Uniqueness violation." + Environment.NewLine + errMsg, ex);
                     //}
 
                     // TODO: Resource Strings
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving warehouse locations complete.", false);
+                    throw new Exception("Database exception occurred. Saving warehouse locations failed." + Environment.NewLine + errMsg, ex);
                 }
-            }
-            catch (SQLiteException ex)
-            {
-                // TODO: Resource Strings
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving warehouse locations failed.", false);
-
-                //// Duplicate key violations
-                //if (ex.NativeError == 25016)
-                //{
-                //    // TODO: Resource Strings
-                //    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Uniqueness violation.", false);
-                //    throw new Exception("Uniqueness violation." + Environment.NewLine + errMsg, ex);
-                //}
-
-                // TODO: Resource Strings
-                throw new Exception("Database exception occurred. Saving warehouse locations failed." + Environment.NewLine + errMsg, ex);
             }
         }
 

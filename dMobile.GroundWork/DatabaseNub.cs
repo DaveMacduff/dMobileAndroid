@@ -168,7 +168,7 @@ namespace dMobile.GroundWork
     /// <remarks>Password is 'dMobile'</remarks>
     public void CreateNewDatabase()
     {
-            string dbASCIIZ = this.DBConn.DBPath + this.DBConn.DBName;
+            string dbASCIIZ = Path.Combine(this.DBConn.DBPath, this.DBConn.DBName);
 
             DatabaseConnection.CloseDataBaseConnection();
             DatabaseConnection.DisposeDataBaseConnection();
@@ -197,6 +197,8 @@ namespace dMobile.GroundWork
 #endif
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
+
+            File.Create(dbASCIIZ);
 
             DatabaseConnection.GetInstance();
             DatabaseConnection.OpenDataBaseConnection();

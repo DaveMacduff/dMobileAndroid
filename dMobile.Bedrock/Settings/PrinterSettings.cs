@@ -90,7 +90,7 @@ namespace dMobile.Bedrock
     /// </summary>
     public PrinterSettings()
     {
-      this.FilePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase) + "\\";
+      this.FilePath = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
       this.FileASCIIZ = Path.Combine(this.FilePath, this.FileName);
     }
 
@@ -373,7 +373,7 @@ namespace dMobile.Bedrock
       PrinterSettings prnSettings = new PrinterSettings();
 
       // use relection to get the current assembly path for the database
-      string appDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase);
+      string appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);;
       string fullPathToMyFile = Path.Combine(appDir, this.fileName);
 
       if (!File.Exists(fullPathToMyFile))
@@ -404,7 +404,7 @@ namespace dMobile.Bedrock
       try
       {
         // use relection to get the current assembly path for the database
-        string appDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase);
+        string appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
         string fullPathToMyFile = Path.Combine(appDir, this.fileName);
 
         // Create a FileStream to write with.

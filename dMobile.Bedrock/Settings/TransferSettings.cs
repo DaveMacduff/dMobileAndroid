@@ -99,7 +99,7 @@
 	    /// <remarks></remarks>
 	    public TransferSettings()
 	    {
-		    strFilePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase) + "\\";
+		    strFilePath = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
 		    strFileASCIIZ = Path.Combine(strFilePath, strFileName);
 	    }
 
@@ -135,7 +135,7 @@
 		    TransferSettings oTransferSettings = new TransferSettings();
 
 		    // use relection to get the current assembly path for the database
-		    string strAppDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase);
+		    string strAppDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
 		    string strFullPathToMyFile = Path.Combine(strAppDir, m_strFileName);
 
 		    if (!File.Exists(strFullPathToMyFile)) {
@@ -164,7 +164,7 @@
 
 		    try {
 			    // use relection to get the current assembly path for the database
-			    string strAppDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase);
+			    string strAppDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
 			    string strFullPathToMyFile = Path.Combine(strAppDir, m_strFileName);
 
 			    // Create a FileStream to write with.

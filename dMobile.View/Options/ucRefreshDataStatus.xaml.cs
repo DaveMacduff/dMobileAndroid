@@ -1362,7 +1362,7 @@ namespace dMobile.View.Options
                 if (SysCommon.ErrorReportAndRequestContinue(this.FullClassName, Resource.IsReadyToSave, ex) == false)
                 {
                     //Application.Exit();
-                    Application.Current.Quit();
+                    Android.OS.Process.KillProcess(Android.OS.Process.MyPid());
                 }
 
                 isReadyToSave = false;
@@ -1833,7 +1833,6 @@ namespace dMobile.View.Options
                 //}
             });
 
-            
             this.Loading = false;
         }
 

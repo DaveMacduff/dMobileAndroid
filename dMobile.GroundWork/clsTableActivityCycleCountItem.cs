@@ -35,11 +35,8 @@ namespace dMobile.GroundWork
 
             try
             {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SeedingCycleCountItems), true);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding cycle count items.", true);
-#endif
 
                 if (actRefno == 0)
                 {
@@ -89,41 +86,25 @@ namespace dMobile.GroundWork
                     }
                 }
 
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SeedingCycleCountItemsComplete), true);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding cycle count items complete.", true);
-#endif
             }
             catch (SQLiteException ex)
             {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), true);
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SeedingCycleCountItemsFailed), true);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding cycle count items failed.", true);
-#endif
 
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredSeedingCycleCountItemsFailed), ex);
-#else
+                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Seeding cycle count items failed.", ex);
-#endif
             }
             catch (Exception ex)
             {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SeedingCycleCountItemsFailed), true);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding cycle count items failed.", true);
-#endif
 
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.SeedingCycleCountItemsFailed), ex);
-#else
+                // TODO: Resource strings
                 throw new Exception("Seeding cycle count items failed.", ex);
-#endif
             }
         }
 
@@ -145,24 +126,14 @@ namespace dMobile.GroundWork
                     cmndStatus.CommandType = CommandType.Text;
                     rowsAffected = Convert.ToInt32(cmndStatus.ExecuteScalar());
 
-                    this.DataAccessStatusOutHandler(
-                        this,
-                        EventArgs.Empty,
-#if MULTILANGUAGE
-              string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.CycleCountItems), rowsAffected),
-#else
-              string.Format("{0} cycle count item(s)", rowsAffected),
-#endif
-              true);
+                    // TODO: Resource strings
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} cycle count item(s)", rowsAffected), true);
                 }
             }
             catch (SQLiteException ex)
             {
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredCycleCountItemsStatusFailed), ex);
-#else
+                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Cycle count items status failed.", ex);
-#endif
             }
 
             return rowsAffected;
@@ -173,11 +144,8 @@ namespace dMobile.GroundWork
         /// </summary>
         public override void Purge()
         {
-#if MULTILANGUAGE
-      this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingCycleCountItems), true);
-#else
+            // TODO: Resource strings
             this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging cycle count items.", true);
-#endif
 
             try
             {
@@ -202,27 +170,17 @@ namespace dMobile.GroundWork
                     cmndPurge.ExecuteNonQuery();
                 }
 
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingCycleCountItemsComplete), true);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging cycle count items complete.", true);
-#endif
             }
             catch (SQLiteException ex)
             {
-#if MULTILANGUAGE
-        DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), true);
-        DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingCycleCountItemsFailed), true);
-#else
+                // TODO: Resource strings
                 DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging cycle count items failed.", true);
-#endif
 
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredpurgingCycleCountItemsFailed), ex);
-#else
+                // TODO: Resource strings
                 throw new Exception("Database exception occurred.Purging cycle count items failed.", ex);
-#endif
             }
         }
 
@@ -236,37 +194,35 @@ namespace dMobile.GroundWork
             string reqData = string.Empty;
             int actCountFKRefno = 0;
 
-//            using (SQLiteCommand cmndCount = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-//            {
-//                cmndCount.CommandText = "tActivityCount";
-//                cmndCount.CommandType = CommandType.TableDirect;
-//                cmndCount.IndexName = "PK_ActivityCountOnActivityRefno";
-//                using (SQLiteDataReader drCount = cmndCount.ExecuteReader())
-//                {
-//                    if (drCount.Seek(DbSeekOptions.FirstEqual, new object[] { actRefno }))
-//                    {
-//                        if (drCount.Read())
-//                        {
-//                            actCountFKRefno = Convert.ToInt32(drCount.GetValue((int)SysCommon.ActCountFields.FKRefno));
-//                        }
-//                        else
-//                        {
-//                            throw new Exception("drCount.Read() failed.");
-//                        }
-//                    }
-//                    else
-//                    {
-//                        throw new Exception(
-//#if MULTILANGUAGE
-//                string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.UnableToLocateTheCycleCountRefnoInTactivitycount), actRefno));
-//#else
-//                string.Format("Unable to locate the cycle count refno {0} in tActivityCount", actRefno));
-//#endif
-//                    }
-//                }
-//            }
+            using (SQLiteCommand cmndCount = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+            {
+                cmndCount.CommandText = "SELECT * FROM tActivityCount WHERE ActivityRefno = @activityRefno";
+                cmndCount.CommandType = CommandType.Text;
+                //cmndCount.IndexName = "PK_ActivityCountOnActivityRefno";
+                cmndCount.Parameters.Add(new SQLiteParameter("@activityRefno", actRefno));
 
-//            reqData = this.SendComm(this.Create(actCountFKRefno));
+                using (SQLiteDataReader drCount = cmndCount.ExecuteReader())
+                {
+                    //if (drCount.Seek(DbSeekOptions.FirstEqual, new object[] { actRefno }))
+                    //{
+                    if (drCount.Read())
+                    {
+                        actCountFKRefno = Convert.ToInt32(drCount.GetValue((int)SysCommon.ActCountFields.FKRefno));
+                    }
+                    else
+                    {
+                        throw new Exception("drCount.Read() failed.");
+                    }
+                    //}
+                    //else
+                    //{
+                    //    // TODO: Resource strings
+                    //    throw new Exception(string.Format("Unable to locate the cycle count refno {0} in tActivityCount", actRefno));
+                    //}
+                }
+            }
+
+            reqData = this.SendComm(this.Create(actCountFKRefno));
 
             return reqData;
         }
@@ -278,361 +234,497 @@ namespace dMobile.GroundWork
         /// <param name="actRefno">The actRefno<see cref="int"/></param>
         protected override void Save(string reqData, int actRefno)
         {
-//            SQLiteConnection conn = DatabaseConnection.GetInstance().SQLConn;
-//            string errMsg = string.Empty;
+            SQLiteConnection conn = DatabaseConnection.GetInstance().SQLConn;
+            string errMsg = string.Empty;
 
-//            try
-//            {
-//                using (DataSet ds = new DataSet())
-//                {
-//#if MULTILANGUAGE
-//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.ReadingReceivedData), false);
-//#else
-//                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
-//#endif
-//                    ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
+            using (SQLiteCommand cmndCountItem = conn.CreateCommand())
+            using (SQLiteCommand cmndActItem = conn.CreateCommand())
+            using (SQLiteCommand cmndProdUnit = conn.CreateCommand())
+            using (SQLiteCommand cmndProd = conn.CreateCommand())
+            using (SQLiteCommand cmndUnit = conn.CreateCommand())
+            using (SQLiteCommand cmndLocMapSlot = conn.CreateCommand())
+            using (SQLiteCommand cmndLocMapSect = conn.CreateCommand())
+            using (SQLiteCommand cmndLocMapWhs = conn.CreateCommand())
+            using (SQLiteCommand cmndID = conn.CreateCommand())
+            using (SQLiteTransaction transaction = conn.BeginTransaction())
+            {
+                try
+                {
+                    using (DataSet ds = new DataSet())
+                    {
+                        // TODO: Resource strings
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
-//#if MULTILANGUAGE
-//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingCycleCountItems), false);
-//#else
-//                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving cycle count items.", false);
-//#endif
+                        ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
 
-//                    // Receiving schema but no data results in no table being created in the dataset.
-//                    if (ds.Tables.Count != 0)
-//                    {
-//                        int progMax = Convert.ToInt32(ds.Tables["tActivityItemCount"].Rows.Count);
+                        // TODO: Resource strings
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving cycle count items.", false);
 
-//                        this.DataAccessStatusOutHandler(
-//                            this,
-//                            EventArgs.Empty,
-//#if MULTILANGUAGE
-//                string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.Recordsz), progMax),
-//#else
-//                string.Format("Records {0}", progMax),
-//#endif
-//                false);
+                        // Receiving schema but no data results in no table being created in the dataset.
+                        if (ds.Tables.Count != 0)
+                        {
+                            int progMax = Convert.ToInt32(ds.Tables["tActivityItemCount"].Rows.Count);
 
-//                        using (SQLiteCommand cmndCountItem = conn.CreateCommand())
-//                        {
-//                            cmndCountItem.CommandText = "tActivityItemCount";
-//                            cmndCountItem.CommandType = CommandType.TableDirect;
-//                            cmndCountItem.IndexName = "UQ_ActivityItemCountOnActivityItemCountFKRefno";
+                            this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
 
-//                            using (SQLiteCommand cmndActItem = conn.CreateCommand())
-//                            {
-//                                cmndActItem.CommandText = "tActivityItem";
-//                                cmndActItem.CommandType = CommandType.TableDirect;
+                            //using (SQLiteCommand cmndCountItem = conn.CreateCommand())
+                            //{
+                            //cmndCountItem.CommandText = "tActivityItemCount";
+                            //cmndCountItem.CommandType = CommandType.Text;
+                            //cmndCountItem.IndexName = "UQ_ActivityItemCountOnActivityItemCountFKRefno";
 
-//                                using (SqlCeResultSet rsActItem = cmndActItem.ExecuteResultSet(ResultSetOptions.Updatable))
-//                                {
-//                                    SqlCeUpdatableRecord recActItem = rsActItem.CreateRecord();
+                            //using (SQLiteCommand cmndActItem = conn.CreateCommand())
+                            //{
+                            //cmndActItem.CommandText = "tActivityItem";
+                            //cmndActItem.CommandType = CommandType.Text;
 
-//                                    using (SQLiteCommand cmndProdUnit = conn.CreateCommand())
-//                                    {
-//                                        cmndProdUnit.CommandText = "tProductUnit";
-//                                        cmndProdUnit.CommandType = CommandType.TableDirect;
-//                                        cmndProdUnit.IndexName = "UQ_ProductUnitOnProductRefnoAndUnitRefnoAndProductUnitIsBC";
+                            //using (SqlCeResultSet rsActItem = cmndActItem.ExecuteResultSet(ResultSetOptions.Updatable))
+                            //{
+                            //SqlCeUpdatableRecord recActItem = rsActItem.CreateRecord();
 
-//                                        using (SQLiteDataReader drProdUnit = cmndProdUnit.ExecuteReader())
-//                                        {
-//                                            using (SQLiteCommand cmndProd = conn.CreateCommand())
-//                                            {
-//                                                cmndProd.CommandText = "tProduct";
-//                                                cmndProd.IndexName = "UQ_ProductOnProductFKRefno";
-//                                                cmndProd.CommandType = CommandType.TableDirect;
+                            //using (SQLiteCommand cmndProdUnit = conn.CreateCommand())
+                            //{
+                            //cmndProdUnit.CommandText = "tProductUnit";
+                            //cmndProdUnit.CommandType = CommandType.Text;
+                            //cmndProdUnit.IndexName = "UQ_ProductUnitOnProductRefnoAndUnitRefnoAndProductUnitIsBC";
 
-//                                                using (SQLiteDataReader drProd = cmndProd.ExecuteReader())
-//                                                {
-//                                                    using (SQLiteCommand cmndUnit = conn.CreateCommand())
-//                                                    {
-//                                                        cmndUnit.CommandText = "tUnit";
-//                                                        cmndUnit.IndexName = "UQ_UnitOnUnitCode";
-//                                                        cmndUnit.CommandType = CommandType.TableDirect;
+                            //using (SQLiteDataReader drProdUnit = cmndProdUnit.ExecuteReader())
+                            //{
+                            //using (SQLiteCommand cmndProd = conn.CreateCommand())
+                            //{
+                            //cmndProd.CommandText = "tProduct";
+                            //cmndProd.IndexName = "UQ_ProductOnProductFKRefno";
+                            //cmndProd.CommandType = CommandType.Text;
 
-//                                                        using (SQLiteDataReader drUnit = cmndUnit.ExecuteReader())
-//                                                        {
-//                                                            using (SQLiteCommand cmndLocMapSlot = conn.CreateCommand())
-//                                                            {
-//                                                                cmndLocMapSlot.CommandText = "tLocationMapSlot";
-//                                                                cmndLocMapSlot.CommandType = CommandType.TableDirect;
-//                                                                cmndLocMapSlot.IndexName = "UQ_LocationMapSlotOnLocationMapSlotFKRefno";
+                            //using (SQLiteDataReader drProd = cmndProd.ExecuteReader())
+                            //{
+                            //using (SQLiteCommand cmndUnit = conn.CreateCommand())
+                            //{
+                            //cmndUnit.CommandText = "tUnit";
+                            //cmndUnit.IndexName = "UQ_UnitOnUnitCode";
+                            //cmndUnit.CommandType = CommandType.Text;
 
-//                                                                using (SQLiteDataReader drLocMapSlot = cmndLocMapSlot.ExecuteReader())
-//                                                                {
-//                                                                    using (SQLiteCommand cmndLocMapSect = conn.CreateCommand())
-//                                                                    {
-//                                                                        cmndLocMapSect.CommandText = "tLocationMapSection";
-//                                                                        cmndLocMapSect.CommandType = CommandType.TableDirect;
-//                                                                        cmndLocMapSect.IndexName = "UQ_LocationMapSectionOnLocationMapSectionFKRefno";
+                            //using (SQLiteDataReader drUnit = cmndUnit.ExecuteReader())
+                            //{
+                            //using (SQLiteCommand cmndLocMapSlot = conn.CreateCommand())
+                            //{
+                            //cmndLocMapSlot.CommandText = "tLocationMapSlot";
+                            //cmndLocMapSlot.CommandType = CommandType.Text;
+                            //cmndLocMapSlot.IndexName = "UQ_LocationMapSlotOnLocationMapSlotFKRefno";
 
-//                                                                        using (SQLiteDataReader drLocMapSect = cmndLocMapSect.ExecuteReader())
-//                                                                        {
-//                                                                            using (SQLiteCommand cmndLocMapWhs = conn.CreateCommand())
-//                                                                            {
-//                                                                                cmndLocMapWhs.CommandText = "tLocationMapWarehouse";
-//                                                                                cmndLocMapWhs.CommandType = CommandType.TableDirect;
-//                                                                                cmndLocMapWhs.IndexName = "UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno";
+                            //using (SQLiteDataReader drLocMapSlot = cmndLocMapSlot.ExecuteReader())
+                            //{
+                            //using (SQLiteCommand cmndLocMapSect = conn.CreateCommand())
+                            //{
+                            //cmndLocMapSect.CommandText = "tLocationMapSection";
+                            //cmndLocMapSect.CommandType = CommandType.Text;
+                            //cmndLocMapSect.IndexName = "UQ_LocationMapSectionOnLocationMapSectionFKRefno";
 
-//                                                                                using (SQLiteDataReader drLocMapWhs = cmndLocMapWhs.ExecuteReader())
-//                                                                                {
-//                                                                                    using (SQLiteCommand cmndID = conn.CreateCommand())
-//                                                                                    {
-//                                                                                        cmndID.CommandText = "SELECT @@IDENTITY";
-//                                                                                        cmndID.CommandType = CommandType.Text;
+                            //using (SQLiteDataReader drLocMapSect = cmndLocMapSect.ExecuteReader())
+                            //{
+                            //using (SQLiteCommand cmndLocMapWhs = conn.CreateCommand())
+                            //{
+                            //cmndLocMapWhs.CommandText = "tLocationMapWarehouse";
+                            //cmndLocMapWhs.CommandType = CommandType.Text;
+                            //cmndLocMapWhs.IndexName = "UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno";
 
-//                                                                                        using (SqlCeResultSet rsCountItem =
-//                                                                                            cmndCountItem.ExecuteResultSet(ResultSetOptions.Updatable))
-//                                                                                        {
-//                                                                                            SqlCeUpdatableRecord recCountItem = rsCountItem.CreateRecord();
-//                                                                                            int actItemRefno = 0;
-//                                                                                            int progValue = 0;
-//                                                                                            int prodUnitRefno = 0;
-//                                                                                            int locMapRefno = 0;
-//                                                                                            int locMapWhsFKRefno = 0;
-//                                                                                            int locMapSectFKRefno = 0;
-//                                                                                            int locMapSlotFKRefno = 0;
-//                                                                                            int countItemFKRefno = 0;
+                            //using (SQLiteDataReader drLocMapWhs = cmndLocMapWhs.ExecuteReader())
+                            //{
+                            //using (SQLiteCommand cmndID = conn.CreateCommand())
+                            //{
+                            //cmndID.CommandText = "SELECT @@IDENTITY";
+                            //cmndID.CommandType = CommandType.Text;
 
-//                                                                                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
+                            //using (SqlCeResultSet rsCountItem = cmndCountItem.ExecuteResultSet(ResultSetOptions.Updatable))
+                            //{
+                            //SqlCeUpdatableRecord recCountItem = rsCountItem.CreateRecord();
 
-//                                                                                            foreach (DataRow drow in ds.Tables["tActivityItemCount"].Rows)
-//                                                                                            {
-//#if MULTILANGUAGE
-//                                                errMsg = Translator.GetInstance().Translate(TranslatorVocabulary.Arguments);
-//#else
-//                                                                                                errMsg = "Arguments:";
-//#endif
+                            int actItemRefno = 0;
+                            int progValue = 0;
+                            int prodUnitRefno = 0;
+                            int locMapRefno = 0;
+                            int locMapWhsFKRefno = 0;
+                            int locMapSectFKRefno = 0;
+                            int locMapSlotFKRefno = 0;
+                            int countItemFKRefno = 0;
 
-//                                                                                                recActItem.SetInt32(
-//                                                                                                    (int)SysCommon.ActItemFields.SubType,
-//                                                                                                    (int)SysCommon.ActSubTypes.CycleCounts);
-//                                                                                                recActItem.SetInt32(
-//                                                                                                    (int)SysCommon.ActItemFields.Status, 0);
-//                                                                                                recActItem.SetInt32(
-//                                                                                                    (int)SysCommon.ActItemFields.ActRefno, actRefno);
+                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
 
-//                                                                                                rsActItem.Insert(recActItem);
+                            foreach (DataRow drow in ds.Tables["tActivityItemCount"].Rows)
+                            {
+                                // TODO: Resource strings
+                                errMsg = "Arguments:";
 
-//                                                                                                actItemRefno = Convert.ToInt32(cmndID.ExecuteScalar());
+                                cmndActItem.CommandText = "INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (@activityItemSubType, @activityItemStatus, @activityRefno)";
+                                cmndActItem.CommandType = CommandType.Text;
+                                cmndActItem.Parameters.Add(new SQLiteParameter("@activityItemSubType", Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts)));
+                                cmndActItem.Parameters.Add(new SQLiteParameter("@activityItemStatus", Convert.ToInt32(0)));
+                                cmndActItem.Parameters.Add(new SQLiteParameter("@activityRefno", actRefno));
 
-//                                                                                                prodUnitRefno = this.GetProductUnitRefnoFromDataRow(
-//                                                                                                    drow,
-//                                                                                                    ref errMsg,
-//                                                                                                    drProd,
-//                                                                                                    drUnit,
-//                                                                                                    drProdUnit,
-//                                                                                                    true);
+                                cmndActItem.ExecuteNonQuery();
 
-//                                                                                                // Cannot use this.SaveDetailLocation() f00 tags are not the same.
-//                                                                                                locMapRefno = 0;
+                                //recActItem.SetInt32((int)SysCommon.ActItemFields.SubType, (int)SysCommon.ActSubTypes.CycleCounts);
+                                //recActItem.SetInt32((int)SysCommon.ActItemFields.Status, 0);
+                                //recActItem.SetInt32((int)SysCommon.ActItemFields.ActRefno, actRefno);
+                                //rsActItem.Insert(recActItem);
 
-//                                                                                                if (locMapRefno == 0)
-//                                                                                                {
-//                                                                                                    locMapSlotFKRefno = Convert.ToInt32(drow["f08"]);
-//                                                                                                    if (drLocMapSlot.Seek(
-//                                                                                                        DbSeekOptions.FirstEqual,
-//                                                                                                        new object[] { locMapSlotFKRefno }))
-//                                                                                                    {
-//                                                                                                        if (drLocMapSlot.Read())
-//                                                                                                        {
-//                                                                                                            locMapRefno = Convert.ToInt32(
-//                                                                                                                drLocMapSlot.GetValue(
-//                                                                                                                (int)SysCommon.LocMapSlotFields.LocMapRefno));
-//                                                                                                        }
-//                                                                                                        else
-//                                                                                                        {
-//                                                                                                            throw new Exception("drLocMapSlot.Read() failed.");
-//                                                                                                        }
-//                                                                                                    }
-//                                                                                                }
+                                cmndID.CommandText = "SELECT last_insert_rowid() FROM tActivityItem";
+                                cmndID.CommandType = CommandType.Text;
 
-//                                                                                                if (locMapRefno == 0)
-//                                                                                                {
-//                                                                                                    locMapSectFKRefno = Convert.ToInt32(drow["f07"]);
-//                                                                                                    if (drLocMapSect.Seek(
-//                                                                                                        DbSeekOptions.FirstEqual, new object[] { locMapSectFKRefno }))
-//                                                                                                    {
-//                                                                                                        if (drLocMapSect.Read())
-//                                                                                                        {
-//                                                                                                            locMapRefno = Convert.ToInt32(
-//                                                                                                                drLocMapSect.GetValue(
-//                                                                                                                (int)SysCommon.LocMapSectFields.LocMapRefno));
-//                                                                                                        }
-//                                                                                                        else
-//                                                                                                        {
-//                                                                                                            throw new Exception("drLocMapSection.Read() failed.");
-//                                                                                                        }
-//                                                                                                    }
-//                                                                                                }
+                                actItemRefno = Convert.ToInt32(cmndID.ExecuteScalar());
 
-//                                                                                                if (locMapRefno == 0)
-//                                                                                                {
-//                                                                                                    locMapWhsFKRefno = Convert.ToInt32(drow["f06"]);
-//                                                                                                    if (drLocMapWhs.Seek(
-//                                                                                                        DbSeekOptions.FirstEqual, new object[] { locMapWhsFKRefno }))
-//                                                                                                    {
-//                                                                                                        if (drLocMapWhs.Read())
-//                                                                                                        {
-//                                                                                                            locMapRefno = Convert.ToInt32(
-//                                                                                                                drLocMapWhs.GetValue(
-//                                                                                                                (int)SysCommon.LocMapWhsFields.LocMapRefno));
-//                                                                                                        }
-//                                                                                                        else
-//                                                                                                        {
-//                                                                                                            throw new Exception("drLocMapWhs.Read() failed.");
-//                                                                                                        }
-//                                                                                                    }
-//                                                                                                }
+                                //prodUnitRefno = this.GetProductUnitRefnoFromDataRow(drow, ref errMsg, drProd, drUnit, drProdUnit, true);
 
-//                                                                                                if (locMapRefno == 0)
-//                                                                                                {
-//                                                                                                    throw new Exception(
-//#if MULTILANGUAGE
-//                                                      string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.UnableToIndentifyTheLocationMapRefno)
-//#else
-//                                                      string.Format("Unable to indentify the location map refno.{0}"
-//#endif
-//                                                      + "Whs FK Refno {1}{2} Section FK Refno {3}{4} "
-//                                                                                                        + "Slot FK Refno {5}",
-//                                                                                                        Environment.NewLine,
-//                                                                                                        locMapWhsFKRefno,
-//                                                                                                        Environment.NewLine,
-//                                                                                                        locMapSectFKRefno,
-//                                                                                                        Environment.NewLine,
-//                                                                                                        locMapSlotFKRefno));
-//                                                                                                }
+                                int prodRefno = 0;
+                                int prodFKRefno = 0;
+                                bool useFNo = true;
 
-//                                                                                                recCountItem.SetInt32(
-//                                                                                                    (int)SysCommon.ActItemCountFields.LocMapRefno,
-//                                                                                                    locMapRefno);
+                                if (useFNo)
+                                {
+                                    prodFKRefno = Convert.ToInt32(drow["f03"]);
+                                }
+                                else
+                                {
+                                    prodFKRefno = Convert.ToInt32(drow["ProductFKRefno"]);
+                                }
 
-//                                                                                                recCountItem.SetInt32(
-//                                                                                                    (int)SysCommon.ActItemCountFields.ActItemRefno,
-//                                                                                                    actItemRefno);
-//                                                                                                recCountItem.SetInt32(
-//                                                                                                    (int)SysCommon.ActItemCountFields.ActItemSubType,
-//                                                                                                    (int)SysCommon.ActSubTypes.CycleCounts);
+                                errMsg += Environment.NewLine + "Prod fk refno " + prodFKRefno;
 
-//                                                                                                countItemFKRefno = Convert.ToInt32(drow["f02"]);
-//                                                                                                errMsg += Environment.NewLine + "Item fk refno " + countItemFKRefno;
-//                                                                                                recCountItem.SetInt32(
-//                                                                                                    (int)SysCommon.ActItemCountFields.FKRefno,
-//                                                                                                    countItemFKRefno);
-//                                                                                                recCountItem.SetString(
-//                                                                                                    (int)SysCommon.ActItemCountFields.StringFKRefno,
-//                                                                                                    Convert.ToString(countItemFKRefno));
+                                cmndProd.CommandText = "SELECT * FROM tProduct WHERE ProductFKRefno = @productFKRefno";
+                                cmndProd.CommandType = CommandType.Text;
+                                //cmndProd.IndexName = "UQ_ProductOnProductFKRefno";
+                                cmndProd.Parameters.Add(new SQLiteParameter("@productFKRefno", prodFKRefno));
 
-//                                                                                                recCountItem.SetInt32(
-//                                                                                                    (int)SysCommon.ActItemCountFields.ProdUnitRefno,
-//                                                                                                    prodUnitRefno);
-//                                                                                                recCountItem.SetDecimal(
-//                                                                                                    (int)SysCommon.ActItemCountFields.QuantityOnHand,
-//                                                                                                    Convert.ToDecimal(drow["f09"]));
-//                                                                                                recCountItem.SetDecimal(
-//                                                                                                    (int)SysCommon.ActItemCountFields.BaseQuantityOnHand,
-//                                                                                                    Convert.ToDecimal(drow["f10"]));
-//                                                                                                recCountItem.SetDecimal(
-//                                                                                                    (int)SysCommon.ActItemCountFields.WeightQuantityOnHand,
-//                                                                                                    Convert.ToDecimal(drow["f11"]));
-//                                                                                                recCountItem.SetDecimal(
-//                                                                                                    (int)SysCommon.ActItemCountFields.Quantity,
-//                                                                                                    Convert.ToDecimal(drow["f12"]));
-//                                                                                                recCountItem.SetDecimal(
-//                                                                                                    (int)SysCommon.ActItemCountFields.BaseQuantity,
-//                                                                                                    Convert.ToDecimal(drow["f13"]));
-//                                                                                                recCountItem.SetDecimal(
-//                                                                                                    (int)SysCommon.ActItemCountFields.WeightQuantity,
-//                                                                                                    Convert.ToDecimal(drow["f14"]));
+                                using (SQLiteDataReader drProd = cmndProd.ExecuteReader())
+                                {
+                                    //if (drProd.Seek(DbSeekOptions.FirstEqual, new object[] { prodFKRefno }))
+                                    //{
+                                    if (drProd.Read())
+                                    {
+                                        prodRefno = drProd.GetInt32((int)SysCommon.ProductFields.Refno);
+                                    }
+                                    else
+                                    {
+                                        // TODO: Resource strings
+                                        throw new Exception("drProduct.Read() failed." + Environment.NewLine + errMsg);
+                                    }
+                                    //}
+                                    //else
+                                    //{
+                                    //    // TODO: Resource strings
+                                    //    throw new Exception("Unable to locate the product refno from the product fk refno in tProduct." + Environment.NewLine + errMsg);
+                                    //}
+                                }
 
-//                                                                                                rsCountItem.Insert(recCountItem);
+                                string unitCode = string.Empty;
+                                int unitRefno = 0;
 
-//                                                                                                progValue++;
-//                                                                                                if (progValue % 10 == 0)
-//                                                                                                {
-//                                                                                                    this.DataAccessProgressOutHandler(
-//                                                                                                        this,
-//                                                                                                        EventArgs.Empty,
-//                                                                                                        progValue,
-//                                                                                                        0,
-//                                                                                                        progMax);
-//                                                                                                }
-//                                                                                            }
+                                if (useFNo)
+                                {
+                                    unitCode = drow["f05"].ToString();
+                                }
+                                else
+                                {
+                                    unitCode = drow["UnitCode"].ToString();
+                                }
 
-//                                                                                            this.DataAccessProgressOutHandler(
-//                                                                                                this,
-//                                                                                                EventArgs.Empty,
-//                                                                                                progMax,
-//                                                                                                0,
-//                                                                                                progMax);
-//                                                                                        }
-//                                                                                    }
+                                errMsg += Environment.NewLine + "Unit \'" + unitCode + "\'";
 
-//                                                                                    drLocMapWhs.Close();
-//                                                                                }
-//                                                                            }
+                                cmndUnit.CommandText = "SELECT * FROM tUnit WHERE UnitCode = @unitCode";
+                                cmndUnit.CommandType = CommandType.Text;
+                                //cmndUnit.IndexName = "UQ_UnitOnUnitCode";
+                                cmndUnit.Parameters.Add(new SQLiteParameter("@unitCode", unitCode));
 
-//                                                                            drLocMapSect.Close();
-//                                                                        }
-//                                                                    }
+                                using (SQLiteDataReader drUnit = cmndUnit.ExecuteReader())
+                                {
+                                    //if (drUnit.Seek(DbSeekOptions.FirstEqual, new object[] { unitCode }))
+                                    //{
+                                    if (drUnit.Read())
+                                    {
+                                        unitRefno = drUnit.GetInt32((int)SysCommon.UnitFields.UnitRefno);
+                                    }
+                                    else
+                                    {
+                                        // TODO: Resource strings
+                                        throw new Exception("drUnit.Read() failed." + Environment.NewLine + errMsg);
+                                    }
+                                    //}
+                                    //else
+                                    //{
+                                    //// TODO: Resource strings
+                                    //throw new Exception("Unable to locate the unit refno from the unit code in  tUnit." + Environment.NewLine + errMsg);
+                                    //}
+                                }
 
-//                                                                    drLocMapSlot.Close();
-//                                                                }
-//                                                            }
+                                //int prodUnitRefno = 0;
+                                bool prodUnitIsBC = false;
 
-//                                                            drUnit.Close();
-//                                                        }
-//                                                    }
+                                if (useFNo)
+                                {
+                                    prodUnitIsBC = Convert.ToBoolean(drow["f04"]);
+                                }
+                                else
+                                {
+                                    prodUnitIsBC = Convert.ToBoolean(drow["ProductUnitIsBC"]);
+                                }
 
-//                                                    drProd.Close();
-//                                                }
-//                                            }
+                                errMsg += Environment.NewLine + "Is bc " + prodUnitIsBC;
 
-//                                            drProdUnit.Close();
-//                                        }
-//                                    }
-//                                }
-//                            }
-//                        }
-//                    }
+                                cmndProdUnit.CommandText = "SELECT * FROM tProductUnit WHERE ProductRefno = @productRefno AND UnitRefno = @unitRefno AND ProductUnitIsBC = @productUnitIsBC";
+                                cmndProdUnit.CommandType = CommandType.Text;
+                                //cmndProdUnit.IndexName = "UQ_ProductUnitOnProductRefnoAndUnitRefnoAndProductUnitIsBC";
+                                cmndProdUnit.Parameters.Add(new SQLiteParameter("@productRefno", prodRefno));
+                                cmndProdUnit.Parameters.Add(new SQLiteParameter("@unitRefno", unitRefno));
+                                cmndProdUnit.Parameters.Add(new SQLiteParameter("@productUnitIsBC", prodUnitIsBC));
 
-//#if MULTILANGUAGE
-//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingCycleCountItemsComplete), false);
-//#else
-//                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving cycle count items complete.", false);
-//#endif
-//                }
-//            }
-//            catch (SQLiteException ex)
-//            {
-//#if MULTILANGUAGE
-//        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), true);
-//        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingCycleCountItemsFailed), true);
-//#else
-//                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-//                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving cycle count items failed.", true);
-//#endif
+                                using (SQLiteDataReader drProdUnit = cmndProdUnit.ExecuteReader())
+                                {
+                                    //if (drProdUnit.Seek(DbSeekOptions.FirstEqual, new object[] { prodRefno, unitRefno, prodUnitIsBC }))
+                                    //{
+                                    if (drProdUnit.Read())
+                                    {
+                                        prodUnitRefno = drProdUnit.GetInt32((int)SysCommon.ProdUnitFields.Refno);
+                                    }
+                                    else
+                                    {
+                                        // TODO: Resource strings
+                                        throw new Exception("drProdUnit.Read() failed." + Environment.NewLine + errMsg);
+                                    }
+                                    //}
+                                    //else
+                                    //{
+                                    //     TODO: Resource strings
+                                    //    throw new Exception("Unable to locate the product unit refno from the product fk refno, bc and unit code in tProductUnit." + Environment.NewLine + errMsg);
+                                    //}
+                                }
 
-//                // Duplicate key violations
-//                if (ex.NativeError == 25016)
-//                {
-//#if MULTILANGUAGE
-//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.UniquenessViolation), false);
-//          throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.UniquenessViolation) + Environment.NewLine + errMsg, ex);
-//#else
-//                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Uniqueness violation.", false);
-//                    throw new Exception("Uniqueness violation." + Environment.NewLine + errMsg, ex);
-//#endif
-//                }
+                                // Cannot use this.SaveDetailLocation() f00 tags are not the same.
+                                locMapRefno = 0;
 
-//                throw new Exception(
-//#if MULTILANGUAGE
-//            Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredSavingCycleCountItemsFailed) + Environment.NewLine + errMsg,
-//#else
-//            "Database exception occurred. Saving cycle count items failed." + Environment.NewLine + errMsg,
-//#endif
-//            ex);
-//            }
+                                if (locMapRefno == 0)
+                                {
+                                    locMapSlotFKRefno = Convert.ToInt32(drow["f08"]);
+
+                                    cmndLocMapSlot.CommandText = "SELECT * FROM tLocationMapSlot WHERE LocationMapSlotFKRefno = @locationMapSlotFKRefno";
+                                    cmndLocMapSlot.CommandType = CommandType.Text;
+                                    //cmndLocMapSlot.IndexName = "UQ_LocationMapSlotOnLocationMapSlotFKRefno";
+                                    cmndLocMapSlot.Parameters.Add(new SQLiteParameter("@locationMapSlotFKRefno", locMapSlotFKRefno));
+
+                                    using (SQLiteDataReader drLocMapSlot = cmndLocMapSlot.ExecuteReader())
+                                    {
+                                        //if (drLocMapSlot.Seek(DbSeekOptions.FirstEqual, new object[] { locMapSlotFKRefno }))
+                                        //{
+                                        if (drLocMapSlot.Read())
+                                        {
+                                            locMapRefno = Convert.ToInt32(drLocMapSlot.GetValue((int)SysCommon.LocMapSlotFields.LocMapRefno));
+                                        }
+                                        //    else
+                                        //    {
+                                        //        throw new Exception("drLocMapSlot.Read() failed.");
+                                        //    }
+                                        //}
+                                    }
+                                }
+
+                                if (locMapRefno == 0)
+                                {
+                                    locMapSectFKRefno = Convert.ToInt32(drow["f07"]);
+
+                                    cmndLocMapSect.CommandText = "SELECT * FROM tLocationMapSection WHERE LocationMapSectionFKRefno = @locationMapSectionFKRefno";
+                                    cmndLocMapSect.CommandType = CommandType.Text;
+                                    //cmndLocMapSect.IndexName = "UQ_LocationMapSectionOnLocationMapSectionFKRefno";
+                                    cmndLocMapSect.Parameters.Add(new SQLiteParameter("@locationMapSectionFKRefno", locMapSectFKRefno));
+
+                                    using (SQLiteDataReader drLocMapSect = cmndLocMapSect.ExecuteReader())
+                                    {
+                                        //if (drLocMapSect.Seek(DbSeekOptions.FirstEqual, new object[] { locMapSectFKRefno }))
+                                        //{
+                                        if (drLocMapSect.Read())
+                                        {
+                                            locMapRefno = Convert.ToInt32(drLocMapSect.GetValue((int)SysCommon.LocMapSectFields.LocMapRefno));
+                                        }
+                                        //else
+                                        //{
+                                        //    throw new Exception("drLocMapSection.Read() failed.");
+                                        //}
+                                        //}
+                                    }
+                                }
+
+                                if (locMapRefno == 0)
+                                {
+                                    locMapWhsFKRefno = Convert.ToInt32(drow["f06"]);
+
+                                    cmndLocMapWhs.CommandText = "SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = @locationMapWarehouseFKRefno";
+                                    cmndLocMapWhs.CommandType = CommandType.Text;
+                                    //cmndLocMapWhs.IndexName = "UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno";
+                                    cmndLocMapWhs.Parameters.Add(new SQLiteParameter("@locationMapWarehouseFKRefno", locMapWhsFKRefno));
+
+                                    using (SQLiteDataReader drLocMapWhs = cmndLocMapWhs.ExecuteReader())
+                                    {
+                                        //if (drLocMapWhs.Seek(DbSeekOptions.FirstEqual, new object[] { locMapWhsFKRefno }))
+                                        //{
+                                        if (drLocMapWhs.Read())
+                                        {
+                                            locMapRefno = Convert.ToInt32(drLocMapWhs.GetValue((int)SysCommon.LocMapWhsFields.LocMapRefno));
+                                        }
+                                        //    else
+                                        //    {
+                                        //        throw new Exception("drLocMapWhs.Read() failed.");
+                                        //    }
+                                        //}
+                                    }
+                                }
+
+                                if (locMapRefno == 0)
+                                {
+                                    throw new Exception(string.Format("Unable to indentify the location map refno.{0}Whs FK Refno {1}{2} Section FK Refno {3}{4} Slot FK Refno {5}",
+                                        Environment.NewLine,
+                                        locMapWhsFKRefno,
+                                        Environment.NewLine,
+                                        locMapSectFKRefno,
+                                        Environment.NewLine,
+                                        locMapSlotFKRefno));
+                                }
+
+                                countItemFKRefno = Convert.ToInt32(drow["f02"]);
+                                errMsg += Environment.NewLine + "Item fk refno " + countItemFKRefno;
+
+                                cmndCountItem.CommandText = "INSERT INTO tActivityItemCount (" +
+                                "ActivityItemRefno, " +
+                                "ActivityItemSubType, " +
+                                "ActivityItemCountFKRefno, " +
+                                "ActivityItemCountStringFKRefno, " +
+                                "ProductUnitRefno, " +
+                                "LocationMapRefno, " +
+                                "ActivityItemCountQuantityOnHand, " +
+                                "ActivityItemCountBaseQuantityOnHand, " +
+                                "ActivityItemCountWeightQuantityOnHand, " +
+                                "ActivityItemCountQuantity, " +
+                                "ActivityItemCountBaseQuantity, " +
+                                "ActivityItemCountWeightQuantity" +
+                                ") VALUES (" +
+                                "@activityItemRefno, " +
+                                "@activityItemSubType, " +
+                                "@activityItemCountFKRefno, " +
+                                "@activityItemCountStringFKRefno, " +
+                                "@productUnitRefno, " +
+                                "@locationMapRefno, " +
+                                "@activityItemCountQuantityOnHand, " +
+                                "@activityItemCountBaseQuantityOnHand, " +
+                                "@activityItemCountWeightQuantityOnHand, " +
+                                "@activityItemCountQuantity, " +
+                                "@activityItemCountBaseQuantity, " +
+                                "@activityItemCountWeightQuantity" +
+                                ")";
+                                cmndCountItem.CommandType = CommandType.Text;
+                                //cmndCountItem.IndexName = "UQ_ActivityItemCountOnActivityItemCountFKRefno";
+                                cmndCountItem.Parameters.Add(new SQLiteParameter("@activityItemRefno", actItemRefno));
+                                cmndCountItem.Parameters.Add(new SQLiteParameter("@activityItemSubType", Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts)));
+                                cmndCountItem.Parameters.Add(new SQLiteParameter("@activityItemCountFKRefno", countItemFKRefno));
+                                cmndCountItem.Parameters.Add(new SQLiteParameter("@activityItemCountStringFKRefno", Convert.ToString(countItemFKRefno)));
+                                cmndCountItem.Parameters.Add(new SQLiteParameter("@productUnitRefno", prodUnitRefno));
+                                cmndCountItem.Parameters.Add(new SQLiteParameter("@locationMapRefno", locMapRefno));
+                                cmndCountItem.Parameters.Add(new SQLiteParameter("@activityItemCountQuantityOnHand", Convert.ToDecimal(drow["f09"])));
+                                cmndCountItem.Parameters.Add(new SQLiteParameter("@activityItemCountBaseQuantityOnHand", Convert.ToDecimal(drow["f10"])));
+                                cmndCountItem.Parameters.Add(new SQLiteParameter("@activityItemCountWeightQuantityOnHand", Convert.ToDecimal(drow["f11"])));
+                                cmndCountItem.Parameters.Add(new SQLiteParameter("@activityItemCountQuantity", Convert.ToDecimal(drow["f12"])));
+                                cmndCountItem.Parameters.Add(new SQLiteParameter("@activityItemCountBaseQuantity", Convert.ToDecimal(drow["f13"])));
+                                cmndCountItem.Parameters.Add(new SQLiteParameter("@activityItemCountWeightQuantity", Convert.ToDecimal(drow["f14"])));
+
+                                cmndCountItem.ExecuteNonQuery();
+
+                                //recCountItem.SetInt32((int)SysCommon.ActItemCountFields.ActItemRefno, actItemRefno);
+                                //recCountItem.SetInt32((int)SysCommon.ActItemCountFields.ActItemSubType, (int)SysCommon.ActSubTypes.CycleCounts);
+                                //recCountItem.SetInt32((int)SysCommon.ActItemCountFields.FKRefno, countItemFKRefno);
+                                //recCountItem.SetString((int)SysCommon.ActItemCountFields.StringFKRefno, Convert.ToString(countItemFKRefno));
+                                //recCountItem.SetInt32((int)SysCommon.ActItemCountFields.LocMapRefno, locMapRefno);
+                                //recCountItem.SetInt32((int)SysCommon.ActItemCountFields.ProdUnitRefno, prodUnitRefno);
+                                //recCountItem.SetDecimal((int)SysCommon.ActItemCountFields.QuantityOnHand, Convert.ToDecimal(drow["f09"]));
+                                //recCountItem.SetDecimal((int)SysCommon.ActItemCountFields.BaseQuantityOnHand, Convert.ToDecimal(drow["f10"]));
+                                //recCountItem.SetDecimal((int)SysCommon.ActItemCountFields.WeightQuantityOnHand, Convert.ToDecimal(drow["f11"]));
+                                //recCountItem.SetDecimal((int)SysCommon.ActItemCountFields.Quantity, Convert.ToDecimal(drow["f12"]));
+                                //recCountItem.SetDecimal((int)SysCommon.ActItemCountFields.BaseQuantity, Convert.ToDecimal(drow["f13"]));
+                                //recCountItem.SetDecimal((int)SysCommon.ActItemCountFields.WeightQuantity, Convert.ToDecimal(drow["f14"]));
+
+                                //rsCountItem.Insert(recCountItem);
+
+                                progValue++;
+                                if (progValue % 10 == 0)
+                                {
+                                    this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
+                                }
+                            }
+
+                            transaction.Commit();
+
+                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
+                        }
+                    }
+
+                    //drLocMapWhs.Close();
+                    //}
+                    //}
+
+                    //drLocMapSect.Close();
+                    //}
+                    //}
+
+                    //drLocMapSlot.Close();
+                    //}
+                    //}
+
+                    //drUnit.Close();
+                    //}
+                    //}
+
+                    //drProd.Close();
+                    //}
+                    //}
+
+                    //drProdUnit.Close();
+                    //                    }
+                    //                }
+                    //            }
+                    //        }
+                    //}
+                    //}
+
+                    // TODO: Resource strings
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving cycle count items complete.", false);
+                    //}
+                }
+                catch (SQLiteException ex)
+                {
+                    transaction.Rollback();
+                    transaction.Dispose();
+
+                    cmndCountItem.Dispose();
+                    cmndActItem.Dispose();
+                    cmndProdUnit.Dispose();
+                    cmndProd.Dispose();
+                    cmndUnit.Dispose();
+                    cmndLocMapSlot.Dispose();
+                    cmndLocMapSect.Dispose();
+                    cmndLocMapWhs.Dispose();
+                    cmndID.Dispose();
+
+                    // TODO: Resource strings
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving cycle count items failed.", true);
+
+                    //// Duplicate key violations
+                    //if (ex.NativeError == 25016)
+                    //{
+                    //    // TODO: Resource strings
+                    //    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Uniqueness violation.", false);
+                    //    throw new Exception("Uniqueness violation." + Environment.NewLine + errMsg, ex);
+                    //}
+
+                    // TODO: Resource strings
+                    throw new Exception("Database exception occurred. Saving cycle count items failed." + Environment.NewLine + errMsg, ex);
+                }
+            }
         }
 
         /// <summary>

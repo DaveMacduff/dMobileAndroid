@@ -164,12 +164,6 @@
                 // foreign keys=true HAS to be specified or SQLite will not enforce foreign key constraints
                 connString = "Data Source = '" + dbASCIIZ + "'; foreign keys=true;";
                 //connString = "Data Source = '" + dbPath + dbName + "'; Password = " + dbPassword;
-
-            }
-
-            if (!File.Exists(dbASCIIZ))
-            {
-                SQLiteConnection.CreateFile(dbASCIIZ);
             }
 
             OpenDataBaseConnection();
@@ -182,7 +176,6 @@
         /// </summary>
         public static void OpenDataBaseConnection()
         {
-
             if (File.Exists(dbASCIIZ) & sqlConn == null)
             {
                 sqlConn = new SQLiteConnection(connString);

@@ -10,8 +10,8 @@
     using System.Xml.Linq;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
-    using static Android.Views.View;
     using Resource = dMobile.Resources.Properties.Resources;
+
 
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ucRefreshDataOptions : DMobileContentPage, IAppArea, IAppPublisher
@@ -37,6 +37,15 @@
             if (!DesignMode.IsDesignModeEnabled)
             {
                 this.SysEnv = SysEnvironment.GetInstance();
+
+                try
+                {
+                    this.ucRefreshDataOptions_GotFocus(this, new EventArgs());
+                }
+                catch (Exception ex)
+                {
+                    DisplayAlert("Error", "ucRefreshDataOptions_GotFocus exception: " + ex.Message, "OK");
+                }
             }
 
             this.cmdRefreshData.Text = Resource.RefreshData;
@@ -82,15 +91,6 @@
                     }
                 }
             });
-
-            try
-            {
-                this.ucRefreshDataOptions_GotFocus(this, new EventArgs());
-            }
-            catch (Exception ex)
-            {
-                DisplayAlert("Error", "ucRefreshDataOptions_GotFocus exception: " + ex.Message, "OK");
-            }
         }
 
         /// <summary>
@@ -737,8 +737,7 @@
         {
             bool isContinueRefresh = false;
 
-            // TODO: Remove !
-            if (!this.SysEnv.SysSettings.IsDisconnectedMode && SysCommon.CheckForUnSubmittedData())
+            if (this.SysEnv.SysSettings.IsDisconnectedMode && SysCommon.CheckForUnSubmittedData())
             {
                 if (await DisplayAlert(this.GetControlDescription(), Resource.WarningUnsubmittedDataExistsAndWillBeLostContinueWithRefreshData, Resource.Yes, Resource.No))
                 {
@@ -748,6 +747,10 @@
                     }
                 }
             }
+            else if (await DisplayAlert(this.GetControlDescription(), "Confirm refresh data?", Resource.Yes, Resource.No))
+            {
+                isContinueRefresh = true;
+            }
 
             if (isContinueRefresh)
             {
@@ -756,9 +759,12 @@
                     this.ReqCancelDisableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     this.ReqSaveDisableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
 
-                    Device.BeginInvokeOnMainThread(async () => {
+                    Device.BeginInvokeOnMainThread(async () =>
+                    {
                         FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucRefreshDataStatus, SysCommon.ActSubTypes.RefreshData);
                         await form.DisplayControl.ShowDialog();
+
+                        // TODO: Fix if we want to display alert
                         //XDocument xmlDoc = form.DisplayControlData;
                         //this.IsRefreshComplete = bool.Parse(xmlDoc.Root.Element("IsRefreshComplete").Value);
                     });
@@ -997,6 +1003,7 @@
 
             this.chkRefreshDataChangesOnly.IsToggled = this.SysEnv.RefreshOpt.RefreshDataChangesOnly;
             this.chkSystemData.IsToggled = this.SysEnv.RefreshOpt.SystemData;
+
             if (this.SysEnv.SysSettings.IsDisconnectedMode)
             {
                 this.chkAdjustments.IsToggled = this.SysEnv.RefreshOpt.Adjustments;

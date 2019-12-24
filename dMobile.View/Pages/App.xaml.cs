@@ -9,10 +9,11 @@ namespace dMobile.View
         {
             InitializeComponent();
 
-            // TODO: Remove next line
             //MainPage = new NavigationPage(new MemoryTestPage());
+            
+            //MainPage = new NavigationPage(new ucLoginStartup());
 
-            MainPage = new NavigationPage(new ucLoginStartup());
+            MainPage = new NavigationPage(new SplashStartup());
         }
     }
 }

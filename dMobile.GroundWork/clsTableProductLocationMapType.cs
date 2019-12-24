@@ -632,359 +632,411 @@ namespace dMobile.GroundWork
         /// <param name="whsLocMapRefno"></param>
         protected void SaveOpt(string reqData, int whsLocMapRefno)
         {
-            //SQLiteConnection conn = DatabaseConnection.GetInstance().SQLConn;
-            //string errMsg = string.Empty;
+            SQLiteConnection conn = DatabaseConnection.GetInstance().SQLConn;
+            string errMsg = string.Empty;
 
-            //using (SQLiteCommand cmndLocMapType = conn.CreateCommand())
-            //using (SQLiteCommand cmndLocMapTypeUpdate = conn.CreateCommand())
-            //using (SQLiteCommand cmndProd = conn.CreateCommand())
-            //using (SQLiteCommand cmndWhs = conn.CreateCommand())
-            //using (SQLiteCommand cmndSect = conn.CreateCommand())
-            //using (SQLiteCommand cmndSlot = conn.CreateCommand())
-            //using (SQLiteTransaction transaction = conn.BeginTransaction())
-            //{
-            //    try
-            //    {
-            //        // TODO: Resource Strings
-            //        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
+            using (SQLiteCommand cmndLocMapType = conn.CreateCommand())
+            using (SQLiteCommand cmndLocMapTypeUpdate = conn.CreateCommand())
+            using (SQLiteCommand cmndProd = conn.CreateCommand())
+            using (SQLiteCommand cmndWhs = conn.CreateCommand())
+            using (SQLiteCommand cmndSect = conn.CreateCommand())
+            using (SQLiteCommand cmndSlot = conn.CreateCommand())
+            using (SQLiteTransaction transaction = conn.BeginTransaction())
+            {
+                try
+                {
+                    // TODO: Resource Strings
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
-            //        int startIndex = reqData.IndexOf("<VFPData");
-            //        XmlReaderSettings sett = new XmlReaderSettings();
-            //        sett.CheckCharacters = false;
-            //        sett.CloseInput = false;
-            //        sett.ConformanceLevel = ConformanceLevel.Auto;
-            //        sett.IgnoreComments = true;
-            //        sett.IgnoreProcessingInstructions = true;
-            //        sett.IgnoreWhitespace = false;
-            //        sett.ValidationFlags = System.Xml.Schema.XmlSchemaValidationFlags.None;
-            //        sett.ValidationType = ValidationType.None;
-            //        using (StringReader stringReader = new StringReader(reqData.Substring(startIndex)))
-            //        using (XmlReader reader = XmlReader.Create(stringReader, sett))
-            //        {
-            //            // TODO: Resource Strings
-            //            this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product locations.", false);
+                    int startIndex = reqData.IndexOf("<VFPData");
+                    XmlReaderSettings sett = new XmlReaderSettings();
+                    sett.CheckCharacters = false;
+                    sett.CloseInput = false;
+                    sett.ConformanceLevel = ConformanceLevel.Auto;
+                    sett.IgnoreComments = true;
+                    sett.IgnoreProcessingInstructions = true;
+                    sett.IgnoreWhitespace = false;
+                    sett.ValidationFlags = System.Xml.Schema.XmlSchemaValidationFlags.None;
+                    sett.ValidationType = ValidationType.None;
+                    using (StringReader stringReader = new StringReader(reqData.Substring(startIndex)))
+                    using (XmlReader reader = XmlReader.Create(stringReader, sett))
+                    {
+                        // TODO: Resource Strings
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product locations.", false);
 
-            //            cmndLocMapType.CommandText = "tProductLocationMapType";
-            //            cmndLocMapType.CommandType = CommandType.Text;
-            //            cmndLocMapType.IndexName = "FK_ProductLocationMapTypeOnWarehouseLocationMapRefnoAndProductRefnoAndProductLocationMapTypeEnum";
+                        //cmndLocMapType.CommandText = "tProductLocationMapType";
+                        //cmndLocMapType.CommandType = CommandType.Text;
+                        //cmndLocMapType.IndexName = "FK_ProductLocationMapTypeOnWarehouseLocationMapRefnoAndProductRefnoAndProductLocationMapTypeEnum";
 
-            //            cmndLocMapTypeUpdate.CommandText = string.Empty;
-            //            cmndLocMapTypeUpdate.CommandType = CommandType.Text;
-            //            cmndLocMapTypeUpdate.IndexName = string.Empty;
+                        //cmndLocMapTypeUpdate.CommandText = string.Empty;
+                        //cmndLocMapTypeUpdate.CommandType = CommandType.Text;
+                        //cmndLocMapTypeUpdate.IndexName = string.Empty;
 
-            //            cmndProd.CommandText = "tProduct";
-            //            cmndProd.IndexName = "UQ_ProductOnProductFKRefno";
-            //            cmndProd.CommandType = CommandType.Text;
+                        //cmndProd.CommandText = "tProduct";
+                        //cmndProd.CommandType = CommandType.Text;
+                        //cmndProd.IndexName = "UQ_ProductOnProductFKRefno";
 
-            //            cmndWhs.CommandText = "tLocationMapWarehouse";
-            //            cmndWhs.IndexName = "UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno";
-            //            cmndWhs.CommandType = CommandType.Text;
+                        //cmndWhs.CommandText = "tLocationMapWarehouse";
+                        //cmndWhs.CommandType = CommandType.Text;
+                        //cmndWhs.IndexName = "UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno";
 
-            //            cmndSect.CommandText = "tLocationMapSection";
-            //            cmndSect.IndexName = "UQ_LocationMapSectionOnLocationMapSectionFKRefno";
-            //            cmndSect.CommandType = CommandType.Text;
+                        //cmndSect.CommandText = "tLocationMapSection";
+                        //cmndSect.CommandType = CommandType.Text;
+                        //cmndSect.IndexName = "UQ_LocationMapSectionOnLocationMapSectionFKRefno";
 
-            //            cmndSlot.CommandText = "tLocationMapSlot";
-            //            cmndSlot.IndexName = "UQ_LocationMapSlotOnLocationMapSlotFKRefno";
-            //            cmndSlot.CommandType = CommandType.Text;
+                        //cmndSlot.CommandText = "tLocationMapSlot";
+                        //cmndSlot.CommandType = CommandType.Text;
+                        //cmndSlot.IndexName = "UQ_LocationMapSlotOnLocationMapSlotFKRefno";
 
-            //            using (SQLiteDataReader drLocMapType = cmndLocMapType.ExecuteReader())
-            //            using (SQLiteDataReader drProd = cmndProd.ExecuteReader())
-            //            using (SQLiteDataReader drWhs = cmndWhs.ExecuteReader())
-            //            using (SQLiteDataReader drSect = cmndSect.ExecuteReader())
-            //            using (SQLiteDataReader drSlot = cmndSlot.ExecuteReader())
-            //            {
-                            
-            //                int recordCount = 0;
-            //                bool isLocMapTypeFound = false;
+                        //{
+                            int recordCount = 0;
+                            bool isLocMapTypeFound = false;
 
-            //                int prodRefno = 0;
-            //                int locMapRefno = 0;
-            //                // f01
-            //                int locMapFKRefno = 0;
-            //                // f02
-            //                int locMapSubType = 0;
-            //                // f03
-            //                int prodLocMapType = 0;
-            //                // f04
-            //                int prodFKRefno = 0;
-            //                int currProdLocMapRefno = 0;
+                            int prodRefno = 0;
+                            int locMapRefno = 0;
+                            // f01
+                            int locMapFKRefno = 0;
+                            // f02
+                            int locMapSubType = 0;
+                            // f03
+                            int prodLocMapType = 0;
+                            // f04
+                            int prodFKRefno = 0;
+                            int currProdLocMapRefno = 0;
 
-            //                Dictionary<int, int> warehouseLookup = new Dictionary<int, int>();
-            //                Dictionary<int, int> sectionLookup = new Dictionary<int, int>();
-            //                Dictionary<int, int> slotLookup = new Dictionary<int, int>();
+                            Dictionary<int, int> warehouseLookup = new Dictionary<int, int>();
+                            Dictionary<int, int> sectionLookup = new Dictionary<int, int>();
+                            Dictionary<int, int> slotLookup = new Dictionary<int, int>();
 
-            //                this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, 100);
+                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, 100);
 
-            //                while (!reader.EOF)
-            //                {
-            //                    // fill one record
-            //                    // we do this by looping until an end segment is found
-            //                    bool recordFilled = false;
-            //                    string elementName = string.Empty;
-            //                    while (!recordFilled && reader.Read())
-            //                    {
-            //                        if (reader.NodeType == XmlNodeType.Element)
-            //                        {
-            //                            elementName = reader.Name;
-            //                        }
-            //                        else if (reader.NodeType == XmlNodeType.Text)
-            //                        {
-            //                            switch (elementName)
-            //                            {
-            //                                case "f01":
-            //                                    locMapFKRefno = reader.ReadContentAsInt();
-            //                                    break;
-            //                                case "f02":
-            //                                    locMapSubType = reader.ReadContentAsInt();
-            //                                    break;
-            //                                case "f03":
-            //                                    prodLocMapType = reader.ReadContentAsInt();
-            //                                    break;
-            //                                case "f04":
-            //                                    prodFKRefno = reader.ReadContentAsInt();
-            //                                    break;
-            //                            }
-            //                        }
-            //                        else if (reader.NodeType == XmlNodeType.EndElement && reader.Name == "seg")
-            //                        {
-            //                            recordFilled = true; // we are full;
-            //                        }
-            //                    } // end of fill record
+                            while (!reader.EOF)
+                            {
+                                // fill one record
+                                // we do this by looping until an end segment is found
+                                bool recordFilled = false;
+                                string elementName = string.Empty;
+                                while (!recordFilled && reader.Read())
+                                {
+                                    if (reader.NodeType == XmlNodeType.Element)
+                                    {
+                                        elementName = reader.Name;
+                                    }
+                                    else if (reader.NodeType == XmlNodeType.Text)
+                                    {
+                                        switch (elementName)
+                                        {
+                                            case "f01":
+                                                locMapFKRefno = reader.ReadContentAsInt();
+                                                break;
+                                            case "f02":
+                                                locMapSubType = reader.ReadContentAsInt();
+                                                break;
+                                            case "f03":
+                                                prodLocMapType = reader.ReadContentAsInt();
+                                                break;
+                                            case "f04":
+                                                prodFKRefno = reader.ReadContentAsInt();
+                                                break;
+                                        }
+                                    }
+                                    else if (reader.NodeType == XmlNodeType.EndElement && reader.Name == "seg")
+                                    {
+                                        recordFilled = true; // we are full;
+                                    }
+                                } // end of fill record
 
 
-            //                    if (!recordFilled)
-            //                        continue;
+                                if (!recordFilled)
+                                {
+                                    continue;
+                                }
 
-            //                    // TODO: Resource Strings
-            //                    errMsg = "FK refno " + prodFKRefno;
+                                // TODO: Resource Strings
+                                errMsg = "FK refno " + prodFKRefno;
 
-            //                    if (drProd.Seek(DbSeekOptions.FirstEqual, new object[] { prodFKRefno }))
-            //                    {
-            //                        if (drProd.Read())
-            //                        {
-            //                            prodRefno = Convert.ToInt32(drProd.GetValue((int)SysCommon.ProductFields.Refno));
-            //                        }
-            //                        else
-            //                        {
-            //                            // TODO: Resource Strings
-            //                            throw new Exception("drProd.Read() failed." + Environment.NewLine + errMsg);
-            //                        }
-            //                    }
-            //                    else
-            //                    {
-            //                        // TODO: Resource Strings
-            //                        throw new Exception("Unable to locate the product refno from the product fk refno in tProduct." + Environment.NewLine + errMsg);
-            //                    }
+                                cmndProd.CommandText = "SELECT * FROM tProduct WHERE ProductFKRefno = @productFKRefno";
+                                cmndProd.CommandType = CommandType.Text;
+                                //cmndProd.IndexName = "UQ_ProductOnProductFKRefno";
+                                cmndProd.Parameters.Add(new SQLiteParameter("@productFKRefno", prodFKRefno));
 
-            //                    // TODO: Resource Strings
-            //                    errMsg += Environment.NewLine + "Map fk refno " + locMapFKRefno;
+                                using (SQLiteDataReader drProd = cmndProd.ExecuteReader())
+                                {
+                                    //if (drProd.Seek(DbSeekOptions.FirstEqual, new object[] { prodFKRefno }))
+                                    //{
+                                        if (drProd.Read())
+                                        {
+                                            prodRefno = Convert.ToInt32(drProd.GetValue((int)SysCommon.ProductFields.Refno));
+                                        }
+                                        else
+                                        {
+                                            // TODO: Resource Strings
+                                            throw new Exception("drProd.Read() failed." + Environment.NewLine + errMsg);
+                                        }
+                                    //}
+                                    //else
+                                    //{
+                                    //    // TODO: Resource Strings
+                                    //    throw new Exception("Unable to locate the product refno from the product fk refno in tProduct." + Environment.NewLine + errMsg);
+                                    //}
+                                }
 
-            //                    // locMapSubType = Warehouse, Section, Slot.
-            //                    // Create error message for locMapSubType.
-            //                    switch (locMapSubType)
-            //                    {
-            //                        case (int)SysCommon.LocMapSubTypes.Warehouse:
-            //                            // TODO: Resource Strings
-            //                            errMsg += Environment.NewLine + "Map sub type = " + locMapSubType + ", 'Warehouse'.";
-            //                            break;
+                                // TODO: Resource Strings
+                                errMsg += Environment.NewLine + "Map fk refno " + locMapFKRefno;
 
-            //                        case (int)SysCommon.LocMapSubTypes.Section:
-            //                            // TODO: Resource Strings
-            //                            errMsg += Environment.NewLine + "Map sub type = " + locMapSubType + ", 'Section'.";
-            //                            break;
+                                // locMapSubType = Warehouse, Section, Slot.
+                                // Create error message for locMapSubType.
+                                switch (locMapSubType)
+                                {
+                                    case (int)SysCommon.LocMapSubTypes.Warehouse:
+                                        // TODO: Resource Strings
+                                        errMsg += Environment.NewLine + "Map sub type = " + locMapSubType + ", 'Warehouse'.";
+                                        break;
 
-            //                        case (int)SysCommon.LocMapSubTypes.Slot:
-            //                            // TODO: Resource Strings
-            //                            errMsg += Environment.NewLine + "Map sub type = " + locMapSubType + ", 'Slot'.";
-            //                            break;
+                                    case (int)SysCommon.LocMapSubTypes.Section:
+                                        // TODO: Resource Strings
+                                        errMsg += Environment.NewLine + "Map sub type = " + locMapSubType + ", 'Section'.";
+                                        break;
 
-            //                        default:
-            //                            // TODO: Resource Strings
-            //                            throw new Exception(string.Format("Undefined location map subtype {0}", locMapSubType));
-            //                    }
+                                    case (int)SysCommon.LocMapSubTypes.Slot:
+                                        // TODO: Resource Strings
+                                        errMsg += Environment.NewLine + "Map sub type = " + locMapSubType + ", 'Slot'.";
+                                        break;
 
-            //                    // prodLocMapType = Picking, Receiving, Floor.
-            //                    errMsg += Environment.NewLine + "Map type " + prodLocMapType;
+                                    default:
+                                        // TODO: Resource Strings
+                                        throw new Exception(string.Format("Undefined location map subtype {0}", locMapSubType));
+                                }
 
-            //                    // Find the key for the locMapSubType.
-            //                    switch (locMapSubType)
-            //                    {
-            //                        case (int)SysCommon.LocMapSubTypes.Warehouse:
-            //                            if (!warehouseLookup.TryGetValue(locMapFKRefno, out locMapRefno))
-            //                            {
-            //                                if (drWhs.Seek(DbSeekOptions.FirstEqual, new object[] { locMapFKRefno }))
-            //                                {
-            //                                    if (drWhs.Read())
-            //                                    {
-            //                                        locMapRefno = Convert.ToInt32(drWhs.GetValue(Convert.ToInt32(SysCommon.LocMapWhsFields.LocMapRefno)));
-            //                                        warehouseLookup.Add(locMapFKRefno, locMapRefno);
-            //                                    }
-            //                                    else
-            //                                    {
-            //                                        // TODO: Resource Strings
-            //                                        throw new Exception("drWhs.Read() failed." + Environment.NewLine + errMsg);
-            //                                    }
-            //                                }
-            //                                else
-            //                                {
-            //                                    // TODO: Resource Strings
-            //                                    throw new Exception("Unable to locate the warehouse fk refno in tLocationMapWarehouse." + Environment.NewLine + errMsg);
-            //                                }
-            //                            }
+                                // prodLocMapType = Picking, Receiving, Floor.
+                                errMsg += Environment.NewLine + "Map type " + prodLocMapType;
 
-            //                            break;
+                                // Find the key for the locMapSubType.
+                                switch (locMapSubType)
+                                {
+                                    case (int)SysCommon.LocMapSubTypes.Warehouse:
+                                        if (!warehouseLookup.TryGetValue(locMapFKRefno, out locMapRefno))
+                                        {                                            
+                                            cmndWhs.CommandText = "SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = @locationMapWarehouseFKRefno";
+                                            cmndWhs.CommandType = CommandType.Text;
+                                            //cmndWhs.IndexName = "UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno";
+                                            cmndWhs.Parameters.Add(new SQLiteParameter("@locationMapWarehouseFKRefno", locMapFKRefno));
 
-            //                        case (int)SysCommon.LocMapSubTypes.Section:
-            //                            if (!sectionLookup.TryGetValue(locMapFKRefno, out locMapRefno))
-            //                            {
-            //                                if (drSect.Seek(DbSeekOptions.FirstEqual, new object[] { locMapFKRefno }))
-            //                                {
-            //                                    if (drSect.Read())
-            //                                    {
-            //                                        locMapRefno = Convert.ToInt32(drSect.GetValue(Convert.ToInt32(SysCommon.LocMapSectFields.LocMapRefno)));
-            //                                        sectionLookup.Add(locMapFKRefno, locMapRefno);
-            //                                    }
-            //                                    else
-            //                                    {
-            //                                        // TODO: Resource Strings
-            //                                        throw new Exception("drSect.Read() failed." + Environment.NewLine + errMsg);
-            //                                    }
-            //                                }
-            //                                else
-            //                                {
-            //                                    // TODO: Resource Strings
-            //                                    throw new Exception("Unable to locate section fk refno in tLocationMapSection." + Environment.NewLine + errMsg);
-            //                                }
-            //                            }
+                                            using (SQLiteDataReader drWhs = cmndWhs.ExecuteReader())
+                                            {
+                                                //if (drWhs.Seek(DbSeekOptions.FirstEqual, new object[] { locMapFKRefno }))
+                                                //{
+                                                    if (drWhs.Read())
+                                                    {
+                                                        locMapRefno = Convert.ToInt32(drWhs.GetValue(Convert.ToInt32(SysCommon.LocMapWhsFields.LocMapRefno)));
+                                                        warehouseLookup.Add(locMapFKRefno, locMapRefno);
+                                                    }
+                                                    else
+                                                    {
+                                                        // TODO: Resource Strings
+                                                        throw new Exception("drWhs.Read() failed." + Environment.NewLine + errMsg);
+                                                    }
+                                                //}
+                                                //else
+                                                //{
+                                                //    // TODO: Resource Strings
+                                                //    throw new Exception("Unable to locate the warehouse fk refno in tLocationMapWarehouse." + Environment.NewLine + errMsg);
+                                                //}
+                                            }
+                                        }
 
-            //                            break;
+                                        break;
 
-            //                        case (int)SysCommon.LocMapSubTypes.Slot:
-            //                            if (!slotLookup.TryGetValue(locMapFKRefno, out locMapRefno))
-            //                            {
-            //                                if (drSlot.Seek(DbSeekOptions.FirstEqual, new object[] { locMapFKRefno }))
-            //                                {
-            //                                    if (drSlot.Read())
-            //                                    {
-            //                                        locMapRefno = Convert.ToInt32(drSlot.GetValue(Convert.ToInt32(SysCommon.LocMapSlotFields.LocMapRefno)));
-            //                                        slotLookup.Add(locMapFKRefno, locMapRefno);
-            //                                    }
-            //                                    else
-            //                                    {
-            //                                        // TODO: Resource Strings
-            //                                        throw new Exception("drSlot.Read() failed." + Environment.NewLine + errMsg);
-            //                                    }
-            //                                }
-            //                                else
-            //                                {
-            //                                    // TODO: Resource Strings
-            //                                    throw new Exception("Unable to locate slot fk refno in tLocationMapSlot." + Environment.NewLine + errMsg);
-            //                                }
-            //                            }
+                                    case (int)SysCommon.LocMapSubTypes.Section:
+                                        if (!sectionLookup.TryGetValue(locMapFKRefno, out locMapRefno))
+                                        {
+                                            cmndSect.CommandText = "SELECT * FROM tLocationMapSection WHERE LocationMapSectionFKRefno = @locationMapSectionFKRefno";
+                                            cmndSect.CommandType = CommandType.Text;
+                                            //cmndSect.IndexName = "UQ_LocationMapSectionOnLocationMapSectionFKRefno";
+                                            cmndSect.Parameters.Add(new SQLiteParameter("@locationMapSectionFKRefno", locMapFKRefno));
 
-            //                            break;
+                                            using (SQLiteDataReader drSect = cmndSect.ExecuteReader())
+                                            {
+                                                //if (drSect.Seek(DbSeekOptions.FirstEqual, new object[] { locMapFKRefno }))
+                                                //{
+                                                    if (drSect.Read())
+                                                    {
+                                                        locMapRefno = Convert.ToInt32(drSect.GetValue(Convert.ToInt32(SysCommon.LocMapSectFields.LocMapRefno)));
+                                                        sectionLookup.Add(locMapFKRefno, locMapRefno);
+                                                    }
+                                                    else
+                                                    {
+                                                        // TODO: Resource Strings
+                                                        throw new Exception("drSect.Read() failed." + Environment.NewLine + errMsg);
+                                                    }
+                                                //}
+                                                //else
+                                                //{
+                                                //    // TODO: Resource Strings
+                                                //    throw new Exception("Unable to locate section fk refno in tLocationMapSection." + Environment.NewLine + errMsg);
+                                                //}
+                                            }
+                                        }
 
-            //                        default:
-            //                            throw new Exception(string.Format("Undefined location map subtype {0}", locMapSubType));
-            //                    }
+                                        break;
 
-            //                    isLocMapTypeFound = false;
-            //                    currProdLocMapRefno = 0;
+                                    case (int)SysCommon.LocMapSubTypes.Slot:
+                                        if (!slotLookup.TryGetValue(locMapFKRefno, out locMapRefno))
+                                        {
+                                            cmndSlot.CommandText = "SELECT * FROM tLocationMapSlot WHERE LocationMapSlotFKRefno = @locationMapSlotFKRefno";
+                                            cmndSlot.CommandType = CommandType.Text;
+                                            //cmndSlot.IndexName = "UQ_LocationMapSlotOnLocationMapSlotFKRefno";
+                                            cmndSlot.Parameters.Add(new SQLiteParameter("@locationMapSlotFKRefno", locMapFKRefno));
 
-            //                    if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly)
-            //                    {
-            //                        if (drLocMapType.Seek(DbSeekOptions.FirstEqual, new object[] { whsLocMapRefno, prodRefno, prodLocMapType }))
-            //                        {
-            //                            if (drLocMapType.Read())
-            //                            {
-            //                                currProdLocMapRefno = Convert.ToInt32(drLocMapType.GetValue(Convert.ToInt32(SysCommon.ProdLocMapTypeFields.LocMapRefno)));
-            //                                isLocMapTypeFound = true;
-            //                            }
-            //                            else
-            //                            {
-            //                                // TODO: Resource Strings
-            //                                throw new Exception("drLocMapType.Read() failed." + Environment.NewLine + errMsg);
-            //                            }
-            //                        }
-            //                    }
+                                            using (SQLiteDataReader drSlot = cmndSlot.ExecuteReader())
+                                            {
+                                                //if (drSlot.Seek(DbSeekOptions.FirstEqual, new object[] { locMapFKRefno }))
+                                                //{
+                                                    if (drSlot.Read())
+                                                    {
+                                                        locMapRefno = Convert.ToInt32(drSlot.GetValue(Convert.ToInt32(SysCommon.LocMapSlotFields.LocMapRefno)));
+                                                        slotLookup.Add(locMapFKRefno, locMapRefno);
+                                                    }
+                                                    else
+                                                    {
+                                                        // TODO: Resource Strings
+                                                        throw new Exception("drSlot.Read() failed." + Environment.NewLine + errMsg);
+                                                    }
+                                                //}
+                                                //else
+                                                //{
+                                                //    // TODO: Resource Strings
+                                                //    throw new Exception("Unable to locate slot fk refno in tLocationMapSlot." + Environment.NewLine + errMsg);
+                                                //}
+                                            }
+                                        }
 
-            //                    if (isLocMapTypeFound)
-            //                    {
-            //                        if (currProdLocMapRefno != locMapRefno)
-            //                        {
-            //                            // Update the LocMapRefno if different
-            //                            cmndLocMapTypeUpdate.CommandText = "UPDATE tProductLocationMapType"
-            //                              + " SET LocationMapRefno = " + locMapRefno
-            //                              + " WHERE ProductRefno = " + prodRefno
-            //                              + " AND WarehouseLocationMapRefno = " + whsLocMapRefno
-            //                              + " AND ProductLocationMapTypeEnum = " + prodLocMapType;
-            //                            cmndLocMapTypeUpdate.ExecuteNonQuery();
-            //                        }
-            //                    }
-            //                    else
-            //                    {
-            //                        rec.SetInt32(Convert.ToInt32(SysCommon.ProdLocMapTypeFields.ProdRefno), prodRefno);
-            //                        rec.SetInt32(Convert.ToInt32(SysCommon.ProdLocMapTypeFields.WhsLocMapRefno), whsLocMapRefno);
-            //                        rec.SetInt32(Convert.ToInt32(SysCommon.ProdLocMapTypeFields.EnumType), prodLocMapType);
-            //                        rec.SetInt32(Convert.ToInt32(SysCommon.ProdLocMapTypeFields.LocMapRefno), locMapRefno);
+                                        break;
 
-            //                        rs.Insert(rec);
-            //                    }
+                                    default:
+                                        throw new Exception(string.Format("Undefined location map subtype {0}", locMapSubType));
+                                }
 
-            //                    ++recordCount;
-            //                    if (recordCount % 100 == 0)
-            //                    {
-            //                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, (recordCount / 10) % 100, 0, 100);
-            //                    }
-            //                } // end of data
+                                isLocMapTypeFound = false;
+                                currProdLocMapRefno = 0;
 
-            //                this.DataAccessProgressOutHandler(this, EventArgs.Empty, 100, 0, 100);
+                                //if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly)
+                                //{
+                                cmndLocMapType.CommandText = "SELECT * FROM tProductLocationMapType WHERE WarehouseLocationMapRefno = @warehouseLocationMapRefno AND ProductRefno = @productRefno AND ProductLocationMapTypeEnum = @productLocationMapTypeEnum";
+                                cmndLocMapType.CommandType = CommandType.Text;
+                                //cmndLocMapType.IndexName = "FK_ProductLocationMapTypeOnWarehouseLocationMapRefnoAndProductRefnoAndProductLocationMapTypeEnum";
+                                cmndLocMapType.Parameters.Add(new SQLiteParameter("@warehouseLocationMapRefno", whsLocMapRefno));
+                                cmndLocMapType.Parameters.Add(new SQLiteParameter("@productRefno", prodRefno));
+                                cmndLocMapType.Parameters.Add(new SQLiteParameter("@productLocationMapTypeEnum", prodLocMapType));
 
-            //                // TODO: Resource Strings
-            //                this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", recordCount), false);
+                                using (SQLiteDataReader drLocMapType = cmndLocMapType.ExecuteReader())
+                                {
+                                    //if (drLocMapType.Seek(DbSeekOptions.FirstEqual, new object[] { whsLocMapRefno, prodRefno, prodLocMapType }))
+                                    //{
+                                        if (drLocMapType.Read())
+                                        {
+                                            currProdLocMapRefno = Convert.ToInt32(drLocMapType.GetValue(Convert.ToInt32(SysCommon.ProdLocMapTypeFields.LocMapRefno)));
+                                            isLocMapTypeFound = true;
+                                        }
+                                        //else
+                                        //{
+                                        //    // TODO: Resource Strings
+                                        //    throw new Exception("drLocMapType.Read() failed." + Environment.NewLine + errMsg);
+                                        //}
+                                    //}
+                                }
+                                //}
 
-            //                warehouseLookup.Clear();
-            //                sectionLookup.Clear();
-            //                slotLookup.Clear();
+                                if (isLocMapTypeFound)
+                                {
+                                    if (currProdLocMapRefno != locMapRefno)
+                                    {
+                                        // Update the LocMapRefno if different
+                                        cmndLocMapTypeUpdate.CommandText = "UPDATE tProductLocationMapType "
+                                          + "SET LocationMapRefno = @locMapRefno "
+                                          + "WHERE ProductRefno = @prodRefno "
+                                          + "AND WarehouseLocationMapRefno = @whsLocMapRefno " 
+                                          + "AND ProductLocationMapTypeEnum = @prodLocMapType";
+                                        cmndLocMapTypeUpdate.Parameters.Add(new SQLiteParameter("@locMapRefno", locMapRefno));
+                                        cmndLocMapTypeUpdate.Parameters.Add(new SQLiteParameter("@prodRefno", prodRefno));
+                                        cmndLocMapTypeUpdate.Parameters.Add(new SQLiteParameter("@whsLocMapRefno", whsLocMapRefno));
+                                        cmndLocMapTypeUpdate.Parameters.Add(new SQLiteParameter("@prodLocMapType", prodLocMapType));
 
-            //                warehouseLookup = null;
-            //                sectionLookup = null;
-            //                slotLookup = null;
+                                        cmndLocMapTypeUpdate.ExecuteNonQuery();
+                                    }
+                                }
+                                else
+                                {
+                                    cmndLocMapType.CommandText = "INSERT INTO tProductLocationMapType (ProductRefno, WarehouseLocationMapRefno, ProductLocationMapTypeEnum, LocationMapRefno) VALUES (@productRefno, @warehouseLocationMapRefno, @productLocationMapTypeEnum, @locationMapRefno)";
+                                    cmndLocMapType.CommandType = CommandType.Text;
+                                    cmndLocMapType.Parameters.Add(new SQLiteParameter("@productRefno", prodRefno));
+                                    cmndLocMapType.Parameters.Add(new SQLiteParameter("@warehouseLocationMapRefno", whsLocMapRefno));
+                                    cmndLocMapType.Parameters.Add(new SQLiteParameter("@productLocationMapTypeEnum", prodLocMapType));
+                                    cmndLocMapType.Parameters.Add(new SQLiteParameter("@locationMapRefno", locMapRefno));
 
-            //                drSlot.Close();
-            //                drSect.Close();
-            //                drWhs.Close();
-            //                drProd.Close();
-            //                drLocMapType.Close();
-            //            }
-            //        }
+                                    cmndLocMapType.ExecuteNonQuery();
 
-            //        transaction.Commit();
+                                    //rec.SetInt32(Convert.ToInt32(SysCommon.ProdLocMapTypeFields.ProdRefno), prodRefno);
+                                    //rec.SetInt32(Convert.ToInt32(SysCommon.ProdLocMapTypeFields.WhsLocMapRefno), whsLocMapRefno);
+                                    //rec.SetInt32(Convert.ToInt32(SysCommon.ProdLocMapTypeFields.EnumType), prodLocMapType);
+                                    //rec.SetInt32(Convert.ToInt32(SysCommon.ProdLocMapTypeFields.LocMapRefno), locMapRefno);
 
-            //        // TODO: Resource Strings
-            //        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product locations complete.", false);
-            //    }
-            //    catch (SQLiteException ex)
-            //    {
-            //        transaction.Rollback();
+                                    //rs.Insert(rec);
+                                }
 
-            //        // TODO: Resource Strings
-            //        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
-            //        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product locations failed.", false);
+                                ++recordCount;
+                                if (recordCount % 100 == 0)
+                                {
+                                    this.DataAccessProgressOutHandler(this, EventArgs.Empty, (recordCount / 10) % 100, 0, 100);
+                                }
+                            } // end of data
 
-            //        //// Duplicate key violations
-            //        //if (ex.NativeError == 25016)
-            //        //{
-            //        //    // TODO: Resource Strings
-            //        //    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Uniqueness violation.", false);
-            //        //    throw new Exception("Uniqueness violation." + Environment.NewLine + errMsg, ex);
-            //        //}
+                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, 100, 0, 100);
 
-            //        // TODO: Resource Strings
-            //        throw new Exception("Database exception occurred. Saving product locations failed." + Environment.NewLine + errMsg, ex);
-            //    }
-            //}
+                            // TODO: Resource Strings
+                            this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", recordCount), false);
+
+                            warehouseLookup.Clear();
+                            sectionLookup.Clear();
+                            slotLookup.Clear();
+
+                            warehouseLookup = null;
+                            sectionLookup = null;
+                            slotLookup = null;
+
+                            //drSlot.Close();
+                            //drSect.Close();
+                            //drWhs.Close();
+                            //drProd.Close();
+                            //drLocMapType.Close();
+                    }
+
+                    transaction.Commit();
+
+                    // TODO: Resource Strings
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product locations complete.", false);
+                }
+                catch (SQLiteException ex)
+                {
+                    transaction.Rollback();
+                    transaction.Dispose();
+
+                    // TODO: Resource Strings
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product locations failed.", false);
+
+                    //// Duplicate key violations
+                    //if (ex.NativeError == 25016)
+                    //{
+                    //    // TODO: Resource Strings
+                    //    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Uniqueness violation.", false);
+                    //    throw new Exception("Uniqueness violation." + Environment.NewLine + errMsg, ex);
+                    //}
+
+                    // TODO: Resource Strings
+                    throw new Exception("Database exception occurred. Saving product locations failed." + Environment.NewLine + errMsg, ex);
+                }
+            }
         }
 
 

@@ -169,280 +169,283 @@ namespace dMobile.GroundWork
       return rowsAffected;
     }
 
-    #endregion
+        #endregion
 
-    #region Private Members
+        #region Private Members
 
-    /// <summary>
-    ///
-    /// </summary>
-    /// <param name="reqData"></param>
-    /// <remarks></remarks>
-    protected override void Save(string reqData)
-    {
-//      SQLiteConnection conn = DatabaseConnection.GetInstance().SQLConn;
-//      string errMsg = string.Empty;
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="reqData"></param>
+        /// <remarks></remarks>
+        protected override void Save(string reqData)
+        {
+            SQLiteConnection conn = DatabaseConnection.GetInstance().SQLConn;
+            string errMsg = string.Empty;
 
-//      try
-//      {
-//        using (DataSet ds = new DataSet())
-//        {
-//#if MULTILANGUAGE
-//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.ReadingReceivedData), false);
-//#else
-//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
-//#endif
-//          ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
+            using (SQLiteCommand cmndAdj = conn.CreateCommand())
+            using (SQLiteCommand cmndAct = conn.CreateCommand())
+            using (SQLiteCommand cmndID = conn.CreateCommand())
+            using (SQLiteCommand cmndWhs = conn.CreateCommand())
+            using (SQLiteTransaction transaction = conn.BeginTransaction())
+            {
+                try
+                {
+                    using (DataSet ds = new DataSet())
+                    {
+                        // TODO: Resource Strings
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
-//#if MULTILANGUAGE
-//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingAdjustments), false);
-//#else
-//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving adjustments.", false);
-//#endif
+                        ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
 
-//          // Receiving schema but no data results in no table being created in the dataset.
-//          if (ds.Tables.Count != 0)
-//          {
-//            int progMax = Convert.ToInt32(ds.Tables["tActivityAdjustment"].Rows.Count);
+                        // TODO: Resource Strings
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving adjustments.", false);
 
-//#if MULTILANGUAGE
-//            this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.Recordsz), progMax), false);
-//#else
-//            this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
-//#endif
+                        // Receiving schema but no data results in no table being created in the dataset.
+                        if (ds.Tables.Count != 0)
+                        {
+                            int progMax = Convert.ToInt32(ds.Tables["tActivityAdjustment"].Rows.Count);
 
-//            using (SQLiteCommand cmndAdj = conn.CreateCommand())
-//            {
-//              cmndAdj.CommandText = "tActivityAdjustment";
-//              cmndAdj.CommandType = CommandType.TableDirect;
-//              cmndAdj.IndexName = "UQ_ActivityAdjustmentOnActivityAdjustmentFKRefno";
+                            // TODO: Resource Strings
+                            this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
 
-//              using (SQLiteCommand cmndAct = conn.CreateCommand())
-//              {
-//                cmndAct.CommandText = "tActivity";
-//                cmndAct.CommandType = CommandType.TableDirect;
+                            cmndAct.CommandText = "INSERT INTO tActivity (ActivityStatus, ActivitySubType) VALUES (@activityStatus, @activitySubType)";
+                            cmndAct.CommandType = CommandType.Text;
 
-//                using (SqlCeResultSet rsAct = cmndAct.ExecuteResultSet(ResultSetOptions.Updatable))
-//                {
-//                  SqlCeUpdatableRecord recAct = rsAct.CreateRecord();
+                            cmndAdj.CommandText = "INSERT INTO tActivityAdjustment (ActivityRefno, " +
+                                "ActivitySubType, " +
+                                "ActivityAdjustmentFKRefno, " +
+                                "ActivityAdjustmentStringFKRefno, " +
+                                "ActivityAdjustmentType, " +
+                                "WarehouseLocationMapRefno, " +
+                                "ActivityAdjustmentDateTime, " +
+                                "ActivityAdjustmentDescription, " +
+                                "ActivityAdjustmentTypeDescription) " +
+                                "VALUES " +
+                                "(@activityRefno, " +
+                                "@activitySubType, " +
+                                "@activityAdjustmentFKRefno, " +
+                                "@activityAdjustmentStringFKRefno, " +
+                                "@activityAdjustmentType, " +
+                                "@warehouseLocationMapRefno, " +
+                                "@activityAdjustmentDateTime, " +
+                                "@activityAdjustmentDescription, " +
+                                "@activityAdjustmentTypeDescription)";
+                            cmndAdj.CommandType = CommandType.Text;
+                            //cmndAdj.IndexName = "UQ_ActivityAdjustmentOnActivityAdjustmentFKRefno";
 
-//                  using (SQLiteCommand cmndID = conn.CreateCommand())
-//                  {
-//                    cmndID.CommandText = "SELECT @@IDENTITY";
-//                    cmndID.CommandType = CommandType.Text;
+                            //using (SqlCeResultSet rsAct = cmndAct.ExecuteResultSet(ResultSetOptions.Updatable))
+                            //{
+                            //SqlCeUpdatableRecord recAct = rsAct.CreateRecord();
 
-//                    using (SQLiteCommand cmndWhs = conn.CreateCommand())
-//                    {
-//                      cmndWhs.CommandText = "tLocationMapWarehouse";
-//                      cmndWhs.IndexName = "UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno";
-//                      cmndWhs.CommandType = CommandType.TableDirect;
+                            cmndID.CommandText = "SELECT last_insert_rowid() FROM tActivity";
+                            cmndID.CommandType = CommandType.Text;
 
-//                      using (SQLiteDataReader drWhs = cmndWhs.ExecuteReader())
-//                      {
-//                        using (SqlCeResultSet rs = cmndAdj.ExecuteResultSet(ResultSetOptions.Updatable))
-//                        {
-//                          SqlCeUpdatableRecord rec = rs.CreateRecord();
-//                          int actRefno = 0;
-//                          int progValue = 0;
-//                          int whsLocMapRefno = 0;
-//                          string actAdjTypeDesc = string.Empty;
-//                          int adjFKRefno = 0;
+                            cmndWhs.CommandText = "SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = @locationMapWarehouseFKRefno";
+                            cmndWhs.CommandType = CommandType.Text;
+                            //cmndWhs.IndexName = "UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno";
 
-//                          this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
+                                //using (SqlCeResultSet rs = cmndAdj.ExecuteResultSet(ResultSetOptions.Updatable))
+                                //{
+                                //    SqlCeUpdatableRecord rec = rs.CreateRecord();
+                                int actRefno = 0;
+                                int progValue = 0;
+                                int whsLocMapRefno = 0;
+                                string actAdjTypeDesc = string.Empty;
+                                int adjFKRefno = 0;
 
-//                          foreach (DataRow drow in ds.Tables["tActivityAdjustment"].Rows)
-//                          {
-//#if MULTILANGUAGE
-//                            errMsg = Translator.GetInstance().Translate(TranslatorVocabulary.Arguments);
-//#else
-//                            errMsg = "Arguments:";
-//#endif
+                                this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
 
-//                            recAct.SetInt32((int)SysCommon.ActFields.SubType, (int)SysCommon.ActSubTypes.Adjustment);
-//                            recAct.SetInt32((int)SysCommon.ActFields.Status, 0);
+                                foreach (DataRow drow in ds.Tables["tActivityAdjustment"].Rows)
+                                {
+                                    cmndWhs.Parameters.Add(new SQLiteParameter("@locationMapWarehouseFKRefno", Convert.ToInt32(drow["LocationMapWarehouseFKRefno"])));
 
-//                            rsAct.Insert(recAct);
+                                    using (SQLiteDataReader drWhs = cmndWhs.ExecuteReader())
+                                    {
+                                        if (drWhs.Read())
+                                        {
+                                            whsLocMapRefno = drWhs.GetInt32((int)SysCommon.LocMapWhsFields.LocMapRefno);
+                                        }
+                                        else
+                                        {
+                                            // TODO: Resource String
+                                            throw new Exception("drWhs.Read() failed." + Environment.NewLine + errMsg);
+                                        }
+                                    }
 
-//                            actRefno = Convert.ToInt32(cmndID.ExecuteScalar());
+                                    // TODO: Resource Strings
+                                    errMsg = "Arguments:";
 
-//                            rec.SetInt32((int)SysCommon.ActAdjFields.ActRefno, actRefno);
+                                    cmndAct.Parameters.Add(new SQLiteParameter("@activityStatus", Convert.ToInt32(0)));
+                                    cmndAct.Parameters.Add(new SQLiteParameter("@activitySubType", Convert.ToInt32(SysCommon.ActSubTypes.Adjustment)));
+                                    cmndAct.ExecuteNonQuery();
 
-//                            rec.SetInt32(
-//                                (int)SysCommon.ActAdjFields.ActSubType,
-//                                Convert.ToInt32(SysCommon.ActSubTypes.Adjustment));
+                                    //recAct.SetInt32((int)SysCommon.ActFields.SubType, (int)SysCommon.ActSubTypes.Adjustment);
+                                    //recAct.SetInt32((int)SysCommon.ActFields.Status, 0);
+                                    //rsAct.Insert(recAct);
 
-//                            adjFKRefno = Convert.ToInt32(drow["ActivityAdjustmentFKRefno"]);
-//                            errMsg += Environment.NewLine + "FK refno " + adjFKRefno;
-//                            rec.SetInt32((int)SysCommon.ActAdjFields.FKRefno, adjFKRefno);
-//                            rec.SetString((int)SysCommon.ActAdjFields.StringFKRefno, adjFKRefno.ToString());
+                                    switch (Convert.ToInt32(drow["ActivityAdjustmentType"]))
+                                    {
+                                        case (int)SysCommon.AdjTypes.Inventory:
+                                            actAdjTypeDesc = "Inventory";
+                                            break;
 
-//                            whsLocMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, ref errMsg, drWhs);
-//                            rec.SetInt32((int)SysCommon.ActAdjFields.WhsLocMapRefno, whsLocMapRefno);
+                                        case (int)SysCommon.AdjTypes.UnitConversion:
+                                            actAdjTypeDesc = "Unit Converstion";
+                                            break;
 
-//                            DateTime dt = Convert.ToDateTime(drow["ActivityAdjustmentDateTime"]);
-//                            rec.SetDateTime(
-//                                (int)SysCommon.ActAdjFields.DateTime,
-//                                DateTime.Parse(dt.ToShortDateString()));
+                                        case (int)SysCommon.AdjTypes.Rework:
+                                            actAdjTypeDesc = "Rework";
+                                            break;
 
-//                            rec.SetInt32(
-//                                (int)SysCommon.ActAdjFields.Type,
-//                                Convert.ToInt32(drow["ActivityAdjustmentType"]));
+                                        case (int)SysCommon.AdjTypes.PartialRework:
+                                            actAdjTypeDesc = "Partial Rework";
+                                            break;
 
-//                            switch (Convert.ToInt32(drow["ActivityAdjustmentType"]))
-//                            {
-//                              case (int)SysCommon.AdjTypes.Inventory:
-//                                actAdjTypeDesc = "Inventory";
-//                                break;
+                                        case (int)SysCommon.AdjTypes.Production:
+                                            actAdjTypeDesc = "Production";
+                                            break;
 
-//                              case (int)SysCommon.AdjTypes.UnitConversion:
-//                                actAdjTypeDesc = "Unit Converstion";
-//                                break;
+                                        case (int)SysCommon.AdjTypes.PartialProduction:
+                                            actAdjTypeDesc = "Partial Production";
+                                            break;
 
-//                              case (int)SysCommon.AdjTypes.Rework:
-//                                actAdjTypeDesc = "Rework";
-//                                break;
+                                        case (int)SysCommon.AdjTypes.Disposal:
+                                            actAdjTypeDesc = "Disposal";
+                                            break;
 
-//                              case (int)SysCommon.AdjTypes.PartialRework:
-//                                actAdjTypeDesc = "Partial Rework";
-//                                break;
+                                        case (int)SysCommon.AdjTypes.Fresh2Frozen:
+                                            actAdjTypeDesc = "Fresh To Frozen";
+                                            break;
 
-//                              case (int)SysCommon.AdjTypes.Production:
-//                                actAdjTypeDesc = "Production";
-//                                break;
+                                        case (int)SysCommon.AdjTypes.Transfer:
+                                            actAdjTypeDesc = "Transfer";
+                                            break;
 
-//                              case (int)SysCommon.AdjTypes.PartialProduction:
-//                                actAdjTypeDesc = "Partial Production";
-//                                break;
+                                        case (int)SysCommon.AdjTypes.PackOff:
+                                            actAdjTypeDesc = "Pack Off";
+                                            break;
 
-//                              case (int)SysCommon.AdjTypes.Disposal:
-//                                actAdjTypeDesc = "Disposal";
-//                                break;
+                                        case (int)SysCommon.AdjTypes.LostFound:
+                                            actAdjTypeDesc = "Lost And Found";
+                                            break;
 
-//                              case (int)SysCommon.AdjTypes.Fresh2Frozen:
-//                                actAdjTypeDesc = "Fresh To Frozen";
-//                                break;
+                                        case (int)SysCommon.AdjTypes.CycleCount:
+                                            actAdjTypeDesc = "Cycle Count";
+                                            break;
 
-//                              case (int)SysCommon.AdjTypes.Transfer:
-//                                actAdjTypeDesc = "Transfer";
-//                                break;
+                                        case (int)SysCommon.AdjTypes.MoveToDeli:
+                                            actAdjTypeDesc = "Move To Deli";
+                                            break;
 
-//                              case (int)SysCommon.AdjTypes.PackOff:
-//                                actAdjTypeDesc = "Pack Off";
-//                                break;
+                                        case (int)SysCommon.AdjTypes.PeriodicCount:
+                                            actAdjTypeDesc = "Periodic Count";
+                                            break;
 
-//                              case (int)SysCommon.AdjTypes.LostFound:
-//                                actAdjTypeDesc = "Lost And Found";
-//                                break;
+                                        case (int)SysCommon.AdjTypes.Manufacture:
+                                            actAdjTypeDesc = "Manufacture";
+                                            break;
 
-//                              case (int)SysCommon.AdjTypes.CycleCount:
-//                                actAdjTypeDesc = "Cycle Count";
-//                                break;
+                                        case (int)SysCommon.AdjTypes.Requisition:
+                                            actAdjTypeDesc = "Requisition";
+                                            break;
 
-//                              case (int)SysCommon.AdjTypes.MoveToDeli:
-//                                actAdjTypeDesc = "Move To Deli";
-//                                break;
+                                        case (int)SysCommon.AdjTypes.AutoConvertTo:
+                                            actAdjTypeDesc = "Auto Convert To";
+                                            break;
 
-//                              case (int)SysCommon.AdjTypes.PeriodicCount:
-//                                actAdjTypeDesc = "Periodic Count";
-//                                break;
+                                        case (int)SysCommon.AdjTypes.AutoCreateFrom:
+                                            actAdjTypeDesc = "Auto Create From";
+                                            break;
 
-//                              case (int)SysCommon.AdjTypes.Manufacture:
-//                                actAdjTypeDesc = "Manufacture";
-//                                break;
+                                        case (int)SysCommon.AdjTypes.Debox:
+                                            actAdjTypeDesc = "Debox";
+                                            break;
 
-//                              case (int)SysCommon.AdjTypes.Requisition:
-//                                actAdjTypeDesc = "Requisition";
-//                                break;
+                                        case (int)SysCommon.AdjTypes.ConvertSkid:
+                                            actAdjTypeDesc = "Convert Skid";
+                                            break;
+                                    }
 
-//                              case (int)SysCommon.AdjTypes.AutoConvertTo:
-//                                actAdjTypeDesc = "Auto Convert To";
-//                                break;
+                                    actRefno = Convert.ToInt32(cmndID.ExecuteScalar());
+                                    adjFKRefno = Convert.ToInt32(drow["ActivityAdjustmentFKRefno"]);
+                                    //whsLocMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, ref errMsg, drWhs);
+                                    DateTime dt = Convert.ToDateTime(drow["ActivityAdjustmentDateTime"]);
 
-//                              case (int)SysCommon.AdjTypes.AutoCreateFrom:
-//                                actAdjTypeDesc = "Auto Create From";
-//                                break;
+                                    cmndAdj.Parameters.Add(new SQLiteParameter("@activityRefno", actRefno));
+                                    cmndAdj.Parameters.Add(new SQLiteParameter("@activitySubType", Convert.ToInt32(SysCommon.ActSubTypes.Adjustment)));
 
-//                              case (int)SysCommon.AdjTypes.Debox:
-//                                actAdjTypeDesc = "Debox";
-//                                break;
+                                    // TODO: Resource Strings
+                                    errMsg += Environment.NewLine + "FK refno " + adjFKRefno;
 
-//                              case (int)SysCommon.AdjTypes.ConvertSkid:
-//                                actAdjTypeDesc = "Convert Skid";
-//                                break;
-//                            }
+                                    cmndAdj.Parameters.Add(new SQLiteParameter("@activityAdjustmentFKRefno", adjFKRefno));
+                                    cmndAdj.Parameters.Add(new SQLiteParameter("@activityAdjustmentStringFKRefno", adjFKRefno.ToString()));
+                                    cmndAdj.Parameters.Add(new SQLiteParameter("@activityAdjustmentType", Convert.ToInt32(drow["ActivityAdjustmentType"])));
+                                    
+                                    // TODO: Resource Strings
+                                    errMsg += Environment.NewLine + "Adj type \'" + actAdjTypeDesc + "\'";
 
-//#if MULTILANGUAGE
-//                            errMsg += Environment.NewLine + Translator.GetInstance().Translate(TranslatorVocabulary.AdjType) + actAdjTypeDesc + "\'";
-//#else
-//                            errMsg += Environment.NewLine + "Adj type \'" + actAdjTypeDesc + "\'";
-//#endif
-//                            rec.SetString(
-//                                (int)SysCommon.ActAdjFields.TypeDescription,
-//                                actAdjTypeDesc);
+                                    cmndAdj.Parameters.Add(new SQLiteParameter("@warehouseLocationMapRefno", whsLocMapRefno));
+                                    cmndAdj.Parameters.Add(new SQLiteParameter("@activityAdjustmentDateTime", DateTime.Parse(dt.ToShortDateString())));
+                                    cmndAdj.Parameters.Add(new SQLiteParameter("@activityAdjustmentDescription", actAdjTypeDesc));
+                                    cmndAdj.Parameters.Add(new SQLiteParameter("@activityAdjustmentTypeDescription", drow["ActivityAdjustmentDescription"].ToString()));
 
-//                            rec.SetString(
-//                                (int)SysCommon.ActAdjFields.Description,
-//                                drow["ActivityAdjustmentDescription"].ToString());
+                                    cmndAdj.ExecuteNonQuery();
 
-//                            rs.Insert(rec);
+                                    //rec.SetInt32((int)SysCommon.ActAdjFields.ActRefno, actRefno);
+                                    //rec.SetInt32((int)SysCommon.ActAdjFields.ActSubType, Convert.ToInt32(SysCommon.ActSubTypes.Adjustment));
+                                    //rec.SetInt32((int)SysCommon.ActAdjFields.FKRefno, adjFKRefno);
+                                    //rec.SetString((int)SysCommon.ActAdjFields.StringFKRefno, adjFKRefno.ToString());
 
-//                            progValue++;
-//                            if (progValue % 10 == 0)
-//                            {
-//                              this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
-//                            }
-//                          }
+                                    //rec.SetInt32((int)SysCommon.ActAdjFields.WhsLocMapRefno, whsLocMapRefno);
 
-//                          this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
-//                        }
 
-//                        drWhs.Close();
-//                      }
-//                    }
-//                  }
-//                }
-//              }
-//            }
-//          }
+                                    //rec.SetDateTime((int)SysCommon.ActAdjFields.DateTime, DateTime.Parse(dt.ToShortDateString()));
+                                    //rec.SetInt32((int)SysCommon.ActAdjFields.Type, Convert.ToInt32(drow["ActivityAdjustmentType"]));
 
-//#if MULTILANGUAGE
-//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingAdjustmentsComplete), true);
-//#else
-//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving adjustments complete.", true);
-//#endif
-//        }
-//      }
-//      catch (SQLiteException ex)
-//      {
-//#if MULTILANGUAGE
-//        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), true);
-//        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingAdjustmentsFailed), true);
-//#else
-//        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-//        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving adjustments failed.", true);
-//#endif
+                                    //rec.SetString((int)SysCommon.ActAdjFields.TypeDescription, actAdjTypeDesc);
+                                    //rec.SetString((int)SysCommon.ActAdjFields.Description, drow["ActivityAdjustmentDescription"].ToString());
+                                    //rs.Insert(rec);
 
-//        // Duplicate key violations
-//        if (ex.NativeError == 25016)
-//        {
-//#if MULTILANGUAGE
-//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.UniquenessViolation), false);
-//          throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.UniquenessViolation) + Environment.NewLine + errMsg, ex);
-//#else
-//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Uniqueness violation.", false);
-//          throw new Exception("Uniqueness violation." + Environment.NewLine + errMsg, ex);
-//#endif
-//        }
+                                    progValue++;
+                                    if (progValue % 10 == 0)
+                                    {
+                                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
+                                    }
+                                }
 
-//        throw new Exception(
-//#if MULTILANGUAGE
-//            Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredSavingAdjustmentsFailed) + Environment.NewLine + errMsg,
-//#else
-//            "Database exception occurred. Saving adjustments failed." + Environment.NewLine + errMsg,
-//#endif
-//            ex);
-//      }
-    }
+                                transaction.Commit();
+                                this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
+                            }
+                        }
+                    //}
+
+
+                    // TODO: Resource Strings
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving adjustments complete.", true);
+                }
+                catch (SQLiteException ex)
+                {
+                    transaction.Rollback();
+                    transaction.Dispose();
+
+                    // TODO: Resource Strings
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving adjustments failed.", true);
+
+                    //// Duplicate key violations
+                    //if (ex.NativeError == 25016)
+                    //{
+                    //    // TODO: Resource Strings
+                    //    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Uniqueness violation.", false);
+                    //    throw new Exception("Uniqueness violation." + Environment.NewLine + errMsg, ex);
+                    //}
+
+                    // TODO: Resource Strings
+                    throw new Exception("Database exception occurred. Saving adjustments failed." + Environment.NewLine + errMsg, ex);
+                }
+            }
+        }
 
     /// <summary>
     ///

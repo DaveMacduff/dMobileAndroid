@@ -625,7 +625,7 @@ namespace dMobile.View
                 FormErrorReport errReport = new FormErrorReport(SysCommon.ActSubTypes.LoginStartup, ex);
                 Device.BeginInvokeOnMainThread(async () => await errReport.ShowDialog().ContinueWith(result =>
                 {
-                        Application.Current.Quit();
+                        Android.OS.Process.KillProcess(Android.OS.Process.MyPid());
                 }));
 
                 saveComplete = false;
@@ -657,7 +657,7 @@ namespace dMobile.View
                 FormErrorReport errReport = new FormErrorReport(SysCommon.ActSubTypes.LoginStartup, ex);
                 errReport.ShowDialog().ContinueWith(result =>
                 {
-                    Application.Current.Quit();
+                    Android.OS.Process.KillProcess(Android.OS.Process.MyPid());
                 });
             }
 
@@ -795,8 +795,8 @@ namespace dMobile.View
             
             this.lstWarehouse.ItemsSource = dataViewLocMapWhs;
             this.lstWarehouse.ItemDisplayBinding = new Binding("DisplayName");
-            this.lstWarehouse.SelectedIndex = this.SysEnv.ContactLog.WarehouseLocationMapRefno;
-            Warehouse selectedWarehouse = (Warehouse)this.lstWarehouse.SelectedItem;
+            Warehouse selectedWarehouse = dataViewLocMapWhs.Where(warehouse => warehouse.Id == this.SysEnv.ContactLog.WarehouseLocationMapRefno).FirstOrDefault();
+            this.lstWarehouse.SelectedIndex = this.lstWarehouse.ItemsSource.IndexOf(selectedWarehouse);
             this.lstWarehouse.SelectedValue = selectedWarehouse.Id;
         }
 
@@ -894,8 +894,8 @@ namespace dMobile.View
 
                 }
 
-                if (sender == this.txtLoginID)
-                {
+                //if (sender == this.txtLoginID)
+                //{
                     if (true == string.IsNullOrEmpty(txtLoginID.Text))
                     {
                         this.txtLoginPassword.Text = string.Empty;
@@ -909,10 +909,10 @@ namespace dMobile.View
                     {
                         throw new Exceptions.MessageOnlyException(Resource.InvalidLoginId + " " + this.txtLoginID.Text);
                     }
-                }
+                //}
 
-                if (sender == this.txtLoginPassword)
-                {
+                //if (sender == this.txtLoginPassword)
+                //{
                     // Override the contact login password with the system one if bypass licenses is enabled.
                     if (this.IsEnableAllModuleBypassLicense)
                     {
@@ -932,10 +932,10 @@ namespace dMobile.View
                     {
                         throw new Exceptions.MessageOnlyException(Resource.InvalidLoginPassword);
                     }
-                }
+                //}
 
-                if (sender == this.lstWarehouse)
-                {
+                //if (sender == this.lstWarehouse)
+                //{
                     if (this.lstWarehouse.Items.Count > 0)
                     {
                         this.SysEnv.ContactLog.WarehouseLocationMapRefno = Convert.ToInt32(this.lstWarehouse.SelectedValue);
@@ -951,7 +951,7 @@ namespace dMobile.View
 
                     LocationMap locMap = LocationMap.GetInstance();
                     locMap.LoginWhsLocMapRefno = this.SysEnv.ContactLog.WarehouseLocationMapRefno;
-                }
+                //}
 
                 if (e.Cancel == false)
                 {
@@ -970,7 +970,7 @@ namespace dMobile.View
                 FormErrorReport errReport = new FormErrorReport(ex);
                 errReport.ShowDialog().ContinueWith(result =>
                 {
-                    Application.Current.Quit();
+                    Android.OS.Process.KillProcess(Android.OS.Process.MyPid());
                 });
             }
             catch (Exception ex)
@@ -1073,6 +1073,12 @@ namespace dMobile.View
         public string GetControlDescription()
         {
             throw new NotImplementedException();
+        }
+
+        private void LstWarehouse_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            Warehouse selectedWarehouse = (Warehouse)this.lstWarehouse.SelectedItem;
+            this.lstWarehouse.SelectedValue = selectedWarehouse.Id;
         }
     }
 }

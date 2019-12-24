@@ -506,7 +506,7 @@ namespace dMobile.Bedrock
     /// </summary>
     public SysBarCodeSettings()
     {
-      this.FilePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase) + "\\";
+      this.FilePath = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
       this.FileASCIIZ = Path.Combine(this.FilePath, this.FileName);
     }
 
