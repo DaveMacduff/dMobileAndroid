@@ -43,10 +43,9 @@ namespace dMobile.GroundWork
                 {
                     using (SQLiteCommand cmndCount = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
                     {
+                        cmndCount.CommandText = "SELECT tActivity.ActivityRefno FROM tActivity WHERE tActivity.ActivitySubType = @activitySubType";
                         cmndCount.CommandType = CommandType.Text;
-                        cmndCount.CommandText = "SELECT tActivity.ActivityRefno "
-                            + "FROM tActivity "
-                            + "WHERE tActivity.ActivitySubType = " + (int)SysCommon.ActSubTypes.PhysicalCounts;
+                        cmndCount.Parameters.Add(new SQLiteParameter("@activitySubType", Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts)));
 
                         using (SQLiteDataReader drActivityCount = cmndCount.ExecuteReader())
                         {
@@ -54,6 +53,7 @@ namespace dMobile.GroundWork
                             {
                                 actRefno = Convert.ToInt32(drActivityCount["ActivityRefno"]);
                                 reqData = this.Send(actRefno);
+
                                 if (0 < reqData.Length)
                                 {
                                     if (reqData.Contains("<message>ERROR</message>"))
@@ -74,6 +74,7 @@ namespace dMobile.GroundWork
                 else
                 {
                     reqData = this.Send(actRefno);
+
                     if (0 < reqData.Length)
                     {
                         if (reqData.Contains("<message>ERROR</message>"))
@@ -87,41 +88,25 @@ namespace dMobile.GroundWork
                     }
                 }
 
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SeedingPhysicalCountItemsComplete), true);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding physical count items complete.", true);
-#endif
             }
             catch (SQLiteException ex)
             {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), false);
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SeedingPhysicalCountItemsFailed), false);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding physical count items failed.", false);
-#endif
 
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredSeedingPhysicalCountItemsFailed), ex);
-#else
+                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Seeding physical count items failed.", ex);
-#endif
             }
             catch (Exception ex)
             {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SeedingPhysicalCountItemsFailed), false);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding physical count items failed.", false);
-#endif
 
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.SeedingPhysicalCountItemsFailed), ex);
-#else
+                // TODO: Resource strings
                 throw new Exception("Seeding physical count items failed.", ex);
-#endif
             }
         }
 
@@ -137,31 +122,20 @@ namespace dMobile.GroundWork
             {
                 using (SQLiteCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
                 {
-                    cmndStatus.CommandText = "SELECT COUNT(tActivityItem.ActivityItemRefno) "
-                        + "FROM tActivityItem "
-                        + "WHERE tActivityItem.ActivityItemSubType = " + (int)SysCommon.ActSubTypes.PhysicalCounts;
+                    cmndStatus.CommandText = "SELECT COUNT(tActivityItem.ActivityItemRefno) FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = @activityItemSubType";
                     cmndStatus.CommandType = CommandType.Text;
+                    cmndStatus.Parameters.Add(new SQLiteParameter("@activityItemSubType", Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts)));
 
                     rowsAffected = Convert.ToInt32(cmndStatus.ExecuteScalar());
 
-                    this.DataAccessStatusOutHandler(
-                        this,
-                        EventArgs.Empty,
-#if MULTILANGUAGE
-              string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.PhysicalCountItems), rowsAffected), 
-#else
-              string.Format("{0} physical count items.", rowsAffected),
-#endif
-              true);
+                    // TODO: Resource strings
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} physical count items.", rowsAffected), true);
                 }
             }
             catch (SQLiteException ex)
             {
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredPhysicalCountItemsStatusFailed), ex);
-#else
+                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Physical count items status failed.", ex);
-#endif
             }
 
             return rowsAffected;
@@ -174,54 +148,39 @@ namespace dMobile.GroundWork
         {
             try
             {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingPhysicalCountItems), true);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging physical count items.", true);
-#endif
 
                 using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
                 {
+                    cmndPurge.CommandType = CommandType.Text;
+                    cmndPurge.Parameters.Add(new SQLiteParameter("@activityItemSubType", Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts)));
+
                     cmndPurge.CommandText = "DELETE FROM tActivityItemBarCodeAssociationXRef "
                         + "WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno IN "
                         + "(SELECT tActivityItem.ActivityItemRefno "
                         + "FROM tActivityItem "
-                        + "WHERE tActivityItem.ActivityItemSubType = " + (int)SysCommon.ActSubTypes.PhysicalCounts + ")";
-                    cmndPurge.CommandType = CommandType.Text;
+                        + "WHERE tActivityItem.ActivityItemSubType = @activityItemSubType)";
                     cmndPurge.ExecuteNonQuery();
 
-                    cmndPurge.CommandText = "DELETE FROM tActivityItemCount "
-                        + "WHERE tActivityItemCount.ActivityItemSubType = " + (int)SysCommon.ActSubTypes.PhysicalCounts;
-                    cmndPurge.CommandType = CommandType.Text;
+                    cmndPurge.CommandText = "DELETE FROM tActivityItemCount WHERE tActivityItemCount.ActivityItemSubType = @activityItemSubType";
                     cmndPurge.ExecuteNonQuery();
 
-                    cmndPurge.CommandText = "DELETE FROM tActivityItem "
-                        + "WHERE tActivityItem.ActivityItemSubType = " + (int)SysCommon.ActSubTypes.PhysicalCounts;
-                    cmndPurge.CommandType = CommandType.Text;
+                    cmndPurge.CommandText = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = @activityItemSubType";
                     cmndPurge.ExecuteNonQuery();
                 }
 
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingPhysicalCountItemsComplete), true);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging physical count items complete.", true);
-#endif
             }
             catch (SQLiteException ex)
             {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), true);
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingPhysicalCountItemsFailed), true);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging physical count items failed.", true);
-#endif
 
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredPurgingPhysicalCountItemsFailed), ex);
-#else
+                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Purging physical count items failed.", ex);
-#endif
             }
         }
 
@@ -703,29 +662,18 @@ namespace dMobile.GroundWork
                             //}
                             //}
                             //}
-                            //}
-
-                            transaction.Commit();
-
-                            // TODO: Resource strings
-                            this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Request physical count items complete.", false);
                         }
+
+                        transaction.Commit();
+
+                        // TODO: Resource strings
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Request physical count items complete.", false);
+                        //}
                     }
                 }
                 catch (SQLiteException ex)
                 {
                     transaction.Rollback();
-                    transaction.Dispose();
-
-                    cmndCountItem.Dispose();
-                    cmndActItem.Dispose();
-                    cmndProdUnit.Dispose();
-                    cmndProd.Dispose();
-                    cmndUnit.Dispose();
-                    cmndLocMapSlot.Dispose();
-                    cmndLocMapSect.Dispose();
-                    cmndLocMapWhs.Dispose();
-                    cmndID.Dispose();
 
                     // TODO: Resource strings
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);

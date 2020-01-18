@@ -46,7 +46,6 @@ namespace dMobile.GroundWork
 
                         while (drFamily.Read())
                         {
-                            // TODO: Uncomment CG calls
                             //GC.Collect();
                             //GC.WaitForPendingFinalizers();
 
@@ -114,11 +113,8 @@ namespace dMobile.GroundWork
         {
             try
             {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingProductUomRelations), true);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product uom relations.", true);
-#endif
 
                 using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
                 {
@@ -127,27 +123,17 @@ namespace dMobile.GroundWork
                     cmndPurge.ExecuteNonQuery();
                 }
 
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingProductUomRelationsComplete), true);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product uom relations complete.", true);
-#endif
             }
             catch (SQLiteException ex)
             {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), false);
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingProductUomRelationsFailed), true);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product uom relations failed.", true);
-#endif
 
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredPurgingProductUomRelationsFailed), ex);
-#else
+                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Purging product uom relations failed.", ex);
-#endif
             }
         }
 
@@ -168,24 +154,14 @@ namespace dMobile.GroundWork
 
                     rowsAffected = Convert.ToInt32(cmndStatus.ExecuteScalar());
 
-                    this.DataAccessStatusOutHandler(
-                        this,
-                        EventArgs.Empty,
-#if MULTILANGUAGE
-              string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.ProductUnitRelations), rowsAffected),
-#else
- string.Format("{0} product unit relations.", rowsAffected),
-#endif
- false);
+                    // TODO: Resource strings
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} product unit relations.", rowsAffected), false);
                 }
             }
             catch (SQLiteException ex)
             {
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredProductUnitRelationsStatusFailed), ex);
-#else
+                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Product unit relations status failed.", ex);
-#endif
             }
 
             return rowsAffected;
@@ -219,34 +195,36 @@ namespace dMobile.GroundWork
             string errMsg = string.Empty;
             int recordCount = 0;
 
-            try
-            {
-                // TODO: Resource Strings
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
-                int startIndex = reqData.IndexOf("<VFPData");
-                XmlReaderSettings sett = new XmlReaderSettings();
-                sett.CheckCharacters = false;
-                sett.CloseInput = false;
-                sett.ConformanceLevel = ConformanceLevel.Auto;
-                sett.IgnoreComments = true;
-                sett.IgnoreProcessingInstructions = true;
-                sett.IgnoreWhitespace = false;
-                sett.ValidationFlags = System.Xml.Schema.XmlSchemaValidationFlags.None;
-                sett.ValidationType = ValidationType.None;
-                using (StringReader stringReader = new StringReader(reqData.Substring(startIndex)))
-                using (XmlReader reader = XmlReader.Create(stringReader, sett))
+            using (SQLiteCommand cmndProdUnitRel = conn.CreateCommand())
+            using (SQLiteCommand cmndProdUnitRelUpdate = conn.CreateCommand())
+            using (SQLiteCommand cmndProd = conn.CreateCommand())
+            using (SQLiteCommand cmndUnit = conn.CreateCommand())
+            using (SQLiteCommand cmndProdUnit = conn.CreateCommand())
+            using (SQLiteTransaction transaction = conn.BeginTransaction())
+            {
+                try
                 {
                     // TODO: Resource Strings
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product uom relations.", false);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
-                    using (SQLiteCommand cmndProdUnitRel = conn.CreateCommand())
-                    using (SQLiteCommand cmndProdUnitRelUpdate = conn.CreateCommand())
-                    using (SQLiteCommand cmndProd = conn.CreateCommand())
-                    using (SQLiteCommand cmndUnit = conn.CreateCommand())
-                    using (SQLiteCommand cmndProdUnit = conn.CreateCommand())
-                    using (SQLiteTransaction transaction = conn.BeginTransaction())
+                    int startIndex = reqData.IndexOf("<VFPData");
+                    XmlReaderSettings sett = new XmlReaderSettings();
+                    sett.CheckCharacters = false;
+                    sett.CloseInput = false;
+                    sett.ConformanceLevel = ConformanceLevel.Auto;
+                    sett.IgnoreComments = true;
+                    sett.IgnoreProcessingInstructions = true;
+                    sett.IgnoreWhitespace = false;
+                    sett.ValidationFlags = System.Xml.Schema.XmlSchemaValidationFlags.None;
+                    sett.ValidationType = ValidationType.None;
+
+                    using (StringReader stringReader = new StringReader(reqData.Substring(startIndex)))
+                    using (XmlReader reader = XmlReader.Create(stringReader, sett))
                     {
+                        // TODO: Resource Strings
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product uom relations.", false);
+
                         //cmndProdUnitRel.CommandText = "tProductUnitRelation";
                         //cmndProdUnitRel.CommandType = CommandType.TableDirect;
                         //cmndProdUnitRel.IndexName = "PK_ProductUnitRelationOnProductUnit1RefnoAndProductUnit2Refno";
@@ -585,30 +563,33 @@ namespace dMobile.GroundWork
                         //drProd.Close();
                         //drProdUnitRel.Close();
                         //}
+                        //}
 
                         transaction.Commit();
+
+                        // TODO: Resource Strings
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product uom relations complete.", false);
                     }
+                }
+                catch (SQLiteException ex)
+                {
+                    transaction.Rollback();
 
                     // TODO: Resource Strings
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product uom relations complete.", false);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product uom relations failed.", false);
+
+                    //// Duplicate key violations
+                    //if (ex.NativeError == 25016)
+                    //{
+                    //    // TODO: Resource Strings
+                    //    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Uniqueness violation.", false);
+                    //    throw new Exception("Uniqueness violation." + Environment.NewLine + errMsg, ex);
+                    //}
+
+                    // TODO: Resource Strings
+                    throw new Exception("Database exception occurred. Saving product uom relations failed." + errMsg, ex);
                 }
-            }
-            catch (SQLiteException ex)
-            {
-                // TODO: Resource Strings
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product uom relations failed.", false);
-
-                //// Duplicate key violations
-                //if (ex.NativeError == 25016)
-                //{
-                //    // TODO: Resource Strings
-                //    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Uniqueness violation.", false);
-                //    throw new Exception("Uniqueness violation." + Environment.NewLine + errMsg, ex);
-                //}
-
-                // TODO: Resource Strings
-                throw new Exception("Database exception occurred. Saving product uom relations failed." + errMsg, ex);
             }
         }
 

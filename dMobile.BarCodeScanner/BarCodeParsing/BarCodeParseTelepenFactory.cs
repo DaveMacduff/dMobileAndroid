@@ -1,10 +1,10 @@
 ﻿namespace dMobile.BarCodeScanner
 {
-  class BarCodeParseTelepenFactory : BarCodeParseFactory
-  {
-    public override BarCodeParse GetBarCodeParse()
+    class BarCodeParseTelepenFactory : BarCodeParseFactory
     {
-      return new BarCodeParseTelepen();
+        public override BarCodeParse GetBarCodeParse()
+        {
+            return new BarCodeParseTelepen();
+        }
     }
-  }
 }

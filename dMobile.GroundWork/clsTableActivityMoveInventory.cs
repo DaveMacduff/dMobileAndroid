@@ -1,75 +1,61 @@
 namespace dMobile.GroundWork
 {
-  using System;
-  using System.Data;
-  using System.Data.SQLite;
-  using dMobile.Bedrock;
+    using System;
+    using System.Data;
+    using System.Data.SQLite;
+    using dMobile.Bedrock;
 
-  public class TableActivityMoveInventory : TableBase
-  {
-    #region Constructors
-
-    public TableActivityMoveInventory()
-      : base()
+    public class TableActivityMoveInventory : TableBase
     {
-      this.FullClassName = "dMobile.GroundWork.TableActivityMoveInventory";
-    }
+        #region Constructors
 
-    #endregion
-
-    #region Public Members
-
-    /// <summary>
-    ///
-    /// </summary>
-    /// <remarks></remarks>
-    public override void Purge()
-    {
-#if MULTILANGUAGE
-      this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingMoveInventory), true);
-#else
-      this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging move inventory.", true);
-#endif
-
-      try
-      {
-        using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        public TableActivityMoveInventory()
+          : base()
         {
-          cmndPurge.CommandText = "DELETE FROM tActivityMoveInventory " 
-              + "WHERE tActivityMoveInventory.ActivitySubType = " + (int)SysCommon.ActSubTypes.MoveInventory;
-          cmndPurge.CommandType = CommandType.Text;
-          cmndPurge.ExecuteNonQuery();
-
-          cmndPurge.CommandText = "DELETE FROM tActivity " 
-              + "WHERE tActivity.ActivitySubType = " + (int)SysCommon.ActSubTypes.MoveInventory;
-          cmndPurge.CommandType = CommandType.Text;
-          cmndPurge.ExecuteNonQuery();
+            this.FullClassName = "dMobile.GroundWork.TableActivityMoveInventory";
         }
 
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingMoveInventoryComplete), true);
-#else
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging move inventory complete.", true);
-#endif
-      }
-      catch (SQLiteException ex)
-      {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), true);
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingMoveInventoryFailed), true);
-#else
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging move inventory failed.", true);
-#endif
+        #endregion
 
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredPurgingMoveInventoryFailed), ex);
-#else
-        throw new Exception("Database exception occurred. Purging move inventory failed.", ex);
-#endif
-      }
+        #region Public Members
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <remarks></remarks>
+        public override void Purge()
+        {
+            // TODO: Resource strings
+            this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging move inventory.", true);
+
+            try
+            {
+                using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                {
+                    cmndPurge.CommandType = CommandType.Text;
+                    cmndPurge.Parameters.Add(new SQLiteParameter("@activitySubType", Convert.ToInt32(SysCommon.ActSubTypes.MoveInventory)));
+
+                    cmndPurge.CommandText = "DELETE FROM tActivityMoveInventory WHERE tActivityMoveInventory.ActivitySubType = @activitySubType";
+                    cmndPurge.ExecuteNonQuery();
+
+                    cmndPurge.CommandText = "DELETE FROM tActivity WHERE tActivity.ActivitySubType = @activitySubType";
+                    cmndPurge.ExecuteNonQuery();
+                }
+
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging move inventory complete.", true);
+            }
+            catch (SQLiteException ex)
+            {
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging move inventory failed.", true);
+
+                // TODO: Resource strings
+                throw new Exception("Database exception occurred. Purging move inventory failed.", ex);
+            }
+        }
+
+        #endregion
     }
-
-    #endregion
-  }
 }

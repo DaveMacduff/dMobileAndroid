@@ -29,20 +29,17 @@ namespace dMobile.GroundWork
         {
             try
             {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SeedingLocationMapTypes), true);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding location map types.", true);
-#endif
 
                 string reqData = string.Empty;
                 int whsLocMapRefno = 0;
 
-                // TODO: Uncomment GC calls
                 //GC.Collect();
                 //GC.WaitForPendingFinalizers();
 
                 reqData = this.Send(whsLocMapRefno);
+
                 if (0 < reqData.Length)
                 {
                     if (reqData.Contains("<message>ERROR</message>"))
@@ -55,25 +52,16 @@ namespace dMobile.GroundWork
                     this.Save(reqData);
                 }
 
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SeedingLocationMapTypesComplete), true);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding location map types complete.", true);
-#endif
             }
             catch (Exception ex)
             {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SeedingLocationMapTypesFailed), true);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding location map types failed.", true);
-#endif
 
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.SeedingLocationMapTypesFailed), ex);
-#else
+                // TODO: Resource strings
                 throw new Exception("Seeding location map types failed.", ex);
-#endif
             }
         }
 
@@ -84,11 +72,8 @@ namespace dMobile.GroundWork
         {
             try
             {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingLocationMapTypes), true);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging location map types.", true);
-#endif
 
                 using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
                 {
@@ -97,27 +82,17 @@ namespace dMobile.GroundWork
                     cmndPurge.ExecuteNonQuery();
                 }
 
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingLocationMapTypesComplete), true);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging location map types complete.", true);
-#endif
             }
             catch (SQLiteException ex)
             {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), true);
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingLocationMapTypesFailed), true);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging location map types failed.", true);
-#endif
 
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredPurgingLocationMapTypesFailed), ex);
-#else
+                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Purging location map types failed.", ex);
-#endif
             }
         }
 
@@ -138,24 +113,14 @@ namespace dMobile.GroundWork
 
                     rowsAffected = Convert.ToInt32(cmndStatus.ExecuteScalar());
 
-                    this.DataAccessStatusOutHandler(
-                        this,
-                        EventArgs.Empty,
-#if MULTILANGUAGE
-              string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.LocationMapTypes), rowsAffected), 
-#else
-              string.Format("{0} location map types.", rowsAffected),
-#endif
-              true);
+                    // TODO: Resource strings
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} location map types.", rowsAffected), true);
                 }
             }
             catch (SQLiteException ex)
             {
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredLocationMapTypesStatusFailed), ex);
-#else
+                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Location map types status failed.", ex);
-#endif
             }
 
             return rowsAffected;
@@ -180,31 +145,31 @@ namespace dMobile.GroundWork
             SQLiteConnection conn = DatabaseConnection.GetInstance().SQLConn;
             string errMsg = string.Empty;
 
-            try
+            using (SQLiteCommand cmndLocMapType = conn.CreateCommand())
+            using (SQLiteCommand cmndSect = conn.CreateCommand())
+            using (SQLiteCommand cmndSlot = conn.CreateCommand())
+            using (SQLiteCommand cmndWhs = conn.CreateCommand())
+            using (SQLiteTransaction transaction = conn.BeginTransaction())
             {
-                using (DataSet ds = new DataSet())
+                try
                 {
-                    // TODO: Resource Strings
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
-
-                    ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
-
-                    // TODO: Resource Strings
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving location map types.", false);
-
-                    if (ds.Tables.Count != 0)
+                    using (DataSet ds = new DataSet())
                     {
-                        int progMax = Convert.ToInt32(ds.Tables["seg"].Rows.Count);
+                        // TODO: Resource Strings
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
+
+                        ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
 
                         // TODO: Resource Strings
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving location map types.", false);
 
-                        using (SQLiteCommand cmndLocMapType = conn.CreateCommand())
-                        using (SQLiteCommand cmndSect = conn.CreateCommand())
-                        using (SQLiteCommand cmndSlot = conn.CreateCommand())
-                        using (SQLiteCommand cmndWhs = conn.CreateCommand())
-                        using (SQLiteTransaction transaction = conn.BeginTransaction())
+                        if (ds.Tables.Count != 0)
                         {
+                            int progMax = Convert.ToInt32(ds.Tables["seg"].Rows.Count);
+
+                            // TODO: Resource Strings
+                            this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
+
                             //cmndLocMapType.CommandText = "tLocationMapType";
                             //cmndLocMapType.CommandType = CommandType.Text;
                             //cmndLocMapType.IndexName = "PK_LocationMapTypeOnLocationMapRefnoAndLocationMapTypeEnum";
@@ -435,43 +400,47 @@ namespace dMobile.GroundWork
 
                             this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
 
-                            transaction.Commit();
+                            //}
+
+                            //drSlot.Close();
+                            //}
+                            //}
+
+                            //drSect.Close();
+
+                            //drWhs.Close();
+                            //}
+                            //}
+                            //drLocMapType.Close();
+                            //}
+                            //}
                         }
 
-                        //drSlot.Close();
-                        //}
-                        //}
+                        transaction.Commit();
 
-                        //drSect.Close();
-
-                        //drWhs.Close();
-                        //}
-                        //}
-                        //drLocMapType.Close();
-                        //}
-                        //}
+                        // TODO: Resource Strings
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving location map types complete.", false);
                     }
+                }
+                catch (SQLiteException ex)
+                {
+                    transaction.Rollback(); 
 
                     // TODO: Resource Strings
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving location map types complete.", false);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving location map types failed.", false);
+
+                    //// Duplicate key violations
+                    //if (ex.NativeError == 25016)
+                    //{
+                    //    // TODO: Resource Strings
+                    //    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Uniqueness violation.", false);
+                    //    throw new Exception("Uniqueness violation." + Environment.NewLine + errMsg, ex);
+                    //}
+
+                    // TODO: Resource Strings
+                    throw new Exception("Database exception occurred. Saving location map types failed." + Environment.NewLine + errMsg, ex);
                 }
-            }
-            catch (SQLiteException ex)
-            {
-                // TODO: Resource Strings
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving location map types failed.", false);
-
-                //// Duplicate key violations
-                //if (ex.NativeError == 25016)
-                //{
-                //    // TODO: Resource Strings
-                //    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Uniqueness violation.", false);
-                //    throw new Exception("Uniqueness violation." + Environment.NewLine + errMsg, ex);
-                //}
-
-                // TODO: Resource Strings
-                throw new Exception("Database exception occurred. Saving location map types failed." + Environment.NewLine + errMsg, ex);
             }
         }
 

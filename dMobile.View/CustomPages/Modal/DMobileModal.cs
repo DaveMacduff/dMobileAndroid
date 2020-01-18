@@ -80,11 +80,10 @@
         /// The ShowDialog
         /// </summary>
         /// <returns>The <see cref="Task{DialogResult}"/></returns>
-        public async Task<DialogResult> ShowDialog()
+        public virtual async Task<DialogResult> ShowDialog()
         {
             try
             {
-
                 if (Application.Current.MainPage is MasterDetailPage mainPage)
                 {
                     await mainPage.Detail.Navigation.PushModalAsync(this);

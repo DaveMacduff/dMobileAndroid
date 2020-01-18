@@ -7,6 +7,7 @@
     using dMobile.View.Forms;
     using System;
     using System.ComponentModel;
+    using System.Net.Sockets;
     using System.Xml.Linq;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
@@ -44,6 +45,7 @@
                 }
                 catch (Exception ex)
                 {
+                    // TODO: Resource strings
                     DisplayAlert("Error", "ucRefreshDataOptions_GotFocus exception: " + ex.Message, "OK");
                 }
             }
@@ -437,61 +439,56 @@
 
         /// <summary>
         ///
-        //    /// </summary>
-        //    /// <returns></returns>
-        //    /// <remarks></remarks>
-        //    public UserControl GetCallingControl()
-        //    {
-        //      ucOptionsMenu displayControl = new ucOptionsMenu();
-        //      if (this.IsRefreshComplete)
-        //      {
-        //        if (this.IsDisplayShutDownMsg)
-        //        {
-        //          this.IsDisplayShutDownMsg = false;
-        //          MessageBox.Show(
-        //#if MULTILANGUAGE
-        //              Translator.GetInstance().Translate(TranslatorVocabulary.PleaseLogBackInForChangesToBeMadeInEffect), 
-        //#else
-        //              "Please log back in for changes to be made in effect.", 
-        //#endif
-        //              this.GetControlDescription(), 
-        //              MessageBoxButtons.OK, 
-        //              MessageBoxIcon.Asterisk, 
-        //              MessageBoxDefaultButton.Button1);
+        /// </summary>
+        /// <returns></returns>
+        /// <remarks></remarks>
+        public void RefreshCompelete()
+        {
+            if (this.IsRefreshComplete)
+            {
+                if (this.IsDisplayShutDownMsg)
+                {
+                    this.IsDisplayShutDownMsg = false;
 
-        //          // Attempt to record logout
-        //          if (!this.SysEnv.SysSettings.IsDisconnectedMode
-        //              && (this.SysEnv.CommSetup.iHostIPAddressComponent1
-        //              + this.SysEnv.CommSetup.iHostIPAddressComponent2
-        //              + this.SysEnv.CommSetup.iHostIPAddressComponent3) != 0)
-        //          {
-        //            if (this.SysEnv.ContactLog.IsLoggedIn)
-        //            {
-        //              this.SysEnv.ContactLog.IsLoggedIn = false;
-        //              ContactLogin tempContactLogin = this.SysEnv.ContactLog;
-        //              this.SysEnv.ContactLog.SaveData(ref tempContactLogin);
+                    //MessageBox.Show(
+                    //    "Please log back in for changes to be made in effect.",
+                    //    this.GetControlDescription(),
+                    //    MessageBoxButtons.OK,
+                    //    MessageBoxIcon.Asterisk,
+                    //    MessageBoxDefaultButton.Button1);
 
-        //              try
-        //              {
-        //                this.SysEnv.ContactLog.SubmitContactLogOut();
-        //              }
-        //              catch (SocketException)
-        //              {
-        //                // do nothing if login failed
-        //              }
-        //              catch (Exception ex)
-        //              {
-        //                throw ex;
-        //              }
-        //            }
-        //          }
-        //        }
+                    Device.BeginInvokeOnMainThread(async () => 
+                    {
+                        // TODO: Resource strings
+                        await DisplayAlert(this.GetControlDescription(), "Please log back in for changes to be made in effect.", "OK");
+                    });
 
-        //        displayControl = null;
-        //      }
+                    // Attempt to record logout
+                    if (!this.SysEnv.SysSettings.IsDisconnectedMode && (this.SysEnv.CommSetup.iHostIPAddressComponent1 + this.SysEnv.CommSetup.iHostIPAddressComponent2 + this.SysEnv.CommSetup.iHostIPAddressComponent3) != 0)
+                    {
+                        if (this.SysEnv.ContactLog.IsLoggedIn)
+                        {
+                            this.SysEnv.ContactLog.IsLoggedIn = false;
+                            ContactLogin tempContactLogin = this.SysEnv.ContactLog;
+                            this.SysEnv.ContactLog.SaveData(ref tempContactLogin);
 
-        //return displayControl;
-        //}
+                            try
+                            {
+                                this.SysEnv.ContactLog.SubmitContactLogOut();
+                            }
+                            catch (SocketException)
+                            {
+                                // do nothing if login failed
+                            }
+                            catch (Exception ex)
+                            {
+                                throw ex;
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
         /// <summary>
         ///
@@ -500,11 +497,8 @@
         /// <remarks></remarks>
         public string GetControlDescription()
         {
-#if MULTILANGUAGE
-      return Translator.GetInstance().Translate(TranslatorVocabulary.RefreshDataOptions);
-#else
+            // TODO: Resource strings
             return Resource.RefreshDataOptions;
-#endif
         }
 
         /// <summary>
@@ -762,11 +756,13 @@
                     Device.BeginInvokeOnMainThread(async () =>
                     {
                         FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucRefreshDataStatus, SysCommon.ActSubTypes.RefreshData);
-                        await form.DisplayControl.ShowDialog();
+                        await form.DisplayControl.ShowDialog().ContinueWith(result => 
+                        {
+                            form.SaveChanges(this, new EventArgs());
+                        });
 
-                        // TODO: Fix if we want to display alert
-                        //XDocument xmlDoc = form.DisplayControlData;
-                        //this.IsRefreshComplete = bool.Parse(xmlDoc.Root.Element("IsRefreshComplete").Value);
+                        XDocument xmlDoc = form.DisplayControlData;
+                        this.IsRefreshComplete = bool.Parse(xmlDoc.Root.Element("IsRefreshComplete").Value);
                     });
 
                     this.ReqCancelEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());

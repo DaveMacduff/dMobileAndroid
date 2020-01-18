@@ -303,31 +303,24 @@ namespace dMobile.Bedrock
         {
             string reqData = this.SubmitContactLogOutCommunication();
             this.SubmitContactLogOutData(reqData);
-#if MULTILANGUAGE
-      Translator.GetInstance().Load(SysEnvironment.GetInstance().SysSettings.DefaultLanguage);
-#endif
         }
 
         #region IContactLoginEventPublisher Members
 
         public void RegisterContactLoginListenerStatusOut(IContactLoginEventListener contactLoginEventListener)
         {
-            this.OnContactLoginStatusOut += new OnContactLoginStatusOutEventHandler(
-                contactLoginEventListener.OnContactLoginStatusOut);
+            this.OnContactLoginStatusOut += new OnContactLoginStatusOutEventHandler(contactLoginEventListener.OnContactLoginStatusOut);
         }
 
         public void UnregisterContactLoginListenerStatusOut(IContactLoginEventListener contactLoginEventListener)
         {
-            this.OnContactLoginStatusOut -= new OnContactLoginStatusOutEventHandler(
-                contactLoginEventListener.OnContactLoginStatusOut);
+            this.OnContactLoginStatusOut -= new OnContactLoginStatusOutEventHandler(contactLoginEventListener.OnContactLoginStatusOut);
         }
 
         #endregion
 
         #region ISysSocketEventListener Members
-        public void OnSysSocketStatusOut(
-            ISysSocketEventPublisher sysSocketEventPublisher,
-            SysSocketEventArgs sysSocketEventArgs)
+        public void OnSysSocketStatusOut(ISysSocketEventPublisher sysSocketEventPublisher, SysSocketEventArgs sysSocketEventArgs)
         {
             ContactLoginEventArgs args = new ContactLoginEventArgs(sysSocketEventArgs.StatusOutMsg);
             this.OnContactLoginStatusOut(this, args);
@@ -766,11 +759,8 @@ namespace dMobile.Bedrock
                 {
                     if (this.OnContactLoginStatusOut != null)
                     {
-#if MULTILANGUAGE
-            msgEventArg.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.ParsingReceivedData);
-#else
+                        // TODO: Resource strings
                         msgEventArg.StatusOutMsg = "Parsing received data";
-#endif
                         this.OnContactLoginStatusOut(this, msgEventArg);
                     }
 
@@ -793,11 +783,8 @@ namespace dMobile.Bedrock
                 {
                     if (this.OnContactLoginStatusOut != null)
                     {
-#if MULTILANGUAGE
-            msgEventArg.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.ReceivedNothingToProcess);
-#else
+                        // TODO: Resource strings
                         msgEventArg.StatusOutMsg = "Received nothing to process";
-#endif
                         this.OnContactLoginStatusOut(this, msgEventArg);
                     }
                 }
@@ -806,21 +793,15 @@ namespace dMobile.Bedrock
             {
                 if (this.OnContactLoginStatusOut != null)
                 {
-#if MULTILANGUAGE
-          msgEventArg.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredz);
-#else
+                    // TODO: Resource strings
                     msgEventArg.StatusOutMsg = "Database exception occurred";
-#endif
                     this.OnContactLoginStatusOut(this, msgEventArg);
                 }
 
                 if (this.OnContactLoginStatusOut != null)
                 {
-#if MULTILANGUAGE
-          msgEventArg.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.SubmitContactLogOutFailed);
-#else
+                    // TODO: Resource strings
                     msgEventArg.StatusOutMsg = "Submit contact log out failed.";
-#endif
                     this.OnContactLoginStatusOut(this, msgEventArg);
                 }
 
@@ -830,11 +811,8 @@ namespace dMobile.Bedrock
             {
                 if (this.OnContactLoginStatusOut != null)
                 {
-#if MULTILANGUAGE
-          msgEventArg.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.SubmitContactLogOutFailed);
-#else
+                    // TODO: Resource strings
                     msgEventArg.StatusOutMsg = "Submit contact log out failed.";
-#endif
                     this.OnContactLoginStatusOut(this, msgEventArg);
                 }
 

@@ -54,6 +54,7 @@ namespace dMobile.GroundWork
                             {
                                 actRefno = Convert.ToInt32(drActAdj["ActivityRefno"]);
                                 reqData = this.Send(actRefno);
+
                                 if (0 < reqData.Length)
                                 {
                                     if (reqData.Contains("<message>ERROR</message>"))
@@ -74,6 +75,7 @@ namespace dMobile.GroundWork
                 else
                 {
                     reqData = this.Send(actRefno);
+
                     if (0 < reqData.Length)
                     {
                         if (reqData.Contains("<message>ERROR</message>"))
@@ -151,22 +153,20 @@ namespace dMobile.GroundWork
             {
                 using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
                 {
+                    cmndPurge.CommandType = CommandType.Text;
+                    cmndPurge.Parameters.Add(new SQLiteParameter("@activityItemSubType", Convert.ToInt32(SysCommon.ActSubTypes.Adjustment)));
+
                     cmndPurge.CommandText = "DELETE FROM tActivityItemBarCodeAssociationXRef "
                         + "WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno IN "
                         + "(SELECT tActivityItem.ActivityItemRefno "
                         + "FROM tActivityItem "
-                        + "WHERE tActivityItem.ActivityItemSubType = " + (int)SysCommon.ActSubTypes.Adjustment + ")";
-                    cmndPurge.CommandType = CommandType.Text;
+                        + "WHERE tActivityItem.ActivityItemSubType = @activityItemSubType)";
                     cmndPurge.ExecuteNonQuery();
 
-                    cmndPurge.CommandText = "DELETE FROM tActivityItemAdjustment "
-                        + "WHERE tActivityItemAdjustment.ActivityItemSubType = " + (int)SysCommon.ActSubTypes.Adjustment;
-                    cmndPurge.CommandType = CommandType.Text;
+                    cmndPurge.CommandText = "DELETE FROM tActivityItemAdjustment WHERE tActivityItemAdjustment.ActivityItemSubType = @activityItemSubType";
                     cmndPurge.ExecuteNonQuery();
 
-                    cmndPurge.CommandText = "DELETE FROM tActivityItem "
-                        + "WHERE tActivityItem.ActivityItemSubType = " + (int)SysCommon.ActSubTypes.Adjustment;
-                    cmndPurge.CommandType = CommandType.Text;
+                    cmndPurge.CommandText = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = @activityItemSubType";
                     cmndPurge.ExecuteNonQuery();
                 }
 
@@ -542,27 +542,16 @@ namespace dMobile.GroundWork
                             }
 
                         }
+
+                        transaction.Commit();
+
+                        DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving adjustment items complete.", false);
+
                     }
-
-                    transaction.Commit();
-
-                    DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving adjustment items complete.", false);
-
                 }
-
-
                 catch (SQLiteException ex)
                 {
                     transaction.Rollback();
-                    transaction.Dispose();
-
-                    cmndAdjItem.Dispose();
-                    cmndItem.Dispose();
-                    cmndProdUnit.Dispose();
-                    cmndProd.Dispose();
-                    cmndUnit.Dispose();
-                    cmndLocMapWhs.Dispose();
-                    cmndID.Dispose();
 
                     // TODO: Resource strings
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);

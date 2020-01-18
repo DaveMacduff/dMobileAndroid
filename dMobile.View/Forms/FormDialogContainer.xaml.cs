@@ -14,6 +14,7 @@ namespace dMobile.View.Forms
     using Xamarin.Forms.Xaml;
     using dMobile.Resources.Enums;
     using Resource = dMobile.Resources.Properties.Resources;
+    using System.Threading.Tasks;
 
     // TODO: FIX THIS CLASS
     [XamlCompilation(XamlCompilationOptions.Compile)]
@@ -40,26 +41,22 @@ namespace dMobile.View.Forms
 
         private DMobileModal displayControl;
 
-        /// <summary>
-        /// The OnDisappearing
-        /// </summary>
-        protected override void OnDisappearing()
-        {
-            base.OnDisappearing();
+        ///// <summary>
+        ///// The OnDisappearing
+        ///// </summary>
+        //protected override void OnDisappearing()
+        //{
+        //    base.OnDisappearing();
 
-            this.SaveChanges(this, new EventArgs());
-        }
+        //    this.SaveChanges(this, new EventArgs());
+        //}
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FormDialogContainer"/> class.
         /// </summary>
         /// <param name="typeInnerControl"></param>
         /// <param name="actSubType"></param>
-        public FormDialogContainer(
-        EDialogTypes typeInnerControl,
-        SysCommon.ActSubTypes actSubType
-        //UserControl callingControl
-        )
+        public FormDialogContainer(EDialogTypes typeInnerControl, SysCommon.ActSubTypes actSubType /*UserControl callingControl*/)
         {
             DMobileModal control = null;
 
@@ -676,7 +673,8 @@ namespace dMobile.View.Forms
                 //this.Text = ((IAppArea)control).GetControlDescription();
                 //control.BringToFront();
                 this.DisplayControl = control;
-                control.Focus();
+
+                //control.Focus();
             }
         }
 

@@ -38,6 +38,7 @@ namespace dMobile.GroundWork
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding finished tickets.", true);
 
                 reqData = this.Send("finished ticket");
+
                 if (0 < reqData.Length)
                 {
                     if (reqData.Contains("<message>ERROR</message>"))
@@ -75,31 +76,20 @@ namespace dMobile.GroundWork
             {
                 using (SQLiteCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
                 {
-                    cmndStatus.CommandText = "SELECT COUNT(tActivity.ActivityRefno)"
-                        + " FROM tActivity"
-                        + " WHERE tActivity.ActivitySubType = " + (int)SysCommon.ActSubTypes.TicketFinished;
+                    cmndStatus.CommandText = "SELECT COUNT(tActivity.ActivityRefno) FROM tActivity WHERE tActivity.ActivitySubType = @activitySubType";
                     cmndStatus.CommandType = CommandType.Text;
+                    cmndStatus.Parameters.Add(new SQLiteParameter("@activitySubType", Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished)));
 
                     rowsAffected = Convert.ToInt32(cmndStatus.ExecuteScalar());
 
-                    this.DataAccessStatusOutHandler(
-                        this,
-                        EventArgs.Empty,
-#if MULTILANGUAGE
-              string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.FinishedTickets), rowsAffected),
-#else
-              string.Format("{0} finished tickets.", rowsAffected),
-#endif
-              true);
+                    // TODO: Resource strings
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} finished tickets.", rowsAffected), true);
                 }
             }
             catch (SQLiteException ex)
             {
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredFinishedTicketsStatusFailed), ex);
-#else
+                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Finished tickets status failed.", ex);
-#endif
             }
 
             return rowsAffected;
@@ -117,22 +107,20 @@ namespace dMobile.GroundWork
                     // TODO: Resource strings
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging finished ticket.", true);
 
+                    cmndPurge.CommandType = CommandType.Text;
+                    cmndPurge.Parameters.Add(new SQLiteParameter("@activitySubType", Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished)));
+
                     cmndPurge.CommandText = "DELETE FROM tActivityProductionFinished"
                         + " WHERE tActivityProductionFinished.ActivityRefno IN"
                         + " (SELECT tActivityProduction.ActivityRefno"
                         + " FROM tActivityProduction"
-                        + " WHERE tActivityProduction.ActivitySubType = " + (int)SysCommon.ActSubTypes.TicketFinished + ")";
-                    cmndPurge.CommandType = CommandType.Text;
+                        + " WHERE tActivityProduction.ActivitySubType = @activitySubType)";
                     cmndPurge.ExecuteNonQuery();
 
-                    cmndPurge.CommandText = "DELETE FROM tActivityProduction "
-                        + "WHERE tActivityProduction.ActivitySubType = " + (int)SysCommon.ActSubTypes.TicketFinished;
-                    cmndPurge.CommandType = CommandType.Text;
+                    cmndPurge.CommandText = "DELETE FROM tActivityProduction WHERE tActivityProduction.ActivitySubType = @activitySubType";
                     cmndPurge.ExecuteNonQuery();
 
-                    cmndPurge.CommandText = "DELETE FROM tActivity "
-                        + "WHERE tActivity.ActivitySubType = " + (int)SysCommon.ActSubTypes.TicketFinished;
-                    cmndPurge.CommandType = CommandType.Text;
+                    cmndPurge.CommandText = "DELETE FROM tActivity WHERE tActivity.ActivitySubType = @activitySubType";
                     cmndPurge.ExecuteNonQuery();
 
                     // TODO: Resource strings
@@ -335,8 +323,6 @@ namespace dMobile.GroundWork
                                 }
                             }
 
-                            transaction.Commit();
-
                             this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
                         }
 
@@ -351,6 +337,8 @@ namespace dMobile.GroundWork
                         //    }
                         //}
 
+                        transaction.Commit();
+
                         // TODO: Resource strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving finished tickets complete.", false);
                     }
@@ -358,13 +346,6 @@ namespace dMobile.GroundWork
                 catch (SQLiteException ex)
                 {
                     transaction.Rollback();
-                    transaction.Dispose();
-
-                    cmndProduction.Dispose();
-                    cmndFinished.Dispose();
-                    cmndActivity.Dispose();
-                    cmndID.Dispose();
-                    cmndWhs.Dispose();
 
                     // TODO: Resource strings
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);

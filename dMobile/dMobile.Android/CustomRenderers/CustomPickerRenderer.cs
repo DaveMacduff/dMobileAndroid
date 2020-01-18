@@ -5,6 +5,7 @@ using dMobile.Droid.CustomRenderers;
 using dMobile.View.CustomControls;
 using PickerRenderer = Xamarin.Forms.Platform.Android.AppCompat.PickerRenderer;
 using Android.Graphics;
+using Android.Views;
 
 [assembly: ExportRenderer(typeof(CustomPicker), typeof(CustomPickerRenderer))]
 namespace dMobile.Droid.CustomRenderers
@@ -31,6 +32,9 @@ namespace dMobile.Droid.CustomRenderers
             if (Control != null)
             {
                 Control.Focusable = false;
+
+                // TODO: Center text?
+                //Control.Gravity = GravityFlags.CenterHorizontal;
             }
         }
     }

@@ -7,6 +7,7 @@
     using dMobile.Resources.Enums;
     using dMobile.View.CustomPages;
     using dMobile.View.Forms;
+    using dMobile.View.Themes;
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
@@ -38,7 +39,6 @@
             this.InitializeComponent();
 
             this.Title = GetControlDescription();
-
             this.ItemsList = new ObservableCollection<string>();
         }
 
@@ -61,6 +61,13 @@
                     {
                         //Application.Current.Quit();
                         Android.OS.Process.KillProcess(Android.OS.Process.MyPid());
+                    }
+                    else if (keycode == Keycode.Enter)
+                    {
+                        if (this.btnClose.IsEnabled)
+                        {
+                            this.BtnClose_Clicked(null, null);
+                        }
                     }
                     else
                     {
@@ -875,7 +882,7 @@
                         //this.SyncDateTime(sender, e);
                     }
 
-                    // TODO: Uncomment, commented just for emulator
+                    // TODO: Fix retreiving scanner with new honeywell SDK
                     //this.InitializeScanner(sender, e);
 
                     this.InitializeDatabase(sender, e);

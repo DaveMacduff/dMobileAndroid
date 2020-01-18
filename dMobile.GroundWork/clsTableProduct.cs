@@ -37,11 +37,8 @@ namespace dMobile.GroundWork
 
             try
             {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SeedingProducts), true);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding products.", true);
-#endif
 
                 using (SQLiteCommand cmndFamily = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
                 {
@@ -62,19 +59,17 @@ namespace dMobile.GroundWork
 
                 for (int i = 0; i < families.Count; ++i)
                 {
-                    // TODO: Uncomment GC calls
                     //GC.Collect();
                     //GC.WaitForPendingFinalizers();
 
                     string family = families[i];
                     string reqData = string.Empty;
-#if MULTILANGUAGE
-              this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.ForFamily), family), true);
-#else
+
+                    // TODO: Resource strings
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("For family {0}", family), true);
-#endif
 
                     reqData = this.SendRequest(family);
+
                     if (0 < reqData.Length)
                     {
                         if (reqData.Contains("<message>ERROR</message>"))
@@ -92,41 +87,25 @@ namespace dMobile.GroundWork
                     }
                 }
 
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SeedingProductsComplete), true);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding products complete.", true);
-#endif
             }
             catch (SQLiteException ex)
             {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), true);
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SeedingProductsFailed), true);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding products failed.", true);
-#endif
 
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredSeedingProductsFailed), ex);
-#else
+                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Seeding products failed.", ex);
-#endif
             }
             catch (Exception ex)
             {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SeedingProductsFailed), true);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding products failed.", true);
-#endif
 
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.SeedingProductsFailed), ex);
-#else
+                // TODO: Resource strings
                 throw new Exception("Seeding products failed.", ex);
-#endif
             }
         }
 
@@ -137,11 +116,8 @@ namespace dMobile.GroundWork
         {
             try
             {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingProducts), true);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging products.", true);
-#endif
 
                 using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
                 {
@@ -150,27 +126,17 @@ namespace dMobile.GroundWork
                     cmndPurge.ExecuteNonQuery();
                 }
 
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingProductsComplete), true);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging products complete.", true);
-#endif
             }
             catch (SQLiteException ex)
             {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), true);
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingProductsFailed), true);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging products failed.", true);
-#endif
 
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredPurgingProductsFailed), ex);
-#else
+                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Purging products failed.", ex);
-#endif
             }
         }
 
@@ -241,20 +207,14 @@ namespace dMobile.GroundWork
 
                     rowsAffected = Convert.ToInt32(cmndStatus.ExecuteScalar());
 
-#if MULTILANGUAGE
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.Products), rowsAffected), true);
-#else
+                    // TODO: Resource strings
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} products.", rowsAffected), true);
-#endif
                 }
             }
             catch (SQLiteException ex)
             {
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredProductsStatusFailed), ex);
-#else
+                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Products status failed.", ex);
-#endif
             }
 
             return rowsAffected;
@@ -289,37 +249,37 @@ namespace dMobile.GroundWork
             SQLiteConnection conn = DatabaseConnection.GetInstance().SQLConn;
             bool refreshDataChangesOnly = SysEnv.RefreshOpt.RefreshDataChangesOnly;
 
-            try
+            using (SQLiteCommand cmndProd = conn.CreateCommand())
+            using (SQLiteCommand cmndProdGet = conn.CreateCommand())
+            using (SQLiteCommand cmndProdUpdate = conn.CreateCommand())
+            using (SQLiteCommand cmndProdInsert = conn.CreateCommand())
+            using (SQLiteCommand cmndScheme = conn.CreateCommand())
+            using (SQLiteCommand cmndFamily = conn.CreateCommand())
+            using (SQLiteTransaction transaction = conn.BeginTransaction())
             {
-                Dictionary<string, int> schemeCache = new Dictionary<string, int>();
-                Dictionary<string, int> familyCache = new Dictionary<string, int>();
-                // TODO: Resource Strings
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
-
-                int startIndex = data.IndexOf("<VFPData");
-                XmlReaderSettings sett = new XmlReaderSettings();
-                sett.CheckCharacters = false;
-                sett.CloseInput = false;
-                sett.ConformanceLevel = ConformanceLevel.Auto;
-                sett.IgnoreComments = true;
-                sett.IgnoreProcessingInstructions = true;
-                sett.IgnoreWhitespace = false;
-                sett.ValidationFlags = System.Xml.Schema.XmlSchemaValidationFlags.None;
-                sett.ValidationType = ValidationType.None;
-                using (StringReader stringReader = new StringReader(data.Substring(startIndex)))
-                using (XmlReader reader = XmlReader.Create(stringReader, sett))
+                try
                 {
+                    Dictionary<string, int> schemeCache = new Dictionary<string, int>();
+                    Dictionary<string, int> familyCache = new Dictionary<string, int>();
                     // TODO: Resource Strings
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving products.", false);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
-                    using (SQLiteCommand cmndProd = conn.CreateCommand())
-                    using (SQLiteCommand cmndProdGet = conn.CreateCommand())
-                    using (SQLiteCommand cmndProdUpdate = conn.CreateCommand())
-                    using (SQLiteCommand cmndProdInsert = conn.CreateCommand())
-                    using (SQLiteCommand cmndScheme = conn.CreateCommand())
-                    using (SQLiteCommand cmndFamily = conn.CreateCommand())
-                    using (SQLiteTransaction transaction = conn.BeginTransaction())
+                    int startIndex = data.IndexOf("<VFPData");
+                    XmlReaderSettings sett = new XmlReaderSettings();
+                    sett.CheckCharacters = false;
+                    sett.CloseInput = false;
+                    sett.ConformanceLevel = ConformanceLevel.Auto;
+                    sett.IgnoreComments = true;
+                    sett.IgnoreProcessingInstructions = true;
+                    sett.IgnoreWhitespace = false;
+                    sett.ValidationFlags = System.Xml.Schema.XmlSchemaValidationFlags.None;
+                    sett.ValidationType = ValidationType.None;
+                    using (StringReader stringReader = new StringReader(data.Substring(startIndex)))
+                    using (XmlReader reader = XmlReader.Create(stringReader, sett))
                     {
+                        // TODO: Resource Strings
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving products.", false);
+
                         //cmndProd.CommandText = "SELECT * FROM tProduct";
                         //cmndProd.CommandType = CommandType.Text;
                         ////cmndProd.IndexName = "UQ_ProductOnProductFKRefno";
@@ -656,8 +616,7 @@ namespace dMobile.GroundWork
 
                         } // end while loop of reading data in
 
-                        transaction.Commit();
-
+                        // TODO: Resource strings
                         this.DataAccessProgressOutHandler(this, EventArgs.Empty, 100, 0, 100); // complete
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", processedCount), false);
 
@@ -665,28 +624,31 @@ namespace dMobile.GroundWork
                         //drScheme.Close();
                         //drProduct.Close();
                         //} // using SQL
-                    } // using commands
-                } // using xml stream reader
+                        //} // using commands
+                    } // using xml stream reader
 
-                // TODO: Resource Strings
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving products complete.", false);
-            }
-            catch (SQLiteException ex)
-            {
-                // TODO: Resource Strings
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving products failed.", false);
+                    transaction.Commit();
 
-                //// Duplicate key violations
-                //if (ex.NativeError == 25016)
-                //{
-                //    // TODO: Resource Strings
-                //    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Uniqueness violation.", false);
-                //    throw new Exception("Uniqueness violation." + Environment.NewLine + errMsg, ex);
-                //}
+                    // TODO: Resource Strings
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving products complete.", false);
+                }
+                catch (SQLiteException ex)
+                {
+                    // TODO: Resource Strings
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving products failed.", false);
 
-                // TODO: Resource Strings
-                throw new Exception("Database exception occurred. Saving products failed." + Environment.NewLine + errMsg, ex);
+                    //// Duplicate key violations
+                    //if (ex.NativeError == 25016)
+                    //{
+                    //    // TODO: Resource Strings
+                    //    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Uniqueness violation.", false);
+                    //    throw new Exception("Uniqueness violation." + Environment.NewLine + errMsg, ex);
+                    //}
+
+                    // TODO: Resource Strings
+                    throw new Exception("Database exception occurred. Saving products failed." + Environment.NewLine + errMsg, ex);
+                }
             }
         }
 

@@ -18,145 +18,114 @@ namespace dMobile.GroundWork
       this.FullClassName = "dMobile.GroundWork.TableFamily";
     }
 
-    #endregion
+        #endregion
 
-    #region Public Members
+        #region Public Members
 
-    /// <summary>
-    ///
-    /// </summary>
-    /// <remarks></remarks>
-    public override void Request()
-    {
-      string reqData = string.Empty;
-
-      // TODO: Uncomment GC calls
-      //GC.Collect();
-      //GC.WaitForPendingFinalizers();
-
-      try
-      {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SeedingFamilies), true);
-#else
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding families.", true);
-#endif
-
-        reqData = this.Send("families");
-        if (0 < reqData.Length)
+        /// <summary>
+        ///
+        /// </summary>
+        /// <remarks></remarks>
+        public override void Request()
         {
-          if (reqData.Contains("<message>ERROR</message>"))
-          {
-            XmlDocument reqErr = new XmlDocument();
-            reqErr.LoadXml(reqData);
-            throw new Exception(reqErr.DocumentElement["detail"].InnerText);
-          }
+            string reqData = string.Empty;
 
-          this.Save(reqData);
+            //GC.Collect();
+            //GC.WaitForPendingFinalizers();
+
+            try
+            {
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding families.", true);
+
+                reqData = this.Send("families");
+
+                if (0 < reqData.Length)
+                {
+                    if (reqData.Contains("<message>ERROR</message>"))
+                    {
+                        XmlDocument reqErr = new XmlDocument();
+                        reqErr.LoadXml(reqData);
+                        throw new Exception(reqErr.DocumentElement["detail"].InnerText);
+                    }
+
+                    this.Save(reqData);
+                }
+
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding families complete.", true);
+            }
+            catch (Exception ex)
+            {
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding families failed.", true);
+
+                // TODO: Resource strings
+                throw new Exception("Seeding families failed.", ex);
+            }
         }
 
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SeedingFamiliesComplete), true);
-#else
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding families complete.", true);
-#endif
-      }
-      catch (Exception ex)
-      {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SeedingFamiliesFailed), true);
-#else
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding families failed.", true);
-#endif
-
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.SeedingFamiliesFailed), ex);
-#else
-        throw new Exception("Seeding families failed.", ex);
-#endif
-      }
-    }
-
-    /// <summary>
-    ///
-    /// </summary>
-    /// <remarks></remarks>
-    public override int DataStatus()
-    {
-      int rowsAffected = 0;
-
-      try
-      {
-        using (SQLiteCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        /// <summary>
+        ///
+        /// </summary>
+        /// <remarks></remarks>
+        public override int DataStatus()
         {
-          cmndStatus.CommandText = "SELECT COUNT(*) FROM tFamily";
-          cmndStatus.CommandType = CommandType.Text;
+            int rowsAffected = 0;
 
-          rowsAffected = Convert.ToInt32(cmndStatus.ExecuteScalar());
+            try
+            {
+                using (SQLiteCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                {
+                    cmndStatus.CommandText = "SELECT COUNT(*) FROM tFamily";
+                    cmndStatus.CommandType = CommandType.Text;
 
-#if MULTILANGUAGE
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.Families), rowsAffected), true);
-#else
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} families.", rowsAffected), true);
-#endif
-        }
-      }
-      catch (SQLiteException ex)
-      {
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.FamiliesStatusFailed), ex);
-#else
-        throw new Exception("Families status failed.", ex);
-#endif
-      }
+                    rowsAffected = Convert.ToInt32(cmndStatus.ExecuteScalar());
 
-      return rowsAffected;
-    }
+                    // TODO: Resource strings
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} families.", rowsAffected), true);
+                }
+            }
+            catch (SQLiteException ex)
+            {
+                // TODO: Resource strings
+                throw new Exception("Families status failed.", ex);
+            }
 
-    /// <summary>
-    ///
-    /// </summary>
-    /// <remarks></remarks>
-    public override void Purge()
-    {
-      try
-      {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingFamilies), true);
-#else
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging families.", true);
-#endif
-
-        using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-        {
-          cmndPurge.CommandText = "DELETE FROM tFamily";
-          cmndPurge.CommandType = CommandType.Text;
-          cmndPurge.ExecuteNonQuery();
+            return rowsAffected;
         }
 
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingFamiliesComplete), true);
-#else
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging families complete.", true);
-#endif
-      }
-      catch (SQLiteException ex)
-      {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), true);
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingFamiliesFailed), true);
-#else
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging families failed.", true);
-#endif
+        /// <summary>
+        ///
+        /// </summary>
+        /// <remarks></remarks>
+        public override void Purge()
+        {
+            try
+            {
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging families.", true);
 
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredPurgingFamiliesFailed), ex);
-#else
-        throw new Exception("Database exception occurred. Purging families failed.", ex);
-#endif
-      }
-    }
+                using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                {
+                    cmndPurge.CommandText = "DELETE FROM tFamily";
+                    cmndPurge.CommandType = CommandType.Text;
+                    cmndPurge.ExecuteNonQuery();
+                }
+
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging families complete.", true);
+            }
+            catch (SQLiteException ex)
+            {
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging families failed.", true);
+
+                // TODO: Resource strings
+                throw new Exception("Database exception occurred. Purging families failed.", ex);
+            }
+        }
 
     /// <summary>
     /// 
@@ -220,124 +189,129 @@ namespace dMobile.GroundWork
       return familyRefno;
     }
 
-    #endregion
+        #endregion
 
-    #region Private Members
+        #region Private Members
 
-    /// <summary>
-    ///
-    /// </summary>
-    /// <param name="reqData"></param>
-    /// <remarks></remarks>
-    protected override void Save(string reqData)
-    {
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="reqData"></param>
+        /// <remarks></remarks>
+        protected override void Save(string reqData)
+        {
             SQLiteConnection conn = DatabaseConnection.GetInstance().SQLConn;
             string errMsg = string.Empty;
 
-            try
+            using (SQLiteTransaction transaction = conn.BeginTransaction())
             {
-                using (DataSet ds = new DataSet())
+                try
                 {
-                    // TODO: Resource String
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
-
-                    ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
-
-                    // TODO: Resource String
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving families.", false);
-
-                    if (ds.Tables.Count != 0)
+                    using (DataSet ds = new DataSet())
                     {
-                        int progMax = ds.Tables["tFamily"].Rows.Count;
+                        // TODO: Resource String
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
+
+                        ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
 
                         // TODO: Resource String
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving families.", false);
 
-                        using (SQLiteCommand cmndFamily = conn.CreateCommand())
-                        using (SQLiteTransaction transaction = conn.BeginTransaction())
+                        if (ds.Tables.Count != 0)
                         {
-                            cmndFamily.CommandText = "SELECT FamilyCode FROM tFamily WHERE FamilyCode = @familyCode";
-                            cmndFamily.CommandType = CommandType.Text;
-                            //cmndFamily.IndexName = "UQ_FamilyOnFamilyCode";
+                            int progMax = ds.Tables["tFamily"].Rows.Count;
 
-                            int progValue = 0;
-                            bool isFamilyFound = false;
-                            string familyCode = string.Empty;
+                            // TODO: Resource String
+                            this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
 
-                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
-
-                            foreach (DataRow drow in ds.Tables["tFamily"].Rows)
+                            using (SQLiteCommand cmndFamily = conn.CreateCommand())
                             {
-                                familyCode = drow["FamilyCode"].ToString();
-                                errMsg = "Family \'" + familyCode + "\'";
-                                isFamilyFound = false;
+                                cmndFamily.CommandText = "SELECT FamilyCode FROM tFamily WHERE FamilyCode = @familyCode";
+                                cmndFamily.CommandType = CommandType.Text;
+                                //cmndFamily.IndexName = "UQ_FamilyOnFamilyCode";
 
-                                cmndFamily.Parameters.Add(new SQLiteParameter("@familyCode", familyCode));
+                                int progValue = 0;
+                                bool isFamilyFound = false;
+                                string familyCode = string.Empty;
 
-                                using (SQLiteDataReader drFamily = cmndFamily.ExecuteReader())
+                                this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
+
+                                foreach (DataRow drow in ds.Tables["tFamily"].Rows)
                                 {
-                                    // TODO: Uncomment SysEnv.RefreshOpt.RefreshDataChangesOnly
-                                    //if (SysEnv.RefreshOpt.RefreshDataChangesOnly)
-                                    //{
-                                    if (drFamily.Read())
-                                    {
-                                        isFamilyFound = true;
-                                    }
-                                    //}
+                                    familyCode = drow["FamilyCode"].ToString();
+                                    errMsg = "Family \'" + familyCode + "\'";
+                                    isFamilyFound = false;
 
-                                    if (!isFamilyFound)
+                                    cmndFamily.Parameters.Add(new SQLiteParameter("@familyCode", familyCode));
+
+                                    using (SQLiteDataReader drFamily = cmndFamily.ExecuteReader())
                                     {
-                                        using (SQLiteCommand cmndFamilyInsert = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                                        // TODO: Uncomment SysEnv.RefreshOpt.RefreshDataChangesOnly
+                                        //if (SysEnv.RefreshOpt.RefreshDataChangesOnly)
+                                        //{
+                                        if (drFamily.Read())
                                         {
-                                            cmndFamilyInsert.Parameters.Clear();
-                                            cmndFamilyInsert.CommandText = "INSERT INTO tFamily (FamilyCode) VALUES (@familyCode)";
-                                            cmndFamilyInsert.CommandType = CommandType.Text;
-                                            cmndFamilyInsert.Parameters.Add(new SQLiteParameter("@familyCode", familyCode));
-                                            cmndFamilyInsert.ExecuteNonQuery();
+                                            isFamilyFound = true;
                                         }
+                                        //}
+
+                                        if (!isFamilyFound)
+                                        {
+                                            using (SQLiteCommand cmndFamilyInsert = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                                            {
+                                                cmndFamilyInsert.Parameters.Clear();
+                                                cmndFamilyInsert.CommandText = "INSERT INTO tFamily (FamilyCode) VALUES (@familyCode)";
+                                                cmndFamilyInsert.CommandType = CommandType.Text;
+                                                cmndFamilyInsert.Parameters.Add(new SQLiteParameter("@familyCode", familyCode));
+                                                cmndFamilyInsert.ExecuteNonQuery();
+                                            }
+                                        }
+
+                                        drFamily.Close();
                                     }
 
-                                    drFamily.Close();
+                                    progValue++;
+
+                                    if (progValue % 100 == 0)
+                                    {
+                                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
+                                    }
                                 }
 
-                                progValue++;
+                                this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
+                                //}
 
-                                if (progValue % 100 == 0)
-                                {
-                                    this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
-                                }
+                                //drFamily.Close();
+                                //}
+
                             }
-
-                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
-                            //}
-
-                            //drFamily.Close();
-                            //}
-
-                            transaction.Commit();
                         }
+
+                        transaction.Commit();
+
+                        // TODO: Resource String
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving families complete.", false);
                     }
+                }
+                catch (SQLiteException ex)
+                {
+                    transaction.Rollback();
 
                     // TODO: Resource String
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving families complete.", false);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving families failed.", false);
+
+                    //                // Duplicate key violations
+                    //                if (ex.NativeError == 25016)
+                    //                {
+                    //                    // TODO: Resource String
+                    //                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Uniqueness violation.", false);
+                    //                    throw new Exception("Uniqueness violation." + Environment.NewLine + errMsg, ex);
+                    //                }
+
+                    // TODO: Resource String
+                    throw new Exception("Database exception occurred. Saving families failed." + Environment.NewLine + errMsg, ex);
                 }
-            }
-            catch (SQLiteException ex)
-            {
-                // TODO: Resource String
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving families failed.", false);
-
-//                // Duplicate key violations
-//                if (ex.NativeError == 25016)
-//                {
-//                    // TODO: Resource String
-//                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Uniqueness violation.", false);
-//                    throw new Exception("Uniqueness violation." + Environment.NewLine + errMsg, ex);
-//                }
-
-                // TODO: Resource String
-                throw new Exception("Database exception occurred. Saving families failed." + Environment.NewLine + errMsg, ex);
             }
         }
 

@@ -1,70 +1,57 @@
 namespace dMobile.GroundWork
 {
-  using System;
-  using System.Data;
-  using System.Data.SQLite;
-  using dMobile.Bedrock;
+    using System;
+    using System.Data;
+    using System.Data.SQLite;
+    using dMobile.Bedrock;
 
-  public class TableActivityItem : TableBase
-  {
-    #region Constructors
-
-    public TableActivityItem()
-      : base()
+    public class TableActivityItem : TableBase
     {
-      this.FullClassName = "dMobile.GroundWork.TableActivityItem";
-    }
+        #region Constructors
 
-    #endregion
-
-    #region Public Members
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="actSubType"></param>
-    public override void Purge(SysCommon.ActSubTypes actSubType)
-    {
-      try
-      {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingActivityItems), true);
-#else
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging activity items.", true);
-#endif
-
-        using (SQLiteCommand cmndPurgeActItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        public TableActivityItem()
+          : base()
         {
-          cmndPurgeActItem.CommandText = "DELETE FROM tActivityItem " 
-              + "WHERE tActivityItem.ActivityItemSubType = " + (int)actSubType;
-          cmndPurgeActItem.CommandType = CommandType.Text;
-          cmndPurgeActItem.ExecuteNonQuery();
+            this.FullClassName = "dMobile.GroundWork.TableActivityItem";
         }
 
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingActivityItemsComplete), true);
-#else
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging activity items complete.", true);
-#endif
-      }
-      catch (SQLiteException ex)
-      {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), true);
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingActivityItemsFailed), true);
-#else
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging activity items failed.", true);
-#endif
+        #endregion
 
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredPurgingActivityItemsFailed), ex);
-#else
-        throw new Exception("Database exception occurred. Purging activity items failed.", ex);
-#endif
-      }
+        #region Public Members
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="actSubType"></param>
+        public override void Purge(SysCommon.ActSubTypes actSubType)
+        {
+            try
+            {
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging activity items.", true);
+
+                using (SQLiteCommand cmndPurgeActItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                {
+                    cmndPurgeActItem.CommandText = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = @activityItemSubType";
+                    cmndPurgeActItem.CommandType = CommandType.Text;
+                    cmndPurgeActItem.Parameters.Add(new SQLiteParameter("@activityItemSubType", Convert.ToInt32(actSubType)));
+                    cmndPurgeActItem.ExecuteNonQuery();
+                }
+
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging activity items complete.", true);
+            }
+            catch (SQLiteException ex)
+            {
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging activity items failed.", true);
+
+                // TODO: Resource strings
+                throw new Exception("Database exception occurred. Purging activity items failed.", ex);
+            }
+        }
+
+        #endregion
     }
-
-    #endregion
-  }
 }

@@ -7,41 +7,41 @@
              xmlns:Helpers="clr-namespace:dMobile.View.Helpers"
              x:Class="dMobile.View.ucLoginStartup">
     <ContentPage.Content>
-        <AbsoluteLayout VerticalOptions="Center">
-            <Grid Padding="25" AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0,0,1,1">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
+        <AbsoluteLayout VerticalOptions="FillAndExpand">
+            <Grid Padding="10" AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0,0,1,1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
 
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
 
-            <!--<Image Grid.Row="0" Source="TestImage.png" HeightRequest="58" WidthRequest="240" HorizontalOptions="Center" />-->
+                <!--<Image Grid.Row="0" Source="TestImage.png" HeightRequest="58" WidthRequest="240" HorizontalOptions="Center" />-->
 
-            <Label x:Name="lblLoginID" Grid.Row="1" Text="Login ID" />
-            <Entry x:Name="txtLoginID" Grid.Row="2" Grid.ColumnSpan="2" TextChanged="IdentifyChangesMade" Keyboard="Numeric" Focused="txtLoginID_GotFocus"/>
+                <Label x:Name="lblLoginID" Grid.Row="1" Text="Login ID"/>
+                <Entry x:Name="txtLoginID" Grid.Row="2" Grid.ColumnSpan="2" TextChanged="IdentifyChangesMade" Keyboard="Numeric" Focused="txtLoginID_GotFocus"/>
 
-            <Label x:Name="lblLoginPassword" Grid.Row="3" Text="Password" />
-            <Entry x:Name="txtLoginPassword" Grid.Row="4" IsPassword="True" Grid.ColumnSpan="2" TextChanged="IdentifyChangesMade" Focused="txtLoginPassword_GotFocus"/>
+                <Label x:Name="lblLoginPassword" Grid.Row="3" Text="Password"/>
+                <Entry x:Name="txtLoginPassword" Grid.Row="4" IsPassword="True" Grid.ColumnSpan="2" TextChanged="IdentifyChangesMade" Focused="txtLoginPassword_GotFocus"/>
 
-            <Label x:Name="lblWarehouse" Grid.Row="5" Text="Warehouse" />
-            <!--<Picker x:Name="lstWarehouse" Grid.Row="6" Grid.ColumnSpan="2" />-->
-            <Custom:CustomPicker x:Name="lstWarehouse" Grid.Row="6" Grid.ColumnSpan="2" SelectedIndexChanged="LstWarehouse_SelectedIndexChanged"/>
+                <Label x:Name="lblWarehouse" Grid.Row="5" Text="Warehouse"/>
+                <Custom:CustomPicker x:Name="lstWarehouse" Grid.Row="6" Grid.ColumnSpan="2" SelectedIndexChanged="LstWarehouse_SelectedIndexChanged"/>
 
-            <Button x:Name="cmdLogin" Grid.Row="7" Grid.ColumnSpan="2" Grid.RowSpan="1" Text="Login" Clicked="cmdLogin_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                <Button x:Name="cmdLogin" Grid.Row="8" Grid.ColumnSpan="2" Grid.RowSpan="1" Text="Login" Clicked="cmdLogin_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
 
-        </Grid>
-        
-        <ActivityIndicator IsVisible="{Binding Loading}" 
+            </Grid>
+
+            <ActivityIndicator IsVisible="{Binding Loading}" 
                             IsRunning="{Binding Loading}" 
                             Color="Black" 
                             AbsoluteLayout.LayoutFlags="All" 

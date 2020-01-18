@@ -34,13 +34,11 @@ namespace dMobile.GroundWork
 
             try
             {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SeedingTicketAddproducts), true);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding ticket add-products.", true);
-#endif
 
                 reqData = this.Send("production ticket add-product(s)");
+
                 if (0 < reqData.Length)
                 {
                     if (reqData.Contains("<message>ERROR</message>"))
@@ -53,27 +51,17 @@ namespace dMobile.GroundWork
                     this.Save(reqData);
                 }
 
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SeedingTicketAddproductsComplete), true);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding ticket add-products complete.", true);
-#endif
             }
             catch (Exception ex)
             {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), true);
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SeedingTicketAddproductsFailed), true);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding ticket add-products failed.", true);
-#endif
 
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredSeedingTicketAddproductsFailed), ex);
-#else
+                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Seeding ticket add-products failed.", ex);
-#endif
             }
         }
 
@@ -89,31 +77,20 @@ namespace dMobile.GroundWork
             {
                 using (SQLiteCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
                 {
-                    cmndStatus.CommandText = "SELECT COUNT(tActivity.ActivityRefno)"
-                        + " FROM tActivity"
-                        + " WHERE tActivity.ActivitySubType = " + (int)SysCommon.ActSubTypes.TicketAddProduct;
+                    cmndStatus.CommandText = "SELECT COUNT(tActivity.ActivityRefno) FROM tActivity WHERE tActivity.ActivitySubType = @activitySubType";
                     cmndStatus.CommandType = CommandType.Text;
+                    cmndStatus.Parameters.Add(new SQLiteParameter("@activitySubType", Convert.ToInt32(SysCommon.ActSubTypes.TicketAddProduct)));
 
                     rowsAffected = Convert.ToInt32(cmndStatus.ExecuteScalar());
 
-                    this.DataAccessStatusOutHandler(
-                        this,
-                        EventArgs.Empty,
-#if MULTILANGUAGE
-              string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.TicketAddproducts), rowsAffected),
-#else
-              string.Format("{0} ticket add-products.", rowsAffected),
-#endif
-              true);
+                    // TODO: Resource strings
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} ticket add-products.", rowsAffected), true);
                 }
             }
             catch (SQLiteException ex)
             {
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredTicketAddproductStatusFailed), ex);
-#else
+                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Ticket add-product status failed.", ex);
-#endif
             }
 
             return rowsAffected;
@@ -128,52 +105,35 @@ namespace dMobile.GroundWork
             {
                 using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
                 {
-#if MULTILANGUAGE
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingTicketAddproducts), true);
-#else
+                    // TODO: Resource strings
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging ticket add-products.", true);
-#endif
+
+                    cmndPurge.CommandType = CommandType.Text;
+                    cmndPurge.Parameters.Add(new SQLiteParameter("@activitySubType", Convert.ToInt32(SysCommon.ActSubTypes.TicketAddProduct)));
 
                     cmndPurge.CommandText = "DELETE FROM tActivityProductionByProduct"
                         + " WHERE tActivityProductionByProduct.ActivityRefno IN"
-                        + " (SELECT tActivityProduction.ActivityRefno"
-                        + " FROM tActivityProduction"
-                        + " WHERE tActivityProduction.ActivitySubType = " + (int)SysCommon.ActSubTypes.TicketAddProduct + ")";
-                    cmndPurge.CommandType = CommandType.Text;
+                        + " (SELECT tActivityProduction.ActivityRefno FROM tActivityProduction WHERE tActivityProduction.ActivitySubType = @activitySubType)";
                     cmndPurge.ExecuteNonQuery();
 
-                    cmndPurge.CommandText = "DELETE FROM tActivityProduction "
-                        + "WHERE tActivityProduction.ActivitySubType = " + (int)SysCommon.ActSubTypes.TicketAddProduct;
-                    cmndPurge.CommandType = CommandType.Text;
+                    cmndPurge.CommandText = "DELETE FROM tActivityProduction WHERE tActivityProduction.ActivitySubType = @activitySubType";
                     cmndPurge.ExecuteNonQuery();
 
-                    cmndPurge.CommandText = "DELETE FROM tActivity "
-                        + "WHERE tActivity.ActivitySubType = " + (int)SysCommon.ActSubTypes.TicketAddProduct;
-                    cmndPurge.CommandType = CommandType.Text;
+                    cmndPurge.CommandText = "DELETE FROM tActivity WHERE tActivity.ActivitySubType = @activitySubType";
                     cmndPurge.ExecuteNonQuery();
 
-#if MULTILANGUAGE
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingTicketAddproductsComplete), true);
-#else
+                    // TODO: Resource strings
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging ticket add-products complete.", true);
-#endif
                 }
             }
             catch (SQLiteException ex)
             {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), true);
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingTicketAddproductsComplete), true);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging ticket add-products complete.", true);
-#endif
 
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredPurgingTicketAddproductsComplete), ex);
-#else
+                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Purging ticket add-products complete.", ex);
-#endif
             }
         }
 
@@ -253,6 +213,7 @@ namespace dMobile.GroundWork
                             //using (SqlCeResultSet rsProduction = cmndProduction.ExecuteResultSet(ResultSetOptions.Updatable))
                             //{
                             //SqlCeUpdatableRecord recProduction = rsProduction.CreateRecord();
+
                             int actRefno = 0;
                             int progValue = 0;
                             int whsLocMapRefno = 0;
@@ -360,8 +321,6 @@ namespace dMobile.GroundWork
                                 }
                             }
 
-                            transaction.Commit();
-
                             this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
                         }
 
@@ -376,6 +335,8 @@ namespace dMobile.GroundWork
                         //    }
                         //}
 
+                        transaction.Commit();
+
                         // TODO: Resource strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving ticket add-products complete.", false);
                     }
@@ -383,13 +344,6 @@ namespace dMobile.GroundWork
                 catch (SQLiteException ex)
                 {
                     transaction.Rollback();
-                    transaction.Dispose();
-
-                    cmndProduction.Dispose();
-                    cmndByProduct.Dispose();
-                    cmndAct.Dispose();
-                    cmndID.Dispose();
-                    cmndWhs.Dispose();
 
                     // TODO: Resource strings
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);

@@ -1,11 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <custompages:DMobileContentPage
-        xmlns:custompages="clr-namespace:dMobile.View.CustomPages"
-        xmlns="http://xamarin.com/schemas/2014/forms"
-        xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-        xmlns:Custom="clr-namespace:dMobile.View.CustomControls"
-        x:Class="dMobile.View.Options.ucSetupDefaults"
-        x:Name="thisPage">
+    xmlns:custompages="clr-namespace:dMobile.View.CustomPages"
+    xmlns="http://xamarin.com/schemas/2014/forms"         
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:Custom="clr-namespace:dMobile.View.CustomControls"
+    x:Class="dMobile.View.Options.ucSetupDefaults">
     <ContentPage.Content>
         <AbsoluteLayout>
             <Grid AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0,0,1,1"  Padding="10">
@@ -32,19 +31,35 @@
                             <Label x:Name="tabSetupDefaults" Text="Setup" FontAttributes="Bold"/>
                         </Grid>
 
-                        <Frame VerticalOptions="Start" Grid.Row="2" Padding="5" HasShadow="True" OutlineColor="White">
+                        <Frame VerticalOptions="Start" Grid.Row="2" OutlineColor="White">
                             <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                
                                 <Label x:Name="lblDisconnectMode" Text="Disconnected Mode" VerticalTextAlignment="Center"/>
-                                <Custom:CustomSwitch x:Name="chkDisconnectMode" Toggled="ChkDisconnectMode_Toggled"/>
+                                <Custom:CustomSwitch x:Name="chkDisconnectMode" Toggled="ChkDisconnectMode_Toggled" Grid.Column="1"/>
 
                                 <Label x:Name="lblDisconnectedModeLoadDetail" Text="Adjustments" VerticalTextAlignment="Center" Grid.Row="1" />
-                                <Custom:CustomSwitch x:Name="chkDisconnectedModeLoadDetail" Grid.Row="1" Toggled="ChkDisconnectedModeLoadDetail_Toggled"/>
+                                <Custom:CustomSwitch x:Name="chkDisconnectedModeLoadDetail" Grid.Row="1" Grid.Column="1" Toggled="ChkDisconnectedModeLoadDetail_Toggled"/>
 
                                 <Label x:Name="lblVerifyLocationWhenProductChanged" Text="Verify Location" VerticalTextAlignment="Center" Grid.Row="2" />
-                                <Custom:CustomSwitch x:Name="chkVerifyLocationWhenProductChanged" Grid.Row="2" Toggled="ChkVerifyLocationWhenProductChanged_Toggled"/>
+                                <Custom:CustomSwitch x:Name="chkVerifyLocationWhenProductChanged" Grid.Row="2" Grid.Column="1" Toggled="ChkVerifyLocationWhenProductChanged_Toggled"/>
 
                                 <Label x:Name="lblPrintProductLabelsAsBatch" Text="Print Product Labels as a Batch" VerticalTextAlignment="Center" Grid.Row="3" />
-                                <Custom:CustomSwitch x:Name="chkPrintProductLabelsAsBatch" Grid.Row="3" Toggled="ChkPrintProductLabelsAsBatch_Toggled"/>
+                                <Custom:CustomSwitch x:Name="chkPrintProductLabelsAsBatch" Grid.Row="3" Grid.Column="1" Toggled="ChkPrintProductLabelsAsBatch_Toggled"/>
+
+                                <Label x:Name="lblThemePicker" Text="Theme" VerticalTextAlignment="Center" Grid.Row="4" />
+                                <Custom:CustomPicker x:Name="themePicker" Grid.Row="4" Grid.Column="1" SelectedIndexChanged="ThemePicker_SelectedIndexChanged"/>
                             </Grid>
                         </Frame>
 
@@ -52,7 +67,7 @@
                             <Label x:Name="tabSetupDefaultsPrinters" Text="Portable Printers" FontAttributes="Bold"/>
                         </Grid>
 
-                        <Frame VerticalOptions="Start" Grid.Row="8" Padding="5" HasShadow="True" OutlineColor="White">
+                        <Frame VerticalOptions="Start" Grid.Row="8" OutlineColor="White">
                             <Grid>
                                 <Label x:Name="lblEnableShippingMobilePrinter" Text="Shipping Label Printer" VerticalTextAlignment="Center" />
                                 <Custom:CustomSwitch x:Name="chkEnableShippingMobilePrinter" Toggled="ChkEnableShippingMobilePrinter_Toggled"/>
@@ -81,7 +96,7 @@
                                Color="Black" 
                                AbsoluteLayout.LayoutFlags="All" 
                                AbsoluteLayout.LayoutBounds="0.5,0.5,0.3,0.3"/>
-            
+
         </AbsoluteLayout>
     </ContentPage.Content>
 </custompages:DMobileContentPage>

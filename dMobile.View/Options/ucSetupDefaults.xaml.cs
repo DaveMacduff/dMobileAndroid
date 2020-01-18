@@ -1,28 +1,29 @@
-﻿using dMobile.View.CustomPages;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.ComponentModel;
-using System.Data;
-using System.Xml.Linq;
-using dMobile.Bedrock;
-using Xamarin.Forms;
-using Xamarin.Forms.Xaml;
-using System.Data.SQLite;
-using dMobile.View.Forms;
-using dMobile.Resources.Enums;
-using Android.Views;
-
-namespace dMobile.View.Options
+﻿namespace dMobile.View.Options
 {
+    using dMobile.View.CustomPages;
+    using System;
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
+    using System.ComponentModel;
+    using System.Data;
+    using System.Xml.Linq;
+    using dMobile.Bedrock;
+    using Xamarin.Forms;
+    using Xamarin.Forms.Xaml;
+    using System.Data.SQLite;
+    using dMobile.View.Forms;
+    using dMobile.Resources.Enums;
+    using Android.Views;
+    using dMobile.View.Themes;
+    using System.Collections.ObjectModel;
+
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ucSetupDefaults : DMobileContentPage, IAppPublisher
     {
         //private UserControl callingControl = new ucOptionsMenu();
         private bool isControlLoaded;
         private bool isChangesMade;
+        public ObservableCollection<Theme> themesList;
         private SysEnvironment sysEnv;
         private PrinterSettings prnSettings;
         private ReqCloseHandler reqCloseEvent;
@@ -45,6 +46,12 @@ namespace dMobile.View.Options
                 sysEnv = SysEnvironment.GetInstance();
                 prnSettings = new PrinterSettings().LoadData();
                 actSubType = SysCommon.ActSubTypes.SetupDefaults;
+                themesList = new ObservableCollection<Theme>();
+
+                foreach (Theme theme in (Theme[])Enum.GetValues(typeof(Theme)))
+                {
+                    this.themesList.Add(theme);
+                }
 
                 try
                 {
@@ -59,7 +66,7 @@ namespace dMobile.View.Options
             // TODO: Resource strings
             this.tabSetupDefaults.Text = "Setup";
             this.lblDisconnectMode.Text = "Disconnected Mode";
-            this.lblDisconnectedModeLoadDetail.Text = "Adjustments";
+            this.lblDisconnectedModeLoadDetail.Text = "Disconnected Mode Load Detail";
             this.lblVerifyLocationWhenProductChanged.Text = "Verify Location";
             this.lblPrintProductLabelsAsBatch.Text = "Print Product Labels as a Batch";
             this.lblEnableShippingMobilePrinter.Text = "Shipping Label Printer";
@@ -74,7 +81,7 @@ namespace dMobile.View.Options
         public delegate void ReqCancelEnableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
         public delegate void ReqSaveEnableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
 
-          /// <summary>
+        /// <summary>
         /// The OnAppearing
         /// </summary>
         protected override void OnAppearing()
@@ -112,6 +119,9 @@ namespace dMobile.View.Options
                     //}
                 }
             });
+
+            this.themePicker.ItemsSource = this.themesList;
+            this.themePicker.SelectedItem = this.SysEnv.SysSettings.Theme;
         }
 
         /// <summary>
@@ -119,8 +129,8 @@ namespace dMobile.View.Options
         /// </summary>
         protected override void OnDisappearing()
         {
-                base.OnDisappearing();
-                MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
+            base.OnDisappearing();
+            MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
         }
 
         public event ReqCloseHandler ReqClose
@@ -370,7 +380,7 @@ namespace dMobile.View.Options
             {
                 isReadyToSave = false;
 
-                Device.BeginInvokeOnMainThread(async () => 
+                Device.BeginInvokeOnMainThread(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, /*this, */ex);
                     await errRpt.ShowDialog();
@@ -418,7 +428,7 @@ namespace dMobile.View.Options
                 // We do not want to get caught not being able to 'escape' the control.
                 isReadyToClose = true;
 
-                Device.BeginInvokeOnMainThread(async () => 
+                Device.BeginInvokeOnMainThread(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex);
                     await errRpt.ShowDialog();
@@ -484,14 +494,14 @@ namespace dMobile.View.Options
                             }
                         });
                     }
-                    else
-                    {
-                        this.chkDisconnectMode.IsToggled = this.SysEnv.SysSettings.IsDisconnectedMode;
-                        this.chkDisconnectedModeLoadDetail.IsToggled = this.SysEnv.SysSettings.IsDisconnectedModeLoadDetail;
-                        this.chkVerifyLocationWhenProductChanged.IsToggled = this.SysEnv.SysSettings.IsVerifyProductLocation;
-                        this.chkPrintProductLabelsAsBatch.IsToggled = this.SysEnv.SysSettings.IsPrintProductLabelsAsBatch;
-                    }
-                    
+                    //else
+                    //{
+                    //    this.chkDisconnectMode.IsToggled = this.SysEnv.SysSettings.IsDisconnectedMode;
+                    //    this.chkDisconnectedModeLoadDetail.IsToggled = this.SysEnv.SysSettings.IsDisconnectedModeLoadDetail;
+                    //    this.chkVerifyLocationWhenProductChanged.IsToggled = this.SysEnv.SysSettings.IsVerifyProductLocation;
+                    //    this.chkPrintProductLabelsAsBatch.IsToggled = this.SysEnv.SysSettings.IsPrintProductLabelsAsBatch;
+                    //}
+
                     this.SysEnv.SysSettings.IsDisconnectedMode = this.chkDisconnectMode.IsToggled;
                     this.SysEnv.SysSettings.IsDisconnectedModeLoadDetail = this.chkDisconnectedModeLoadDetail.IsToggled;
                     this.SysEnv.SysSettings.IsVerifyProductLocation = this.chkVerifyLocationWhenProductChanged.IsToggled;
@@ -558,7 +568,7 @@ namespace dMobile.View.Options
             }
             catch (Exception ex)
             {
-                Device.BeginInvokeOnMainThread(async () => 
+                Device.BeginInvokeOnMainThread(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex);
                     await errRpt.ShowDialog();
@@ -606,7 +616,7 @@ namespace dMobile.View.Options
             {
                 cancelChanges = true;
 
-                Device.BeginInvokeOnMainThread(async () => 
+                Device.BeginInvokeOnMainThread(async () =>
                 {
                     FormErrorReport errorReport = new FormErrorReport(this.ActSubType, /*this,*/ ex);
                     await errorReport.ShowDialog();
@@ -765,7 +775,7 @@ namespace dMobile.View.Options
             {
                 this.IsChangesMade = true;
 
-                Device.BeginInvokeOnMainThread(async () => 
+                Device.BeginInvokeOnMainThread(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex);
                     await errRpt.ShowDialog();
@@ -948,7 +958,7 @@ namespace dMobile.View.Options
             {
                 e.Cancel = true;
 
-                Device.BeginInvokeOnMainThread(async () => 
+                Device.BeginInvokeOnMainThread(async () =>
                 {
                     FormErrorReport errorReport = new FormErrorReport(this.ActSubType, /*this,*/ ex);
                     await errorReport.ShowDialog();
@@ -963,7 +973,7 @@ namespace dMobile.View.Options
             {
                 e.Cancel = true;
 
-                Device.BeginInvokeOnMainThread(async () => 
+                Device.BeginInvokeOnMainThread(async () =>
                 {
                     FormErrorReport errorReport = new FormErrorReport(this.ActSubType, /*this,*/ ex);
                     await errorReport.ShowDialog();
@@ -1019,6 +1029,37 @@ namespace dMobile.View.Options
         private async void BtnSave_Clicked(object sender, EventArgs e)
         {
             await this.SaveChanges();
+        }
+
+        private void ThemePicker_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if ((Theme)this.themePicker.SelectedItem != this.SysEnv.SysSettings.Theme)
+            {
+                this.IdentifyChangesMade(sender, new EventArgs());
+
+                Picker picker = sender as Picker;
+                Theme theme = (Theme)picker.SelectedItem;
+
+                ICollection<ResourceDictionary> mergedDictionaries = Application.Current.Resources.MergedDictionaries;
+
+                if (mergedDictionaries != null)
+                {
+                    mergedDictionaries.Clear();
+
+                    switch (theme)
+                    {
+                        case Theme.Dark:
+                            mergedDictionaries.Add(new DarkTheme());
+                            this.SysEnv.SysSettings.Theme = Theme.Dark;
+                            break;
+                        case Theme.Light:
+                        default:
+                            mergedDictionaries.Add(new LightTheme());
+                            this.SysEnv.SysSettings.Theme = Theme.Light;
+                            break;
+                    }
+                }
+            }
         }
     }
 }

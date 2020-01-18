@@ -173,8 +173,6 @@ namespace dMobile.View.Options
                 this.schemeLabelSettings = new ProdSchemeLabelSettings();
                 this.itemsList = new ObservableCollection<string>();
             }
-
-            //Task.Run(async () => await this.tmrRefreshData_Tick(this, new EventArgs()));
         }
 
         public ucRefreshDataStatus(SysCommon.ActSubTypes actSubTypes)
@@ -251,8 +249,6 @@ namespace dMobile.View.Options
             }
 
             this.ActSubType = actSubTypes;
-
-            Task.Run(async () => await this.tmrRefreshData_Tick(this, new EventArgs()));
         }
 
         /// <summary>
@@ -283,6 +279,8 @@ namespace dMobile.View.Options
                     }
                 }
             });
+
+            Task.Run(async () => await this.tmrRefreshData_Tick(this, new EventArgs()));
         }
 
         /// <summary>

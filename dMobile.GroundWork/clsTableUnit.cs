@@ -17,80 +17,62 @@ namespace dMobile.GroundWork
       this.FullClassName = "dMobile.GroundWork.TableUnit";
     }
 
-    #endregion
+        #endregion
 
-    #region Public Members
+        #region Public Members
 
-    /// <summary>
-    ///
-    /// </summary>
-    /// <remarks></remarks>
-    public override void Request()
-    {
-      string reqData = string.Empty;
-
-      // TODO: Uncomment GC calls
-      //GC.Collect();
-      //GC.WaitForPendingFinalizers();
-
-      try
-      {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SeedingUnitsOfMeasure), true);
-#else
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding units of measure.", true);
-#endif
-
-        reqData = this.Send("units of measure");
-        if (0 < reqData.Length)
+        /// <summary>
+        ///
+        /// </summary>
+        /// <remarks></remarks>
+        public override void Request()
         {
-          if (reqData.Contains("<message>ERROR</message>"))
-          {
-            XmlDocument reqErr = new XmlDocument();
-            reqErr.LoadXml(reqData);
-            throw new Exception(reqErr.DocumentElement["detail"].InnerText);
-          }
+            string reqData = string.Empty;
 
-          this.Save(reqData);
+            //GC.Collect();
+            //GC.WaitForPendingFinalizers();
+
+            try
+            {
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding units of measure.", true);
+
+                reqData = this.Send("units of measure");
+
+                if (0 < reqData.Length)
+                {
+                    if (reqData.Contains("<message>ERROR</message>"))
+                    {
+                        XmlDocument reqErr = new XmlDocument();
+                        reqErr.LoadXml(reqData);
+                        throw new Exception(reqErr.DocumentElement["detail"].InnerText);
+                    }
+
+                    this.Save(reqData);
+                }
+
+                // Require to have units.
+                if (0 >= this.DataStatus())
+                {
+                    // TODO: Resource strings
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "No units of measure where received.", true);
+
+                    // TODO: Resource strings
+                    throw new Exception("No units of measure where received.");
+                }
+
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding units of measure complete.", true);
+            }
+            catch (Exception ex)
+            {
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding units of measure failed.", true);
+
+                // TODO: Resource strings
+                throw new Exception("Seeding units of measure failed.", ex);
+            }
         }
-
-        // Require to have units.
-        if (0 >= this.DataStatus())
-        {
-#if MULTILANGUAGE
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.NoUnitsOfMeasureWhereReceived), true);
-#else
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "No units of measure where received.", true);
-#endif
-
-#if MULTILANGUAGE
-          throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.NoUnitsOfMeasureWhereReceived));
-#else
-          throw new Exception("No units of measure where received.");
-#endif
-        }
-
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SeedingUnitsOfMeasureComplete), true);
-#else
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding units of measure complete.", true);
-#endif
-      }
-      catch (Exception ex)
-      {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SeedingUnitsOfMeasureFailed), true);
-#else
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding units of measure failed.", true);
-#endif
-
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.SeedingUnitsOfMeasureFailed), ex);
-#else
-        throw new Exception("Seeding units of measure failed.", ex);
-#endif
-      }
-    }
 
     /// <summary>
     /// 
@@ -152,44 +134,34 @@ namespace dMobile.GroundWork
       return unitRefno;
     }
 
-    /// <summary>
-    ///
-    /// </summary>
-    /// <remarks></remarks>
-    public override int DataStatus()
-    {
-      int rowsAffected = 0;
-
-      try
-      {
-        using (SQLiteCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        /// <summary>
+        ///
+        /// </summary>
+        /// <remarks></remarks>
+        public override int DataStatus()
         {
-          cmndStatus.CommandText = "SELECT COUNT(*) FROM tUnit";
-          cmndStatus.CommandType = CommandType.Text;
-          rowsAffected = Convert.ToInt32(cmndStatus.ExecuteScalar());
-      
-          this.DataAccessStatusOutHandler(
-              this, 
-              EventArgs.Empty, 
-#if MULTILANGUAGE
-              string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.UnitsOfMeasure), rowsAffected),
-#else
-              string.Format("{0} units of measure.", rowsAffected),
-#endif
-              true);
-        }
-      }
-      catch (SQLiteException ex)
-      {
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredUnitsOfMeasureStatusFailed), ex);
-#else
-        throw new Exception("Database exception occurred. Units of measure status failed.", ex);
-#endif
-      }
+            int rowsAffected = 0;
 
-      return rowsAffected;
-    }
+            try
+            {
+                using (SQLiteCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                {
+                    cmndStatus.CommandText = "SELECT COUNT(*) FROM tUnit";
+                    cmndStatus.CommandType = CommandType.Text;
+                    rowsAffected = Convert.ToInt32(cmndStatus.ExecuteScalar());
+
+                    // TODO: Resource strings
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} units of measure.", rowsAffected), true);
+                }
+            }
+            catch (SQLiteException ex)
+            {
+                // TODO: Resource strings
+                throw new Exception("Database exception occurred. Units of measure status failed.", ex);
+            }
+
+            return rowsAffected;
+        }
 
     /// <summary>
     ///
@@ -223,42 +195,42 @@ namespace dMobile.GroundWork
       }
     }
 
-    #endregion
+        #endregion
 
-    #region Private Members
+        #region Private Members
 
-    /// <summary>
-    ///
-    /// </summary>
-    /// <param name="reqData"></param>
-    /// <remarks></remarks>
-    protected override void Save(string reqData)
-    {
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="reqData"></param>
+        /// <remarks></remarks>
+        protected override void Save(string reqData)
+        {
             SQLiteConnection conn = DatabaseConnection.GetInstance().SQLConn;
             string errMsg = string.Empty;
 
-            try
+            using (SQLiteCommand cmndUnit = conn.CreateCommand())
+            using (SQLiteTransaction transaction = conn.BeginTransaction())
             {
-                using (DataSet ds = new DataSet())
+                try
                 {
-                    // TODO: Resource String
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
-
-                    ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
-
-                    // TODO: Resource String
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving units of measure.", false);
-
-                    if (ds.Tables.Count != 0)
+                    using (DataSet ds = new DataSet())
                     {
-                        int progMax = ds.Tables["tUnit"].Rows.Count;
+                        // TODO: Resource String
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
+
+                        ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
 
                         // TODO: Resource String
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving units of measure.", false);
 
-                        using (SQLiteCommand cmndUnit = conn.CreateCommand())
-                        using (SQLiteTransaction transaction = conn.BeginTransaction())
+                        if (ds.Tables.Count != 0)
                         {
+                            int progMax = ds.Tables["tUnit"].Rows.Count;
+
+                            // TODO: Resource String
+                            this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
+
                             cmndUnit.CommandText = "SELECT UnitCode FROM tUnit WHERE UnitCode = @unitCode";
                             cmndUnit.CommandType = CommandType.Text;
                             //cmndUnit.IndexName = "UQ_UnitOnUnitCode";
@@ -282,15 +254,14 @@ namespace dMobile.GroundWork
 
                                 using (SQLiteDataReader drUnit = cmndUnit.ExecuteReader())
                                 {
-                                    // TODO: Uncomment
-                                    //if (SysEnv.RefreshOpt.RefreshDataChangesOnly)
-                                    //{
-                                    //if (drUnit.Seek(DbSeekOptions.FirstEqual, new object[] { unitCode }))
-                                    if (drUnit.Read())
+                                    if (SysEnv.RefreshOpt.RefreshDataChangesOnly)
                                     {
-                                        isUnitFound = true;
+                                        //if (drUnit.Seek(DbSeekOptions.FirstEqual, new object[] { unitCode }))
+                                        if (drUnit.Read())
+                                        {
+                                            isUnitFound = true;
+                                        }
                                     }
-                                    //}
 
                                     if (!isUnitFound)
                                     {
@@ -300,6 +271,7 @@ namespace dMobile.GroundWork
                                             cmndUnitInsert.CommandType = CommandType.Text;
                                             //cmndUnitInsert.IndexName = "UQ_UnitOnUnitCode";
                                             cmndUnitInsert.Parameters.Add(new SQLiteParameter("@unitCode", unitCode));
+
                                             cmndUnitInsert.ExecuteNonQuery();
 
                                             //rec.SetString((int)SysCommon.UnitFields.UnitCode, unitCode);
@@ -322,30 +294,33 @@ namespace dMobile.GroundWork
 
                             //drUnit.Close();
                             //}
-
-                            transaction.Commit();
+                            //}
                         }
+
+                        transaction.Commit();
+
+                        // TODO: Resource String
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving units of measure complete.", false);
+                    }
                 }
+                catch (SQLiteException ex)
+                {
+                    transaction.Rollback();
 
                     // TODO: Resource String
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving units of measure complete.", false);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving units of measure failed.", false);
+
+                    // Duplicate key violations
+                    //if (ex.NativeError == 25016)
+                    //{
+                    //    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Uniqueness violation.", false);
+                    //    throw new Exception("Uniqueness violation." + Environment.NewLine + errMsg, ex);
+                    //}
+
+                    // TODO: Resource String
+                    throw new Exception("Database exception occurred. Saving units of measure failed." + Environment.NewLine + errMsg, ex);
                 }
-            }
-            catch (SQLiteException ex)
-            {
-                // TODO: Resource String
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving units of measure failed.", false);
-
-                // Duplicate key violations
-                //if (ex.NativeError == 25016)
-                //{
-                //    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Uniqueness violation.", false);
-                //    throw new Exception("Uniqueness violation." + Environment.NewLine + errMsg, ex);
-                //}
-
-                // TODO: Resource String
-                throw new Exception("Database exception occurred. Saving units of measure failed." + Environment.NewLine + errMsg, ex);
             }
         }
 

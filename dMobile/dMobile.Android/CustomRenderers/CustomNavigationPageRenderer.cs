@@ -36,14 +36,13 @@ namespace dMobile.Droid.CustomRenderers
             if (toolbar == null) return;
 
             for (var index = 0; index < toolbar.ChildCount; index++)
-            {
+            {                
                 if (toolbar.GetChildAt(index) is TextView title)
                 {
                     float toolbarCenter = toolbar.Width / 2;
                     float titleCenter = title.Width / 2;
                     title.SetX(toolbarCenter - titleCenter);
                 }
-
             }
         }
     }

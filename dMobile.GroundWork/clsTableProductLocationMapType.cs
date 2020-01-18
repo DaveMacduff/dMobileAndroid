@@ -54,6 +54,7 @@ namespace dMobile.GroundWork
                             this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Default picking locations.", true);
 
                             reqData = this.SendRequest((int)SysCommon.ProdLocMapTypes.Picking, whsLocMapFKRefno);
+
                             if (0 < reqData.Length)
                             {
                                 if (reqData.Contains("<message>ERROR</message>"))
@@ -71,6 +72,7 @@ namespace dMobile.GroundWork
                             this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Default receiving locations.", true);
 
                             reqData = this.SendRequest((int)SysCommon.ProdLocMapTypes.Receiving, whsLocMapFKRefno);
+
                             if (0 < reqData.Length)
                             {
                                 if (reqData.Contains("<message>ERROR</message>"))
@@ -123,33 +125,21 @@ namespace dMobile.GroundWork
                 {
                     cmndStatus.CommandText = "SELECT COUNT(*) FROM tProductLocationMapType";
                     cmndStatus.CommandType = CommandType.Text;
+
                     rowsAffected = Convert.ToInt32(cmndStatus.ExecuteScalar());
-                    this.DataAccessStatusOutHandler(
-                        this,
-                        EventArgs.Empty,
-#if MULTILANGUAGE
-              string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.ProductLocations), rowsAffected),
-#else
- string.Format("{0} product locations.", rowsAffected),
-#endif
- true);
+
+                    // TODO: Resource strings
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} product locations.", rowsAffected), true);
                 }
             }
             catch (SQLiteException ex)
             {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), false);
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.ProductLocationsStatusFailed), false);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "product locations status failed.", false);
-#endif
 
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredProductLocationStatusFailed), ex);
-#else
+                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Product location status failed.", ex);
-#endif
             }
 
             return rowsAffected;
@@ -163,11 +153,8 @@ namespace dMobile.GroundWork
         {
             try
             {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingProductLocations), true);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product locations.", true);
-#endif
 
                 using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
                 {
@@ -178,19 +165,12 @@ namespace dMobile.GroundWork
             }
             catch (SQLiteException ex)
             {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), true);
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingProductLocations), true);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product locations.", true);
-#endif
 
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredPurgingProductLocations), ex);
-#else
+                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Purging product locations.", ex);
-#endif
             }
         }
 
@@ -1019,7 +999,6 @@ namespace dMobile.GroundWork
                 catch (SQLiteException ex)
                 {
                     transaction.Rollback();
-                    transaction.Dispose();
 
                     // TODO: Resource Strings
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);

@@ -4,7 +4,9 @@
     using dMobile.Bedrock;
     using dMobile.Resources.Enums;
     using dMobile.View.CustomPages;
+    using dMobile.View.Themes;
     using System;
+    using System.Collections.Generic;
     using System.Xml.Linq;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
@@ -15,6 +17,7 @@
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ucMainMenu : DMobileContentPage, IAppArea, IAppPublisher
     {
+
         //private UserControl callingControl = new LoginStartup();
         private SysEnvironment sysEnv;
         private bool isControlLoaded = false;
@@ -113,13 +116,15 @@
                 }
             });
 
-            this.EnableControls();
-
-            if (!DesignMode.IsDesignModeEnabled)
+            try
             {
                 this.ucMainMenu_GotFocus(this, new EventArgs());
             }
-
+            catch (Exception ex)
+            {
+                // TODO: Resource strings
+                DisplayAlert("Error", "this.ucMainMenu_GotFocus threw an error " + ex, "OK");
+            }
         }
 
         /// <summary>
@@ -354,11 +359,8 @@
         /// <remarks></remarks>
         public string GetControlDescription()
         {
-#if MULTILANGUAGE
-        return Translator.GetInstance().Translate(TranslatorVocabulary.MainMenu);
-#else
+            // TODO: Resource strings
             return Resource.MainMenu;
-#endif
         }
 
         /// <summary>
@@ -593,6 +595,8 @@
                         this.cmdInventory.IsEnabled = true;
                         this.cmdProduction.IsEnabled = true;
                     }
+
+                    this.cmdOptions.IsEnabled = true;
 
                     // attempt to give focus to first control
                     this.cmdPurchaseOrders.Focus();

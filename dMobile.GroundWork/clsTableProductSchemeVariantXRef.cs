@@ -29,19 +29,16 @@ namespace dMobile.GroundWork
         {
             string reqData = string.Empty;
 
-            // TODO: Uncomment GC calls
             //GC.Collect();
             //GC.WaitForPendingFinalizers();
 
             try
             {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SeedingProductSchemeVariantXref), true);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding product scheme variant xref.", true);
-#endif
 
                 reqData = this.Send("product scheme variant xref");
+
                 if (0 < reqData.Length)
                 {
                     if (reqData.Contains("<message>ERROR</message>"))
@@ -54,25 +51,16 @@ namespace dMobile.GroundWork
                     this.Save(reqData);
                 }
 
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SeedingProductSchemeVariantXrefComplete), true);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding product scheme variant xref complete.", true);
-#endif
             }
             catch (Exception ex)
             {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SeedingProductSchemeVariantXrefFailed), true);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding product scheme variant xref failed.", true);
-#endif
 
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.SeedingProductSchemeVariantXrefFailed), ex);
-#else
+                // TODO: Resource strings
                 throw new Exception("Seeding product scheme variant xref failed.", ex);
-#endif
             }
         }
 
@@ -83,15 +71,12 @@ namespace dMobile.GroundWork
         {
             try
             {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingProductSchemeVariantXref), true);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product scheme variant xref.", true);
-#endif
+
                 using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
                 {
                     // Note should tProductSchemeVariants be purged too?
-
                     cmndPurge.CommandText = "DELETE FROM tProductSchemeVariantXRef";
                     cmndPurge.CommandType = CommandType.Text;
                     cmndPurge.ExecuteNonQuery();
@@ -99,19 +84,12 @@ namespace dMobile.GroundWork
             }
             catch (SQLiteException ex)
             {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), true);
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingProductSchemeVariantXrefFailed), true);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product scheme variant xref failed.", true);
-#endif
 
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredPurgingProductSchemeVariantXrefFailed), ex);
-#else
+                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Purging product scheme variant xref failed.", ex);
-#endif
             }
         }
 
@@ -132,24 +110,14 @@ namespace dMobile.GroundWork
 
                     rowsAffected = Convert.ToInt32(cmndStatus.ExecuteScalar());
 
-                    this.DataAccessStatusOutHandler(
-                        this,
-                        EventArgs.Empty,
-#if MULTILANGUAGE
-              string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.ProductSchemeVariantXrefs), rowsAffected), 
-#else
-              string.Format("{0} product scheme variant xrefs.", rowsAffected),
-#endif
-              true);
+                    // TODO: Resource strings
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} product scheme variant xrefs.", rowsAffected), true);
                 }
             }
             catch (SQLiteException ex)
             {
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredProductSchemeVariantXrefStatusFailed), ex);
-#else
+                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Product scheme variant xref status failed.", ex);
-#endif
             }
 
             return rowsAffected;
@@ -162,33 +130,32 @@ namespace dMobile.GroundWork
         protected override void Save(string reqData)
         {
             SQLiteConnection conn = DatabaseConnection.GetInstance().SQLConn;
-
             string errMsg = string.Empty;
 
-            try
+            using (SQLiteCommand cmndSchemeVarXRef = conn.CreateCommand())
+            using (SQLiteCommand cmndScheme = conn.CreateCommand())
+            using (SQLiteCommand cmndSchemeVar = conn.CreateCommand())
+            using (SQLiteTransaction transaction = conn.BeginTransaction())
             {
-                using (DataSet ds = new DataSet())
+                try
                 {
-                    // TODO: Resource String
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
-
-                    ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
-
-                    // TODO: Resource String
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product scheme variant xrefs.", false);
-
-                    if (ds.Tables.Count != 0)
+                    using (DataSet ds = new DataSet())
                     {
-                        int progMax = Convert.ToInt32(ds.Tables["tProductSchemeVariantXRef"].Rows.Count);
+                        // TODO: Resource String
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
+
+                        ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
 
                         // TODO: Resource String
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product scheme variant xrefs.", false);
 
-                        using (SQLiteCommand cmndSchemeVarXRef = conn.CreateCommand())
-                        using (SQLiteCommand cmndScheme = conn.CreateCommand())
-                        using (SQLiteCommand cmndSchemeVar = conn.CreateCommand())
-                        using (SQLiteTransaction transaction = conn.BeginTransaction())
+                        if (ds.Tables.Count != 0)
                         {
+                            int progMax = Convert.ToInt32(ds.Tables["tProductSchemeVariantXRef"].Rows.Count);
+
+                            // TODO: Resource String
+                            this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
+
                             cmndSchemeVarXRef.CommandText = "SELECT * FROM tProductSchemeVariantXRef " +
                             "WHERE ProductSchemeRefno = @productSchemeRefno AND ProductSchemeVariantRefno = @productSchemeVariantRefno";
                             cmndSchemeVarXRef.CommandType = CommandType.Text;
@@ -326,27 +293,31 @@ namespace dMobile.GroundWork
                             //drSchemeVar.Close();
                             //}
 
-                            transaction.Commit();
+                            //}
+
+                            //drScheme.Close();
+                            //}
+                            //}
+
+                            //drSchemeVarXRef.Close();
                         }
 
-                        //drScheme.Close();
-                        //}
-                        //}
+                        transaction.Commit();
 
-                        //drSchemeVarXRef.Close();
+                        // TODO: Resource String
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product scheme variant xref complete.", false);
                     }
+                }
+                catch (SQLiteException ex)
+                {
+                    transaction.Rollback();
 
                     // TODO: Resource String
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product scheme variant xref complete.", false);
-                }
-            }
-            catch (SQLiteException ex)
-            {
-                // TODO: Resource String
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product scheme variant xref failed.", false);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product scheme variant xref failed.", false);
 
-                throw new Exception("Database exception occurred. Saving product scheme variant xref failed." + Environment.NewLine + errMsg, ex);
+                    throw new Exception("Database exception occurred. Saving product scheme variant xref failed." + Environment.NewLine + errMsg, ex);
+                }
             }
         }
 

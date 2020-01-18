@@ -1,76 +1,71 @@
 ﻿namespace dMobile.BarCodeScanner
 {
-  using System;
-
-  /// <summary>
-  /// This is the abstract barcode scanner class.
-  /// </summary>
-  public abstract class BarCodeScanner : IDisposable
-  {
-    #region Constructors
-
-    public BarCodeScanner()
-    {
-      // If we can initialize the scanner...
-      // if (Initialize())
-      // ...start a scan on the scanner
-      // this.Start();
-      Initialize();
-    }
-
-    #endregion
-
-    #region Delegates
-
-    public delegate void BarCodeScanEventHandler(object sender, BarCodeScannerEventArgs e);
-
-    #endregion
-
-    #region Events
-
-    public event BarCodeScanEventHandler BarCodeScan;
-
-    #endregion
-
-    #region Public Members
-
-    // Methods that need to be implemented in subclass.
-    public abstract bool Initialize();
-
-    public abstract void Start();
-
-    public abstract void Stop();
-
-    public abstract void Terminate();
+    using System;
+    using System.Threading.Tasks;
 
     /// <summary>
-    /// Event that calls the delegate.
+    /// This is the abstract barcode scanner class.
     /// </summary>
-    public virtual void OnBarCodeScan(BarCodeScannerEventArgs e)
+    public abstract class BarCodeScanner : IDisposable
     {
-      if (this.BarCodeScan != null)
-      {
-        this.BarCodeScan(this, e);
-      }
+        #region Constructors
+
+        public BarCodeScanner()
+        {
+            // If we can initialize the scanner...
+            // if (Initialize())
+            // ...start a scan on the scanner
+            // this.Start();
+            Initialize();
+        }
+
+        #endregion
+
+        #region Delegates
+
+        public delegate void BarCodeScanEventHandler(object sender, BarCodeScannerEventArgs e);
+
+        #endregion
+
+        #region Events
+
+        public event BarCodeScanEventHandler BarCodeScan;
+
+        #endregion
+
+        #region Public Members
+
+        // Methods that need to be implemented in subclass.
+        public abstract bool Initialize();
+        public abstract Task Start();
+        public abstract Task Stop();
+        public abstract void Terminate();
+
+        /// <summary>
+        /// Event that calls the delegate.
+        /// </summary>
+        public virtual void OnBarCodeScan(BarCodeScannerEventArgs e)
+        {
+            this.BarCodeScan?.Invoke(this, e);
+        }
+
+        #region IDisposable
+
+        public abstract void Dispose(bool disposing);
+
+        public virtual void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        ~BarCodeScanner()
+        {
+            Dispose(false);
+        }
+
+        #endregion
+
+        #endregion
     }
-
-    #region IDisposable
-
-    public abstract void Dispose(bool disposing);
-
-    public virtual void Dispose()
-    {
-      Dispose(true);
-      GC.SuppressFinalize(this);
-    }
-
-    ~BarCodeScanner()
-    {
-      Dispose(false);
-    }
-
-    #endregion
-
-    #endregion
-  }
 }

@@ -29,19 +29,16 @@ namespace dMobile.GroundWork
         {
             string reqData = string.Empty;
 
-            // TODO: Uncomment GC calls
             //GC.Collect();
             //GC.WaitForPendingFinalizers();
 
             try
             {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SeedingProductSchemeLotNumberXref), true);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding product scheme lot number xref.", true);
-#endif
 
                 reqData = this.Send("product scheme lot number xref");
+
                 if (0 < reqData.Length)
                 {
                     if (reqData.Contains("<message>ERROR</message>"))
@@ -54,29 +51,16 @@ namespace dMobile.GroundWork
                     this.Save(reqData);
                 }
 
-                this.DataAccessStatusOutHandler(
-                    this,
-                    EventArgs.Empty,
-#if MULTILANGUAGE
-            Translator.GetInstance().Translate(TranslatorVocabulary.SeedingProductSchemeLotNumberXrefComplete), 
-#else
-            "Seeding product scheme lot number xref complete.",
-#endif
-            true);
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding product scheme lot number xref complete.", true);
             }
             catch (Exception ex)
             {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SeedingProductSchemeLotNumberXrefFailed), true);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding product scheme lot number xref failed.", true);
-#endif
 
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.SeedingProductSchemeLotNumberXrefFailed), ex);
-#else
+                // TODO: Resource strings
                 throw new Exception("Seeding product scheme lot number xref failed.", ex);
-#endif
             }
         }
 
@@ -87,11 +71,8 @@ namespace dMobile.GroundWork
         {
             try
             {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingProductSchemeLotNumberXref), true);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product scheme lot number xref.", true);
-#endif
 
                 using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
                 {
@@ -104,34 +85,17 @@ namespace dMobile.GroundWork
                     cmndPurge.ExecuteNonQuery();
                 }
 
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingProductSchemeLotNumberXrefFailed), true);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product scheme lot number xref failed.", true);
-#endif
             }
             catch (SQLiteException ex)
             {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), true);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-#endif
-                this.DataAccessStatusOutHandler(
-                    this,
-                    EventArgs.Empty,
-#if MULTILANGUAGE
-            Translator.GetInstance().Translate(TranslatorVocabulary.PurgingProductSchemeLotNumberXrefFailed), 
-#else
-            "Purging product scheme lot number xref failed.",
-#endif
-            false);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product scheme lot number xref failed.", false);
 
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredPurgingProductSchemeLotNumberXrefFailed), ex);
-#else
+                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Purging product scheme lot number xref failed.", ex);
-#endif
             }
         }
 
@@ -149,26 +113,17 @@ namespace dMobile.GroundWork
                 {
                     cmndStatus.CommandText = "SELECT COUNT(*) FROM tProductSchemeLotNumberXRef";
                     cmndStatus.CommandType = CommandType.Text;
+
                     rowsAffected = Convert.ToInt32(cmndStatus.ExecuteScalar());
 
-                    this.DataAccessStatusOutHandler(
-                        this,
-                        EventArgs.Empty,
-#if MULTILANGUAGE
-              string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.ProductSchemeLotNumberXrefs), rowsAffected),
-#else
-              string.Format("{0} product scheme lot number xrefs.", rowsAffected),
-#endif
-              true);
+                    // TODO: Resource strings
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} product scheme lot number xrefs.", rowsAffected), true);
                 }
             }
             catch (SQLiteException ex)
             {
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredProductSchemeLotNumberXrefsStatusFailed), ex);
-#else
+                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Product scheme lot number xrefs status failed.", ex);
-#endif
             }
 
             return rowsAffected;
@@ -183,30 +138,30 @@ namespace dMobile.GroundWork
             SQLiteConnection conn = DatabaseConnection.GetInstance().SQLConn;
             string errMsg = string.Empty;
 
-            try
+            using (SQLiteCommand cmndGetScheme = conn.CreateCommand())
+            using (SQLiteCommand cmndGetSchemeLot = conn.CreateCommand())
+            using (SQLiteCommand cmndSchemeLotXRef = conn.CreateCommand())
+            using (SQLiteTransaction transaction = conn.BeginTransaction())
             {
-                using (DataSet ds = new DataSet())
+                try
                 {
-                    // TODO: Resource Strings
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
-
-                    ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
-
-                    // TODO: Resource Strings
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product scheme lot number xref.", false);
-
-                    if (ds.Tables.Count != 0)
+                    using (DataSet ds = new DataSet())
                     {
-                        int progMax = Convert.ToInt32(ds.Tables["tProductSchemeLotNumberXRef"].Rows.Count);
+                        // TODO: Resource Strings
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
+
+                        ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
 
                         // TODO: Resource Strings
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product scheme lot number xref.", false);
 
-                        using (SQLiteCommand cmndGetScheme = conn.CreateCommand())
-                        using (SQLiteCommand cmndGetSchemeLot = conn.CreateCommand())
-                        using (SQLiteCommand cmndSchemeLotXRef = conn.CreateCommand())
-                        using (SQLiteTransaction transaction = conn.BeginTransaction())
+                        if (ds.Tables.Count != 0)
                         {
+                            int progMax = Convert.ToInt32(ds.Tables["tProductSchemeLotNumberXRef"].Rows.Count);
+
+                            // TODO: Resource Strings
+                            this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
+
                             //cmndSchemeLotXRef.CommandText = "tProductSchemeLotNumberXRef";
                             //cmndSchemeLotXRef.CommandType = CommandType.TableDirect;
                             //cmndSchemeLotXRef.IndexName = "PK_ProductSchemeLotNumberXRefOnProductSchemeRefnoAndProductSchemeLotNumberRefno";
@@ -343,6 +298,7 @@ namespace dMobile.GroundWork
                                 }
 
                                 progValue++;
+
                                 if (progValue % 100 == 0)
                                 {
                                     this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
@@ -351,36 +307,38 @@ namespace dMobile.GroundWork
 
                             this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
 
-                            transaction.Commit();
                         }
 
                         //drSchemeLot.Close();
+                        //}
+                        //}
+                        //drScheme.Close();
+                        //}
+                        //}
+                        //drSchemeLotXRef.Close();
+                        //}
+                        //}
+                        //}
+
+                        transaction.Commit();
+
+                        // TODO: Resource Strings
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product scheme lot number xref complete.", false);
                     }
-                    //}
-
-                    //drScheme.Close();
-                    //}
-                    //}
-
-                    //drSchemeLotXRef.Close();
-                    //    }
-                    //}
-                    //}
+                }
+                catch (SQLiteException ex)
+                {
+                    transaction.Rollback();
 
                     // TODO: Resource Strings
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product scheme lot number xref complete.", false);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
+
+                    // TODO: Resource Strings
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Request product scheme lot number xref failed.", false);
+
+                    // TODO: Resource Strings
+                    throw new Exception("Database exception occurred. Request product scheme lot number xref failed." + errMsg, ex);
                 }
-            }
-            catch (SQLiteException ex)
-            {
-                // TODO: Resource Strings
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
-
-                // TODO: Resource Strings
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Request product scheme lot number xref failed.", false);
-
-                // TODO: Resource Strings
-                throw new Exception("Database exception occurred. Request product scheme lot number xref failed." + errMsg, ex);
             }
         }
 

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading;
 using Xamarin.Forms;
 using Honeywell.AIDC.CrossPlatform;
-using dMobileResources = dMobile.Resources.Properties.Resources;
 
 namespace dMobile.View
 {
@@ -33,6 +32,7 @@ namespace dMobile.View
             {
                 // Queries the list of readers that are connected to the mobile computer.
                 IList <BarcodeReaderInfo> readerList = await BarcodeReader.GetConnectedBarcodeReaders();
+
                 if (readerList.Count > 0)
                 {
                     foreach (BarcodeReaderInfo reader in readerList)
@@ -64,6 +64,7 @@ namespace dMobile.View
         private string GetSelectedReaderName()
         {
             int selIndex = mReaderPicker.SelectedIndex;
+
             if (selIndex >= 0)
             {
                 return mReaderPicker.Items[selIndex];
@@ -139,20 +140,14 @@ namespace dMobile.View
         private async void MBarcodeReader_BarcodeDataReady(object sender, BarcodeDataArgs e)
         {
             // Update the barcode information in the UI thread.
-            mUIContext.Post(_ => {
-                UpdateBarcodeInfo(e.Data, e.SymbologyName, e.TimeStamp);
-            }
-                , null);
+            mUIContext.Post(_ => { UpdateBarcodeInfo(e.Data, e.SymbologyName, e.TimeStamp); } , null);
 
             if (mContinuousScan)
             {
                 mTotalContinuousScanCount++;
  
                 // Measure and display the performance.
-                mUIContext.Post(_ => {
-                    mCountValueLabel.Text = mTotalContinuousScanCount.ToString();
-                }
-                , null);
+                mUIContext.Post(_ => { mCountValueLabel.Text = mTotalContinuousScanCount.ToString(); } , null);
             } //endif (mContinuousScan)
             else if (mSoftOneShotScanStarted)
             {
@@ -263,14 +258,15 @@ namespace dMobile.View
                         {mSelectedReader.SettingKeys.Ean13CheckDigitTransmitEnabled, true },
                         {mSelectedReader.SettingKeys.Interleaved25Enabled, true },
                         {mSelectedReader.SettingKeys.Interleaved25MaximumLength, 100 },
+                        {mSelectedReader.SettingKeys.DataProcessorSymbologyPrefix, "aim" },
                         {mSelectedReader.SettingKeys.Postal2DMode, mSelectedReader.SettingValues.Postal2DMode_Usps }
                     };
 
                     BarcodeReader.Result result = await mSelectedReader.SetAsync(settings);
+
                     if (result.Code != BarcodeReader.Result.Codes.SUCCESS)
                     {
-                        await DisplayAlert("Error", "Symbology settings failed, Code:" + result.Code +
-                                            " Message:" + result.Message, "OK");
+                        await DisplayAlert("Error", "Symbology settings failed, Code:" + result.Code + " Message:" + result.Message, "OK");
                     }
                 }
             }
@@ -284,6 +280,7 @@ namespace dMobile.View
         private void OpenReaderSwitch_Toggled(object sender, ToggledEventArgs e)
         {
             mOpenReader = e.Value;
+
             if (mOpenReader)
             {
                 OpenBarcodeReader();
@@ -303,10 +300,10 @@ namespace dMobile.View
             if (mSelectedReader != null && mSelectedReader.IsReaderOpened)
             {
                 BarcodeReader.Result result = await mSelectedReader.EnableAsync(e.Value); // Enables or disables barcode reader
+
                 if (result.Code != BarcodeReader.Result.Codes.SUCCESS)
                 {
-                    await DisplayAlert("Error", "EnableAsync failed, Code:" + result.Code +
-                                        " Message:" + result.Message, "OK");
+                    await DisplayAlert("Error", "EnableAsync failed, Code:" + result.Code + " Message:" + result.Message, "OK");
                 }
             }
         }
@@ -339,10 +336,10 @@ namespace dMobile.View
                     };
 
                     result = await mSelectedReader.SetAsync(settings);
+
                     if (result.Code != BarcodeReader.Result.Codes.SUCCESS)
                     {
-                        await DisplayAlert("Error", "Failed to set continuous scan mode, Code:" + result.Code +
-                                            " Message:" + result.Message, "OK");
+                        await DisplayAlert("Error", "Failed to set continuous scan mode, Code:" + result.Code + " Message:" + result.Message, "OK");
                     }
                 }
                 else
@@ -352,6 +349,7 @@ namespace dMobile.View
                         mSoftContinuousScanStarted = false;
                         // Turn off the software trigger.
                         result = await mSelectedReader.SoftwareTriggerAsync(false);
+
                         if (result.Code != BarcodeReader.Result.Codes.SUCCESS)
                         {
                             await DisplayAlert("Error", "Failed to turn off software trigger, Code:" + result.Code +
@@ -365,6 +363,7 @@ namespace dMobile.View
                     };
 
                     result = await mSelectedReader.SetAsync(settings);
+
                     if (result.Code != BarcodeReader.Result.Codes.SUCCESS)
                     {
                         await DisplayAlert("Error", "Failed to set one shot scan mode, Code:" + result.Code +
@@ -386,6 +385,7 @@ namespace dMobile.View
                     mSoftContinuousScanStarted = true;
                 }
                 BarcodeReader.Result result = await mSelectedReader.SoftwareTriggerAsync(true);
+
                 if (result.Code == BarcodeReader.Result.Codes.SUCCESS)
                 {
                     // Set mSoftOneShotScanStarted to true if not in continuous scan mode.

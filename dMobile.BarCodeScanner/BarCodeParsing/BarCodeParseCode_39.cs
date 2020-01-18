@@ -1,22 +1,22 @@
 ﻿namespace dMobile.BarCodeScanner
 {
-  using System;
+    using System;
 
-  /// <summary>
-  /// Parsing rules reviewed
-  /// </summary>
-  public class BarCodeParseCode_39 : BarCodeParse
-  {
     /// <summary>
-    /// 
+    /// Parsing rules reviewed
     /// </summary>
-    /// <param name="barCodeData"></param>
-    /// <returns></returns>
-    public override void ParseBarCodeData(string barCodeData)
+    public class BarCodeParseCode_39 : BarCodeParse
     {
-      barCodeData = this.IdentifyProductIdentifier(barCodeData);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="barCodeData"></param>
+        /// <returns></returns>
+        public override void ParseBarCodeData(string barCodeData)
+        {
+            barCodeData = this.IdentifyProductIdentifier(barCodeData);
 
-      Remainder = barCodeData;
+            Remainder = barCodeData;
+        }
     }
-  }
 }

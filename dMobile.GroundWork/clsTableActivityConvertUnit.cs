@@ -1,74 +1,60 @@
 namespace dMobile.GroundWork
 {
-  using System;
-  using System.Data;
-  using System.Data.SQLite;
-  using dMobile.Bedrock;
+    using System;
+    using System.Data;
+    using System.Data.SQLite;
+    using dMobile.Bedrock;
 
-  public class TableActivityConvertUnit : TableBase
-  {
-    #region Constructors
-
-    public TableActivityConvertUnit()
+    public class TableActivityConvertUnit : TableBase
     {
-      this.FullClassName = "dMobile.GroundWork.TableActivityConvertUnit";
-    }
+        #region Constructors
 
-    #endregion
-
-    #region Public Members
-
-    /// <summary>
-    ///
-    /// </summary>
-    /// <remarks></remarks>
-    public override void Purge()
-    {
-      try
-      {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingConvertUnits), true);
-#else
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging convert units.", true);
-#endif
-
-        using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        public TableActivityConvertUnit()
         {
-          cmndPurge.CommandText = "DELETE FROM tActivityConvertUnit " 
-              + "WHERE tActivityConvertUnit.ActivitySubType = " + (int)SysCommon.ActSubTypes.ConvertUnit;
-          cmndPurge.CommandType = CommandType.Text;
-          cmndPurge.ExecuteNonQuery();
-
-          cmndPurge.CommandText = "DELETE FROM tActivity " 
-              + "WHERE tActivity.ActivitySubType = " + (int)SysCommon.ActSubTypes.ConvertUnit;
-          cmndPurge.CommandType = CommandType.Text;
-          cmndPurge.ExecuteNonQuery();
+            this.FullClassName = "dMobile.GroundWork.TableActivityConvertUnit";
         }
 
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingConvertUnitsComplete), true);
-#else
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging convert units complete.", true);
-#endif
-      }
-      catch (SQLiteException ex)
-      {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), true);
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingConvertUnitsFailed), true);
-#else
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging convert units failed.", true);
-#endif
+        #endregion
 
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredPurgingConvertUnitsFailed), ex);
-#else
-        throw new Exception("Database exception occurred. Purging convert units failed.", ex);
-#endif
-      }
+        #region Public Members
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <remarks></remarks>
+        public override void Purge()
+        {
+            try
+            {
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging convert units.", true);
+
+                using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                {
+                    cmndPurge.CommandType = CommandType.Text;
+                    cmndPurge.Parameters.Add(new SQLiteParameter("@activitySubType", Convert.ToInt32(SysCommon.ActSubTypes.ConvertUnit)));
+
+                    cmndPurge.CommandText = "DELETE FROM tActivityConvertUnit WHERE tActivityConvertUnit.ActivitySubType = @activitySubType";
+                    cmndPurge.ExecuteNonQuery();
+
+                    cmndPurge.CommandText = "DELETE FROM tActivity WHERE tActivity.ActivitySubType = @activitySubType";
+                    cmndPurge.ExecuteNonQuery();
+                }
+
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging convert units complete.", true);
+            }
+            catch (SQLiteException ex)
+            {
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging convert units failed.", true);
+
+                // TODO: Resource strings
+                throw new Exception("Database exception occurred. Purging convert units failed.", ex);
+            }
+        }
+
+        #endregion
     }
-
-    #endregion
-  }
 }

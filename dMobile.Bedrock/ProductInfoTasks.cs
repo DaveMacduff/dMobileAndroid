@@ -227,16 +227,16 @@
                     new XDeclaration("1.0", "utf-16", "yes"),
                     string.Empty,
                     new XElement("imclient",
-                      new XElement("command",
-                        new XElement("action", "REQUEST PRODUCT FROM BARCODE")),
-                        new XElement("device_id", deviceID),
-                        new XElement("login_id", loginID),
-                        new XElement("revision_datetime", revisionDateTime),
-                        new XElement("stamp", currentDateTime),
-                        new XElement("barcode", productUnitBarCodeCode),
-                        new XElement("modifier1", productUnitBarCodeModifier1),
-                        new XElement("symbology", Convert.ToInt32(barCodeSymbology)),
-                        new XElement("barcode_amount", deliScaleAmount)));
+                    new XElement("command",
+                    new XElement("action", "REQUEST PRODUCT FROM BARCODE")),
+                    new XElement("device_id", deviceID),
+                    new XElement("login_id", loginID),
+                    new XElement("revision_datetime", revisionDateTime),
+                    new XElement("stamp", currentDateTime),
+                    new XElement("barcode", productUnitBarCodeCode),
+                    new XElement("modifier1", productUnitBarCodeModifier1),
+                    new XElement("symbology", Convert.ToInt32(barCodeSymbology)),
+                    new XElement("barcode_amount", deliScaleAmount)));
 
                 request.Save(xml);
                 xml.Flush();

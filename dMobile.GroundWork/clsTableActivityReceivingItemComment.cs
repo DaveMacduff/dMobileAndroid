@@ -1,69 +1,56 @@
 namespace dMobile.GroundWork
 {
-  using System;
-  using System.Data;
-  using System.Data.SQLite;
-  using dMobile.Bedrock;
+    using System;
+    using System.Data;
+    using System.Data.SQLite;
+    using dMobile.Bedrock;
 
-  public class TableActivityReceivingItemComment : TableBase
-  {
-    #region Constructors
-
-    public TableActivityReceivingItemComment()
-      : base()
+    public class TableActivityReceivingItemComment : TableBase
     {
-      this.FullClassName = "dMobile.GroundWork.TableActivityReceivingItemComment";
-    }
+        #region Constructors
 
-    #endregion
-
-    #region Public Members
-
-    /// <summary>
-    ///
-    /// </summary>
-    /// <remarks></remarks>
-    public override void Purge()
-    {
-      try
-      {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingReceivingItemComments), true);
-#else
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging receiving item comments.", true);
-#endif
-
-        using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        public TableActivityReceivingItemComment()
+          : base()
         {
-          cmndPurge.CommandText = "DELETE FROM tActivityItemReceivingComment";
-          cmndPurge.CommandType = CommandType.Text;
-          cmndPurge.ExecuteNonQuery();
+            this.FullClassName = "dMobile.GroundWork.TableActivityReceivingItemComment";
         }
 
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingReceivingItemCommentsComplete), true);
-#else
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging receiving item comments complete.", true);
-#endif
-      }
-      catch (SQLiteException ex)
-      {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), true);
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingReceivingItemCommentsFailed), true);
-#else
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging receiving item comments failed.", true);
-#endif
+        #endregion
 
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredPurgingReceivingItemCommentsFailed), ex);
-#else
-        throw new Exception("Database exception occurred. Purging receiving item comments failed.", ex);
-#endif
-      }
+        #region Public Members
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <remarks></remarks>
+        public override void Purge()
+        {
+            try
+            {
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging receiving item comments.", true);
+
+                using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                {
+                    cmndPurge.CommandText = "DELETE FROM tActivityItemReceivingComment";
+                    cmndPurge.CommandType = CommandType.Text;
+                    cmndPurge.ExecuteNonQuery();
+                }
+
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging receiving item comments complete.", true);
+            }
+            catch (SQLiteException ex)
+            {
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging receiving item comments failed.", true);
+
+                // TODO: Resource strings
+                throw new Exception("Database exception occurred. Purging receiving item comments failed.", ex);
+            }
+        }
+
+        #endregion
     }
-
-    #endregion
-  }
 }

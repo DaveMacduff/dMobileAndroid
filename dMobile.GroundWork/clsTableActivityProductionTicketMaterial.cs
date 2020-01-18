@@ -38,6 +38,7 @@ namespace dMobile.GroundWork
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding ticket materials.", true);
 
                 reqData = this.Send("ticket materials");
+
                 if (0 < reqData.Length)
                 {
                     if (reqData.Contains("<message>ERROR</message>"))
@@ -74,10 +75,9 @@ namespace dMobile.GroundWork
             {
                 using (SQLiteCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
                 {
-                    cmndStatus.CommandText = "SELECT COUNT(tActivity.ActivityRefno)"
-                        + " FROM tActivity"
-                        + " WHERE tActivity.ActivitySubType = " + (int)SysCommon.ActSubTypes.TicketMaterial;
+                    cmndStatus.CommandText = "SELECT COUNT(tActivity.ActivityRefno) FROM tActivity WHERE tActivity.ActivitySubType = @activitySubType";
                     cmndStatus.CommandType = CommandType.Text;
+                    cmndStatus.Parameters.Add(new SQLiteParameter("@activitySubType", Convert.ToInt32(SysCommon.ActSubTypes.TicketMaterial)));
 
                     rowsAffected = Convert.ToInt32(cmndStatus.ExecuteScalar());
 
@@ -106,22 +106,20 @@ namespace dMobile.GroundWork
                     // TODO: Resource strings
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging ticket materials.", true);
 
+                    cmndPurge.CommandType = CommandType.Text;
+                    cmndPurge.Parameters.Add(new SQLiteParameter("@activitySubType", Convert.ToInt32(SysCommon.ActSubTypes.TicketMaterial)));
+
                     cmndPurge.CommandText = "DELETE FROM tActivityProductionMaterial"
                         + " WHERE tActivityProductionMaterial.ActivityRefno IN"
                         + " (SELECT tActivityProduction.ActivityRefno"
                         + " FROM tActivityProduction"
-                        + " WHERE tActivityProduction.ActivitySubType = " + (int)SysCommon.ActSubTypes.TicketMaterial + ")";
-                    cmndPurge.CommandType = CommandType.Text;
+                        + " WHERE tActivityProduction.ActivitySubType = @activitySubType)";
                     cmndPurge.ExecuteNonQuery();
 
-                    cmndPurge.CommandText = "DELETE FROM tActivityProduction "
-                        + "WHERE tActivityProduction.ActivitySubType = " + (int)SysCommon.ActSubTypes.TicketMaterial;
-                    cmndPurge.CommandType = CommandType.Text;
+                    cmndPurge.CommandText = "DELETE FROM tActivityProduction WHERE tActivityProduction.ActivitySubType = @activitySubType";
                     cmndPurge.ExecuteNonQuery();
 
-                    cmndPurge.CommandText = "DELETE FROM tActivity "
-                        + "WHERE tActivity.ActivitySubType = " + (int)SysCommon.ActSubTypes.TicketMaterial;
-                    cmndPurge.CommandType = CommandType.Text;
+                    cmndPurge.CommandText = "DELETE FROM tActivity WHERE tActivity.ActivitySubType = @activitySubType";
                     cmndPurge.ExecuteNonQuery();
                 }
 
@@ -317,8 +315,6 @@ namespace dMobile.GroundWork
                                 }
                             }
 
-                            transaction.Commit();
-
                             this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
                         }
 
@@ -333,6 +329,8 @@ namespace dMobile.GroundWork
                         //    }
                         //}
 
+                        transaction.Commit();
+
                         // TODO: Resource strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving ticket materials complete.", false);
                     }
@@ -340,13 +338,6 @@ namespace dMobile.GroundWork
                 catch (SQLiteException ex)
                 {
                     transaction.Rollback();
-                    transaction.Dispose();
-
-                    cmndProduction.Dispose();
-                    cmndMaterial.Dispose();
-                    cmndActivity.Dispose();
-                    cmndID.Dispose();
-                    cmndWhs.Dispose();
 
                     // TODO: Resource strings
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);

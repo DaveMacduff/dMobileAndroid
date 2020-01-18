@@ -1,80 +1,58 @@
 namespace dMobile.GroundWork
 {
-  using System;
-  using System.Data;
-  using System.Data.SQLite;
-  using dMobile.Bedrock;
+    using System;
+    using System.Data;
+    using System.Data.SQLite;
+    using dMobile.Bedrock;
 
-  public class TableActivityDetailProductSchemeVariantXRef : TableBase
-  {
-    #region Constructors
-
-    public TableActivityDetailProductSchemeVariantXRef()
-      : base()
+    public class TableActivityDetailProductSchemeVariantXRef : TableBase
     {
-      this.FullClassName = "dMobile.GroundWork.TableActivityDetailProductSchemeVariantXRef";
-    }
+        #region Constructors
 
-    #endregion
-
-    #region Public Members
-
-    /// <summary>
-    ///
-    /// </summary>
-    /// <remarks></remarks>
-    public override void Purge()
-    {
-      try
-      {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingProductSchemeVariantXrefDetails), true);
-#else
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product scheme variant xref details.", true);
-#endif
-
-        using (SQLiteCommand cmndPurgeProdSchemeVarXRef = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        public TableActivityDetailProductSchemeVariantXRef()
+          : base()
         {
-          cmndPurgeProdSchemeVarXRef.CommandText = "DELETE FROM tActivityDetailProductSchemeVariantXRef";
-          cmndPurgeProdSchemeVarXRef.CommandType = CommandType.Text;
-          cmndPurgeProdSchemeVarXRef.ExecuteNonQuery();
+            this.FullClassName = "dMobile.GroundWork.TableActivityDetailProductSchemeVariantXRef";
         }
 
-        this.DataAccessStatusOutHandler(
-          this, 
-          EventArgs.Empty, 
-#if MULTILANGUAGE
-          Translator.GetInstance().Translate(TranslatorVocabulary.PurgingProductSchemeVariantXrefDetailsComplete), 
-#else
-          "Purging product scheme variant xref details complete.", 
-#endif
-          true);
-      }
-      catch (SQLiteException ex)
-      {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), true);
-#else
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-#endif
-        this.DataAccessStatusOutHandler(
-            this, 
-            EventArgs.Empty, 
-#if MULTILANGUAGE
-            Translator.GetInstance().Translate(TranslatorVocabulary.PurgingProductSchemeVariantXrefDetailsFailed), 
-#else
-            "Purging product scheme variant xref details failed.", 
-#endif
-            true);
+        #endregion
 
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredPurgingProductSchemeVariantXrefDetailsFailed), ex);
-#else
-        throw new Exception("Database exception occurred. Purging product scheme variant xref details failed.", ex);
-#endif
-      }
+        #region Public Members
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <remarks></remarks>
+        public override void Purge()
+        {
+            try
+            {
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product scheme variant xref details.", true);
+
+                using (SQLiteCommand cmndPurgeProdSchemeVarXRef = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                {
+                    cmndPurgeProdSchemeVarXRef.CommandText = "DELETE FROM tActivityDetailProductSchemeVariantXRef";
+                    cmndPurgeProdSchemeVarXRef.CommandType = CommandType.Text;
+                    cmndPurgeProdSchemeVarXRef.ExecuteNonQuery();
+                }
+
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product scheme variant xref details complete.", true);
+            }
+            catch (SQLiteException ex)
+            {
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
+
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product scheme variant xref details failed.", true);
+
+                // TODO: Resource strings
+                throw new Exception("Database exception occurred. Purging product scheme variant xref details failed.", ex);
+            }
+        }
+
+        #endregion
     }
-
-    #endregion
-  }
 }

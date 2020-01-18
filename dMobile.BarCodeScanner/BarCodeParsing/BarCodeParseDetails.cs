@@ -127,7 +127,7 @@ namespace dMobile.BarCodeScanner
         /// Couldn't parse "Non Metric Gross Weight LB" - Unknown Decimal Places
         /// </summary>
         GrossWeightNonMetricLB_UnknownDecimalPlaces,
-        
+
         /// <summary>
         /// Catch all failure type.
         /// </summary>
@@ -268,7 +268,5 @@ namespace dMobile.BarCodeScanner
                 return errorDetails.Count;
             }
         }
-
     }
-
 }

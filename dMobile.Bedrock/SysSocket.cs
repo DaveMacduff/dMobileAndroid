@@ -237,11 +237,8 @@ namespace dMobile.Bedrock
                 {
                     if (this.OnSysSocketStatusOut != null)
                     {
-#if MULTILANGUAGE
-            sockEventArgs.StatusOutMsg = string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.IpAddress), this.ServerIP);
-#else
+                        // TODO: Resource strings
                         sockEventArgs.StatusOutMsg = string.Format("IP address {0}", this.ServerIP);
-#endif
                         this.OnSysSocketStatusOut(this, sockEventArgs);
                     }
 
@@ -251,11 +248,8 @@ namespace dMobile.Bedrock
 
                     if (this.OnSysSocketStatusOut != null)
                     {
-#if MULTILANGUAGE
-            sockEventArgs.StatusOutMsg = string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.ConnectionAttemptPort), attempt, port);
-#else
+                        // TODO: Resource strings
                         sockEventArgs.StatusOutMsg = string.Format("Connection attempt {0} port {1}.", attempt, port);
-#endif
                         this.OnSysSocketStatusOut(this, sockEventArgs);
                     }
 
@@ -264,13 +258,11 @@ namespace dMobile.Bedrock
                     if (tempSocket.Connected)
                     {
                         socket = tempSocket;
+
                         if (this.OnSysSocketStatusOut != null)
                         {
-#if MULTILANGUAGE
-              sockEventArgs.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.ConnectionSuccessful);
-#else
+                            // TODO: Resource strings
                             sockEventArgs.StatusOutMsg = "Connection successful.";
-#endif
                             this.OnSysSocketStatusOut(this, sockEventArgs);
                         }
                     }
@@ -279,15 +271,13 @@ namespace dMobile.Bedrock
                     {
                         if (this.OnSysSocketStatusOut != null)
                         {
-#if MULTILANGUAGE
-              sockEventArgs.StatusOutMsg = string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.ConnectionAttemptFailedOnPort), port);
-#else
+                            // TODO: Resource strings
                             sockEventArgs.StatusOutMsg = string.Format("Connection attempt failed on port {0}.", port);
-#endif
                             this.OnSysSocketStatusOut(this, sockEventArgs);
                         }
 
                         port = port + 1;
+
                         if (port > this.BasePort + this.MaxPorts - 1)
                         {
                             port = this.BasePort;
@@ -312,11 +302,9 @@ namespace dMobile.Bedrock
                         exConn = ex;
                         if (this.OnSysSocketStatusOut != null)
                         {
-#if MULTILANGUAGE
-              sockEventArgs.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.ConnectionAttemptTimedOut);
-#else
+                            // TODO: Resource strings
                             sockEventArgs.StatusOutMsg = "Connection attempt timed out.";
-#endif
+
                             this.OnSysSocketStatusOut(this, sockEventArgs);
                         }
 
@@ -333,11 +321,8 @@ namespace dMobile.Bedrock
                         exConn = ex;
                         if (this.OnSysSocketStatusOut != null)
                         {
-#if MULTILANGUAGE
-              sockEventArgs.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.ConnectionAttemptRefused);
-#else
+                            // TODO: Resource strings
                             sockEventArgs.StatusOutMsg = "Connection attempt refused.";
-#endif
                             this.OnSysSocketStatusOut(this, sockEventArgs);
                         }
 
@@ -356,31 +341,22 @@ namespace dMobile.Bedrock
                         // Raised multiple events to keep message size down
                         if (this.OnSysSocketStatusOut != null)
                         {
-#if MULTILANGUAGE
-              sockEventArgs.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.SocketExceptionOccurred);
-#else
+                            // TODO: Resource strings
                             sockEventArgs.StatusOutMsg = "Socket exception occurred.";
-#endif
                             this.OnSysSocketStatusOut(this, sockEventArgs);
                         }
 
                         if (this.OnSysSocketStatusOut != null)
                         {
-#if MULTILANGUAGE
-              sockEventArgs.StatusOutMsg = string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.Codezzz), ex.ErrorCode);
-#else
+                            // TODO: Resource strings
                             sockEventArgs.StatusOutMsg = string.Format("Code {0}.", ex.ErrorCode);
-#endif
                             this.OnSysSocketStatusOut(this, sockEventArgs);
                         }
 
                         if (this.OnSysSocketStatusOut != null)
                         {
-#if MULTILANGUAGE
-              sockEventArgs.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.Msg) + ex.Message;
-#else
+                            // TODO: Resource strings
                             sockEventArgs.StatusOutMsg = "Msg " + ex.Message;
-#endif
                             this.OnSysSocketStatusOut(this, sockEventArgs);
                         }
 
@@ -620,21 +596,15 @@ namespace dMobile.Bedrock
 
             if (this.OnSysSocketStatusOut != null)
             {
-#if MULTILANGUAGE
-        sysSocketEventArgs.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.SendingRequestz);
-#else
+                // TODO: Resource strings
                 sysSocketEventArgs.StatusOutMsg = "Sending request.";
-#endif
                 this.OnSysSocketStatusOut(this, sysSocketEventArgs);
             }
 
             if (this.OnSysSocketStatusOut != null)
             {
-#if MULTILANGUAGE
-        sysSocketEventArgs.StatusOutMsg = string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.BytesToSend), totalBytes2Send.Length);
-#else
+                // TODO: Resource strings
                 sysSocketEventArgs.StatusOutMsg = string.Format("Bytes to send {0} ", totalBytes2Send.Length);
-#endif
                 this.OnSysSocketStatusOut(this, sysSocketEventArgs);
             }
 
@@ -645,11 +615,8 @@ namespace dMobile.Bedrock
                 {
                     if (this.OnSysSocketStatusOut != null)
                     {
-#if MULTILANGUAGE
-            sysSocketEventArgs.StatusOutMsg = string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.SendAttemptOf), attempt, this.SendTotalRetries);
-#else
+                        // TODO: Resource strings
                         sysSocketEventArgs.StatusOutMsg = string.Format("Send attempt {0} of {1} ", attempt, this.SendTotalRetries);
-#endif
                         this.OnSysSocketStatusOut(this, sysSocketEventArgs);
                     }
 
@@ -661,11 +628,8 @@ namespace dMobile.Bedrock
 
                             if (this.OnSysSocketStatusOut != null)
                             {
-#if MULTILANGUAGE
-                sysSocketEventArgs.StatusOutMsg = string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.SendingBytes), bytesRemaining2BeSent);
-#else
+                                // TODO: Resource strings
                                 sysSocketEventArgs.StatusOutMsg = string.Format("Sending bytes {0} ", bytesRemaining2BeSent);
-#endif
                                 this.OnSysSocketStatusOut(this, sysSocketEventArgs);
                             }
 
@@ -675,24 +639,19 @@ namespace dMobile.Bedrock
 
                             if (this.OnSysSocketStatusOut != null)
                             {
-#if MULTILANGUAGE
-                sysSocketEventArgs.StatusOutMsg = string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.BytesSentz), bytesSent);
-#else
+                                // TODO: Resource strings
                                 sysSocketEventArgs.StatusOutMsg = string.Format("Bytes sent {0} ", bytesSent);
-#endif
                                 this.OnSysSocketStatusOut(this, sysSocketEventArgs);
                             }
 
                             byteStartIndex = byteStartIndex + bytesSent;
 
                             bytesRemaining2BeSent = bytesRemaining2BeSent - bytesSent;
+
                             if (this.OnSysSocketStatusOut != null)
                             {
-#if MULTILANGUAGE
-                sysSocketEventArgs.StatusOutMsg = string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.BytesRemaining),  bytesRemaining2BeSent);
-#else
+                                // TODO: Resource strings
                                 sysSocketEventArgs.StatusOutMsg = string.Format("Bytes remaining {0} ", bytesRemaining2BeSent);
-#endif
                                 this.OnSysSocketStatusOut(this, sysSocketEventArgs);
                             }
 
@@ -707,11 +666,8 @@ namespace dMobile.Bedrock
 
                     if (this.OnSysSocketStatusOut != null)
                     {
-#if MULTILANGUAGE
-            sysSocketEventArgs.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.RequestSent);
-#else
+                        // TODO: Resource strings
                         sysSocketEventArgs.StatusOutMsg = "Request sent.";
-#endif
                         this.OnSysSocketStatusOut(this, sysSocketEventArgs);
                     }
                 }
@@ -720,31 +676,22 @@ namespace dMobile.Bedrock
                     // Raised multiple events to keep message size down
                     if (this.OnSysSocketStatusOut != null)
                     {
-#if MULTILANGUAGE
-            sysSocketEventArgs.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.SocketExceptionOccurred);
-#else
+                        // TODO: Resource strings
                         sysSocketEventArgs.StatusOutMsg = "Socket exception occurred.";
-#endif
                         this.OnSysSocketStatusOut(this, sysSocketEventArgs);
                     }
 
                     if (this.OnSysSocketStatusOut != null)
                     {
-#if MULTILANGUAGE
-            sysSocketEventArgs.StatusOutMsg = string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.Codezzzz), ex.ErrorCode);
-#else
+                        // TODO: Resource strings
                         sysSocketEventArgs.StatusOutMsg = string.Format("Code {0}", ex.ErrorCode);
-#endif
                         this.OnSysSocketStatusOut(this, sysSocketEventArgs);
                     }
 
                     if (this.OnSysSocketStatusOut != null)
                     {
-#if MULTILANGUAGE
-            sysSocketEventArgs.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.Msg) + ex.Message;
-#else
+                        // TODO: Resource strings
                         sysSocketEventArgs.StatusOutMsg = "Msg " + ex.Message;
-#endif
                         this.OnSysSocketStatusOut(this, sysSocketEventArgs);
                     }
 
@@ -763,11 +710,8 @@ namespace dMobile.Bedrock
                     {
                         if (this.OnSysSocketStatusOut != null)
                         {
-#if MULTILANGUAGE
-              sysSocketEventArgs.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.TotalSendAttemptsExceeded);
-#else
+                            // TODO: Resource strings
                             sysSocketEventArgs.StatusOutMsg = "Total send attempts exceeded.";
-#endif
                             this.OnSysSocketStatusOut(this, sysSocketEventArgs);
                         }
 
@@ -803,14 +747,8 @@ namespace dMobile.Bedrock
                 {
                     if (this.OnSysSocketStatusOut != null)
                     {
-                        sysSocketEventArgs.StatusOutMsg = string.Format(
-#if MULTILANGUAGE
-                Translator.GetInstance().Translate(TranslatorVocabulary.ReceiveAttemptOf), 
-#else
-"Receive attempt {0} of {1} ",
-#endif
- attempt,
-                            this.RecvTotalRetries);
+                        // TODO: Resource strings
+                        sysSocketEventArgs.StatusOutMsg = string.Format("Receive attempt {0} of {1} ", attempt, this.RecvTotalRetries);
                         this.OnSysSocketStatusOut(this, sysSocketEventArgs);
                     }
 
@@ -822,11 +760,8 @@ namespace dMobile.Bedrock
 
                             if (this.OnSysSocketStatusOut != null)
                             {
-#if MULTILANGUAGE
-                sysSocketEventArgs.StatusOutMsg = string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.ReceivedBytes), bytesReceived);
-#else
+                                // TODO: Resource strings
                                 sysSocketEventArgs.StatusOutMsg = string.Format("Received {0} bytes", bytesReceived);
-#endif
                                 this.OnSysSocketStatusOut(this, sysSocketEventArgs);
                             }
 
@@ -843,31 +778,22 @@ namespace dMobile.Bedrock
                         // Raised multiple events to keep message size down
                         if (this.OnSysSocketStatusOut != null)
                         {
-#if MULTILANGUAGE
-              sysSocketEventArgs.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.SocketExceptionOccurred);
-#else
+                            // TODO: Resource strings
                             sysSocketEventArgs.StatusOutMsg = "Socket exception occurred.";
-#endif
                             this.OnSysSocketStatusOut(this, sysSocketEventArgs);
                         }
 
                         if (this.OnSysSocketStatusOut != null)
                         {
-#if MULTILANGUAGE
-              sysSocketEventArgs.StatusOutMsg = string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.Codezzzz), ex.ErrorCode);
-#else
+                            // TODO: Resource strings
                             sysSocketEventArgs.StatusOutMsg = string.Format("Code {0}", ex.ErrorCode);
-#endif
                             this.OnSysSocketStatusOut(this, sysSocketEventArgs);
                         }
 
                         if (this.OnSysSocketStatusOut != null)
                         {
-#if MULTILANGUAGE
-              sysSocketEventArgs.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.Msg) + ex.Message;
-#else
+                            // TODO: Resource strings
                             sysSocketEventArgs.StatusOutMsg = "Msg " + ex.Message;
-#endif
                             this.OnSysSocketStatusOut(this, sysSocketEventArgs);
                         }
 
@@ -882,11 +808,8 @@ namespace dMobile.Bedrock
                         {
                             if (this.OnSysSocketStatusOut != null)
                             {
-#if MULTILANGUAGE
-                sysSocketEventArgs.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.TotalReceiveAttemptsExceeded);
-#else
+                                // TODO: Resource strings
                                 sysSocketEventArgs.StatusOutMsg = "Total receive attempts exceeded.";
-#endif
                                 this.OnSysSocketStatusOut(this, sysSocketEventArgs);
                             }
 
@@ -911,11 +834,8 @@ namespace dMobile.Bedrock
                     {
                         if (this.OnSysSocketStatusOut != null)
                         {
-#if MULTILANGUAGE
-              sysSocketEventArgs.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.EomReceived);
-#else
+                            // TODO: Resource strings
                             sysSocketEventArgs.StatusOutMsg = "EOM received.";
-#endif
                             this.OnSysSocketStatusOut(this, sysSocketEventArgs);
                         }
 

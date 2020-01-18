@@ -29,21 +29,17 @@ namespace dMobile.GroundWork
         {
             try
             {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SeedingWarehouseLocations), true);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding warehouse locations.", true);
-#endif
 
-                // TODO: Uncomment GC calls
                 //GC.Collect();
                 //GC.WaitForPendingFinalizers();
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DefaultPickingLocations), true);
-#else
+
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Default picking locations.", true);
-#endif
+
                 string reqData = this.SendRequest((int)SysCommon.ProdLocMapTypes.Picking);
+
                 if (0 < reqData.Length)
                 {
                     if (reqData.Contains("<message>ERROR</message>"))
@@ -56,15 +52,14 @@ namespace dMobile.GroundWork
                     this.Save(reqData);
                 }
 
-                // TODO: Uncomment GC calls
                 //GC.Collect();
                 //GC.WaitForPendingFinalizers();
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DefaultReceivingLocations), true);
-#else
+
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Default receiving locations.", true);
-#endif
+
                 reqData = this.SendRequest((int)SysCommon.ProdLocMapTypes.Receiving);
+
                 if (0 < reqData.Length)
                 {
                     if (reqData.Contains("<message>ERROR</message>"))
@@ -77,25 +72,16 @@ namespace dMobile.GroundWork
                     this.Save(reqData);
                 }
 
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SeedingWarehouseLocationsComplete), true);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding warehouse locations complete.", true);
-#endif
             }
             catch (Exception ex)
             {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SeedingWarehouseLocationsFailed), true);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding warehouse locations failed.", true);
-#endif
-
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.SeedingWarehouseLocationsFailed), ex);
-#else
+                
+                // TODO: Resource strings
                 throw new Exception("Seeding warehouse locations failed.", ex);
-#endif
             }
         }
 
@@ -113,33 +99,21 @@ namespace dMobile.GroundWork
                 {
                     cmndStatus.CommandText = "SELECT COUNT(*) FROM tWarehouseLocationMapType";
                     cmndStatus.CommandType = CommandType.Text;
+
                     rowsAffected = Convert.ToInt32(cmndStatus.ExecuteScalar());
-                    this.DataAccessStatusOutHandler(
-                        this,
-                        EventArgs.Empty,
-#if MULTILANGUAGE
-              string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.WarehouseLocations), rowsAffected),
-#else
-              string.Format("{0} warehouse locations.", rowsAffected),
-#endif
-              true);
+
+                    // TODO: Resource strings
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} warehouse locations.", rowsAffected), true);
                 }
             }
             catch (SQLiteException ex)
             {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), false);
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.WarehouseLocationsStatusFailed), false);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "warehouse locations status failed.", false);
-#endif
 
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredWarehouseLocationStatusFailed), ex);
-#else
+                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Warehouse location status failed.", ex);
-#endif
             }
 
             return rowsAffected;
@@ -152,11 +126,8 @@ namespace dMobile.GroundWork
         {
             try
             {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingWarehouseLocations), true);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging warehouse locations.", true);
-#endif
 
                 using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
                 {
@@ -167,19 +138,12 @@ namespace dMobile.GroundWork
             }
             catch (SQLiteException ex)
             {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), true);
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingWarehouseLocations), true);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging warehouse locations.", true);
-#endif
 
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredPurgingWarehouseLocations), ex);
-#else
+                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Purging warehouse locations.", ex);
-#endif
             }
         }
 
@@ -200,6 +164,7 @@ namespace dMobile.GroundWork
         protected override void Save(string reqData)
         {
             SQLiteConnection conn = DatabaseConnection.GetInstance().SQLConn;
+
             int locMapRefno = 0;
             int whsLocMapType = 0;
             int locMapFKRefno = 0;
@@ -501,8 +466,6 @@ namespace dMobile.GroundWork
                             }
 
                             this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
-
-                            transaction.Commit();
                         }
 
                         //         drSlot.Close();
@@ -521,6 +484,8 @@ namespace dMobile.GroundWork
                         //}
                         //}
 
+                        transaction.Commit();
+
                         // TODO: Resource Strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving warehouse locations complete.", false);
                     }
@@ -528,7 +493,6 @@ namespace dMobile.GroundWork
                 catch (SQLiteException ex)
                 {
                     transaction.Rollback();
-                    transaction.Dispose();
 
                     // TODO: Resource Strings
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);

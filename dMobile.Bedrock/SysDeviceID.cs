@@ -12,8 +12,8 @@
         public static string GetDeviceID()
         {
             string deviceID = string.Empty;
-
             NetworkInterface nic = null;
+
             foreach (NetworkInterface ni in NetworkInterface.GetAllNetworkInterfaces())
             {
                 nic = ni;

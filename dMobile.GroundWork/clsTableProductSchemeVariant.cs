@@ -8,87 +8,74 @@ namespace dMobile.GroundWork
   using System.Xml.Linq;
   using dMobile.Bedrock;
 
-  public class TableProductSchemeVariant : TableBase
-  {
-    #region Constructors
-
-    public TableProductSchemeVariant()
-      : base()
+    public class TableProductSchemeVariant : TableBase
     {
-      this.FullClassName = "dMobile.GroundWork.TableProductSchemeVariant";
-    }
+        #region Constructors
 
-    #endregion
-
-    #region Public Members
-
-    /// <summary>
-    ///
-    /// </summary>
-    /// <remarks></remarks>
-    public override void Request()
-    {
-      string reqData = string.Empty;
-
-      // TODO: Uncomment GC calls
-      //GC.Collect();
-      //GC.WaitForPendingFinalizers();
-
-      try
-      {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SeedingProductSchemeVariants), true);
-#else
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding product scheme variants.", true);
-#endif
-        reqData = this.Send("product scheme variants");
-        if (0 < reqData.Length)
+        public TableProductSchemeVariant()
+          : base()
         {
-          if (reqData.Contains("<message>ERROR</message>"))
-          {
-            XmlDocument reqErr = new XmlDocument();
-            reqErr.LoadXml(reqData);
-            throw new Exception(reqErr.DocumentElement["detail"].InnerText);
-          }
-
-          this.Save(reqData);
+            this.FullClassName = "dMobile.GroundWork.TableProductSchemeVariant";
         }
-        
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SeedingProductSchemeVariantsComplete), true);
-#else
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding product scheme variants complete.", true);
-#endif
-      }
-      catch (Exception ex)
-      {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SeedingProductSchemeVariantsFailed), true);
-#else
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding product scheme variants failed.", true);
-#endif
 
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.SeedingProductSchemeVariantsFailed), ex);
-#else
-        throw new Exception("Seeding product scheme variants failed.", ex);
-#endif
-      }
-    }
+        #endregion
 
-    /// <summary>
-    ///
-    /// </summary>
-    /// <remarks></remarks>
-    public override void Purge()
-    {
+        #region Public Members
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <remarks></remarks>
+        public override void Request()
+        {
+            string reqData = string.Empty;
+
+            //GC.Collect();
+            //GC.WaitForPendingFinalizers();
+
             try
             {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingProductSchemeVariants), true);
-#else
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding product scheme variants.", true);
+
+                reqData = this.Send("product scheme variants");
+
+                if (0 < reqData.Length)
+                {
+                    if (reqData.Contains("<message>ERROR</message>"))
+                    {
+                        XmlDocument reqErr = new XmlDocument();
+                        reqErr.LoadXml(reqData);
+                        throw new Exception(reqErr.DocumentElement["detail"].InnerText);
+                    }
+
+                    this.Save(reqData);
+                }
+
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding product scheme variants complete.", true);
+            }
+            catch (Exception ex)
+            {
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding product scheme variants failed.", true);
+
+                // TODO: Resource strings
+                throw new Exception("Seeding product scheme variants failed.", ex);
+            }
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <remarks></remarks>
+        public override void Purge()
+        {
+            try
+            {
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product scheme variants.", true);
-#endif
+
                 using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
                 {
                     cmndPurge.CommandText = "DELETE FROM tProductSchemeVariantXRef";
@@ -99,99 +86,90 @@ namespace dMobile.GroundWork
                     cmndPurge.CommandType = CommandType.Text;
                     cmndPurge.ExecuteNonQuery();
                 }
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingProductSchemeVariantsComplete), true);
-#else
+
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product scheme variants complete.", true);
-#endif
             }
             catch (SQLiteException ex)
             {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), false);
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingProductSchemeVariantsFailed), true);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product scheme variants failed.", true);
-#endif
 
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredPurgingProductSchemeVariantsFailed), ex);
-#else
+                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Purging product scheme variants failed.", ex);
-#endif
             }
         }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="schemeVarNo"></param>
-    /// <returns></returns>
-    public int GetProdSchemeVarRefnoFromProdSchemeVarNo(int schemeVarNo)
-    {
-      int schemeVarRefno = 0;
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="schemeVarNo"></param>
+        /// <returns></returns>
+        public int GetProdSchemeVarRefnoFromProdSchemeVarNo(int schemeVarNo)
+        {
+            int schemeVarRefno = 0;
 
-//      try
-//      {
-//        using (SQLiteCommand cmndSchemeVar = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-//        {
-//          cmndSchemeVar.CommandText = "tProductSchemeVariant";
-//          cmndSchemeVar.IndexName = "UQ_ProductSchemeVariantOnProductSchemeVariantNo";
-//          cmndSchemeVar.CommandType = CommandType.TableDirect;
+            //      try
+            //      {
+            //        using (SQLiteCommand cmndSchemeVar = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+            //        {
+            //          cmndSchemeVar.CommandText = "tProductSchemeVariant";
+            //          cmndSchemeVar.IndexName = "UQ_ProductSchemeVariantOnProductSchemeVariantNo";
+            //          cmndSchemeVar.CommandType = CommandType.TableDirect;
 
-//          using (SQLiteDataReader drSchemeVar = cmndSchemeVar.ExecuteReader())
-//          {
-//            if (drSchemeVar.Seek(DbSeekOptions.FirstEqual, new object[] { schemeVarNo }))
-//            {
-//              if (drSchemeVar.Read())
-//              {
-//                schemeVarRefno = Convert.ToInt32(drSchemeVar.GetValue((int)SysCommon.ProdSchemeVariantFields.Refno));
-//              }
-//              else
-//              {
-//#if MULTILANGUAGE
-//                throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DrschemevarreadFailed));
-//#else
-//                throw new Exception("drSchemeVar.Read() failed.");
-//#endif
-//              }
-//            }
-//            else
-//            {
-//              throw new Exception(
-//                  string.Format(
-//#if MULTILANGUAGE
-//                  Translator.GetInstance().Translate(TranslatorVocabulary.UnableToLocateProductSchemeVariantNumberInTproductschemevariant), 
-//#else
-//                  "Unable To Locate Product Scheme Variant Number {0} In tProductSchemeVariant", 
-//#endif
-//                  schemeVarNo));
-//            }
+            //          using (SQLiteDataReader drSchemeVar = cmndSchemeVar.ExecuteReader())
+            //          {
+            //            if (drSchemeVar.Seek(DbSeekOptions.FirstEqual, new object[] { schemeVarNo }))
+            //            {
+            //              if (drSchemeVar.Read())
+            //              {
+            //                schemeVarRefno = Convert.ToInt32(drSchemeVar.GetValue((int)SysCommon.ProdSchemeVariantFields.Refno));
+            //              }
+            //              else
+            //              {
+            //#if MULTILANGUAGE
+            //                throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DrschemevarreadFailed));
+            //#else
+            //                throw new Exception("drSchemeVar.Read() failed.");
+            //#endif
+            //              }
+            //            }
+            //            else
+            //            {
+            //              throw new Exception(
+            //                  string.Format(
+            //#if MULTILANGUAGE
+            //                  Translator.GetInstance().Translate(TranslatorVocabulary.UnableToLocateProductSchemeVariantNumberInTproductschemevariant), 
+            //#else
+            //                  "Unable To Locate Product Scheme Variant Number {0} In tProductSchemeVariant", 
+            //#endif
+            //                  schemeVarNo));
+            //            }
 
-//            drSchemeVar.Close();
-//          }
-//        }
-//      }
-//      catch (SQLiteException ex)
-//      {
-//#if MULTILANGUAGE
-//        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredGetprodschemevarrefnofromprodschemevarnoFailed), ex);
-//#else
-//        throw new Exception("Database exception occurred. GetProdSchemeVarRefnoFromProdSchemeVarNo failed.", ex);
-//#endif
-//      }
+            //            drSchemeVar.Close();
+            //          }
+            //        }
+            //      }
+            //      catch (SQLiteException ex)
+            //      {
+            //#if MULTILANGUAGE
+            //        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredGetprodschemevarrefnofromprodschemevarnoFailed), ex);
+            //#else
+            //        throw new Exception("Database exception occurred. GetProdSchemeVarRefnoFromProdSchemeVarNo failed.", ex);
+            //#endif
+            //      }
 
-      return schemeVarRefno;
-    }
+            return schemeVarRefno;
+        }
 
-    /// <summary>
-    ///
-    /// </summary>
-    /// <remarks></remarks>
-    public override int DataStatus()
-    {
-      int rowsAffected = 0;
+        /// <summary>
+        ///
+        /// </summary>
+        /// <remarks></remarks>
+        public override int DataStatus()
+        {
+            int rowsAffected = 0;
 
             try
             {
@@ -202,66 +180,58 @@ namespace dMobile.GroundWork
 
                     rowsAffected = Convert.ToInt32(cmndStatus.ExecuteScalar());
 
-                    this.DataAccessStatusOutHandler(
-                        this,
-                        EventArgs.Empty,
-#if MULTILANGUAGE
-              string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.ProductSchemeVariants), rowsAffected), 
-#else
-              string.Format("{0} product scheme variants.", rowsAffected),
-#endif
-              false);
+                    // TODO: Resource strings
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} product scheme variants.", rowsAffected), false);
                 }
             }
             catch (SQLiteException ex)
             {
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredProductSchemeVariantsStatusFailed), ex);
-#else
+                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Product scheme variants status failed.", ex);
-#endif
             }
 
             return rowsAffected;
-    }
+        }
 
-    #endregion
+        #endregion
 
-    #region Private Members
+        #region Private Members
 
-    /// <summary>
-    ///
-    /// </summary>
-    /// <param name="reqData"></param>
-    /// <remarks></remarks>
-    protected override void Save(string reqData)
-    {
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="reqData"></param>
+        /// <remarks></remarks>
+        protected override void Save(string reqData)
+        {
             SQLiteConnection conn = DatabaseConnection.GetInstance().SQLConn;
             string errMsg = string.Empty;
 
-            try
+
+            using (SQLiteCommand cmndSchemeVar = conn.CreateCommand())
+            using (SQLiteCommand cmndSchemeVarUpdate = conn.CreateCommand())
+            using (SQLiteTransaction transaction = conn.BeginTransaction())
             {
-                using (DataSet ds = new DataSet())
+
+                try
                 {
-                    // TODO: Resource String
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
-
-                    ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
-
-                    // TODO: Resource String
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product scheme variants.", false);
-
-                    if (ds.Tables.Count != 0)
+                    using (DataSet ds = new DataSet())
                     {
-                        int progMax = Convert.ToInt32(ds.Tables["tProductSchemeVariant"].Rows.Count);
+                        // TODO: Resource String
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
+
+                        ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
 
                         // TODO: Resource String
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product scheme variants.", false);
 
-                        using (SQLiteCommand cmndSchemeVar = conn.CreateCommand())
-                        using (SQLiteCommand cmndSchemeVarUpdate = conn.CreateCommand())
-                        using (SQLiteTransaction transaction = conn.BeginTransaction())
+                        if (ds.Tables.Count != 0)
                         {
+                            int progMax = Convert.ToInt32(ds.Tables["tProductSchemeVariant"].Rows.Count);
+
+                            // TODO: Resource String
+                            this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
+
                             cmndSchemeVar.CommandText = "SELECT ProductSchemeVariantNo FROM tProductSchemeVariant WHERE ProductSchemeVariantNo = @productSchemeVariantNo";
                             cmndSchemeVar.CommandType = CommandType.Text;
                             //cmndSchemeVar.IndexName = "UQ_ProductSchemeVariantOnProductSchemeVariantNo";
@@ -312,6 +282,7 @@ namespace dMobile.GroundWork
                                                 + "ProductSchemeVariantDescription = \'" + schemeVarDesc + "\', "
                                                 + "ProductSchemeVariantIsDefault = " + Convert.ToString(schemeVarIsDefault ? 1 : 0)
                                                 + " WHERE ProductSchemeVariantNo = " + schemeVarNo;
+
                                             cmndSchemeVarUpdate.ExecuteNonQuery();
                                         }
                                     }
@@ -352,51 +323,37 @@ namespace dMobile.GroundWork
 
                                 this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
 
+                                //}
+
+                                //drSchemeVar.Close();
+                                //}
+
                             }
-
-                            //drSchemeVar.Close();
-                            //}
-
-                            transaction.Commit();
                         }
+
+                        transaction.Commit();
+
+                        // TODO: Resource strings
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product scheme variants complete.", false);
                     }
-
-#if MULTILANGUAGE
-          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingProductSchemeVariantsComplete), false);
-#else
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product scheme variants complete.", false);
-#endif
                 }
-            }
-            catch (SQLiteException ex)
-            {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), false);
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingProductSchemeVariantsComplete), false);
-#else
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product scheme variants complete.", false);
-#endif
+                catch (SQLiteException ex)
+                {
+                    // TODO: Resource strings
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product scheme variants complete.", false);
 
-//                // Duplicate key violations
-//                if (ex.NativeError == 25016)
-//                {
-//#if MULTILANGUAGE
-//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.UniquenessViolation), false);
-//          throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.UniquenessViolation) + Environment.NewLine + errMsg, ex);
-//#else
-//                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Uniqueness violation.", false);
-//                    throw new Exception("Uniqueness violation." + Environment.NewLine + errMsg, ex);
-//#endif
-//                }
+                    //// Duplicate key violations
+                    //if (ex.NativeError == 25016)
+                    //{
+                    //    // TODO: Resource strings
+                    //    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Uniqueness violation.", false);
+                    //    throw new Exception("Uniqueness violation." + Environment.NewLine + errMsg, ex);
+                    //}
 
-                throw new Exception(
-#if MULTILANGUAGE
-          Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredSavingProductSchemeVariantsFailed) + Environment.NewLine + errMsg, 
-#else
-          "Database exception occurred. Saving product scheme variants failed." + Environment.NewLine + errMsg,
-#endif
-          ex);
+                    // TODO: Resource strings
+                    throw new Exception("Database exception occurred. Saving product scheme variants failed." + Environment.NewLine + errMsg, ex);
+                }
             }
         }
 

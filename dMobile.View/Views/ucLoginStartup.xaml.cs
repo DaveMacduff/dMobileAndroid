@@ -60,11 +60,6 @@ namespace dMobile.View
             }
         }
 
-        private void LstWarehouse_Unfocused(object sender, FocusEventArgs e)
-        {
-            this.cmdLogin.Focus();
-        }
-
         public delegate void ReqCloseHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
         public delegate void ReqCancelDisableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
         public delegate void ReqSaveDisableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);

@@ -34,11 +34,11 @@ namespace dMobile.GroundWork
 
                 string reqData = string.Empty;
 
-                // TODO: Uncomment GC calls
                 //GC.Collect();
                 //GC.WaitForPendingFinalizers();
 
                 reqData = this.Send();
+
                 if (0 < reqData.Length)
                 {
                     if (reqData.Contains("<message>ERROR</message>"))
@@ -167,56 +167,41 @@ namespace dMobile.GroundWork
         {
             int locMapWhsFKRefno = 0;
 
-            // TODO: SQL
-            //      try
-            //      {
-            //        using (SQLiteCommand cmndGetWhs = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-            //        {
-            //          cmndGetWhs.CommandText = "tLocationMapWarehouse";
-            //          cmndGetWhs.IndexName = "PK_LocationMapWarehouseOnLocationMapRefno";
-            //          cmndGetWhs.CommandType = CommandType.Text;
+            try
+            {
+                using (SQLiteCommand cmndGetWhs = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                {
+                    cmndGetWhs.CommandText = "SELECT * FROM tLocationMapWarehouse WHERE LocationMapRefno = @locationMapRefno";
+                    cmndGetWhs.CommandType = CommandType.Text;
+                    //cmndGetWhs.IndexName = "PK_LocationMapWarehouseOnLocationMapRefno";
+                    cmndGetWhs.Parameters.Add(new SQLiteParameter("@locationMapRefno", locMapWhsRefno));
 
-            //          using (SQLiteDataReader drWhs = cmndGetWhs.ExecuteReader())
-            //          {
-            //            if (drWhs.Seek(DbSeekOptions.FirstEqual, new object[] { locMapWhsRefno }))
-            //            {
-            //              if (drWhs.Read())
-            //              {
-            //                locMapWhsFKRefno = drWhs.GetInt32((int)SysCommon.LocMapWhsFields.FKRefno);
-            //              }
-            //              else
-            //              {
-            //#if MULTILANGUAGE
-            //                throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DrwhsreadFailed));
-            //#else
-            //                throw new Exception("drWhs.Read() failed.");
-            //#endif
-            //              }
-            //            }
-            //            else
-            //            {
-            //              throw new Exception(
-            //                string.Format(
-            //#if MULTILANGUAGE
-            //                  Translator.GetInstance().Translate(TranslatorVocabulary.UnableToLocateWarehouseFkRefnoUsingTheWarehouseRefnoInTlocationmapwarehouse),
-            //#else
-            //                  "Unable to locate warehouse fk refno using the warehouse refno {0} in tLocationMapWarehouse.",
-            //#endif
-            //                  locMapWhsRefno));
-            //            }
-
-            //            drWhs.Close();
-            //          }
-            //        }
-            //      }
-            //      catch (SQLiteException ex)
-            //      {
-            //#if MULTILANGUAGE
-            //        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredGetlocmapwhsfkrefnofromlocmapwhsrefnoFailed), ex);
-            //#else
-            //        throw new Exception("Database exception occurred. GetLocMapWhsFKRefnoFromLocMapWhsRefno failed.", ex);
-            //#endif
-            //      }
+                    using (SQLiteDataReader drWhs = cmndGetWhs.ExecuteReader())
+                    {
+                        //if (drWhs.Seek(DbSeekOptions.FirstEqual, new object[] { locMapWhsRefno }))
+                        //{
+                        if (drWhs.Read())
+                        {
+                            locMapWhsFKRefno = drWhs.GetInt32((int)SysCommon.LocMapWhsFields.FKRefno);
+                        }
+                        else
+                        {
+                            // TODO: Resource strings
+                            throw new Exception("drWhs.Read() failed.");
+                        }
+                        //}
+                        //else
+                        //{
+                        //    throw new Exception(string.Format("Unable to locate warehouse fk refno using the warehouse refno {0} in tLocationMapWarehouse.", locMapWhsRefno));
+                        //}
+                    }
+                }
+            }
+            catch (SQLiteException ex)
+            {
+                // TODO: Resource strings
+                throw new Exception("Database exception occurred. GetLocMapWhsFKRefnoFromLocMapWhsRefno failed.", ex);
+            }
 
             return locMapWhsFKRefno;
         }
@@ -265,33 +250,32 @@ namespace dMobile.GroundWork
         /// <param name="reqData"></param>
         protected override void Save(string reqData)
         {
+            SQLiteConnection conn = DatabaseConnection.GetInstance().SQLConn;
             string errMsg = string.Empty;
 
-            SQLiteConnection conn = DatabaseConnection.GetInstance().SQLConn;
-
-            try
+            using (SQLiteCommand cmndWhs = conn.CreateCommand())
+            using (SQLiteCommand cmndLocMap = conn.CreateCommand())
+            using (SQLiteTransaction transaction = conn.BeginTransaction())
             {
-                using (DataSet ds = new DataSet())
+                try
                 {
-                    // TODO: Resource strings
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
-
-                    ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
-
-                    // TODO: Resource strings
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving warehouses.", false);
-
-                    if (ds.Tables.Count != 0)
+                    using (DataSet ds = new DataSet())
                     {
-                        int progMax = Convert.ToInt32(ds.Tables["tLocationMapWarehouse"].Rows.Count);
+                        // TODO: Resource strings
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
+
+                        ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
 
                         // TODO: Resource strings
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving warehouses.", false);
 
-                        using (SQLiteCommand cmndWhs = conn.CreateCommand())
-                        using (SQLiteCommand cmndLocMap = conn.CreateCommand())
-                        using (SQLiteTransaction transaction = conn.BeginTransaction())
+                        if (ds.Tables.Count != 0)
                         {
+                            int progMax = Convert.ToInt32(ds.Tables["tLocationMapWarehouse"].Rows.Count);
+
+                            // TODO: Resource strings
+                            this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
+
                             cmndLocMap.CommandText = "INSERT INTO tLocationMap (LocationMapSubType) VALUES (@locationMapSubType)";
                             cmndLocMap.CommandType = CommandType.Text;
                             cmndLocMap.Parameters.Add(new SQLiteParameter("@locationMapSubType", Convert.ToInt32(SysCommon.LocMapSubTypes.Warehouse)));
@@ -381,35 +365,37 @@ namespace dMobile.GroundWork
 
                             this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
 
-                            transaction.Commit();
                         }
+                        //}
+
+                        transaction.Commit();
+
+                        // TODO: Resource strings
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving warehouses complete.", false);
                     }
+                }
+                catch (SQLiteException ex)
+                {
+                    // TODO: Resource strings
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving warehouses failed.", false);
+
+                    // TODO: SQLite native error codes?
+                    //                // Duplicate key violations
+                    //                if (ex.NativeError == 25016)
+                    //                {
+                    //#if MULTILANGUAGE
+                    //                      this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.UniquenessViolation), false);
+                    //                      throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.UniquenessViolation) + Environment.NewLine + errMsg, ex);
+                    //#else
+                    //                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Uniqueness violation.", false);
+                    //                    throw new Exception("Uniqueness violation." + Environment.NewLine + errMsg, ex);
+                    //#endif
+                    //                }
 
                     // TODO: Resource strings
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving warehouses complete.", false);
+                    throw new Exception("Database exception occurred. Saving warehouses failed." + Environment.NewLine + errMsg, ex);
                 }
-            }
-            catch (SQLiteException ex)
-            {
-                // TODO: Resource strings
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving warehouses failed.", false);
-
-                // TODO: SQLite native error codes?
-                //                // Duplicate key violations
-                //                if (ex.NativeError == 25016)
-                //                {
-                //#if MULTILANGUAGE
-                //                      this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.UniquenessViolation), false);
-                //                      throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.UniquenessViolation) + Environment.NewLine + errMsg, ex);
-                //#else
-                //                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Uniqueness violation.", false);
-                //                    throw new Exception("Uniqueness violation." + Environment.NewLine + errMsg, ex);
-                //#endif
-                //                }
-
-                // TODO: Resource strings
-                throw new Exception("Database exception occurred. Saving warehouses failed." + Environment.NewLine + errMsg, ex);
             }
         }
 

@@ -42,10 +42,9 @@ namespace dMobile.GroundWork
                 {
                     using (SQLiteCommand cmndCount = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
                     {
+                        cmndCount.CommandText = "SELECT tActivity.ActivityRefno FROM tActivity WHERE tActivity.ActivitySubType = @activitySubType";
                         cmndCount.CommandType = CommandType.Text;
-                        cmndCount.CommandText = "SELECT tActivity.ActivityRefno "
-                            + "FROM tActivity "
-                            + "WHERE tActivity.ActivitySubType = " + (int)SysCommon.ActSubTypes.CycleCounts;
+                        cmndCount.Parameters.Add(new SQLiteParameter("@activitySubType", Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts)));
 
                         using (SQLiteDataReader drCount = cmndCount.ExecuteReader())
                         {
@@ -53,6 +52,7 @@ namespace dMobile.GroundWork
                             {
                                 actRefno = Convert.ToInt32(drCount["ActivityRefno"]);
                                 reqData = this.Send(actRefno);
+
                                 if (0 < reqData.Length)
                                 {
                                     if (reqData.Contains("<message>ERROR</message>"))
@@ -73,6 +73,7 @@ namespace dMobile.GroundWork
                 else
                 {
                     reqData = this.Send(actRefno);
+
                     if (0 < reqData.Length)
                     {
                         if (reqData.Contains("<message>ERROR</message>"))
@@ -120,10 +121,10 @@ namespace dMobile.GroundWork
             {
                 using (SQLiteCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
                 {
-                    cmndStatus.CommandText = "SELECT COUNT(tActivityItem.ActivityItemRefno) "
-                        + "FROM tActivityItem "
-                        + "WHERE tActivityItem.ActivityItemSubType = " + (int)SysCommon.ActSubTypes.CycleCounts;
+                    cmndStatus.CommandText = "SELECT COUNT(tActivityItem.ActivityItemRefno) FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = @activityItemSubType";
                     cmndStatus.CommandType = CommandType.Text;
+                    cmndStatus.Parameters.Add(new SQLiteParameter("@activityItemSubType", Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts)));
+
                     rowsAffected = Convert.ToInt32(cmndStatus.ExecuteScalar());
 
                     // TODO: Resource strings
@@ -151,22 +152,18 @@ namespace dMobile.GroundWork
             {
                 using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
                 {
+                    cmndPurge.Parameters.Add(new SQLiteParameter("@activityItemSubType", Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts)));
+                    cmndPurge.CommandType = CommandType.Text;
+
                     cmndPurge.CommandText = "DELETE FROM tActivityItemBarCodeAssociationXRef "
                         + "WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno IN "
-                        + "(SELECT tActivityItem.ActivityItemRefno "
-                        + "FROM tActivityItem "
-                        + "WHERE tActivityItem.ActivityItemSubType = " + (int)SysCommon.ActSubTypes.CycleCounts + ")";
-                    cmndPurge.CommandType = CommandType.Text;
+                        + "(SELECT tActivityItem.ActivityItemRefno FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = @activityItemSubType)";
                     cmndPurge.ExecuteNonQuery();
 
-                    cmndPurge.CommandText = "DELETE FROM tActivityItemCount "
-                        + "WHERE tActivityItemCount.ActivityItemSubType = " + (int)SysCommon.ActSubTypes.CycleCounts;
-                    cmndPurge.CommandType = CommandType.Text;
+                    cmndPurge.CommandText = "DELETE FROM tActivityItemCount WHERE tActivityItemCount.ActivityItemSubType = @activityItemSubType";
                     cmndPurge.ExecuteNonQuery();
 
-                    cmndPurge.CommandText = "DELETE FROM tActivityItem "
-                        + "WHERE tActivityItem.ActivityItemSubType = " + (int)SysCommon.ActSubTypes.CycleCounts;
-                    cmndPurge.CommandType = CommandType.Text;
+                    cmndPurge.CommandText = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = @activityItemSubType";
                     cmndPurge.ExecuteNonQuery();
                 }
 
@@ -656,58 +653,47 @@ namespace dMobile.GroundWork
                                 }
                             }
 
-                            transaction.Commit();
-
                             this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
                         }
+                        //}
+
+                        //drLocMapWhs.Close();
+                        //}
+                        //}
+
+                        //drLocMapSect.Close();
+                        //}
+                        //}
+
+                        //drLocMapSlot.Close();
+                        //}
+                        //}
+
+                        //drUnit.Close();
+                        //}
+                        //}
+
+                        //drProd.Close();
+                        //}
+                        //}
+
+                        //drProdUnit.Close();
+                        //                    }
+                        //                }
+                        //            }
+                        //        }
+                        //}
+                        //}
+
+                        transaction.Commit();
+
+                        // TODO: Resource strings
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving cycle count items complete.", false);
                     }
-
-                    //drLocMapWhs.Close();
-                    //}
-                    //}
-
-                    //drLocMapSect.Close();
-                    //}
-                    //}
-
-                    //drLocMapSlot.Close();
-                    //}
-                    //}
-
-                    //drUnit.Close();
-                    //}
-                    //}
-
-                    //drProd.Close();
-                    //}
-                    //}
-
-                    //drProdUnit.Close();
-                    //                    }
-                    //                }
-                    //            }
-                    //        }
-                    //}
-                    //}
-
-                    // TODO: Resource strings
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving cycle count items complete.", false);
-                    //}
                 }
                 catch (SQLiteException ex)
                 {
                     transaction.Rollback();
-                    transaction.Dispose();
-
-                    cmndCountItem.Dispose();
-                    cmndActItem.Dispose();
-                    cmndProdUnit.Dispose();
-                    cmndProd.Dispose();
-                    cmndUnit.Dispose();
-                    cmndLocMapSlot.Dispose();
-                    cmndLocMapSect.Dispose();
-                    cmndLocMapWhs.Dispose();
-                    cmndID.Dispose();
 
                     // TODO: Resource strings
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);

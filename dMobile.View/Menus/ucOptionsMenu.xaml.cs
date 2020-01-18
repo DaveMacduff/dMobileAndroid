@@ -33,15 +33,6 @@
             if (!DesignMode.IsDesignModeEnabled)
             {
                 sysEnv = SysEnvironment.GetInstance();
-
-                try
-                {
-                    this.ucOptionsMenu_GotFocus(this, new EventArgs());
-                }
-                catch (Exception ex)
-                {
-                    DisplayAlert("Error", "ucOptionsMenu_GotFocus exception: " + ex.Message, "OK");
-                }
             }
 
             this.cmdSetupDefaults.Text = "1) " + Resource.SetupDefaults;
@@ -65,9 +56,18 @@
         {
             base.OnAppearing();
 
-            this.EnableControls();
+            try
+            {
+                this.EnableControls();
+                this.ucOptionsMenu_GotFocus(this, new EventArgs());
+                this.cmdRefreshData_GotFocus(this, new EventArgs());
+            }
+            catch (Exception ex)
+            {
+                DisplayAlert("Error", "ucOptionsMenu_GotFocus exception: " + ex.Message, "OK");
+            }
 
-            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), (keyPressed) =>
+            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
             {
                 // TODO: Verify keycodes
                 Enum.TryParse(keyPressed, out Keycode keycode);
@@ -82,12 +82,17 @@
                 {
                     // TODO: Add control
                     //this.CallingControl = new ucSetupDefaults();
+                    ucSetupDefaults setupDefaults = new ucSetupDefaults();
+                    await setupDefaults.Show();
                     this.DisableControls();
                     this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     this.IsControlLoaded = false;
                 }
                 else if (keycode == Keycode.Escape || keycode == Keycode.F1)
                 {
+                    // TODO: Close throws error here
+                    //await this.Close();
+
                     // TODO: Add control
                     //this.CallingControl = new ucMainMenu();
                     this.DisableControls();
@@ -98,6 +103,8 @@
                 {
                     // TODO: Add control
                     //this.CallingControl = new ucSetupDefaults();
+                    ucSetupDefaults setupDefaults = new ucSetupDefaults();
+                    await setupDefaults.Show();
                     this.DisableControls();
                     this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     this.IsControlLoaded = false;
@@ -106,6 +113,8 @@
                 {
                     // TODO: Add control
                     //this.CallingControl = new ucCommunicationSetup();
+                    ucCommunicationSetup commSetup = new ucCommunicationSetup();
+                    await commSetup.Show();
                     this.DisableControls();
                     this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     this.IsControlLoaded = false;
@@ -115,7 +124,7 @@
                     // TODO: Add control
                     //this.CallingControl = new ucRefreshDataOptions();
                     ucRefreshDataOptions refreshDataOption = new ucRefreshDataOptions();
-                    Device.BeginInvokeOnMainThread(async () => await refreshDataOption.Show());
+                    await refreshDataOption.Show();
                     this.DisableControls();
                     this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     this.IsControlLoaded = false;
@@ -124,6 +133,8 @@
                 {
                     // TODO: Add control
                     //this.CallingControl = new ucSubmitBatch();
+                    ucSubmitBatch submitBatch = new ucSubmitBatch();
+                    await submitBatch.Show();
                     this.DisableControls();
                     this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     this.IsControlLoaded = false;
@@ -132,6 +143,9 @@
                 {
                     // TODO: Add control
                     //this.CallingControl = new ucUtilitiesMenu();
+                    ucUtilitiesMenu utilities = new ucUtilitiesMenu();
+                    await utilities.Show();
+
                     this.DisableControls();
                     this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     this.IsControlLoaded = false;
@@ -140,6 +154,8 @@
                 {
                     // TODO: Add control
                     //this.CallingControl = new ucAbout();
+                    ucAbout about = new ucAbout();
+                    await about.Show();
                     this.DisableControls();
                     this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     this.IsControlLoaded = false;
@@ -425,7 +441,6 @@
         /// <remarks></remarks>
         public async void cmdSetupDefaults_Click(object sender, EventArgs e)
         {
-            // TODO: Add control
             //this.CallingControl = new ucSetupDefaults();
             ucSetupDefaults setupDefaults = new ucSetupDefaults();
             await setupDefaults.Show();
@@ -440,10 +455,12 @@
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        public void cmdCommunicationSetup_Click(object sender, EventArgs e)
+        public async void cmdCommunicationSetup_Click(object sender, EventArgs e)
         {
             // TODO: Add control
             //this.CallingControl = new ucCommunicationSetup();
+            ucCommunicationSetup commSetup = new ucCommunicationSetup();
+            await commSetup.Show();
             this.DisableControls();
             this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
             this.IsControlLoaded = false;
@@ -472,10 +489,12 @@
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        public void cmdSubmitBatch_Click(object sender, EventArgs e)
+        public async void cmdSubmitBatch_Click(object sender, EventArgs e)
         {
             // TODO: Add control
             //this.CallingControl = new ucSubmitBatch();
+            ucSubmitBatch submitBatch = new ucSubmitBatch();
+            await submitBatch.Show();
             this.DisableControls();
             this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
             this.IsControlLoaded = false;
@@ -487,10 +506,12 @@
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        public void cmdAbout_Click(object sender, EventArgs e)
+        public async void cmdAbout_Click(object sender, EventArgs e)
         {
             // TODO: Add control
             //this.CallingControl = new ucAbout();
+            ucAbout about = new ucAbout();
+            await about.Show();
             this.DisableControls();
             this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
             this.IsControlLoaded = false;
@@ -502,10 +523,14 @@
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        public void cmdUtilities_Click(object sender, EventArgs e)
+        public async void cmdUtilities_Click(object sender, EventArgs e)
         {
             // TODO: Add control
             //this.CallingControl = new ucUtilitiesMenu();
+
+            ucUtilitiesMenu utilities = new ucUtilitiesMenu();
+            await utilities.Show();
+
             this.DisableControls();
             this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
             this.IsControlLoaded = false;

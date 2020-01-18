@@ -1,70 +1,57 @@
 namespace dMobile.GroundWork
 {
-  using System;
-  using System.Data;
-  using System.Data.SQLite;
-  using dMobile.Bedrock;
+    using System;
+    using System.Data;
+    using System.Data.SQLite;
+    using dMobile.Bedrock;
 
-  public class TableActivity : TableBase
-  {
-    #region Constructors
-
-    public TableActivity()
-      : base()
+    public class TableActivity : TableBase
     {
-      this.FullClassName = "dMobile.GroundWork.TableActivity";
-    }
+        #region Constructors
 
-    #endregion
-
-    #region Public Members
-
-    /// <summary>
-    ///
-    /// </summary>
-    /// <remarks></remarks>
-    public override void Purge(SysCommon.ActSubTypes actSubType)
-    {
-      try
-      {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingActivity), true);
-#else
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging activity.", true);
-#endif
-
-        using (SQLiteCommand cmndPurgeActivity = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        public TableActivity()
+          : base()
         {
-          cmndPurgeActivity.CommandText = "DELETE FROM tActivity "
-              + "WHERE tActivity.ActivitySubType = " + (int)actSubType;
-          cmndPurgeActivity.CommandType = CommandType.Text;
-          cmndPurgeActivity.ExecuteNonQuery();
+            this.FullClassName = "dMobile.GroundWork.TableActivity";
         }
 
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingActivityComplete), true);
-#else
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging activity complete.", true);
-#endif
-      }
-      catch (SQLiteException ex)
-      {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), true);
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingActivityFailed), true);
-#else
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging activity failed.", true);
-#endif
+        #endregion
 
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredPurgingActivityFailed), ex);
-#else
-        throw new Exception("Database exception occurred. Purging activity failed.", ex);
-#endif
-      }
+        #region Public Members
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <remarks></remarks>
+        public override void Purge(SysCommon.ActSubTypes actSubType)
+        {
+            try
+            {
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging activity.", true);
+
+                using (SQLiteCommand cmndPurgeActivity = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                {
+                    cmndPurgeActivity.CommandText = "DELETE FROM tActivity WHERE tActivity.ActivitySubType = @activitySubType";
+                    cmndPurgeActivity.CommandType = CommandType.Text;
+                    cmndPurgeActivity.Parameters.Add(new SQLiteParameter("@activitySubType", Convert.ToInt32(actSubType)));
+                    cmndPurgeActivity.ExecuteNonQuery();
+                }
+
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging activity complete.", true);
+            }
+            catch (SQLiteException ex)
+            {
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging activity failed.", true);
+
+                // TODO: Resource strings
+                throw new Exception("Database exception occurred. Purging activity failed.", ex);
+            }
+        }
+
+        #endregion
     }
-
-    #endregion
-  }
 }

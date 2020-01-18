@@ -23,7 +23,7 @@
                     <Custom:CustomSwitch x:Name="chkSelectAll"  Grid.Row="1" Clicked="chkSelectAll_Click" Toggled="IdentifyChangesMade"/>
                 </Grid>
 
-                <Frame VerticalOptions="Start" Grid.Row="1" Padding="5" HasShadow="True" OutlineColor="White">
+                <Frame VerticalOptions="Start" Grid.Row="1" OutlineColor="{DynamicResource BorderColor}">
                     <ScrollView>
                         <Grid>
                             <Label x:Name="lblSystemData" Text="System Data" VerticalTextAlignment="Center" />

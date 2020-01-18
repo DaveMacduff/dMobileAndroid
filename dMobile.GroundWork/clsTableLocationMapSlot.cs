@@ -36,7 +36,6 @@ namespace dMobile.GroundWork
 
                 string reqData = string.Empty;
 
-                // TODO: Uncomment GC calls
                 //GC.Collect();
                 //GC.WaitForPendingFinalizers();
 
@@ -76,6 +75,7 @@ namespace dMobile.GroundWork
                 }
 
                 reqData = this.Send(whsLocMapRefno);
+
                 if (0 < reqData.Length)
                 {
                     if (reqData.Contains("<message>ERROR</message>"))
@@ -88,41 +88,25 @@ namespace dMobile.GroundWork
                     this.SaveOpt(reqData);
                 }
 
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SeedingSlotsComplete), true);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding slots complete.", true);
-#endif
             }
             catch (SQLiteException ex)
             {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), true);
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SeedingSlotsFailed), true);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding slots failed.", true);
-#endif
 
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredSeedingSlotsFailed), ex);
-#else
+                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Seeding slots failed.", ex);
-#endif
             }
             catch (Exception ex)
             {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SeedingSlotsFailed), true);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding slots failed.", true);
-#endif
 
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.SeedingSlotsFailed), ex);
-#else
+                // TODO: Resource strings
                 throw new Exception("Seeding slots failed.", ex);
-#endif
             }
         }
 
@@ -134,11 +118,8 @@ namespace dMobile.GroundWork
         {
             try
             {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingSlots), true);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging slots.", true);
-#endif
 
                 using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
                 {
@@ -150,33 +131,24 @@ namespace dMobile.GroundWork
                     }
                     else
                     {
-                        cmndPurge.CommandText = "DELETE FROM tLocationMapSlot WHERE SectionLocationMapRefno = " + sectRefno;
+                        cmndPurge.CommandText = "DELETE FROM tLocationMapSlot WHERE SectionLocationMapRefno = @sectionLocationMapRefno";
+                        cmndPurge.Parameters.Add(new SQLiteParameter("@sectionLocationMapRefno", sectRefno));
                     }
 
                     cmndPurge.ExecuteNonQuery();
                 }
 
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingSlotsComplete), true);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging slots complete.", true);
-#endif
             }
             catch (SQLiteException ex)
             {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), true);
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingSlotsFailed), true);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging slots failed.", true);
-#endif
 
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredPurgingSlotsFailed), ex);
-#else
+                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Purging slots failed.", ex);
-#endif
             }
         }
 
@@ -197,24 +169,14 @@ namespace dMobile.GroundWork
 
                     rowsAffected = Convert.ToInt32(cmndStatus.ExecuteScalar());
 
-                    this.DataAccessStatusOutHandler(
-                      this,
-                      EventArgs.Empty,
-#if MULTILANGUAGE
-            string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.Slots), rowsAffected),
-#else
- string.Format("{0} slots.", rowsAffected),
-#endif
- false);
+                    // TODO: Resource strings
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} slots.", rowsAffected), false);
                 }
             }
             catch (SQLiteException ex)
             {
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredSlotsStatusFailed), ex);
-#else
+                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Slots status failed.", ex);
-#endif
             }
 
             return rowsAffected;
@@ -249,27 +211,27 @@ namespace dMobile.GroundWork
 
             SQLiteConnection conn = DatabaseConnection.GetInstance().SQLConn;
 
-            try
+            using (SQLiteCommand cmndSlot = conn.CreateCommand())
+            using (SQLiteCommand cmndSect = conn.CreateCommand())
+            using (SQLiteCommand cmndCoord = conn.CreateCommand())
+            using (SQLiteCommand cmndLocMap = conn.CreateCommand())
+            using (SQLiteCommand cmndID = conn.CreateCommand())
+            using (SQLiteCommand cmndSlotUpdate = conn.CreateCommand())
+            using (SQLiteTransaction transaction = conn.BeginTransaction())
             {
-                int startIndex = recvData.IndexOf("<VFPData");
-
-                using (StringReader stringReader = new StringReader(recvData.Substring(startIndex)))
-                using (XmlReader reader = XmlReader.Create(stringReader))
+                try
                 {
-                    // TODO: Resource Strings
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
+                    int startIndex = recvData.IndexOf("<VFPData");
 
-                    // TODO: Resource Strings
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving slots.", false);
-
-                    using (SQLiteCommand cmndSlot = conn.CreateCommand())
-                    using (SQLiteCommand cmndSect = conn.CreateCommand())
-                    using (SQLiteCommand cmndCoord = conn.CreateCommand())
-                    using (SQLiteCommand cmndLocMap = conn.CreateCommand())
-                    using (SQLiteCommand cmndID = conn.CreateCommand())
-                    using (SQLiteCommand cmndSlotUpdate = conn.CreateCommand())
-                    using (SQLiteTransaction transaction = conn.BeginTransaction())
+                    using (StringReader stringReader = new StringReader(recvData.Substring(startIndex)))
+                    using (XmlReader reader = XmlReader.Create(stringReader))
                     {
+                        // TODO: Resource Strings
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
+
+                        // TODO: Resource Strings
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving slots.", false);
+
                         //cmndSlot.CommandText = "tLocationMapSlot";
                         //cmndSlot.CommandType = CommandType.Text;
                         //cmndSlot.IndexName = "UQ_LocationMapSlotOnLocationMapSlotFKRefno";
@@ -638,33 +600,35 @@ namespace dMobile.GroundWork
                         //drSect.Close();
                         //drSlot.Close();
                         //}
+                        //}
 
                         transaction.Commit();
+
+                        // TODO: Resource Strings
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", recordCount), false);
+
+                        // TODO: Resource Strings
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving slots complete.", false);
                     }
-
-
-                    // TODO: Resource Strings
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", recordCount), false);
-
-                    // TODO: Resource Strings
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving slots complete.", false);
                 }
-            }
-            catch (SQLiteException ex)
-            {
-                // TODO: Resource Strings
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving slots failed.", false);
+                catch (SQLiteException ex)
+                {
+                    transaction.Rollback();
 
-                //// Duplicate key violations
-                //if (ex.NativeError == 25016)
-                //{
-                //    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Uniqueness violation.", false);
-                //    throw new Exception("Uniqueness violation." + Environment.NewLine + errMsg, ex);
-                //}
+                    // TODO: Resource Strings
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving slots failed.", false);
 
-                // TODO: Resource Strings
-                throw new Exception("Database exception occurred. Saving slots failed." + Environment.NewLine + errMsg, ex);
+                    //// Duplicate key violations
+                    //if (ex.NativeError == 25016)
+                    //{
+                    //    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Uniqueness violation.", false);
+                    //    throw new Exception("Uniqueness violation." + Environment.NewLine + errMsg, ex);
+                    //}
+
+                    // TODO: Resource Strings
+                    throw new Exception("Database exception occurred. Saving slots failed." + Environment.NewLine + errMsg, ex);
+                }
             }
         }
 

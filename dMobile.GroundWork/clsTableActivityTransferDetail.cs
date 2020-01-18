@@ -20,593 +20,647 @@ namespace dMobile.GroundWork
       this.FullClassName = "dMobile.GroundWork.TableActivityTransferDetail";
     }
 
-    #endregion
+        #endregion
 
-    #region Public Members
+        #region Public Members
 
-    /// <summary>
-    ///
-    /// </summary>
-    /// <remarks></remarks>
-    public override void Request(int actItemRefno)
-    {
-      string reqData = string.Empty;
-
-      //GC.Collect();
-      //GC.WaitForPendingFinalizers();
-
-      try
-      {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SeedingTransferDetails), true);
-#else
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding transfer details.", true);
-#endif
-
-        if (actItemRefno == 0)
+        /// <summary>
+        ///
+        /// </summary>
+        /// <remarks></remarks>
+        public override void Request(int actItemRefno)
         {
-          using (SQLiteCommand cmndActItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-          {
-            cmndActItem.CommandType = CommandType.Text;
-            cmndActItem.CommandText = "SELECT tActivityItem.ActivityItemRefno " 
-                + "FROM tActivityItem "
-                + "WHERE tActivityItem.ActivityItemSubType = " + (int)SysCommon.ActSubTypes.Transfers;
+            string reqData = string.Empty;
 
-            using (SQLiteDataReader drActItem = cmndActItem.ExecuteReader())
+            //GC.Collect();
+            //GC.WaitForPendingFinalizers();
+
+            try
             {
-              while (drActItem.Read())
-              {
-                actItemRefno = Convert.ToInt32(drActItem["ActivityItemRefno"]);
-                reqData = this.Send(actItemRefno);
-                if (0 < reqData.Length)
+
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding transfer details.", true);
+
+                if (actItemRefno == 0)
                 {
-                  if (reqData.Contains("<message>ERROR</message>"))
-                  {
-                    XmlDocument reqErr = new XmlDocument();
-                    reqErr.LoadXml(reqData);
-                    throw new Exception(reqErr.DocumentElement["detail"].InnerText);
-                  }
+                    using (SQLiteCommand cmndActItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                    {
+                        cmndActItem.CommandText = "SELECT tActivityItem.ActivityItemRefno FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = @activityItemSubType";
+                        cmndActItem.CommandType = CommandType.Text;
+                        cmndActItem.Parameters.Add(new SQLiteParameter("@activityItemSubType", Convert.ToInt32(SysCommon.ActSubTypes.Transfers)));
 
-                  this.Save(reqData, actItemRefno);
+                        using (SQLiteDataReader drActItem = cmndActItem.ExecuteReader())
+                        {
+                            while (drActItem.Read())
+                            {
+                                actItemRefno = Convert.ToInt32(drActItem["ActivityItemRefno"]);
+                                reqData = this.Send(actItemRefno);
+
+                                if (0 < reqData.Length)
+                                {
+                                    if (reqData.Contains("<message>ERROR</message>"))
+                                    {
+                                        XmlDocument reqErr = new XmlDocument();
+                                        reqErr.LoadXml(reqData);
+                                        throw new Exception(reqErr.DocumentElement["detail"].InnerText);
+                                    }
+
+                                    this.Save(reqData, actItemRefno);
+                                }
+                            }
+
+                            drActItem.Close();
+                        }
+                    }
                 }
-              }
+                else
+                {
+                    reqData = this.Send(actItemRefno);
 
-              drActItem.Close();
+                    if (0 < reqData.Length)
+                    {
+                        if (reqData.Contains("<message>ERROR</message>"))
+                        {
+                            XmlDocument reqErr = new XmlDocument();
+                            reqErr.LoadXml(reqData);
+                            throw new Exception(reqErr.DocumentElement["detail"].InnerText);
+                        }
+
+                        this.Save(reqData, actItemRefno);
+                    }
+                }
+
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding transfer details complete.", true);
             }
-          }
-        }
-        else
-        {
-          reqData = this.Send(actItemRefno);
-          if (0 < reqData.Length)
-          {
-            if (reqData.Contains("<message>ERROR</message>"))
+            catch (SQLiteException ex)
             {
-              XmlDocument reqErr = new XmlDocument();
-              reqErr.LoadXml(reqData);
-              throw new Exception(reqErr.DocumentElement["detail"].InnerText);
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding co-product materials details failed.", true);
+
+                // TODO: Resource strings
+                throw new Exception("Database exception occurred. Seeding transfer details failed.", ex);
+            }
+            catch (Exception ex)
+            {
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding transfer details failed.", true);
+
+                // TODO: Resource strings
+                throw new Exception("Seeding transfer details failed.", ex);
+            }
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <remarks></remarks>
+        public override int DataStatus()
+        {
+            int rowsAffected = 0;
+
+            try
+            {
+                using (SQLiteCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                {
+                    cmndStatus.CommandText = "SELECT COUNT(tActivityDetail.ActivityDetailRefno) FROM tActivityDetail WHERE tActivityDetail.ActivityDetailSubType = @activityDetailSubType";
+                    cmndStatus.CommandType = CommandType.Text;
+                    cmndStatus.Parameters.Add(new SQLiteParameter("@activityDetailSubType", Convert.ToInt32(SysCommon.ActSubTypes.Transfers)));
+
+                    rowsAffected = Convert.ToInt32(cmndStatus.ExecuteScalar());
+
+                    // TODO: Resource strings
+                    DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} transfer details.", rowsAffected), true);
+                }
+            }
+            catch (SQLiteException ex)
+            {
+                // TODO: Resource strings
+                throw new Exception("Database exception occurred. Transfer details status failed.", ex);
             }
 
-            this.Save(reqData, actItemRefno);
-          }
+            return rowsAffected;
         }
 
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SeedingTransferDetailsComplete), true);
-#else
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding transfer details complete.", true);
-#endif
-      }
-      catch (SQLiteException ex)
-      {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), true);
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SeedingCoproductMaterialsDetailsFailed), true);
-#else
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding co-product materials details failed.", true);
-#endif
-
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredSeedingTransferDetailsFailed), ex);
-#else
-        throw new Exception("Database exception occurred. Seeding transfer details failed.", ex);
-#endif
-      }
-      catch (Exception ex)
-      {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SeedingTransferDetailsFailed), true);
-#else
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding transfer details failed.", true);
-#endif
-
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.SeedingTransferDetailsFailed), ex);
-#else
-        throw new Exception("Seeding transfer details failed.", ex);
-#endif
-      }
-    }
-
-    /// <summary>
-    ///
-    /// </summary>
-    /// <remarks></remarks>
-    public override int DataStatus()
-    {
-      int rowsAffected = 0;
-
-      try
-      {
-        using (SQLiteCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        /// <summary>
+        ///
+        /// </summary>
+        /// <remarks></remarks>
+        public override void Purge()
         {
-          cmndStatus.CommandText = "SELECT COUNT(tActivityDetail.ActivityDetailRefno) " 
-              + "FROM tActivityDetail " 
-              + "WHERE tActivityDetail.ActivityDetailSubType = " + (int)SysCommon.ActSubTypes.Transfers;
-          cmndStatus.CommandType = CommandType.Text;
+            try
+            {
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging transfer details.", true);
 
-          rowsAffected = Convert.ToInt32(cmndStatus.ExecuteScalar());
-          DataAccessStatusOutHandler(
-              this,
-              EventArgs.Empty,
-#if MULTILANGUAGE
-              string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.TransferDetails),
-#else
-              string.Format("{0} transfer details.",
-#endif
-              rowsAffected),
-              true);
+                using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                {
+
+                    cmndPurge.CommandType = CommandType.Text;
+                    cmndPurge.Parameters.Add(new SQLiteParameter("@activityDetailSubType", Convert.ToInt32(SysCommon.ActSubTypes.Transfers)));
+
+                    cmndPurge.CommandText = "DELETE FROM tActivityDetailProductSchemeVariantXRef WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno IN "
+                        + "(SELECT tActivityDetail.ActivityDetailRefno "
+                        + "FROM tActivityDetail "
+                        + "WHERE tActivityDetail.ActivityDetailSubType = @activityDetailSubType)";
+                    cmndPurge.ExecuteNonQuery();
+
+                    cmndPurge.CommandText = "DELETE FROM tActivityDetailTransfer "
+                        + "WHERE tActivityDetailTransfer.ActivityDetailRefno IN "
+                        + "(SELECT tActivityDetail.ActivityDetailRefno "
+                        + "FROM tActivityDetail "
+                        + " WHERE tActivityDetail.ActivityDetailSubType = @activityDetailSubType)";
+                    cmndPurge.ExecuteNonQuery();
+
+                    cmndPurge.CommandText = "DELETE FROM tActivityDetailExtra "
+                        + "WHERE tActivityDetailExtra.ActivityDetailRefno IN "
+                        + "(SELECT tActivityDetail.ActivityDetailRefno "
+                        + "FROM tActivityDetail "
+                        + "WHERE tActivityDetail.ActivityDetailSubType = @activityDetailSubType)";
+                    cmndPurge.ExecuteNonQuery();
+
+                    cmndPurge.CommandText = "DELETE FROM tActivityDetail WHERE tActivityDetail.ActivityDetailSubType = @activityDetailSubType";
+                    cmndPurge.ExecuteNonQuery();
+                }
+
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging transfer details complete.", true);
+            }
+            catch (SQLiteException ex)
+            {
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging transfer details failed.", true);
+
+                // TODO: Resource strings
+                throw new Exception("Database exception occurred. Purging transfer details failed.", ex);
+            }
         }
-      }
-      catch (SQLiteException ex)
-      {
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredTransferDetailsStatusFailed), ex);
-#else
-        throw new Exception("Database exception occurred. Transfer details status failed.", ex);
-#endif
-      }
 
-      return rowsAffected;
-    }
+        #endregion
 
-    /// <summary>
-    ///
-    /// </summary>
-    /// <remarks></remarks>
-    public override void Purge()
-    {
-      try
-      {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingTransferDetails), true);
-#else
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging transfer details.", true);
-#endif
+        #region Private Members
 
-        using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns></returns>
+        /// <remarks></remarks>
+        protected override string Send(int actItemRefno)
         {
+            int actItemFKRefno = 0;
 
-          cmndPurge.CommandType = CommandType.Text;
-          cmndPurge.CommandText = "DELETE FROM tActivityDetailProductSchemeVariantXRef "
-              + "WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno IN "
-              + "(SELECT tActivityDetail.ActivityDetailRefno " 
-              + "FROM tActivityDetail "
-              + "WHERE tActivityDetail.ActivityDetailSubType = " + (int)SysCommon.ActSubTypes.Transfers + ")";
-          cmndPurge.ExecuteNonQuery();
+            using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+            {
+                cmndItem.CommandText = "SELECT * FROM tActivityItemTransfer WHERE ActivityItemRefno = @activityItemRefno";
+                cmndItem.CommandType = CommandType.Text;
+                //cmndItem.IndexName = "PK_ActivityItemTransferOnActivityItemRefno";
+                cmndItem.Parameters.Add(new SQLiteParameter("@activityItemRefno", actItemRefno));
 
-          cmndPurge.CommandText = "DELETE FROM tActivityDetailTransfer "
-              + "WHERE tActivityDetailTransfer.ActivityDetailRefno IN "
-              + "(SELECT tActivityDetail.ActivityDetailRefno " 
-              + "FROM tActivityDetail "
-              + " WHERE tActivityDetail.ActivityDetailSubType = " + (int)SysCommon.ActSubTypes.Transfers + ")";
-          cmndPurge.ExecuteNonQuery();
+                using (SQLiteDataReader drItem = cmndItem.ExecuteReader())
+                {
+                    //if (drItem.Seek(DbSeekOptions.FirstEqual, new object[] { actItemRefno }))
+                    //{
+                    if (drItem.Read())
+                    {
+                        actItemFKRefno = drItem.GetInt32((int)SysCommon.ActItemTransferFields.FKRefno);
+                    }
+                    else
+                    {
+                        // TODO: Resource strings
+                        throw new Exception("drItem.Read() failed.");
+                    }
+                    //}
+                    //else
+                    //{
+                    //    // TODO: Resource strings
+                    //    throw new Exception(string.Format("Unable to locate to activity item transfer refno {0} in tActivityItemTransfer.", actItemRefno));
+                    //}
+                }
+            }
 
-          cmndPurge.CommandText = "DELETE FROM tActivityDetailExtra "
-              + "WHERE tActivityDetailExtra.ActivityDetailRefno IN "
-              + "(SELECT tActivityDetail.ActivityDetailRefno "
-              + "FROM tActivityDetail "
-              + "WHERE tActivityDetail.ActivityDetailSubType = " + (int)SysCommon.ActSubTypes.Transfers + ")";
-          cmndPurge.ExecuteNonQuery();
-
-          cmndPurge.CommandText = (string)("DELETE FROM tActivityDetail" +
-              " WHERE tActivityDetail.ActivityDetailSubType = " +
-              Convert.ToInt32(SysCommon.ActSubTypes.Transfers));
-          cmndPurge.ExecuteNonQuery();
+            return this.SendComm(this.Create(actItemFKRefno));
         }
 
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingTransferDetailsComplete), true);
-#else
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging transfer details complete.", true);
-#endif
-      }
-      catch (SQLiteException ex)
-      {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), true);
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingTransferDetailsFailed), true);
-#else
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging transfer details failed.", true);
-#endif
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="saveData"></param>
+        /// <param name="actItemTransferRefno"></param>
+        protected override void Save(string saveData, int actItemTransferRefno)
+        {
+            SQLiteConnection conn = DatabaseConnection.GetInstance().SQLConn;
+            string errMsg = string.Empty;
+            SQLiteCommand cmndDetail = conn.CreateCommand();
+            SQLiteCommand cmndExtra = conn.CreateCommand();
 
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredPurgingTransferDetailsFailed), ex);
-#else
-        throw new Exception("Database exception occurred. Purging transfer details failed.", ex);
-#endif
-      }
-    }
+            using (SQLiteCommand cmndDetailTransfer = conn.CreateCommand())
+            using (SQLiteCommand cmndItemTransfer = conn.CreateCommand())
+            using (SQLiteCommand cmndLocMapSlot = conn.CreateCommand())
+            using (SQLiteCommand cmndLocMapSect = conn.CreateCommand())
+            using (SQLiteCommand cmndLocMapWhs = conn.CreateCommand())
+            using (SQLiteCommand cmndSchemeVar = conn.CreateCommand())
+            using (SQLiteCommand cmndSchemeVarXRef = conn.CreateCommand())
+            using (SQLiteCommand cmndID = conn.CreateCommand())
+            using (SQLiteTransaction transaction = conn.BeginTransaction())
+            {
+                try
+                {
+                    using (DataSet ds = new DataSet())
+                    {
+                        // TODO: Resource strings
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
-    #endregion
+                        ds.ReadXml(SysCommon.GetXmlReader(ref saveData), XmlReadMode.Auto);
 
-    #region Private Members
+                        // TODO: Resource strings
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving transfer details.", false);
 
-    /// <summary>
-    ///
-    /// </summary>
-    /// <returns></returns>
-    /// <remarks></remarks>
-    protected override string Send(int actItemRefno)
-    {
-      int actItemFKRefno = 0;
+                        if (ds.Tables.Count != 0)
+                        {
+                            int progMax = Convert.ToInt32(ds.Tables["tActivityDetailTransfer"].Rows.Count);
 
-//      using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-//      {
-//        cmndItem.CommandText = "tActivityItemTransfer";
-//        cmndItem.CommandType = CommandType.TableDirect;
-//        cmndItem.IndexName = "PK_ActivityItemTransferOnActivityItemRefno";
+                            // TODO: Resource strings
+                            this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
 
-//        using (SQLiteDataReader drItem = cmndItem.ExecuteReader())
-//        {
-//          if (drItem.Seek(DbSeekOptions.FirstEqual, new object[] { actItemRefno }))
-//          {
-//            if (drItem.Read())
-//            {
-//              actItemFKRefno = drItem.GetInt32((int)SysCommon.ActItemTransferFields.FKRefno);
-//            }
-//            else
-//            {
-//#if MULTILANGUAGE
-//              throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DritemreadFailed));
-//#else
-//              throw new Exception("drItem.Read() failed.");
-//#endif
-//            }
-//          }
-//          else
-//          {
-//            throw new Exception(
-//                string.Format(
-//#if MULTILANGUAGE
-//                Translator.GetInstance().Translate(TranslatorVocabulary.UnableToLocateToActivityItemTransferRefnoInTactivityitemtransfer),
-//#else
-//                "Unable to locate to activity item transfer refno {0} in tActivityItemTransfer.",
-//#endif
-//                actItemRefno));
-//          }
-//        }
-//      }
+                            //using (SQLiteCommand cmndDetailTransfer = conn.CreateCommand())
+                            //{
+                            //cmndDetailTransfer.CommandText = "tActivityDetailTransfer";
+                            //cmndDetailTransfer.CommandType = CommandType.Text;
+                            //cmndDetailTransfer.IndexName = "UQ_ActivityDetailTransferOnActivityDetailTransferFKRefno";
 
-      return this.SendComm(this.Create(actItemFKRefno));
-    }
+                            //using (SqlCeResultSet rsDetailTransfer = cmndDetailTransfer.ExecuteResultSet(ResultSetOptions.Updatable))
+                            //{
+                            //SqlCeUpdatableRecord recDetailTransfer = rsDetailTransfer.CreateRecord();
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="saveData"></param>
-    /// <param name="actItemTransferRefno"></param>
-    protected override void Save(string saveData, int actItemTransferRefno)
-    {
-//      SQLiteConnection conn = DatabaseConnection.GetInstance().SQLConn;
-//      string errMsg = string.Empty;
+                            //using (SQLiteCommand cmndDetail = conn.CreateCommand())
+                            //{
+                            //cmndDetail.CommandText = "tActivityDetail";
+                            //cmndDetail.CommandType = CommandType.Text;
+                            //cmndDetail.IndexName = "PK_ActivityDetailOnActivityDetailRefno";
 
-//      try
-//      {
-//        using (DataSet ds = new DataSet())
-//        {
-//#if MULTILANGUAGE
-//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.ReadingReceivedData), false);
-//#else
-//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
-//#endif
-//          ds.ReadXml(SysCommon.GetXmlReader(ref saveData), XmlReadMode.Auto);
+                            //using (SqlCeResultSet rsDetail = cmndDetail.ExecuteResultSet(ResultSetOptions.Updatable))
+                            //{
+                            //SqlCeUpdatableRecord recDetail = rsDetail.CreateRecord();
 
-//#if MULTILANGUAGE
-//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingTransferDetails), false);
-//#else
-//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving transfer details.", false);
-//#endif
-//          if (ds.Tables.Count != 0)
-//          {
-//            int progMax = Convert.ToInt32(ds.Tables["tActivityDetailTransfer"].Rows.Count);
+                            //using (SQLiteCommand cmndExtra = conn.CreateCommand())
+                            //{
+                            //cmndExtra.CommandText = "tActivityDetailExtra";
+                            //cmndExtra.CommandType = CommandType.Text;
+                            //cmndExtra.IndexName = "PK_ActivityDetailExtraOnActivityDetailRefno";
 
-//#if MULTILANGUAGE
-//            this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.Recordsz), progMax), false);
-//#else
-//            this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
-//#endif
+                            //using (SqlCeResultSet rsExtra = cmndExtra.ExecuteResultSet(ResultSetOptions.Updatable))
+                            //{
+                            //SqlCeUpdatableRecord recExtra = rsExtra.CreateRecord();
 
-//            using (SQLiteCommand cmndDetailTransfer = conn.CreateCommand())
-//            {
-//              cmndDetailTransfer.CommandText = "tActivityDetailTransfer";
-//              cmndDetailTransfer.CommandType = CommandType.TableDirect;
-//              cmndDetailTransfer.IndexName = "UQ_ActivityDetailTransferOnActivityDetailTransferFKRefno";
+                            //using (SQLiteCommand cmndItemTransfer = conn.CreateCommand())
+                            //{
+                            //cmndItemTransfer.CommandText = "tActivityItemTransfer";
+                            //cmndItemTransfer.CommandType = CommandType.Text;
+                            //cmndItemTransfer.IndexName = "PK_ActivityItemTransferOnActivityItemRefno";
 
-//              using (SqlCeResultSet rsDetailTransfer = cmndDetailTransfer.ExecuteResultSet(ResultSetOptions.Updatable))
-//              {
-//                SqlCeUpdatableRecord recDetailTransfer = rsDetailTransfer.CreateRecord();
+                            //using (SQLiteDataReader drItemTransfer = cmndItemTransfer.ExecuteReader())
+                            //{
+                            //using (SQLiteCommand cmndLocMapSlot = conn.CreateCommand())
+                            //{
+                            //cmndLocMapSlot.CommandText = "tLocationMapSlot";
+                            //cmndLocMapSlot.CommandType = CommandType.Text;
+                            //cmndLocMapSlot.IndexName = "UQ_LocationMapSlotOnLocationMapSlotFKRefno";
 
-//                using (SQLiteCommand cmndDetail = conn.CreateCommand())
-//                {
-//                  cmndDetail.CommandText = "tActivityDetail";
-//                  cmndDetail.CommandType = CommandType.TableDirect;
-//                  cmndDetail.IndexName = "PK_ActivityDetailOnActivityDetailRefno";
+                            //using (SQLiteDataReader drLocMapSlot = cmndLocMapSlot.ExecuteReader())
+                            //{
+                            //using (SQLiteCommand cmndLocMapSect = conn.CreateCommand())
+                            //{
+                            //cmndLocMapSect.CommandText = "tLocationMapSection";
+                            //cmndLocMapSect.CommandType = CommandType.Text;
+                            //cmndLocMapSect.IndexName = "UQ_LocationMapSectionOnLocationMapSectionFKRefno";
 
-//                  using (SqlCeResultSet rsDetail = cmndDetail.ExecuteResultSet(ResultSetOptions.Updatable))
-//                  {
-//                    SqlCeUpdatableRecord recDetail = rsDetail.CreateRecord();
+                            //using (SQLiteDataReader drLocMapSect = cmndLocMapSect.ExecuteReader())
+                            //{
+                            //using (SQLiteCommand cmndLocMapWhs = conn.CreateCommand())
+                            //{
+                            //cmndLocMapWhs.CommandText = "tLocationMapWarehouse";
+                            //cmndLocMapWhs.CommandType = CommandType.Text;
+                            //cmndLocMapWhs.IndexName = "UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno";
 
-//                    using (SQLiteCommand cmndExtra = conn.CreateCommand())
-//                    {
-//                      cmndExtra.CommandText = "tActivityDetailExtra";
-//                      cmndExtra.CommandType = CommandType.TableDirect;
-//                      cmndExtra.IndexName = "PK_ActivityDetailExtraOnActivityDetailRefno";
+                            //using (SQLiteDataReader drLocMapWhs = cmndLocMapWhs.ExecuteReader())
+                            //{
+                            //using (SQLiteCommand cmndSchemeVar = conn.CreateCommand())
+                            //{
+                            //cmndSchemeVar.CommandText = "tProductSchemeVariant";
+                            //cmndSchemeVar.CommandType = CommandType.Text;
+                            //cmndSchemeVar.IndexName = "UQ_ProductSchemeVariantOnProductSchemeVariantNo";
 
-//                      using (SqlCeResultSet rsExtra = cmndExtra.ExecuteResultSet(ResultSetOptions.Updatable))
-//                      {
-//                        SqlCeUpdatableRecord recExtra = rsExtra.CreateRecord();
+                            //using (SQLiteDataReader drSchemeVar = cmndSchemeVar.ExecuteReader())
+                            //{
+                            //using (SQLiteCommand cmndSchemeVarXRef = conn.CreateCommand())
+                            //{
+                            //cmndSchemeVarXRef.CommandText = "tActivityDetailProductSchemeVariantXRef";
+                            //cmndSchemeVarXRef.CommandType = CommandType.Text;
+                            //cmndSchemeVarXRef.IndexName = "PK_ActivityDetailProductSchemeVariantXRefOnActivityDetailRefnoAndProductSchemeVariantRefno";
 
-//                        using (SQLiteCommand cmndItemTransfer = conn.CreateCommand())
-//                        {
-//                          cmndItemTransfer.CommandText = "tActivityItemTransfer";
-//                          cmndItemTransfer.CommandType = CommandType.TableDirect;
-//                          cmndItemTransfer.IndexName = "PK_ActivityItemTransferOnActivityItemRefno";
+                            //using (SqlCeResultSet rsSchemeVarXRef = cmndSchemeVarXRef.ExecuteResultSet(ResultSetOptions.Updatable))
+                            //{
+                            //SqlCeUpdatableRecord recSchemeVarXRef = rsSchemeVarXRef.CreateRecord();
 
-//                          using (SQLiteDataReader drItemTransfer = cmndItemTransfer.ExecuteReader())
-//                          {
-//                            using (SQLiteCommand cmndLocMapSlot = conn.CreateCommand())
-//                            {
-//                              cmndLocMapSlot.CommandText = "tLocationMapSlot";
-//                              cmndLocMapSlot.CommandType = CommandType.TableDirect;
-//                              cmndLocMapSlot.IndexName = "UQ_LocationMapSlotOnLocationMapSlotFKRefno";
+                            //using (SQLiteCommand cmndID = conn.CreateCommand())
+                            //{
+                            cmndID.CommandText = "SELECT last_insert_rowid() FROM tActivityDetail";
+                            cmndID.CommandType = CommandType.Text;
 
-//                              using (SQLiteDataReader drLocMapSlot = cmndLocMapSlot.ExecuteReader())
-//                              {
-//                                using (SQLiteCommand cmndLocMapSect = conn.CreateCommand())
-//                                {
-//                                  cmndLocMapSect.CommandText = "tLocationMapSection";
-//                                  cmndLocMapSect.CommandType = CommandType.TableDirect;
-//                                  cmndLocMapSect.IndexName = "UQ_LocationMapSectionOnLocationMapSectionFKRefno";
+                            int actDetailRefno = 0;
+                            int progValue = 0;
+                            int actDetailTransferFKRefno = 0;
+                            int productUnitRefno = 0;
 
-//                                  using (SQLiteDataReader drLocMapSect = cmndLocMapSect.ExecuteReader())
-//                                  {
-//                                    using (SQLiteCommand cmndLocMapWhs = conn.CreateCommand())
-//                                    {
-//                                      cmndLocMapWhs.CommandText = "tLocationMapWarehouse";
-//                                      cmndLocMapWhs.CommandType = CommandType.TableDirect;
-//                                      cmndLocMapWhs.IndexName = "UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno";
+                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
 
-//                                      using (SQLiteDataReader drLocMapWhs = cmndLocMapWhs.ExecuteReader())
-//                                      {
-//                                        using (SQLiteCommand cmndSchemeVar = conn.CreateCommand())
-//                                        {
-//                                          cmndSchemeVar.CommandText = "tProductSchemeVariant";
-//                                          cmndSchemeVar.CommandType = CommandType.TableDirect;
-//                                          cmndSchemeVar.IndexName = "UQ_ProductSchemeVariantOnProductSchemeVariantNo";
+                            cmndItemTransfer.CommandText = "SELECT * FROM tActivityItemTransfer WHERE ActivityItemRefno = @activityItemRefno";
+                            cmndItemTransfer.CommandType = CommandType.Text;
+                            //cmndItemTransfer.IndexName = "PK_ActivityItemTransferOnActivityItemRefno";
+                            cmndItemTransfer.Parameters.Add(new SQLiteParameter("@activityItemRefno", actItemTransferRefno));
 
-//                                          using (SQLiteDataReader drSchemeVar = cmndSchemeVar.ExecuteReader())
-//                                          {
-//                                            using (SQLiteCommand cmndSchemeVarXRef = conn.CreateCommand())
-//                                            {
-//                                              cmndSchemeVarXRef.CommandText = "tActivityDetailProductSchemeVariantXRef";
-//                                              cmndSchemeVarXRef.CommandType = CommandType.TableDirect;
-//                                              cmndSchemeVarXRef.IndexName 
-//                                                  = "PK_ActivityDetailProductSchemeVariantXRefOnActivityDetailRefnoAndProductSchemeVariantRefno";
+                            using (SQLiteDataReader drItemTransfer = cmndItemTransfer.ExecuteReader())
+                            {
+                                //if (drItemTransfer.Seek(DbSeekOptions.FirstEqual, new object[] { actItemTransferRefno }))
+                                //{
+                                if (!drItemTransfer.Read())
+                                {
+                                    // TODO: Resource strings
+                                    throw new Exception("drItemTransfer.Read() failed." + Environment.NewLine + errMsg);
+                                }
+                                //}
+                                //else
+                                //{
+                                //    // TODO: Resource strings
+                                //    throw new Exception(string.Format("Unable to locate the activity item transfer refno {0} in tActivityItemTransfer.", actItemTransferRefno));
+                                //}
 
-//                                              using (SqlCeResultSet rsSchemeVarXRef 
-//                                                  = cmndSchemeVarXRef.ExecuteResultSet(ResultSetOptions.Updatable))
-//                                              {
-//                                                SqlCeUpdatableRecord recSchemeVarXRef = rsSchemeVarXRef.CreateRecord();
+                                productUnitRefno = drItemTransfer.GetInt32((int)SysCommon.ActItemTransferFields.ProductUnitRefno);
+                            }
 
-//                                                using (SQLiteCommand cmndID = conn.CreateCommand())
-//                                                {
-//                                                  cmndID.CommandText = "SELECT @@IDENTITY FROM tActivityDetail";
-//                                                  cmndID.CommandType = CommandType.Text;
+                            foreach (DataRow drow in ds.Tables["tActivityDetailTransfer"].Rows)
+                            {
+                                errMsg = "Arguments:";
 
-//                                                  int actDetailRefno = 0;
-//                                                  int progValue = 0;
-//                                                  int actDetailTransferFKRefno = 0;
+                                cmndDetail.CommandText = "INSERT INTO tActivityDetail (" +
+                               "ActivityDetailSubType, " +
+                               "ActivityDetailStatus, " +
+                               "ActivityItemRefno, " +
+                               "LocationMapRefno, " +
+                               "ProductUnitRefno, " +
+                               "ActivityDetailUniqueSchemeID, " +
+                               "ActivityDetailSchemeID, " +
+                               "ActivityDetailQuantity, " +
+                               "ActivityDetailBaseQuantity, " +
+                               "ActivityDetailWeightQuantity, " +
+                               "ActivityDetailSingleTradeItemSerialNumber, " +
+                               "ActivityDetailLogisticUnitBatchLotNumber, " +
+                               "ActivityDetailLogisticUnitBestBeforeSellByDate, " +
+                               "ActivityDetailLogisticUnitExpiryUseByDate, " +
+                               "ActivityDetailLogisticUnitProductionDate, " +
+                               "ActivityDetailLogisticUnitDueDate, " +
+                               "ActivityDetailLogisticUnitPackagingDate, " +
+                               "ActivityDetailLogisticUnitSkidNumber" +
+                               ") VALUES (" +
+                               "@activityDetailSubType, " +
+                               "@activityDetailStatus, " +
+                               "@activityItemRefno, " +
+                               "@locationMapRefno, " +
+                               "@productUnitRefno, " +
+                               "@activityDetailUniqueSchemeID, " +
+                               "@activityDetailSchemeID, " +
+                               "@activityDetailQuantity, " +
+                               "@activityDetailBaseQuantity, " +
+                               "@activityDetailWeightQuantity, " +
+                               "@activityDetailSingleTradeItemSerialNumber, " +
+                               "@activityDetailLogisticUnitBatchLotNumber, " +
+                               "@activityDetailLogisticUnitBestBeforeSellByDate, " +
+                               "@activityDetailLogisticUnitExpiryUseByDate, " +
+                               "@activityDetailLogisticUnitProductionDate, " +
+                               "@activityDetailLogisticUnitDueDate, " +
+                               "@activityDetailLogisticUnitPackagingDate, " +
+                               "@activityDetailLogisticUnitSkidNumber" +
+                               ")";
+                                cmndDetail.CommandType = CommandType.Text;
+                                cmndDetail.CommandType = CommandType.Text;
+                                //cmndDetail.IndexName = "PK_ActivityDetailOnActivityDetailRefno";
 
-//                                                  this.DataAccessProgressOutHandler(
-//                                                      this, 
-//                                                      EventArgs.Empty, 
-//                                                      0, 
-//                                                      0, 
-//                                                      progMax);
+                                cmndDetail.Parameters.Add(new SQLiteParameter("@activityDetailSubType", Convert.ToInt32(SysCommon.ActSubTypes.Transfers)));
+                                cmndDetail.Parameters.Add(new SQLiteParameter("@activityItemRefno", actItemTransferRefno));
+                                cmndDetail.Parameters.Add(new SQLiteParameter("@productUnitRefno", productUnitRefno));
 
-//                                                  if (drItemTransfer.Seek(
-//                                                      DbSeekOptions.FirstEqual,
-//                                                      new object[] { actItemTransferRefno }))
-//                                                  {
-//                                                    if (!drItemTransfer.Read())
-//                                                    {
-//#if MULTILANGUAGE
-//                                                      throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DritemtransferreadFailed)
-//#else
-//                                                      throw new Exception("drItemTransfer.Read() failed."
-//#endif
-//                                                          + Environment.NewLine + errMsg);
-//                                                    }
-//                                                  }
-//                                                  else
-//                                                  {
-//                                                    throw new Exception(
-//                                                        string.Format(
-//#if MULTILANGUAGE
-//                                                        Translator.GetInstance().Translate(TranslatorVocabulary.UnableToLocateTheActivityItemTransferRefno)
-//                                                        + Translator.GetInstance().Translate(TranslatorVocabulary.InTactivityitemtransfer), actItemTransferRefno));
-//#else
-//                                                        "Unable to locate the activity item transfer refno {0} "
-//                                                        + "in tActivityItemTransfer.", actItemTransferRefno));
-//#endif
-//                                                  }
+                                //recDetail.SetInt32((int)SysCommon.ActDetailFields.SubType, (int)SysCommon.ActSubTypes.Transfers);
+                                //recDetail.SetInt32((int)SysCommon.ActDetailFields.ActivityItemRefno, actItemTransferRefno);
+                                //recDetail.SetInt32((int)SysCommon.ActDetailFields.ProductUnitRefno, productUnitRefno);
 
-//                                                  foreach (DataRow drow in ds.Tables["tActivityDetailTransfer"].Rows)
-//                                                  {
-//                                                    errMsg = "Arguments:";
+                                //this.SaveDetailLocation(drow, drLocMapSlot, drLocMapSect, drLocMapWhs, ref recDetail, false);
 
-//                                                    recDetail.SetInt32(
-//                                                        (int)SysCommon.ActDetailFields.SubType, 
-//                                                        (int)SysCommon.ActSubTypes.Transfers);
-//                                                    recDetail.SetInt32(
-//                                                        (int)SysCommon.ActDetailFields.ActivityItemRefno, 
-//                                                        actItemTransferRefno);
-//                                                    recDetail.SetInt32(
-//                                                        (int)SysCommon.ActDetailFields.ProductUnitRefno,
-//                                                        drItemTransfer.GetInt32(
-//                                                        (int)SysCommon.ActItemTransferFields.ProductUnitRefno));
+                                int locMapRefno = 0;
+                                int locMapWhsFKRefno = 0;
+                                int locMapSectFKRefno = 0;
+                                int locMapSlotFKRefno = 0;
+                                bool useFNo = false;
 
-//                                                    this.SaveDetailLocation(
-//                                                        drow,
-//                                                        drLocMapSlot,
-//                                                        drLocMapSect,
-//                                                        drLocMapWhs,
-//                                                        ref recDetail,
-//                                                        false);
+                                if (useFNo)
+                                {
+                                    locMapWhsFKRefno = Convert.ToInt32(drow["f07"]);
+                                    locMapSectFKRefno = Convert.ToInt32(drow["f08"]);
+                                    locMapSlotFKRefno = Convert.ToInt32(drow["f09"]);
+                                }
+                                else
+                                {
+                                    locMapWhsFKRefno = Convert.ToInt32(drow["LocationMapWarehouseFKRefno"]);
+                                    locMapSectFKRefno = Convert.ToInt32(drow["LocationMapSectionFKRefno"]);
+                                    locMapSlotFKRefno = Convert.ToInt32(drow["LocationMapSlotFKRefno"]);
+                                }
 
-//                                                    this.SaveDetail(drow, ref recDetail, false);
+                                cmndLocMapSlot.CommandText = "SELECT * FROM tLocationMapSlot WHERE LocationMapSlotFKRefno = @locationMapSlotFKRefno";
+                                cmndLocMapSlot.CommandType = CommandType.Text;
+                                //cmndLocMapSlot.IndexName = "UQ_LocationMapSlotOnLocationMapSlotFKRefno";
+                                cmndLocMapSlot.Parameters.Add(new SQLiteParameter("@locationMapSlotFKRefno", locMapSlotFKRefno));
 
-//                                                    rsDetail.Insert(recDetail);
+                                cmndLocMapSect.CommandText = "SELECT * FROM tLocationMapSection WHERE LocationMapSectionFKRefno = @locationMapSectionFKRefno";
+                                cmndLocMapSect.CommandType = CommandType.Text;
+                                //cmndLocMapSect.IndexName = "UQ_LocationMapSectionOnLocationMapSectionFKRefno";
+                                cmndLocMapSect.Parameters.Add(new SQLiteParameter("@locationMapSectionFKRefno", locMapSlotFKRefno));
 
-//                                                    actDetailRefno = Convert.ToInt32(cmndID.ExecuteScalar());
+                                cmndLocMapWhs.CommandText = "SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = @locationMapWarehouseFKRefno";
+                                cmndLocMapWhs.CommandType = CommandType.Text;
+                                //cmndLocMapWhs.IndexName = "UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno";
+                                cmndLocMapWhs.Parameters.Add(new SQLiteParameter("@locationMapWarehouseFKRefno", locMapWhsFKRefno));
 
-//                                                    recDetailTransfer.SetInt32(
-//                                                        (int)SysCommon.ActDetailTransferFields.ActDetailRefno, 
-//                                                        actDetailRefno);
+                                using (SQLiteDataReader drLocMapSlot = cmndLocMapSlot.ExecuteReader())
+                                using (SQLiteDataReader drLocMapSect = cmndLocMapSect.ExecuteReader())
+                                using (SQLiteDataReader drLocMapWhs = cmndLocMapWhs.ExecuteReader())
+                                {
+                                    locMapRefno = this.SaveDetailLocation(drow, drLocMapSlot, drLocMapSect, drLocMapWhs, /*ref recDetail, */ useFNo);
+                                }
 
-//                                                    actDetailTransferFKRefno = Convert.ToInt32(
-//                                                        drow["ActivityDetailTransferFKRefno"]);
-//                                                    errMsg += Environment.NewLine + "Detail fk refno " 
-//                                                        + actDetailTransferFKRefno;
-//                                                    recDetailTransfer.SetInt32(
-//                                                        (int)SysCommon.ActDetailTransferFields.FKRefno, 
-//                                                        actDetailTransferFKRefno);
-//                                                    recDetailTransfer.SetBoolean(
-//                                                        (int)SysCommon.ActDetailTransferFields.IsConfirmed,
-//                                                        Convert.ToBoolean(
-//                                                        drow["ActivityDetailTransferIsConfirmed"]));
-                                                    
-//                                                    rsDetailTransfer.Insert(recDetailTransfer);
+                                cmndDetail.Parameters.Add(new SQLiteParameter("@locationMapRefno", locMapRefno));
 
-//                                                    if (this.SaveCommonDetailVariant(
-//                                                        drow,
-//                                                        drSchemeVar,
-//                                                        ref recSchemeVarXRef,
-//                                                        actDetailRefno,
-//                                                        false))
-//                                                    {
-//                                                      rsSchemeVarXRef.Insert(recSchemeVarXRef);
-//                                                    }
+                                this.SaveDetail(drow, ref cmndDetail, false);
 
-//                                                    this.SaveDetailExtra(
-//                                                      drow,
-//                                                      ref recExtra,
-//                                                      actDetailRefno,
-//                                                      false);
+                                cmndDetail.ExecuteNonQuery();
+                                //rsDetail.Insert(recDetail);
 
-//                                                    rsExtra.Insert(recExtra);
+                                actDetailRefno = Convert.ToInt32(cmndID.ExecuteScalar());
+                                actDetailTransferFKRefno = Convert.ToInt32(drow["ActivityDetailTransferFKRefno"]);
+                                errMsg += Environment.NewLine + "Detail fk refno " + actDetailTransferFKRefno;
 
-//                                                    progValue++;
-//                                                    if (progValue % 100 == 0)
-//                                                    {
+                                cmndDetailTransfer.CommandText = "INSERT INTO tActivityDetailTransfer (ActivityDetailRefno, " +
+                                    "ActivityDetailTransferFKRefno, " +
+                                    "ActivityDetailTransferIsConfirmed" +
+                                    ") VALUES (" +
+                                    "@activityDetailRefno, " +
+                                    "@activityDetailTransferFKRefno, " +
+                                    "@activityDetailTransferIsConfirmed)";
+                                cmndDetailTransfer.CommandType = CommandType.Text;
+                                //cmndDetailTransfer.IndexName = "UQ_ActivityDetailTransferOnActivityDetailTransferFKRefno";
+                                cmndDetailTransfer.Parameters.Add(new SQLiteParameter("@activityDetailRefno", actDetailRefno));
+                                cmndDetailTransfer.Parameters.Add(new SQLiteParameter("@activityDetailTransferFKRefno", actDetailTransferFKRefno));
+                                cmndDetailTransfer.Parameters.Add(new SQLiteParameter("@activityDetailTransferIsConfirmed", Convert.ToBoolean(drow["ActivityDetailTransferIsConfirmed"])));
 
-//                                                      this.DataAccessProgressOutHandler(
-//                                                          this, 
-//                                                          EventArgs.Empty, 
-//                                                          progValue, 
-//                                                          0, 
-//                                                          progMax);
-//                                                    }
-//                                                  }
+                                cmndDetailTransfer.ExecuteNonQuery();
 
-//                                                  this.DataAccessProgressOutHandler(
-//                                                      this, 
-//                                                      EventArgs.Empty, 
-//                                                      progMax, 
-//                                                      0, 
-//                                                      progMax);
-//                                                }
-//                                              }
-//                                            }
+                                //recDetailTransfer.SetInt32((int)SysCommon.ActDetailTransferFields.ActDetailRefno, actDetailRefno);
+                                //recDetailTransfer.SetInt32((int)SysCommon.ActDetailTransferFields.FKRefno, actDetailTransferFKRefno);
+                                //recDetailTransfer.SetBoolean((int)SysCommon.ActDetailTransferFields.IsConfirmed, Convert.ToBoolean(drow["ActivityDetailTransferIsConfirmed"]));
+                                //rsDetailTransfer.Insert(recDetailTransfer);
 
-//                                            drSchemeVar.Close();
-//                                          }
-//                                        }
+                                //if (this.SaveCommonDetailVariant(drow, drSchemeVar, ref recSchemeVarXRef, actDetailRefno, false))
+                                //{
+                                //    rsSchemeVarXRef.Insert(recSchemeVarXRef);
+                                //}
 
-//                                        drLocMapWhs.Close();
-//                                      }
-//                                    }
+                                //this.SaveDetailExtra(drow, ref recExtra, actDetailRefno, false);
+                                //rsExtra.Insert(recExtra);
 
-//                                    drLocMapSect.Close();
-//                                  }
-//                                }
+                                int schemeVariantNo = 0;
 
-//                                drLocMapSlot.Close();
-//                              }
-//                            }
+                                if (useFNo)
+                                {
+                                    schemeVariantNo = Convert.ToInt32(drow["f17"]);
+                                }
+                                else
+                                {
+                                    schemeVariantNo = Convert.ToInt32(drow["ProductSchemeVariantNo"]);
+                                }
 
-//                            drItemTransfer.Close();
-//                          }
-//                        }
-//                      }
-//                    }
-//                  }
-//                }
-//              }
-//            }
-//          }
+                                if (0 < schemeVariantNo)
+                                {
+                                    cmndSchemeVar.CommandText = "SELECT * FROM tProductSchemeVariant WHERE ProductSchemeVariantNo = @productSchemeVariantNo";
+                                    cmndSchemeVar.CommandType = CommandType.Text;
+                                    //cmndSchemeVar.IndexName = "UQ_ProductSchemeVariantOnProductSchemeVariantNo";
+                                    cmndSchemeVar.Parameters.Add(new SQLiteParameter("@productSchemeVariantNo", schemeVariantNo));
 
-//#if MULTILANGUAGE
-//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingTransferDetailsFailed), false);
-//#else
-//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving transfer details failed.", false);
-//#endif
-//        }
-//      }
-//      catch (SQLiteException ex)
-//      {
-//#if MULTILANGUAGE
-//        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), false);
-//        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingTransferDetailsFailed), false);
-//#else
-//        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
-//        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving transfer details failed.", false);
-//#endif
+                                    using (SQLiteDataReader drSchemeVar = cmndSchemeVar.ExecuteReader())
+                                    {
+                                        //if (drSchemeVar.Seek(DbSeekOptions.FirstEqual, new object[] { schemeVariantNo }))
+                                        //{
+                                        if (drSchemeVar.Read())
+                                        {
+                                            cmndSchemeVarXRef.CommandText = "INSERT INTO tActivityDetailProductSchemeVariantXRef (ActivityDetailRefno, ProductSchemeVariantRefno) VALUES (@activityDetailRefno, @productSchemeVariantRefno)";
+                                            cmndSchemeVarXRef.CommandType = CommandType.Text;
+                                            //cmndSchemeVarXRef.IndexName = "PK_ActivityDetailProductSchemeVariantXRefOnActivityDetailRefnoAndProductSchemeVariantRefno";
+                                            cmndSchemeVarXRef.Parameters.Add(new SQLiteParameter("@activityDetailRefno", actDetailRefno));
+                                            cmndSchemeVarXRef.Parameters.Add(new SQLiteParameter("@productSchemeVariantRefno", drSchemeVar.GetInt32((int)SysCommon.ProdSchemeVariantFields.Refno)));
 
-//        // Duplicate key violations
-//        if (ex.NativeError == 25016)
-//        {
-//#if MULTILANGUAGE
-//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.UniquenessViolation), false);
-//          throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.UniquenessViolation) + Environment.NewLine + errMsg, ex);
-//#else
-//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Uniqueness violation.", false);
-//          throw new Exception("Uniqueness violation." + Environment.NewLine + errMsg, ex);
-//#endif
-//        }
+                                            cmndSchemeVarXRef.ExecuteNonQuery();
 
-//        throw new Exception(
-//#if MULTILANGUAGE
-//            Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredSavingTransferDetailsFailed) + Environment.NewLine + errMsg,
-//#else
-//            "Database exception occurred. Saving transfer details failed." + Environment.NewLine + errMsg,
-//#endif
-//            ex);
-//      }
-    }
+                                            //recSchemeVarXRef.SetInt32((int)SysCommon.ActDetailSchemeVariantXRefFields.ActDetailRefno, actDetailRefno);
+                                            //recSchemeVarXRef.SetInt32((int)SysCommon.ActDetailSchemeVariantXRefFields.ProdSchemeVariantRefno, drSchemeVar.GetInt32((int)SysCommon.ProdSchemeVariantFields.Refno));
+
+                                        }
+                                        else
+                                        {
+                                            // TODO: Resource strings
+                                            throw new Exception("drSchemeVar.Read() failed.");
+                                        }
+                                        //}
+                                        //else
+                                        //{
+                                        //    // TODO: Resource strings
+                                        //    throw new Exception(string.Format("Unable to locate product scheme no {0} in tProductSchemeVariant", schemeVariantNo));
+                                        //}
+                                    }
+                                }
+
+                                this.SaveDetailExtra(drow, ref cmndExtra, actDetailRefno, useFNo);
+
+                                progValue++;
+                                if (progValue % 100 == 0)
+                                {
+
+                                    this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
+                                }
+                            }
+
+                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
+                        }
+                        //                                                                        }
+                        //                                                                    }
+
+                        //                                                                    drSchemeVar.Close();
+                        //                                                                }
+                        //                                                            }
+
+                        //                                                            drLocMapWhs.Close();
+                        //                                                        }
+                        //                                                    }
+
+                        //                                                    drLocMapSect.Close();
+                        //                                                }
+                        //                                            }
+
+                        //                                            drLocMapSlot.Close();
+                        //                                        }
+                        //                                    }
+
+                        //                                    drItemTransfer.Close();
+                        //                                }
+                        //                            }
+                        //                        }
+                        //                    }
+                        //                }
+                        //            }
+                        //        }
+                        //    }
+                        //}
+
+                        transaction.Commit();
+
+                        // TODO: Resource strings
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving transfer details failed.", false);
+                    }
+                }
+                catch (SQLiteException ex)
+                {
+                    transaction.Rollback();
+
+                    // TODO: Resource strings
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving transfer details failed.", false);
+
+                    //// Duplicate key violations
+                    //if (ex.NativeError == 25016)
+                    //{
+                    //    // TODO: Resource strings
+                    //    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Uniqueness violation.", false);
+                    //    throw new Exception("Uniqueness violation." + Environment.NewLine + errMsg, ex);
+                    //}
+
+                    // TODO: Resource strings
+                    throw new Exception("Database exception occurred. Saving transfer details failed." + Environment.NewLine + errMsg, ex);
+                }
+                finally
+                {
+                    cmndDetail.Dispose();
+                    cmndExtra.Dispose();
+                }
+            }
+        }
 
     /// <summary>
     /// 

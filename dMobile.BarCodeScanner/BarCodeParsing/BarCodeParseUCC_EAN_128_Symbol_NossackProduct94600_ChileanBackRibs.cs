@@ -1,179 +1,179 @@
 namespace dMobile.BarCodeScanner
 {
-  using System;
-  using dMobile.Bedrock;
+    using System;
+    using dMobile.Bedrock;
 
-  class BarCodeParseUCC_EAN_128_Symbol_NossackProduct94600_ChileanBackRibs : BarCodeParseUCC_EAN_128_Symbol
-  {
-    #region Public members
-
-    public override void ParseBarCodeData(string barCodeData)
+    class BarCodeParseUCC_EAN_128_Symbol_NossackProduct94600_ChileanBackRibs : BarCodeParseUCC_EAN_128_Symbol
     {
-        try
-        {
-            string parse = barCodeData;
-            string compare = string.Empty;
+        #region Public members
 
-            do
+        public override void ParseBarCodeData(string barCodeData)
+        {
+            try
             {
-                compare = parse;
-                parse = this.IdentifySSCC18(parse);
-                parse = this.IdentifyLocationIdentifier(parse);
-                parse = this.IdentifyGTIN(parse);
-                parse = this.IdentifyGTINinLogisticUnit(parse);
-                parse = this.IdentifyLogisticUnitBestBeforeSellByDate(parse);
-                parse = this.IdentifyLogisticUnitExpiryUseByDate(parse);
-                parse = this.IdentifyLogisticUnitDueDate(parse);
-                parse = this.IdentifyLogisticUnitProductionDate(parse);
-                parse = this.IdentifyLogisticUnitPackagingDate(parse);
-                parse = this.IdentifyLogisticUnitProductVariant(parse);
-                parse = this.IdentifyLogisticUnitCountOfTradeItems(parse);
-                parse = this.IdentifyLogisticUnitVariableCount(parse);
-                parse = this.IdentifyLogisticUnitBatchLotNumber(parse);
-                parse = this.IdentifySingleTradeItemSerialNumber(parse);
-                parse = this.IdentifyNetWeightMetricKG(parse);
-                parse = this.IdentifyNetWeightNonMetricLB(parse);
-                parse = this.IdentifyGrossWeightMetricKG(parse);
-                parse = this.IdentifyGrossWeightNonMetricLB(parse);
-                parse = this.IdentifyLengthOr1stDimensionMeters(parse);
-                parse = this.IdentifyActivityFKRefno(parse);
-                parse = this.IdentifyActivityItemFKRefno(parse);
-                parse = this.IdentifyActivityDetailFKRefno(parse);
-            }
-            while (string.Compare(parse, compare) != 0);
+                string parse = barCodeData;
+                string compare = string.Empty;
 
-            this.IdentifyProductIdentifier(barCodeData);
-            this.Remainder = parse;
-            SuppressErrorsRule();
-        }
-        catch (BarCodeParseException)
-        {
-            throw;
-        }
-        catch (Exception e)
-        {
-            // General Barcode parsing failure.
-            throw new BarCodeParseException(
-                string.Format(
+                do
+                {
+                    compare = parse;
+                    parse = this.IdentifySSCC18(parse);
+                    parse = this.IdentifyLocationIdentifier(parse);
+                    parse = this.IdentifyGTIN(parse);
+                    parse = this.IdentifyGTINinLogisticUnit(parse);
+                    parse = this.IdentifyLogisticUnitBestBeforeSellByDate(parse);
+                    parse = this.IdentifyLogisticUnitExpiryUseByDate(parse);
+                    parse = this.IdentifyLogisticUnitDueDate(parse);
+                    parse = this.IdentifyLogisticUnitProductionDate(parse);
+                    parse = this.IdentifyLogisticUnitPackagingDate(parse);
+                    parse = this.IdentifyLogisticUnitProductVariant(parse);
+                    parse = this.IdentifyLogisticUnitCountOfTradeItems(parse);
+                    parse = this.IdentifyLogisticUnitVariableCount(parse);
+                    parse = this.IdentifyLogisticUnitBatchLotNumber(parse);
+                    parse = this.IdentifySingleTradeItemSerialNumber(parse);
+                    parse = this.IdentifyNetWeightMetricKG(parse);
+                    parse = this.IdentifyNetWeightNonMetricLB(parse);
+                    parse = this.IdentifyGrossWeightMetricKG(parse);
+                    parse = this.IdentifyGrossWeightNonMetricLB(parse);
+                    parse = this.IdentifyLengthOr1stDimensionMeters(parse);
+                    parse = this.IdentifyActivityFKRefno(parse);
+                    parse = this.IdentifyActivityItemFKRefno(parse);
+                    parse = this.IdentifyActivityDetailFKRefno(parse);
+                }
+                while (string.Compare(parse, compare) != 0);
+
+                this.IdentifyProductIdentifier(barCodeData);
+                this.Remainder = parse;
+                SuppressErrorsRule();
+            }
+            catch (BarCodeParseException)
+            {
+                throw;
+            }
+            catch (Exception e)
+            {
+                // General Barcode parsing failure.
+                throw new BarCodeParseException(
+                    string.Format(
 #if MULTILANGUAGE
                     Translator.GetInstance().Translate(TranslatorVocabulary.FailedToParse),
 #else
                     "Failed to parse '{0}'.",
 #endif
                     barCodeData),
-                e);
-        }
-        finally
-        {
-            CleanupRules();
-        }
-    }
-
-    #endregion
-
-    #region Protected members
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="barCodeData"></param>
-    /// <returns></returns>
-    protected override string IdentifyGTIN(string barCodeData)
-    {
-      string tempData = barCodeData;
-
-      
-      if (tempData.StartsWith("01") && tempData.Length >= 14)
-      {
-        // remove the AI
-        tempData = tempData.Remove(0, 2);
-
-        // Barcode AI01 only for this rule has a length 12 for the GTIN.
-        // <WO ID="14938" Comment="Assume they fixed their 12 digit to a 14 digit GTIN" />
-        // assign the GTIN
-        this.GTIN = tempData.Substring(0, 14);//.PadLeft(14, '0');
-
-        // remove the GTIN from the bar code data
-        tempData = tempData.Remove(0, 14);
-
-        this.IdentifyCompanyPrefix(this.GTIN);
-      }
-
-      return tempData;
-    }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="barCodeData"></param>
-    /// <returns></returns>
-    protected override string IdentifyProductIdentifier(string barCodeData)
-    {
-      string tempData = barCodeData;
-
-      if (!string.IsNullOrEmpty(this.GTIN))
-      {
-        this.ProductIdentifier = this.GTIN;
-      }
-      else
-      {
-        if (tempData.Length > 12)
-        {
-          this.ProductIdentifier = tempData.Substring(0, 12).PadLeft(14, '0');
-        }
-        else
-        {
-          this.ProductIdentifier = tempData;
-        }
-      }
-
-      return tempData;
-    }
-
-
-    /// <summary>
-    /// They want to read DDMMYY instead of the standard YYMMDD
-    /// </summary>
-    /// <param name="barCodeData"></param>
-    /// <returns></returns>
-    protected override string IdentifyLogisticUnitProductionDate(string barCodeData)
-    {
-        string tempData = barCodeData;
-
-        if (tempData.StartsWith("11") && tempData.Length >= 8)
-        {
-            // remove the AI
-            tempData = tempData.Remove(0, 2);
-
-            try
+                    e);
+            }
+            finally
             {
-                // assign the PRODUCTION DATE
-                //<issue="13609" comment="DDMMYY"/>
-                int day = Convert.ToInt32(tempData.Substring(0, 2));
-                int month = Convert.ToInt32(tempData.Substring(2, 2));
-                int year = Convert.ToInt32(tempData.Substring(4, 2));
-                if (year < 80)
+                CleanupRules();
+            }
+        }
+
+        #endregion
+
+        #region Protected members
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="barCodeData"></param>
+        /// <returns></returns>
+        protected override string IdentifyGTIN(string barCodeData)
+        {
+            string tempData = barCodeData;
+
+
+            if (tempData.StartsWith("01") && tempData.Length >= 14)
+            {
+                // remove the AI
+                tempData = tempData.Remove(0, 2);
+
+                // Barcode AI01 only for this rule has a length 12 for the GTIN.
+                // <WO ID="14938" Comment="Assume they fixed their 12 digit to a 14 digit GTIN" />
+                // assign the GTIN
+                this.GTIN = tempData.Substring(0, 14);//.PadLeft(14, '0');
+
+                // remove the GTIN from the bar code data
+                tempData = tempData.Remove(0, 14);
+
+                this.IdentifyCompanyPrefix(this.GTIN);
+            }
+
+            return tempData;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="barCodeData"></param>
+        /// <returns></returns>
+        protected override string IdentifyProductIdentifier(string barCodeData)
+        {
+            string tempData = barCodeData;
+
+            if (!string.IsNullOrEmpty(this.GTIN))
+            {
+                this.ProductIdentifier = this.GTIN;
+            }
+            else
+            {
+                if (tempData.Length > 12)
                 {
-                    year = year + 2000;
+                    this.ProductIdentifier = tempData.Substring(0, 12).PadLeft(14, '0');
                 }
                 else
                 {
-                    year = year + 1900;
+                    this.ProductIdentifier = tempData;
                 }
-
-                DateTime dt = new DateTime(
-                    year,
-                    month,
-                    day);   // 101026
-
-                this.LogisticUnitProductionDate = dt;
             }
-            catch (Exception e)
+
+            return tempData;
+        }
+
+
+        /// <summary>
+        /// They want to read DDMMYY instead of the standard YYMMDD
+        /// </summary>
+        /// <param name="barCodeData"></param>
+        /// <returns></returns>
+        protected override string IdentifyLogisticUnitProductionDate(string barCodeData)
+        {
+            string tempData = barCodeData;
+
+            if (tempData.StartsWith("11") && tempData.Length >= 8)
             {
-                this.AddParseErrorDetail(
-                    BarCodeExceptionReason.ProductionDate_InvalidDate,
-                    new BarCodeParseException(
-                        string.Format(
+                // remove the AI
+                tempData = tempData.Remove(0, 2);
+
+                try
+                {
+                    // assign the PRODUCTION DATE
+                    //<issue="13609" comment="DDMMYY"/>
+                    int day = Convert.ToInt32(tempData.Substring(0, 2));
+                    int month = Convert.ToInt32(tempData.Substring(2, 2));
+                    int year = Convert.ToInt32(tempData.Substring(4, 2));
+                    if (year < 80)
+                    {
+                        year = year + 2000;
+                    }
+                    else
+                    {
+                        year = year + 1900;
+                    }
+
+                    DateTime dt = new DateTime(
+                        year,
+                        month,
+                        day);   // 101026
+
+                    this.LogisticUnitProductionDate = dt;
+                }
+                catch (Exception e)
+                {
+                    this.AddParseErrorDetail(
+                        BarCodeExceptionReason.ProductionDate_InvalidDate,
+                        new BarCodeParseException(
+                            string.Format(
 #if MULTILANGUAGE
                             Translator.GetInstance().Translate(TranslatorVocabulary.CannotConvertToAValidDdmmyyDatetime), // Note: this is a specific DDMMYY for this Nossack rule exception
 #else
@@ -185,17 +185,17 @@ namespace dMobile.BarCodeScanner
 #else
                         "Production Date", e));
 #endif
+                }
+                finally
+                {
+                    // remove the PRODUCTION DATE from the bar code data
+                    tempData = tempData.Remove(0, 6);
+                }
             }
-            finally
-            {
-                // remove the PRODUCTION DATE from the bar code data
-                tempData = tempData.Remove(0, 6);
-            }
+
+            return tempData;
         }
 
-        return tempData;
+        #endregion
     }
-
-    #endregion
-  }
 }

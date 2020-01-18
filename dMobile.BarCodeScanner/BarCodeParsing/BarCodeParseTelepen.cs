@@ -1,19 +1,19 @@
 ﻿namespace dMobile.BarCodeScanner
 {
-  using System;
+    using System;
 
-  public class BarCodeParseTelepen : BarCodeParse
-  {
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="barCodeData"></param>
-    /// <returns></returns>
-    public override void ParseBarCodeData(string barCodeData)
+    public class BarCodeParseTelepen : BarCodeParse
     {
-      barCodeData = this.IdentifyProductIdentifier(barCodeData);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="barCodeData"></param>
+        /// <returns></returns>
+        public override void ParseBarCodeData(string barCodeData)
+        {
+            barCodeData = this.IdentifyProductIdentifier(barCodeData);
 
-      Remainder = barCodeData;
+            Remainder = barCodeData;
+        }
     }
-  }
 }

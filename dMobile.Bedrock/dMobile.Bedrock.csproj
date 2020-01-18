@@ -103,6 +103,7 @@
     <Compile Include="SysSocketEventArgs.cs" />
     <Compile Include="SysSound.cs" />
     <Compile Include="SystemSettingsTasks.cs" />
+    <Compile Include="Theme.cs" />
     <Compile Include="Translator.cs" />
     <Compile Include="TranslatorVocabulary.cs" />
     <Compile Include="TranslatorVocabulary1.cs">

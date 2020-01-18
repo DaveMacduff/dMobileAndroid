@@ -19,156 +19,120 @@ namespace dMobile.GroundWork
       this.FullClassName = "dMobile.GroundWork.TableActivityReturns";
     }
 
-    #endregion
+        #endregion
 
-    #region Public Members
+        #region Public Members
 
-    /// <summary>
-    ///
-    /// </summary>
-    /// <remarks></remarks>
-    public override void Request()
-    {
-      string reqData = string.Empty;
-
-      //GC.Collect();
-      //GC.WaitForPendingFinalizers();
-
-      try
-      {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SeedingSalesReturns), true);
-#else
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding sales returns.", true);
-#endif
-
-        reqData = this.Send("activity returns");
-        if (0 < reqData.Length)
+        /// <summary>
+        ///
+        /// </summary>
+        /// <remarks></remarks>
+        public override void Request()
         {
-          if (reqData.Contains("<message>ERROR</message>"))
-          {
-            XmlDocument reqErr = new XmlDocument();
-            reqErr.LoadXml(reqData);
-            throw new Exception(reqErr.DocumentElement["detail"].InnerText);
-          }
+            string reqData = string.Empty;
 
-          this.Save(reqData);
+            //GC.Collect();
+            //GC.WaitForPendingFinalizers();
+
+            try
+            {
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding sales returns.", true);
+
+                reqData = this.Send("activity returns");
+
+                if (0 < reqData.Length)
+                {
+                    if (reqData.Contains("<message>ERROR</message>"))
+                    {
+                        XmlDocument reqErr = new XmlDocument();
+                        reqErr.LoadXml(reqData);
+                        throw new Exception(reqErr.DocumentElement["detail"].InnerText);
+                    }
+
+                    this.Save(reqData);
+                }
+
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding sales returns complete.", true);
+            }
+            catch (Exception ex)
+            {
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding sales returns failed.", true);
+
+                // TODO: Resource strings
+                throw new Exception("Seeding sales returns failed.", ex);
+            }
         }
 
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SeedingSalesReturnsComplete), true);
-#else
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding sales returns complete.", true);
-#endif
-      }
-      catch (Exception ex)
-      {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SeedingSalesReturnsFailed), true);
-#else
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding sales returns failed.", true);
-#endif
-
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.SeedingSalesReturnsFailed), ex);
-#else
-        throw new Exception("Seeding sales returns failed.", ex);
-#endif
-      }
-    }
-
-    /// <summary>
-    ///
-    /// </summary>
-    /// <remarks></remarks>
-    public override void Purge()
-    {
-#if MULTILANGUAGE
-      this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingSalesReturns), true);
-#else
-      this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging sales returns.", true);
-#endif
-
-      try
-      {
-        using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        /// <summary>
+        ///
+        /// </summary>
+        /// <remarks></remarks>
+        public override void Purge()
         {
-          cmndPurge.CommandText = "DELETE FROM tActivityReturns " 
-              + "WHERE tActivityReturns.ActivitySubType = " + (int)SysCommon.ActSubTypes.Returns;
-          cmndPurge.CommandType = CommandType.Text;
-          cmndPurge.ExecuteNonQuery();
+            // TODO: Resource strings
+            this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging sales returns.", true);
 
-          cmndPurge.CommandText = "DELETE FROM tActivity " 
-              + "WHERE tActivity.ActivitySubType = " + (int)SysCommon.ActSubTypes.Returns;
-          cmndPurge.CommandType = CommandType.Text;
-          cmndPurge.ExecuteNonQuery();
+            try
+            {
+                using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                {
+                    cmndPurge.CommandType = CommandType.Text;
+                    cmndPurge.Parameters.Add(new SQLiteParameter("@activitySubType", Convert.ToInt32(SysCommon.ActSubTypes.Returns)));
+
+                    cmndPurge.CommandText = "DELETE FROM tActivityReturns WHERE tActivityReturns.ActivitySubType = @activitySubType";
+                    cmndPurge.ExecuteNonQuery();
+
+                    cmndPurge.CommandText = "DELETE FROM tActivity WHERE tActivity.ActivitySubType = @activitySubType";
+                    cmndPurge.ExecuteNonQuery();
+                }
+
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging sales returns failed.", true);
+            }
+            catch (SQLiteException ex)
+            {
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging sales returns failed.", true);
+
+                // TODO: Resource strings
+                throw new Exception("Database exception occurred. Purging sales returns failed.", ex);
+            }
         }
 
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingSalesReturnsFailed), true);
-#else
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging sales returns failed.", true);
-#endif
-      }
-      catch (SQLiteException ex)
-      {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), true);
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingSalesReturnsFailed), true);
-#else
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging sales returns failed.", true);
-#endif
-
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredPurgingSalesReturnsFailed), ex);
-#else
-        throw new Exception("Database exception occurred. Purging sales returns failed.", ex);
-#endif
-      }
-    }
-
-    /// <summary>
-    ///
-    /// </summary>
-    /// <remarks></remarks>
-    public override int DataStatus()
-    {
-      int rowsAffected = 0;
-
-      try
-      {
-        using (SQLiteCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        /// <summary>
+        ///
+        /// </summary>
+        /// <remarks></remarks>
+        public override int DataStatus()
         {
-          cmndStatus.CommandText = "SELECT COUNT(tActivity.ActivityRefno)" 
-              + " FROM tActivity" 
-              + " WHERE tActivity.ActivitySubType = " + (int)SysCommon.ActSubTypes.Returns;
-          cmndStatus.CommandType = CommandType.Text;
+            int rowsAffected = 0;
 
-          rowsAffected = Convert.ToInt32(cmndStatus.ExecuteScalar());
+            try
+            {
+                using (SQLiteCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                {
+                    cmndStatus.CommandText = "SELECT COUNT(tActivity.ActivityRefno) FROM tActivity WHERE tActivity.ActivitySubType = @activitySubType";
+                    cmndStatus.CommandType = CommandType.Text;
+                    cmndStatus.Parameters.Add(new SQLiteParameter("@activitySubType", Convert.ToInt32(SysCommon.ActSubTypes.Returns)));
 
-          this.DataAccessStatusOutHandler(
-              this, 
-              EventArgs.Empty, 
-#if MULTILANGUAGE
-              string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.SalesReturns), rowsAffected), 
-#else
-              string.Format("{0} sales returns.", rowsAffected), 
-#endif
-              true);
+                    rowsAffected = Convert.ToInt32(cmndStatus.ExecuteScalar());
+
+                    // TODO: Resource strings
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} sales returns.", rowsAffected), true);
+                }
+            }
+            catch (SQLiteException ex)
+            {
+                // TODO: Resource strings
+                throw new Exception("Database exception occurred. Sales returns status failed.", ex);
+            }
+
+            return rowsAffected;
         }
-      }
-      catch (SQLiteException ex)
-      {
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredSalesReturnsStatusFailed), ex);
-#else
-        throw new Exception("Database exception occurred. Sales returns status failed.", ex);
-#endif
-      }
-
-      return rowsAffected;
-    }
 
     #endregion
 

@@ -3,7 +3,7 @@
     using System;
     using System.Threading.Tasks;
     using Xamarin.Forms;
-    using Resource = dMobile.Resources.Properties.Resources;
+    using Resource = Resources.Properties.Resources;
 
     /// <summary>
     /// Defines the <see cref="DMobileContentPage" />

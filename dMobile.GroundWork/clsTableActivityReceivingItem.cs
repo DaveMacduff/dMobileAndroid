@@ -1,635 +1,703 @@
 namespace dMobile.GroundWork
 {
-  using System;
-  using System.Data;
-  using System.Data.SQLite;
-  using System.Text;
-  using System.Xml;
-  using System.Xml.Linq;
-  using dMobile.Bedrock;
-  using Microsoft.VisualBasic;
-
-  public class TableActivityRecevingItem : TableBase
-  {
-    #region Constructors
-
-    public TableActivityRecevingItem()
-      : base()
-    {
-      this.FullClassName = "dMobile.GroundWork.TableActivityReceivingItem";
-    }
-
-    #endregion
-
-    #region Public Members
+    using dMobile.Bedrock;
+    using System;
+    using System.Data;
+    using System.Data.SQLite;
+    using System.Text;
+    using System.Xml;
+    using System.Xml.Linq;
 
     /// <summary>
-    ///
+    /// Defines the <see cref="TableActivityRecevingItem" />
     /// </summary>
-    /// <remarks></remarks>
-    public override void Request(int actRefno)
+    public class TableActivityRecevingItem : TableBase
     {
-      string reqData = string.Empty;
-
-      //GC.Collect();
-      //GC.WaitForPendingFinalizers();
-
-      try
-      {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SeedingReceivingItems), true);
-#else
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding receiving items.", true);
-#endif
-
-        if (actRefno == 0)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TableActivityRecevingItem"/> class.
+        /// </summary>
+        public TableActivityRecevingItem()
+          : base()
         {
-          using (SQLiteCommand cmndRecv = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-          {
-            cmndRecv.CommandType = CommandType.Text;
-            cmndRecv.CommandText = "SELECT tActivity.ActivityRefno " 
-                + "FROM tActivity " 
-                + "WHERE tActivity.ActivitySubType = " + (int)SysCommon.ActSubTypes.Receiving;
+            this.FullClassName = "dMobile.GroundWork.TableActivityReceivingItem";
+        }
 
-            using (SQLiteDataReader drRecv = cmndRecv.ExecuteReader())
+        /// <summary>
+        /// The Request
+        /// </summary>
+        /// <param name="actRefno">The actRefno<see cref="int"/></param>
+        public override void Request(int actRefno)
+        {
+            string reqData = string.Empty;
+
+            //GC.Collect();
+            //GC.WaitForPendingFinalizers();
+
+            try
             {
-              while (drRecv.Read())
-              {
-                actRefno = Convert.ToInt32(drRecv["ActivityRefno"]);
-                reqData = this.Send(actRefno);
-                if (0 < reqData.Length)
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding receiving items.", true);
+
+                if (actRefno == 0)
                 {
-                  if (reqData.Contains("<message>ERROR</message>"))
-                  {
-                    XmlDocument reqErr = new XmlDocument();
-                    reqErr.LoadXml(reqData);
-                    throw new Exception(reqErr.DocumentElement["detail"].InnerText);
-                  }
+                    using (SQLiteCommand cmndRecv = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                    {
+                        cmndRecv.CommandText = "SELECT ActivityRefno FROM tActivity WHERE ActivitySubType = @activitySubType";
+                        cmndRecv.CommandType = CommandType.Text;
+                        cmndRecv.Parameters.Add(new SQLiteParameter("@activitySubType", Convert.ToInt32(SysCommon.ActSubTypes.Receiving)));
 
-                  this.Save(reqData, actRefno);
+                        using (SQLiteDataReader drRecv = cmndRecv.ExecuteReader())
+                        {
+                            while (drRecv.Read())
+                            {
+                                actRefno = Convert.ToInt32(drRecv["ActivityRefno"]);
+                                reqData = this.Send(actRefno);
+
+                                if (0 < reqData.Length)
+                                {
+                                    if (reqData.Contains("<message>ERROR</message>"))
+                                    {
+                                        XmlDocument reqErr = new XmlDocument();
+                                        reqErr.LoadXml(reqData);
+                                        throw new Exception(reqErr.DocumentElement["detail"].InnerText);
+                                    }
+
+                                    this.Save(reqData, actRefno);
+                                }
+                            }
+                        }
+                    }
                 }
-              }
+                else
+                {
+                    reqData = this.Send(actRefno);
 
-              drRecv.Close();
+                    if (0 < reqData.Length)
+                    {
+                        if (reqData.Contains("<message>ERROR</message>"))
+                        {
+                            XmlDocument reqErr = new XmlDocument();
+                            reqErr.LoadXml(reqData);
+                            throw new Exception(reqErr.DocumentElement["detail"].InnerText);
+                        }
+
+                        this.Save(reqData, actRefno);
+                    }
+                }
+
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding receiving items complete.", true);
             }
-          }
-        }
-        else
-        {
-          reqData = this.Send(actRefno);
-          if (0 < reqData.Length)
-          {
-            if (reqData.Contains("<message>ERROR</message>"))
+            catch (SQLiteException ex)
             {
-              XmlDocument reqErr = new XmlDocument();
-              reqErr.LoadXml(reqData);
-              throw new Exception(reqErr.DocumentElement["detail"].InnerText);
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding receiving items failed.", false);
+
+                // TODO: Resource strings
+                throw new Exception("Database exception occurred. Seeding receiving items failed.", ex);
+            }
+            catch (Exception ex)
+            {
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding receiving items failed.", true);
+
+                // TODO: Resource strings
+                throw new Exception("Seeding receiving items failed.", ex);
+            }
+        }
+
+        /// <summary>
+        /// The DataStatus
+        /// </summary>
+        /// <returns>The <see cref="int"/></returns>
+        public override int DataStatus()
+        {
+            int rowsAffected = 0;
+
+            try
+            {
+                using (SQLiteCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                {
+                    cmndStatus.CommandType = CommandType.Text;
+                    cmndStatus.CommandText = "SELECT COUNT(tActivityItem.ActivityItemRefno) FROM tActivityItem WHERE ActivityItemSubType = @activityItemSubType";
+                    cmndStatus.Parameters.Add(new SQLiteParameter("@activityItemSubType", Convert.ToInt32(SysCommon.ActSubTypes.Receiving)));
+
+                    rowsAffected = Convert.ToInt32(cmndStatus.ExecuteScalar());
+
+                    // TODO: Resource strings
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} receiving items.", rowsAffected), true);
+                }
+            }
+            catch (SQLiteException ex)
+            {
+                // TODO: Resource strings
+                throw new Exception("Database exception occurred. Receiving items status failed.", ex);
             }
 
-            this.Save(reqData, actRefno);
-          }
+            return rowsAffected;
         }
 
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SeedingReceivingItemsComplete), true);
-#else
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding receiving items complete.", true);
-#endif
-      }
-      catch (SQLiteException ex)
-      {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), false);
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SeedingReceivingItemsFailed), false);
-#else
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding receiving items failed.", false);
-#endif
-
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredSeedingReceivingItemsFailed), ex);
-#else
-        throw new Exception("Database exception occurred. Seeding receiving items failed.", ex);
-#endif
-      }
-      catch (Exception ex)
-      {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SeedingReceivingItemsFailed), true);
-#else
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding receiving items failed.", true);
-#endif
-
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.SeedingReceivingItemsFailed), ex);
-#else
-        throw new Exception("Seeding receiving items failed.", ex);
-#endif
-      }
-    }
-
-    /// <summary>
-    ///
-    /// </summary>
-    /// <remarks></remarks>
-    public override int DataStatus()
-    {
-      int rowsAffected = 0;
-
-      try
-      {
-        using (SQLiteCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        /// <summary>
+        /// The Purge
+        /// </summary>
+        public override void Purge()
         {
-          cmndStatus.CommandType = CommandType.Text;
-          cmndStatus.CommandText = "SELECT COUNT(tActivityItem.ActivityItemRefno) " 
-              + "FROM tActivityItem " 
-              + "WHERE tActivityItem.ActivityItemSubType = " + (int)SysCommon.ActSubTypes.Receiving;
+            try
+            {
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging receiving items.", true);
 
-          rowsAffected = Convert.ToInt32(cmndStatus.ExecuteScalar());
+                using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                {
+                    cmndPurge.CommandType = CommandType.Text;
+                    cmndPurge.Parameters.Add(new SQLiteParameter("@activityItemSubType", Convert.ToInt32(SysCommon.ActSubTypes.Receiving)));
 
-          this.DataAccessStatusOutHandler(
-              this,
-              EventArgs.Empty,
-#if MULTILANGUAGE
-              string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.ReceivingItems), rowsAffected),
-#else
-              string.Format("{0} receiving items.", rowsAffected),
-#endif
-              true);
+                    cmndPurge.CommandText = "DELETE FROM tActivityItemBarCodeAssociationXRef "
+                        + "WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno IN "
+                        + "(SELECT tActivityItem.ActivityItemRefno "
+                        + "FROM tActivityItem "
+                        + "WHERE tActivityItem.ActivityItemSubType = @activityItemSubType)";
+                    cmndPurge.ExecuteNonQuery();
+
+                    cmndPurge.CommandText = "DELETE FROM tActivityItemReceiving WHERE tActivityItemReceiving.ActivityItemSubType = @activityItemSubType";
+                    cmndPurge.ExecuteNonQuery();
+
+                    cmndPurge.CommandText = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = @activityItemSubType";
+                    cmndPurge.ExecuteNonQuery();
+                }
+
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging receiving items complete.", true);
+            }
+            catch (SQLiteException ex)
+            {
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging receiving items failed.", true);
+
+                // TODO: Resource strings
+                throw new Exception("Database exception occurred. Purging receiving items failed.", ex);
+            }
         }
-      }
-      catch (SQLiteException ex)
-      {
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredReceivingItemsStatusFailed), ex);
-#else
-        throw new Exception("Database exception occurred. Receiving items status failed.", ex);
-#endif
-      }
 
-      return rowsAffected;
-    }
-
-    /// <summary>
-    ///
-    /// </summary>
-    /// <remarks></remarks>
-    public override void Purge()
-    {
-      try
-      {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingReceivingItems), true);
-#else
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging receiving items.", true);
-#endif
-
-        using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        /// <summary>
+        /// The Send
+        /// </summary>
+        /// <param name="actRefno">The actRefno<see cref="int"/></param>
+        /// <returns></returns>
+        protected override string Send(int actRefno)
         {
-          cmndPurge.CommandText = "DELETE FROM tActivityItemBarCodeAssociationXRef " 
-              + "WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno IN " 
-              + "(SELECT tActivityItem.ActivityItemRefno " 
-              + "FROM tActivityItem " 
-              + "WHERE tActivityItem.ActivityItemSubType = " + (int)SysCommon.ActSubTypes.Receiving + ")";
-          cmndPurge.CommandType = CommandType.Text;
-          cmndPurge.ExecuteNonQuery();
+            int recvFKRefno = 0;
 
-          cmndPurge.CommandText = "DELETE FROM tActivityItemReceiving " 
-              + "WHERE tActivityItemReceiving.ActivityItemSubType = " + (int)SysCommon.ActSubTypes.Receiving;
-          cmndPurge.CommandType = CommandType.Text;
-          cmndPurge.ExecuteNonQuery();
+            using (SQLiteCommand cmndRecv = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+            {
+                cmndRecv.CommandText = "SELECT * FROM tActivityReceiving WHERE ActivityRefno = @activityRefno";
+                cmndRecv.CommandType = CommandType.Text;
+                //cmndRecv.IndexName = "PK_ActivityReceivingOnActivityRefno";
+                cmndRecv.Parameters.Add(new SQLiteParameter("@activityRefno", actRefno));
 
-          cmndPurge.CommandText = "DELETE FROM tActivityItem " 
-              + "WHERE tActivityItem.ActivityItemSubType = " + (int)SysCommon.ActSubTypes.Receiving;
-          cmndPurge.CommandType = CommandType.Text;
-          cmndPurge.ExecuteNonQuery();
+                using (SQLiteDataReader drRecv = cmndRecv.ExecuteReader())
+                {
+                    //if (drRecv.Seek(DbSeekOptions.FirstEqual, new object[] { actRefno }))
+                    //{
+                    if (drRecv.Read())
+                    {
+                        recvFKRefno = drRecv.GetInt32((int)SysCommon.ActReceivingFields.FKRefno);
+                    }
+                    else
+                    {
+                        // TODO: Resource strings
+                        throw new Exception("drRecv.Read() failed.");
+                    }
+                    //}
+                    //else
+                    //{
+                    //    // TODO: Resource strings
+                    //    throw new Exception(string.Format("Unable to locate the receiving activity refno {0} in tActivityReceiving", actRefno));
+                    //}
+                }
+            }
+
+            return this.SendComm(this.Create(recvFKRefno));
         }
 
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingReceivingItemsComplete), true);
-#else
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging receiving items complete.", true);
-#endif
-      }
-      catch (SQLiteException ex)
-      {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), true);
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingReceivingItemsFailed), true);
-#else
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging receiving items failed.", true);
-#endif
+        /// <summary>
+        /// The Save
+        /// </summary>
+        /// <param name="reqData"></param>
+        /// <param name="actRefno">The actRefno<see cref="int"/></param>
+        protected override void Save(string reqData, int actRefno)
+        {
+            SQLiteConnection conn = DatabaseConnection.GetInstance().SQLConn;
+            string errMsg = string.Empty;
 
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredPurgingReceivingItemsFailed), ex);
-#else
-        throw new Exception("Database exception occurred. Purging receiving items failed.", ex);
-#endif
-      }
-    }
+            using (SQLiteCommand cmndRecvItem = conn.CreateCommand())
+            using (SQLiteCommand cmndRecvItemComment = conn.CreateCommand())
+            using (SQLiteCommand cmndItem = conn.CreateCommand())
+            using (SQLiteCommand cmndProdUnit = conn.CreateCommand())
+            using (SQLiteCommand cmndProd = conn.CreateCommand())
+            using (SQLiteCommand cmndUnit = conn.CreateCommand())
+            using (SQLiteCommand cmndLocMapWhs = conn.CreateCommand())
+            using (SQLiteCommand cmndID = conn.CreateCommand())
+            using (SQLiteTransaction transaction = conn.BeginTransaction())
+            {
+                try
+                {
+                    using (DataSet ds = new DataSet())
+                    {
+                        // TODO: Resource strings
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
-    #endregion
+                        ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
 
-    #region Protected Methods
+                        // TODO: Resource strings
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving receiving items.", false);
 
-    /// <summary>
-    ///
-    /// </summary>
-    /// <returns></returns>
-    /// <remarks></remarks>
-    protected override string Send(int actRefno)
-    {
-      int recvFKRefno = 0;
+                        if (ds.Tables.Count != 0)
+                        {
+                            int progMax = Convert.ToInt32(ds.Tables["tActivityItemPurchaseOrder"].Rows.Count);
 
-//      using (SQLiteCommand cmndRecv = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-//      {
-//        cmndRecv.CommandText = "tActivityReceiving";
-//        cmndRecv.CommandType = CommandType.TableDirect;
-//        //cmndRecv.IndexName = "PK_ActivityReceivingOnActivityRefno";
+                            // TODO: Resource strings
+                            this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
 
-//        using (SQLiteDataReader drRecv = cmndRecv.ExecuteReader())
-//        {
-//          if (drRecv.Seek(DbSeekOptions.FirstEqual, new object[] { actRefno }))
-//          {
-//            if (drRecv.Read())
-//            {
-//              recvFKRefno = drRecv.GetInt32((int)SysCommon.ActReceivingFields.FKRefno);
-//            }
-//            else
-//            {
-//#if MULTILANGUAGE
-//              throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DrrecvreadFailed));
-//#else
-//              throw new Exception("drRecv.Read() failed.");
-//#endif
-//            }
-//          }
-//          else
-//          {
-//            throw new Exception(
-//#if MULTILANGUAGE
-//                string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.UnableToLocateTheReceivingActivityRefnoInTactivityreceiving), actRefno));
-//#else
-//                string.Format("Unable to locate the receiving activity refno {0} in tActivityReceiving", actRefno));
-//#endif
-//          }
-//        }
-//      }
-      
-      return this.SendComm(this.Create(recvFKRefno));
-    }
+                            //using (SQLiteCommand cmndRecvItem = conn.CreateCommand())
+                            //{
+                            //cmndRecvItem.CommandText = "tActivityItemReceiving";
+                            //cmndRecvItem.CommandType = CommandType.Text;
+                            ////cmndRecvItem.IndexName = "UQ_ActivityItemReceivingOnActivityItemReceivingFKRefno";
 
-    /// <summary>
-    ///
-    /// </summary>
-    /// <param name="reqData"></param>
-    /// <remarks></remarks>
-    protected override void Save(string reqData, int actRefno)
-    {
-//      SQLiteConnection conn = DatabaseConnection.GetInstance().SQLConn;
-//      string errMsg = string.Empty;
+                            //using (SQLiteCommand cmndRecvItemComment = conn.CreateCommand())
+                            //{
+                            //cmndRecvItemComment.CommandText = "tActivityItemReceivingComment";
+                            //cmndRecvItemComment.CommandType = CommandType.Text;
+                            //cmndRecvItemComment.IndexName = "PK_ActivityItemReceivingCommentOnActivityItemRefno";
 
-//      try
-//      {
-//        using (DataSet ds = new DataSet())
-//        {
-//#if MULTILANGUAGE
-//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.ReadingReceivedData), false);
-//#else
-//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
-//#endif
-//          ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
+                            //using (SQLiteCommand cmndItem = conn.CreateCommand())
+                            //{
+                            //cmndItem.CommandText = "tActivityItem";
+                            //cmndItem.CommandType = CommandType.Text;
 
-//#if MULTILANGUAGE
-//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingReceivingItems), false);
-//#else
-//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving receiving items.", false);
-//#endif
-//          if (ds.Tables.Count != 0)
-//          {
-//            int progMax = Convert.ToInt32(ds.Tables["tActivityItemPurchaseOrder"].Rows.Count);
+                            //using (SqlCeResultSet rsItem = cmndItem.ExecuteResultSet(ResultSetOptions.Updatable))
+                            //{
+                            //SqlCeUpdatableRecord recItem = rsItem.CreateRecord();
 
-//            this.DataAccessStatusOutHandler(
-//                this, 
-//                EventArgs.Empty, 
-//#if MULTILANGUAGE
-//                string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.Recordsz), progMax), 
-//#else
-//                string.Format("Records {0}", progMax), 
-//#endif
-//                false);
+                            //using (SQLiteCommand cmndProdUnit = conn.CreateCommand())
+                            //{
+                            //cmndProdUnit.CommandText = "tProductUnit";
+                            //cmndProdUnit.CommandType = CommandType.Text;
+                            ////cmndProdUnit.IndexName = "UQ_ProductUnitOnProductRefnoAndUnitRefnoAndProductUnitIsBC";
 
-//            using (SQLiteCommand cmndRecvItem = conn.CreateCommand())
-//            {
-//              cmndRecvItem.CommandText = "tActivityItemReceiving";
-//              cmndRecvItem.CommandType = CommandType.TableDirect;
-//              //cmndRecvItem.IndexName = "UQ_ActivityItemReceivingOnActivityItemReceivingFKRefno";
+                            //using (SQLiteDataReader drProdUnit = cmndProdUnit.ExecuteReader())
+                            //{
+                            //using (SQLiteCommand cmndProd = conn.CreateCommand())
+                            //{
+                            //cmndProd.CommandText = "tProduct";
+                            ////cmndProd.IndexName = "UQ_ProductOnProductFKRefno";
+                            //cmndProd.CommandType = CommandType.Text;
 
-//              using (SQLiteCommand cmndRecvItemComment = conn.CreateCommand())
-//              {
-//                cmndRecvItemComment.CommandText = "tActivityItemReceivingComment";
-//                cmndRecvItemComment.CommandType = CommandType.TableDirect;
-//                //cmndRecvItemComment.IndexName = "PK_ActivityItemReceivingCommentOnActivityItemRefno";
+                            //using (SQLiteDataReader drProd = cmndProd.ExecuteReader())
+                            //{
+                            //using (SQLiteCommand cmndUnit = conn.CreateCommand())
+                            //{
+                            //cmndUnit.CommandText = "tUnit";
+                            ////cmndUnit.IndexName = "UQ_UnitOnUnitCode";
+                            //cmndUnit.CommandType = CommandType.Text;
 
-//                using (SQLiteCommand cmndItem = conn.CreateCommand())
-//                {
-//                  cmndItem.CommandText = "tActivityItem";
-//                  cmndItem.CommandType = CommandType.TableDirect;
+                            //using (SQLiteDataReader drUnit = cmndUnit.ExecuteReader())
+                            //{
+                            //using (SQLiteCommand cmndLocMapWhs = conn.CreateCommand())
+                            //{
+                            //cmndLocMapWhs.CommandText = "tLocationMapWarehouse";
+                            //cmndLocMapWhs.CommandType = CommandType.Text;
+                            //cmndLocMapWhs.IndexName = "UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno";
 
-//                  using (SqlCeResultSet rsItem = cmndItem.ExecuteResultSet(ResultSetOptions.Updatable))
-//                  {
-//                    SqlCeUpdatableRecord recItem = rsItem.CreateRecord();
+                            //using (SQLiteDataReader drLocMapWhs = cmndLocMapWhs.ExecuteReader())
+                            //{
+                            //using (SQLiteCommand cmndID = conn.CreateCommand())
+                            //{
+                            //cmndID.CommandText = "SELECT last_insert_rowid()";
+                            //cmndID.CommandType = CommandType.Text;
 
-//                    using (SQLiteCommand cmndProdUnit = conn.CreateCommand())
-//                    {
-//                      cmndProdUnit.CommandText = "tProductUnit";
-//                      cmndProdUnit.CommandType = CommandType.TableDirect;
-//                      //cmndProdUnit.IndexName = "UQ_ProductUnitOnProductRefnoAndUnitRefnoAndProductUnitIsBC";
+                            //using (SqlCeResultSet rsRecvItemComment = cmndRecvItemComment.ExecuteResultSet(ResultSetOptions.Updatable))
+                            //{
+                            //SqlCeUpdatableRecord recRecvItemComment = rsRecvItemComment.CreateRecord();
 
-//                      using (SQLiteDataReader drProdUnit = cmndProdUnit.ExecuteReader())
-//                      {
-//                        using (SQLiteCommand cmndProd = conn.CreateCommand())
-//                        {
-//                          cmndProd.CommandText = "tProduct";
-//                          //cmndProd.IndexName = "UQ_ProductOnProductFKRefno";
-//                          cmndProd.CommandType = CommandType.TableDirect;
+                            //using (SqlCeResultSet rs = cmndRecvItem.ExecuteResultSet(ResultSetOptions.Updatable))
+                            //{
+                            //SqlCeUpdatableRecord rec = rs.CreateRecord();
+                            int actItemRefno = 0;
+                            int progValue = 0;
+                            int prodUnitRefno = 0;
+                            int locMapRefno = 0;
+                            string recvItemComment = string.Empty;
+                            int recvItemFKRefno = 0;
 
-//                          using (SQLiteDataReader drProd = cmndProd.ExecuteReader())
-//                          {
-//                            using (SQLiteCommand cmndUnit = conn.CreateCommand())
-//                            {
-//                              cmndUnit.CommandText = "tUnit";
-//                              //cmndUnit.IndexName = "UQ_UnitOnUnitCode";
-//                              cmndUnit.CommandType = CommandType.TableDirect;
+                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
 
-//                              using (SQLiteDataReader drUnit = cmndUnit.ExecuteReader())
-//                              {
-//                                using (SQLiteCommand cmndLocMapWhs = conn.CreateCommand())
-//                                {
-//                                  cmndLocMapWhs.CommandText = "tLocationMapWarehouse";
-//                                  cmndLocMapWhs.CommandType = CommandType.TableDirect;
-//                                  //cmndLocMapWhs.IndexName = "UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno";
+                            foreach (DataRow drow in ds.Tables["tActivityItemPurchaseOrder"].Rows)
+                            {
+                                errMsg = "Arguments:";
 
-//                                  using (SQLiteDataReader drLocMapWhs = cmndLocMapWhs.ExecuteReader())
-//                                  {
-//                                    using (SQLiteCommand cmndID = conn.CreateCommand())
-//                                    {
-//                                      cmndID.CommandText = "SELECT @@IDENTITY";
-//                                      cmndID.CommandType = CommandType.Text;
+                                cmndItem.CommandText = "INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (@activityItemSubType, @activityItemStatus, @activityRefno)";
+                                cmndItem.CommandType = CommandType.Text;
+                                cmndItem.Parameters.Add(new SQLiteParameter("@activityItemSubType", Convert.ToInt32(SysCommon.ActSubTypes.Receiving)));
+                                cmndItem.Parameters.Add(new SQLiteParameter("@activityItemStatus", Convert.ToInt32(0)));
+                                cmndItem.Parameters.Add(new SQLiteParameter("@activityRefno", actRefno));
 
-//                                      using (SqlCeResultSet rsRecvItemComment 
-//                                          = cmndRecvItemComment.ExecuteResultSet(ResultSetOptions.Updatable))
-//                                      {
-//                                        SqlCeUpdatableRecord recRecvItemComment = rsRecvItemComment.CreateRecord();
+                                cmndItem.ExecuteNonQuery();
 
-//                                        using (SqlCeResultSet rs = cmndRecvItem.ExecuteResultSet(
-//                                            ResultSetOptions.Updatable))
-//                                        {
-//                                          SqlCeUpdatableRecord rec = rs.CreateRecord();
-//                                          int actItemRefno = 0;
-//                                          int progValue = 0;
-//                                          int prodUnitRefno = 0;
-//                                          int locMapRefno = 0;
-//                                          string recvItemComment = string.Empty;
-//                                          int recvItemFKRefno = 0;
+                                //recItem.SetInt32((int)SysCommon.ActItemFields.SubType, (int)SysCommon.ActSubTypes.Receiving);
+                                //recItem.SetInt32((int)SysCommon.ActItemFields.Status, 0);
+                                //recItem.SetInt32((int)SysCommon.ActItemFields.ActRefno, actRefno);
+                                //rsItem.Insert(recItem);
 
-//                                          this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
+                                cmndID.CommandText = "SELECT last_insert_rowid() FROM tActivityItem";
+                                cmndID.CommandType = CommandType.Text;
 
-//                                          foreach (DataRow drow in ds.Tables["tActivityItemPurchaseOrder"].Rows)
-//                                          {
-//                                            errMsg = "Arguments:";
+                                actItemRefno = Convert.ToInt32(cmndID.ExecuteScalar());
 
-//                                            recItem.SetInt32(
-//                                                (int)SysCommon.ActItemFields.SubType,
-//                                                (int)SysCommon.ActSubTypes.Receiving);
-//                                            recItem.SetInt32((int)SysCommon.ActItemFields.Status, 0);
-//                                            recItem.SetInt32((int)SysCommon.ActItemFields.ActRefno, actRefno);
+                                //prodUnitRefno = this.GetProductUnitRefnoFromDataRow(drow, ref errMsg, drProd, drUnit, drProdUnit, false);
 
-//                                            rsItem.Insert(recItem);
+                                int prodRefno = 0;
+                                int prodFKRefno = 0;
+                                bool useFNo = false;
 
-//                                            actItemRefno = Convert.ToInt32(cmndID.ExecuteScalar());
+                                if (useFNo)
+                                {
+                                    prodFKRefno = Convert.ToInt32(drow["f03"]);
+                                }
+                                else
+                                {
+                                    prodFKRefno = Convert.ToInt32(drow["ProductFKRefno"]);
+                                }
 
-//                                            prodUnitRefno = this.GetProductUnitRefnoFromDataRow(
-//                                                drow, 
-//                                                ref errMsg, 
-//                                                drProd, 
-//                                                drUnit, 
-//                                                drProdUnit,
-//                                                false);
+                                errMsg += Environment.NewLine + "Prod fk refno " + prodFKRefno;
 
-//                                            locMapRefno = this.GetWhsLocMapRefnoFromDataRow(
-//                                                drow, 
-//                                                ref errMsg, 
-//                                                drLocMapWhs);
+                                cmndProd.CommandText = "SELECT * FROM tProduct WHERE ProductFKRefno = @productFKRefno";
+                                cmndProd.CommandType = CommandType.Text;
+                                //cmndProd.IndexName = "UQ_ProductOnProductFKRefno";
+                                cmndProd.Parameters.Add(new SQLiteParameter("@productFKRefno", prodFKRefno));
 
-//                                            rec.SetInt32(
-//                                                (int)SysCommon.ActItemReceivingFields.ActItemRefno, 
-//                                                actItemRefno);
+                                using (SQLiteDataReader drProd = cmndProd.ExecuteReader())
+                                {
+                                    //if (drProduct.Seek(DbSeekOptions.FirstEqual, new object[] { prodFKRefno }))
+                                    //{
+                                    if (drProd.Read())
+                                    {
+                                        prodRefno = drProd.GetInt32((int)SysCommon.ProductFields.Refno);
+                                    }
+                                    else
+                                    {
+                                        // TODO: Resource strings
+                                        throw new Exception("drProduct.Read() failed." + Environment.NewLine + errMsg);
+                                    }
+                                    //}
+                                    //else
+                                    //{
+                                    //    // TODO: Resource strings
+                                    //    throw new Exception("Unable to locate the product refno from the product fk refno in tProduct." + Environment.NewLine + errMsg);
+                                    //}
+                                }
 
-//                                            rec.SetInt32(
-//                                                (int)SysCommon.ActItemReceivingFields.ActItemSubType, 
-//                                                (int)SysCommon.ActSubTypes.Receiving);
+                                string unitCode = string.Empty;
+                                int unitRefno = 0;
 
-//                                            recvItemFKRefno = Convert.ToInt32(
-//                                                drow["ActivityItemPurchaseOrderFKRefno"]);
-//                                            errMsg += Environment.NewLine + "Item fk refno " + recvItemFKRefno;
-//                                            rec.SetInt32(
-//                                                (int)SysCommon.ActItemReceivingFields.FKRefno,
-//                                                recvItemFKRefno);
-//                                            rec.SetString(
-//                                                (int)SysCommon.ActItemReceivingFields.StringFKRefno,
-//                                                Convert.ToString(recvItemFKRefno));
-//                                            rec.SetInt32(
-//                                                (int)SysCommon.ActItemReceivingFields.ProdUnitRefno, 
-//                                                prodUnitRefno);
-//                                            rec.SetInt32(
-//                                                (int)SysCommon.ActItemReceivingFields.WhsLocMapRefno, 
-//                                                locMapRefno);
-//                                            rec.SetString(
-//                                                (int)SysCommon.ActItemReceivingFields.VendorProductUnitCode, 
-//                                                drow["ActivityItemPurchaseOrderVendorProductUnitCode"].ToString());
-//                                            rec.SetString(
-//                                                (int)SysCommon.ActItemReceivingFields.Description, 
-//                                                drow["ActivityItemPurchaseOrderDescription"].ToString());
-//                                            rec.SetDecimal(
-//                                                (int)SysCommon.ActItemReceivingFields.QuantityOrdered, 
-//                                                Convert.ToDecimal(drow["ActivityItemPurchaseOrderQuantityOrdered"]));
-//                                            rec.SetDecimal(
-//                                                (int)SysCommon.ActItemReceivingFields.BaseQuantityOrdered, 
-//                                                Convert.ToDecimal(
-//                                                drow["ActivityItemPurchaseOrderBaseQuantityOrdered"]));
-//                                            rec.SetDecimal(
-//                                                (int)SysCommon.ActItemReceivingFields.WeightQuantityOrdered, 
-//                                                Convert.ToDecimal(
-//                                                drow["ActivityItemPurchaseOrderWeightQuantityOrdered"]));
-//                                            rec.SetDecimal(
-//                                                (int)SysCommon.ActItemReceivingFields.QuantityReceived, 
-//                                                Convert.ToDecimal(drow["ActivityItemPurchaseOrderQuantityReceived"]));
-//                                            rec.SetDecimal(
-//                                                (int)SysCommon.ActItemReceivingFields.BaseQuantityReceived, 
-//                                                Convert.ToDecimal(
-//                                                drow["ActivityItemPurchaseOrderBaseQuantityReceived"]));
-//                                            rec.SetDecimal(
-//                                                (int)SysCommon.ActItemReceivingFields.WeightQuantityReceived, 
-//                                                Convert.ToDecimal(
-//                                                drow["ActivityItemPurchaseOrderWeightQuantityReceived"]));
-//                                            rec.SetDecimal(
-//                                                (int)SysCommon.ActItemReceivingFields.QuantityReceivedToDate, 
-//                                                Convert.ToDecimal(
-//                                                drow["ActivityItemPurchaseOrderQuantityReceivedToDate"]));
-//                                            rec.SetDecimal(
-//                                                (int)SysCommon.ActItemReceivingFields.BaseQuantityReceivedToDate, 
-//                                                Convert.ToDecimal(
-//                                                drow["ActivityItemPurchaseOrderBaseQuantityReceivedToDate"]));
-//                                            rec.SetDecimal(
-//                                                (int)SysCommon.ActItemReceivingFields.WeightQuantityReceivedToDate,
-//                                                Convert.ToDecimal(
-//                                                drow["ActivityItemPurchaseOrderWeightQuantityReceivedToDate"]));
-//                                            rs.Insert(rec);
+                                if (useFNo)
+                                {
+                                    unitCode = drow["f05"].ToString();
+                                }
+                                else
+                                {
+                                    unitCode = drow["UnitCode"].ToString();
+                                }
 
-//                                            recvItemComment = drow["ActivityItemPurchaseOrderComment"].ToString();
-//                                            if (!string.IsNullOrEmpty(recvItemComment))
-//                                            {
-//                                              recRecvItemComment.SetInt32(
-//                                                  (int)SysCommon.ActItemReceivingCommentFields.ActItemRefno, 
-//                                                  actItemRefno);
-//                                              recRecvItemComment.SetString(
-//                                                  (int)SysCommon.ActItemReceivingCommentFields.Comment, 
-//                                                  recvItemComment);
+                                errMsg += Environment.NewLine + "Unit \'" + unitCode + "\'";
 
-//                                              rsRecvItemComment.Insert(recRecvItemComment);
-//                                            }
+                                cmndUnit.CommandText = "SELECT * FROM tUnit WHERE UnitCode = @unitCode";
+                                cmndUnit.CommandType = CommandType.Text;
+                                //cmndUnit.IndexName = "UQ_UnitOnUnitCode";
+                                cmndUnit.Parameters.Add(new SQLiteParameter("@unitCode", unitCode));
 
-//                                            progValue++;
-//                                            if (progValue % 100 == 0)
-//                                            {
-//                                              this.DataAccessProgressOutHandler(
-//                                                  this, 
-//                                                  EventArgs.Empty, 
-//                                                  progValue, 
-//                                                  0, 
-//                                                  progMax);
-//                                            }
-//                                          }
+                                using (SQLiteDataReader drUnit = cmndUnit.ExecuteReader())
+                                {
+                                    //if (drUnit.Seek(DbSeekOptions.FirstEqual, new object[] { unitCode }))
+                                    //{
+                                    if (drUnit.Read())
+                                    {
+                                        unitRefno = drUnit.GetInt32((int)SysCommon.UnitFields.UnitRefno);
+                                    }
+                                    else
+                                    {
+                                        // TODO: Resource strings
+                                        throw new Exception("drUnit.Read() failed." + Environment.NewLine + errMsg);
+                                    }
+                                    //}
+                                    //else
+                                    //{
+                                    //    // TODO: Resource strings
+                                    //    throw new Exception("Unable to locate the unit refno from the unit code in  tUnit." + Environment.NewLine + errMsg);
+                                    //}
+                                }
 
-//                                          this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
-//                                        }
-//                                      }
-//                                    }
+                                bool prodUnitIsBC = false;
 
-//                                    drLocMapWhs.Close();
-//                                  }
-//                                }
+                                if (useFNo)
+                                {
+                                    prodUnitIsBC = Convert.ToBoolean(drow["f04"]);
+                                }
+                                else
+                                {
+                                    prodUnitIsBC = Convert.ToBoolean(drow["ProductUnitIsBC"]);
+                                }
 
-//                                drUnit.Close();
-//                              }
-//                            }
+                                errMsg += Environment.NewLine + "Is bc " + prodUnitIsBC;
 
-//                            drProd.Close();
-//                          }
-//                        }
+                                cmndProdUnit.CommandText = "SELECT * FROM tProductUnit WHERE ProductRefno = @productRefno AND UnitRefno = @unitRefno AND ProductUnitIsBC = @productUnitIsBC";
+                                cmndProdUnit.CommandType = CommandType.Text;
+                                //cmndProdUnit.IndexName = "UQ_ProductUnitOnProductRefnoAndUnitRefnoAndProductUnitIsBC";
+                                cmndProdUnit.Parameters.Add(new SQLiteParameter("@productRefno", prodRefno));
+                                cmndProdUnit.Parameters.Add(new SQLiteParameter("@unitRefno", unitRefno));
+                                cmndProdUnit.Parameters.Add(new SQLiteParameter("@productUnitIsBC", prodUnitIsBC));
 
-//                        drProdUnit.Close();
-//                      }
-//                    }
-//                  }
-//                }
-//              }
-//            }
-//          }
+                                using (SQLiteDataReader drProdUnit = cmndProdUnit.ExecuteReader())
+                                {
+                                    //if (drProdUnit.Seek(DbSeekOptions.FirstEqual, new object[] { prodRefno, unitRefno, prodUnitIsBC }))
+                                    //{
+                                    if (drProdUnit.Read())
+                                    {
+                                        prodUnitRefno = drProdUnit.GetInt32((int)SysCommon.ProdUnitFields.Refno);
+                                    }
+                                    else
+                                    {
+                                        // TODO: Resource strings
+                                        throw new Exception("drProdUnit.Read() failed." + Environment.NewLine + errMsg);
+                                    }
+                                    //}
+                                    //else
+                                    //{
+                                    //    // TODO: Resource strings
+                                    //    throw new Exception("Unable to locate the product unit refno from the product fk refno, bc and unit code in tProductUnit." + Environment.NewLine + errMsg);
+                                    //}
+                                }
 
-//#if MULTILANGUAGE
-//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingReceivingItemsComplete), false);
-//#else
-//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving receiving items complete.", false);
-//#endif
-//        }
-//      }
-//      catch (SQLiteException ex)
-//      {
-//#if MULTILANGUAGE
-//        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), true);
-//        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SavingReceivingItemsFailed), false);
-//#else
-//        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-//        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving receiving items failed.", false);
-//#endif
+                                cmndLocMapWhs.CommandText = "SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = @locationMapWarehouseFKRefno";
+                                cmndLocMapWhs.CommandType = CommandType.Text;
+                                //cmndLocMapWhs.IndexName = "UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno";
+                                cmndLocMapWhs.Parameters.Add(new SQLiteParameter("@locationMapWarehouseFKRefno", Convert.ToInt32(drow["LocationMapWarehouseFKRefno"])));
 
-//        // Duplicate key violations
-//        if (ex.NativeError == 25016)
-//        {
-//#if MULTILANGUAGE
-//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.UniquenessViolation), false);
-//          throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.UniquenessViolation) + Environment.NewLine + errMsg, ex);
-//#else
-//          this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Uniqueness violation.", false);
-//          throw new Exception("Uniqueness violation." + Environment.NewLine + errMsg, ex);
-//#endif
-//        }
+                                using (SQLiteDataReader drLocMapWhs = cmndLocMapWhs.ExecuteReader())
+                                {
+                                    locMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, ref errMsg, drLocMapWhs);
+                                }
 
-//        throw new Exception(
-//#if MULTILANGUAGE
-//            Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredSavingReceivingItemsFailed) + Environment.NewLine + errMsg,
-//#else
-//            "Database exception occurred. Saving receiving items failed." + Environment.NewLine + errMsg,
-//#endif
-//            ex);
-//      }
-    }
-    
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="recvFKRefno"></param>
-    /// <returns></returns>
-    protected override string Create(int recvFKRefno)
-    {
-      StringBuilder xmlString = new StringBuilder();
-      //XmlWriter xml = XmlWriter.Create(xmlString);
-      //string deviceID = SysDeviceID.GetDeviceID();
-      //string revision = DateAndTime.DateSerial(1900, 1, 1).ToString("yyyy\'-\'MM\'-\'dd\'T\'HH\':\'mm\':\'ss");
-      //string loginID = SysEnv.ContactLog.LoginID.ToString();
+                                recvItemFKRefno = Convert.ToInt32(drow["ActivityItemPurchaseOrderFKRefno"]);
+                                errMsg += Environment.NewLine + "Item fk refno " + recvItemFKRefno;
 
-      //XDocument request = XDocument.Parse(
-      //    "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>" 
-      //    + "<imclient>"
-      //    + "<command>"
-      //    + "<action>REQUEST PURCHASE ORDER ITEMS</action>"
-      //    + ("<device_id>" + deviceID + "</device_id>") 
-      //    + ("<login_id>" + loginID + "</login_id>") 
-      //    + ("<revision_datetime>" + revision + "</revision_datetime>") 
-      //    + ("<refno>" + recvFKRefno.ToString() + "</refno>") 
-      //    + "</command>" 
-      //    + "</imclient>");
+                                cmndRecvItem.CommandText = "INSERT INTO tActivityItemReceiving (" +
+                                    "ActivityItemRefno, " +
+                                    "ActivityItemSubType, " +
+                                    "ActivityItemReceivingFKRefno, " +
+                                    "ActivityItemReceivingStringFKRefno, " +
+                                    "ProductUnitRefno, " +
+                                    "WarehouseLocationMapRefno, " +
+                                    "ActivityItemReceivingQuantityOrdered, " +
+                                    "ActivityItemReceivingBaseQuantityOrdered, " +
+                                    "ActivityItemReceivingWeightQuantityOrdered, " +
+                                    "ActivityItemReceivingQuantityReceived, " +
+                                    "ActivityItemReceivingBaseQuantityReceived, " +
+                                    "ActivityItemReceivingWeightQuantityReceived, " +
+                                    "ActivityItemReceivingVendorProductUnitCode, " +
+                                    "ActivityItemReceivingDescription, " +
+                                    "ActivityItemReceivingQuantityReceivedToDate, " +
+                                    "ActivityItemReceivingBaseQuantityReceivedToDate, " +
+                                    "ActivityItemReceivingWeightQuantityReceivedToDate" +
+                                    ") VALUES (" +
+                                    "@activityItemRefno, " +
+                                    "@activityItemSubType, " +
+                                    "@activityItemReceivingFKRefno, " +
+                                    "@activityItemReceivingStringFKRefno, " +
+                                    "@productUnitRefno, " +
+                                    "@warehouseLocationMapRefno, " +
+                                    "@activityItemReceivingQuantityOrdered, " +
+                                    "@activityItemReceivingBaseQuantityOrdered, " +
+                                    "@activityItemReceivingWeightQuantityOrdered, " +
+                                    "@activityItemReceivingQuantityReceived, " +
+                                    "@activityItemReceivingBaseQuantityReceived, " +
+                                    "@activityItemReceivingWeightQuantityReceived, " +
+                                    "@activityItemReceivingVendorProductUnitCode, " +
+                                    "@activityItemReceivingDescription, " +
+                                    "@activityItemReceivingQuantityReceivedToDate, " +
+                                    "@activityItemReceivingBaseQuantityReceivedToDate, " +
+                                    "@activityItemReceivingWeightQuantityReceivedToDate" +
+                                    ")";
+                                cmndRecvItem.CommandType = CommandType.Text;
+                                //cmndRecvItem.IndexName = "UQ_ActivityItemReceivingOnActivityItemReceivingFKRefno";
+                                cmndRecvItem.Parameters.Add(new SQLiteParameter("@activityItemRefno", actItemRefno));
+                                cmndRecvItem.Parameters.Add(new SQLiteParameter("@activityItemSubType", Convert.ToInt32(SysCommon.ActSubTypes.Receiving)));
+                                cmndRecvItem.Parameters.Add(new SQLiteParameter("@activityItemReceivingFKRefno", Convert.ToInt32(recvItemFKRefno)));
+                                cmndRecvItem.Parameters.Add(new SQLiteParameter("@activityItemReceivingStringFKRefno", Convert.ToString(recvItemFKRefno)));
+                                cmndRecvItem.Parameters.Add(new SQLiteParameter("@productUnitRefno", prodUnitRefno));
+                                cmndRecvItem.Parameters.Add(new SQLiteParameter("@warehouseLocationMapRefno", locMapRefno));
+                                cmndRecvItem.Parameters.Add(new SQLiteParameter("@activityItemReceivingQuantityOrdered", Convert.ToDecimal(drow["ActivityItemPurchaseOrderQuantityOrdered"])));
+                                cmndRecvItem.Parameters.Add(new SQLiteParameter("@activityItemReceivingBaseQuantityOrdered", Convert.ToDecimal(drow["ActivityItemPurchaseOrderBaseQuantityOrdered"])));
+                                cmndRecvItem.Parameters.Add(new SQLiteParameter("@activityItemReceivingWeightQuantityOrdered", Convert.ToDecimal(drow["ActivityItemPurchaseOrderWeightQuantityOrdered"])));
+                                cmndRecvItem.Parameters.Add(new SQLiteParameter("@activityItemReceivingQuantityReceived", Convert.ToDecimal(drow["ActivityItemPurchaseOrderQuantityReceived"])));
+                                cmndRecvItem.Parameters.Add(new SQLiteParameter("@activityItemReceivingBaseQuantityReceived", Convert.ToDecimal(drow["ActivityItemPurchaseOrderBaseQuantityReceived"])));
+                                cmndRecvItem.Parameters.Add(new SQLiteParameter("@activityItemReceivingWeightQuantityReceived", Convert.ToDecimal(drow["ActivityItemPurchaseOrderWeightQuantityReceived"])));
+                                cmndRecvItem.Parameters.Add(new SQLiteParameter("@activityItemReceivingVendorProductUnitCode", drow["ActivityItemPurchaseOrderVendorProductUnitCode"].ToString()));
+                                cmndRecvItem.Parameters.Add(new SQLiteParameter("@activityItemReceivingDescription", drow["ActivityItemPurchaseOrderDescription"].ToString()));
+                                cmndRecvItem.Parameters.Add(new SQLiteParameter("@activityItemReceivingQuantityReceivedToDate", Convert.ToDecimal(drow["ActivityItemPurchaseOrderQuantityReceivedToDate"])));
+                                cmndRecvItem.Parameters.Add(new SQLiteParameter("@activityItemReceivingBaseQuantityReceivedToDate", Convert.ToDecimal(drow["ActivityItemPurchaseOrderBaseQuantityReceivedToDate"])));
+                                cmndRecvItem.Parameters.Add(new SQLiteParameter("@activityItemReceivingWeightQuantityReceivedToDate", Convert.ToDecimal(drow["ActivityItemPurchaseOrderWeightQuantityReceivedToDate"])));
 
-      //request.Save(xml);
-      //xml.Flush();
-      //xml.Close();
+                                cmndRecvItem.ExecuteNonQuery();
 
-      return xmlString.ToString();
-    }
+                                //rec.SetInt32((int)SysCommon.ActItemReceivingFields.ActItemRefno, actItemRefno);
+                                //rec.SetInt32((int)SysCommon.ActItemReceivingFields.ActItemSubType, (int)SysCommon.ActSubTypes.Receiving);
+                                //rec.SetInt32((int)SysCommon.ActItemReceivingFields.FKRefno, recvItemFKRefno);
+                                //rec.SetString((int)SysCommon.ActItemReceivingFields.StringFKRefno, Convert.ToString(recvItemFKRefno));
+                                //rec.SetInt32((int)SysCommon.ActItemReceivingFields.ProdUnitRefno, prodUnitRefno);
+                                //rec.SetInt32((int)SysCommon.ActItemReceivingFields.WhsLocMapRefno, locMapRefno);
+                                //rec.SetDecimal((int)SysCommon.ActItemReceivingFields.QuantityOrdered, Convert.ToDecimal(drow["ActivityItemPurchaseOrderQuantityOrdered"]));
+                                //rec.SetDecimal((int)SysCommon.ActItemReceivingFields.BaseQuantityOrdered, Convert.ToDecimal(drow["ActivityItemPurchaseOrderBaseQuantityOrdered"]));
+                                //rec.SetDecimal((int)SysCommon.ActItemReceivingFields.WeightQuantityOrdered, Convert.ToDecimal(drow["ActivityItemPurchaseOrderWeightQuantityOrdered"]));
+                                //rec.SetDecimal((int)SysCommon.ActItemReceivingFields.QuantityReceived, Convert.ToDecimal(drow["ActivityItemPurchaseOrderQuantityReceived"]));
+                                //rec.SetDecimal((int)SysCommon.ActItemReceivingFields.BaseQuantityReceived, Convert.ToDecimal(drow["ActivityItemPurchaseOrderBaseQuantityReceived"]));
+                                //rec.SetDecimal((int)SysCommon.ActItemReceivingFields.WeightQuantityReceived, Convert.ToDecimal(drow["ActivityItemPurchaseOrderWeightQuantityReceived"]));
+                                //rec.SetString((int)SysCommon.ActItemReceivingFields.VendorProductUnitCode, drow["ActivityItemPurchaseOrderVendorProductUnitCode"].ToString());
+                                //rec.SetString((int)SysCommon.ActItemReceivingFields.Description, drow["ActivityItemPurchaseOrderDescription"].ToString());
+                                //rec.SetDecimal((int)SysCommon.ActItemReceivingFields.QuantityReceivedToDate, Convert.ToDecimal(drow["ActivityItemPurchaseOrderQuantityReceivedToDate"]));
+                                //rec.SetDecimal((int)SysCommon.ActItemReceivingFields.BaseQuantityReceivedToDate, Convert.ToDecimal(drow["ActivityItemPurchaseOrderBaseQuantityReceivedToDate"]));
+                                //rec.SetDecimal((int)SysCommon.ActItemReceivingFields.WeightQuantityReceivedToDate, Convert.ToDecimal(drow["ActivityItemPurchaseOrderWeightQuantityReceivedToDate"]));
+                                //rs.Insert(rec);
 
-    #endregion
+                                recvItemComment = drow["ActivityItemPurchaseOrderComment"].ToString();
 
-    #region Private Members
+                                if (!string.IsNullOrEmpty(recvItemComment))
+                                {
+                                    cmndRecvItemComment.CommandText = "INSERT INTO tActivityItemReceivingComment (ActivityItemRefno, ActivityItemReceivingCommentComment) VALUES (@activityItemRefno, @activityItemReceivingCommentComment)";
+                                    cmndRecvItemComment.CommandType = CommandType.Text;
+                                    cmndRecvItemComment.Parameters.Add(new SQLiteParameter("@activityItemRefno", actItemRefno));
+                                    cmndRecvItemComment.Parameters.Add(new SQLiteParameter("@activityItemReceivingCommentComment", recvItemComment));
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="drow"></param>
-    /// <param name="errMsg"></param>
-    /// <param name="drProduct"></param>
-    /// <param name="drUnit"></param>
-    /// <param name="drProdUnit"></param>
-    /// <returns></returns>
-    private int GetProductXRefUnitRefnoFromDataRow(
-        DataRow drow,
-        ref string errMsg,
-        SQLiteDataReader drProduct,
-        SQLiteDataReader drUnit,
-        SQLiteDataReader drProdUnit)
-    {
+                                    cmndRecvItemComment.ExecuteNonQuery();
+
+                                    //recRecvItemComment.SetInt32((int)SysCommon.ActItemReceivingCommentFields.ActItemRefno, actItemRefno);
+                                    //recRecvItemComment.SetString((int)SysCommon.ActItemReceivingCommentFields.Comment, recvItemComment);
+                                    //rsRecvItemComment.Insert(recRecvItemComment);
+                                }
+
+                                progValue++;
+                                if (progValue % 100 == 0)
+                                {
+                                    this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
+                                }
+                            }
+
+                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
+                        }
+                        //}
+                        //                                                    }
+
+                        //                                                    drLocMapWhs.Close();
+                        //                                                }
+                        //                                            }
+
+                        //                                            drUnit.Close();
+                        //                                        }
+                        //                                    }
+
+                        //                                    drProd.Close();
+                        //                                }
+                        //                            }
+
+                        //                            drProdUnit.Close();
+                        //                        }
+                        //                    }
+                        //                }
+                        //            }
+                        //        }
+                        //    }
+                        //}
+
+                        transaction.Commit();
+
+                        // TODO: Resource strings
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving receiving items complete.", false);
+                    }
+                }
+                catch (SQLiteException ex)
+                {
+                    transaction.Rollback();
+
+                    // TODO: Resource strings
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving receiving items failed.", false);
+
+                    //// Duplicate key violations
+                    //if (ex.NativeError == 25016)
+                    //{
+                    //    // TODO: Resource strings
+                    //    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Uniqueness violation.", false);
+                    //    throw new Exception("Uniqueness violation." + Environment.NewLine + errMsg, ex);
+                    //}
+
+                    // TODO: Resource strings
+                    throw new Exception("Database exception occurred. Saving receiving items failed." + Environment.NewLine + errMsg, ex);
+                }
+            }
+        }
+
+        /// <summary>
+        /// The Create
+        /// </summary>
+        /// <param name="recvFKRefno"></param>
+        /// <returns></returns>
+        protected override string Create(int recvFKRefno)
+        {
+            StringBuilder xmlString = new StringBuilder();
+            XmlWriter xml = XmlWriter.Create(xmlString);
+            string deviceID = SysDeviceID.GetDeviceID();
+            //string revision = DateAndTime.DateSerial(1900, 1, 1).ToString("yyyy\'-\'MM\'-\'dd\'T\'HH\':\'mm\':\'ss");
+            string revision = new DateTime(1900, 1, 1).ToString("yyyy\'-\'MM\'-\'dd\'T\'HH\':\'mm\':\'ss");
+            string loginID = SysEnv.ContactLog.LoginID.ToString();
+
+            XDocument request = XDocument.Parse(
+                "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
+                + "<imclient>"
+                + "<command>"
+                + "<action>REQUEST PURCHASE ORDER ITEMS</action>"
+                + ("<device_id>" + deviceID + "</device_id>")
+                + ("<login_id>" + loginID + "</login_id>")
+                + ("<revision_datetime>" + revision + "</revision_datetime>")
+                + ("<refno>" + recvFKRefno.ToString() + "</refno>")
+                + "</command>"
+                + "</imclient>");
+
+            request.Save(xml);
+            xml.Flush();
+            xml.Close();
+
+            return xmlString.ToString();
+        }
+
+        /// <summary>
+        /// The GetProductXRefUnitRefnoFromDataRow
+        /// </summary>
+        /// <param name="drow"></param>
+        /// <param name="errMsg"></param>
+        /// <param name="drProduct"></param>
+        /// <param name="drUnit"></param>
+        /// <param name="drProdUnit"></param>
+        /// <returns></returns>
+        private int GetProductXRefUnitRefnoFromDataRow(
+            DataRow drow,
+            ref string errMsg,
+            SQLiteDataReader drProduct,
+            SQLiteDataReader drUnit,
+            SQLiteDataReader drProdUnit)
+        {
             //      int prodRefno = 0;
             //      int prodFKRefno = Convert.ToInt32(drow["ProductFKRefno"]);
             //      errMsg += Environment.NewLine + "Prod fk refno " + prodFKRefno;
@@ -720,7 +788,5 @@ namespace dMobile.GroundWork
 
             return prodUnitRefno;
         }
-
-        #endregion
     }
 }

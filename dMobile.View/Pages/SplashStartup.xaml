@@ -7,32 +7,32 @@
             x:Class="dMobile.View.SplashStartup">
     <ContentPage.Content>
         <AbsoluteLayout VerticalOptions="Center">
-        <Grid Padding="10" AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0,0,1,1">
+            <Grid Padding="10" AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0,0,1,1">
 
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
 
                 <ListView x:Name="listBoxStatus" SelectionMode="None" Grid.Row="0">
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <ViewCell IsEnabled="False">
-                            <Label Text="{Binding}" VerticalTextAlignment="Center" />
-                        </ViewCell>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <ViewCell IsEnabled="False">
+                                <Label Text="{Binding}" VerticalTextAlignment="Center"/>
+                            </ViewCell>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
 
-            <Button x:Name="btnClose" Grid.Row="1" Text="Close" Clicked="BtnClose_Clicked" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
-        </Grid>
+                <Button x:Name="btnClose" Grid.Row="2" Text="Close" Clicked="BtnClose_Clicked" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+            </Grid>
 
-        <ActivityIndicator IsVisible="{Binding Loading}" 
+            <ActivityIndicator IsVisible="{Binding Loading}" 
                                IsRunning="{Binding Loading}" 
                                Color="Black" 
                                AbsoluteLayout.LayoutFlags="All" 
                                AbsoluteLayout.LayoutBounds="0.5,0.5,0.3,0.3"/>
-    </AbsoluteLayout>
-        </ContentPage.Content>
+        </AbsoluteLayout>
+    </ContentPage.Content>
 </custompages:DMobileContentPage>

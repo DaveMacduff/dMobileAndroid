@@ -16,6 +16,7 @@ namespace dMobile.Bedrock
     {
         #region System Fields
 
+        private Theme theme = Theme.Light;
         private bool isDisconnectedMode = false;
         private DateTime lastRefreshData = DateTime.Now;
         private bool isInvStrict = false;
@@ -590,6 +591,19 @@ namespace dMobile.Bedrock
             set
             {
                 this.isEnableDefaultDetailExtraValues = value;
+            }
+        }
+
+        public Theme Theme
+        {
+            get
+            {
+                return this.theme;
+            }
+
+            set
+            {
+                this.theme = value;
             }
         }
 

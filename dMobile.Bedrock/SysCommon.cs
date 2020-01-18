@@ -1,9 +1,11 @@
 namespace dMobile.Bedrock
 {
+    using Android.Content;
     using System;
     using System.Collections.Generic;
     using System.Data;
     using System.Data.SQLite;
+    using System.Diagnostics;
     using System.IO;
     using System.Net.Sockets;
     using System.Reflection;
@@ -11,6 +13,7 @@ namespace dMobile.Bedrock
     using System.Text;
     using System.Xml;
     using System.Xml.Schema;
+    using static Android.App.ActivityManager;
 
     public struct SProductSchemeData
     {
@@ -1980,11 +1983,8 @@ namespace dMobile.Bedrock
                 }
                 else
                 {
-#if MULTILANGUAGE
-          throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.FailedToConnectz));
-#else
+                    // TODO: Resource strings
                     throw new Exception("Failed to connect.");
-#endif
                 }
             }
             catch (SocketException ex)
@@ -1994,11 +1994,8 @@ namespace dMobile.Bedrock
                     sysSock.Close();
                 }
 
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.SubmitcommSocketErrorOccurred), ex);
-#else
+                // TODO: Resource strings
                 throw new Exception("SubmitComm socket error occurred.", ex);
-#endif
             }
  
             sysSock.Close();
@@ -2801,49 +2798,17 @@ namespace dMobile.Bedrock
         /// 
         /// </summary>
         /// <remarks></remarks>
-        public static void ShowMemory()
+        public static string ShowMemory()
         {
-            UInt32 storePages = default(UInt32);
-            UInt32 ramPages = default(UInt32);
-            UInt32 pageSize = default(UInt32);
-            int res = GetSystemMemoryDivision(ref storePages, ref ramPages, ref pageSize);
+            StringBuilder memoryInfoString = new StringBuilder();
 
-            // Call the native GlobalMemoryStatus method
-            // with the defined structure.
-            MEMORYSTATUS memStatus = new MEMORYSTATUS();
-            GlobalMemoryStatus(ref memStatus);
+            memoryInfoString.Append("Total Bytes Allocated " + Environment.NewLine + GC.GetTotalMemory(true) + " Bytes" + Environment.NewLine);
+            memoryInfoString.Append(Environment.NewLine + "Used Heap Memory " + Environment.NewLine + (Java.Lang.Runtime.GetRuntime().TotalMemory() - Java.Lang.Runtime.GetRuntime().FreeMemory()) + " Bytes" +  Environment.NewLine);
+            memoryInfoString.Append(Environment.NewLine + "Free Heap Memory " + Environment.NewLine + Java.Lang.Runtime.GetRuntime().FreeMemory() + " Bytes" + Environment.NewLine);
+            memoryInfoString.Append(Environment.NewLine + "Total Heap Memory " + Environment.NewLine + Java.Lang.Runtime.GetRuntime().TotalMemory() + " Bytes" + Environment.NewLine);
+            memoryInfoString.Append(Environment.NewLine + "Max Heap Memory " + Environment.NewLine + Java.Lang.Runtime.GetRuntime().MaxMemory() + " Bytes" + Environment.NewLine);
 
-            // Use a StringBuilder for the message box string.
-            StringBuilder memoryInfo = new StringBuilder();
-#if MULTILANGUAGE
-      memoryInfo.Append(Translator.GetInstance().Translate(TranslatorVocabulary.MemoryLoad) + memStatus.dwMemoryLoad + Environment.NewLine);
-      memoryInfo.Append(Translator.GetInstance().Translate(TranslatorVocabulary.TotalPhysical) + memStatus.dwTotalPhys + Environment.NewLine);
-      memoryInfo.Append(Translator.GetInstance().Translate(TranslatorVocabulary.AvailPhysical) + memStatus.dwAvailPhys + Environment.NewLine);
-      memoryInfo.Append(Translator.GetInstance().Translate(TranslatorVocabulary.TotalPageFile) + memStatus.dwTotalPageFile + Environment.NewLine);
-      memoryInfo.Append(Translator.GetInstance().Translate(TranslatorVocabulary.AvailPageFile) + memStatus.dwAvailPageFile + Environment.NewLine);
-      memoryInfo.Append(Translator.GetInstance().Translate(TranslatorVocabulary.TotalVirtual) + memStatus.dwTotalVirtual + Environment.NewLine);
-      memoryInfo.Append(Translator.GetInstance().Translate(TranslatorVocabulary.AvailVirtual) + memStatus.dwAvailVirtual + Environment.NewLine);
-#else
-            memoryInfo.Append("Memory Load: " + memStatus.dwMemoryLoad + Environment.NewLine);
-            memoryInfo.Append("Total Physical: " + memStatus.dwTotalPhys + Environment.NewLine);
-            memoryInfo.Append("Avail Physical: " + memStatus.dwAvailPhys + Environment.NewLine);
-            memoryInfo.Append("Total Page File: " + memStatus.dwTotalPageFile + Environment.NewLine);
-            memoryInfo.Append("Avail Page File: " + memStatus.dwAvailPageFile + Environment.NewLine);
-            memoryInfo.Append("Total Virtual: " + memStatus.dwTotalVirtual + Environment.NewLine);
-            memoryInfo.Append("Avail Virtual: " + memStatus.dwAvailVirtual + Environment.NewLine);
-#endif
-
-//            // Show the available memory.
-//            MessageBox.Show(
-//                memoryInfo.ToString(),
-//#if MULTILANGUAGE
-//          Translator.GetInstance().Translate(TranslatorVocabulary.MemoryUsage), 
-//#else
-// "Memory Usage",
-//#endif
-// MessageBoxButtons.OK,
-//                MessageBoxIcon.None,
-//                MessageBoxDefaultButton.Button1);
+            return memoryInfoString.ToString();
         }
 
         #endregion

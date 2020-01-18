@@ -38,20 +38,14 @@ namespace dMobile.Controller
 
         #region Delegates
 
-        public delegate void OnDataLayerStatusOutEventHandler(
-            IDataLayerEventPublisher DataLayerEventPublisher,
-            DataLayerEventArgs DataLayerEventArgs);
-
-        public delegate void OnDataLayerProgressOutEventHandler(
-            IDataLayerEventPublisher DataLayerEventPublisher,
-            DataLayerEventArgs DataLayerEventArgs);
+        public delegate void OnDataLayerStatusOutEventHandler(IDataLayerEventPublisher DataLayerEventPublisher, DataLayerEventArgs DataLayerEventArgs);
+        public delegate void OnDataLayerProgressOutEventHandler(IDataLayerEventPublisher DataLayerEventPublisher, DataLayerEventArgs DataLayerEventArgs);
 
         #endregion
 
         #region Events
 
         public event OnDataLayerStatusOutEventHandler OnDataLayerStatusOut;
-
         public event OnDataLayerProgressOutEventHandler OnDataLayerProgressOut;
 
         #endregion
@@ -359,40 +353,33 @@ namespace dMobile.Controller
         /// <remarks></remarks>
         public void Create(SysCommon.ActSubTypes actSubType)
         {
-//            try
-//            {
-//                using (SQLiteCommand cmndAct = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-//                {
-//                    cmndAct.CommandText = "tActivity";
-//                    cmndAct.CommandType = CommandType.TableDirect;
+            try
+            {
+                using (SQLiteCommand cmndAct = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                using (SQLiteCommand cmndID = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                {
+                    cmndAct.CommandText = "INSERT INTO tActivity (ActivityStatus, ActivitySubType) VALUES (@activityStatus, @activitySubType)";
+                    cmndAct.CommandType = CommandType.Text;
+                    cmndAct.Parameters.Add(new SQLiteParameter("@activityStatus", Convert.ToInt32(SysCommon.ActStatus.Inserted)));
+                    cmndAct.Parameters.Add(new SQLiteParameter("@activitySubType", Convert.ToInt32(actSubType)));
 
-//                    using (SqlCeResultSet rsAct = cmndAct.ExecuteResultSet(ResultSetOptions.Updatable))
-//                    {
-//                        SqlCeUpdatableRecord recAct = rsAct.CreateRecord();
+                    cmndAct.ExecuteNonQuery();
 
-//                        using (SQLiteCommand cmndID = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-//                        {
-//                            cmndID.CommandText = "SELECT @@IDENTITY";
-//                            cmndID.CommandType = CommandType.Text;
+                    //recAct.SetInt32((int)SysCommon.ActFields.SubType, (int)actSubType);
+                    //recAct.SetInt32((int)SysCommon.ActFields.Status, (int)SysCommon.ActStatus.Inserted);
+                    //rsAct.Insert(recAct);
 
-//                            recAct.SetInt32((int)SysCommon.ActFields.SubType, (int)actSubType);
-//                            recAct.SetInt32((int)SysCommon.ActFields.Status, (int)SysCommon.ActStatus.Inserted);
+                    cmndID.CommandText = "SELECT last_insert_rowid() FROM tActivity";
+                    cmndID.CommandType = CommandType.Text;
 
-//                            rsAct.Insert(recAct);
-
-//                            this.Refno = Convert.ToInt32(cmndID.ExecuteScalar());
-//                        }
-//                    }
-//                }
-//            }
-//            catch (SQLiteException ex)
-//            {
-//#if MULTILANGUAGE
-//        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredCreateActivityFailed), ex);
-//#else
-//                throw new Exception("Database exception occurred. Create activity failed.", ex);
-//#endif
-//            }
+                    this.Refno = Convert.ToInt32(cmndID.ExecuteScalar());
+                }
+            }
+            catch (SQLiteException ex)
+            {
+                // TODO: Resource strings
+                throw new Exception("Database exception occurred. Create activity failed.", ex);
+            }
         }
 
         /// <summary>
@@ -479,11 +466,7 @@ namespace dMobile.Controller
         /// <param name="e"></param>
         /// <param name="outMessage"></param>
         /// <param name="overrideDisconnectedMode"></param>
-        public void DataLayerStatusOutHandler(
-            object sender,
-            EventArgs e,
-            string outMessage,
-            bool overrideDisconnectedMode)
+        public void DataLayerStatusOutHandler(object sender, EventArgs e, string outMessage, bool overrideDisconnectedMode)
         {
             if (!this.SysEnv.SysSettings.IsDisconnectedMode || overrideDisconnectedMode)
             {
@@ -504,12 +487,7 @@ namespace dMobile.Controller
         /// <param name="currentValue"></param>
         /// <param name="minValue"></param>
         /// <param name="maxValue"></param>
-        public void DataLayerProgressOutHandler(
-            object sender,
-            EventArgs e,
-            int currentValue,
-            int minValue,
-            int maxValue)
+        public void DataLayerProgressOutHandler(object sender, EventArgs e, int currentValue, int minValue, int maxValue)
         {
             if (this.OnDataLayerProgressOut != null)
             {
@@ -546,9 +524,7 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="dataAccessEventPublisher"></param>
         /// <param name="dataAccessEventArgs"></param>
-        public void OnDataAccessStatusOut(
-            IDataAccessEventPublisher dataAccessEventPublisher,
-            DataAccessEventArgs dataAccessEventArgs)
+        public void OnDataAccessStatusOut(IDataAccessEventPublisher dataAccessEventPublisher, DataAccessEventArgs dataAccessEventArgs)
         {
             if (!this.SysEnv.SysSettings.IsDisconnectedMode || dataAccessEventArgs.OverrideDisconnectedMode)
             {
@@ -566,9 +542,7 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="dataAccessEventPublisher"></param>
         /// <param name="dataAccessEventArgs"></param>
-        public void OnDataAccessProgressOut(
-            IDataAccessEventPublisher dataAccessEventPublisher,
-            DataAccessEventArgs dataAccessEventArgs)
+        public void OnDataAccessProgressOut(IDataAccessEventPublisher dataAccessEventPublisher, DataAccessEventArgs dataAccessEventArgs)
         {
             if (this.OnDataLayerProgressOut != null)
             {

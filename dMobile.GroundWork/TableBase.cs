@@ -540,29 +540,64 @@ namespace dMobile.GroundWork
         /// <param name="useFNo"></param>
         protected virtual void SaveDetailExtra(
         DataRow drow,
-        //ref SqlCeUpdatableRecord recExtra,
+        ref SQLiteCommand cmndExtra,
         int actDetailRefno,
         bool useFNo)
         {
-            //recExtra.SetInt32((int)SysCommon.ActDetailExtraFields.ActDetailRefno, actDetailRefno);
-            //recExtra.SetInt32((int)SysCommon.ActDetailExtraFields.ActDetailSubType, (int)SysCommon.ActSubTypes.CycleCounts);
+            cmndExtra.CommandText = "INSERT INTO tActivityDetailExtra (" +
+            "ActivityDetailRefno, " +
+            "ActivityDetailSubType, " +
+            "ActivityDetailExtra1Text, " +
+            "ActivityDetailExtra2Text, " +
+            "ActivityDetailExtra3Text, " +
+            "ActivityDetailExtra4Text, " +
+            "ActivityDetailExtra5Text" +
+            ") VALUES (" +
+            "@activityDetailRefno, " +
+            "@activityDetailSubType, " +
+            "@activityDetailExtra1Text, " +
+            "@activityDetailExtra2Text, " +
+            "@activityDetailExtra3Text, " +
+            "@activityDetailExtra4Text, " +
+            "@activityDetailExtra5Text" +
+            ")";
+            cmndExtra.CommandType = CommandType.Text;
+            cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailRefno", actDetailRefno));
+            cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailSubType", Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts)));
 
-            //if (useFNo)
-            //{
-            //    recExtra.SetString((int)SysCommon.ActDetailExtraFields.Text1, drow["f19"].ToString());
-            //    recExtra.SetString((int)SysCommon.ActDetailExtraFields.Text2, drow["f20"].ToString());
-            //    recExtra.SetString((int)SysCommon.ActDetailExtraFields.Text3, drow["f21"].ToString());
-            //    recExtra.SetString((int)SysCommon.ActDetailExtraFields.Text4, drow["f22"].ToString());
-            //    recExtra.SetString((int)SysCommon.ActDetailExtraFields.Text5, drow["f23"].ToString());
-            //}
-            //else
-            //{
-            //    recExtra.SetString((int)SysCommon.ActDetailExtraFields.Text1, drow["ActivityDetailExtra1"].ToString());
-            //    recExtra.SetString((int)SysCommon.ActDetailExtraFields.Text2, drow["ActivityDetailExtra2"].ToString());
-            //    recExtra.SetString((int)SysCommon.ActDetailExtraFields.Text3, drow["ActivityDetailExtra3"].ToString());
-            //    recExtra.SetString((int)SysCommon.ActDetailExtraFields.Text4, drow["ActivityDetailExtra4"].ToString());
-            //    recExtra.SetString((int)SysCommon.ActDetailExtraFields.Text5, drow["ActivityDetailExtra5"].ToString());
-            //}
+            //cmndExtra.SetInt32((int)SysCommon.ActDetailExtraFields.ActDetailRefno, actDetailRefno);
+            //cmndExtra.SetInt32((int)SysCommon.ActDetailExtraFields.ActDetailSubType, (int)SysCommon.ActSubTypes.CycleCounts);
+
+            if (useFNo)
+            {
+                cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra1Text", drow["f19"].ToString()));
+                cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra2Text", drow["f20"].ToString()));
+                cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra3Text", drow["f21"].ToString()));
+                cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra4Text", drow["f22"].ToString()));
+                cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra5Text", drow["f23"].ToString()));
+
+                //cmndExtra.SetString((int)SysCommon.ActDetailExtraFields.Text1, drow["f19"].ToString());
+                //cmndExtra.SetString((int)SysCommon.ActDetailExtraFields.Text2, drow["f20"].ToString());
+                //cmndExtra.SetString((int)SysCommon.ActDetailExtraFields.Text3, drow["f21"].ToString());
+                //cmndExtra.SetString((int)SysCommon.ActDetailExtraFields.Text4, drow["f22"].ToString());
+                //cmndExtra.SetString((int)SysCommon.ActDetailExtraFields.Text5, drow["f23"].ToString());
+            }
+            else
+            {
+                cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra1Text", drow["ActivityDetailExtra1"].ToString()));
+                cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra2Text", drow["ActivityDetailExtra2"].ToString()));
+                cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra3Text", drow["ActivityDetailExtra3"].ToString()));
+                cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra4Text", drow["ActivityDetailExtra4"].ToString()));
+                cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra5Text", drow["ActivityDetailExtra5"].ToString()));
+
+                //cmndExtra.SetString((int)SysCommon.ActDetailExtraFields.Text1, drow["ActivityDetailExtra1"].ToString());
+                //cmndExtra.SetString((int)SysCommon.ActDetailExtraFields.Text2, drow["ActivityDetailExtra2"].ToString());
+                //cmndExtra.SetString((int)SysCommon.ActDetailExtraFields.Text3, drow["ActivityDetailExtra3"].ToString());
+                //cmndExtra.SetString((int)SysCommon.ActDetailExtraFields.Text4, drow["ActivityDetailExtra4"].ToString());
+                //cmndExtra.SetString((int)SysCommon.ActDetailExtraFields.Text5, drow["ActivityDetailExtra5"].ToString());
+            }
+
+            cmndExtra.ExecuteNonQuery();
         }
 
         /// <summary>
@@ -574,7 +609,7 @@ namespace dMobile.GroundWork
         /// <param name="drLocMapWhs"></param>
         /// <param name="recDetail"></param>
         /// <param name="useFNo"></param>
-        protected virtual void SaveDetailLocation(
+        protected virtual int SaveDetailLocation(
         DataRow drow,
         SQLiteDataReader drLocMapSlot,
         SQLiteDataReader drLocMapSection,
@@ -582,83 +617,84 @@ namespace dMobile.GroundWork
         //ref SqlCeUpdatableRecord recDetail,
         bool useFNo)
         {
-            //int locMapRefno = 0;
-            //int locMapWhsFKRefno = 0;
-            //int locMapSectFKRefno = 0;
-            //int locMapSlotFKRefno = 0;
+            int locMapRefno = 0;
+            int locMapWhsFKRefno = 0;
+            int locMapSectFKRefno = 0;
+            int locMapSlotFKRefno = 0;
 
-            //if (useFNo)
-            //{
-            //    locMapWhsFKRefno = Convert.ToInt32(drow["f07"]);
-            //    locMapSectFKRefno = Convert.ToInt32(drow["f08"]);
-            //    locMapSlotFKRefno = Convert.ToInt32(drow["f09"]);
-            //}
-            //else
-            //{
-            //    locMapWhsFKRefno = Convert.ToInt32(drow["LocationMapWarehouseFKRefno"]);
-            //    locMapSectFKRefno = Convert.ToInt32(drow["LocationMapSectionFKRefno"]);
-            //    locMapSlotFKRefno = Convert.ToInt32(drow["LocationMapSlotFKRefno"]);
-            //}
+            if (useFNo)
+            {
+                locMapWhsFKRefno = Convert.ToInt32(drow["f07"]);
+                locMapSectFKRefno = Convert.ToInt32(drow["f08"]);
+                locMapSlotFKRefno = Convert.ToInt32(drow["f09"]);
+            }
+            else
+            {
+                locMapWhsFKRefno = Convert.ToInt32(drow["LocationMapWarehouseFKRefno"]);
+                locMapSectFKRefno = Convert.ToInt32(drow["LocationMapSectionFKRefno"]);
+                locMapSlotFKRefno = Convert.ToInt32(drow["LocationMapSlotFKRefno"]);
+            }
 
-            //if (locMapRefno == 0)
-            //{
-            //    //if (drLocMapSlot.Seek(DbSeekOptions.FirstEqual, new object[] { locMapSlotFKRefno }))
-            //    //{
-            //        if (drLocMapSlot.Read())
-            //        {
-            //            locMapRefno = Convert.ToInt32(drLocMapSlot.GetValue((int)SysCommon.LocMapSlotFields.LocMapRefno));
-            //        }
-            //        else
-            //        {
-            //            // TODO: Resource strings
-            //            throw new Exception("drLocMapSlot.Read() failed.");
-            //        }
-            //    //}
-            //}
+            if (locMapRefno == 0)
+            {
+                //if (drLocMapSlot.Seek(DbSeekOptions.FirstEqual, new object[] { locMapSlotFKRefno }))
+                //{
+                if (drLocMapSlot.Read())
+                {
+                    locMapRefno = Convert.ToInt32(drLocMapSlot.GetValue((int)SysCommon.LocMapSlotFields.LocMapRefno));
+                }
+                //else
+                //{
+                //    // TODO: Resource strings
+                //    throw new Exception("drLocMapSlot.Read() failed.");
+                //}
+                //}
+            }
 
-            //if (locMapRefno == 0)
-            //{
-            //    if (drLocMapSection.Seek(DbSeekOptions.FirstEqual, new object[] { locMapSectFKRefno }))
-            //    {
-            //        if (drLocMapSection.Read())
-            //        {
-            //            locMapRefno = Convert.ToInt32(drLocMapSection.GetValue((int)SysCommon.LocMapSectFields.LocMapRefno));
-            //        }
-            //        else
-            //        {
-            //            // TODO: Resource strings
-            //            throw new Exception("drLocMapSection.Read() failed.");
-            //        }
-            //    }
-            //}
+            if (locMapRefno == 0)
+            {
+                //if (drLocMapSection.Seek(DbSeekOptions.FirstEqual, new object[] { locMapSectFKRefno }))
+                //{
+                    if (drLocMapSection.Read())
+                    {
+                        locMapRefno = Convert.ToInt32(drLocMapSection.GetValue((int)SysCommon.LocMapSectFields.LocMapRefno));
+                    }
+                    //else
+                    //{
+                    //    // TODO: Resource strings
+                    //    throw new Exception("drLocMapSection.Read() failed.");
+                    //}
+                //}
+            }
 
-            //if (locMapRefno == 0)
-            //{
-            //    if (drLocMapWhs.Seek(DbSeekOptions.FirstEqual, new object[] { locMapWhsFKRefno }))
-            //    {
-            //        if (drLocMapWhs.Read())
-            //        {
-            //            locMapRefno = Convert.ToInt32(drLocMapWhs.GetValue((int)SysCommon.LocMapWhsFields.LocMapRefno));
-            //        }
-            //        else
-            //        {
-            //            // TODO: Resource strings
-            //            throw new Exception("drLocMapWhs.Read() failed.");
-            //        }
-            //    }
-            //}
+            if (locMapRefno == 0)
+            {
+                //if (drLocMapWhs.Seek(DbSeekOptions.FirstEqual, new object[] { locMapWhsFKRefno }))
+                //{
+                    if (drLocMapWhs.Read())
+                    {
+                        locMapRefno = Convert.ToInt32(drLocMapWhs.GetValue((int)SysCommon.LocMapWhsFields.LocMapRefno));
+                    }
+                    //else
+                    //{
+                        //// TODO: Resource strings
+                        //throw new Exception("drLocMapWhs.Read() failed.");
+                    //}
+                //}
+            }
 
-            //if (locMapRefno == 0)
-            //{
-            //    throw new Exception(string.Format("Unable to identify the location map refno. {0}Whs FK Refno {1}{2}Section FK Refno {3}{4} Slot FK Refno {5}{6}",
-            //        Environment.NewLine,
-            //        locMapWhsFKRefno,
-            //        Environment.NewLine,
-            //        locMapSectFKRefno,
-            //        Environment.NewLine,
-            //        locMapSlotFKRefno));
-            //}
+            if (locMapRefno == 0)
+            {
+                throw new Exception(string.Format("Unable to identify the location map refno. {0}Whs FK Refno {1}{2}Section FK Refno {3}{4} Slot FK Refno {5}{6}",
+                    Environment.NewLine,
+                    locMapWhsFKRefno,
+                    Environment.NewLine,
+                    locMapSectFKRefno,
+                    Environment.NewLine,
+                    locMapSlotFKRefno));
+            }
 
+            return locMapRefno;
             //recDetail.SetInt32((int)SysCommon.ActDetailFields.LocationMapRefno, locMapRefno);
         }
 
@@ -668,189 +704,164 @@ namespace dMobile.GroundWork
         /// <param name="drow"></param>
         /// <param name="detail"></param>
         /// <param name="useFNo"></param>
-        protected virtual void SaveDetail(DataRow drow, /*ref SqlCeUpdatableRecord detail,*/ bool useFNo)
+        protected virtual void SaveDetail(DataRow drow, ref SQLiteCommand detail, bool useFNo)
         {
-            //string emptyDate = "01-01-1900";
+            string emptyDate = "01-01-1900";
 
+            detail.Parameters.Add(new SQLiteParameter("@activityDetailStatus", Convert.ToInt32(0)));
             //detail.SetInt32((int)SysCommon.ActDetailFields.Status, 0);
 
-            //if (useFNo)
-            //{
-            //    detail.SetString((int)SysCommon.ActDetailFields.UniqueSchemeID, drow["f05"].ToString());
-            //    detail.SetString((int)SysCommon.ActDetailFields.SchemeID, drow["f06"].ToString());
-            //    detail.SetDecimal((int)SysCommon.ActDetailFields.Quantity, Convert.ToDecimal(drow["f02"]));
-            //    detail.SetDecimal((int)SysCommon.ActDetailFields.BaseQuantity, Convert.ToDecimal(drow["f03"]));
-            //    detail.SetDecimal((int)SysCommon.ActDetailFields.WeightQuantity, Convert.ToDecimal(drow["f04"]));
-            //    detail.SetString((int)SysCommon.ActDetailFields.SingleTradeItemSerialNumber, drow["f10"].ToString());
-            //    detail.SetString((int)SysCommon.ActDetailFields.LogisticUnitBatchLotNumber, drow["f11"].ToString());
-            //    detail.SetString((int)SysCommon.ActDetailFields.LogisticUnitSkidNumber, drow["f18"].ToString());
+            if (useFNo)
+            {
+                detail.Parameters.Add(new SQLiteParameter("@activityDetailUniqueSchemeID", drow["f05"].ToString()));
+                detail.Parameters.Add(new SQLiteParameter("@activityDetailSchemeID", drow["f06"].ToString()));
+                detail.Parameters.Add(new SQLiteParameter("@activityDetailQuantity", Convert.ToDecimal(drow["f02"])));
+                detail.Parameters.Add(new SQLiteParameter("@activityDetailBaseQuantity", Convert.ToDecimal(drow["f03"])));
+                detail.Parameters.Add(new SQLiteParameter("@activityDetailWeightQuantity", Convert.ToDecimal(drow["f04"])));
+                detail.Parameters.Add(new SQLiteParameter("@activityDetailSingleTradeItemSerialNumber", drow["f10"].ToString()));
+                detail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitBatchLotNumber", drow["f11"].ToString()));
+                detail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitSkidNumber", drow["f18"].ToString()));
 
-            //    if (string.IsNullOrEmpty(drow["f13"].ToString()))
-            //    {
-            //        detail.SetDateTime(
-            //            (int)SysCommon.ActDetailFields.LogisticUnitBestBeforeSellByDate,
-            //            DateTime.Parse(emptyDate));
-            //    }
-            //    else
-            //    {
-            //        detail.SetDateTime(
-            //          (int)SysCommon.ActDetailFields.LogisticUnitBestBeforeSellByDate,
-            //          Convert.ToDateTime(drow["f13"]));
-            //    }
+                //detail.SetString((int)SysCommon.ActDetailFields.UniqueSchemeID, drow["f05"].ToString());
+                //detail.SetString((int)SysCommon.ActDetailFields.SchemeID, drow["f06"].ToString());
+                //detail.SetDecimal((int)SysCommon.ActDetailFields.Quantity, Convert.ToDecimal(drow["f02"]));
+                //detail.SetDecimal((int)SysCommon.ActDetailFields.BaseQuantity, Convert.ToDecimal(drow["f03"]));
+                //detail.SetDecimal((int)SysCommon.ActDetailFields.WeightQuantity, Convert.ToDecimal(drow["f04"]));
+                //detail.SetString((int)SysCommon.ActDetailFields.SingleTradeItemSerialNumber, drow["f10"].ToString());
+                //detail.SetString((int)SysCommon.ActDetailFields.LogisticUnitBatchLotNumber, drow["f11"].ToString());
+                //detail.SetString((int)SysCommon.ActDetailFields.LogisticUnitSkidNumber, drow["f18"].ToString());
 
-            //    if (string.IsNullOrEmpty(drow["f14"].ToString()))
-            //    {
-            //        detail.SetDateTime(
-            //            (int)SysCommon.ActDetailFields.LogisticUnitExpiryUseByDate,
-            //            DateTime.Parse(emptyDate));
-            //    }
-            //    else
-            //    {
-            //        detail.SetDateTime(
-            //            (int)SysCommon.ActDetailFields.LogisticUnitExpiryUseByDate,
-            //            Convert.ToDateTime(drow["f14"]));
-            //    }
+                if (string.IsNullOrEmpty(drow["f13"].ToString()))
+                {
+                    detail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitBestBeforeSellByDate", DateTime.Parse(emptyDate)));
+                    //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitBestBeforeSellByDate, DateTime.Parse(emptyDate));
+                }
+                else
+                {
+                    detail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitBestBeforeSellByDate", Convert.ToDateTime(drow["f13"])));
+                    //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitBestBeforeSellByDate, Convert.ToDateTime(drow["f13"]));
+                }
 
-            //    if (string.IsNullOrEmpty(drow["f12"].ToString()))
-            //    {
-            //        detail.SetDateTime(
-            //            (int)SysCommon.ActDetailFields.LogisticUnitProductionDate,
-            //            DateTime.Parse(emptyDate));
-            //    }
-            //    else
-            //    {
-            //        detail.SetDateTime(
-            //            (int)SysCommon.ActDetailFields.LogisticUnitProductionDate,
-            //            Convert.ToDateTime(drow["f12"]));
-            //    }
+                if (string.IsNullOrEmpty(drow["f14"].ToString()))
+                {
+                    detail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitExpiryUseByDate", DateTime.Parse(emptyDate)));
+                    //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitExpiryUseByDate, DateTime.Parse(emptyDate));
+                }
+                else
+                {
+                    detail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitExpiryUseByDate", Convert.ToDateTime(drow["f14"])));
+                    //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitExpiryUseByDate, Convert.ToDateTime(drow["f14"]));
+                }
 
-            //    if (string.IsNullOrEmpty(drow["f15"].ToString()))
-            //    {
-            //        detail.SetDateTime(
-            //            (int)SysCommon.ActDetailFields.LogisticUnitDueDate,
-            //            DateTime.Parse(emptyDate));
-            //    }
-            //    else
-            //    {
-            //        detail.SetDateTime(
-            //            (int)SysCommon.ActDetailFields.LogisticUnitDueDate,
-            //            Convert.ToDateTime(drow["f15"]));
-            //    }
+                if (string.IsNullOrEmpty(drow["f12"].ToString()))
+                {
+                    detail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitProductionDate", DateTime.Parse(emptyDate)));
+                    //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitProductionDate, DateTime.Parse(emptyDate));
+                }
+                else
+                {
+                    detail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitProductionDate", Convert.ToDateTime(drow["f12"])));
+                    //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitProductionDate, Convert.ToDateTime(drow["f12"]));
+                }
 
-            //    if (string.IsNullOrEmpty(drow["f16"].ToString()))
-            //    {
-            //        detail.SetDateTime(
-            //            (int)SysCommon.ActDetailFields.LogisticUnitPackagingDate,
-            //            DateTime.Parse(emptyDate));
-            //    }
-            //    else
-            //    {
-            //        detail.SetDateTime(
-            //            (int)SysCommon.ActDetailFields.LogisticUnitPackagingDate,
-            //            Convert.ToDateTime(drow["f16"]));
-            //    }
-            //}
-            //else
-            //{
-            //    detail.SetInt32((int)SysCommon.ActDetailFields.Status, 0);
+                if (string.IsNullOrEmpty(drow["f15"].ToString()))
+                {
+                    detail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitDueDate", DateTime.Parse(emptyDate)));
+                    //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitDueDate, DateTime.Parse(emptyDate));
+                }
+                else
+                {
+                    detail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitDueDate", Convert.ToDateTime(drow["f15"])));
+                    //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitDueDate, Convert.ToDateTime(drow["f15"]));
+                }
 
-            //    detail.SetString(
-            //        (int)SysCommon.ActDetailFields.UniqueSchemeID,
-            //        drow["ActivityDetailUniqueSchemeID"].ToString());
+                if (string.IsNullOrEmpty(drow["f16"].ToString()))
+                {
+                    detail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitPackagingDate", DateTime.Parse(emptyDate)));
+                    //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitPackagingDate, DateTime.Parse(emptyDate));
+                }
+                else
+                {
+                    detail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitPackagingDate", Convert.ToDateTime(drow["f16"])));
+                    //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitPackagingDate, Convert.ToDateTime(drow["f16"]));
+                }
+            }
+            else
+            {
+                detail.Parameters.Add(new SQLiteParameter("@activityDetailUniqueSchemeID", drow["ActivityDetailUniqueSchemeID"].ToString()));
+                detail.Parameters.Add(new SQLiteParameter("@activityDetailSchemeID", drow["ActivityDetailSchemeID"].ToString()));
+                detail.Parameters.Add(new SQLiteParameter("@activityDetailQuantity", Convert.ToDecimal(drow["ActivityDetailQuantity"])));
+                detail.Parameters.Add(new SQLiteParameter("@activityDetailBaseQuantity", Convert.ToDecimal(drow["ActivityDetailBaseQuantity"])));
+                detail.Parameters.Add(new SQLiteParameter("@activityDetailWeightQuantity", Convert.ToDecimal(drow["ActivityDetailWeightQuantity"])));
+                detail.Parameters.Add(new SQLiteParameter("@activityDetailSingleTradeItemSerialNumber", drow["ActivityDetailSingleTradeItemSerialNumber"].ToString()));
+                detail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitBatchLotNumber", drow["ActivityDetailLogisticUnitBatchLotNumber"].ToString()));
+                detail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitSkidNumber", drow["ActivityDetailLogisticUnitSkidCode"].ToString()));
 
-            //    detail.SetString(
-            //        (int)SysCommon.ActDetailFields.SchemeID,
-            //        drow["ActivityDetailSchemeID"].ToString());
 
-            //    detail.SetDecimal(
-            //        (int)SysCommon.ActDetailFields.Quantity,
-            //        Convert.ToDecimal(drow["ActivityDetailQuantity"]));
+                //detail.SetString((int)SysCommon.ActDetailFields.UniqueSchemeID, drow["ActivityDetailUniqueSchemeID"].ToString());
+                //detail.SetString((int)SysCommon.ActDetailFields.SchemeID, drow["ActivityDetailSchemeID"].ToString());
+                //detail.SetDecimal((int)SysCommon.ActDetailFields.Quantity, Convert.ToDecimal(drow["ActivityDetailQuantity"]));
+                //detail.SetDecimal((int)SysCommon.ActDetailFields.BaseQuantity, Convert.ToDecimal(drow["ActivityDetailBaseQuantity"]));
+                //detail.SetDecimal((int)SysCommon.ActDetailFields.WeightQuantity, Convert.ToDecimal(drow["ActivityDetailWeightQuantity"]));
+                //detail.SetString((int)SysCommon.ActDetailFields.SingleTradeItemSerialNumber, drow["ActivityDetailSingleTradeItemSerialNumber"].ToString());
+                //detail.SetString((int)SysCommon.ActDetailFields.LogisticUnitBatchLotNumber, drow["ActivityDetailLogisticUnitBatchLotNumber"].ToString());
+                //detail.SetString((int)SysCommon.ActDetailFields.LogisticUnitSkidNumber, drow["ActivityDetailLogisticUnitSkidCode"].ToString());
 
-            //    detail.SetDecimal(
-            //        (int)SysCommon.ActDetailFields.BaseQuantity,
-            //        Convert.ToDecimal(drow["ActivityDetailBaseQuantity"]));
+                if (string.IsNullOrEmpty(drow["ActivityDetailLogisticUnitBestBeforeSellByDate"].ToString()))
+                {
+                    detail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitBestBeforeSellByDate", DateTime.Parse(emptyDate)));
+                    //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitBestBeforeSellByDate, DateTime.Parse(emptyDate));
+                }
+                else
+                {
+                    detail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitBestBeforeSellByDate", Convert.ToDateTime(drow["ActivityDetailLogisticUnitBestBeforeSellByDate"])));
+                    //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitBestBeforeSellByDate, Convert.ToDateTime(drow["ActivityDetailLogisticUnitBestBeforeSellByDate"]));
+                }
 
-            //    detail.SetDecimal(
-            //        (int)SysCommon.ActDetailFields.WeightQuantity,
-            //        Convert.ToDecimal(drow["ActivityDetailWeightQuantity"]));
+                if (string.IsNullOrEmpty(drow["ActivityDetailLogisticUnitExpiryUseByDate"].ToString()))
+                {
+                    detail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitExpiryUseByDate", DateTime.Parse(emptyDate)));
+                    //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitExpiryUseByDate, DateTime.Parse(emptyDate));
+                }
+                else
+                {
+                    detail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitExpiryUseByDate", Convert.ToDateTime(drow["ActivityDetailLogisticUnitExpiryUseByDate"])));
+                    //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitExpiryUseByDate, Convert.ToDateTime(drow["ActivityDetailLogisticUnitExpiryUseByDate"]));
+                }
 
-            //    detail.SetString(
-            //        (int)SysCommon.ActDetailFields.SingleTradeItemSerialNumber,
-            //        drow["ActivityDetailSingleTradeItemSerialNumber"].ToString());
+                if (string.IsNullOrEmpty(drow["ActivityDetailLogisticUnitProductionDate"].ToString()))
+                {
+                    detail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitProductionDate", DateTime.Parse(emptyDate)));
+                    //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitProductionDate, DateTime.Parse(emptyDate));
+                }
+                else
+                {
+                    detail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitProductionDate", Convert.ToDateTime(drow["ActivityDetailLogisticUnitProductionDate"])));
+                    //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitProductionDate, Convert.ToDateTime(drow["ActivityDetailLogisticUnitProductionDate"]));
+                }
 
-            //    detail.SetString(
-            //        (int)SysCommon.ActDetailFields.LogisticUnitBatchLotNumber,
-            //        drow["ActivityDetailLogisticUnitBatchLotNumber"].ToString());
+                if (string.IsNullOrEmpty(drow["ActivityDetailLogisticUnitDueDate"].ToString()))
+                {
+                    detail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitDueDate", DateTime.Parse(emptyDate)));
+                    //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitDueDate, DateTime.Parse(emptyDate));
+                }
+                else
+                {
+                    detail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitDueDate", Convert.ToDateTime(drow["ActivityDetailLogisticUnitDueDate"])));
+                    //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitDueDate, Convert.ToDateTime(drow["ActivityDetailLogisticUnitDueDate"]));
+                }
 
-            //    detail.SetString(
-            //        (int)SysCommon.ActDetailFields.LogisticUnitSkidNumber,
-            //        drow["ActivityDetailLogisticUnitSkidCode"].ToString());
-
-            //    if (string.IsNullOrEmpty(drow["ActivityDetailLogisticUnitBestBeforeSellByDate"].ToString()))
-            //    {
-            //        detail.SetDateTime(
-            //            (int)SysCommon.ActDetailFields.LogisticUnitBestBeforeSellByDate,
-            //            DateTime.Parse(emptyDate));
-            //    }
-            //    else
-            //    {
-            //        detail.SetDateTime(
-            //          (int)SysCommon.ActDetailFields.LogisticUnitBestBeforeSellByDate,
-            //          Convert.ToDateTime(drow["ActivityDetailLogisticUnitBestBeforeSellByDate"]));
-            //    }
-
-            //    if (string.IsNullOrEmpty(drow["ActivityDetailLogisticUnitExpiryUseByDate"].ToString()))
-            //    {
-            //        detail.SetDateTime(
-            //            (int)SysCommon.ActDetailFields.LogisticUnitExpiryUseByDate,
-            //            DateTime.Parse(emptyDate));
-            //    }
-            //    else
-            //    {
-            //        detail.SetDateTime(
-            //            (int)SysCommon.ActDetailFields.LogisticUnitExpiryUseByDate,
-            //            Convert.ToDateTime(drow["ActivityDetailLogisticUnitExpiryUseByDate"]));
-            //    }
-
-            //    if (string.IsNullOrEmpty(drow["ActivityDetailLogisticUnitProductionDate"].ToString()))
-            //    {
-            //        detail.SetDateTime(
-            //            (int)SysCommon.ActDetailFields.LogisticUnitProductionDate,
-            //            DateTime.Parse(emptyDate));
-            //    }
-            //    else
-            //    {
-            //        detail.SetDateTime(
-            //            (int)SysCommon.ActDetailFields.LogisticUnitProductionDate,
-            //            Convert.ToDateTime(drow["ActivityDetailLogisticUnitProductionDate"]));
-            //    }
-
-            //    if (string.IsNullOrEmpty(drow["ActivityDetailLogisticUnitDueDate"].ToString()))
-            //    {
-            //        detail.SetDateTime(
-            //            (int)SysCommon.ActDetailFields.LogisticUnitDueDate,
-            //            DateTime.Parse(emptyDate));
-            //    }
-            //    else
-            //    {
-            //        detail.SetDateTime(
-            //            (int)SysCommon.ActDetailFields.LogisticUnitDueDate,
-            //            Convert.ToDateTime(drow["ActivityDetailLogisticUnitDueDate"]));
-            //    }
-
-            //    if (string.IsNullOrEmpty(drow["ActivityDetailLogisticUnitPackagingDate"].ToString()))
-            //    {
-            //        detail.SetDateTime(
-            //            (int)SysCommon.ActDetailFields.LogisticUnitPackagingDate,
-            //            DateTime.Parse(emptyDate));
-            //    }
-            //    else
-            //    {
-            //        detail.SetDateTime(
-            //            (int)SysCommon.ActDetailFields.LogisticUnitPackagingDate,
-            //            Convert.ToDateTime(drow["ActivityDetailLogisticUnitPackagingDate"]));
-            //    }
-            //}
+                if (string.IsNullOrEmpty(drow["ActivityDetailLogisticUnitPackagingDate"].ToString()))
+                {
+                    detail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitPackagingDate", DateTime.Parse(emptyDate)));
+                    //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitPackagingDate, DateTime.Parse(emptyDate));
+                }
+                else
+                {
+                    detail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitPackagingDate", Convert.ToDateTime(drow["ActivityDetailLogisticUnitPackagingDate"])));
+                    //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitPackagingDate, Convert.ToDateTime(drow["ActivityDetailLogisticUnitPackagingDate"]));
+                }
+            }
         }
 
         /// <summary>
@@ -911,31 +922,31 @@ namespace dMobile.GroundWork
         /// <returns></returns>
         protected virtual int GetProductUnitRefnoFromDataRow(DataRow drow, ref string errMsg, SQLiteDataReader drProduct, SQLiteDataReader drUnit, SQLiteDataReader drProdUnit, bool useFNo)
         {
-            //int prodRefno = 0;
-            //int prodFKRefno = 0;
+            int prodRefno = 0;
+            int prodFKRefno = 0;
 
-            //if (useFNo)
-            //{
-            //    prodFKRefno = Convert.ToInt32(drow["f03"]);
-            //}
-            //else
-            //{
-            //    prodFKRefno = Convert.ToInt32(drow["ProductFKRefno"]);
-            //}
+            if (useFNo)
+            {
+                prodFKRefno = Convert.ToInt32(drow["f03"]);
+            }
+            else
+            {
+                prodFKRefno = Convert.ToInt32(drow["ProductFKRefno"]);
+            }
 
-            //errMsg += Environment.NewLine + "Prod fk refno " + prodFKRefno;
+            errMsg += Environment.NewLine + "Prod fk refno " + prodFKRefno;
 
             //if (drProduct.Seek(DbSeekOptions.FirstEqual, new object[] { prodFKRefno }))
             //{
-            //    if (drProduct.Read())
-            //    {
-            //        prodRefno = drProduct.GetInt32((int)SysCommon.ProductFields.Refno);
-            //    }
-            //    else
-            //    {
-            //        // TODO: Resource strings
-            //        throw new Exception("drProduct.Read() failed." + Environment.NewLine + errMsg);
-            //    }
+                if (drProduct.Read())
+                {
+                    prodRefno = drProduct.GetInt32((int)SysCommon.ProductFields.Refno);
+                }
+                else
+                {
+                    // TODO: Resource strings
+                    throw new Exception("drProduct.Read() failed." + Environment.NewLine + errMsg);
+                }
             //}
             //else
             //{
@@ -943,31 +954,31 @@ namespace dMobile.GroundWork
             //    throw new Exception("Unable to locate the product refno from the product fk refno in tProduct." + Environment.NewLine + errMsg);
             //}
 
-            //string unitCode = string.Empty;
-            //int unitRefno = 0;
+            string unitCode = string.Empty;
+            int unitRefno = 0;
 
-            //if (useFNo)
-            //{
-            //    unitCode = drow["f05"].ToString();
-            //}
-            //else
-            //{
-            //    unitCode = drow["UnitCode"].ToString();
-            //}
+            if (useFNo)
+            {
+                unitCode = drow["f05"].ToString();
+            }
+            else
+            {
+                unitCode = drow["UnitCode"].ToString();
+            }
 
-            //errMsg += Environment.NewLine + "Unit \'" + unitCode + "\'";
+            errMsg += Environment.NewLine + "Unit \'" + unitCode + "\'";
 
             //if (drUnit.Seek(DbSeekOptions.FirstEqual, new object[] { unitCode }))
             //{
-            //    if (drUnit.Read())
-            //    {
-            //        unitRefno = drUnit.GetInt32((int)SysCommon.UnitFields.UnitRefno);
-            //    }
-            //    else
-            //    {
-            //        // TODO: Resource strings
-            //        throw new Exception("drUnit.Read() failed." + Environment.NewLine + errMsg);
-            //    }
+                if (drUnit.Read())
+                {
+                    unitRefno = drUnit.GetInt32((int)SysCommon.UnitFields.UnitRefno);
+                }
+                else
+                {
+                    // TODO: Resource strings
+                    throw new Exception("drUnit.Read() failed." + Environment.NewLine + errMsg);
+                }
             //}
             //else
             //{
@@ -976,30 +987,30 @@ namespace dMobile.GroundWork
             //}
 
             int prodUnitRefno = 0;
-            //bool prodUnitIsBC = false;
+            bool prodUnitIsBC = false;
 
-            //if (useFNo)
-            //{
-            //    prodUnitIsBC = Convert.ToBoolean(drow["f04"]);
-            //}
-            //else
-            //{
-            //    prodUnitIsBC = Convert.ToBoolean(drow["ProductUnitIsBC"]);
-            //}
+            if (useFNo)
+            {
+                prodUnitIsBC = Convert.ToBoolean(drow["f04"]);
+            }
+            else
+            {
+                prodUnitIsBC = Convert.ToBoolean(drow["ProductUnitIsBC"]);
+            }
 
-            //errMsg += Environment.NewLine + "Is bc " + prodUnitIsBC;
+            errMsg += Environment.NewLine + "Is bc " + prodUnitIsBC;
 
             //if (drProdUnit.Seek(DbSeekOptions.FirstEqual, new object[] { prodRefno, unitRefno, prodUnitIsBC }))
             //{
-            //    if (drProdUnit.Read())
-            //    {
-            //        prodUnitRefno = drProdUnit.GetInt32((int)SysCommon.ProdUnitFields.Refno);
-            //    }
-            //    else
-            //    {
-            //        // TODO: Resource strings
-            //        throw new Exception("drProdUnit.Read() failed." + Environment.NewLine + errMsg);
-            //    }
+                if (drProdUnit.Read())
+                {
+                    prodUnitRefno = drProdUnit.GetInt32((int)SysCommon.ProdUnitFields.Refno);
+                }
+                else
+                {
+                    // TODO: Resource strings
+                    throw new Exception("drProdUnit.Read() failed." + Environment.NewLine + errMsg);
+                }
             //}
             //else
             //{

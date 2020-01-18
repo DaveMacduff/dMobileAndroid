@@ -29,19 +29,16 @@ namespace dMobile.GroundWork
         {
             string reqData = string.Empty;
 
-            // TODO: Uncomment CG calls
             //GC.Collect();
             //GC.WaitForPendingFinalizers();
 
             try
             {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SeedingRoutes), true);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding routes.", true);
-#endif
 
                 reqData = this.Send("routes");
+
                 if (0 < reqData.Length)
                 {
                     if (reqData.Contains("<message>ERROR</message>"))
@@ -54,25 +51,16 @@ namespace dMobile.GroundWork
                     this.Save(reqData);
                 }
 
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SeedingRoutesComplete), true);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding routes complete.", true);
-#endif
             }
             catch (Exception ex)
             {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SeedingRoutesFailed), true);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding routes failed.", true);
-#endif
 
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.SeedingRoutesFailed), ex);
-#else
+                // TODO: Resource strings
                 throw new Exception("Seeding routes failed.", ex);
-#endif
             }
         }
 
@@ -153,24 +141,14 @@ namespace dMobile.GroundWork
 
                     rowsAffected = Convert.ToInt32(cmndStatus.ExecuteScalar());
 
-                    this.DataAccessStatusOutHandler(
-                        this,
-                        EventArgs.Empty,
-#if MULTILANGUAGE
-              string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.Routes), rowsAffected),
-#else
-              string.Format("{0} routes.", rowsAffected),
-#endif
-              true);
+                    // TODO: Resource strings
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} routes.", rowsAffected), true);
                 }
             }
             catch (SQLiteException ex)
             {
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredRoutesStatusFailed), ex);
-#else
+                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Routes status failed.", ex);
-#endif
             }
 
             return rowsAffected;
@@ -183,11 +161,8 @@ namespace dMobile.GroundWork
         {
             try
             {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingRoutes), true);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging routes.", true);
-#endif
 
                 using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
                 {
@@ -196,27 +171,17 @@ namespace dMobile.GroundWork
                     cmndPurge.ExecuteNonQuery();
                 }
 
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingRoutesComplete), true);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging routes complete.", true);
-#endif
             }
             catch (SQLiteException ex)
             {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), true);
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingRoutesFailed), true);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging routes failed.", true);
-#endif
 
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredPurgingRoutesFailed), ex);
-#else
+                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Purging routes failed.", ex);
-#endif
             }
         }
 
@@ -229,36 +194,32 @@ namespace dMobile.GroundWork
             SQLiteConnection conn = DatabaseConnection.GetInstance().SQLConn;
             string errMsg = string.Empty;
 
-            try
+            using (SQLiteCommand cmndRoute = conn.CreateCommand())
+            using (SQLiteCommand drRouteUpdate = conn.CreateCommand())
+            using (SQLiteTransaction transaction = conn.BeginTransaction())
             {
-                using (DataSet ds = new DataSet())
+                try
                 {
-                    // TODO: Resource Strings
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
-
-                    ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
-
-                    // TODO: Resource Strings
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving routes.", false);
-
-                    if (ds.Tables.Count != 0)
+                    using (DataSet ds = new DataSet())
                     {
-                        int progMax = Convert.ToInt32(ds.Tables["tRoute"].Rows.Count);
+                        // TODO: Resource Strings
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
+                        ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
 
-                        using (SQLiteCommand cmndRoute = conn.CreateCommand())
-                        using (SQLiteTransaction transaction = conn.BeginTransaction())
+                        // TODO: Resource Strings
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving routes.", false);
+
+                        if (ds.Tables.Count != 0)
                         {
-                            //using (SqlCeResultSet rs = cmndRoute.ExecuteResultSet(ResultSetOptions.Updatable))
-                            //{
-                            //SqlCeUpdatableRecord rec = rs.CreateRecord();
                             int progValue = 0;
                             bool isRouteFound = false;
                             string routeDesc = string.Empty;
                             string routeDayOfWeek = string.Empty;
                             string routeCode = string.Empty;
+                            int progMax = Convert.ToInt32(ds.Tables["tRoute"].Rows.Count);
 
+                            this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
                             this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
 
                             foreach (DataRow drow in ds.Tables["tRoute"].Rows)
@@ -274,7 +235,6 @@ namespace dMobile.GroundWork
 
                                 cmndRoute.CommandText = "SELECT RouteCode FROM tRoute WHERE RouteCode = @routeCode";
                                 cmndRoute.CommandType = CommandType.Text;
-                                //cmndRoute.IndexName = "UQ_RouteOnRouteCode";
                                 cmndRoute.Parameters.Add(new SQLiteParameter("@routeCode", routeCode));
 
                                 using (SQLiteDataReader drRoute = cmndRoute.ExecuteReader())
@@ -286,63 +246,57 @@ namespace dMobile.GroundWork
                                         // TODO: Uncomment SysEnv.RefreshOpt.RefreshDataChangesOnly
                                         //if (SysEnv.RefreshOpt.RefreshDataChangesOnly)
                                         //{
-                                        using (SQLiteCommand drRouteUpdate = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                                        {
-                                            drRouteUpdate.CommandType = CommandType.Text;
-                                            drRouteUpdate.CommandText = "UPDATE tRoute "
-                                                + "SET RouteDescription = @routeDesc, "
-                                                + "RouteDayOfWeek = @routeDayOfWeek "
-                                                + "WHERE RouteCode = @routeCode";
-                                            drRouteUpdate.Parameters.Add(new SQLiteParameter("@routeDesc", routeDesc));
-                                            drRouteUpdate.Parameters.Add(new SQLiteParameter("@routeDayOfWeek", routeDayOfWeek));
-                                            drRouteUpdate.Parameters.Add(new SQLiteParameter("@routeCode", routeCode));
+                                        drRouteUpdate.CommandText = "UPDATE tRoute SET RouteDescription = @routeDesc, RouteDayOfWeek = @routeDayOfWeek WHERE RouteCode = @routeCode";
+                                        drRouteUpdate.CommandType = CommandType.Text;
+                                        drRouteUpdate.Parameters.Add(new SQLiteParameter("@routeDesc", routeDesc));
+                                        drRouteUpdate.Parameters.Add(new SQLiteParameter("@routeDayOfWeek", routeDayOfWeek));
+                                        drRouteUpdate.Parameters.Add(new SQLiteParameter("@routeCode", routeCode));
 
-                                            drRouteUpdate.ExecuteNonQuery();
-                                        }
+                                        drRouteUpdate.ExecuteNonQuery();
                                         //}
                                     }
 
                                     drRoute.Close();
                                 }
+
+                                if (!isRouteFound)
+                                {
+                                    cmndRoute.CommandText = "INSERT INTO tRoute (RouteCode, RouteDescription, RouteDayOfWeek) VALUES (@routeCode, @routeDescription, @routeDayOfWeek)";
+                                    cmndRoute.CommandType = CommandType.Text;
+                                    cmndRoute.Parameters.Add(new SQLiteParameter("@routeCode", routeCode));
+                                    cmndRoute.Parameters.Add(new SQLiteParameter("@routeDescription", routeDesc));
+                                    cmndRoute.Parameters.Add(new SQLiteParameter("@routeDayOfWeek", routeDayOfWeek));
+
+                                    cmndRoute.ExecuteNonQuery();
+                                }
+
+                                progValue++;
+                                if (progValue % 100 == 0)
+                                {
+                                    this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
+                                }
                             }
 
-                            if (!isRouteFound)
-                            {
-                                cmndRoute.CommandText = "INSERT INTO tRoute (RouteCode, RouteDescription, RouteDayOfWeek) VALUES (@routeCode, @routeDescription, @routeDayOfWeek)";
-                                cmndRoute.CommandType = CommandType.Text;
-                                //cmndRoute.IndexName = "UQ_RouteOnRouteCode";
-                                cmndRoute.Parameters.Add(new SQLiteParameter("@routeCode", routeCode));
-                                cmndRoute.Parameters.Add(new SQLiteParameter("@routeDescription", routeDesc));
-                                cmndRoute.Parameters.Add(new SQLiteParameter("@routeDayOfWeek", routeDayOfWeek));
-
-                                cmndRoute.ExecuteNonQuery();
-                            }
-
-                            progValue++;
-                            if (progValue % 100 == 0)
-                            {
-                                this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
-                            }
-                            //}
 
                             this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
-
-                            transaction.Commit();
                         }
+
+                        transaction.Commit();
+
+                        // TODO: Resource Strings
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving routes complete.", false);
                     }
-                    //}
+                }
+                catch (SQLiteException ex)
+                {
+                    transaction.Rollback();
 
                     // TODO: Resource Strings
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving routes complete.", false);
-                }
-            }
-            catch (SQLiteException ex)
-            {
-                // TODO: Resource Strings
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving routes failed.", false);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving routes failed.", false);
 
-                throw new Exception("Database exception occurred. Saving routes failed." + Environment.NewLine + errMsg, ex);
+                    throw new Exception("Database exception occurred. Saving routes failed." + Environment.NewLine + errMsg, ex);
+                }
             }
         }
 

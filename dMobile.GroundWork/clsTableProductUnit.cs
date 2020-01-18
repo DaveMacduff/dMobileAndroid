@@ -47,7 +47,6 @@ namespace dMobile.GroundWork
 
                         while (drFamily.Read())
                         {
-                            // TODO: Uncomment GC calls
                             //GC.Collect();
                             //GC.WaitForPendingFinalizers();
 
@@ -57,6 +56,7 @@ namespace dMobile.GroundWork
                             this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("For family {0}", family), true);
 
                             reqData = this.SendRequest(family);
+
                             if (0 < reqData.Length)
                             {
                                 if (reqData.Contains("<message>ERROR</message>"))
@@ -104,11 +104,8 @@ namespace dMobile.GroundWork
         {
             try
             {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingProductUom), true);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product uom.", true);
-#endif
 
                 using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
                 {
@@ -117,27 +114,17 @@ namespace dMobile.GroundWork
                     cmndPurge.ExecuteNonQuery();
                 }
 
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingProductUomComplete), true);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product uom complete.", true);
-#endif
             }
             catch (SQLiteException ex)
             {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), true);
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingProductUomFailed), true);
-#else
+                // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product uom failed.", true);
-#endif
 
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredPurgingProductUomFailed), ex);
-#else
+                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Purging product uom failed.", ex);
-#endif
             }
         }
 
@@ -233,24 +220,14 @@ namespace dMobile.GroundWork
 
                     rowsAffected = Convert.ToInt32(cmndStatus.ExecuteScalar());
 
-                    this.DataAccessStatusOutHandler(
-                        this,
-                        EventArgs.Empty,
-#if MULTILANGUAGE
-              string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.ProductUnits), rowsAffected),
-#else
- string.Format("{0} product units.", rowsAffected),
-#endif
- true);
+                    // TODO: Resource strings
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} product units.", rowsAffected), true);
                 }
             }
             catch (SQLiteException ex)
             {
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredProductUomStatusFailed), ex);
-#else
+                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Product uom status failed.", ex);
-#endif
             }
 
             return rowsAffected;
@@ -283,7 +260,6 @@ namespace dMobile.GroundWork
             SQLiteConnection conn = DatabaseConnection.GetInstance().SQLConn;
             StringBuilder errMsg = new StringBuilder();
             int recordCount = 0;
-
             Dictionary<string, int> unitLookup = new Dictionary<string, int>();
 
             using (SQLiteCommand cmndProdUnit = conn.CreateCommand())
@@ -292,7 +268,6 @@ namespace dMobile.GroundWork
             using (SQLiteCommand cmndUnit = conn.CreateCommand())
             using (SQLiteTransaction transaction = conn.BeginTransaction())
             {
-
                 try
                 {
                     int startIndex = reqData.IndexOf("<VFPData");
@@ -617,8 +592,9 @@ namespace dMobile.GroundWork
                                     cmndProdUnitUpdate.Parameters.Add(new SQLiteParameter("@unitRefno", unitRefno));
                                     cmndProdUnitUpdate.Parameters.Add(new SQLiteParameter("@isBC", isProdUnitBC));
 
-                                    //cmndProdUnitUpdate.Prepare();
+                                    cmndProdUnitUpdate.ExecuteNonQuery();
 
+                                    //cmndProdUnitUpdate.Prepare();
                                     //baseRefnoParam.Value = baseUnitRefno;
                                     //wtRefnoParam.Value = wtUnitRefno;
                                     //prodWeightParam.Value = prodUnitWeight;
@@ -629,8 +605,6 @@ namespace dMobile.GroundWork
                                     //prodRefnoParam.Value = prodRefno;
                                     //unitRefnoParam.Value = unitRefno;
                                     //brokenCaseParam.Value = isProdUnitBC;
-
-                                    cmndProdUnitUpdate.ExecuteNonQuery();
                                     //}
                                 }
 
@@ -714,10 +688,10 @@ namespace dMobile.GroundWork
                         //}
 
                         transaction.Commit();
-                    }
 
-                    // TODO: Resource Strings
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product uom complete.", false);
+                        // TODO: Resource Strings
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product uom complete.", false);
+                    }
                 }
                 catch (SQLiteException ex)
                 {

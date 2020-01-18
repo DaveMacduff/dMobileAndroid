@@ -33,20 +33,16 @@ namespace dMobile.GroundWork
             //GC.Collect();
             //GC.WaitForPendingFinalizers();
 
-#if MULTILANGUAGE
-      this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.SeedingAdjustmentDetails), true);
-#else
+            // TODO: Resource strings
             this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding adjustment details.", true);
-#endif
 
             if (actItemRefno == 0)
             {
                 using (SQLiteCommand cmndAdjItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
                 {
                     cmndAdjItem.CommandType = CommandType.Text;
-                    cmndAdjItem.CommandText = "SELECT tActivityItem.ActivityItemRefno "
-                        + "FROM tActivityItem "
-                        + "WHERE tActivityItem.ActivityItemSubType = " + (int)SysCommon.ActSubTypes.Adjustment;
+                    cmndAdjItem.CommandText = "SELECT tActivityItem.ActivityItemRefno FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = @activityItemSubType";
+                    cmndAdjItem.Parameters.Add(new SQLiteParameter("@activityItemSubType", Convert.ToInt32(SysCommon.ActSubTypes.Adjustment)));
 
                     using (SQLiteDataReader drAdjItem = cmndAdjItem.ExecuteReader())
                     {
@@ -54,6 +50,7 @@ namespace dMobile.GroundWork
                         {
                             actItemRefno = Convert.ToInt32(drAdjItem["ActivityItemRefno"]);
                             reqData = this.Send(actItemRefno);
+
                             if (0 < reqData.Length)
                             {
                                 if (reqData.Contains("<message>ERROR</message>"))
@@ -74,6 +71,7 @@ namespace dMobile.GroundWork
             else
             {
                 reqData = this.Send(actItemRefno);
+
                 if (0 < reqData.Length)
                 {
                     if (reqData.Contains("<message>ERROR</message>"))
@@ -103,9 +101,8 @@ namespace dMobile.GroundWork
                 using (SQLiteCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
                 {
                     cmndStatus.CommandType = CommandType.Text;
-                    cmndStatus.CommandText = "SELECT COUNT(tActivityDetail.ActivityDetailRefno) "
-                        + "FROM tActivityDetail "
-                        + "WHERE tActivityDetail.ActivityDetailSubType = " + (int)SysCommon.ActSubTypes.Adjustment;
+                    cmndStatus.CommandText = "SELECT COUNT(tActivityDetail.ActivityDetailRefno) FROM tActivityDetail WHERE tActivityDetail.ActivityDetailSubType = @activityDetailSubType";
+                    cmndStatus.Parameters.Add(new SQLiteParameter("@activityDetailSubType", Convert.ToInt32(SysCommon.ActSubTypes.Adjustment)));
 
                     rowsAffected = Convert.ToInt32(cmndStatus.ExecuteScalar());
 
@@ -135,29 +132,30 @@ namespace dMobile.GroundWork
                 using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
                 {
                     cmndPurge.CommandType = CommandType.Text;
+                    cmndPurge.Parameters.Add(new SQLiteParameter("@activityDetailSubType", Convert.ToInt32(SysCommon.ActSubTypes.Adjustment)));
+
                     cmndPurge.CommandText = "DELETE FROM tActivityDetailProductSchemeVariantXRef "
                         + "WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno IN "
                         + "(SELECT tActivityDetail.ActivityDetailRefno "
                         + "FROM tActivityDetail "
-                        + "WHERE tActivityDetail.ActivityDetailSubType = " + (int)SysCommon.ActSubTypes.Adjustment + ")";
+                        + "WHERE tActivityDetail.ActivityDetailSubType = @activityDetailSubType)";
                     cmndPurge.ExecuteNonQuery();
 
                     cmndPurge.CommandText = "DELETE FROM tActivityDetailAdjustment "
                         + "WHERE tActivityDetailAdjustment.ActivityDetailRefno IN "
                         + "(SELECT tActivityDetail.ActivityDetailRefno "
                         + "FROM tActivityDetail "
-                        + "WHERE tActivityDetail.ActivityDetailSubType = " + (int)SysCommon.ActSubTypes.Adjustment + ")";
+                        + "WHERE tActivityDetail.ActivityDetailSubType = @activityDetailSubType)";
                     cmndPurge.ExecuteNonQuery();
 
                     cmndPurge.CommandText = "DELETE FROM tActivityDetailExtra "
                         + "WHERE tActivityDetailExtra.ActivityDetailRefno IN "
                         + "(SELECT tActivityDetail.ActivityDetailRefno "
                         + "FROM tActivityDetail "
-                        + "WHERE tActivityDetail.ActivityDetailSubType = " + (int)SysCommon.ActSubTypes.Adjustment + ")";
+                        + "WHERE tActivityDetail.ActivityDetailSubType = @activityDetailSubType)";
                     cmndPurge.ExecuteNonQuery();
 
-                    cmndPurge.CommandText = "DELETE FROM tActivityDetail "
-                        + "WHERE tActivityDetail.ActivityDetailSubType = " + (int)SysCommon.ActSubTypes.Adjustment;
+                    cmndPurge.CommandText = "DELETE FROM tActivityDetail WHERE tActivityDetail.ActivityDetailSubType = @activityDetailSubType";
                     cmndPurge.ExecuteNonQuery();
                 }
 
@@ -840,55 +838,44 @@ namespace dMobile.GroundWork
                                 this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
                             }
                         }
-                    }
+                        //}
 
-                    //drSchemeVar.Close();
-                    //}
-                    //}
+                        //drSchemeVar.Close();
+                        //}
+                        //}
 
-                    //drLocMapWhs.Close();
-                    //}
-                    //}
+                        //drLocMapWhs.Close();
+                        //}
+                        //}
 
-                    //drLocMapSection.Close();
-                    //}
-                    //}
+                        //drLocMapSection.Close();
+                        //}
+                        //}
 
-                    //drLocMapSlot.Close();
-                    //    }
-                    //}
+                        //drLocMapSlot.Close();
+                        //    }
+                        //}
 
-                    //drItemAdj.Close();
-                    //                                }
-                    //                            }
-                    //                        }
-                    //                    }
-                    //                }
-                    //            }
-                    //        }
-                    //    }
-                    //}
+                        //drItemAdj.Close();
+                        //                                }
+                        //                            }
+                        //                        }
+                        //                    }
+                        //                }
+                        //            }
+                        //        }
+                        //    }
+                        //}
 
                         transaction.Commit();
+
                         // TODO: Resource strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving adjustment details complete.", false);
-                    //}
+                    }
                 }
                 catch (SQLiteException ex)
                 {
                     transaction.Rollback();
-                    transaction.Dispose();
-
-                    cmndDetailAdj.Dispose();
-                    cmndDetail.Dispose();
-                    cmndExtra.Dispose();
-                    cmndItemAdj.Dispose();
-                    cmndLocMapSection.Dispose();
-                    cmndLocMapWhs.Dispose();
-                    cmndSchemeVar.Dispose();
-                    cmndDetailSchemeVarXRef.Dispose();
-                    cmndID.Dispose();
-                    cmndLocMapSlot.Dispose();
 
                     // TODO: Resource strings
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);

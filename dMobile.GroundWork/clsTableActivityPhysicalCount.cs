@@ -37,8 +37,8 @@ namespace dMobile.GroundWork
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding physical counts.", true);
 
-                // TODO: Resource strings
                 reqData = this.Send("physical counts");
+
                 if (0 < reqData.Length)
                 {
                     if (reqData.Contains("<message>ERROR</message>"))
@@ -76,12 +76,10 @@ namespace dMobile.GroundWork
             {
                 using (SQLiteCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
                 {
-                    cmndStatus.CommandText = "SELECT COUNT(tActivity.ActivityRefno) "
-                        + "FROM tActivity "
-                        + "WHERE tActivity.ActivitySubType = "
-                        + (int)SysCommon.ActSubTypes.PhysicalCounts;
-
+                    cmndStatus.CommandText = "SELECT COUNT(tActivity.ActivityRefno) FROM tActivity WHERE tActivity.ActivitySubType = @activitySubType";
                     cmndStatus.CommandType = CommandType.Text;
+                    cmndStatus.Parameters.Add(new SQLiteParameter("@activitySubType", Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts)));
+
                     rowsAffected = Convert.ToInt32(cmndStatus.ExecuteScalar());
 
                     // TODO: Resource strings
@@ -109,14 +107,13 @@ namespace dMobile.GroundWork
 
                 using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
                 {
-                    cmndPurge.CommandText = "DELETE FROM tActivityCount "
-                        + "WHERE tActivityCount.ActivitySubType = " + (int)SysCommon.ActSubTypes.PhysicalCounts;
                     cmndPurge.CommandType = CommandType.Text;
+                    cmndPurge.Parameters.Add(new SQLiteParameter("@activitySubType", Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts)));
+
+                    cmndPurge.CommandText = "DELETE FROM tActivityCount WHERE tActivityCount.ActivitySubType = @activitySubType";
                     cmndPurge.ExecuteNonQuery();
 
-                    cmndPurge.CommandText = "DELETE FROM tActivity "
-                        + "WHERE tActivity.ActivitySubType = " + (int)SysCommon.ActSubTypes.PhysicalCounts;
-                    cmndPurge.CommandType = CommandType.Text;
+                    cmndPurge.CommandText = "DELETE FROM tActivity WHERE tActivity.ActivitySubType = @activitySubType";
                     cmndPurge.ExecuteNonQuery();
                 }
 
@@ -346,11 +343,11 @@ namespace dMobile.GroundWork
                             //}
                             //}
                             //}
-                            transaction.Commit();
-
                         }
                         //}
                         //}
+
+                        transaction.Commit();
 
                         // TODO: Resource strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving physical counts complete.", false);
@@ -359,12 +356,6 @@ namespace dMobile.GroundWork
                 catch (SQLiteException ex)
                 {
                     transaction.Rollback();
-                    transaction.Dispose();
-
-                    cmndCount.Dispose();
-                    cmndAct.Dispose();
-                    cmndID.Dispose();
-                    cmndWhs.Dispose();
 
                     // TODO: Resource strings
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);

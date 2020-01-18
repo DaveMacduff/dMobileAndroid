@@ -3,6 +3,49 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="dMobile.View.App">
     <Application.Resources>
-        <ResourceDictionary Source="../Themes/LightTheme.xaml" />
+        <ResourceDictionary>
+            <!--Entry-->
+            <Style TargetType="Entry">
+                <Setter Property="TextColor" Value="{DynamicResource PrimaryTextColor}"/>
+            </Style>
+
+            <!--Label-->
+            <Style TargetType="Label">
+                <Setter Property="TextColor" Value="{DynamicResource PrimaryTextColor}"/>
+            </Style>
+
+            <!--Page-->
+            <Style TargetType="ContentPage" ApplyToDerivedTypes="True">
+                <Setter Property="BackgroundColor" Value="{DynamicResource PageBackgroundColor}"/>
+            </Style>
+            
+            <!--navigationBar-->
+            <Style TargetType="NavigationPage" ApplyToDerivedTypes="True">
+                <Setter Property="BarBackgroundColor" Value="{DynamicResource NavigationBarColor}"/>
+                <Setter Property="BarTextColor" Value="{DynamicResource NavigationBarTitleColor}"/>
+            </Style>
+
+            <!--Frame-->
+            <Style TargetType="Frame" ApplyToDerivedTypes="True">
+                <Setter Property="BackgroundColor" Value="{DynamicResource SecondaryBackgroundColor}"/>
+                <Setter Property="HasShadow" Value="True"/>
+                <Setter Property="Padding" Value="10"/>
+            </Style>
+
+            <!--Picker-->
+            <Style TargetType="Picker" ApplyToDerivedTypes="True">
+                <Setter Property="TextColor" Value="{DynamicResource PrimaryTextColor}"/>
+                <Setter Property="TitleColor" Value="{DynamicResource SecondaryTextColor}"/>
+            </Style>
+
+            <!--Button-->
+            <Style TargetType="Button" ApplyToDerivedTypes="True">
+                <Setter Property="BorderWidth" Value="1"/>
+                <Setter Property="TextColor" Value="{DynamicResource PrimaryTextColor}"/>
+                <Setter Property="BorderColor" Value="{DynamicResource BorderColor}"/>
+                <Setter Property="BackgroundColor" Value="{DynamicResource PageBackgroundColor}"/>
+            </Style>
+            
+        </ResourceDictionary>
     </Application.Resources>
 </Application>

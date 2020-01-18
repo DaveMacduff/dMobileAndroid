@@ -42,10 +42,9 @@ namespace dMobile.GroundWork
                 {
                     using (SQLiteCommand cmndActivity = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
                     {
+                        cmndActivity.CommandText = "SELECT tActivity.ActivityRefno FROM tActivity WHERE tActivity.ActivitySubType = @activitySubType";
                         cmndActivity.CommandType = CommandType.Text;
-                        cmndActivity.CommandText = "SELECT tActivity.ActivityRefno "
-                            + "FROM tActivity "
-                            + "WHERE tActivity.ActivitySubType = " + (int)SysCommon.ActSubTypes.TicketFinished;
+                        cmndActivity.Parameters.Add(new SQLiteParameter("@activitySubType", Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished)));
 
                         using (SQLiteDataReader drActivity = cmndActivity.ExecuteReader())
                         {
@@ -53,6 +52,7 @@ namespace dMobile.GroundWork
                             {
                                 actRefno = Convert.ToInt32(drActivity["ActivityRefno"]);
                                 reqData = this.Send(actRefno);
+
                                 if (0 < reqData.Length)
                                 {
                                     if (reqData.Contains("<message>ERROR</message>"))
@@ -65,14 +65,13 @@ namespace dMobile.GroundWork
                                     this.Save(reqData, actRefno);
                                 }
                             }
-
-                            drActivity.Close();
                         }
                     }
                 }
                 else
                 {
                     reqData = this.Send(actRefno);
+
                     if (0 < reqData.Length)
                     {
                         if (reqData.Contains("<message>ERROR</message>"))
@@ -120,33 +119,31 @@ namespace dMobile.GroundWork
 
                 using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
                 {
+                    cmndPurge.CommandType = CommandType.Text;
+                    cmndPurge.Parameters.Add(new SQLiteParameter("@activityItemSubType", Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished)));
+
                     cmndPurge.CommandText = "DELETE FROM tActivityItemBarCodeAssociationXRef"
                         + " WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno IN"
                         + " (SELECT tActivityItem.ActivityItemRefno"
                         + " FROM tActivityItem"
-                        + " WHERE tActivityItem.ActivityItemSubType = " + (int)SysCommon.ActSubTypes.TicketFinished + ")";
-                    cmndPurge.CommandType = CommandType.Text;
+                        + " WHERE tActivityItem.ActivityItemSubType = @activityItemSubType)";
                     cmndPurge.ExecuteNonQuery();
 
                     cmndPurge.CommandText = "DELETE FROM tActivityItemProductionFinished"
                         + " WHERE tActivityItemProductionFinished.ActivityItemRefno IN"
                         + " (SELECT tActivityItem.ActivityItemRefno"
                         + " FROM tActivityItem"
-                        + " WHERE tActivityItem.ActivityItemSubType = " + (int)SysCommon.ActSubTypes.TicketFinished + ")";
-                    cmndPurge.CommandType = CommandType.Text;
+                        + " WHERE tActivityItem.ActivityItemSubType = @activityItemSubType)";
                     cmndPurge.ExecuteNonQuery();
 
                     cmndPurge.CommandText = "DELETE FROM tActivityItemProduction"
                         + " WHERE tActivityItemProduction.ActivityItemRefno IN"
                         + " (SELECT tActivityItem.ActivityItemRefno"
                         + " FROM tActivityItem"
-                        + " WHERE tActivityItem.ActivityItemSubType = " + (int)SysCommon.ActSubTypes.TicketFinished + ")";
-                    cmndPurge.CommandType = CommandType.Text;
+                        + " WHERE tActivityItem.ActivityItemSubType = @activityItemSubType)";
                     cmndPurge.ExecuteNonQuery();
 
-                    cmndPurge.CommandText = "DELETE FROM tActivityItem "
-                        + "WHERE tActivityItem.ActivityItemSubType = " + (int)SysCommon.ActSubTypes.TicketFinished;
-                    cmndPurge.CommandType = CommandType.Text;
+                    cmndPurge.CommandText = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = @activityItemSubType";
                     cmndPurge.ExecuteNonQuery();
                 }
 
@@ -175,10 +172,9 @@ namespace dMobile.GroundWork
             {
                 using (SQLiteCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
                 {
-                    cmndStatus.CommandText = "SELECT COUNT(tActivityItem.ActivityItemRefno)"
-                        + " FROM tActivityItem"
-                        + " WHERE tActivityItem.ActivityItemSubType = " + (int)SysCommon.ActSubTypes.TicketFinished;
+                    cmndStatus.CommandText = "SELECT COUNT(tActivityItem.ActivityItemRefno) FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = @activityItemSubType";
                     cmndStatus.CommandType = CommandType.Text;
+                    cmndStatus.Parameters.Add(new SQLiteParameter("@activityItemSubType", Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished)));
 
                     rowsAffected = Convert.ToInt32(cmndStatus.ExecuteScalar());
 
@@ -595,8 +591,6 @@ namespace dMobile.GroundWork
                                 }
                             }
 
-                            transaction.Commit();
-
                             this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
                         }
                         //}
@@ -623,6 +617,8 @@ namespace dMobile.GroundWork
                         //    }
                         //}
 
+                        transaction.Commit();
+
                         // TODO: Resource strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving finished ticket items complete.", false);
                     }
@@ -630,16 +626,6 @@ namespace dMobile.GroundWork
                 catch (SQLiteException ex)
                 {
                     transaction.Rollback();
-                    transaction.Dispose();
-
-                    cmndItemProd.Dispose();
-                    cmndItemFinished.Dispose();
-                    cmndItem.Dispose();
-                    cmndProdUnit.Dispose();
-                    cmndGetProduct.Dispose();
-                    cmndGetUnit.Dispose();
-                    cmndLocMapWhs.Dispose();
-                    cmndID.Dispose();
 
                     // TODO: Resource strings
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);

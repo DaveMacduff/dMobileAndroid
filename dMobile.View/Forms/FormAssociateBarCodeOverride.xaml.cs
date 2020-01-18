@@ -147,6 +147,8 @@
         /// <param name="e"></param>
         private async void cmdOK_Click(object sender, EventArgs e)
         {
+            this.ValidateEntry(this, new CancelEventArgs());
+
             bool isValidData = true;
 
             try
