@@ -1,12 +1,22 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="dMobile.View.Menus.ucPurchaseOrdersMenu">
+<custompages:DMobileContentPage
+    
+    xmlns:custompages="clr-namespace:dMobile.View.CustomPages"
+    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="dMobile.View.Menus.ucPurchaseOrdersMenu">
     <ContentPage.Content>
-        <StackLayout>
-            <Label Text="Welcome to Xamarin.Forms!"
-                VerticalOptions="CenterAndExpand" 
-                HorizontalOptions="CenterAndExpand" />
-        </StackLayout>
+        <AbsoluteLayout>
+            <StackLayout AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0,0,1,1">
+                <Button x:Name="cmdReceiving" Clicked="cmdReceiving_Click" Text="1) Receiving" />
+                <Button x:Name="cmdPutAway" Clicked="cmdPutAway_Click" Text="2) Put Away" />
+                <Button x:Name="cmdWorkSheet" Clicked="cmdWorkSheet_Click" Text="3) Work Sheet" />
+            </StackLayout>
+
+            <ActivityIndicator IsVisible="{Binding Loading}" 
+                               IsRunning="{Binding Loading}" 
+                               AbsoluteLayout.LayoutFlags="All" 
+                               AbsoluteLayout.LayoutBounds="0.5,0.5,0.3,0.3"/>
+        </AbsoluteLayout>
     </ContentPage.Content>
-</ContentPage>
+</custompages:DMobileContentPage>

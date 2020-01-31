@@ -30,9 +30,6 @@ namespace dMobile.Bedrock
         private bool isAllowedAssociateProductBarCode = true;
         private bool isAllowedPickingModuleOverridePicker = false;
         private bool isAllowedPickingModuleOverrideAddManualDetail = false;
-#if MULTILANGUAGE
-        private Languages language = Languages.ENU;
-#endif
 
         #endregion
 
@@ -169,26 +166,6 @@ namespace dMobile.Bedrock
                 this.isAllowedPickingModuleOverrideAddManualDetail = value;
             }
         }
-
-
-#if MULTILANGUAGE
-    /// <summary>
-    /// User's preferred language.
-    /// This is used for Multilanguage to change
-    /// display language for a user.
-    /// </summary>
-    public Languages Language
-    {
-        get
-        {
-            return this.language;
-        }
-        set
-        {
-            this.language = value;
-        }
-    }
-#endif
 
         private SysSocket LoginSocket
         {
@@ -353,11 +330,8 @@ namespace dMobile.Bedrock
             {
                 if (this.OnContactLoginStatusOut != null)
                 {
-#if MULTILANGUAGE
-          msgEventArg.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.CreatingRequestForContactLogIn);
-#else
+                    // TODO: Resource strings
                     msgEventArg.StatusOutMsg = "Creating request for contact log in";
-#endif
                     this.OnContactLoginStatusOut(this, msgEventArg);
                 }
 
@@ -365,24 +339,19 @@ namespace dMobile.Bedrock
 
                 if (this.OnContactLoginStatusOut != null)
                 {
-#if MULTILANGUAGE
-          msgEventArg.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.AttemptingToConnect);
-#else
+                    // TODO: Resource strings
                     msgEventArg.StatusOutMsg = "Attempting to connect";
-#endif
                     this.OnContactLoginStatusOut(this, msgEventArg);
                 }
 
                 socket = this.LoginSocket.Connect();
+
                 if (socket != null)
                 {
                     if (this.OnContactLoginStatusOut != null)
                     {
-#if MULTILANGUAGE
-            msgEventArg.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.SendingRequest);
-#else
+                        // TODO: Resource strings
                         msgEventArg.StatusOutMsg = "Sending request";
-#endif
                         this.OnContactLoginStatusOut(this, msgEventArg);
                     }
 
@@ -390,22 +359,17 @@ namespace dMobile.Bedrock
 
                     if (this.OnContactLoginStatusOut != null)
                     {
-#if MULTILANGUAGE
-            msgEventArg.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.WaitingForResponsez);
-#else
+                        // TODO: Resource strings
                         msgEventArg.StatusOutMsg = "Waiting for response";
-#endif
                         this.OnContactLoginStatusOut(this, msgEventArg);
                     }
 
                     bytRecvData = this.LoginSocket.ReceiveResponse(socket);
+
                     if (this.OnContactLoginStatusOut != null)
                     {
-#if MULTILANGUAGE
-            msgEventArg.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.ResponseReceived);
-#else
+                        // TODO: Resource strings
                         msgEventArg.StatusOutMsg = "Response received";
-#endif
                         this.OnContactLoginStatusOut(this, msgEventArg);
                     }
 
@@ -413,11 +377,8 @@ namespace dMobile.Bedrock
 
                     if (this.OnContactLoginStatusOut != null)
                     {
-#if MULTILANGUAGE
-            msgEventArg.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.Decompressing);
-#else
+                        // TODO: Resource strings
                         msgEventArg.StatusOutMsg = "Decompressing";
-#endif
                         this.OnContactLoginStatusOut(this, msgEventArg);
                     }
 
@@ -427,19 +388,13 @@ namespace dMobile.Bedrock
                 {
                     if (this.OnContactLoginStatusOut != null)
                     {
-#if MULTILANGUAGE
-            msgEventArg.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.FailedToConnect);
-#else
+                        // TODO: Resource strings
                         msgEventArg.StatusOutMsg = "Failed to connect";
-#endif
                         this.OnContactLoginStatusOut(this, msgEventArg);
                     }
 
-#if MULTILANGUAGE
-          throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.FailedToConnect));
-#else
+                    // TODO: Resource strings
                     throw new Exception("Failed to connect");
-#endif
                 }
             }
             catch (SocketException ex)
@@ -501,19 +456,16 @@ namespace dMobile.Bedrock
             List<byte> bytRecvData = null;
             string reqData = string.Empty;
             ContactLoginEventArgs msgEventArg = new ContactLoginEventArgs();
-
             SysSocket sysSocket = new SysSocket();
+
             sysSocket.RegSockListenerStatusOut(this);
 
             try
             {
                 if (this.OnContactLoginStatusOut != null)
                 {
-#if MULTILANGUAGE
-          msgEventArg.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.CreatingRequestForContactLogOut);
-#else
+                    // TODO: Resource strings
                     msgEventArg.StatusOutMsg = "Creating request for contact log out";
-#endif
                     this.OnContactLoginStatusOut(this, msgEventArg);
                 }
 
@@ -521,24 +473,19 @@ namespace dMobile.Bedrock
 
                 if (this.OnContactLoginStatusOut != null)
                 {
-#if MULTILANGUAGE
-          msgEventArg.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.AttemptingToConnect);
-#else
+                    // TODO: Resource strings
                     msgEventArg.StatusOutMsg = "Attempting to connect";
-#endif
                     this.OnContactLoginStatusOut(this, msgEventArg);
                 }
 
                 socket = this.LoginSocket.Connect();
+
                 if (socket != null)
                 {
                     if (this.OnContactLoginStatusOut != null)
                     {
-#if MULTILANGUAGE
-            msgEventArg.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.SendingRequest);
-#else
+                        // TODO: Resource strings
                         msgEventArg.StatusOutMsg = "Sending request";
-#endif
                         this.OnContactLoginStatusOut(this, msgEventArg);
                     }
 
@@ -546,22 +493,17 @@ namespace dMobile.Bedrock
 
                     if (this.OnContactLoginStatusOut != null)
                     {
-#if MULTILANGUAGE
-            msgEventArg.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.WaitingForResponsez);
-#else
+                        // TODO: Resource strings
                         msgEventArg.StatusOutMsg = "Waiting for response";
-#endif
                         this.OnContactLoginStatusOut(this, msgEventArg);
                     }
 
                     bytRecvData = this.LoginSocket.ReceiveResponse(socket);
+
                     if (this.OnContactLoginStatusOut != null)
                     {
-#if MULTILANGUAGE
-            msgEventArg.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.ResponseReceived);
-#else
+                        // TODO: Resource strings
                         msgEventArg.StatusOutMsg = "Response received";
-#endif
                         this.OnContactLoginStatusOut(this, msgEventArg);
                     }
 
@@ -569,11 +511,8 @@ namespace dMobile.Bedrock
 
                     if (this.OnContactLoginStatusOut != null)
                     {
-#if MULTILANGUAGE
-            msgEventArg.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.Decompressing);
-#else
+                        // TODO: Resource strings
                         msgEventArg.StatusOutMsg = "Decompressing";
-#endif
                         this.OnContactLoginStatusOut(this, msgEventArg);
                     }
 
@@ -583,40 +522,28 @@ namespace dMobile.Bedrock
                 {
                     if (this.OnContactLoginStatusOut != null)
                     {
-#if MULTILANGUAGE
-            msgEventArg.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.FailedToConnect);
-#else
+                        // TODO: Resource strings
                         msgEventArg.StatusOutMsg = "Failed to connect";
-#endif
                         this.OnContactLoginStatusOut(this, msgEventArg);
                     }
 
-#if MULTILANGUAGE
-          throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.FailedToConnect));
-#else
+                    // TODO: Resource strings
                     throw new Exception("Failed to connect");
-#endif
                 }
             }
             catch (SocketException ex)
             {
                 if (this.OnContactLoginStatusOut != null)
                 {
-#if MULTILANGUAGE
-          msgEventArg.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.SocketExceptionOccurredz);
-#else
+                    // TODO: Resource strings
                     msgEventArg.StatusOutMsg = "Socket exception occurred";
-#endif
                     this.OnContactLoginStatusOut(this, msgEventArg);
                 }
 
                 if (this.OnContactLoginStatusOut != null)
                 {
-#if MULTILANGUAGE
-          msgEventArg.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.RequestForContactLogOutFailed);
-#else
+                    // TODO: Resource strings
                     msgEventArg.StatusOutMsg = "Request for contact log out failed";
-#endif
                     this.OnContactLoginStatusOut(this, msgEventArg);
                 }
 
@@ -626,11 +553,8 @@ namespace dMobile.Bedrock
             {
                 if (this.OnContactLoginStatusOut != null)
                 {
-#if MULTILANGUAGE
-          msgEventArg.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.RequestForContactLogOutFailed);
-#else
+                    // TODO: Resource strings
                     msgEventArg.StatusOutMsg = "Request for contact log out failed";
-#endif
                     this.OnContactLoginStatusOut(this, msgEventArg);
                 }
 
@@ -662,11 +586,8 @@ namespace dMobile.Bedrock
                 {
                     if (this.OnContactLoginStatusOut != null)
                     {
-#if MULTILANGUAGE
-            msgEventArg.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.ParsingReceivedData);
-#else
+                        // TODO: Resource strings
                         msgEventArg.StatusOutMsg = "Parsing received data";
-#endif
                         this.OnContactLoginStatusOut(this, msgEventArg);
                     }
 
@@ -688,11 +609,8 @@ namespace dMobile.Bedrock
                 {
                     if (this.OnContactLoginStatusOut != null)
                     {
-#if MULTILANGUAGE
-            msgEventArg.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.ReceivedNothingToProcess);
-#else
+                        // TODO: Resource strings
                         msgEventArg.StatusOutMsg = "Received nothing to process";
-#endif
                         this.OnContactLoginStatusOut(this, msgEventArg);
                     }
                 }
@@ -701,21 +619,15 @@ namespace dMobile.Bedrock
             {
                 if (this.OnContactLoginStatusOut != null)
                 {
-#if MULTILANGUAGE
-          msgEventArg.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredz);
-#else
+                    // TODO: Resource strings
                     msgEventArg.StatusOutMsg = "Database exception occurred";
-#endif
                     this.OnContactLoginStatusOut(this, msgEventArg);
                 }
 
                 if (this.OnContactLoginStatusOut != null)
                 {
-#if MULTILANGUAGE
-          msgEventArg.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.SubmitContactLogInFailed);
-#else
+                    // TODO: Resource strings
                     msgEventArg.StatusOutMsg = "Submit contact log in failed.";
-#endif
                     this.OnContactLoginStatusOut(this, msgEventArg);
                 }
 
@@ -725,11 +637,8 @@ namespace dMobile.Bedrock
             {
                 if (this.OnContactLoginStatusOut != null)
                 {
-#if MULTILANGUAGE
-          msgEventArg.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.SubmitContactLogInFailed);
-#else
+                    // TODO: Resource strings
                     msgEventArg.StatusOutMsg = "Submit contact log in failed.";
-#endif
                     this.OnContactLoginStatusOut(this, msgEventArg);
                 }
 

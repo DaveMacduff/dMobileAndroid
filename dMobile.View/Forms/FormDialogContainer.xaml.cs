@@ -8,15 +8,12 @@ namespace dMobile.View.Forms
     using dMobile.View.Options;
     using System;
     using System.ComponentModel;
-    using System.Drawing;
     using System.Xml.Linq;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
     using dMobile.Resources.Enums;
     using Resource = dMobile.Resources.Properties.Resources;
-    using System.Threading.Tasks;
 
-    // TODO: FIX THIS CLASS
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class FormDialogContainer : DMobileModal, IAppListener
     {
@@ -28,35 +25,16 @@ namespace dMobile.View.Forms
             InitializeComponent();
         }
 
-        //private UserControl displayControl;
-        /// <summary>
-        /// Defines the isControlClosing
-        /// </summary>
         private bool isControlClosing = false;
-
-        /// <summary>
-        /// Defines the displayControlData
-        /// </summary>
         private XDocument displayControlData;
-
         private DMobileModal displayControl;
-
-        ///// <summary>
-        ///// The OnDisappearing
-        ///// </summary>
-        //protected override void OnDisappearing()
-        //{
-        //    base.OnDisappearing();
-
-        //    this.SaveChanges(this, new EventArgs());
-        //}
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FormDialogContainer"/> class.
         /// </summary>
         /// <param name="typeInnerControl"></param>
         /// <param name="actSubType"></param>
-        public FormDialogContainer(EDialogTypes typeInnerControl, SysCommon.ActSubTypes actSubType /*UserControl callingControl*/)
+        public FormDialogContainer(EDialogTypes typeInnerControl, SysCommon.ActSubTypes actSubType)
         {
             DMobileModal control = null;
 
@@ -75,12 +53,16 @@ namespace dMobile.View.Forms
                     //control = new ucActivityInventoryInquiry();
                     break;
 
+                case EDialogTypes.ucActivityDeboxLabelCount:
+                    //control = new ucActivityDeboxLabelCount();
+                    break;
+
                 default:
-                    control = this.GetControlObj(typeInnerControl, /*callingControl, */actSubType);
+                    control = this.GetControlObj(typeInnerControl, actSubType);
 
                     if (control == null)
                     {
-                        control = this.GetControlObj(typeInnerControl/*, callingControl*/);
+                        control = this.GetControlObj(typeInnerControl);
                     }
                     break;
             }
@@ -97,13 +79,7 @@ namespace dMobile.View.Forms
         /// <param name="labelQtyEdit"></param>
         /// <param name="activity"></param>
         /// <param name="selectMode">The selectMode<see cref="SysCommon.ShippingLabelQuantitySelectionMode"/></param>
-        public FormDialogContainer(
-        EDialogTypes typeInnerControl,
-        //UserControl callingControl,
-        SysCommon.ActSubTypes actSubType,
-        SysCommon.SLabelQuantity labelQtyEdit,
-        Activity activity,
-        SysCommon.ShippingLabelQuantitySelectionMode selectMode)
+        public FormDialogContainer(EDialogTypes typeInnerControl, SysCommon.ActSubTypes actSubType, SysCommon.SLabelQuantity labelQtyEdit, Activity activity, SysCommon.ShippingLabelQuantitySelectionMode selectMode)
         {
             DMobileModal control = null;
 
@@ -135,12 +111,7 @@ namespace dMobile.View.Forms
         /// <param name="activity"></param>
         /// <param name="actSubType"></param>
         /// <param name="callingControl"></param>
-        public FormDialogContainer(
-        EDialogTypes typeInnerControl,
-        Activity activity,
-        SysCommon.ActSubTypes actSubType
-        //UserControl callingControl
-        )
+        public FormDialogContainer(EDialogTypes typeInnerControl, Activity activity, SysCommon.ActSubTypes actSubType)
         {
             DMobileModal control = null;
 
@@ -174,12 +145,7 @@ namespace dMobile.View.Forms
         /// <param name="actItem"></param>
         /// <param name="actSubType"></param>
         /// <param name="callingControl"></param>
-        public FormDialogContainer(
-        EDialogTypes typeInnerControl,
-        ActItem actItem,
-        SysCommon.ActSubTypes actSubType
-        //UserControl callingControl
-        )
+        public FormDialogContainer(EDialogTypes typeInnerControl, ActItem actItem, SysCommon.ActSubTypes actSubType)
         {
             DMobileModal control = null;
 
@@ -198,6 +164,10 @@ namespace dMobile.View.Forms
                     //control = new ucActivityInventoryInquiry(actItem.ProdInfo);
                     break;
 
+                case EDialogTypes.ucActivityInventoryInquirySummary:
+                    //control = new ucActivityItemInventoryInquirySummary(actItem);
+                    break;
+
                 default:
                     control = this.GetControlObj(typeInnerControl, actItem, actSubType/*, callingControl*/);
                     break;
@@ -213,12 +183,7 @@ namespace dMobile.View.Forms
         /// <param name="actDetail"></param>
         /// <param name="actSubType"></param>
         /// <param name="callingControl"></param>
-        public FormDialogContainer(
-        EDialogTypes typeInnerControl,
-        ActDetail actDetail,
-        SysCommon.ActSubTypes actSubType
-        //UserControl callingControl
-        )
+        public FormDialogContainer(EDialogTypes typeInnerControl, ActDetail actDetail, SysCommon.ActSubTypes actSubType)
         {
             DMobileModal control = null;
 
@@ -245,162 +210,61 @@ namespace dMobile.View.Forms
             this.ShowActivityObj(control);
         }
 
+        public FormDialogContainer(EDialogTypes typeInnerControl, int defaultWhsLocMapRefno, bool lockWhsSelection)
+        {
+            DMobileModal control = null;
+            this.InitializeComponent();
+
+            switch (typeInnerControl)
+            {
+                case EDialogTypes.ucSelectLocationMap:
+                    control = new ucSetLocationMap(defaultWhsLocMapRefno, lockWhsSelection);
+                    break;
+
+                default:
+                    throw new NotSupportedException("FormDialogContainer constructor is specific to EDialogTypes = EDialogTypes.ucSelectLocationMap");
+            }
+
+            this.ShowActivityObj(control);
+        }
+
         public enum EDialogTypes
         {
-            /// <summary>
-            /// Defines the ucRefreshDataStatus
-            /// </summary>
             ucRefreshDataStatus,
-
-            /// <summary>
-            /// Defines the ucSelectProductUnit
-            /// </summary>
             ucSelectProductUnit,
-
-            /// <summary>
-            /// Defines the ucSelectProductUnitFilterToProduct
-            /// </summary>
             ucSelectProductUnitFilterToProduct,
-
-            /// <summary>
-            /// Defines the ucSelectLocationMap
-            /// </summary>
             ucSelectLocationMap,
-
-            /// <summary>
-            /// Defines the ucActivityItem
-            /// </summary>
             ucActivityItem,
-
-            /// <summary>
-            /// Defines the ucActivityDetail
-            /// </summary>
             ucActivityDetail,
-
-            /// <summary>
-            /// Defines the ucActivityDetailEdit
-            /// </summary>
             ucActivityDetailEdit,
-
-            /// <summary>
-            /// Defines the ucActivityHdrPickingFilter
-            /// </summary>
             ucActivityHdrPickingFilter,
-
-            /// <summary>
-            /// Defines the ucActivityHdrReceivingFilter
-            /// </summary>
             ucActivityHdrReceivingFilter,
-
-            /// <summary>
-            /// Defines the ucActivityHdrTransferFilter
-            /// </summary>
             ucActivityHdrTransferFilter,
-
-            /// <summary>
-            /// Defines the ucActivityHdrPhysicalCountFilter
-            /// </summary>
             ucActivityHdrPhysicalCountFilter,
-
-            /// <summary>
-            /// Defines the ucActivityHdrReturnsFilter
-            /// </summary>
             ucActivityHdrReturnsFilter,
-
-            /// <summary>
-            /// Defines the ucActivityHdrCycleCountFilter
-            /// </summary>
             ucActivityHdrCycleCountFilter,
-
-            /// <summary>
-            /// Defines the ucSubmitBatchFilter
-            /// </summary>
             ucSubmitBatchFilter,
-
-            /// <summary>
-            /// Defines the ucActivityAdjustmentFilter
-            /// </summary>
             ucActivityAdjustmentFilter,
-
-            /// <summary>
-            /// Defines the ucActivityProductionTicketFinishedFilter
-            /// </summary>
             ucActivityProductionTicketFinishedFilter,
-
-            /// <summary>
-            /// Defines the ucActivityProductionTicketMaterialFilter
-            /// </summary>
             ucActivityProductionTicketMaterialFilter,
-
-            /// <summary>
-            /// Defines the ucActivityProductionTicketByProductFilter
-            /// </summary>
             ucActivityProductionTicketByProductFilter,
-
-            /// <summary>
-            /// Defines the ucActivityPurchaseOrderWorkSheetEdit
-            /// </summary>
             ucActivityPurchaseOrderWorkSheetEdit,
-
-            /// <summary>
-            /// Defines the ucActivityPickingSelectCriteria
-            /// </summary>
             ucActivityPickingSelectCriteria,
-
-            /// <summary>
-            /// Defines the ucActivityShippingLabelEdit
-            /// </summary>
             ucActivityShippingLabelEdit,
-
-            /// <summary>
-            /// Defines the ucActivityConvertUnitEdit
-            /// </summary>
             ucActivityConvertUnitEdit,
-
-            /// <summary>
-            /// Defines the ucSkidInfo
-            /// </summary>
             ucSkidInfo,
-
-            /// <summary>
-            /// Defines the ucSkidInfoEdit
-            /// </summary>
             ucSkidInfoEdit,
-
-            /// <summary>
-            /// Defines the ucActivityDetailSkid
-            /// </summary>
             ucActivityDetailSkid,
-
-            /// <summary>
-            /// Defines the ucActivityItemSingle
-            /// </summary>
             ucActivityItemSingle,
-
-            /// <summary>
-            /// Defines the ucActivityInventoryInquiry
-            /// </summary>
             ucActivityInventoryInquiry,
-
-            /// <summary>
-            /// Defines the ucActivityInventoryInquiryItem
-            /// </summary>
             ucActivityInventoryInquiryItem,
-
-            /// <summary>
-            /// Defines the ucActivityInventoryInquiryDetail
-            /// </summary>
             ucActivityInventoryInquiryDetail,
-
-            /// <summary>
-            /// Defines the ucSelectProduct
-            /// </summary>
             ucSelectProduct,
-
-            /// <summary>
-            /// Defines the ucActivityProductLabel
-            /// </summary>
-            ucActivityProductLabel
+            ucActivityProductLabel,
+            ucActivityConvertProductDetail,
+            ucActivityInventoryInquirySummary,
+            ucActivityRemoveFromSkid,
+            ucActivityDeboxLabelCount
         }
 
         /// <summary>
@@ -474,8 +338,6 @@ namespace dMobile.View.Forms
         /// <param name="e"></param>
         public void SaveChanges(object sender, EventArgs e)
         {
-            //this.menuItemSave.Enabled = false;
-
             if (this.DisplayControl == null)
             {
                 this.ReqCloseDialogContainer(this.DisplayControl, EventArgs.Empty);
@@ -485,6 +347,7 @@ namespace dMobile.View.Forms
                 if (((IAppArea)this.DisplayControl).SaveChanges())
                 {
                     this.ReqCloseDialogContainer(this.DisplayControl, EventArgs.Empty);
+
                     if (this.IsControlClosing)
                     {
                         this.DialogResult = DialogResult.OK;
@@ -495,8 +358,6 @@ namespace dMobile.View.Forms
                     }
                 }
             }
-
-            //this.menuItemSave.Enabled = true;
         }
 
         /// <summary>
@@ -661,20 +522,14 @@ namespace dMobile.View.Forms
             }
             else
             {
-                //panelContents.Controls.Add(control);
-                //control.Dock = DockStyle.Fill;
-
                 ((IAppPublisher)control).RegisterReqClose((IAppListener)this);
                 ((IAppPublisher)control).RegisterReqSaveEnable((IAppListener)this);
                 ((IAppPublisher)control).RegisterReqSaveDisable((IAppListener)this);
                 ((IAppPublisher)control).RegisterReqCancelEnable((IAppListener)this);
                 ((IAppPublisher)control).RegisterReqCancelDisable((IAppListener)this);
 
-                //this.Text = ((IAppArea)control).GetControlDescription();
-                //control.BringToFront();
                 this.DisplayControl = control;
 
-                //control.Focus();
             }
         }
 
@@ -688,13 +543,7 @@ namespace dMobile.View.Forms
         /// <param name="activity"></param>
         /// <param name="selectMode">The selectMode<see cref="SysCommon.ShippingLabelQuantitySelectionMode"/></param>
         /// <returns></returns>
-        private DMobileModal GetControlObj(
-        EDialogTypes typeInnerControl,
-        SysCommon.ActSubTypes actSubType,
-        //UserControl callingControl,
-        SysCommon.SLabelQuantity labelQtyEdit,
-        Activity activity,
-        SysCommon.ShippingLabelQuantitySelectionMode selectMode)
+        private DMobileModal GetControlObj(EDialogTypes typeInnerControl, SysCommon.ActSubTypes actSubType, SysCommon.SLabelQuantity labelQtyEdit, Activity activity, SysCommon.ShippingLabelQuantitySelectionMode selectMode)
         {
             DMobileModal control = null;
 
@@ -716,12 +565,7 @@ namespace dMobile.View.Forms
         /// <param name="actSubType"></param>
         /// <param name="callingControl"></param>
         /// <returns></returns>
-        private DMobileModal GetControlObj(
-        EDialogTypes typeInnerControl,
-        Activity activity,
-        SysCommon.ActSubTypes actSubType
-        //UserControl callingControl
-        )
+        private DMobileModal GetControlObj(EDialogTypes typeInnerControl, Activity activity, SysCommon.ActSubTypes actSubType)
         {
             DMobileModal control = null;
 
@@ -751,12 +595,7 @@ namespace dMobile.View.Forms
         /// <param name="actSubType"></param>
         /// <param name="callingControl"></param>
         /// <returns></returns>
-        private DMobileModal GetControlObj(
-        EDialogTypes typeInnerControl,
-        ActDetail actDetail,
-        SysCommon.ActSubTypes actSubType
-        //UserControl callingControl
-        )
+        private DMobileModal GetControlObj(EDialogTypes typeInnerControl, ActDetail actDetail, SysCommon.ActSubTypes actSubType)
         {
             DMobileModal control = null;
 
@@ -785,6 +624,14 @@ namespace dMobile.View.Forms
                 case EDialogTypes.ucActivityInventoryInquiryDetail:
                     //control = new ucActivityDetailInventoryInquiry(actDetail, actSubType);
                     break;
+
+                case EDialogTypes.ucActivityConvertProductDetail:
+                    //control = new ucActivityConvertProductDetail(actDetail, actSubType);
+                    break;
+
+                case EDialogTypes.ucActivityRemoveFromSkid:
+                    //control = new ucActivityRemoveFromSkid(actDetail, actSubType);
+                    break;
             }
 
             return control;
@@ -798,12 +645,7 @@ namespace dMobile.View.Forms
         /// <param name="actSubType"></param>
         /// <param name="callingControl"></param>
         /// <returns></returns>
-        private DMobileModal GetControlObj(
-        EDialogTypes typeInnerControl,
-        ActItem actItem,
-        SysCommon.ActSubTypes actSubType
-        //UserControl callingControl
-        )
+        private DMobileModal GetControlObj(EDialogTypes typeInnerControl, ActItem actItem, SysCommon.ActSubTypes actSubType)
         {
             DMobileModal control = null;
 
@@ -814,11 +656,7 @@ namespace dMobile.View.Forms
                     break;
 
                 case EDialogTypes.ucSelectProductUnitFilterToProduct:
-                    //control = new ucSelectProductUnit(
-                    //    //callingControl,
-                    //    actItem.ProdInfo.Refno,
-                    //    actItem.ProdInfo.UnitRefno,
-                    //    actSubType);
+                    control = new ucSelectProductUnit(/*callingControl,*/ actItem.ProdInfo.Refno, actItem.ProdInfo.UnitRefno, actSubType);
                     break;
 
                 case EDialogTypes.ucSkidInfo:
@@ -844,17 +682,14 @@ namespace dMobile.View.Forms
         /// <param name="callingControl"></param>
         /// <param name="actSubType"></param>
         /// <returns></returns>
-        private DMobileModal GetControlObj(
-        EDialogTypes typeInnerControl,
-        //UserControl callingControl,
-        SysCommon.ActSubTypes actSubType)
+        private DMobileModal GetControlObj(EDialogTypes typeInnerControl, SysCommon.ActSubTypes actSubType)
         {
             DMobileModal control = null;
 
             switch (typeInnerControl)
             {
                 case EDialogTypes.ucSelectProductUnit:
-                    //control = new ucSelectProductUnit(/*callingControl, */actSubType);
+                    control = new ucSelectProductUnit(actSubType);
                     break;
             }
 
@@ -867,18 +702,18 @@ namespace dMobile.View.Forms
         /// <param name="typeInnerControl"></param>
         /// <param name="callingControl"></param>
         /// <returns></returns>
-        private DMobileModal GetControlObj(EDialogTypes typeInnerControl/*, UserControl callingControl*/)
+        private DMobileModal GetControlObj(EDialogTypes typeInnerControl)
         {
             DMobileModal control = null;
 
             switch (typeInnerControl)
             {
                 case EDialogTypes.ucSelectProduct:
-                    //control = new ucSelectProduct(/*callingControl*/);
+                    control = new ucSelectProduct();
                     break;
 
                 case EDialogTypes.ucSelectLocationMap:
-                    //control = new ucSetLocationMap(/*callingControl*/);
+                    control = new ucSetLocationMap();
                     break;
 
                 case EDialogTypes.ucActivityHdrPickingFilter:
@@ -902,7 +737,7 @@ namespace dMobile.View.Forms
                     break;
 
                 case EDialogTypes.ucActivityHdrTransferFilter:
-                    //control = new ucActivityHdrTransferFilter(/*callingControl*/);
+                    //control = new ucActivityHdrTransferFilter();
                     break;
 
                 case EDialogTypes.ucSubmitBatchFilter:
@@ -961,9 +796,6 @@ namespace dMobile.View.Forms
             }
 
             Device.BeginInvokeOnMainThread(async () => await this.Close());
-
-            //GC.Collect();
-            //GC.WaitForPendingFinalizers();
         }
     }
 }

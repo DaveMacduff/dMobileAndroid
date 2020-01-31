@@ -47,6 +47,7 @@ namespace dMobile.View.Activity
         private ReqCancelDisableHandler reqCancelDisableEvent;
         private SysCommon.ActSubTypes actSubType = SysCommon.ActSubTypes.BarCodeAssociation;
         private ObservableCollection<string> itemsList;
+        private bool hasData = false;
 
         #endregion
 
@@ -464,6 +465,8 @@ namespace dMobile.View.Activity
             }
         }
 
+        public bool HasData { get => hasData; set => hasData = value; }
+
         #endregion
 
         #region Public Members
@@ -804,13 +807,9 @@ namespace dMobile.View.Activity
         /// <param name="msg"></param>
         private void AddScanMsg(object sender, EventArgs e, string msg)
         {
-            //this.lstScannedData.Items.Add(msg);
-            //this.lstScannedData.SelectedIndex = this.lstScannedData.Items.Count - 1;
-
             Device.BeginInvokeOnMainThread(() =>
             {
                 this.ItemsList.Add(msg);
-                //this.lstScannedData.ScrollTo(msg, ScrollToPosition.MakeVisible, false);
             });
         }
 
@@ -857,6 +856,11 @@ namespace dMobile.View.Activity
 
                     this.Parse = scanArgs.ParseInfo;
 
+                    if (this.Parse != null)
+                    {
+                        this.HasData = true;
+                    }
+
                     //this.lstScannedData.Items.Clear();
                     this.ItemsList.Clear();
 
@@ -867,6 +871,7 @@ namespace dMobile.View.Activity
                     if (!string.IsNullOrEmpty(scanArgs.ParseInfo.ProductIdentifier))
                     {
                         string prodIdentifier = scanArgs.ParseInfo.ProductIdentifier.PadRight(20);
+
                         using (SQLiteCommand cmndProdBCUnit = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
                         {
                             cmndProdBCUnit.CommandType = CommandType.Text;
@@ -881,9 +886,10 @@ namespace dMobile.View.Activity
                                 + "INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = tProductUnitBarCode.ProductUnitRefno "
                                 + "INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno "
                                 + "INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno "
-                                + "WHERE tProductUnitBarCode.ProductUnitBarCodeCode = \'" + prodIdentifier + "\' "
-                                + "AND tProductUnitBarCode.ProductUnitBarCodeModifier1 = \'"
-                                + this.SysEnv.CurrentBarCodeModifier1 + "\'";
+                                + "WHERE tProductUnitBarCode.ProductUnitBarCodeCode = @prodIdentifier "
+                                + "AND tProductUnitBarCode.ProductUnitBarCodeModifier1 = @productUnitBarCodeModifier1";
+                            cmndProdBCUnit.Parameters.Add(new SQLiteParameter("@prodIdentifier", prodIdentifier));
+                            cmndProdBCUnit.Parameters.Add(new SQLiteParameter("@productUnitBarCodeModifier1", this.SysEnv.CurrentBarCodeModifier1));
 
                             using (SQLiteDataReader drProdBCUnit = cmndProdBCUnit.ExecuteReader())
                             {
@@ -899,12 +905,9 @@ namespace dMobile.View.Activity
                                     // TODO: Resource strings
                                     this.AddScanMsg(sender, scanArgs, "Product associated to bar code");
 
-                                    string prodBCUnit = drProdBCUnit["ProductCode"].ToString() + " "
-                                        + drProdBCUnit["ProductUnitBC"].ToString() + " " + drProdBCUnit["UnitCode"].ToString();
-                                    this.AddScanMsg(
-                                        sender,
-                                        scanArgs,
-                                        prodBCUnit);
+                                    string prodBCUnit = drProdBCUnit["ProductCode"].ToString() + " " + drProdBCUnit["ProductUnitBC"].ToString() + " " + drProdBCUnit["UnitCode"].ToString();
+
+                                    this.AddScanMsg(sender, scanArgs, prodBCUnit);
 
                                     Device.BeginInvokeOnMainThread(() =>
                                     {
@@ -920,8 +923,7 @@ namespace dMobile.View.Activity
                             {
                                 // Do not look up gtin in barcode database for this rule, product will be identified by a range
                                 // of fixed weights.
-                                if (sysEnv.BarCodeSettings.IsRuleEnabled_ParseSumwaFarmFedWholeDuck_UseWeightRangeToIDProduct
-                                      && this.Parse.ProductIdentifier == "90695955110022")
+                                if (sysEnv.BarCodeSettings.IsRuleEnabled_ParseSumwaFarmFedWholeDuck_UseWeightRangeToIDProduct && this.Parse.ProductIdentifier == "90695955110022")
                                 {
                                     SysShared.BarCodeRuleParseSumwaFarmFedWholeDuckUseWeightRangeToIDProduct(this.Parse);
 
@@ -969,7 +971,8 @@ namespace dMobile.View.Activity
                                             + "FROM tProductUnit "
                                             + "INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno "
                                             + "INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno "
-                                            + "WHERE tProductUnit.ProductUnitRefno = " + this.UnitRefno;
+                                            + "WHERE tProductUnit.ProductUnitRefno = @productUnitRefno";
+                                        cmndProdBCUnit.Parameters.Add(new SQLiteParameter("@productUnitRefno", this.UnitRefno));
 
                                         using (SQLiteDataReader drProductBCUnit = cmndProdBCUnit.ExecuteReader())
                                         {
@@ -1011,7 +1014,7 @@ namespace dMobile.View.Activity
                                         }
                                     }
                                 }
-                                catch (Exception)
+                                catch (Exception ex)
                                 {
                                     Device.BeginInvokeOnMainThread(() =>
                                     {
@@ -1487,10 +1490,10 @@ namespace dMobile.View.Activity
                 {
                     this.IsChangesMade = true;
 
-                    if (sender == this.updnBarCodeModifier1)
-                    {
-                        this.SysEnv.CurrentBarCodeModifier1 = this.updnBarCodeModifier1.SelectedItem.ToString();
-                    }
+                    //if (sender == this.updnBarCodeModifier1)
+                    //{
+                    this.SysEnv.CurrentBarCodeModifier1 = this.updnBarCodeModifier1.SelectedItem.ToString();
+                    //}
                 }
             }
             catch (Exception ex)
@@ -1549,13 +1552,15 @@ namespace dMobile.View.Activity
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        private void cmdAssignProduct_Click(object sender, EventArgs e)
+        private async void cmdAssignProduct_Click(object sender, EventArgs e)
         {
             this.ScannerDisable();
 
-            // This button will be disabled unless a barcode was scanned.
-            // So I did not validate if this.Parse has valid values.
-            this.AssignProduct(sender);
+            if (this.Parse != null)
+            {
+                await this.AssignProduct(sender);
+            }
+
             this.ScannerEnable();
         }
 
@@ -1599,7 +1604,7 @@ namespace dMobile.View.Activity
         /// <summary>
         /// 
         /// </summary>
-        private async void AssignProduct(object sender)
+        private async Task AssignProduct(object sender)
         {
             // Changed functionality to disallow product scanning everywhere.
             // However, always prompt for password if not allowed to associate.
@@ -1629,24 +1634,26 @@ namespace dMobile.View.Activity
 
             FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucSelectProductUnit, this.ActSubType);
 
-            if (await form.ShowDialog() == DialogResult.OK)
+            if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
             {
+                form.SaveChanges(this, new EventArgs());
                 XDocument xmlDoc = form.DisplayControlData;
                 this.UnitRefno = int.Parse(xmlDoc.Root.Element("ProductUnitRefno").Value);
+
                 if (this.UnitRefno != 0)
                 {
                     xmlDoc = XDocument.Parse(
-                        "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                        + "<params>"
-                        + ("<ProductUnitRefno>" + this.UnitRefno + "</ProductUnitRefno>")
-                        + ("<ProductUnitBarCodeRefno>" + this.UnitBarCodeRefno + "</ProductUnitBarCodeRefno>")
-                        + ("<ProductIdentifier>" + svdProductIdentifier + "</ProductIdentifier>")
-                        + ("<ProductUnitBarCodeModifier1>" + this.SysEnv.CurrentBarCodeModifier1
-                        + "</ProductUnitBarCodeModifier1>")
-                        + "<RawData></RawData>"
-                        + ("<enumBarCodeSymbology>" + (int)svdSymbology + "</enumBarCodeSymbology>")
-                        + ("<BarCodeSymbologyPrefix>" + svdSymbologyPrefix + "</BarCodeSymbologyPrefix>")
-                        + "</params>");
+                         "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
+                         + "<params>"
+                         + ("<ProductUnitRefno>" + this.UnitRefno + "</ProductUnitRefno>")
+                         + ("<ProductUnitBarCodeRefno>" + this.UnitBarCodeRefno + "</ProductUnitBarCodeRefno>")
+                         + ("<ProductIdentifier>" + svdProductIdentifier + "</ProductIdentifier>")
+                         + ("<ProductUnitBarCodeModifier1>" + this.SysEnv.CurrentBarCodeModifier1
+                         + "</ProductUnitBarCodeModifier1>")
+                         + "<RawData></RawData>"
+                         + ("<enumBarCodeSymbology>" + (int)svdSymbology + "</enumBarCodeSymbology>")
+                         + ("<BarCodeSymbologyPrefix>" + svdSymbologyPrefix + "</BarCodeSymbologyPrefix>")
+                         + "</params>");
 
                     try
                     {
@@ -1658,12 +1665,12 @@ namespace dMobile.View.Activity
                         {
                             cmndProdBCUnit.CommandType = CommandType.Text;
                             cmndProdBCUnit.CommandText = "SELECT tProduct.ProductCode,"
-                                + "tProductUnit.ProductUnitBC,"
-                                + "tUnit.UnitCode "
-                                + "FROM tProductUnit "
-                                + "INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno "
-                                + "INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno "
-                                + "WHERE tProductUnit.ProductUnitRefno = " + this.UnitRefno;
+                                 + "tProductUnit.ProductUnitBC,"
+                                 + "tUnit.UnitCode "
+                                 + "FROM tProductUnit "
+                                 + "INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno "
+                                 + "INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno "
+                                 + "WHERE tProductUnit.ProductUnitRefno = " + this.UnitRefno;
 
                             using (SQLiteDataReader drProdBCUnit = cmndProdBCUnit.ExecuteReader())
                             {
@@ -1671,8 +1678,8 @@ namespace dMobile.View.Activity
                                 {
                                     this.lblProductData.TextColor = Color.Black;
                                     this.lblProductData.Text = drProdBCUnit["ProductCode"].ToString().TrimEnd()
-                                        + (" " + drProdBCUnit["ProductUnitBC"].ToString()).TrimEnd()
-                                        + " " + drProdBCUnit["UnitCode"].ToString();
+                                         + (" " + drProdBCUnit["ProductUnitBC"].ToString()).TrimEnd()
+                                         + " " + drProdBCUnit["UnitCode"].ToString();
                                 }
 
                                 drProdBCUnit.Close();
@@ -1686,23 +1693,27 @@ namespace dMobile.View.Activity
                     catch (SQLiteException ex)
                     {
                         Device.BeginInvokeOnMainThread(async () =>
-                        {
-                            FormErrorReport errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex);
-                            await errRpt.ShowDialog();
-                        });
+                         {
+                             FormErrorReport errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex);
+                             await errRpt.ShowDialog();
+                         });
                     }
                     catch (Exception ex)
                     {
                         Device.BeginInvokeOnMainThread(async () =>
-                        {
-                            FormErrorReport errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex);
-                            await errRpt.ShowDialog();
-                        });
+                         {
+                             FormErrorReport errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex);
+                             await errRpt.ShowDialog();
+                         });
                     }
                     finally
                     {
-                        this.Parse.ClearResetBarCodeProperties();
-                        this.cmdAssignProduct.IsEnabled = false;
+                        //Device.BeginInvokeOnMainThread(() =>
+                         //{
+                             this.Parse.ClearResetBarCodeProperties();
+                             this.HasData = false;
+                             this.OnPropertyChanged();
+                         //});
                     }
                 }
             }

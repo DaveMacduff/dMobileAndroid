@@ -556,6 +556,7 @@ namespace dMobile.View
                 if (this.IsReadyToSave())
                 {
                     this.SysEnv.ContactLog.LoginID = int.Parse(this.txtLoginID.Text);
+
                     if (Debugger.IsAttached)
                     {
                         this.SysEnv.ContactLog.LoginPassword = this.txtLoginPassword.Text;

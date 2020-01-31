@@ -18,7 +18,12 @@
             <Style TargetType="ContentPage" ApplyToDerivedTypes="True">
                 <Setter Property="BackgroundColor" Value="{DynamicResource PageBackgroundColor}"/>
             </Style>
-            
+
+            <!--Activity Indicator-->
+            <Style TargetType="ActivityIndicator" ApplyToDerivedTypes="True">
+                <Setter Property="Color" Value="{DynamicResource ActivityIndicatorColor}"/>
+            </Style>
+
             <!--navigationBar-->
             <Style TargetType="NavigationPage" ApplyToDerivedTypes="True">
                 <Setter Property="BarBackgroundColor" Value="{DynamicResource NavigationBarColor}"/>

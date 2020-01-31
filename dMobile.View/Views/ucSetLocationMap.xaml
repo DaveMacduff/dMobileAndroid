@@ -1,10 +1,182 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<ContentView xmlns="http://xamarin.com/schemas/2014/forms" 
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="dMobile.View.ucSetLocationMap">
-  <ContentView.Content>
-      <StackLayout>
-          <Label Text="Hello Xamarin.Forms!" />
-      </StackLayout>
-  </ContentView.Content>
-</ContentView>
+<modal:DMobileModal
+    xmlns:modal="clr-namespace:dMobile.View.CustomPages.Modal"
+    xmlns="http://xamarin.com/schemas/2014/forms" 
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:Helpers="clr-namespace:dMobile.View.Helpers"
+    x:Class="dMobile.View.ucSetLocationMap">
+  <ContentPage.Content>
+        <AbsoluteLayout>
+            <Grid AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0,0,1,1"  Padding="10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <ScrollView AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0,0,1,1" Grid.Row="0">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <!--Warehouse tab-->
+                        <Label x:Name="tabWarehouse" Text="Warehouse" Grid.Row="0"/>
+
+                        <Frame VerticalOptions="Start" Grid.Row="1" OutlineColor="{DynamicResource BorderColor}" Grid.ColumnSpan="3">
+                            <ListView x:Name="dgWhs" ItemSelected="DgWhs_ItemSelected">
+                                <ListView.ItemTemplate>
+                                    <DataTemplate>
+                                        <ViewCell>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+
+                                                <Label Grid.Column="0" Text="{Binding LocationMapWarehouseCode}" VerticalOptions="Center"/>
+                                                <Label Grid.Column="1" Text="{Binding LocationMapWarehouseName}" VerticalOptions="Center"/>
+                                            </Grid>
+                                        </ViewCell>
+                                    </DataTemplate>
+                                </ListView.ItemTemplate>
+                            </ListView>
+                        </Frame>
+
+                        <!--Section tab-->
+                        <Label x:Name="tabSection" Text="Section" Grid.Row="2"/>
+
+                        <Label x:Name="lblSearch" Text="Search" Grid.Row="3" Grid.Column="0" VerticalOptions="Center"/>
+                        <Picker x:Name="cboSectionSearch" Grid.Row="3" Grid.Column="1" FontSize="Body" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                        <Entry x:Name="txtSearchSection" Grid.Row="3" Grid.Column="2" TextChanged="txtSearchSection_TextChanged" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+
+                        <Frame VerticalOptions="Start" Grid.Row="4" OutlineColor="{DynamicResource BorderColor}" Grid.ColumnSpan="3">
+                            <ListView x:Name="dgSections" ItemSelected="DgSections_ItemSelected">
+                                <ListView.ItemTemplate>
+                                    <DataTemplate>
+                                        <ViewCell>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+
+                                                <Label Grid.Column="0" Text="{Binding LocationMapSectionCode}" VerticalOptions="Center"/>
+                                                <Label Grid.Column="1" Text="{Binding LocationMapSectionName}" VerticalOptions="Center"/>
+                                            </Grid>
+                                        </ViewCell>
+                                    </DataTemplate>
+                                </ListView.ItemTemplate>
+                            </ListView>
+                        </Frame>
+
+                        <!--Section Slot-->
+                        <Label x:Name="tabSlot" Text="Slot" Grid.Row="5"/>
+
+                        <Grid Grid.Row="6" Grid.ColumnSpan="3">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <!--Coord1-->
+                            <Label x:Name="lblSlotCoordinate1" Grid.Row="0" Grid.Column="0" Text="Coord 1"/>
+                            <Entry x:Name="txtSlotCoordinate1" TextChanged="txtSlotCoordinate1_TextChanged" Grid.Row="1" Grid.Column="0"/>
+                            <Frame VerticalOptions="Start" Grid.Row="2" Grid.Column="0" OutlineColor="{DynamicResource BorderColor}">
+                                <ListView x:Name="dgCoord1" ItemSelected="DgCoord1_ItemSelected" Grid.Row="3" Grid.Column="0">
+                                    <ListView.ItemTemplate>
+                                        <DataTemplate>
+                                            <ViewCell>
+                                                <Label Text="{Binding LocationMapSlotCoordinateCode}" VerticalOptions="Center"/>
+                                            </ViewCell>
+                                        </DataTemplate>
+                                    </ListView.ItemTemplate>
+                                </ListView>
+                            </Frame>
+
+                            <!--Coord2-->
+                            <Label x:Name="lblSlotCoordinate2" Grid.Row="0" Grid.Column="1" Text="Coord 2"/>
+                            <Entry x:Name="txtSlotCoordinate2" TextChanged="txtSlotCoordinate2_TextChanged" Grid.Row="1" Grid.Column="1"/>
+                            <Frame VerticalOptions="Start" Grid.Row="2" Grid.Column="1" OutlineColor="{DynamicResource BorderColor}">
+                                <ListView x:Name="dgCoord2" ItemSelected="DgCoord2_ItemSelected" Grid.Row="3" Grid.Column="1">
+                                    <ListView.ItemTemplate>
+                                        <DataTemplate>
+                                            <ViewCell>
+                                                <Label Text="{Binding LocationMapSlotCoordinateCode}" VerticalOptions="Center"/>
+                                            </ViewCell>
+                                        </DataTemplate>
+                                    </ListView.ItemTemplate>
+                                </ListView>
+                            </Frame>
+
+                            <!--Coord2-->
+                            <Label x:Name="lblSlotCoordinate3" Grid.Row="0" Grid.Column="2" Text="Coord 3"/>
+                            <Entry x:Name="txtSlotCoordinate3" TextChanged="txtSlotCoordinate3_TextChanged" Grid.Row="1" Grid.Column="2"/>
+                            <Frame VerticalOptions="Start" Grid.Row="2" Grid.Column="2" OutlineColor="{DynamicResource BorderColor}">
+                                <ListView x:Name="dgCoord3" ItemSelected="DgCoord3_ItemSelected" Grid.Row="3" Grid.Column="2">
+                                    <ListView.ItemTemplate>
+                                        <DataTemplate>
+                                            <ViewCell>
+                                                <Label Text="{Binding LocationMapSlotCoordinateCode}" VerticalOptions="Center"/>
+                                            </ViewCell>
+                                        </DataTemplate>
+                                    </ListView.ItemTemplate>
+                                </ListView>
+                            </Frame>
+                        </Grid>
+                    </Grid>
+                </ScrollView>
+
+                <Grid Grid.Row="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Label x:Name="lblWarehouse" Text="Whs" Grid.Row="0" Grid.Column="0"/>
+                    <Label x:Name="lblWarehouseData" Text="Unknown" Grid.Row="0" Grid.Column="1"/>
+
+                    <Label x:Name="lblSection" Text="Section" Grid.Row="1" Grid.Column="0"/>
+                    <Label x:Name="lblSectionData" Text="Unknown" Grid.Row="1" Grid.Column="1"/>
+                    
+                    <Label x:Name="lblSlot" Text="Slot" Grid.Row="2" Grid.Column="0"/>
+                    <Label x:Name="lblSlotData" Text="Unknown" Grid.Row="2" Grid.Column="1"/>
+                </Grid>
+
+                <Grid Grid.Row="2">
+                    <Button x:Name="btnSave" Text="Save" Grid.Row="0" Grid.Column="0" Clicked="BtnSave_Clicked" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                    <Button x:Name="btnCancel" Text="Cancel" Grid.Row="0" Grid.Column="1" Clicked="BtnCancel_Clicked" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                </Grid>
+            </Grid>
+
+            <ActivityIndicator IsVisible="{Binding Loading}" 
+                               IsRunning="{Binding Loading}" 
+                               AbsoluteLayout.LayoutFlags="All" 
+                               AbsoluteLayout.LayoutBounds="0.5,0.5,0.3,0.3"/>
+
+        </AbsoluteLayout>
+    </ContentPage.Content>
+</modal:DMobileModal>

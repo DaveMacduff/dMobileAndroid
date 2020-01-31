@@ -20,27 +20,28 @@
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
 
-                <Label x:Name="lblProduct" Text="Product:" Grid.Row="0" Grid.Column="0"/>
+                <Label x:Name="lblProduct" Text="Product:" Grid.Row="0" Grid.Column="0" FontAttributes="Bold"/>
                 <Label x:Name="lblProductData" Text="Unidentified" Grid.Row="0" Grid.Column="1"/>
 
-                <ListView x:Name="lstScannedData" SelectionMode="None" Grid.Row="1" Grid.ColumnSpan="2">
-                    <ListView.ItemTemplate>
-                        <DataTemplate>
-                            <ViewCell>
-                                <Label Text="{Binding}" VerticalTextAlignment="Center"/>
-                            </ViewCell>
-                        </DataTemplate>
-                    </ListView.ItemTemplate>
-                </ListView>
+                <Frame VerticalOptions="Start" Grid.Row="1" Grid.ColumnSpan="2" OutlineColor="{DynamicResource BorderColor}">
+                    <ListView x:Name="lstScannedData" SelectionMode="None">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <ViewCell>
+                                    <Label Text="{Binding}" VerticalTextAlignment="Center"/>
+                                </ViewCell>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </Frame>
 
-                <Picker x:Name="updnBarCodeModifier1" Grid.Row="3" Grid.Column="0"/>
-                <Button x:Name="cmdAssignProduct" Grid.Row="3" Grid.Column="1" Text="Assign Scan To Product" Clicked="cmdAssignProduct_Click" />
+                <Picker x:Name="updnBarCodeModifier1" Grid.Row="3" Grid.Column="0" SelectedIndexChanged="IdentifyChangesMade"/>
+                <Button x:Name="cmdAssignProduct" Grid.Row="3" Grid.Column="1" Text="Assign Scan To Product" Clicked="cmdAssignProduct_Click" IsEnabled="{Binding HasData}"/>
                 
             </Grid>
 
             <ActivityIndicator IsVisible="{Binding Loading}" 
                                IsRunning="{Binding Loading}" 
-                               Color="Black" 
                                AbsoluteLayout.LayoutFlags="All" 
                                AbsoluteLayout.LayoutBounds="0.5,0.5,0.3,0.3"/>
         </AbsoluteLayout>

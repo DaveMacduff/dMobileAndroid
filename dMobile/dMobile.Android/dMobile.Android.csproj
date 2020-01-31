@@ -116,6 +116,10 @@
     <Folder Include="Resources\drawable-xxxhdpi\" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\dMobile.Bedrock\dMobile.Bedrock.csproj">
+      <Project>{9A5C51A9-39E9-45F8-9D5E-18D88C91A321}</Project>
+      <Name>dMobile.Bedrock</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\dMobile.Resources\dMobile.Resources.csproj">
       <Project>{40fa21c1-9078-4713-9da0-66a15f03f5c8}</Project>
       <Name>dMobile.Resources</Name>

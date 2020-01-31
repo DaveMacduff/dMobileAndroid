@@ -2,10 +2,12 @@
 <ResourceDictionary xmlns="http://xamarin.com/schemas/2014/forms"
                     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
                     x:Class="dMobile.View.Themes.LightTheme">
+    <Color x:Key="ActivityIndicatorColor">Black</Color>
     <Color x:Key="PageBackgroundColor">Default</Color>
     <Color x:Key="NavigationBarColor">Default</Color>
     <Color x:Key="NavigationBarTitleColor">Default</Color>
     <Color x:Key="SecondaryBackgroundColor">Default</Color>
+    <Color x:Key="HeaderColor">WhiteSmoke</Color>
     <Color x:Key="BorderColor">White</Color>
     <Color x:Key="PrimaryColor">Default</Color>
     <Color x:Key="SecondaryColor">Default</Color>

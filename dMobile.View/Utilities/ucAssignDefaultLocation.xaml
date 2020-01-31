@@ -1,12 +1,72 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="dMobile.View.Utilities.ucAssignDefaultLocation">
+<custompages:DMobileContentPage
+    xmlns:custompages="clr-namespace:dMobile.View.CustomPages"
+    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:Custom="clr-namespace:dMobile.View.CustomControls"
+    x:Class="dMobile.View.Utilities.ucAssignDefaultLocation">
     <ContentPage.Content>
-        <StackLayout>
-            <Label Text="Welcome to Xamarin.Forms!"
-                VerticalOptions="CenterAndExpand" 
-                HorizontalOptions="CenterAndExpand" />
-        </StackLayout>
+        <AbsoluteLayout>
+            <Grid Padding="10" RowSpacing="10" AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0,0,1,1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Label x:Name="lblCurrentLocation" Text="Current Default Location(s)" Grid.Row="0" Grid.ColumnSpan="2" VerticalOptions="Center"/>
+
+                <Frame VerticalOptions="Start" Grid.Row="1" Grid.ColumnSpan="2" OutlineColor="{DynamicResource BorderColor}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Label x:Name="lblCurrentPicking" Text="Picking" Grid.Row="0" VerticalOptions="Center" FontAttributes="Bold"/>
+                        <Label x:Name="lblCurrentPickingLocation" Text="Not Set" Grid.Row="0" Grid.Column="1" VerticalOptions="Center"/>
+
+                        <Label x:Name="lblCurrentReceiving" Text="Receiving" Grid.Row="1" VerticalOptions="Center" FontAttributes="Bold"/>
+                        <Label x:Name="lblCurrentReceivingLocation" Text="Not Set" Grid.Row="1" Grid.Column="1" VerticalOptions="Center"/>
+                    </Grid>
+                </Frame>
+
+                <Label x:Name="lblDefaultPicking" Text="Picking" Grid.Row="2" Grid.Column="0" VerticalOptions="Center"/>
+                <Custom:CustomSwitch x:Name="chkDefaultPicking" Grid.Row="2" Grid.Column="1" Toggled="IdentifyChangesMade"/>
+
+                <Label x:Name="lblDefaultReceiving" Text="Receiving" Grid.Row="3" Grid.Column="0" VerticalOptions="Center"/>
+                <Custom:CustomSwitch x:Name="chkDefaultReceiving" Grid.Row="3" Grid.Column="1" Toggled="IdentifyChangesMade"/>
+
+                <Frame VerticalOptions="Start" Grid.Row="4" Grid.ColumnSpan="2" Grid.RowSpan="2" OutlineColor="{DynamicResource BorderColor}" Padding="5">
+                    <Label x:Name="lblProdDesc" Grid.Row="4" VerticalOptions="Center"/>
+                </Frame>
+
+                <Button x:Name="cmdProduct" Grid.Row="5" Grid.Column="0" Text="Select Product" Clicked="cmdProduct_Click"/>
+                <Picker x:Name="updnBarCodeModifier1" Grid.Row="5" Grid.Column="1" SelectedIndexChanged="IdentifyChangesMade"/>
+
+                <Grid Grid.Row="6" Grid.ColumnSpan="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Button x:Name="cmdSave" Grid.Row="0" Grid.Column="0" Text="Save" Clicked="CmdSave_Clicked"/>
+                    <Button x:Name="cmdLocation" Grid.Row="0" Grid.Column="1" Text="Set Location" Clicked="cmdLocation_Click" FontSize="Small"/>
+                </Grid>
+            </Grid>
+
+            <ActivityIndicator IsVisible="{Binding Loading}" 
+                               IsRunning="{Binding Loading}" 
+                               AbsoluteLayout.LayoutFlags="All" 
+                               AbsoluteLayout.LayoutBounds="0.5,0.5,0.3,0.3"/>
+        </AbsoluteLayout>
     </ContentPage.Content>
-</ContentPage>
+</custompages:DMobileContentPage>

@@ -85,7 +85,7 @@ namespace dMobile.View.Options
                 {
                     if (this.SaveChanges())
                     {
-                        await this.Close();
+                        //await this.Close();
                         this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     }
                 }

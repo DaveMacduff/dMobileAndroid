@@ -879,48 +879,46 @@ namespace dMobile.Controller
       return string.Empty;
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="actSubTypes"></param>
-    public void Create(SysCommon.ActSubTypes actSubTypes)
-    {
-//      try
-//      {
-//        using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-//        {
-//          cmndItem.CommandText = "tActivityItem";
-//          cmndItem.CommandType = CommandType.TableDirect;
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="actSubTypes"></param>
+        public void Create(SysCommon.ActSubTypes actSubTypes)
+        {
+            try
+            {
+                using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                using (SQLiteCommand cmndID = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                {
+                    cmndItem.CommandText = "INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (@activityItemSubType, @activityItemStatus, @activityRefno)";
+                    cmndItem.CommandType = CommandType.Text;
+                    cmndItem.Parameters.Add(new SQLiteParameter("@activityItemSubType", Convert.ToInt32(actSubTypes)));
+                    cmndItem.Parameters.Add(new SQLiteParameter("@activityItemStatus", Convert.ToInt32(SysCommon.ActStatus.Inserted)));
+                    cmndItem.Parameters.Add(new SQLiteParameter("@activityRefno", Convert.ToInt32(this.ActHdr.Refno)));
 
-//          using (SqlCeResultSet rsActItem = cmndItem.ExecuteResultSet(ResultSetOptions.Updatable))
-//          {
-//            SqlCeUpdatableRecord recActItem = rsActItem.CreateRecord();
+                    cmndItem.ExecuteNonQuery();
 
-//            using (SQLiteCommand cmndID = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-//            {
-//              cmndID.CommandText = "SELECT @@IDENTITY FROM tActivityItem";
-//              cmndID.CommandType = CommandType.Text;
+                    //using (SqlCeResultSet rsActItem = cmndItem.ExecuteResultSet(ResultSetOptions.Updatable))
+                    //{
+                    //SqlCeUpdatableRecord recActItem = rsActItem.CreateRecord();
+                    //recActItem.SetInt32((int)SysCommon.ActItemFields.SubType, (int)actSubTypes);
+                    //recActItem.SetInt32((int)SysCommon.ActItemFields.Status, (int)SysCommon.ActStatus.Inserted);
+                    //recActItem.SetInt32((int)SysCommon.ActItemFields.ActRefno, this.ActHdr.Refno);
+                    //rsActItem.Insert(recActItem);
 
-//              recActItem.SetInt32((int)SysCommon.ActItemFields.SubType, (int)actSubTypes);
-//              recActItem.SetInt32((int)SysCommon.ActItemFields.ActRefno, this.ActHdr.Refno);
-//              recActItem.SetInt32((int)SysCommon.ActItemFields.Status, (int)SysCommon.ActStatus.Inserted);
+                    cmndID.CommandText = "SELECT last_insert_rowid() FROM tActivityItem";
+                    cmndID.CommandType = CommandType.Text;
 
-//              rsActItem.Insert(recActItem);
-
-//              this.Refno = Convert.ToInt32(cmndID.ExecuteScalar());
-//            }
-//          }
-//        }
-//      }
-//      catch (SQLiteException ex)
-//      {
-//#if MULTILANGUAGE
-//        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), ex);
-//#else
-//        throw new Exception("Database exception occurred.", ex);
-//#endif
-//      }
-    }
+                    this.Refno = Convert.ToInt32(cmndID.ExecuteScalar());
+                    //}
+                }
+            }
+            catch (SQLiteException ex)
+            {
+                // TODO: Resource strings
+                throw new Exception("Database exception occurred.", ex);
+            }
+        }
 
     /// <summary>
     /// 

@@ -476,13 +476,18 @@
                             {
                                 this.SysEnv.ContactLog.SubmitContactLogOut();
                             }
-                            catch (SocketException)
+                            catch (SocketException ex)
                             {
-                                // do nothing if login failed
+                                // TODO: Logging
+                                Console.WriteLine(ex);
                             }
                             catch (Exception ex)
                             {
                                 throw ex;
+                            }
+                            finally
+                            {
+                                Device.BeginInvokeOnMainThread(() => Application.Current.MainPage = new NavigationPage(new SplashStartup()));
                             }
                         }
                     }
@@ -763,6 +768,7 @@
 
                         XDocument xmlDoc = form.DisplayControlData;
                         this.IsRefreshComplete = bool.Parse(xmlDoc.Root.Element("IsRefreshComplete").Value);
+                        this.RefreshCompelete();
                     });
 
                     this.ReqCancelEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());

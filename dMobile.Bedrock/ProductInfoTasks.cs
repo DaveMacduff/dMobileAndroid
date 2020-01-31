@@ -87,7 +87,7 @@
                     "tProduct.ProductBrandDescription, " +
                     "tProduct.ProductAllowConvertProduct " +
                     "FROM tProduct " +
-                    "WHERE tProduct.ProductCode = '@productCode'";
+                    "WHERE tProduct.ProductCode = @productCode";
                     cmndProdInfo.Parameters.Add(new SQLiteParameter("@productCode", productCode));
 
                     using (SQLiteDataReader drProdInfo = cmndProdInfo.ExecuteReader())
@@ -144,9 +144,9 @@
                     "INNER JOIN tUnit AS aUnitWeight ON aUnitWeight.UnitRefno = tProductUnit.WtUnitRefno " +
                     "INNER JOIN tUnit AS aUnitBase ON aUnitBase.UnitRefno = tProductUnit.BaseUnitRefno " +
                     "INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno " +
-                    "WHERE tProduct.ProductCode = '@productCode' " +
-                    "AND tProductUnit.ProductUnitBC = '@productUnitBC' " +
-                    "AND tUnit.UnitCode = '@unitCode'";
+                    "WHERE tProduct.ProductCode = @productCode " +
+                    "AND tProductUnit.ProductUnitBC = @productUnitBC " +
+                    "AND tUnit.UnitCode = @unitCode";
                     cmndProdInfo.Parameters.Add(new SQLiteParameter("@productCode", productCode));
                     cmndProdInfo.Parameters.Add(new SQLiteParameter("@productUnitBC", productUnitBC));
                     cmndProdInfo.Parameters.Add(new SQLiteParameter("@unitCode", unitCode));
@@ -189,24 +189,14 @@
             return prodInfo;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="productUnitBarCodeCode"></param>
-        /// <param name="productUnitBarCodeModifier1"></param>
-        /// <param name="barCodeSymbology"></param>
-        /// <param name="deliScaleAmount"></param>
-        /// <param name="deliScaleWeight"></param>
-        /// <param name="deliScaleWeightUnit"></param>
-        /// <returns></returns>
         public static int GetUnitRefnoFromBarCode(
-            string productUnitBarCodeCode,
-            string productUnitBarCodeModifier1,
-            SysCommon.BarCodeSymbologies barCodeSymbology,
-            decimal deliScaleAmount,
-            ref decimal deliScaleWeight,
-            ref string deliScaleWeightUnit,
-            ref ProductInfo prodInfo)
+               string productUnitBarCodeCode,
+               string productUnitBarCodeModifier1,
+               SysCommon.BarCodeSymbologies barCodeSymbology,
+               decimal deliScaleAmount,
+               ref decimal deliScaleWeight,
+               ref string deliScaleWeightUnit,
+               ref ProductInfo prodInfo)
         {
             SysEnvironment sysEnv = SysEnvironment.GetInstance();
 
@@ -217,8 +207,7 @@
                 StringBuilder xmlString = new StringBuilder();
                 XmlWriter xml = XmlWriter.Create(xmlString);
                 string deviceID = sysEnv.DeviceID;
-                string revisionDateTime = sysEnv.RefreshOpt.RefreshedDataLast.ToString(
-                    "yyyy'-'MM'-'dd'T'HH':'mm':'ss");
+                string revisionDateTime = sysEnv.RefreshOpt.RefreshedDataLast.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
                 string loginID = sysEnv.ContactLog.LoginID.ToString();
                 string currentDateTime = DateTime.Now.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
                 XmlDocument result = new XmlDocument();
@@ -277,56 +266,47 @@
                             prodInfo.UnitIsBC = Convert.ToBoolean(result.SelectSingleNode("/VFPData/ProductUnitIsBC").FirstChild.Value);
                             prodInfo.UnitCode = result.SelectSingleNode("/VFPData/ProductUnitCode").FirstChild.Value;
 
+                            using (SQLiteCommand cmndProd = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                            using (SQLiteCommand cmndUnit = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
                             using (SQLiteCommand cmndProdUnit = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
                             {
-                                // TODO: FIX THESE
-                                cmndProdUnit.CommandText = "SELECT * FROM tProductUnit WHERE";
-                                cmndProdUnit.CommandType = CommandType.Text;
+                                cmndProd.CommandText = "SELECT * FROM tProduct WHERE ProductFKRefno = @productFKRefno";
+                                cmndProd.CommandType = CommandType.Text;
+                                //cmndProd.IndexName = "UQ_ProductOnProductFKRefno";
+                                cmndProd.Parameters.Add(new SQLiteParameter("@productFKRefno", prodInfo.FKRefno));
 
-                                using (SQLiteDataReader drProdUnit = cmndProdUnit.ExecuteReader())
+                                using (SQLiteDataReader drProd = cmndProd.ExecuteReader())
                                 {
-                                    using (SQLiteCommand cmndProd = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                                    if (drProd.Read())
                                     {
-                                        cmndProd.CommandText = "SELECT * FROM tProduct";
-                                        cmndProd.CommandType = CommandType.Text;
+                                        prodInfo.Refno = drProd.GetInt32(Convert.ToInt32(SysCommon.ProductFields.Refno));
 
-                                        using (SQLiteDataReader drProd = cmndProd.ExecuteReader())
+                                        cmndUnit.CommandText = "SELECT * FROM tUnit WHERE UnitCode = @unitCode";
+                                        cmndUnit.CommandType = CommandType.Text;
+                                        cmndUnit.Parameters.Add(new SQLiteParameter("@unitCode", prodInfo.UnitCode));
+
+                                        using (SQLiteDataReader drUnit = cmndUnit.ExecuteReader())
                                         {
-                                            using (SQLiteCommand cmndUnit = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                                            if (drUnit.Read())
                                             {
-                                                cmndUnit.CommandText = "SELECT * FROM tUnit";
-                                                cmndUnit.CommandType = CommandType.Text;
+                                                int unitRefno = drUnit.GetInt32((int)SysCommon.UnitFields.UnitRefno);
 
-                                                using (SQLiteDataReader drUnit = cmndUnit.ExecuteReader())
+                                                cmndProdUnit.CommandText = "SELECT * FROM tProductUnit WHERE ProductRefno = @productRefno AND UnitRefno = @unitRefno AND ProductUnitIsBC = @productUnitIsBC";
+                                                cmndProdUnit.CommandType = CommandType.Text;
+                                                cmndProdUnit.Parameters.Add(new SQLiteParameter("@productRefno", prodInfo.Refno));
+                                                cmndProdUnit.Parameters.Add(new SQLiteParameter("@unitRefno", unitRefno));
+                                                cmndProdUnit.Parameters.Add(new SQLiteParameter("@productUnitIsBC", prodInfo.UnitIsBC));
+
+                                                using (SQLiteDataReader drProdUnit = cmndProdUnit.ExecuteReader())
                                                 {
-                                                    //drProd.Seek(DbSeekOptions.FirstEqual, new object[] { prodInfo.FKRefno });
-                                                    if (drProd.Read())
+                                                    if (drProdUnit.Read())
                                                     {
-                                                        prodInfo.Refno = drProd.GetInt32((int)SysCommon.ProductFields.Refno);
-
-                                                        //drUnit.Seek(DbSeekOptions.FirstEqual, new object[] { prodInfo.UnitCode });
-                                                        if (drUnit.Read())
-                                                        {
-                                                            int unitRefno = drUnit.GetInt32((int)SysCommon.UnitFields.UnitRefno);
-                                                            //if (drProdUnit.Seek(DbSeekOptions.FirstEqual, new object[] { prodInfo.Refno, unitRefno, prodInfo.UnitIsBC }))
-                                                            //{
-                                                                if (drProdUnit.Read())
-                                                                {
-                                                                    prodInfo.UnitRefno = drProdUnit.GetInt32((int)SysCommon.ProdUnitFields.Refno);
-                                                                }
-                                                            //}
-                                                        }
+                                                        prodInfo.UnitRefno = drProdUnit.GetInt32((int)SysCommon.ProdUnitFields.Refno);
                                                     }
-
-                                                    drUnit.Close();
                                                 }
                                             }
-
-                                            drProd.Close();
                                         }
                                     }
-
-                                    drProdUnit.Close();
                                 }
                             }
                         }
@@ -336,6 +316,7 @@
 
             return prodInfo.UnitRefno;
         }
+
 
         /// <summary>
         /// 
@@ -607,25 +588,20 @@
                     "INNER JOIN tProductUnit AS tProductBaseUnit ON tProductBaseUnit.ProductUnitRefno = tProductUnitRelation.ProductUnit2Refno " +
                     "INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno " +
                     "INNER JOIN tUnit AS tBaseUnit ON tBaseUnit.UnitRefno = tProductBaseUnit.BaseUnitRefno " +
-                    "WHERE tProductUnit.ProductRefno = @Refno " +
-                    "AND tUnit.UnitCode = '@UnitCode' " +
-                    "AND tBaseUnit.UnitCode = '@BaseUnitCode'";
-                    cmndProdUnitRelation.Parameters.Add(new SQLiteParameter("@Refno", productInfo.Refno));
-                    cmndProdUnitRelation.Parameters.Add(new SQLiteParameter("@UnitCode", productInfo.UnitCode));
-                    cmndProdUnitRelation.Parameters.Add(new SQLiteParameter("@BaseUnitCode", productInfo.BaseUnitCode));
+                    "WHERE tProductUnit.ProductRefno = @refno " +
+                    "AND tUnit.UnitCode = @unitCode " +
+                    "AND tBaseUnit.UnitCode = @baseUnitCode";
+                    cmndProdUnitRelation.Parameters.Add(new SQLiteParameter("@refno", productInfo.Refno));
+                    cmndProdUnitRelation.Parameters.Add(new SQLiteParameter("@unitCode", productInfo.UnitCode));
+                    cmndProdUnitRelation.Parameters.Add(new SQLiteParameter("@baseUnitCode", productInfo.BaseUnitCode));
 
+                    //var test = cmndProdUnitRelation.ExecuteScalar();
                     prodUnitFactor = Convert.ToDecimal(cmndProdUnitRelation.ExecuteScalar());
+
                     if (prodUnitFactor == 0)
                     {
-                        throw new Exception(string.Format(
-#if MULTILANGUAGE
-                            Translator.GetInstance().Translate(TranslatorVocabulary.UnableToFindProductUnitRelationFactorBetweenAnd),
-#else
-                            "Unable to find product '{0}' unit relation factor between {1} and {2}",
-#endif
-                            productInfo.Code,
-                            productInfo.UnitCode,
-                            productInfo.BaseUnitCode));
+                        // TODO: Resource strings
+                        throw new Exception(string.Format("Unable to find product '{0}' unit relation factor between {1} and {2}", productInfo.Code, productInfo.UnitCode, productInfo.BaseUnitCode));
                     }
                 }
             }
@@ -654,24 +630,18 @@
                 "INNER JOIN tUnit AS aUnit1 ON aUnit1.UnitRefno = aProductUnit1.UnitRefno " +
                 "INNER JOIN tUnit AS aUnit2 ON aUnit2.UnitRefno = aProductUnit2.UnitRefno " +
                 "WHERE tProductUnit.ProductRefno = @prodRefno " +
-                "AND aUnit1.UnitCode = '@prodUnit1Code' " +
-                "AND aUnit2.UnitCode = '@prodUnit2Code'";
+                "AND aUnit1.UnitCode = @prodUnit1Code " +
+                "AND aUnit2.UnitCode = @prodUnit2Code";
                 cmndProdUnitRelation.Parameters.Add(new SQLiteParameter("@prodRefno", prodRefno));
                 cmndProdUnitRelation.Parameters.Add(new SQLiteParameter("@prodUnit1Code", prodUnit1Code));
                 cmndProdUnitRelation.Parameters.Add(new SQLiteParameter("@prodUnit2Code", prodUnit2Code));
 
                 prodUnitFactor = Convert.ToDecimal(cmndProdUnitRelation.ExecuteScalar());
+
                 if (prodUnitFactor == 0)
                 {
-                    throw new Exception(string.Format(
-#if MULTILANGUAGE
-              Translator.GetInstance().Translate(TranslatorVocabulary.UnableToFindProductUnitRelationFactorBetweenAnd),
-#else
-"Unable to find product '{0}' unit relation factor between {1} and {2}",
-#endif
- prodRefno,
-                        prodUnit1Code,
-                        prodUnit2Code));
+                    // TODO: Resource strings
+                    throw new Exception(string.Format("Unable to find product '{0}' unit relation factor between {1} and {2}", prodRefno, prodUnit1Code, prodUnit2Code));
                 }
             }
 
@@ -759,9 +729,7 @@
                 INNER JOIN tUnit AS aUnitBase ON aUnitBase.UnitRefno = tProductUnit.BaseUnitRefno
                 ORDER BY tProduct.ProductCode, tProductUnit.ProductUnitBC, tUnit.UnitCode";
 
-            using (SQLiteDataAdapter dataAdapterProdUnit = new SQLiteDataAdapter(
-                sql,
-                DatabaseConnection.GetInstance().SQLConn))
+            using (SQLiteDataAdapter dataAdapterProdUnit = new SQLiteDataAdapter(sql, DatabaseConnection.GetInstance().SQLConn))
             {
                 using (DataSet dataSetProdUnit = new DataSet())
                 {
@@ -783,9 +751,7 @@
                                             FROM tProduct
                                             ORDER BY tProduct.ProductCode";
 
-            using (SQLiteDataAdapter dataAdapterProd = new SQLiteDataAdapter(
-                sql,
-                DatabaseConnection.GetInstance().SQLConn))
+            using (SQLiteDataAdapter dataAdapterProd = new SQLiteDataAdapter(sql, DatabaseConnection.GetInstance().SQLConn))
             {
                 using (DataSet dataSetProd = new DataSet())
                 {

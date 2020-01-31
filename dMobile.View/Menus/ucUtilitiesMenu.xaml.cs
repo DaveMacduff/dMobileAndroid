@@ -5,6 +5,7 @@
     using dMobile.Resources.Enums;
     using dMobile.View.Activity;
     using dMobile.View.CustomPages;
+    using dMobile.View.Utilities;
     using System;
     using System.Xml.Linq;
     using Xamarin.Forms;
@@ -66,10 +67,7 @@
                     this.DisableControls();
                     //this.CallingControl = new ucOptionsMenu();
 
-                    ucOptionsMenu options = new ucOptionsMenu();
-                    await options.Show();
-
-                    this.ReqCloseEvent((IAppPublisher)this, new AppEventArgs());
+                    this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     this.IsControlLoaded = false;
                 }
                 else if (keycode == Keycode.Num1)
@@ -99,6 +97,9 @@
 
                     // TODO: Add form
                     //this.CallingControl = new AssignDefaultLocation();
+
+                    ucAssignDefaultLocation assignDefaultLocation = new ucAssignDefaultLocation();
+                    await assignDefaultLocation.Show();
 
                     this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     this.IsControlLoaded = false;
@@ -544,6 +545,26 @@
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
+        private async void cmdAssignDefaultLocation_Click(object sender, EventArgs e)
+        {
+            this.DisableControls();
+
+            // TODO: Add form
+            //this.CallingControl = new AssignDefaultLocation();
+
+            ucAssignDefaultLocation assignDefaultLocation = new ucAssignDefaultLocation();
+            await assignDefaultLocation.Show();
+
+            this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+            this.IsControlLoaded = false;
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        /// <remarks></remarks>
         private void ucUtilitiesMenu_GotFocus(object sender, EventArgs e)
         {
             if (!SysEnvironment.GetInstance().IsApplicationExitInvoked)
@@ -578,23 +599,5 @@
                 }
             }
         }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <remarks></remarks>
-        private void cmdAssignDefaultLocation_Click(object sender, EventArgs e)
-        {
-            this.DisableControls();
-
-            // TODO: Add form
-            //this.CallingControl = new AssignDefaultLocation();
-
-            this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-            this.IsControlLoaded = false;
-        }
-
     }
 }

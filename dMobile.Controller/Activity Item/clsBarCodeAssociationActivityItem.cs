@@ -68,212 +68,210 @@ namespace dMobile.Controller
       return string.Empty;
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="data"></param>
-    /// <param name="askToInsertAsNewItem"></param>
-    public override void Insert(XDocument data, bool askToInsertAsNewItem)
-    {
-      int prodUnitRefno = int.Parse(data.Root.Element("ProductUnitRefno").Value);
-      int prodUnitBarCodeRefno = 0;
-
-      // Look up product bc unit
-      string unitCode = string.Empty;
-      string prodCode = string.Empty;
-      bool prodUnitIsBC = false;
-      string prodUnitBC = string.Empty;
-
-      using (SQLiteCommand cmndProdUnit = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-      {
-        cmndProdUnit.CommandType = CommandType.Text;
-        cmndProdUnit.CommandText = "SELECT tProduct.ProductCode,"
-            + "tProductUnit.ProductUnitIsBC," 
-            + "tProductUnit.ProductUnitBC,"
-            + "tUnit.UnitCode " 
-            + "FROM tProductUnit "
-            + "INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno "
-            + "INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno "
-            + "WHERE tProductUnit.ProductUnitRefno = " + prodUnitRefno;
-
-        using (SQLiteDataReader drProdUnit = cmndProdUnit.ExecuteReader())
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="askToInsertAsNewItem"></param>
+        public override void Insert(XDocument data, bool askToInsertAsNewItem)
         {
-          if (drProdUnit.Read())
-          {
-            unitCode = drProdUnit["UnitCode"].ToString();
-            prodCode = drProdUnit["ProductCode"].ToString();
-            prodUnitIsBC = (bool)drProdUnit["ProductUnitIsBC"];
-            prodUnitBC = drProdUnit["ProductUnitBC"].ToString();
-          }
-          else
-          {
-            throw new Exception(
-                string.Format("Unable to location the product unit refno {0} in tProductUnit.", prodUnitRefno));
-          }
-        }
-      }
+            int prodUnitRefno = int.Parse(data.Root.Element("ProductUnitRefno").Value);
+            int prodUnitBarCodeRefno = 0;
 
-      // Check if the bar code is already associated to this product or another product
-      bool isProdUnitBarCodeFound = false;
-      string prodIdentifier = data.Root.Element("ProductIdentifier").Value;
-      using (SQLiteCommand cmndProdUnitBarCode = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-      {
-        cmndProdUnitBarCode.CommandType = CommandType.Text;
-        cmndProdUnitBarCode.CommandText = "SELECT tProductUnitBarCode.ProductUnitRefno," 
-            + "tProductUnitBarCode.ProductUnitBarCodeRefno " 
-            + "FROM tProductUnitBarCode "
-            + "WHERE tProductUnitBarCode.ProductUnitBarCodeCode = \'" + prodIdentifier.PadRight(20) + "\' " 
-            + "AND tProductUnitBarCode.ProductUnitBarCodeModifier1 = \'" 
-            + data.Root.Element("ProductUnitBarCodeModifier1").Value + "\'";
+            // Look up product bc unit
+            string unitCode = string.Empty;
+            string prodCode = string.Empty;
+            bool prodUnitIsBC = false;
+            string prodUnitBC = string.Empty;
 
-        using (SQLiteDataReader drProdUnitBarCode = cmndProdUnitBarCode.ExecuteReader())
-        {
-          if (drProdUnitBarCode.Read())
-          {
-            if (prodUnitRefno == (int)drProdUnitBarCode["ProductUnitRefno"])
+            using (SQLiteCommand cmndProdUnit = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
             {
-              // bar code is already associated to this product
-              isProdUnitBarCodeFound = true;
-            }
-            else
-            {
-              // bar code is associated to a different product
-              isProdUnitBarCodeFound = true;
-// TODO: DisplayAlert
-//              MessageBox.Show(
-//                  string.Format(
-//#if MULTILANGUAGE
-//                  Translator.GetInstance().Translate(TranslatorVocabulary.ScannedBarCodeIsAlreadyAssociatedToADifferentProduct), 
-//#else
-//                  "Scanned bar code is already associated to a different product {0} {1} {2}.", 
-//#endif
-//                  prodCode, 
-//                  prodUnitBC, 
-//                  unitCode), 
-//#if MULTILANGUAGE
-//                  Translator.GetInstance().Translate(TranslatorVocabulary.BarCodez), 
-//#else
-//                  "Bar Code", 
-//#endif
-//                  MessageBoxButtons.OK, 
-//                  MessageBoxIcon.Hand, 
-//                  MessageBoxDefaultButton.Button1);
-            }
-          }
-        }
-      }
+                cmndProdUnit.CommandType = CommandType.Text;
+                cmndProdUnit.CommandText = "SELECT tProduct.ProductCode,"
+                    + "tProductUnit.ProductUnitIsBC,"
+                    + "tProductUnit.ProductUnitBC,"
+                    + "tUnit.UnitCode "
+                    + "FROM tProductUnit "
+                    + "INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno "
+                    + "INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno "
+                    + "WHERE tProductUnit.ProductUnitRefno = " + prodUnitRefno;
 
-      if (!isProdUnitBarCodeFound)
-      {
-        using (SQLiteTransaction barCodeTrx = DatabaseConnection.GetInstance().SQLConn.BeginTransaction(
-            IsolationLevel.ReadCommitted))
-        {
-          try
-          {
-            this.ActHdr.Create(SysCommon.ActSubTypes.BarCodeAssociation);
-            this.Create(SysCommon.ActSubTypes.BarCodeAssociation);
-
-            // Add the new Bar Code to Product Unit Bar Codes
-            using (SQLiteCommand cmndProdUnitBarCode = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-            {
-              cmndProdUnitBarCode.Transaction = barCodeTrx;
-              cmndProdUnitBarCode.CommandType = CommandType.Text;
-              cmndProdUnitBarCode.CommandText = "INSERT INTO tProductUnitBarCode (" 
-                  + "ProductUnitRefno," 
-                  + "ProductUnitBarCodeCode," 
-                  + "ProductUnitBarCodeRaw," 
-                  + "ProductUnitBarCodeSymbologyEnum," 
-                  + "ProductUnitBarCodeModifier1," 
-                  + "ProductUnitBarCodeStatus" +
-                  ") VALUES (" 
-                  + prodUnitRefno + "," 
-                  + "\'" + data.Root.Element("ProductIdentifier").Value + "\'," 
-                  + "\'" + data.Root.Element("RawData").Value + "\'," 
-                  + data.Root.Element("enumBarCodeSymbology").Value + "," 
-                  + "\'" + SysEnv.CurrentBarCodeModifier1 + "\'," 
-                  + (int)SysCommon.ActStatus.Inserted + ")";
-
-              cmndProdUnitBarCode.ExecuteNonQuery();
-
-              using (SQLiteCommand cmndProdUnitBarCodeID = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-              {
-                cmndProdUnitBarCodeID.Transaction = barCodeTrx;
-                cmndProdUnitBarCodeID.CommandText = "SELECT @@IDENTITY FROM tProductUnitBarCode";
-                //cmndProdUnitBarCodeID.IndexName = "PK_ProductUnitBarCodeOnProductUnitBarCodeRefno";
-
-                prodUnitBarCodeRefno = Convert.ToInt32(cmndProdUnitBarCodeID.ExecuteScalar());
-              }
-            }
-
-            // Create Activity to Bar Code XRef
-            using (SQLiteCommand cmndItemBarCode = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-            {
-              cmndItemBarCode.Transaction = barCodeTrx;
-              cmndItemBarCode.CommandType = CommandType.Text;
-              cmndItemBarCode.CommandText = "INSERT INTO tActivityItemBarCodeAssociationXRef ("
-                  + "ActivityItemRefno," 
-                  + "ProductUnitBarCodeRefno" 
-                  + ") VALUES (" 
-                  + this.Refno + "," 
-                  + prodUnitBarCodeRefno + ")";
-
-              cmndItemBarCode.ExecuteNonQuery();
-
-              data = XDocument.Parse(
-                  "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" 
-                  + "<params>" 
-                  + "<ProductUnitBarCodeRefno>" + prodUnitBarCodeRefno + "</ProductUnitBarCodeRefno>"
-                  + "<ProductUnitRefno>" + prodUnitRefno + "</ProductUnitRefno>"
-                  + "<ProductUnitBarCodeSymbologyPrefix>" + data.Root.Element("BarCodeSymbologyPrefix").Value 
-                  + "</ProductUnitBarCodeSymbologyPrefix>" 
-                  + "<ProductUnitBarCodeCode>" + data.Root.Element("ProductIdentifier").Value
-                  + "</ProductUnitBarCodeCode>"
-                  + "<ProductUnitIsBC>" + prodUnitIsBC + "</ProductUnitIsBC>" 
-                  + "<ProductCode>" + prodCode + "</ProductCode>" 
-                  + "<UnitCode>" + unitCode + "</UnitCode>" 
-                  + "<ProductUnitBarCodeModifier1>" + this.SysEnv.CurrentBarCodeModifier1 
-                  + "</ProductUnitBarCodeModifier1>" 
-                  + "</params>");
-
-              if (!this.SysEnv.SysSettings.IsDisconnectedMode)
-              {
-                string reqData = SysCommon.SubmitComm(this.CreateSubmitXML(data));
-                if (reqData.Length > 0)
+                using (SQLiteDataReader drProdUnit = cmndProdUnit.ExecuteReader())
                 {
-                  // Check if result is an error message
-                  if (reqData.Contains("<message>ERROR</message>"))
-                  {
-                    XmlDocument docError = new XmlDocument();
-                    docError.LoadXml(reqData);
-                    string errorDetail = docError.DocumentElement["detail"].InnerText;
-                    if (errorDetail.Contains("MSGBOX-"))
+                    if (drProdUnit.Read())
                     {
-                      throw new MessageOnlyException(errorDetail);
+                        unitCode = drProdUnit["UnitCode"].ToString();
+                        prodCode = drProdUnit["ProductCode"].ToString();
+                        prodUnitIsBC = (bool)drProdUnit["ProductUnitIsBC"];
+                        prodUnitBC = drProdUnit["ProductUnitBC"].ToString();
                     }
                     else
                     {
-                      throw new Exception(errorDetail);
+                        throw new Exception(string.Format("Unable to location the product unit refno {0} in tProductUnit.", prodUnitRefno));
                     }
-                  }
                 }
-              }
             }
 
-            barCodeTrx.Commit();
-          }
-          catch (SQLiteException ex)
-          {
-            barCodeTrx.Rollback();
-            throw ex;
-          }
-          catch (Exception ex)
-          {
-            barCodeTrx.Rollback();
-            throw ex;
-          }
+            // Check if the bar code is already associated to this product or another product
+            bool isProdUnitBarCodeFound = false;
+            string prodIdentifier = data.Root.Element("ProductIdentifier").Value;
+            using (SQLiteCommand cmndProdUnitBarCode = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+            {
+                cmndProdUnitBarCode.CommandType = CommandType.Text;
+                cmndProdUnitBarCode.CommandText = "SELECT tProductUnitBarCode.ProductUnitRefno,"
+                    + "tProductUnitBarCode.ProductUnitBarCodeRefno "
+                    + "FROM tProductUnitBarCode "
+                    + "WHERE tProductUnitBarCode.ProductUnitBarCodeCode = \'" + prodIdentifier.PadRight(20) + "\' "
+                    + "AND tProductUnitBarCode.ProductUnitBarCodeModifier1 = \'"
+                    + data.Root.Element("ProductUnitBarCodeModifier1").Value + "\'";
+
+                using (SQLiteDataReader drProdUnitBarCode = cmndProdUnitBarCode.ExecuteReader())
+                {
+                    if (drProdUnitBarCode.Read())
+                    {
+                        if (prodUnitRefno == (int)drProdUnitBarCode["ProductUnitRefno"])
+                        {
+                            // bar code is already associated to this product
+                            isProdUnitBarCodeFound = true;
+                        }
+                        else
+                        {
+                            // bar code is associated to a different product
+                            isProdUnitBarCodeFound = true;
+                            // TODO: DisplayAlert
+                            //              MessageBox.Show(
+                            //                  string.Format(
+                            //#if MULTILANGUAGE
+                            //                  Translator.GetInstance().Translate(TranslatorVocabulary.ScannedBarCodeIsAlreadyAssociatedToADifferentProduct), 
+                            //#else
+                            //                  "Scanned bar code is already associated to a different product {0} {1} {2}.", 
+                            //#endif
+                            //                  prodCode, 
+                            //                  prodUnitBC, 
+                            //                  unitCode), 
+                            //#if MULTILANGUAGE
+                            //                  Translator.GetInstance().Translate(TranslatorVocabulary.BarCodez), 
+                            //#else
+                            //                  "Bar Code", 
+                            //#endif
+                            //                  MessageBoxButtons.OK, 
+                            //                  MessageBoxIcon.Hand, 
+                            //                  MessageBoxDefaultButton.Button1);
+                        }
+                    }
+                }
+            }
+
+            if (!isProdUnitBarCodeFound)
+            {
+                using (SQLiteTransaction barCodeTrx = DatabaseConnection.GetInstance().SQLConn.BeginTransaction(IsolationLevel.ReadCommitted))
+                {
+                    try
+                    {
+                        this.ActHdr.Create(SysCommon.ActSubTypes.BarCodeAssociation);
+                        this.Create(SysCommon.ActSubTypes.BarCodeAssociation);
+
+                        // Add the new Bar Code to Product Unit Bar Codes
+                        using (SQLiteCommand cmndProdUnitBarCode = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                        {
+                            cmndProdUnitBarCode.Transaction = barCodeTrx;
+                            cmndProdUnitBarCode.CommandType = CommandType.Text;
+                            cmndProdUnitBarCode.CommandText = "INSERT INTO tProductUnitBarCode ("
+                                + "ProductUnitRefno,"
+                                + "ProductUnitBarCodeCode,"
+                                + "ProductUnitBarCodeRaw,"
+                                + "ProductUnitBarCodeSymbologyEnum,"
+                                + "ProductUnitBarCodeModifier1,"
+                                + "ProductUnitBarCodeStatus" +
+                                ") VALUES ("
+                                + prodUnitRefno + ","
+                                + "\'" + data.Root.Element("ProductIdentifier").Value + "\',"
+                                + "\'" + data.Root.Element("RawData").Value + "\',"
+                                + data.Root.Element("enumBarCodeSymbology").Value + ","
+                                + "\'" + SysEnv.CurrentBarCodeModifier1 + "\',"
+                                + (int)SysCommon.ActStatus.Inserted + ")";
+
+                            cmndProdUnitBarCode.ExecuteNonQuery();
+
+                            using (SQLiteCommand cmndProdUnitBarCodeID = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                            {
+                                cmndProdUnitBarCodeID.Transaction = barCodeTrx;
+                                cmndProdUnitBarCodeID.CommandText = "SELECT last_insert_rowid() FROM tProductUnitBarCode";
+                                //cmndProdUnitBarCodeID.IndexName = "PK_ProductUnitBarCodeOnProductUnitBarCodeRefno";
+
+                                prodUnitBarCodeRefno = Convert.ToInt32(cmndProdUnitBarCodeID.ExecuteScalar());
+                            }
+                        }
+
+                        // Create Activity to Bar Code XRef
+                        using (SQLiteCommand cmndItemBarCode = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                        {
+                            cmndItemBarCode.Transaction = barCodeTrx;
+                            cmndItemBarCode.CommandType = CommandType.Text;
+                            cmndItemBarCode.CommandText = "INSERT INTO tActivityItemBarCodeAssociationXRef ("
+                                + "ActivityItemRefno,"
+                                + "ProductUnitBarCodeRefno"
+                                + ") VALUES ("
+                                + this.Refno + ", "
+                                + prodUnitBarCodeRefno + ")";
+
+                            cmndItemBarCode.ExecuteNonQuery();
+
+                            data = XDocument.Parse(
+                                "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
+                                + "<params>"
+                                + "<ProductUnitBarCodeRefno>" + prodUnitBarCodeRefno + "</ProductUnitBarCodeRefno>"
+                                + "<ProductUnitRefno>" + prodUnitRefno + "</ProductUnitRefno>"
+                                + "<ProductUnitBarCodeSymbologyPrefix>" + data.Root.Element("BarCodeSymbologyPrefix").Value
+                                + "</ProductUnitBarCodeSymbologyPrefix>"
+                                + "<ProductUnitBarCodeCode>" + data.Root.Element("ProductIdentifier").Value
+                                + "</ProductUnitBarCodeCode>"
+                                + "<ProductUnitIsBC>" + prodUnitIsBC + "</ProductUnitIsBC>"
+                                + "<ProductCode>" + prodCode + "</ProductCode>"
+                                + "<UnitCode>" + unitCode + "</UnitCode>"
+                                + "<ProductUnitBarCodeModifier1>" + this.SysEnv.CurrentBarCodeModifier1
+                                + "</ProductUnitBarCodeModifier1>"
+                                + "</params>");
+
+                            if (!this.SysEnv.SysSettings.IsDisconnectedMode)
+                            {
+                                string reqData = SysCommon.SubmitComm(this.CreateSubmitXML(data));
+                                if (reqData.Length > 0)
+                                {
+                                    // Check if result is an error message
+                                    if (reqData.Contains("<message>ERROR</message>"))
+                                    {
+                                        XmlDocument docError = new XmlDocument();
+                                        docError.LoadXml(reqData);
+                                        string errorDetail = docError.DocumentElement["detail"].InnerText;
+                                        if (errorDetail.Contains("MSGBOX-"))
+                                        {
+                                            throw new MessageOnlyException(errorDetail);
+                                        }
+                                        else
+                                        {
+                                            throw new Exception(errorDetail);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        barCodeTrx.Commit();
+                    }
+                    catch (SQLiteException ex)
+                    {
+                        barCodeTrx.Rollback();
+                        throw ex;
+                    }
+                    catch (Exception ex)
+                    {
+                        barCodeTrx.Rollback();
+                        throw ex;
+                    }
+                }
+            }
         }
-      }
-    }
 
     ///// <summary>
     /////

@@ -1,10 +1,83 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<ContentView xmlns="http://xamarin.com/schemas/2014/forms" 
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="dMobile.View.ucSelectProductUnit">
-  <ContentView.Content>
-      <StackLayout>
-          <Label Text="Hello Xamarin.Forms!" />
-      </StackLayout>
-  </ContentView.Content>
-</ContentView>
+<modal:DMobileModal
+    xmlns:modal="clr-namespace:dMobile.View.CustomPages.Modal"
+    xmlns="http://xamarin.com/schemas/2014/forms"          
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:Helpers="clr-namespace:dMobile.View.Helpers"
+    x:Class="dMobile.View.ucSelectProductUnit">
+    <ContentPage.Content>
+        <AbsoluteLayout>
+            <Grid Padding="10" AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0,0,1,1">
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="2*" />
+                </Grid.ColumnDefinitions>
+
+                <Label x:Name="lblSearch" Text="Search" Grid.Row="0" Grid.Column="0" VerticalOptions="Center"/>
+                <Picker x:Name="cboSearch" Grid.Row="0" Grid.Column="1" FontSize="Body" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                <Entry x:Name="txtSearchProduct" Grid.Row="0" Grid.Column="2" TextChanged="TxtSearchProduct_TextChanged" Focused="TxtSearchProduct_Focused" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+
+                <Label x:Name="lblProductDescription" Text="Description" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" VerticalOptions="Center"/>
+
+                <Grid Grid.Row="2" Grid.ColumnSpan="3" BackgroundColor="{DynamicResource HeaderColor}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="2*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Label Grid.Column="0" Text="Code" HorizontalOptions="Center" FontAttributes="Bold"/>
+                    <Label Grid.Column="1" Text="BC" HorizontalOptions="Center" FontAttributes="Bold"/>
+                    <Label Grid.Column="2" Text="Unit" HorizontalOptions="Center" FontAttributes="Bold"/>
+                    <Label Grid.Column="3" Text="Size" HorizontalOptions="Center" FontAttributes="Bold"/>
+                </Grid>
+
+                <Frame VerticalOptions="Start" Grid.Row="3" Grid.ColumnSpan="3" OutlineColor="{DynamicResource BorderColor}">
+                    <ListView x:Name="dgProducts" ItemSelected="DgProducts_ItemSelected">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <ViewCell>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="2*"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <Label Grid.Column="0" Text="{Binding ProductCode}" VerticalOptions="Center" HorizontalOptions="Center"/>
+                                        <Label Grid.Column="1" Text="{Binding ProductUnitBC}" VerticalOptions="Center" HorizontalOptions="Center"/>
+                                        <Label Grid.Column="2" Text="{Binding UnitCode}" VerticalOptions="Center" HorizontalOptions="Center"/>
+                                        <Label Grid.Column="3" Text="{Binding ProductUnitSizeDescription}" VerticalOptions="Center" HorizontalOptions="Center"/>
+                                    </Grid>
+                                </ViewCell>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </Frame>
+                
+                <Grid Grid.Row="4" Grid.ColumnSpan="3">
+                    <Button x:Name="cmdSelect" Grid.Row="0" Grid.Column="0" Text="Select" Clicked="CmdSelect_Clicked" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                    <Button x:Name="cmdClose" Grid.Row="0" Grid.Column="1" Text="Close" Clicked="CmdClose_Clicked" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                </Grid>
+
+            </Grid>
+
+            <ActivityIndicator IsVisible="{Binding Loading}" 
+                               IsRunning="{Binding Loading}" 
+                               AbsoluteLayout.LayoutFlags="All" 
+                               AbsoluteLayout.LayoutBounds="0.5,0.5,0.3,0.3"/>
+        </AbsoluteLayout>
+    </ContentPage.Content>
+</modal:DMobileModal>

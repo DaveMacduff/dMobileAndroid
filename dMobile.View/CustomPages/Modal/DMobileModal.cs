@@ -111,7 +111,6 @@
         {
             try
             {
-
                 if (Application.Current.MainPage is MasterDetailPage mainPage)
                 {
                     await mainPage.Detail.Navigation.PopModalAsync();

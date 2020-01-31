@@ -301,6 +301,11 @@
     <Compile Include="Pages\Themes\LightTheme.xaml.cs">
       <DependentUpon>LightTheme.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Types\Product.cs" />
+    <Compile Include="Types\ProductUnit.cs" />
+    <Compile Include="Types\Receive.cs" />
+    <Compile Include="Types\Section.cs" />
+    <Compile Include="Types\Slot.cs" />
     <Compile Include="Types\Warehouse.cs" />
     <Compile Include="Views\ucLoginStartup.xaml.cs">
       <DependentUpon>ucLoginStartup.xaml</DependentUpon>

@@ -76,12 +76,13 @@
                     //this.CallingControl = new LoginStartup();
                     this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     this.IsControlLoaded = false;
-                    Device.BeginInvokeOnMainThread(async () => await this.Close());
                 }
                 else if (keycode == Keycode.Num1)
                 {
                     this.DisableControls();
                     //this.CallingControl = new ucPurchaseOrdersMenu();
+                    ucPurchaseOrdersMenu purchaseOrders = new ucPurchaseOrdersMenu();
+                    Device.BeginInvokeOnMainThread(async () => await purchaseOrders.Show());
                     this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     this.IsControlLoaded = false;
                 }
@@ -616,6 +617,9 @@
         {
             this.DisableControls();
             //this.CallingControl = new ucPurchaseOrdersMenu();
+
+            ucPurchaseOrdersMenu purchaseOrders = new ucPurchaseOrdersMenu();
+            Device.BeginInvokeOnMainThread(async () => await purchaseOrders.Show());
             this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
             this.IsControlLoaded = false;
         }
