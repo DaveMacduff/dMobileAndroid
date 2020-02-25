@@ -103,9 +103,12 @@
     <Compile Include="clsTableActivityReturnsDetail.cs" />
     <Compile Include="clsTableActivityReturnsItem.cs" />
     <Compile Include="clsTableActivityReturnsItemComment.cs" />
-    <Compile Include="clsTableActivityTransfer.cs" />
-    <Compile Include="clsTableActivityTransferDetail.cs" />
-    <Compile Include="clsTableActivityTransferItem.cs" />
+    <Compile Include="clsTableActivityTransferFrom.cs" />
+    <Compile Include="clsTableActivityTransferFromDetail.cs" />
+    <Compile Include="clsTableActivityTransferFromItem.cs" />
+    <Compile Include="clsTableActivityTransferTo.cs" />
+    <Compile Include="clsTableActivityTransferToDetail.cs" />
+    <Compile Include="clsTableActivityTransferToItem.cs" />
     <Compile Include="clsTableContactUser.cs" />
     <Compile Include="clsTableFamily.cs" />
     <Compile Include="clsTableLocationMapSection.cs" />
@@ -113,6 +116,7 @@
     <Compile Include="clsTableLocationMapSlotCoordinate.cs" />
     <Compile Include="clsTableLocationMapType.cs" />
     <Compile Include="clsTableLocationMapWarehouse.cs" />
+    <Compile Include="clsTableLocationMapWarehouseProductScheme.cs" />
     <Compile Include="clsTableProduct.cs" />
     <Compile Include="clsTableProductLocationMapType.cs" />
     <Compile Include="clsTableProductScheme.cs" />

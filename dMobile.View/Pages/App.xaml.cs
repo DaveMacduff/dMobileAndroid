@@ -12,8 +12,6 @@ namespace dMobile.View
         {
             InitializeComponent();
 
-            //MainPage = new NavigationPage(new MemoryTestPage());
-            //MainPage = new NavigationPage(new ucLoginStartup());
             MainPage = new NavigationPage(new SplashStartup());
 
             if (!DesignMode.IsDesignModeEnabled)

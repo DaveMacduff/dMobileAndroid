@@ -51,6 +51,7 @@ namespace dMobile.View.Options
         private TableProductUnitRelation prodUnitRelation;
         private TableProductUnitBarCode prodUnitBarCode;
         private TableProductLocationMapType prodLocMapType;
+        private TableLocationMapWarehouseProductScheme prodLocMapWhsProdScheme;
         private TableContactUsers contactUsers;
         private TableActivityPhysicalCount physicalCount;
         private TableActivityPhysicalCountItem physicalCountItem;
@@ -69,9 +70,13 @@ namespace dMobile.View.Options
         private TableActivityRecevingItem receivingItem;
         private TableActivityReceivingItemComment receivingItemComment;
         private TableActivityReceivingDetail receivingDetail;
-        private TableActivityTransfer transfer;
-        private TableActivityTransferItem transferItem;
-        private TableActivityTransferDetail transferDetail;
+        private TableActivityTransferFrom transferFrom;
+        private TableActivityTransferFromItem transferFromItem;
+        private TableActivityTransferFromDetail transferFromDetail;
+        private TableActivityTransferTo transferTo;
+        private TableActivityTransferToItem transferToItem;
+        private TableActivityTransferToDetail transferToDetail;
+
         private TableActivityReturns returns;
         private TableActivityReturnsItem returnsItem;
         private TableActivityReturnsItemComment returnsItemComment;
@@ -129,6 +134,7 @@ namespace dMobile.View.Options
                 this.prodUnitRelation = new TableProductUnitRelation();
                 this.prodUnitBarCode = new TableProductUnitBarCode();
                 this.prodLocMapType = new TableProductLocationMapType();
+                this.prodLocMapWhsProdScheme  = new TableLocationMapWarehouseProductScheme();
                 this.contactUsers = new TableContactUsers();
                 this.physicalCount = new TableActivityPhysicalCount();
                 this.physicalCountItem = new TableActivityPhysicalCountItem();
@@ -147,9 +153,12 @@ namespace dMobile.View.Options
                 this.receivingItem = new TableActivityRecevingItem();
                 this.receivingItemComment = new TableActivityReceivingItemComment();
                 this.receivingDetail = new TableActivityReceivingDetail();
-                this.transfer = new TableActivityTransfer();
-                this.transferItem = new TableActivityTransferItem();
-                this.transferDetail = new TableActivityTransferDetail();
+                this.transferFrom = new TableActivityTransferFrom();
+                this.transferFromItem = new TableActivityTransferFromItem();
+                this.transferFromDetail = new TableActivityTransferFromDetail();
+                this.transferTo = new TableActivityTransferTo();
+                this.transferToItem = new TableActivityTransferToItem();
+                this.transferToDetail = new TableActivityTransferToDetail();
                 this.returns = new TableActivityReturns();
                 this.returnsItem = new TableActivityReturnsItem();
                 this.returnsItemComment = new TableActivityReturnsItemComment();
@@ -203,6 +212,7 @@ namespace dMobile.View.Options
                 this.prodUnitRelation = new TableProductUnitRelation();
                 this.prodUnitBarCode = new TableProductUnitBarCode();
                 this.prodLocMapType = new TableProductLocationMapType();
+                this.prodLocMapWhsProdScheme  = new TableLocationMapWarehouseProductScheme();
                 this.contactUsers = new TableContactUsers();
                 this.physicalCount = new TableActivityPhysicalCount();
                 this.physicalCountItem = new TableActivityPhysicalCountItem();
@@ -221,9 +231,12 @@ namespace dMobile.View.Options
                 this.receivingItem = new TableActivityRecevingItem();
                 this.receivingItemComment = new TableActivityReceivingItemComment();
                 this.receivingDetail = new TableActivityReceivingDetail();
-                this.transfer = new TableActivityTransfer();
-                this.transferItem = new TableActivityTransferItem();
-                this.transferDetail = new TableActivityTransferDetail();
+                this.transferFrom = new TableActivityTransferFrom();
+                this.transferFromItem = new TableActivityTransferFromItem();
+                this.transferFromDetail = new TableActivityTransferFromDetail();
+                this.transferTo = new TableActivityTransferTo();
+                this.transferToItem = new TableActivityTransferToItem();
+                this.transferToDetail = new TableActivityTransferToDetail();
                 this.returns = new TableActivityReturns();
                 this.returnsItem = new TableActivityReturnsItem();
                 this.returnsItemComment = new TableActivityReturnsItemComment();
@@ -1001,42 +1014,81 @@ namespace dMobile.View.Options
             }
         }
 
-        private TableActivityTransfer Transfer
+        private TableActivityTransferFrom TransferFrom
         {
             get
             {
-                return this.transfer;
+                return this.transferFrom;
             }
 
             set
             {
-                this.transfer = value;
+                this.transferFrom = value;
             }
         }
 
-        private TableActivityTransferItem TransferItem
+        private TableActivityTransferFromItem TransferFromItem
         {
             get
             {
-                return this.transferItem;
+                return this.transferFromItem;
             }
 
             set
             {
-                this.transferItem = value;
+                this.transferFromItem = value;
             }
         }
 
-        private TableActivityTransferDetail TransferDetail
+        private TableActivityTransferFromDetail TransferFromDetail
         {
             get
             {
-                return this.transferDetail;
+                return this.transferFromDetail;
             }
 
             set
             {
-                this.transferDetail = value;
+                this.transferFromDetail = value;
+            }
+        }
+
+        private TableActivityTransferTo TransferTo
+        {
+            get
+            {
+                return this.transferTo;
+            }
+
+            set
+            {
+                this.transferTo = value;
+            }
+        }
+
+        private TableActivityTransferToItem TransferToItem
+        {
+            get
+            {
+                return this.transferToItem;
+            }
+
+            set
+            {
+                this.transferToItem = value;
+            }
+        }
+
+        private TableActivityTransferToDetail TransferToDetail
+        {
+            get
+            {
+                return this.transferToDetail;
+            }
+
+            set
+            {
+                this.transferToDetail = value;
             }
         }
 
@@ -1324,6 +1376,19 @@ namespace dMobile.View.Options
             set
             {
                 this.itemsList = value;
+            }
+        }
+
+        private TableLocationMapWarehouseProductScheme ProdLocMapWhsProdScheme
+        {
+            get
+            {
+                return this.prodLocMapWhsProdScheme;
+            }
+
+            set
+            {
+                this.prodLocMapWhsProdScheme = value;
             }
         }
 
@@ -2198,6 +2263,13 @@ namespace dMobile.View.Options
             this.ProdUnitBarCode.UnregisterDataAccessListenerProgressOut(this);
             this.StatusOut(this, EventArgs.Empty, string.Empty);
 
+            this.ProdLocMapWhsProdScheme.RegisterDataAccessListenerProgressOut(this);
+            this.ProdLocMapWhsProdScheme.RegisterDataAccessListenerStatusOut(this);
+            this.ProdLocMapWhsProdScheme.Request();
+            this.ProdLocMapWhsProdScheme.UnregisterDataAccessListenerStatusOut(this);
+            this.ProdLocMapWhsProdScheme.UnregisterDataAccessListenerProgressOut(this);
+            this.StatusOut(this, EventArgs.Empty, string.Empty);
+
             this.ProdLocMapType.RegisterDataAccessListenerProgressOut(this);
             this.ProdLocMapType.RegisterDataAccessListenerStatusOut(this);
             this.ProdLocMapType.Request();
@@ -2294,6 +2366,18 @@ namespace dMobile.View.Options
             this.ProdSchemeLot.DataStatus();
             this.ProdSchemeLot.UnregisterDataAccessListenerStatusOut(this);
             this.ProdSchemeLot.UnregisterDataAccessListenerProgressOut(this);
+
+            this.ProdLocMapWhsProdScheme.RegisterDataAccessListenerProgressOut(this);
+            this.ProdLocMapWhsProdScheme.RegisterDataAccessListenerStatusOut(this);
+            this.ProdLocMapWhsProdScheme.DataStatus();
+            this.ProdLocMapWhsProdScheme.UnregisterDataAccessListenerStatusOut(this);
+            this.ProdLocMapWhsProdScheme.UnregisterDataAccessListenerProgressOut(this);
+
+            this.ProdLocMapType.RegisterDataAccessListenerProgressOut(this);
+            this.ProdLocMapType.RegisterDataAccessListenerStatusOut(this);
+            this.ProdLocMapType.DataStatus();
+            this.ProdLocMapType.UnregisterDataAccessListenerStatusOut(this);
+            this.ProdLocMapType.UnregisterDataAccessListenerProgressOut(this);
         }
 
         /// <summary>
@@ -2373,23 +2457,41 @@ namespace dMobile.View.Options
         /// </summary>
         private void DataStatusTransfers()
         {
-            this.Transfer.RegisterDataAccessListenerProgressOut(this);
-            this.Transfer.RegisterDataAccessListenerStatusOut(this);
-            this.Transfer.DataStatus();
-            this.Transfer.UnregisterDataAccessListenerStatusOut(this);
-            this.Transfer.UnregisterDataAccessListenerProgressOut(this);
+            this.TransferFrom.RegisterDataAccessListenerProgressOut(this);
+            this.TransferFrom.RegisterDataAccessListenerStatusOut(this);
+            this.TransferFrom.DataStatus();
+            this.TransferFrom.UnregisterDataAccessListenerStatusOut(this);
+            this.TransferFrom.UnregisterDataAccessListenerProgressOut(this);
 
-            this.TransferItem.RegisterDataAccessListenerProgressOut(this);
-            this.TransferItem.RegisterDataAccessListenerStatusOut(this);
-            this.TransferItem.DataStatus();
-            this.TransferItem.UnregisterDataAccessListenerStatusOut(this);
-            this.TransferItem.UnregisterDataAccessListenerProgressOut(this);
+            this.TransferFromItem.RegisterDataAccessListenerProgressOut(this);
+            this.TransferFromItem.RegisterDataAccessListenerStatusOut(this);
+            this.TransferFromItem.DataStatus();
+            this.TransferFromItem.UnregisterDataAccessListenerStatusOut(this);
+            this.TransferFromItem.UnregisterDataAccessListenerProgressOut(this);
 
-            this.TransferDetail.RegisterDataAccessListenerProgressOut(this);
-            this.TransferDetail.RegisterDataAccessListenerStatusOut(this);
-            this.TransferDetail.DataStatus();
-            this.TransferDetail.UnregisterDataAccessListenerStatusOut(this);
-            this.TransferDetail.UnregisterDataAccessListenerProgressOut(this);
+            this.TransferFromDetail.RegisterDataAccessListenerProgressOut(this);
+            this.TransferFromDetail.RegisterDataAccessListenerStatusOut(this);
+            this.TransferFromDetail.DataStatus();
+            this.TransferFromDetail.UnregisterDataAccessListenerStatusOut(this);
+            this.TransferFromDetail.UnregisterDataAccessListenerProgressOut(this);
+
+            this.TransferTo.RegisterDataAccessListenerProgressOut(this);
+            this.TransferTo.RegisterDataAccessListenerStatusOut(this);
+            this.TransferTo.DataStatus();
+            this.TransferTo.UnregisterDataAccessListenerStatusOut(this);
+            this.TransferTo.UnregisterDataAccessListenerProgressOut(this);
+
+            this.TransferToItem.RegisterDataAccessListenerProgressOut(this);
+            this.TransferToItem.RegisterDataAccessListenerStatusOut(this);
+            this.TransferToItem.DataStatus();
+            this.TransferToItem.UnregisterDataAccessListenerStatusOut(this);
+            this.TransferToItem.UnregisterDataAccessListenerProgressOut(this);
+
+            this.TransferToDetail.RegisterDataAccessListenerProgressOut(this);
+            this.TransferToDetail.RegisterDataAccessListenerStatusOut(this);
+            this.TransferToDetail.DataStatus();
+            this.TransferToDetail.UnregisterDataAccessListenerStatusOut(this);
+            this.TransferToDetail.UnregisterDataAccessListenerProgressOut(this);
         }
 
         /// <summary>
@@ -2901,50 +3003,84 @@ namespace dMobile.View.Options
         {
             if (this.SysEnv.RefreshOpt.Transfers || this.ActSubType == SysCommon.ActSubTypes.PurgeActivityData)
             {
-                this.TransferDetail.RegisterDataAccessListenerStatusOut(this);
-                this.TransferDetail.Purge();
-                this.TransferDetail.UnregisterDataAccessListenerStatusOut(this);
+                this.TransferFromDetail.RegisterDataAccessListenerStatusOut(this);
+                this.TransferFromDetail.Purge();
+                this.TransferFromDetail.UnregisterDataAccessListenerStatusOut(this);
 
-                this.TransferItem.RegisterDataAccessListenerStatusOut(this);
-                this.TransferItem.Purge();
-                this.TransferItem.UnregisterDataAccessListenerStatusOut(this);
+                this.TransferFromItem.RegisterDataAccessListenerStatusOut(this);
+                this.TransferFromItem.Purge();
+                this.TransferFromItem.UnregisterDataAccessListenerStatusOut(this);
 
-                this.Transfer.RegisterDataAccessListenerStatusOut(this);
-                this.Transfer.Purge();
-                this.Transfer.UnregisterDataAccessListenerStatusOut(this);
+                this.TransferFrom.RegisterDataAccessListenerStatusOut(this);
+                this.TransferFrom.Purge();
+                this.TransferFrom.UnregisterDataAccessListenerStatusOut(this);
+
+                this.TransferToDetail.RegisterDataAccessListenerStatusOut(this);
+                this.TransferToDetail.Purge();
+                this.TransferToDetail.UnregisterDataAccessListenerStatusOut(this);
+
+                this.TransferToItem.RegisterDataAccessListenerStatusOut(this);
+                this.TransferToItem.Purge();
+                this.TransferToItem.UnregisterDataAccessListenerStatusOut(this);
+
+                this.TransferTo.RegisterDataAccessListenerStatusOut(this);
+                this.TransferTo.Purge();
+                this.TransferTo.UnregisterDataAccessListenerStatusOut(this);
 
                 if (this.ActSubType != SysCommon.ActSubTypes.PurgeActivityData)
                 {
-                    this.Transfer.RegisterDataAccessListenerProgressOut(this);
-                    this.Transfer.RegisterDataAccessListenerStatusOut(this);
-                    this.Transfer.Request();
-                    this.Transfer.UnregisterDataAccessListenerStatusOut(this);
-                    this.Transfer.UnregisterDataAccessListenerProgressOut(this);
+                    this.TransferFrom.RegisterDataAccessListenerProgressOut(this);
+                    this.TransferFrom.RegisterDataAccessListenerStatusOut(this);
+                    this.TransferFrom.Request();
+                    this.TransferFrom.UnregisterDataAccessListenerStatusOut(this);
+                    this.TransferFrom.UnregisterDataAccessListenerProgressOut(this);
                     this.StatusOut(this, EventArgs.Empty, string.Empty);
 
-                    this.TransferItem.RegisterDataAccessListenerProgressOut(this);
-                    this.TransferItem.RegisterDataAccessListenerStatusOut(this);
-                    this.TransferItem.Request(0);
-                    this.TransferItem.UnregisterDataAccessListenerStatusOut(this);
-                    this.TransferItem.UnregisterDataAccessListenerProgressOut(this);
+                    this.TransferFromItem.RegisterDataAccessListenerProgressOut(this);
+                    this.TransferFromItem.RegisterDataAccessListenerStatusOut(this);
+                    this.TransferFromItem.Request(0);
+                    this.TransferFromItem.UnregisterDataAccessListenerStatusOut(this);
+                    this.TransferFromItem.UnregisterDataAccessListenerProgressOut(this);
+                    this.StatusOut(this, EventArgs.Empty, string.Empty);
+
+                    this.TransferTo.RegisterDataAccessListenerProgressOut(this);
+                    this.TransferTo.RegisterDataAccessListenerStatusOut(this);
+                    this.TransferTo.Request();
+                    this.TransferTo.UnregisterDataAccessListenerStatusOut(this);
+                    this.TransferTo.UnregisterDataAccessListenerProgressOut(this);
+                    this.StatusOut(this, EventArgs.Empty, string.Empty);
+
+                    this.TransferToItem.RegisterDataAccessListenerProgressOut(this);
+                    this.TransferToItem.RegisterDataAccessListenerStatusOut(this);
+                    this.TransferToItem.Request(0);
+                    this.TransferToItem.UnregisterDataAccessListenerStatusOut(this);
+                    this.TransferToItem.UnregisterDataAccessListenerProgressOut(this);
                     this.StatusOut(this, EventArgs.Empty, string.Empty);
 
                     if (this.SysEnv.SysSettings.IsDisconnectedModeLoadDetail)
                     {
-                        this.TransferDetail.RegisterDataAccessListenerProgressOut(this);
-                        this.TransferDetail.RegisterDataAccessListenerStatusOut(this);
-                        this.TransferDetail.Request(0);
-                        this.TransferDetail.UnregisterDataAccessListenerStatusOut(this);
-                        this.TransferDetail.UnregisterDataAccessListenerProgressOut(this);
+                        this.TransferFromDetail.RegisterDataAccessListenerProgressOut(this);
+                        this.TransferFromDetail.RegisterDataAccessListenerStatusOut(this);
+                        this.TransferFromDetail.Request(0);
+                        this.TransferFromDetail.UnregisterDataAccessListenerStatusOut(this);
+                        this.TransferFromDetail.UnregisterDataAccessListenerProgressOut(this);
                         this.StatusOut(this, EventArgs.Empty, string.Empty);
+
+                        this.TransferToDetail.RegisterDataAccessListenerProgressOut(this);
+                        this.TransferToDetail.RegisterDataAccessListenerStatusOut(this);
+                        this.TransferToDetail.Request(0);
+                        this.TransferToDetail.UnregisterDataAccessListenerStatusOut(this);
+                        this.TransferToDetail.UnregisterDataAccessListenerProgressOut(this);
+                        this.StatusOut(this, EventArgs.Empty, string.Empty);
+
                     }
                 }
             }
         }
 
-        private async void BtnClose_Clicked(object sender, EventArgs e)
+        private void BtnClose_Clicked(object sender, EventArgs e)
         {
-            await this.Close();
+            Device.BeginInvokeOnMainThread(async () => await this.Close());
         }
     }
 }

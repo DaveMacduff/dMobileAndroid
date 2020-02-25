@@ -6,6 +6,8 @@
     using System.Threading.Tasks;
     using Xamarin.Forms;
     using dMobile.GroundWork;
+    using Android.Views;
+    using System.Collections.ObjectModel;
 
     /// <summary>
     /// Defines the <see cref="TestPage" />
@@ -20,33 +22,57 @@
             InitializeComponent();
         }
 
-        /// <summary>
-        /// The Button_Clicked
+          /// <summary>
+        /// The OnAppearing
         /// </summary>
-        /// <param name="sender">The sender<see cref="object"/></param>
-        /// <param name="e">The e<see cref="EventArgs"/></param>
-        private async void Button_Clicked(object sender, EventArgs e)
+        protected override void OnAppearing()
         {
-            await new FormAssociateBarCodeOverride().ShowDialog();
+            base.OnAppearing();
+
+            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
+            {
+                // TODO: Verify keycodes
+                Enum.TryParse(keyPressed, out Keycode keycode);
+
+                if (keycode == Keycode.Enter)
+                {
+                    await DisplayAlert("Key Pressed", "Key is: " + keycode.ToString(), "OK");
+                }
+            });
         }
 
-        private async void Button_Clicked_1(object sender, EventArgs e)
+        /// <summary>
+        /// The OnDisappearing
+        /// </summary>
+        protected override void OnDisappearing()
         {
-            try
-            {
-                throw new Exception();
-            }
-            catch (Exception ex)
-            {
-                await new FormErrorReport(ex).ShowDialog();
-            }
-
-
+            base.OnDisappearing();
+            MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
         }
 
-        private async void Button_Clicked_2(object sender, EventArgs e)
+        private void BtnTest_Clicked(object sender, EventArgs e)
         {
-            await DisplayAlert("Test", dMobile.Resources.Properties.Resources.TestStringBelowNewLine, "Ok");
+            this.Test();
+        }
+
+        private async Task Test()
+        {
+            bool test = false;
+
+            if (await DisplayAlert("TEST", "Click one", "Yes", "No"))
+            {
+                test = true;
+            }
+
+            if (test == true)
+            {
+                await DisplayAlert("Success", "This works!", "OK");
+            }
+        }
+
+        private void BtnTest2_Clicked(object sender, EventArgs e)
+        {
+
         }
     }
 }

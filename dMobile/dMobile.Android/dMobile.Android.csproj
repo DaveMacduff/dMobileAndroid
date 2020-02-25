@@ -78,6 +78,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CustomRenderers\BorderedEditorRenderer.cs" />
+    <Compile Include="CustomRenderers\CustomListViewRenderer.cs" />
     <Compile Include="CustomRenderers\CustomNavigationPageRenderer.cs" />
     <Compile Include="CustomRenderers\CustomPickerRenderer.cs" />
     <Compile Include="CustomRenderers\CustomSwitchRenderer.cs" />

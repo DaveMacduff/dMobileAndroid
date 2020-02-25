@@ -149,43 +149,37 @@ namespace dMobile.GroundWork
         {
             int prodRefno = 0;
 
-            //            try
-            //            {
-            //                using (SQLiteCommand cmndProduct = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-            //                {
-            //                    cmndProduct.CommandText = "tProduct";
-            //                    cmndProduct.IndexName = "UQ_ProductOnProductFKRefno";
-            //                    cmndProduct.CommandType = CommandType.TableDirect;
+            try
+            {
+                using (SQLiteCommand cmndProduct = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                {
+                    cmndProduct.CommandText = "SELECT * FROM tProduct WHERE ProductFKRefno = @productFKRefno";
+                    cmndProduct.CommandType = CommandType.Text;
+                    //cmndProduct.IndexName = "UQ_ProductOnProductFKRefno";
+                    cmndProduct.Parameters.Add(new SQLiteParameter("@productFKRefno", Convert.ToInt32(prodFKRefno)));
 
-            //                    using (SQLiteDataReader drProduct = cmndProduct.ExecuteReader())
-            //                    {
-            //                        drProduct.Seek(DbSeekOptions.FirstEqual, new object[] { prodFKRefno });
-            //                        if (drProduct.Read())
-            //                        {
-            //                            prodRefno = drProduct.GetInt32((int)SysCommon.ProductFields.Refno);
-            //                        }
-            //                        else
-            //                        {
-            //                            throw new Exception(
-            //#if MULTILANGUAGE
-            //                string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.UnableToLocateProductRefnoFromProductFkRefnoInTproduct), prodFKRefno));
-            //#else
-            //string.Format("Unable to locate product Refno from product FK Refno {0} in tProduct", prodFKRefno));
-            //#endif
-            //                        }
+                    using (SQLiteDataReader drProduct = cmndProduct.ExecuteReader())
+                    {
+                        //drProduct.Seek(DbSeekOptions.FirstEqual, new object[] { prodFKRefno });
+                        if (drProduct.Read())
+                        {
+                            prodRefno = drProduct.GetInt32((int)SysCommon.ProductFields.Refno);
+                        }
+                        else
+                        {
+                            // TODO: Resource strings
+                            throw new Exception(string.Format("Unable to locate product Refno from product FK Refno {0} in tProduct", prodFKRefno));
+                        }
 
-            //                        drProduct.Close();
-            //                    }
-            //                }
-            //            }
-            //            catch (SQLiteException ex)
-            //            {
-            //#if MULTILANGUAGE
-            //        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredGetprodrefnofromprodfkrefnoFailed), ex);
-            //#else
-            //                throw new Exception("Database exception occurred. GetProdRefnoFromProdFKRefno failed.", ex);
-            //#endif
-            //            }
+                        drProduct.Close();
+                    }
+                }
+            }
+            catch (SQLiteException ex)
+            {
+                // TODO: Resource strings
+                throw new Exception("Database exception occurred. GetProdRefnoFromProdFKRefno failed.", ex);
+            }
 
             return prodRefno;
         }
@@ -259,7 +253,7 @@ namespace dMobile.GroundWork
             {
                 try
                 {
-                    Dictionary<string, int> schemeCache = new Dictionary<string, int>();
+                    //Dictionary<string, int> schemeCache = new Dictionary<string, int>();
                     Dictionary<string, int> familyCache = new Dictionary<string, int>();
                     // TODO: Resource Strings
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
@@ -274,6 +268,7 @@ namespace dMobile.GroundWork
                     sett.IgnoreWhitespace = false;
                     sett.ValidationFlags = System.Xml.Schema.XmlSchemaValidationFlags.None;
                     sett.ValidationType = ValidationType.None;
+
                     using (StringReader stringReader = new StringReader(data.Substring(startIndex)))
                     using (XmlReader reader = XmlReader.Create(stringReader, sett))
                     {
@@ -284,8 +279,8 @@ namespace dMobile.GroundWork
                         //cmndProd.CommandType = CommandType.Text;
                         ////cmndProd.IndexName = "UQ_ProductOnProductFKRefno";
 
-                        cmndScheme.CommandText = "SELECT * FROM tProductScheme";
-                        cmndScheme.CommandType = CommandType.Text;
+                        //cmndScheme.CommandText = "SELECT * FROM tProductScheme";
+                        //cmndScheme.CommandType = CommandType.Text;
                         //cmndScheme.IndexName = "UQ_ProductSchemeOnProductSchemeCode";
 
                         cmndFamily.CommandText = "SELECT * FROM tFamily";
@@ -293,13 +288,13 @@ namespace dMobile.GroundWork
                         //cmndFamily.IndexName = "UQ_FamilyOnFamilyCode";
 
                         //using (SQLiteDataReader drProduct = cmndProd.ExecuteReader())
-                        using (SQLiteDataReader drScheme = cmndScheme.ExecuteReader())
+                        //using (SQLiteDataReader drScheme = cmndScheme.ExecuteReader())
                         using (SQLiteDataReader drFamily = cmndFamily.ExecuteReader())
                         {
-                            while (drScheme.Read())
-                            {
-                                schemeCache.Add(drScheme.GetString((int)SysCommon.ProdSchemeFields.Code), drScheme.GetInt32((int)SysCommon.ProdSchemeFields.Refno));
-                            }
+                            //while (drScheme.Read())
+                            //{
+                            //    schemeCache.Add(drScheme.GetString((int)SysCommon.ProdSchemeFields.Code), drScheme.GetInt32((int)SysCommon.ProdSchemeFields.Refno));
+                            //}
 
                             while (drFamily.Read())
                             {
@@ -410,86 +405,11 @@ namespace dMobile.GroundWork
                             if (!recordFilled)
                                 continue;
 
-                            schemeCache.TryGetValue(schemeCode, out schemeRefno);
+                            //schemeCache.TryGetValue(schemeCode, out schemeRefno);
                             familyCache.TryGetValue(familyCode, out familyRefno);
 
-                            // Get schemeRefno from schemeCode
-
-                            //if (!schemeCache.TryGetValue(schemeCode, out schemeRefno))
-                            //{
-                            //using (SQLiteCommand cmndScheme = conn.CreateCommand())
-                            //{
-                            //cmndScheme.CommandText = "SELECT * FROM tProductScheme WHERE ProductSchemeCode = @productSchemeCode";
-                            //cmndScheme.CommandType = CommandType.Text;
-                            ////cmndScheme.IndexName = "UQ_ProductSchemeOnProductSchemeCode";
-                            //cmndScheme.Parameters.Add(new SQLiteParameter("@productSchemeCode", schemeCode));
-
-                            //using (SQLiteDataReader drScheme = cmndScheme.ExecuteReader())
-                            //{
-                            //drScheme
-                            //if (drScheme.Seek(DbSeekOptions.FirstEqual, new object[] { schemeCode }))
-                            //{
-                            //if (drScheme.Read())
-                            //{
-                            //    schemeRefno = drScheme.GetInt32((int)SysCommon.ProdSchemeFields.Refno);
-                            //    schemeCache.Add(schemeCode, schemeRefno);
-                            //}
-                            //else
-                            //{
-                            //    // TODO: Resource Strings
-                            //    throw new Exception("drScheme.Read()" + Environment.NewLine + errMsg);
-                            //}
-                            //}
-                            //else
-                            //{
-                            //    // TODO: Resource Strings
-                            //    throw new Exception("Unable to locate the product scheme code in tProductScheme." + Environment.NewLine + errMsg);
-                            //}
-
-                            //}
-                            //}
-                            //}
-
-                            //if (!familyCache.TryGetValue(familyCode, out familyRefno))
-                            //{
-                            //using (SQLiteCommand cmndFamily = conn.CreateCommand())
-                            ////{
-                            //cmndFamily.CommandText = "SELECT * FROM tFamily WHERE FamilyCode = @familyCode";
-                            //cmndFamily.CommandType = CommandType.Text;
-                            ////cmndFamily.IndexName = "UQ_FamilyOnFamilyCode";
-                            //cmndFamily.Parameters.Add(new SQLiteParameter("@familyCode", familyCode));
-
-                            //using (SQLiteDataReader drFamily = cmndFamily.ExecuteReader())
-                            //{
-                            // Get familyRefno from familyCode
-                            //if (drFamily.Seek(DbSeekOptions.FirstEqual, new object[] { familyCode }))
-                            //{
-                            //if (drFamily.Read())
-                            //{
-                            //    familyRefno = drFamily.GetInt32((int)SysCommon.FamilyFields.Refno);
-                            //    familyCache.Add(familyCode, familyRefno);
-                            //}
-                            //else
-                            //{
-                            //    // TODO: Resource Strings
-                            //    throw new Exception("drFamily.Read()" + Environment.NewLine + errMsg);
-                            //}
-                            //}
-                            //else
-                            //{
-                            //    // TODO: Resource Strings
-                            //    throw new Exception("Unable to locate the family code in tFamily." + Environment.NewLine + errMsg);
-                            //}
-                            //}
-                            //}
-                            //}
 
                             isProdFound = false;
-
-                            //using (SQLiteCommand cmndProd = conn.CreateCommand())
-                            //{
-                            //using (SQLiteCommand cmndProdGet = DatabaseConnection.GetInstance().SQLConn).CreateCommand()
-                            //{
 
                             cmndProdGet.CommandText = "SELECT ProductFKRefno FROM tProduct WHERE ProductFKRefno = @productFKRefno";
                             cmndProdGet.CommandType = CommandType.Text;
@@ -503,42 +423,34 @@ namespace dMobile.GroundWork
                                 {
                                     isProdFound = true;
 
-                                    //using (SQLiteCommand cmndProdUpdate = conn.CreateCommand())
-                                    //{
+                                    if (refreshDataChangesOnly)
+                                    {
+                                        cmndProdUpdate.CommandText = "UPDATE tProduct" +
+                                        " SET FamilyRefno = @familyRefno," +
+                                        " ProductCode = @prodCode," +
+                                        " ProductDescription = @desc," +
+                                        " ProductBrandDescription = @brandDesc," +
+                                        " ProductIsCatchCount = @catchCount," +
+                                        " ProductIsCatchWeight = @catchWeight," +
+                                        " ProductIsCatchAsk = @catchAsk," +
+                                        " ProductIsCatchAskZero = @catchAskZero," +
+                                        " ProductAllowConvertProduct = @allowConvert" +
+                                        " WHERE ProductFKRefno = @prodFKRefno";
 
-                                    // TODO: Uncomment SysEnv.RefreshOpt.RefreshDataChangesOnly
-                                    //if (refreshDataChangesOnly)
-                                    //{
-                                    cmndProdUpdate.CommandText = "UPDATE tProduct" +
-                                    " SET ProductSchemeRefno = @schemeRefno," +
-                                    " FamilyRefno = @familyRefno," +
-                                    " ProductCode = @prodCode," +
-                                    " ProductDescription = @desc," +
-                                    " ProductBrandDescription = @brandDesc," +
-                                    " ProductIsCatchCount = @catchCount," +
-                                    " ProductIsCatchWeight = @catchWeight," +
-                                    " ProductIsCatchAsk = @catchAsk," +
-                                    " ProductIsCatchAskZero = @catchAskZero," +
-                                    " ProductAllowConvertProduct = @allowConvert" +
-                                    " WHERE ProductFKRefno = @prodFKRefno";
+                                        cmndProdUpdate.CommandType = CommandType.Text;
+                                        cmndProdUpdate.Parameters.Add(new SQLiteParameter("@familyRefno", familyRefno));
+                                        cmndProdUpdate.Parameters.Add(new SQLiteParameter("@prodCode", prodCode));
+                                        cmndProdUpdate.Parameters.Add(new SQLiteParameter("@desc", description));
+                                        cmndProdUpdate.Parameters.Add(new SQLiteParameter("@brandDesc", brandDescription));
+                                        cmndProdUpdate.Parameters.Add(new SQLiteParameter("@catchCount", isCatchCount));
+                                        cmndProdUpdate.Parameters.Add(new SQLiteParameter("@catchWeight", isCatchWeight));
+                                        cmndProdUpdate.Parameters.Add(new SQLiteParameter("@catchAsk", isCatchAsk));
+                                        cmndProdUpdate.Parameters.Add(new SQLiteParameter("@catchAskZero", isCatchAskZero));
+                                        cmndProdUpdate.Parameters.Add(new SQLiteParameter("@allowConvert", isAllowConvertProduct));
+                                        cmndProdUpdate.Parameters.Add(new SQLiteParameter("@prodFKRefno", prodFKRefno));
 
-                                    cmndProdUpdate.CommandType = CommandType.Text;
-                                    cmndProdUpdate.Parameters.Add(new SQLiteParameter("@schemeRefno", schemeRefno));
-                                    cmndProdUpdate.Parameters.Add(new SQLiteParameter("@prodCode", prodCode));
-                                    cmndProdUpdate.Parameters.Add(new SQLiteParameter("@familyRefno", familyRefno));
-                                    cmndProdUpdate.Parameters.Add(new SQLiteParameter("@desc", description));
-                                    cmndProdUpdate.Parameters.Add(new SQLiteParameter("@brandDesc", brandDescription));
-                                    cmndProdUpdate.Parameters.Add(new SQLiteParameter("@catchCount", isCatchCount));
-                                    cmndProdUpdate.Parameters.Add(new SQLiteParameter("@catchWeight", isCatchWeight));
-                                    cmndProdUpdate.Parameters.Add(new SQLiteParameter("@catchAsk", isCatchAsk));
-                                    cmndProdUpdate.Parameters.Add(new SQLiteParameter("@catchAskZero", isCatchAskZero));
-                                    cmndProdUpdate.Parameters.Add(new SQLiteParameter("@allowConvert", isAllowConvertProduct));
-                                    cmndProdUpdate.Parameters.Add(new SQLiteParameter("@prodFKRefno", prodFKRefno));
-
-                                    cmndProdUpdate.ExecuteNonQuery();
-
-                                    //}
-                                    //}
+                                        cmndProdUpdate.ExecuteNonQuery();
+                                    }
                                 }
                             }
 
@@ -599,9 +511,7 @@ namespace dMobile.GroundWork
                                 //rec.SetString((int)SysCommon.ProductFields.BrandDescription, brandDescription);
                                 //rec.SetBoolean((int)SysCommon.ProductFields.IsCatchAskZero, isCatchAskZero);
                                 //rec.SetBoolean((int)SysCommon.ProductFields.AllowConvertProduct, isAllowConvertProduct);
-
                                 //rs.Insert(rec);
-
                                 //}
                             }
 
@@ -634,6 +544,8 @@ namespace dMobile.GroundWork
                 }
                 catch (SQLiteException ex)
                 {
+                    transaction.Rollback();
+
                     // TODO: Resource Strings
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving products failed.", false);

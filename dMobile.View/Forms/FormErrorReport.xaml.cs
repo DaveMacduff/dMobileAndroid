@@ -356,9 +356,9 @@
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private async void buttonContinue_Click(object sender, EventArgs e)
+        private void buttonContinue_Click(object sender, EventArgs e)
         {
-            await this.Close();
+            Device.BeginInvokeOnMainThread(async () => await this.Close());
         }
 
         /// <summary>

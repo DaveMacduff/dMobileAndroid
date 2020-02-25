@@ -52,6 +52,16 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="Types\Count.cs" />
+    <Compile Include="Types\CountItem.cs" />
+    <Compile Include="Types\Product.cs" />
+    <Compile Include="Types\ProductUnit.cs" />
+    <Compile Include="Types\Receive.cs" />
+    <Compile Include="Types\ReceiveDetail.cs" />
+    <Compile Include="Types\ReceiveItem.cs" />
+    <Compile Include="Types\Section.cs" />
+    <Compile Include="Types\Slot.cs" />
+    <Compile Include="Types\Warehouse.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.fr.resx" />

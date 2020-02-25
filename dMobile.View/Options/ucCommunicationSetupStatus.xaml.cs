@@ -94,9 +94,9 @@
         /// </summary>
         /// <param name="sender">The sender<see cref="object"/></param>
         /// <param name="e">The e<see cref="EventArgs"/></param>
-        private async void BtnClose_Clicked(object sender, EventArgs e)
+        private void BtnClose_Clicked(object sender, EventArgs e)
         {
-            await this.Close();
+            Device.BeginInvokeOnMainThread(async () => await this.Close());
         }
     }
 }

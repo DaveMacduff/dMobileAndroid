@@ -18,28 +18,17 @@
         public static int GetLocMapRefnoFromBarCodeGlobalLocIdentifier(string globalLocationIdentifier)
         {
             int locMapRefno = 0;
-            bool secondAttempt = false;
-            LocationMap locMap = LocationMap.GetInstance();
+            SysBarCodeSettings barCodeSettings = new SysBarCodeSettings().LoadData();
+            bool secondAttempt = barCodeSettings.IsRuleEnabled_HeritageGlobalLocationIdentifierSecondPassIgnoreCheckDigit;
 
-            // first attempt to find the location as a complete bar code
+            // Because we each warehouse has it's own map structure now we can't assume the tracking map.
+            // So this will be a little slower, plus the extra parsing rules to include.
+
+            // first attempt to find the location as a complete SLOT bar code
             SQLiteCommand cmndLocMap = DatabaseConnection.GetInstance().SQLConn.CreateCommand();
             cmndLocMap.CommandType = CommandType.Text;
-
-            if (locMap.IsSlotLocMapTracked)
-            {
-                cmndLocMap.CommandText = "SELECT LocationMapRefno FROM tLocationMapSlot WHERE LocationMapRefno = @globalLocationIdentifier";
-                cmndLocMap.Parameters.Add(new SQLiteParameter("@globalLocationIdentifier", globalLocationIdentifier));
-            }
-            else if (locMap.IsSectLocMapTracked)
-            {
-                cmndLocMap.CommandText = "SELECT LocationMapRefno FROM tLocationMapSection WHERE LocationMapRefno = @globalLocationIdentifier";
-                cmndLocMap.Parameters.Add(new SQLiteParameter("@globalLocationIdentifier", globalLocationIdentifier));
-            }
-            else
-            {
-                cmndLocMap.CommandText = "SELECT LocationMapRefno FROM tLocationMapWarehouse WHERE LocationMapRefno = @globalLocationIdentifier";
-                cmndLocMap.Parameters.Add(new SQLiteParameter("@globalLocationIdentifier", globalLocationIdentifier));
-            }
+            cmndLocMap.CommandText = "SELECT LocationMapRefno FROM tLocationMapSlot WHERE LocationMapRefno = @globalLocationIdentifier";
+            cmndLocMap.Parameters.Add(new SQLiteParameter("@globalLocationIdentifier", globalLocationIdentifier));
 
             using (SQLiteDataReader drLocMap = cmndLocMap.ExecuteReader())
             {
@@ -56,9 +45,6 @@
                 }
                 else
                 {
-                    SysBarCodeSettings barCodeSettings = new SysBarCodeSettings().LoadData();
-                    secondAttempt = barCodeSettings.IsRuleEnabled_HeritageGlobalLocationIdentifierSecondPassIgnoreCheckDigit;
-
                     if (!secondAttempt)
                     {
                         // TODO: Resource strings
@@ -74,31 +60,108 @@
                 string barCode = globalLocationIdentifier.Substring(0, globalLocationIdentifier.TrimEnd().Length - 1);
 
                 cmndLocMap.CommandType = CommandType.Text;
-
-                if (locMap.IsSlotLocMapTracked)
-                {
-                    cmndLocMap.CommandText = "SELECT tLocationMapSlot.LocationMapRefno "
+                cmndLocMap.CommandText = "SELECT tLocationMapSlot.LocationMapRefno "
                         + "FROM tLocationMapSlot "
                         + "WHERE tLocationMapSlot.LocationMapSlotBarCode LIKE @barcode%";
                     cmndLocMap.Parameters.Add(new SQLiteParameter("@barCode", barCode));
-                }
-                else if (locMap.IsSectLocMapTracked)
+
+                locMapRefno = Convert.ToInt32(cmndLocMap.ExecuteScalar());
+            }
+
+
+            // second attempt to find the location as a complete SECTION bar code
+            if (locMapRefno == 0)
+            {
+                secondAttempt = false;
+
+                cmndLocMap.CommandType = CommandType.Text;
+                cmndLocMap.CommandText = "SELECT LocationMapRefno FROM tLocationMapSection WHERE LocationMapRefno = @globalLocationIdentifier";
+                cmndLocMap.Parameters.Add(new SQLiteParameter("@globalLocationIdentifier", globalLocationIdentifier));
+
+                using (SQLiteDataReader drLocMap = cmndLocMap.ExecuteReader())
                 {
+                    if (drLocMap.HasRows)
+                    {
+                        if (drLocMap.Read())
+                        {
+                            locMapRefno = Convert.ToInt32(drLocMap["LocationMapRefno"]);
+                        }
+                        else
+                        {
+                            throw new Exception("drLocMap.Read() failed.");
+                        }
+                    }
+                    else
+                    {
+                        if (!secondAttempt)
+                        {
+                            // TODO: Resource strings
+                            throw new Exception(string.Format("Unable To Locate Global Location Identifier '{0}' In {1}", globalLocationIdentifier, cmndLocMap.CommandText));
+                        }
+                    }
+
+                    drLocMap.Close();
+                }
+
+                if (secondAttempt)
+                {
+                    string barCode = globalLocationIdentifier.Substring(0, globalLocationIdentifier.TrimEnd().Length - 1);
+                    cmndLocMap.CommandType = CommandType.Text;
+                    //cmndLocMap.IndexName = string.Empty;
                     cmndLocMap.CommandText = "SELECT tLocationMapSection.LocationMapRefno "
-                    + "FROM tLocationMapSection "
-                    + "WHERE tLocationMapSection.LocationMapSectionBarCode LIKE @barcode%";
-                    cmndLocMap.Parameters.Add(new SQLiteParameter("@barCode", barCode));
-                }
-                else
-                {
-                    cmndLocMap.CommandText = "SELECT tLocationMapWarehouse.LocationMapRefno "
-                    + "FROM tLocationMapWarehouse "
-                    + "WHERE tLocationMapWarehouse.LocationMapWarehouseBarCode LIKE @barcode%";
-                    cmndLocMap.Parameters.Add(new SQLiteParameter("@barCode", barCode));
+                        + "FROM tLocationMapSection "
+                        + "WHERE tLocationMapSection.LocationMapSectionBarCode LIKE \'" + barCode + "%\'";
                 }
 
                 locMapRefno = Convert.ToInt32(cmndLocMap.ExecuteScalar());
             }
+
+            // third attempt to find the location as a complete WAREHOUSE bar code
+            if (locMapRefno == 0)
+            {
+                secondAttempt = false;
+                cmndLocMap.CommandText = "SELECT LocationMapRefno FROM tLocationMapWarehouse WHERE LocationMapRefno = @globalLocationIdentifier";
+                cmndLocMap.Parameters.Add(new SQLiteParameter("@globalLocationIdentifier", globalLocationIdentifier));
+
+                using (SQLiteDataReader drLocMap = cmndLocMap.ExecuteReader())
+                {
+                    if (drLocMap.HasRows)
+                    {
+                        if (drLocMap.Read())
+                        {
+                            locMapRefno = Convert.ToInt32(drLocMap["LocationMapRefno"]);
+                        }
+                        else
+                        {
+                            throw new Exception("drLocMap.Read() failed.");
+                        }
+                    }
+                    else
+                    {
+                        if (!secondAttempt)
+                        {
+                            // TODO: Resource strings
+                            throw new Exception(string.Format("Unable To Locate Global Location Identifier '{0}' In {1}", globalLocationIdentifier, cmndLocMap.CommandText));
+                        }
+                    }
+
+                    drLocMap.Close();
+                }
+
+                    if (secondAttempt)
+                    {
+                        string barCode = globalLocationIdentifier.Substring(0, globalLocationIdentifier.TrimEnd().Length - 1);
+                        cmndLocMap.CommandType = CommandType.Text;
+                        //cmndLocMap.IndexName = string.Empty;
+                        cmndLocMap.CommandText = "SELECT tLocationMapWarehouse.LocationMapRefno "
+                            + "FROM tLocationMapWarehouse "
+                            + "WHERE tLocationMapWarehouse.LocationMapWarehouseBarCode LIKE \'" + barCode + "%\'";
+                    }
+
+                    locMapRefno = Convert.ToInt32(cmndLocMap.ExecuteScalar());
+                }
+
+            cmndLocMap.Dispose();
 
             return locMapRefno;
         }
@@ -322,11 +385,7 @@
         /// <param name="coordinate2"></param>
         /// <param name="coordinate3"></param>
         /// <returns></returns>
-        public static int GetSlotRefnoFromCoordinates(
-                int sectionLocMapRefno,
-                int coordinate1,
-                int coordinate2,
-                int coordinate3)
+        public static int GetSlotRefnoFromCoordinates(int sectionLocMapRefno, int slotCoord1Refno, int slotCoord2Refno, int slotCoord3Refno)
         {
             int slotLocMapRefno = 0;
             LocationMap locMap = LocationMap.GetInstance();
@@ -335,7 +394,7 @@
             {
                 cmndLocMap.CommandType = CommandType.Text;
 
-                if (locMap.IsSlotCoord1LocMapTracked & locMap.IsSlotCoord2LocMapTracked & locMap.IsSlotCoord3LocMapTracked)
+                if (locMap.CurrLocMap.IsSlotCoord1Tracked & locMap.CurrLocMap.IsSlotCoord2Tracked & locMap.CurrLocMap.IsSlotCoord3Tracked)
                 {
                     cmndLocMap.CommandText = "SELECT tLocationMapSlot.LocationMapRefno "
                         + "FROM tLocationMapSlot "
@@ -344,11 +403,11 @@
                         + " AND tLocationMapSlot.SlotCoord2LocationMapRefno = @coordinate2"
                         + " AND tLocationMapSlot.SlotCoord3LocationMapRefno = @coordinate3";
                     cmndLocMap.Parameters.Add(new SQLiteParameter("@sectionLocMapRefno", Convert.ToInt32(sectionLocMapRefno)));
-                    cmndLocMap.Parameters.Add(new SQLiteParameter("@coordinate1", Convert.ToInt32(coordinate1)));
-                    cmndLocMap.Parameters.Add(new SQLiteParameter("@coordinate2", Convert.ToInt32(coordinate2)));
-                    cmndLocMap.Parameters.Add(new SQLiteParameter("@coordinate3", Convert.ToInt32(coordinate3)));
+                    cmndLocMap.Parameters.Add(new SQLiteParameter("@slotCoord1Refno", Convert.ToInt32(slotCoord1Refno)));
+                    cmndLocMap.Parameters.Add(new SQLiteParameter("@slotCoord2Refno", Convert.ToInt32(slotCoord2Refno)));
+                    cmndLocMap.Parameters.Add(new SQLiteParameter("@slotCoord3Refno", Convert.ToInt32(slotCoord3Refno)));
                 }
-                else if (locMap.IsSlotCoord1LocMapTracked & locMap.IsSlotCoord2LocMapTracked)
+                else if (locMap.CurrLocMap.IsSlotCoord1Tracked & locMap.CurrLocMap.IsSlotCoord2Tracked)
                 {
                     cmndLocMap.CommandText = "SELECT tLocationMapSlot.LocationMapRefno "
                         + "FROM tLocationMapSlot "
@@ -356,17 +415,17 @@
                         + " AND tLocationMapSlot.SlotCoord1LocationMapRefno = @coordinate1"
                         + " AND tLocationMapSlot.SlotCoord2LocationMapRefno = @coordinate2";
                     cmndLocMap.Parameters.Add(new SQLiteParameter("@sectionLocMapRefno", Convert.ToInt32(sectionLocMapRefno)));
-                    cmndLocMap.Parameters.Add(new SQLiteParameter("@coordinate1", Convert.ToInt32(coordinate1)));
-                    cmndLocMap.Parameters.Add(new SQLiteParameter("@coordinate2", Convert.ToInt32(coordinate2)));
+                    cmndLocMap.Parameters.Add(new SQLiteParameter("@slotCoord1Refno", Convert.ToInt32(slotCoord1Refno)));
+                    cmndLocMap.Parameters.Add(new SQLiteParameter("@slotCoord2Refno", Convert.ToInt32(slotCoord2Refno)));
                 }
-                else if (locMap.IsSlotCoord1LocMapTracked)
+                else if (locMap.CurrLocMap.IsSlotCoord1Tracked)
                 {
                     cmndLocMap.CommandText = "SELECT tLocationMapSlot.LocationMapRefno "
                         + "FROM tLocationMapSlot "
                         + "WHERE tLocationMapSlot.SectionLocationMapRefno = @sectionLocMapRefno"
                         + " AND tLocationMapSlot.SlotCoord1LocationMapRefno = @coordinate1";
                     cmndLocMap.Parameters.Add(new SQLiteParameter("@sectionLocMapRefno", Convert.ToInt32(sectionLocMapRefno)));
-                    cmndLocMap.Parameters.Add(new SQLiteParameter("@coordinate1", Convert.ToInt32(coordinate1)));
+                    cmndLocMap.Parameters.Add(new SQLiteParameter("@slotCoord1Refno", Convert.ToInt32(slotCoord1Refno)));
                 }
                 else
                 {
@@ -397,11 +456,11 @@
         {
             bool isComplete = false;
 
-            if (LocationMap.GetInstance().IsSlotLocMapTracked)
+            if (LocationMap.GetInstance().CurrLocMap.IsSlotTracked)
             {
                 isComplete = IsCompleteLocMapRefno(locMap.SlotLocMapRefno);
             }
-            else if (LocationMap.GetInstance().IsSectLocMapTracked)
+            else if (LocationMap.GetInstance().CurrLocMap.IsSectionTracked)
             {
                 isComplete = IsCompleteLocMapRefno(locMap.SectLocMapRefno);
             }
@@ -447,21 +506,21 @@
                 }
             }
 
-            if (locMap.IsSlotLocMapTracked)
+            if (locMap.CurrLocMap.IsSlotTracked)
             {
                 if (locMapSubType == SysCommon.LocMapSubTypes.Slot)
                 {
                     isComplete = true;
                 }
             }
-            else if (locMap.IsSectLocMapTracked)
+            else if (locMap.CurrLocMap.IsSectionTracked)
             {
                 if (locMapSubType == SysCommon.LocMapSubTypes.Section)
                 {
                     isComplete = true;
                 }
             }
-            else if (locMap.IsWhsLocMapTracked)
+            else
             {
                 if (locMapSubType == SysCommon.LocMapSubTypes.Warehouse)
                 {
@@ -630,21 +689,34 @@
                 if (locMapSubType == SysCommon.LocMapSubTypes.Slot)
                 {
                     cmndLocMap.CommandType = CommandType.Text;
-                    cmndLocMap.CommandText = "SELECT tLocationMapSlot.LocationMapRefno,"
-                        + "tLocationMapSlot.LocationMapSlotCode,"
-                        + "tLocationMapSlot.LocationMapSlotName,"
-                        + "tLocationMapSlot.LocationMapSlotFKRefno,"
-                        + "tLocationMapSlot.SectionLocationMapRefno,"
-                        + "tLocationMapSlot.SlotCoord1LocationMapRefno,"
-                        + "tLocationMapSlot.SlotCoord2LocationMapRefno,"
-                        + "tLocationMapSlot.SlotCoord3LocationMapRefno,"
-                        + "tLocationMapSection.LocationMapSectionCode,"
-                        + "tLocationMapSection.LocationMapSectionName,"
-                        + "tLocationMapSection.LocationMapSectionFKRefno,"
-                        + "tLocationMapSection.WarehouseLocationMapRefno,"
-                        + "tLocationMapWarehouse.LocationMapWarehouseName,"
-                        + "tLocationMapWarehouse.LocationMapWarehouseCode,"
-                        + "tLocationMapWarehouse.LocationMapWarehouseFKRefno "
+                    cmndLocMap.CommandText = "SELECT tLocationMapSlot.LocationMapRefno, "
+                        + "tLocationMapSlot.LocationMapSlotCode, "
+                        + "tLocationMapSlot.LocationMapSlotName, "
+                        + "tLocationMapSlot.LocationMapSlotFKRefno, "
+                        + "tLocationMapSlot.SectionLocationMapRefno, "
+                        + "tLocationMapSlot.SlotCoord1LocationMapRefno, "
+                        + "tLocationMapSlot.SlotCoord2LocationMapRefno, "
+                        + "tLocationMapSlot.SlotCoord3LocationMapRefno, "
+                        + "tLocationMapSection.LocationMapSectionCode, "
+                        + "tLocationMapSection.LocationMapSectionName, "
+                        + "tLocationMapSection.LocationMapSectionFKRefno, "
+                        + "tLocationMapSection.WarehouseLocationMapRefno, "
+                        + "tLocationMapWarehouse.LocationMapWarehouseName, "
+                        + "tLocationMapWarehouse.LocationMapWarehouseCode, "
+                        + "tLocationMapWarehouse.LocationMapWarehouseIsWMS,  "
+                        + "tLocationMapWarehouse.LocationMapWarehouseFKRefno, "
+                        + "tLocationMapWarehouse.LocationMapWarehouseMask, "
+                        + "tLocationMapWarehouse.LocationMapWarehouseSectionMask, "
+                        + "tLocationMapWarehouse.LocationMapWarehouseSlotMask, "
+                        + "tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate1Mask, "
+                        + "tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate2Mask, "
+                        + "tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate3Mask, "
+                        + "tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate1Name, "
+                        + "tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate2Name, "
+                        + "tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate3Name, "
+                        + "tLocationMapWarehouse.LocationMapWarehouseIsSectionTracked, "
+                        + "tLocationMapWarehouse.LocationMapWarehouseIsSlotTracked, "
+                        + "tLocationMapWarehouse.LocationMapWarehouseAdhocEnabled "
                         + "FROM tLocationMapSlot "
                         + "INNER JOIN tLocationMapSection ON tLocationMapSection.LocationMapRefno "
                         + "= tLocationMapSlot.SectionLocationMapRefno "
@@ -673,7 +745,19 @@
                             locMapInfo.WhsLocMapRefno = Convert.ToInt32(drLocMap["WarehouseLocationMapRefno"]);
                             locMapInfo.WhsName = Convert.ToString(drLocMap["LocationMapWarehouseName"]);
                             locMapInfo.WhsCode = Convert.ToInt32(drLocMap["LocationMapWarehouseCode"]);
+                            locMapInfo.IsWhsWMS = Convert.ToBoolean(drLocMap["LocationMapWarehouseIsWMS"]);
                             locMapInfo.WhsFKRefno = Convert.ToInt32(drLocMap["LocationMapWarehouseFKRefno"]);
+                            locMapInfo.WhsCodeMask = Convert.ToString(drLocMap["LocationMapWarehouseMask"]);
+                            locMapInfo.SectMask = Convert.ToString(drLocMap["LocationMapWarehouseSectionMask"]);
+                            locMapInfo.IsSectionTracked = Convert.ToBoolean(drLocMap["LocationMapWarehouseIsSectionTracked"]);
+                            locMapInfo.IsSlotTracked = Convert.ToBoolean(drLocMap["LocationMapWarehouseIsSlotTracked"]);
+                            locMapInfo.SlotCoord1Name = Convert.ToString(drLocMap["LocationMapWarehouseSlotCoordinate1Name"]);
+                            locMapInfo.SlotCoord2Name = Convert.ToString(drLocMap["LocationMapWarehouseSlotCoordinate2Name"]);
+                            locMapInfo.SlotCoord3Name = Convert.ToString(drLocMap["LocationMapWarehouseSlotCoordinate3Name"]);
+                            locMapInfo.SlotMask = Convert.ToString(drLocMap["LocationMapWarehouseSlotMask"]);
+                            locMapInfo.SlotCoord1Mask = Convert.ToString(drLocMap["LocationMapWarehouseSlotCoordinate1Mask"]);
+                            locMapInfo.SlotCoord2Mask = Convert.ToString(drLocMap["LocationMapWarehouseSlotCoordinate2Mask"]);
+                            locMapInfo.SlotCoord3Mask = Convert.ToString(drLocMap["LocationMapWarehouseSlotCoordinate3Mask"]);
                         }
 
                         drLocMap.Close();
@@ -682,14 +766,27 @@
                 else if (locMapSubType == SysCommon.LocMapSubTypes.Section)
                 {
                     cmndLocMap.CommandType = CommandType.Text;
-                    cmndLocMap.CommandText = "SELECT tLocationMapSection.LocationMapRefno,"
-                        + "tLocationMapSection.LocationMapSectionCode,"
-                        + "tLocationMapSection.LocationMapSectionName,"
-                        + "tLocationMapSection.LocationMapSectionFKRefno,"
-                        + "tLocationMapSection.WarehouseLocationMapRefno,"
-                        + "tLocationMapWarehouse.LocationMapWarehouseName,"
-                        + "tLocationMapWarehouse.LocationMapWarehouseCode,"
-                        + "tLocationMapWarehouse.LocationMapWarehouseFKRefno "
+                    cmndLocMap.CommandText = "SELECT tLocationMapSection.LocationMapRefno, "
+                        + "tLocationMapSection.LocationMapSectionCode, "
+                        + "tLocationMapSection.LocationMapSectionName, "
+                        + "tLocationMapSection.LocationMapSectionFKRefno, "
+                        + "tLocationMapSection.WarehouseLocationMapRefno, "
+                        + "tLocationMapWarehouse.LocationMapWarehouseName, "
+                        + "tLocationMapWarehouse.LocationMapWarehouseCode, "
+                        + "tLocationMapWarehouse.LocationMapWarehouseIsWMS, "
+                        + "tLocationMapWarehouse.LocationMapWarehouseFKRefno, "
+                        + "tLocationMapWarehouse.LocationMapWarehouseMask, "
+                        + "tLocationMapWarehouse.LocationMapWarehouseSectionMask, "
+                        + "tLocationMapWarehouse.LocationMapWarehouseSlotMask, "
+                        + "tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate1Mask, "
+                        + "tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate2Mask, "
+                        + "tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate3Mask, "
+                        + "tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate1Name, "
+                        + "tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate2Name, "
+                        + "tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate3Name, "
+                        + "tLocationMapWarehouse.LocationMapWarehouseIsSectionTracked, "
+                        + "tLocationMapWarehouse.LocationMapWarehouseIsSlotTracked, "
+                        + "tLocationMapWarehouse.LocationMapWarehouseAdhocEnabled "
                         + "FROM tLocationMapSection "
                         + "INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno "
                         + "= tLocationMapSection.WarehouseLocationMapRefno "
@@ -708,7 +805,19 @@
                             locMapInfo.WhsLocMapRefno = Convert.ToInt32(drLocMap["WarehouseLocationMapRefno"]);
                             locMapInfo.WhsName = Convert.ToString(drLocMap["LocationMapWarehouseName"]);
                             locMapInfo.WhsCode = Convert.ToInt32(drLocMap["LocationMapWarehouseCode"]);
+                            locMapInfo.IsWhsWMS = Convert.ToBoolean(drLocMap["LocationMapWarehouseIsWMS"]);
                             locMapInfo.WhsFKRefno = Convert.ToInt32(drLocMap["LocationMapWarehouseFKRefno"]);
+                            locMapInfo.WhsCodeMask = Convert.ToString(drLocMap["LocationMapWarehouseMask"]);
+                            locMapInfo.SectMask = Convert.ToString(drLocMap["LocationMapWarehouseSectionMask"]);
+                            locMapInfo.IsSectionTracked = Convert.ToBoolean(drLocMap["LocationMapWarehouseIsSectionTracked"]);
+                            locMapInfo.IsSlotTracked = Convert.ToBoolean(drLocMap["LocationMapWarehouseIsSlotTracked"]);
+                            locMapInfo.SlotCoord1Name = Convert.ToString(drLocMap["LocationMapWarehouseSlotCoordinate1Name"]);
+                            locMapInfo.SlotCoord2Name = Convert.ToString(drLocMap["LocationMapWarehouseSlotCoordinate2Name"]);
+                            locMapInfo.SlotCoord3Name = Convert.ToString(drLocMap["LocationMapWarehouseSlotCoordinate3Name"]);
+                            locMapInfo.SlotMask = Convert.ToString(drLocMap["LocationMapWarehouseSlotMask"]);
+                            locMapInfo.SlotCoord1Mask = Convert.ToString(drLocMap["LocationMapWarehouseSlotCoordinate1Mask"]);
+                            locMapInfo.SlotCoord2Mask = Convert.ToString(drLocMap["LocationMapWarehouseSlotCoordinate2Mask"]);
+                            locMapInfo.SlotCoord3Mask = Convert.ToString(drLocMap["LocationMapWarehouseSlotCoordinate3Mask"]);
                         }
 
                         drLocMap.Close();
@@ -717,10 +826,23 @@
                 else if (locMapSubType == SysCommon.LocMapSubTypes.Warehouse)
                 {
                     cmndLocMap.CommandType = CommandType.Text;
-                    cmndLocMap.CommandText = "SELECT tLocationMapWarehouse.LocationMapRefno,"
-                        + "tLocationMapWarehouse.LocationMapWarehouseName,"
-                        + "tLocationMapWarehouse.LocationMapWarehouseCode,"
-                        + "tLocationMapWarehouse.LocationMapWarehouseFKRefno "
+                    cmndLocMap.CommandText = "SELECT tLocationMapWarehouse.LocationMapRefno, "
+                        + "tLocationMapWarehouse.LocationMapWarehouseName, "
+                        + "tLocationMapWarehouse.LocationMapWarehouseCode, "
+                        + "tLocationMapWarehouse.LocationMapWarehouseIsWMS, "
+                        + "tLocationMapWarehouse.LocationMapWarehouseFKRefno,  "
+                        + "tLocationMapWarehouse.LocationMapWarehouseMask, "
+                        + "tLocationMapWarehouse.LocationMapWarehouseSectionMask, "
+                        + "tLocationMapWarehouse.LocationMapWarehouseSlotMask, "
+                        + "tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate1Mask, "
+                        + "tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate2Mask, "
+                        + "tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate3Mask, "
+                        + "tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate1Name, "
+                        + "tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate2Name, "
+                        + "tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate3Name, "
+                        + "tLocationMapWarehouse.LocationMapWarehouseIsSectionTracked, "
+                        + "tLocationMapWarehouse.LocationMapWarehouseIsSlotTracked, "
+                        + "tLocationMapWarehouse.LocationMapWarehouseAdhocEnabled "
                         + "FROM tLocationMapWarehouse "
                         + "WHERE tLocationMapWarehouse.LocationMapRefno = @locMapRefno";
                     cmndLocMap.Parameters.Add(new SQLiteParameter("@locMapRefno", Convert.ToInt32(locMapRefno)));
@@ -732,7 +854,19 @@
                             locMapInfo.WhsLocMapRefno = Convert.ToInt32(drLocMap["LocationMapRefno"]);
                             locMapInfo.WhsName = Convert.ToString(drLocMap["LocationMapWarehouseName"]);
                             locMapInfo.WhsCode = Convert.ToInt32(drLocMap["LocationMapWarehouseCode"]);
+                            locMapInfo.IsWhsWMS = Convert.ToBoolean(drLocMap["LocationMapWarehouseIsWMS"]);
                             locMapInfo.WhsFKRefno = Convert.ToInt32(drLocMap["LocationMapWarehouseFKRefno"]);
+                            locMapInfo.WhsCodeMask = Convert.ToString(drLocMap["LocationMapWarehouseMask"]);
+                            locMapInfo.SectMask = Convert.ToString(drLocMap["LocationMapWarehouseSectionMask"]);
+                            locMapInfo.IsSectionTracked = Convert.ToBoolean(drLocMap["LocationMapWarehouseIsSectionTracked"]);
+                            locMapInfo.IsSlotTracked = Convert.ToBoolean(drLocMap["LocationMapWarehouseIsSlotTracked"]);
+                            locMapInfo.SlotCoord1Name = Convert.ToString(drLocMap["LocationMapWarehouseSlotCoordinate1Name"]);
+                            locMapInfo.SlotCoord2Name = Convert.ToString(drLocMap["LocationMapWarehouseSlotCoordinate2Name"]);
+                            locMapInfo.SlotCoord3Name = Convert.ToString(drLocMap["LocationMapWarehouseSlotCoordinate3Name"]);
+                            locMapInfo.SlotMask = Convert.ToString(drLocMap["LocationMapWarehouseSlotMask"]);
+                            locMapInfo.SlotCoord1Mask = Convert.ToString(drLocMap["LocationMapWarehouseSlotCoordinate1Mask"]);
+                            locMapInfo.SlotCoord2Mask = Convert.ToString(drLocMap["LocationMapWarehouseSlotCoordinate2Mask"]);
+                            locMapInfo.SlotCoord3Mask = Convert.ToString(drLocMap["LocationMapWarehouseSlotCoordinate3Mask"]);
                         }
 
                         drLocMap.Close();
@@ -755,9 +889,7 @@
             if (locMap.CurrLocMap.WhsLocMapRefno != 0)
             {
                 // Warehouse Example 001M
-                location = location + locMap.CurrLocMap.WhsCode.ToString().TrimEnd().PadLeft(
-                    3,
-                    Convert.ToChar("0")) + "M";
+                location = location + locMap.CurrLocMap.WhsCode.ToString().TrimEnd().PadLeft(3, Convert.ToChar("0")) + "M";
             }
 
             if (locMap.CurrLocMap.SectLocMapRefno != 0 && locMap.CurrLocMap.SectName != null)
@@ -798,9 +930,9 @@
             {
                 if (isSeparateSlotCoords)
                 {
-                    string coord1 = locMap.CurrLocMap.SlotName.TrimEnd().Substring(0, locMap.LocMapSlotCodeCoord1Mask.Length);
-                    string coord2 = locMap.CurrLocMap.SlotName.TrimEnd().Substring(locMap.LocMapSlotCodeCoord1Mask.Length, locMap.LocMapSlotCodeCoord2Mask.Length);
-                    string coord3 = locMap.CurrLocMap.SlotName.TrimEnd().Substring(locMap.LocMapSlotCodeCoord1Mask.Length + locMap.LocMapSlotCodeCoord2Mask.Length, locMap.LocMapSlotCodeCoord3Mask.Length);
+                    string coord1 = locMap.CurrLocMap.SlotName.TrimEnd();
+                    string coord2 = locMap.CurrLocMap.SlotName.TrimEnd();
+                    string coord3 = locMap.CurrLocMap.SlotName.TrimEnd();
                     location = location + "." + coord1 + "." + coord2 + "." + coord3;
                 }
                 else
@@ -868,9 +1000,9 @@
             {
                 if (isSepSlotCoords)
                 {
-                    string coord1 = locMapInfo.SlotName.TrimEnd().Substring(0, locMap.LocMapSlotCodeCoord1Mask.Length);
-                    string coord2 = locMapInfo.SlotName.TrimEnd().Substring(locMap.LocMapSlotCodeCoord1Mask.Length, locMap.LocMapSlotCodeCoord2Mask.Length);
-                    string coord3 = locMapInfo.SlotName.TrimEnd().Substring(locMap.LocMapSlotCodeCoord1Mask.Length + locMap.LocMapSlotCodeCoord2Mask.Length, locMap.LocMapSlotCodeCoord3Mask.Length);
+                    string coord1 = locMap.CurrLocMap.SlotName.TrimEnd();
+                    string coord2 = locMap.CurrLocMap.SlotName.TrimEnd();
+                    string coord3 = locMap.CurrLocMap.SlotName.TrimEnd();
                     location = location + "." + coord1 + "." + coord2 + "." + coord3;
                 }
                 else
@@ -893,7 +1025,7 @@
 
             if (locMap.CurrLocMap.WhsFKRefno != 0)
             {
-                location = location + locMap.CurrLocMap.WhsCode.ToString().TrimEnd().PadLeft(locMap.LocMapWhsCodeMask.Length, Convert.ToChar("0"));
+                location = location + locMap.CurrLocMap.WhsCode.ToString().TrimEnd().PadLeft(locMap.CurrLocMap.WhsCodeMask.Length, Convert.ToChar("0"));
             }
 
             return location;
@@ -907,33 +1039,33 @@
         public static int CalculateGlobalLocationIdentifierCheckSum(string globalLocationIdentifier)
         {
             int checkSum = 0;
-            //double odd = 0;
-            //double even = 0;
-            //double x = 0;
-            //int i = 0;
+            double odd = 0;
+            double even = 0;
+            double x = 0;
+            int i = 0;
 
-            //// Padding left should not be needed but added anyway.
-            //// 7 digits company prefix padded left with zeros + 5 digits for the serial 
-            //// identifier padded left with zeros = 12
-            //if (globalLocationIdentifier.Length < 12)
-            //{
-            //    globalLocationIdentifier = globalLocationIdentifier.PadLeft(12, Convert.ToChar("0"));
-            //}
+            // Padding left should not be needed but added anyway.
+            // 7 digits company prefix padded left with zeros + 5 digits for the serial 
+            // identifier padded left with zeros = 12
+            if (globalLocationIdentifier.Length < 12)
+            {
+                globalLocationIdentifier = globalLocationIdentifier.PadLeft(12, Convert.ToChar("0"));
+            }
 
-            //// Calculate check sum MOD^10
-            //for (i = 1; i <= globalLocationIdentifier.Length; i += 2)
-            //{
-            //    odd = odd + (Conversion.Val(globalLocationIdentifier.Substring(i - 1, 1)) * 3);
-            //}
+            // Calculate check sum MOD^10
+            for (i = 1; i <= globalLocationIdentifier.Length; i += 2)
+            {
+                odd = odd + (int.Parse(globalLocationIdentifier.Substring(i - 1, 1)) * 3);
+            }
 
-            //for (i = 2; i <= globalLocationIdentifier.Length; i += 2)
-            //{
-            //    even = even + Conversion.Val(globalLocationIdentifier.Substring(i - 1, 1));
-            //}
+            for (i = 2; i <= globalLocationIdentifier.Length; i += 2)
+            {
+                even = even + int.Parse(globalLocationIdentifier.Substring(i - 1, 1));
+            }
 
-            //x = 10 - ((odd + even) / 10) - 0.5;
+            x = 10 - ((odd + even) / 10) - 0.5;
 
-            //checkSum = Convert.ToInt32(x);
+            checkSum = Convert.ToInt32(x);
 
             return checkSum;
         }
@@ -960,7 +1092,7 @@
 
                 defaultWhsLocMapRefno = whsLocMapRefno;
 
-                if (locMap.IsSlotLocMapTracked && defaultWhsLocMapRefno != 0)
+                if (locMap.CurrLocMap.IsSlotTracked && defaultWhsLocMapRefno != 0)
                 {
                     if (0 < prodRefno)
                     {
@@ -998,7 +1130,7 @@
                     }
                 }
 
-                if (defaultSlotLocMapRefno == 0 && locMap.IsSectLocMapTracked && defaultWhsLocMapRefno != 0)
+                if (defaultSlotLocMapRefno == 0 && locMap.CurrLocMap.IsSectionTracked && defaultWhsLocMapRefno != 0)
                 {
                     if (0 < prodRefno)
                     {
@@ -1066,7 +1198,8 @@
         {
             // First we check what the locationmaprefno subtype is
             // Perform SQL query to lookup subtype
-            int subtype = 0;
+            int locationSubType = 0;
+
             using (SQLiteCommand cmd = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
             {
                 cmd.CommandType = CommandType.Text;
@@ -1076,10 +1209,10 @@
                     + "WHERE tLocationMap.LocationMapRefno = @locMapRefno";
                 cmd.Parameters.Add(new SQLiteParameter("@locMapRefno", locMapRefno));
 
-                subtype = Convert.ToInt32(cmd.ExecuteScalar());
+                locationSubType = Convert.ToInt32(cmd.ExecuteScalar());
             }
 
-            switch ((SysCommon.LocMapSubTypes)subtype)
+            switch ((SysCommon.LocMapSubTypes)locationSubType)
             {
                 default:
                 case SysCommon.LocMapSubTypes.None:
@@ -1092,8 +1225,8 @@
 
                         cmd.CommandText = "SELECT tLocationMapSection.WarehouseLocationMapRefno "
                             + "FROM tLocationMapSection "
-                            + "WHERE tLocationMapSection.LocationMapRefno = @subtype" + subtype;
-                        cmd.Parameters.Add(new SQLiteParameter("@subtype", subtype));
+                            + "WHERE tLocationMapSection.LocationMapRefno = @locationSubType";
+                        cmd.Parameters.Add(new SQLiteParameter("@locationSubType", locationSubType));
 
                         return Convert.ToInt32(cmd.ExecuteScalar());
                     }
@@ -1105,14 +1238,14 @@
 
                         cmd.CommandText = "SELECT tLocationMapSlot.WarehouseLocationMapRefno "
                             + "FROM tLocationMapSlot "
-                            + "WHERE tLocationMapSlot.LocationMapRefno = @subtype";
-                        cmd.Parameters.Add(new SQLiteParameter("@subtype", subtype));
+                            + "WHERE tLocationMapSlot.LocationMapRefno = @locationSubType";
+                        cmd.Parameters.Add(new SQLiteParameter("@locationSubType", locationSubType));
 
                         return Convert.ToInt32(cmd.ExecuteScalar());
                     }
                 case SysCommon.LocMapSubTypes.Warehouse:
                     // It already is a WarehouseLocationMapRefno
-                    return subtype;
+                    return locationSubType;
             }
         }
 

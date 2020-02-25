@@ -572,7 +572,7 @@ namespace dMobile.View.Forms
             switch (typeInnerControl)
             {
                 case EDialogTypes.ucActivityItem:
-                    //control = new ucActivityItem(activity, actSubType);
+                    control = new ucActivityItem(activity, actSubType);
                     break;
 
                 case EDialogTypes.ucActivityItemSingle:
@@ -602,7 +602,7 @@ namespace dMobile.View.Forms
             switch (typeInnerControl)
             {
                 case EDialogTypes.ucActivityDetailEdit:
-                    //control = new ucActivityDetailEdit(actDetail, actSubType);
+                    control = new ucActivityDetailEdit(actDetail, actSubType);
                     break;
 
                 case EDialogTypes.ucActivityProductLabel:
@@ -652,7 +652,7 @@ namespace dMobile.View.Forms
             switch (typeInnerControl)
             {
                 case EDialogTypes.ucActivityDetail:
-                    //control = new ucActivityDetail(actItem, actSubType);
+                    control = new ucActivityDetail(actItem, actSubType);
                     break;
 
                 case EDialogTypes.ucSelectProductUnitFilterToProduct:
@@ -795,7 +795,7 @@ namespace dMobile.View.Forms
                 //((UserControl)sender).Dispose();
             }
 
-            Device.BeginInvokeOnMainThread(async () => await this.Close());
+            //Device.BeginInvokeOnMainThread(async () => await this.Close());
         }
     }
 }

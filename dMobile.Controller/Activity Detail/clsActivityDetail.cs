@@ -59,20 +59,14 @@ namespace dMobile.Controller
 
         #region Delegates
 
-        public delegate void OnDataLayerStatusOutEventHandler(
-            IDataLayerEventPublisher dataLayerEventPublisher,
-            DataLayerEventArgs dataLayerEventArgs);
-
-        public delegate void OnDataLayerProgressOutEventHandler(
-            IDataLayerEventPublisher dataLayerEventPublisher,
-            DataLayerEventArgs dataLayerEventArgs);
+        public delegate void OnDataLayerStatusOutEventHandler(IDataLayerEventPublisher dataLayerEventPublisher, DataLayerEventArgs dataLayerEventArgs);
+        public delegate void OnDataLayerProgressOutEventHandler(IDataLayerEventPublisher dataLayerEventPublisher, DataLayerEventArgs dataLayerEventArgs);
 
         #endregion
 
         #region Events
 
         public event OnDataLayerStatusOutEventHandler OnDataLayerStatusOut;
-
         public event OnDataLayerProgressOutEventHandler OnDataLayerProgressOut;
 
         #endregion
@@ -398,8 +392,7 @@ namespace dMobile.Controller
                 {
                     fillQty.Quantity = fillQty.Quantity + (decimal)this.DataViewDetails[i]["ActivityDetailQuantity"];
                     fillQty.BaseQuantity = fillQty.BaseQuantity + (decimal)this.DataViewDetails[i]["ActivityDetailBaseQuantity"];
-                    fillQty.WeightQuantity = fillQty.WeightQuantity
-                          + (decimal)this.DataViewDetails[i]["ActivityDetailWeightQuantity"];
+                    fillQty.WeightQuantity = fillQty.WeightQuantity + (decimal)this.DataViewDetails[i]["ActivityDetailWeightQuantity"];
                 }
             }
 
@@ -505,6 +498,7 @@ namespace dMobile.Controller
                 }
 
                 DateTime bestBefore = (DateTime)details[idx]["ActivityDetailLogisticUnitBestBeforeSellByDate"];
+
                 if (SysCommon.IsEmptyDateTime(bestBefore))
                 {
                     if (this.ActItem.ProdInfo.Scheme.IsBestBeforeDateTrackedDefault)
@@ -518,6 +512,7 @@ namespace dMobile.Controller
                 }
 
                 DateTime production = (DateTime)details[idx]["ActivityDetailLogisticUnitProductionDate"];
+
                 if (SysCommon.IsEmptyDateTime(production))
                 {
                     if (this.ActItem.ProdInfo.Scheme.IsProductionDateTrackedDefault)
@@ -564,13 +559,11 @@ namespace dMobile.Controller
                 if (string.Compare(this.UniqueSchemeID, string.Empty) > 0)
                 {
                     bool isDupSchemeId = ProductInfoTasks.IsDuplicateUniqueSchemeID(this.UniqueSchemeID);
+
                     if (isDupSchemeId)
                     {
-#if MULTILANGUAGE
-            throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DuplicateSchemeId) + Environment.NewLine + this.UniqueSchemeID);
-#else
+                        // TODO: Resource strings
                         throw new Exception("Duplicate scheme ID!" + Environment.NewLine + this.UniqueSchemeID);
-#endif
                     }
                 }
             }
@@ -688,8 +681,7 @@ namespace dMobile.Controller
         {
             bool isComplete = true;
 
-            if (actItem.ProdInfo.Scheme.IsBestBeforeDateTracked
-                && SysCommon.IsEmptyDateTime(this.SchemeData.LogisticUnitBestBeforeSellByDate))
+            if (actItem.ProdInfo.Scheme.IsBestBeforeDateTracked && SysCommon.IsEmptyDateTime(this.SchemeData.LogisticUnitBestBeforeSellByDate))
             {
                 isComplete = false;
             }
@@ -699,8 +691,7 @@ namespace dMobile.Controller
                 isComplete = false;
             }
 
-            if (actItem.ProdInfo.Scheme.IsProductionDateTracked
-                && SysCommon.IsEmptyDateTime(this.SchemeData.LogisticUnitProductionDate))
+            if (actItem.ProdInfo.Scheme.IsProductionDateTracked && SysCommon.IsEmptyDateTime(this.SchemeData.LogisticUnitProductionDate))
             {
                 isComplete = false;
             }
@@ -736,26 +727,22 @@ namespace dMobile.Controller
         {
             bool isComplete = true;
 
-            if (this.ActItem.ProdInfo.Scheme.LabelInfo.IsBestBeforeDateTracked
-                && SysCommon.IsEmptyDateTime(schemeData.LogisticUnitBestBeforeSellByDate))
+            if (this.ActItem.ProdInfo.Scheme.LabelInfo.IsBestBeforeDateTracked && SysCommon.IsEmptyDateTime(schemeData.LogisticUnitBestBeforeSellByDate))
             {
                 isComplete = false;
             }
 
-            if (this.ActItem.ProdInfo.Scheme.LabelInfo.IsLotTracked
-                && string.IsNullOrEmpty(schemeData.LogisticUnitBatchLotNumber))
+            if (this.ActItem.ProdInfo.Scheme.LabelInfo.IsLotTracked && string.IsNullOrEmpty(schemeData.LogisticUnitBatchLotNumber))
             {
                 isComplete = false;
             }
 
-            if (this.ActItem.ProdInfo.Scheme.LabelInfo.IsProductionDateTracked
-                && SysCommon.IsEmptyDateTime(schemeData.LogisticUnitProductionDate))
+            if (this.ActItem.ProdInfo.Scheme.LabelInfo.IsProductionDateTracked && SysCommon.IsEmptyDateTime(schemeData.LogisticUnitProductionDate))
             {
                 isComplete = false;
             }
 
-            if (this.ActItem.ProdInfo.Scheme.LabelInfo.IsSerialTracked
-                && string.IsNullOrEmpty(schemeData.SingleTradeItemSerialNumber))
+            if (this.ActItem.ProdInfo.Scheme.LabelInfo.IsSerialTracked && string.IsNullOrEmpty(schemeData.SingleTradeItemSerialNumber))
             {
                 isComplete = false;
             }
@@ -775,33 +762,31 @@ namespace dMobile.Controller
         /// <returns></returns>
         public SProductSchemeData FillSchemeDataVarInfoFromSchemeDataVarNo(SProductSchemeData prodSchemeData)
         {
-            //if (0 < prodSchemeData.VariantNumber)
-            //{
-            //    using (SQLiteCommand cmndSchemeVar = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-            //    {
-            //        cmndSchemeVar.CommandText = "tProductSchemeVariant";
-            //        cmndSchemeVar.CommandType = CommandType.TableDirect;
-            //        cmndSchemeVar.IndexName = "UQ_ProductSchemeVariantOnProductSchemeVariantNo";
+            if (0 < prodSchemeData.VariantNumber)
+            {
+                using (SQLiteCommand cmndSchemeVar = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                {
+                    cmndSchemeVar.CommandText = "SELECT * FROM tProductSchemeVariant WHERE ProductSchemeVariantNo = @productSchemeVariantNo";
+                    cmndSchemeVar.CommandType = CommandType.Text;
+                    //cmndSchemeVar.IndexName = "UQ_ProductSchemeVariantOnProductSchemeVariantNo";
+                    cmndSchemeVar.Parameters.Add(new SQLiteParameter("@productSchemeVariantNo", Convert.ToInt32(prodSchemeData.VariantNumber)));
 
-            //        using (SQLiteDataReader drSchemeVar = cmndSchemeVar.ExecuteReader())
-            //        {
-            //            if (drSchemeVar.Seek(DbSeekOptions.FirstEqual, new object[] { prodSchemeData.VariantNumber }))
-            //            {
-            //                if (drSchemeVar.Read())
-            //                {
-            //                    prodSchemeData.VariantCode = drSchemeVar["ProductSchemeVariantCode"].ToString();
-            //                    prodSchemeData.VariantDescription = drSchemeVar["ProductSchemeVariantDescription"].ToString();
-            //                }
-            //                else
-            //                {
-            //                    throw new Exception("drSchemeVar.Read() failed.");
-            //                }
-            //            }
+                    using (SQLiteDataReader drSchemeVar = cmndSchemeVar.ExecuteReader())
+                    {
+                        if (drSchemeVar.Read())
+                        {
+                            prodSchemeData.VariantCode = drSchemeVar["ProductSchemeVariantCode"].ToString();
+                            prodSchemeData.VariantDescription = drSchemeVar["ProductSchemeVariantDescription"].ToString();
+                        }
+                        else
+                        {
+                            throw new Exception("drSchemeVar.Read() failed.");
+                        }
 
-            //            drSchemeVar.Close();
-            //        }
-            //    }
-            //}
+                        drSchemeVar.Close();
+                    }
+                }
+            }
 
             return prodSchemeData;
         }
@@ -838,6 +823,7 @@ namespace dMobile.Controller
             }
 
             SProductSchemeData tmpSchemeData = this.SchemeData;
+
             if (!string.IsNullOrEmpty(data.Root.Element("bdate").Value))
             {
                 tmpSchemeData.LogisticUnitBestBeforeSellByDate = Convert.ToDateTime(data.Root.Element("bdate").Value);
@@ -871,14 +857,8 @@ namespace dMobile.Controller
             tmpSchemeData = this.FillSchemeDataVarInfoFromSchemeDataVarNo(tmpSchemeData);
             this.SchemeData = tmpSchemeData;
 
-            this.SchemeID = ProductInfoTasks.GetActSchemeIDFromSProdSchemeData(
-                actItem.ProdInfo.Code,
-                actItem.ProdInfo.Scheme,
-                this.SchemeData);
-            this.UniqueSchemeID = ProductInfoTasks.GetActUniqueSchemeIDFromSProdSchemeData(
-                actItem.ProdInfo.Code,
-                actItem.ProdInfo.Scheme,
-                this.SchemeData);
+            this.SchemeID = ProductInfoTasks.GetActSchemeIDFromSProdSchemeData(actItem.ProdInfo.Code, actItem.ProdInfo.Scheme, this.SchemeData);
+            this.UniqueSchemeID = ProductInfoTasks.GetActUniqueSchemeIDFromSProdSchemeData(actItem.ProdInfo.Code, actItem.ProdInfo.Scheme, this.SchemeData);
 
             if (!string.IsNullOrEmpty(data.Root.Element("extra1").Value))
             {
@@ -920,9 +900,11 @@ namespace dMobile.Controller
                 string oldSort = this.DataViewDetails.Sort;
                 int rowIdx = 0;
                 this.DataViewDetails.Sort = dataViewSortKey;
+
                 if (this.FKRefno > 0)
                 {
                     rowIdx = this.DataViewDetails.Find(new object[] { this.FKRefno });
+
                     if (rowIdx > -1)
                     {
                         rowView = this.DataViewDetails[rowIdx];
@@ -950,12 +932,9 @@ namespace dMobile.Controller
                 }
 
                 rowView["LocationMapRefno"] = this.LocMap.CurrLocMapRefno;
-                rowView["ActivityDetailQuantity"] =
-                    Convert.ToDecimal(rowView["ActivityDetailQuantity"]) + Math.Round(this.Quantity, 3);
-                rowView["ActivityDetailBaseQuantity"] =
-                    Convert.ToDecimal(rowView["ActivityDetailBaseQuantity"]) + Math.Round(this.BaseQuantity, 3);
-                rowView["ActivityDetailWeightQuantity"] =
-                    Convert.ToDecimal(rowView["ActivityDetailWeightQuantity"]) + Math.Round(this.WeightQuantity, 3);
+                rowView["ActivityDetailQuantity"] = Convert.ToDecimal(rowView["ActivityDetailQuantity"]) + Math.Round(this.Quantity, 3);
+                rowView["ActivityDetailBaseQuantity"] = Convert.ToDecimal(rowView["ActivityDetailBaseQuantity"]) + Math.Round(this.BaseQuantity, 3);
+                rowView["ActivityDetailWeightQuantity"] = Convert.ToDecimal(rowView["ActivityDetailWeightQuantity"]) + Math.Round(this.WeightQuantity, 3);
                 rowView["ProductSchemeVariantCode"] = this.SchemeData.VariantCode;
                 rowView["ProductSchemeVariantNo"] = this.SchemeData.VariantNumber;
 
@@ -974,6 +953,7 @@ namespace dMobile.Controller
 
                 string locCode = string.Empty;
                 string locName = string.Empty;
+
                 if (this.LocMap.CurrLocMap.SlotLocMapRefno > 0)
                 {
                     locCode = this.LocMap.CurrLocMap.SlotCode.ToString();
@@ -995,10 +975,7 @@ namespace dMobile.Controller
                 rowView["ActivityDetailSchemeID"] = this.SchemeID;
                 rowView["ActivityDetailUniqueSchemeID"] = this.UniqueSchemeID;
 
-                if (this.ActSubType == SysCommon.ActSubTypes.Returns
-                    || this.ActSubType == SysCommon.ActSubTypes.Picking
-                    || this.ActSubType == SysCommon.ActSubTypes.PickingSingle
-                    || this.ActSubType == SysCommon.ActSubTypes.Transfers)
+                if (this.ActSubType == SysCommon.ActSubTypes.Returns || this.ActSubType == SysCommon.ActSubTypes.Picking || this.ActSubType == SysCommon.ActSubTypes.PickingSingle || this.ActSubType == SysCommon.ActSubTypes.TransferFrom)
                 {
                     rowView["ActivityDetailIsConfirmed"] = true;
                     rowView["ActivityDetailIsConfirmedString"] = "C";
@@ -1025,10 +1002,12 @@ namespace dMobile.Controller
             bool isNewDetail = false;
 
             string reqData = SysCommon.SubmitComm(sendReq);
+
             if (reqData.Length > 0)
             {
                 XmlDocument xmlData = new XmlDocument();
                 xmlData.LoadXml(reqData);
+
                 if (reqData.Contains("<message>ERROR</message>"))
                 {
                     string errorDetail = xmlData.DocumentElement["detail"].InnerText;
@@ -1071,176 +1050,216 @@ namespace dMobile.Controller
         public int InsertDetailDisconnected()
         {
             int actDetailRefno = 0;
-//            SQLiteConnection conn = DatabaseConnection.GetInstance().SQLConn;
+            SQLiteConnection conn = DatabaseConnection.GetInstance().SQLConn;
 
-//            try
-//            {
-//                if (string.Compare(this.UniqueSchemeID, string.Empty) > 0)
-//                {
-//                    bool isDupSchemeId = ProductInfoTasks.IsDuplicateUniqueSchemeID(this.UniqueSchemeID);
-//                    if (isDupSchemeId)
-//                    {
-//#if MULTILANGUAGE
-//            throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DuplicateSchemeId) + Environment.NewLine + this.UniqueSchemeID);
-//#else
-//                        throw new Exception("Duplicate scheme ID!" + Environment.NewLine + this.UniqueSchemeID);
-//#endif
-//                    }
-//                }
+            try
+            {
+                if (string.Compare(this.UniqueSchemeID, string.Empty) > 0)
+                {
+                    bool isDupSchemeId = ProductInfoTasks.IsDuplicateUniqueSchemeID(this.UniqueSchemeID);
 
-//                using (SQLiteCommand cmndDetail = conn.CreateCommand())
-//                {
-//                    cmndDetail.CommandText = "tActivityDetail";
-//                    cmndDetail.CommandType = CommandType.TableDirect;
-//                    cmndDetail.IndexName = "PK_ActivityDetailOnActivityDetailRefno";
+                    if (isDupSchemeId)
+                    {
+                        // TODO: Resource strings
+                        throw new Exception("Duplicate scheme ID!" + Environment.NewLine + this.UniqueSchemeID);
+                    }
+                }
 
-//                    using (SqlCeResultSet rsDetail = cmndDetail.ExecuteResultSet(ResultSetOptions.Updatable))
-//                    {
-//                        SqlCeUpdatableRecord recDetail = rsDetail.CreateRecord();
+                using (SQLiteCommand cmndDetail = conn.CreateCommand())
+                {
+                    cmndDetail.CommandText = "INSER INTO tActivityDetail (" +
+                        "ActivityDetailSubType, " +
+                        "ActivityDetailStatus, " +
+                        "ActivityItemRefno, " +
+                        "LocationMapRefno, " +
+                        "ProductUnitRefno, " +
+                        "ActivityDetailUniqueSchemeID, " +
+                        "ActivityDetailSchemeID, " +
+                        "ActivityDetailQuantity, " +
+                        "ActivityDetailBaseQuantity, " +
+                        "ActivityDetailWeightQuantity, " +
+                        "ActivityDetailSingleTradeItemSerialNumber, " +
+                        "ActivityDetailLogisticUnitBatchLotNumber, " +
+                        "ActivityDetailLogisticUnitBestBeforeSellByDate, " +
+                        "ActivityDetailLogisticUnitExpiryUseByDate, " +
+                        "ActivityDetailLogisticUnitProductionDate, " +
+                        "ActivityDetailLogisticUnitDueDate, " +
+                        "ActivityDetailLogisticUnitPackagingDate, " +
+                        "ActivityDetailLogisticUnitSkidNumber" +
+                        ") VALUES (" +
+                        "@activityDetailSubType, " +
+                        "@activityDetailStatus, " +
+                        "@activityItemRefno, " +
+                        "@locationMapRefno, " +
+                        "@productUnitRefno, " +
+                        "@activityDetailUniqueSchemeID, " +
+                        "@activityDetailSchemeID, " +
+                        "@activityDetailQuantity, " +
+                        "@activityDetailBaseQuantity, " +
+                        "@activityDetailWeightQuantity, " +
+                        "@activityDetailSingleTradeItemSerialNumber, " +
+                        "@activityDetailLogisticUnitBatchLotNumber, " +
+                        "@activityDetailLogisticUnitBestBeforeSellByDate, " +
+                        "@activityDetailLogisticUnitExpiryUseByDate, " +
+                        "@activityDetailLogisticUnitProductionDate, " +
+                        "@activityDetailLogisticUnitDueDate, " +
+                        "@activityDetailLogisticUnitPackagingDate, " +
+                        "@activityDetailLogisticUnitSkidNumber" +
+                        ")";
+                    cmndDetail.CommandType = CommandType.Text;
+                    //cmndDetail.IndexName = "PK_ActivityDetailOnActivityDetailRefno";
+                    cmndDetail.Parameters.Add(new SQLiteParameter("@activityDetailSubType", Convert.ToInt32(this.ActSubType)));
+                    cmndDetail.Parameters.Add(new SQLiteParameter("@activityDetailStatus", Convert.ToInt32(SysCommon.ActStatus.Inserted)));
+                    cmndDetail.Parameters.Add(new SQLiteParameter("@activityItemRefno", Convert.ToInt32(this.ActItem.Refno)));
+                    cmndDetail.Parameters.Add(new SQLiteParameter("@locationMapRefno", Convert.ToInt32(this.LocMap.CurrLocMapRefno)));
+                    cmndDetail.Parameters.Add(new SQLiteParameter("@productUnitRefno", Convert.ToInt32(this.ActItem.ProdInfo.UnitRefno)));
+                    cmndDetail.Parameters.Add(new SQLiteParameter("@activityDetailUniqueSchemeID", Convert.ToString(this.UniqueSchemeID)));
+                    cmndDetail.Parameters.Add(new SQLiteParameter("@activityDetailSchemeID", Convert.ToString(this.SchemeID)));
+                    cmndDetail.Parameters.Add(new SQLiteParameter("@activityDetailQuantity", Convert.ToDecimal(this.Quantity)));
+                    cmndDetail.Parameters.Add(new SQLiteParameter("@activityDetailBaseQuantity", Convert.ToDecimal(this.BaseQuantity)));
+                    cmndDetail.Parameters.Add(new SQLiteParameter("@activityDetailWeightQuantity", Convert.ToDecimal(this.WeightQuantity)));
+                    cmndDetail.Parameters.Add(new SQLiteParameter("@activityDetailSingleTradeItemSerialNumber", Convert.ToString(this.SchemeData.SingleTradeItemSerialNumber)));
+                    cmndDetail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitBatchLotNumber", Convert.ToString(this.SchemeData.LogisticUnitBatchLotNumber)));
+                    cmndDetail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitBestBeforeSellByDate", Convert.ToDateTime(this.SchemeData.LogisticUnitBestBeforeSellByDate)));
+                    cmndDetail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitExpiryUseByDate", Convert.ToDateTime(this.SchemeData.LogisticUnitExpiryUseByDate)));
+                    cmndDetail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitProductionDate", Convert.ToDateTime(this.SchemeData.LogisticUnitProductionDate)));
+                    cmndDetail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitDueDate", Convert.ToDateTime(this.SchemeData.LogisticUnitDueDate)));
+                    cmndDetail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitPackagingDate", Convert.ToDateTime(this.SchemeData.LogisticUnitPackagingDate)));
+                    cmndDetail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitSkidNumber", Convert.ToString(this.SchemeData.LogisticUnitSkidNumber)));
 
-//                        recDetail.SetInt32((int)SysCommon.ActDetailFields.SubType, (int)this.ActSubType);
-//                        recDetail.SetInt32((int)SysCommon.ActDetailFields.Status, (int)SysCommon.ActStatus.Inserted);
-//                        recDetail.SetInt32((int)SysCommon.ActDetailFields.ActivityItemRefno, this.ActItem.Refno);
-//                        recDetail.SetInt32((int)SysCommon.ActDetailFields.LocationMapRefno, this.LocMap.CurrLocMapRefno);
-//                        recDetail.SetInt32((int)SysCommon.ActDetailFields.ProductUnitRefno, this.ActItem.ProdInfo.UnitRefno);
-//                        recDetail.SetDecimal((int)SysCommon.ActDetailFields.Quantity, this.Quantity);
-//                        recDetail.SetDecimal((int)SysCommon.ActDetailFields.BaseQuantity, this.BaseQuantity);
-//                        recDetail.SetDecimal((int)SysCommon.ActDetailFields.WeightQuantity, this.WeightQuantity);
-//                        recDetail.SetString(
-//                            (int)SysCommon.ActDetailFields.SingleTradeItemSerialNumber,
-//                            this.SchemeData.SingleTradeItemSerialNumber);
-//                        recDetail.SetString(
-//                            (int)SysCommon.ActDetailFields.LogisticUnitBatchLotNumber,
-//                            this.SchemeData.LogisticUnitBatchLotNumber);
-//                        recDetail.SetDateTime(
-//                            (int)SysCommon.ActDetailFields.LogisticUnitBestBeforeSellByDate,
-//                            this.SchemeData.LogisticUnitBestBeforeSellByDate);
-//                        recDetail.SetDateTime(
-//                            (int)SysCommon.ActDetailFields.LogisticUnitExpiryUseByDate,
-//                            this.SchemeData.LogisticUnitExpiryUseByDate);
-//                        recDetail.SetDateTime(
-//                            (int)SysCommon.ActDetailFields.LogisticUnitProductionDate,
-//                            this.SchemeData.LogisticUnitProductionDate);
-//                        recDetail.SetDateTime(
-//                            (int)SysCommon.ActDetailFields.LogisticUnitDueDate,
-//                            this.SchemeData.LogisticUnitDueDate);
-//                        recDetail.SetDateTime(
-//                            (int)SysCommon.ActDetailFields.LogisticUnitPackagingDate,
-//                            this.SchemeData.LogisticUnitPackagingDate);
-//                        recDetail.SetString(
-//                            (int)SysCommon.ActDetailFields.LogisticUnitSkidNumber,
-//                            this.SchemeData.LogisticUnitSkidNumber);
-//                        recDetail.SetString((int)SysCommon.ActDetailFields.UniqueSchemeID, this.UniqueSchemeID);
-//                        recDetail.SetString((int)SysCommon.ActDetailFields.SchemeID, this.SchemeID);
+                    cmndDetail.ExecuteNonQuery();
 
-//                        rsDetail.Insert(recDetail);
-//                    }
-//                }
+                    //recDetail.SetInt32((int)SysCommon.ActDetailFields.SubType, (int)this.ActSubType);
+                    //recDetail.SetInt32((int)SysCommon.ActDetailFields.Status, (int)SysCommon.ActStatus.Inserted);
+                    //recDetail.SetInt32((int)SysCommon.ActDetailFields.ActivityItemRefno, this.ActItem.Refno);
+                    //recDetail.SetInt32((int)SysCommon.ActDetailFields.LocationMapRefno, this.LocMap.CurrLocMapRefno);
+                    //recDetail.SetInt32((int)SysCommon.ActDetailFields.ProductUnitRefno, this.ActItem.ProdInfo.UnitRefno);
+                    //recDetail.SetString((int)SysCommon.ActDetailFields.UniqueSchemeID, this.UniqueSchemeID);
+                    //recDetail.SetString((int)SysCommon.ActDetailFields.SchemeID, this.SchemeID);
+                    //recDetail.SetDecimal((int)SysCommon.ActDetailFields.Quantity, this.Quantity);
+                    //recDetail.SetDecimal((int)SysCommon.ActDetailFields.BaseQuantity, this.BaseQuantity);
+                    //recDetail.SetDecimal((int)SysCommon.ActDetailFields.WeightQuantity, this.WeightQuantity);
+                    //recDetail.SetString((int)SysCommon.ActDetailFields.SingleTradeItemSerialNumber, this.SchemeData.SingleTradeItemSerialNumber);
+                    //recDetail.SetString((int)SysCommon.ActDetailFields.LogisticUnitBatchLotNumber, this.SchemeData.LogisticUnitBatchLotNumber);
+                    //recDetail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitBestBeforeSellByDate, this.SchemeData.LogisticUnitBestBeforeSellByDate);
+                    //recDetail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitExpiryUseByDate, this.SchemeData.LogisticUnitExpiryUseByDate);
+                    //recDetail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitProductionDate, this.SchemeData.LogisticUnitProductionDate);
+                    //recDetail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitDueDate, this.SchemeData.LogisticUnitDueDate);
+                    //recDetail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitPackagingDate, this.SchemeData.LogisticUnitPackagingDate);
+                    //recDetail.SetString((int)SysCommon.ActDetailFields.LogisticUnitSkidNumber, this.SchemeData.LogisticUnitSkidNumber);
+                    //rsDetail.Insert(recDetail);
+                }
 
-//                using (SQLiteCommand cmndID = conn.CreateCommand())
-//                {
-//                    cmndID.CommandText = "SELECT @@IDENTITY FROM tActivityDetail";
-//                    cmndID.CommandType = CommandType.Text;
+                using (SQLiteCommand cmndID = conn.CreateCommand())
+                {
+                    cmndID.CommandText = "SELECT last_insert_rowid() FROM tActivityDetail";
+                    cmndID.CommandType = CommandType.Text;
 
-//                    actDetailRefno = Convert.ToInt32(cmndID.ExecuteScalar());
-//                }
+                    actDetailRefno = Convert.ToInt32(cmndID.ExecuteScalar());
+                }
 
-//                this.FKRefno = actDetailRefno * -1;
+                this.FKRefno = actDetailRefno * -1;
 
-//                if (0 < this.SchemeData.VariantNumber)
-//                {
-//                    using (SQLiteCommand cmndSchemeVar = conn.CreateCommand())
-//                    {
-//                        cmndSchemeVar.CommandText = "tProductSchemeVariant";
-//                        cmndSchemeVar.CommandType = CommandType.TableDirect;
-//                        cmndSchemeVar.IndexName = "UQ_ProductSchemeVariantOnProductSchemeVariantNo";
+                if (0 < this.SchemeData.VariantNumber)
+                {
+                    using (SQLiteCommand cmndSchemeVar = conn.CreateCommand())
+                    using (SQLiteCommand cmndSchemeVarXRef = conn.CreateCommand())
+                    {
+                        cmndSchemeVar.CommandText = "SELECT * FROM tProductSchemeVariant WHERE ProductSchemeVariantNo = @productSchemeVariantNo";
+                        cmndSchemeVar.CommandType = CommandType.Text;
+                        //cmndSchemeVar.IndexName = "UQ_ProductSchemeVariantOnProductSchemeVariantNo";
+                        cmndSchemeVar.Parameters.Add(new SQLiteParameter("@productSchemeVariantNo", Convert.ToInt32(this.SchemeData.VariantNumber)));
 
-//                        using (SQLiteDataReader drSchemeVar = cmndSchemeVar.ExecuteReader())
-//                        {
-//                            using (SQLiteCommand cmndSchemeVarXRef = conn.CreateCommand())
-//                            {
-//                                cmndSchemeVarXRef.CommandText = "tActivityDetailProductSchemeVariantXRef";
-//                                cmndSchemeVarXRef.CommandType = CommandType.TableDirect;
-//                                cmndSchemeVarXRef.IndexName =
-//                                    "PK_ActivityDetailProductSchemeVariantXRefOnActivityDetailRefnoAndProductSchemeVariantRefno";
+                        //using (SqlCeResultSet rsSchemeVarXRef = cmndSchemeVarXRef.ExecuteResultSet(ResultSetOptions.Updatable))
+                        {
+                            //SqlCeUpdatableRecord recSchemeVarXRef = rsSchemeVarXRef.CreateRecord();
 
-//                                using (SqlCeResultSet rsSchemeVarXRef = cmndSchemeVarXRef.ExecuteResultSet(ResultSetOptions.Updatable))
-//                                {
-//                                    SqlCeUpdatableRecord recSchemeVarXRef = rsSchemeVarXRef.CreateRecord();
+                            int schemeVarRefno = 0;
 
-//                                    int schemeVarRefno = 0;
-//                                    if (drSchemeVar.Seek(DbSeekOptions.FirstEqual, new object[] { this.SchemeData.VariantNumber }))
-//                                    {
-//                                        if (drSchemeVar.Read())
-//                                        {
-//                                            schemeVarRefno = drSchemeVar.GetInt32((int)SysCommon.ProdSchemeVariantFields.Refno);
+                            using (SQLiteDataReader drSchemeVar = cmndSchemeVar.ExecuteReader())
+                            {
+                                //if (drSchemeVar.Seek(DbSeekOptions.FirstEqual, new object[] { this.SchemeData.VariantNumber }))
+                                //{
+                                if (drSchemeVar.Read())
+                                {
+                                    schemeVarRefno = drSchemeVar.GetInt32((int)SysCommon.ProdSchemeVariantFields.Refno);
 
-//                                            recSchemeVarXRef.SetInt32(
-//                                                (int)SysCommon.ActDetailSchemeVariantXRefFields.ActDetailRefno,
-//                                                actDetailRefno);
-//                                            recSchemeVarXRef.SetInt32(
-//                                                (int)SysCommon.ActDetailSchemeVariantXRefFields.ProdSchemeVariantRefno,
-//                                                schemeVarRefno);
+                                    cmndSchemeVarXRef.CommandText = "INSERT INTO tActivityDetailProductSchemeVariantXRef (ActivityDetailRefno, ProductSchemeVariantRefno) VALUES (@activityDetailRefno, @productSchemeVariantRefno)";
+                                    cmndSchemeVarXRef.CommandType = CommandType.Text;
+                                    //cmndSchemeVarXRef.IndexName = "PK_ActivityDetailProductSchemeVariantXRefOnActivityDetailRefnoAndProductSchemeVariantRefno";
+                                    cmndSchemeVarXRef.Parameters.Add(new SQLiteParameter("@activityDetailRefno", Convert.ToInt32(actDetailRefno)));
+                                    cmndSchemeVarXRef.Parameters.Add(new SQLiteParameter("@productSchemeVariantRefno", Convert.ToInt32(schemeVarRefno)));
 
-//                                            rsSchemeVarXRef.Insert(recSchemeVarXRef);
-//                                        }
-//                                        else
-//                                        {
-//                                            throw new Exception("drSchemeVar.Read() failed.");
-//                                        }
-//                                    }
-//                                    else
-//                                    {
-//                                        throw new Exception(
-//                                            string.Format(
-//                                            "Unable to locate the product scheme variant no {0} in tProductSchemeVariant,",
-//                                            this.SchemeData.VariantNumber));
-//                                    }
-//                                }
-//                            }
+                                    cmndSchemeVarXRef.ExecuteNonQuery();
 
-//                            drSchemeVar.Close();
-//                        }
-//                    }
-//                }
+                                    //recSchemeVarXRef.SetInt32((int)SysCommon.ActDetailSchemeVariantXRefFields.ActDetailRefno, actDetailRefno);
+                                    //recSchemeVarXRef.SetInt32((int)SysCommon.ActDetailSchemeVariantXRefFields.ProdSchemeVariantRefno, schemeVarRefno);
+                                    //rsSchemeVarXRef.Insert(recSchemeVarXRef);
+                                }
+                                else
+                                {
+                                    throw new Exception("drSchemeVar.Read() failed.");
+                                }
+                                //}
+                                //else
+                                //{
+                                //    throw new Exception(string.Format("Unable to locate the product scheme variant no {0} in tProductSchemeVariant,", this.SchemeData.VariantNumber));
+                                //}
+                            }
 
-//                if (!string.IsNullOrEmpty(this.ActExtra.Text1)
-//                    || string.IsNullOrEmpty(this.ActExtra.Text2)
-//                    || string.IsNullOrEmpty(this.ActExtra.Text3)
-//                    || string.IsNullOrEmpty(this.ActExtra.Text4)
-//                    || string.IsNullOrEmpty(this.ActExtra.Text5))
-//                {
-//                    using (SQLiteCommand cmndExtra = conn.CreateCommand())
-//                    {
-//                        cmndExtra.CommandText = "tActivityDetailExtra";
-//                        cmndExtra.CommandType = CommandType.TableDirect;
-//                        cmndExtra.IndexName = "PK_ActivityDetailExtraOnActivityDetailRefno";
+                        }
+                    }
+                }
 
-//                        using (SqlCeResultSet rsExtra = cmndExtra.ExecuteResultSet(ResultSetOptions.Updatable))
-//                        {
-//                            SqlCeUpdatableRecord recExtra = rsExtra.CreateRecord();
+                if (!string.IsNullOrEmpty(this.ActExtra.Text1) || string.IsNullOrEmpty(this.ActExtra.Text2) || string.IsNullOrEmpty(this.ActExtra.Text3) || string.IsNullOrEmpty(this.ActExtra.Text4) || string.IsNullOrEmpty(this.ActExtra.Text5))
+                {
+                    using (SQLiteCommand cmndExtra = conn.CreateCommand())
+                    {
+                        cmndExtra.CommandText = "INSERT INTO tActivityDetailExtra (" +
+                            "ActivityDetailRefno, " +
+                            "ActivityDetailSubType, " +
+                            "ActivityDetailExtra1, " +
+                            "ActivityDetailExtra2, " +
+                            "ActivityDetailExtra3, " +
+                            "ActivityDetailExtra4, " +
+                            "ActivityDetailExtra5," +
+                            ") VALUES (" +                         
+                            "@activityDetailRefno, " +
+                            "@activityDetailSubType, " +
+                            "@activityDetailExtra1, " +
+                            "@activityDetailExtra2, " +
+                            "@activityDetailExtra3, " +
+                            "@activityDetailExtra4, " +
+                            "@activityDetailExtra5," +
+                            ")";
+                        cmndExtra.CommandType = CommandType.Text;
+                        //cmndExtra.IndexName = "PK_ActivityDetailExtraOnActivityDetailRefno";
+                        cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailRefno", Convert.ToInt32(actDetailRefno)));
+                        cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailSubType", Convert.ToInt32(this.ActSubType)));
+                        cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra1", Convert.ToString(this.ActExtra.Text1)));
+                        cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra2", Convert.ToString(this.ActExtra.Text2)));
+                        cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra3", Convert.ToString(this.ActExtra.Text3)));
+                        cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra4", Convert.ToString(this.ActExtra.Text4)));
+                        cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra5", Convert.ToString(this.ActExtra.Text5)));
 
-//                            recExtra.SetInt32((int)SysCommon.ActDetailExtraFields.ActDetailRefno, actDetailRefno);
-//                            recExtra.SetInt32((int)SysCommon.ActDetailExtraFields.ActDetailSubType, (int)this.ActSubType);
-//                            recExtra.SetString((int)SysCommon.ActDetailExtraFields.Text1, this.ActExtra.Text1);
-//                            recExtra.SetString((int)SysCommon.ActDetailExtraFields.Text2, this.ActExtra.Text2);
-//                            recExtra.SetString((int)SysCommon.ActDetailExtraFields.Text3, this.ActExtra.Text3);
-//                            recExtra.SetString((int)SysCommon.ActDetailExtraFields.Text4, this.ActExtra.Text4);
-//                            recExtra.SetString((int)SysCommon.ActDetailExtraFields.Text5, this.ActExtra.Text5);
+                        cmndExtra.ExecuteNonQuery();
 
-//                            rsExtra.Insert(recExtra);
-//                        }
-//                    }
-//                }
-//            }
-//            catch (SQLiteException ex)
-//            {
-//#if MULTILANGUAGE
-//        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredInsertingDetailInDisconnectedModeFailed), ex);
-//#else
-//                throw new Exception("Database exception occurred. Inserting detail in disconnected mode failed.", ex);
-//#endif
-//            }
+                        //recExtra.SetInt32((int)SysCommon.ActDetailExtraFields.ActDetailRefno, actDetailRefno);
+                        //recExtra.SetInt32((int)SysCommon.ActDetailExtraFields.ActDetailSubType, (int)this.ActSubType);
+                        //recExtra.SetString((int)SysCommon.ActDetailExtraFields.Text1, this.ActExtra.Text1);
+                        //recExtra.SetString((int)SysCommon.ActDetailExtraFields.Text2, this.ActExtra.Text2);
+                        //recExtra.SetString((int)SysCommon.ActDetailExtraFields.Text3, this.ActExtra.Text3);
+                        //recExtra.SetString((int)SysCommon.ActDetailExtraFields.Text4, this.ActExtra.Text4);
+                        //recExtra.SetString((int)SysCommon.ActDetailExtraFields.Text5, this.ActExtra.Text5);
+                        //rsExtra.Insert(recExtra);
+                    }
+                }
+            }
+            catch (SQLiteException ex)
+            {
+                // TODO: Resource strings
+                throw new Exception("Database exception occurred. Inserting detail in disconnected mode failed.", ex);
+            }
 
             return actDetailRefno;
         }
@@ -1252,11 +1271,7 @@ namespace dMobile.Controller
         /// <param name="e"></param>
         /// <param name="outMessage"></param>
         /// <param name="overrideDisconnectedMode"></param>
-        public void DataLayerStatusOutHandler(
-            object sender,
-            EventArgs e,
-            string outMessage,
-            bool overrideDisconnectedMode)
+        public void DataLayerStatusOutHandler(object sender, EventArgs e, string outMessage, bool overrideDisconnectedMode)
         {
             if (!this.SysEnv.SysSettings.IsDisconnectedMode || overrideDisconnectedMode)
             {
@@ -1352,9 +1367,7 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="dataAccessEventPublisher"></param>
         /// <param name="dataAccessEventArgs"></param>
-        public void OnDataAccessStatusOut(
-            IDataAccessEventPublisher dataAccessEventPublisher,
-            DataAccessEventArgs dataAccessEventArgs)
+        public void OnDataAccessStatusOut(IDataAccessEventPublisher dataAccessEventPublisher, DataAccessEventArgs dataAccessEventArgs)
         {
             if (!this.SysEnv.SysSettings.IsDisconnectedMode || dataAccessEventArgs.OverrideDisconnectedMode)
             {
@@ -1372,9 +1385,7 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="dataAccessEventPublisher"></param>
         /// <param name="dataAccessEventArgs"></param>
-        public void OnDataAccessProgressOut(
-            IDataAccessEventPublisher dataAccessEventPublisher,
-            DataAccessEventArgs dataAccessEventArgs)
+        public void OnDataAccessProgressOut(IDataAccessEventPublisher dataAccessEventPublisher, DataAccessEventArgs dataAccessEventArgs)
         {
             if (this.OnDataLayerProgressOut != null)
             {

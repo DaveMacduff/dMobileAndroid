@@ -52,15 +52,15 @@ namespace dMobile.Bedrock
 
         #region Location Map Fields
 
-        private string locMapWarehouseMask = string.Empty;
-        private string locMapSectionMask = string.Empty;
-        private string locMapSlotMask = string.Empty;
-        private string locMapSlotCoord1Mask = string.Empty;
-        private string locMapSlotCoord2Mask = string.Empty;
-        private string locMapSlotCoord3Mask = string.Empty;
-        private string locMapSlotCoord1Name = string.Empty;
-        private string locMapSlotCoord2Name = string.Empty;
-        private string locMapSlotCoord3Name = string.Empty;
+        //private string locMapWarehouseMask = string.Empty;
+        //private string locMapSectionMask = string.Empty;
+        //private string locMapSlotMask = string.Empty;
+        //private string locMapSlotCoord1Mask = string.Empty;
+        //private string locMapSlotCoord2Mask = string.Empty;
+        //private string locMapSlotCoord3Mask = string.Empty;
+        //private string locMapSlotCoord1Name = string.Empty;
+        //private string locMapSlotCoord2Name = string.Empty;
+        //private string locMapSlotCoord3Name = string.Empty;
         private bool isDefaultLocToProductDefaultLoc = false;
         private bool isVerifyProductLocation = false;
 
@@ -794,122 +794,122 @@ namespace dMobile.Bedrock
 
         #region Location Map Properties
 
-        public string LocMapWarehouseMask
-        {
-            get
-            {
-                return this.locMapWarehouseMask;
-            }
+        //public string LocMapWarehouseMask
+        //{
+        //    get
+        //    {
+        //        return this.locMapWarehouseMask;
+        //    }
 
-            set
-            {
-                this.locMapWarehouseMask = value;
-            }
-        }
+        //    set
+        //    {
+        //        this.locMapWarehouseMask = value;
+        //    }
+        //}
 
-        public string LocMapSectionMask
-        {
-            get
-            {
-                return this.locMapSectionMask;
-            }
+        //public string LocMapSectionMask
+        //{
+        //    get
+        //    {
+        //        return this.locMapSectionMask;
+        //    }
 
-            set
-            {
-                this.locMapSectionMask = value;
-            }
-        }
+        //    set
+        //    {
+        //        this.locMapSectionMask = value;
+        //    }
+        //}
 
-        public string LocMapSlotMask
-        {
-            get
-            {
-                return this.locMapSlotMask;
-            }
+        //public string LocMapSlotMask
+        //{
+        //    get
+        //    {
+        //        return this.locMapSlotMask;
+        //    }
 
-            set
-            {
-                this.locMapSlotMask = value;
-            }
-        }
+        //    set
+        //    {
+        //        this.locMapSlotMask = value;
+        //    }
+        //}
 
-        public string LocMapSlotCoord1Mask
-        {
-            get
-            {
-                return this.locMapSlotCoord1Mask;
-            }
+        //public string LocMapSlotCoord1Mask
+        //{
+        //    get
+        //    {
+        //        return this.locMapSlotCoord1Mask;
+        //    }
 
-            set
-            {
-                this.locMapSlotCoord1Mask = value;
-            }
-        }
+        //    set
+        //    {
+        //        this.locMapSlotCoord1Mask = value;
+        //    }
+        //}
 
-        public string LocMapSlotCoord2Mask
-        {
-            get
-            {
-                return this.locMapSlotCoord2Mask;
-            }
+        //public string LocMapSlotCoord2Mask
+        //{
+        //    get
+        //    {
+        //        return this.locMapSlotCoord2Mask;
+        //    }
 
-            set
-            {
-                this.locMapSlotCoord2Mask = value;
-            }
-        }
+        //    set
+        //    {
+        //        this.locMapSlotCoord2Mask = value;
+        //    }
+        //}
 
-        public string LocMapSlotCoord3Mask
-        {
-            get
-            {
-                return this.locMapSlotCoord3Mask;
-            }
+        //public string LocMapSlotCoord3Mask
+        //{
+        //    get
+        //    {
+        //        return this.locMapSlotCoord3Mask;
+        //    }
 
-            set
-            {
-                this.locMapSlotCoord3Mask = value;
-            }
-        }
+        //    set
+        //    {
+        //        this.locMapSlotCoord3Mask = value;
+        //    }
+        //}
 
-        public string LocMapSlotCoord1Name
-        {
-            get
-            {
-                return this.locMapSlotCoord1Name;
-            }
+        //public string LocMapSlotCoord1Name
+        //{
+        //    get
+        //    {
+        //        return this.locMapSlotCoord1Name;
+        //    }
 
-            set
-            {
-                this.locMapSlotCoord1Name = value;
-            }
-        }
+        //    set
+        //    {
+        //        this.locMapSlotCoord1Name = value;
+        //    }
+        //}
 
-        public string LocMapSlotCoord2Name
-        {
-            get
-            {
-                return this.locMapSlotCoord2Name;
-            }
+        //public string LocMapSlotCoord2Name
+        //{
+        //    get
+        //    {
+        //        return this.locMapSlotCoord2Name;
+        //    }
 
-            set
-            {
-                this.locMapSlotCoord2Name = value;
-            }
-        }
+        //    set
+        //    {
+        //        this.locMapSlotCoord2Name = value;
+        //    }
+        //}
 
-        public string LocMapSlotCoord3Name
-        {
-            get
-            {
-                return this.locMapSlotCoord3Name;
-            }
+        //public string LocMapSlotCoord3Name
+        //{
+        //    get
+        //    {
+        //        return this.locMapSlotCoord3Name;
+        //    }
 
-            set
-            {
-                this.locMapSlotCoord3Name = value;
-            }
-        }
+        //    set
+        //    {
+        //        this.locMapSlotCoord3Name = value;
+        //    }
+        //}
 
         public bool IsDefaultLocToProductDefaultLoc
         {

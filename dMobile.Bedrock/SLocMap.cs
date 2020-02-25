@@ -17,6 +17,7 @@ namespace dMobile.Bedrock
         private int whsFKRefno;
         private int whsCode;
         private string whsName;
+        private bool isWhsWMS;
         private int sectLocMapRefno;
         private int sectFKRefno;
         private string sectName;
@@ -28,6 +29,226 @@ namespace dMobile.Bedrock
         private int slotCoord1LocMapRefno;
         private int slotCoord2LocMapRefno;
         private int slotCoord3LocMapRefno;
+        private string slotCoord1Name;
+        private string slotCoord2Name;
+        private string slotCoord3Name;
+        private bool isSectionTracked;
+        private bool isSlotTracked;
+        private bool isSlotCoord1Tracked;
+        private bool isSlotCoord2Tracked;
+        private bool isSlotCoord3Tracked;
+        private string whsCodeMask;
+        private string sectMask;
+        private string slotMask;
+        private string slotCoord1Mask;
+        private string slotCoord2Mask;
+        private string slotCoord3Mask;
+
+        public string SlotCoord1Mask
+        {
+            get
+            {
+                return this.slotCoord1Mask;
+            }
+
+            set
+            {
+                this.slotCoord1Mask = value;
+            }
+        }
+
+        public string SlotCoord2Mask
+        {
+            get
+            {
+                return this.slotCoord2Mask;
+            }
+
+            set
+            {
+                this.slotCoord2Mask = value;
+            }
+        }
+
+        public string SlotCoord3Mask
+        {
+            get
+            {
+                return this.slotCoord3Mask;
+            }
+
+            set
+            {
+                this.slotCoord3Mask = value;
+            }
+        }
+
+        public string SlotMask
+        {
+            get
+            {
+                return this.slotMask;
+            }
+
+            set
+            {
+                this.slotMask = value;
+            }
+        }
+
+        public string SectMask
+        {
+            get
+            {
+                return this.sectMask;
+            }
+
+            set
+            {
+                this.sectMask = value;
+            }
+        }
+
+        public string WhsCodeMask
+        {
+            get
+            {
+                return this.whsCodeMask;
+            }
+
+            set
+            {
+                this.whsCodeMask = value;
+            }
+        }
+
+        public bool IsSlotCoord1Tracked
+        {
+            get
+            {
+                return this.isSlotCoord1Tracked;
+            }
+
+            set
+            {
+                this.isSlotCoord1Tracked = value;
+            }
+        }
+
+        public bool IsSlotCoord2Tracked
+        {
+            get
+            {
+                return this.isSlotCoord2Tracked;
+            }
+
+            set
+            {
+                this.isSlotCoord2Tracked = value;
+            }
+        }
+
+        public bool IsSlotCoord3Tracked
+        {
+            get
+            {
+                return this.isSlotCoord3Tracked;
+            }
+
+            set
+            {
+                this.isSlotCoord3Tracked = value;
+            }
+        }
+
+        public bool IsSlotTracked
+        {
+            get
+            {
+                return this.isSlotTracked;
+            }
+
+            set
+            {
+                this.isSlotTracked = value;
+            }
+        }
+
+        public bool IsSectionTracked
+        {
+            get
+            {
+                return this.isSectionTracked;
+            }
+
+            set
+            {
+                this.isSectionTracked = value;
+            }
+        }
+
+        public string SlotCoord1Name
+        {
+            get
+            {
+                return this.slotCoord1Name;
+            }
+
+            set
+            {
+                this.slotCoord1Name = value;
+                if (string.IsNullOrEmpty(this.slotCoord1Name))
+                {
+                    this.IsSlotCoord1Tracked = false;
+                }
+                else
+                {
+                    this.IsSlotCoord1Tracked = true;
+                }
+            }
+        }
+
+        public string SlotCoord2Name
+        {
+            get
+            {
+                return this.slotCoord2Name;
+            }
+
+            set
+            {
+                this.slotCoord2Name = value;
+                if (string.IsNullOrEmpty(this.slotCoord2Name))
+                {
+                    this.IsSlotCoord2Tracked = false;
+                }
+                else
+                {
+                    this.IsSlotCoord2Tracked = true;
+                }
+            }
+        }
+
+        public string SlotCoord3Name
+        {
+            get
+            {
+                return this.slotCoord3Name;
+            }
+
+            set
+            {
+                this.slotCoord3Name = value;
+                if (string.IsNullOrEmpty(this.slotCoord3Name))
+                {
+                    this.IsSlotCoord3Tracked = false;
+                }
+                else
+                {
+                    this.IsSlotCoord3Tracked = true;
+                }
+            }
+        }
 
         public int SlotCode
         {
@@ -236,6 +457,19 @@ namespace dMobile.Bedrock
             set
             {
                 this.slotCoord3LocMapRefno = value;
+            }
+        }
+
+        public bool IsWhsWMS
+        {
+            get
+            {
+                return this.isWhsWMS;
+            }
+
+            set
+            {
+                this.isWhsWMS = value;
             }
         }
     }

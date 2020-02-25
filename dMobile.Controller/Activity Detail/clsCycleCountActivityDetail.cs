@@ -40,6 +40,7 @@ namespace dMobile.Controller
                 + "</params>");
 
             string reqData = SysCommon.SubmitComm(this.CreateSubmitXML(request));
+
             if (reqData.Length > 0)
             {
                 XmlDocument xmlDoc = new XmlDocument();
@@ -72,7 +73,6 @@ namespace dMobile.Controller
                         using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
                         {
                             cmndItem.CommandType = CommandType.Text;
-                            //cmndItem.IndexName = string.Empty;
                             cmndItem.CommandText = "UPDATE tActivityItemCount "
                                 + "SET ActivityItemCountStringFKRefno = \'" + this.NewItemFKRefno + "\', "
                                 + "ActivityItemCountFKRefno = " + this.NewItemFKRefno
@@ -137,96 +137,92 @@ namespace dMobile.Controller
         /// <param name="data"></param>
         public override void Insert(XDocument data)
         {
-            //this.FillActDetailObjFromXML(data);
+            this.FillActDetailObjFromXML(data);
 
-            //if (this.SysEnv.SysSettings.IsDisconnectedMode)
-            //{
-            //    int actDetailRefno = this.InsertDetailDisconnected();
+            if (this.SysEnv.SysSettings.IsDisconnectedMode)
+            {
+                int actDetailRefno = this.InsertDetailDisconnected();
 
-            //    using (SQLiteCommand cmndDetailAdj = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-            //    {
-            //        cmndDetailAdj.CommandText = "tActivityDetailCount";
-            //        cmndDetailAdj.CommandType = CommandType.TableDirect;
-            //        cmndDetailAdj.IndexName = "UQ_ActivityDetailCountOnActivityDetailCountFKRefno";
+                using (SQLiteCommand cmndDetailAdj = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                {
+                    cmndDetailAdj.CommandText = "INSERT INTO tActivityDetailCount (ActivityDetailRefno, ActivityDetailCountFKRefno) VALUES (@activityDetailRefno, @activityDetailCountFKRefno)";
+                    cmndDetailAdj.CommandType = CommandType.Text;
+                    //cmndDetailAdj.IndexName = "UQ_ActivityDetailCountOnActivityDetailCountFKRefno";
+                    cmndDetailAdj.Parameters.Add(new SQLiteParameter("@activityDetailRefno", Convert.ToInt32(actDetailRefno)));
+                    cmndDetailAdj.Parameters.Add(new SQLiteParameter("@activityDetailCountFKRefno", Convert.ToInt32(this.FKRefno)));
 
-            //        using (SqlCeResultSet rsDetail = cmndDetailAdj.ExecuteResultSet(ResultSetOptions.Updatable))
-            //        {
-            //            SqlCeUpdatableRecord recDetail = rsDetail.CreateRecord();
+                    cmndDetailAdj.ExecuteNonQuery();
 
-            //            recDetail.SetInt32((int)SysCommon.ActDetailAdjFields.ActDetailRefno, actDetailRefno);
-            //            recDetail.SetInt32((int)SysCommon.ActDetailAdjFields.FKRefno, this.FKRefno);
+                    //recDetail.SetInt32((int)SysCommon.ActDetailAdjFields.ActDetailRefno, actDetailRefno);
+                    //recDetail.SetInt32((int)SysCommon.ActDetailAdjFields.FKRefno, this.FKRefno);
+                    //rsDetail.Insert(recDetail);
 
-            //            rsDetail.Insert(recDetail);
+                    this.IsUpdateView = true;
+                }
+            }
+            else
+            {
+                if (this.InsertDetail(this.CreateSubmitXML(XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"))))
+                {
+                    bool newDetail = true;
 
-            //            this.IsUpdateView = true;
-            //        }
-            //    }
-            //}
-            //else
-            //{
-            //    if (this.InsertDetail(
-            //        this.CreateSubmitXML(
-            //        XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"))))
-            //    {
-            //        bool newDetail = true;
+                    // Check for a FK already existing with that value.
+                    // if it does, add or subtract from it and then return false for new detail
+                    int x = -1;
 
-            //        // Check for a FK already existing with that value.
-            //        // if it does, add or subtract from it and then return false for new detail
-            //        int x = -1;
-            //        for (int i = 0; i < ActItem.DataViewItems.Count; i++)
-            //        {
-            //            if ((int)ActItem.DataViewItems[i]["ActivityItemCountFKRefno"] == ActItem.FKRefno)
-            //            {
-            //                x = i;
-            //                break;
-            //            }
-            //        }
-            //        if (x != -1)
-            //        {
-            //            // There already exists a FK.
-            //            // Delete the newline and add the details to the existing line
-            //            newDetail = false;
-            //            ActItem.DataViewItems[x]["ActivityItemCountQuantity"] = (decimal)ActItem.DataViewItems[x]["ActivityItemCountQuantity"] + Quantity;
-            //            ActItem.DataViewItems[x]["ActivityItemCountBaseQuantity"] = (decimal)ActItem.DataViewItems[x]["ActivityItemCountBaseQuantity"] + BaseQuantity;
-            //            ActItem.DataViewItems[x]["ActivityItemCountWeightQuantity"] = (decimal)ActItem.DataViewItems[x]["ActivityItemCountWeightQuantity"] + WeightQuantity;
-            //            ActItem.DataViewItems[ActItem.DataViewItems.Count - 1].Delete();
-            //        }
+                    for (int i = 0; i < ActItem.DataViewItems.Count; i++)
+                    {
+                        if ((int)ActItem.DataViewItems[i]["ActivityItemCountFKRefno"] == ActItem.FKRefno)
+                        {
+                            x = i;
+                            break;
+                        }
+                    }
 
-            //        if (newDetail)
-            //        {
+                    if (x != -1)
+                    {
+                        // There already exists a FK.
+                        // Delete the newline and add the details to the existing line
+                        newDetail = false;
+                        ActItem.DataViewItems[x]["ActivityItemCountQuantity"] = (decimal)ActItem.DataViewItems[x]["ActivityItemCountQuantity"] + Quantity;
+                        ActItem.DataViewItems[x]["ActivityItemCountBaseQuantity"] = (decimal)ActItem.DataViewItems[x]["ActivityItemCountBaseQuantity"] + BaseQuantity;
+                        ActItem.DataViewItems[x]["ActivityItemCountWeightQuantity"] = (decimal)ActItem.DataViewItems[x]["ActivityItemCountWeightQuantity"] + WeightQuantity;
+                        ActItem.DataViewItems[ActItem.DataViewItems.Count - 1].Delete();
+                    }
+
+                    if (newDetail)
+                    {
 
 
-            //            using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-            //            {
-            //                cmndItem.IndexName = string.Empty;
-            //                cmndItem.CommandType = CommandType.Text;
-            //                cmndItem.CommandText = "UPDATE tActivityItemCount "
-            //                    + "SET ActivityItemCountStringFKRefno = \'" + this.NewItemFKRefno + "\',"
-            //                    + "ActivityItemCountFKRefno = " + this.NewItemFKRefno
-            //                    + " WHERE tActivityItemCount.ActivityItemRefno = " + this.ActItem.Refno; //<WO ID="14711" comment="Changed Refno to FKRefno. They are the same when no barcode modifier present. Opposite +/- when modifier exists." />
-            //                cmndItem.ExecuteNonQuery();
-            //            }
+                        using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                        {
+                            cmndItem.CommandType = CommandType.Text;
+                            cmndItem.CommandText = "UPDATE tActivityItemCount "
+                                + "SET ActivityItemCountStringFKRefno = \'" + this.NewItemFKRefno + "\',"
+                                + "ActivityItemCountFKRefno = " + this.NewItemFKRefno
+                                + " WHERE tActivityItemCount.ActivityItemRefno = " + this.ActItem.Refno; //<WO ID="14711" comment="Changed Refno to FKRefno. They are the same when no barcode modifier present. Opposite +/- when modifier exists." />
+                            cmndItem.ExecuteNonQuery();
+                        }
 
-            //            string oldSort = this.ActItem.DataViewItems.Sort;
-            //            this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
+                        string oldSort = this.ActItem.DataViewItems.Sort;
+                        this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
 
+                        int rowIdx = this.ActItem.DataViewItems.Find(new object[] { this.ActItem.Refno });
+                        if (rowIdx != -1)
+                        {
+                            DataRowView rowView = this.ActItem.DataViewItems[rowIdx];
+                            rowView.BeginEdit();
+                            rowView["ActivityItemCountFKRefno"] = this.NewItemFKRefno;
+                            rowView["ActivityItemCountStringFKRefno"] = this.NewItemFKRefno.ToString();
+                            rowView.EndEdit();
+                        }
 
-            //            int rowIdx = this.ActItem.DataViewItems.Find(new object[] { this.ActItem.Refno });
-            //            if (rowIdx != -1)
-            //            {
-            //                DataRowView rowView = this.ActItem.DataViewItems[rowIdx];
-            //                rowView.BeginEdit();
-            //                rowView["ActivityItemCountFKRefno"] = this.NewItemFKRefno;
-            //                rowView["ActivityItemCountStringFKRefno"] = this.NewItemFKRefno.ToString();
-            //                rowView.EndEdit();
-            //            }
+                        this.ActItem.DataViewItems.Sort = oldSort;
+                    }
+                }
+            }
 
-            //            this.ActItem.DataViewItems.Sort = oldSort;
-            //        }
-            //    }
-            //}
-
-            //this.InsertUpdateDataViewDetail("ActivityDetailCountFKRefno", "ActivityDetailCountFKRefno");
+            this.InsertUpdateDataViewDetail("ActivityDetailCountFKRefno", "ActivityDetailCountFKRefno");
         }
 
         /// <summary>
@@ -236,8 +232,7 @@ namespace dMobile.Controller
         {
             if (!this.SysEnv.SysSettings.IsDisconnectedMode)
             {
-                string xmlDelete = this.CreateDeleteXML(
-                    XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"));
+                string xmlDelete = this.CreateDeleteXML(XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"));
                 string reqData = SysCommon.SubmitComm(xmlDelete);
 
                 if (reqData.Length > 0)
@@ -248,6 +243,7 @@ namespace dMobile.Controller
                         XmlDocument docError = new XmlDocument();
                         docError.LoadXml(reqData);
                         string errorDetail = docError.DocumentElement["detail"].InnerText;
+
                         if (errorDetail.Contains("MSGBOX-"))
                         {
                             throw new MessageOnlyException(errorDetail);
@@ -264,6 +260,7 @@ namespace dMobile.Controller
             string oldSort = this.DataViewDetails.Sort;
             this.DataViewDetails.Sort = "ActivityDetailCountFKRefno";
             int rowIdx = this.DataViewDetails.Find(this.FKRefno);
+
             if (rowIdx >= 0)
             {
                 this.DataViewDetails.Delete(rowIdx);
@@ -276,20 +273,16 @@ namespace dMobile.Controller
             {
                 cmndPurge.CommandType = CommandType.Text;
 
-                cmndPurge.CommandText = "DELETE FROM tActivityDetailProductSchemeVariantXRef "
-                    + "WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno = " + this.Refno;
+                cmndPurge.CommandText = "DELETE FROM tActivityDetailProductSchemeVariantXRef WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno = " + this.Refno;
                 cmndPurge.ExecuteNonQuery();
 
-                cmndPurge.CommandText = "DELETE FROM tActivityDetailCount "
-                    + "WHERE tActivityDetailCount.ActivityDetailRefno = " + this.Refno;
+                cmndPurge.CommandText = "DELETE FROM tActivityDetailCount WHERE tActivityDetailCount.ActivityDetailRefno = " + this.Refno;
                 cmndPurge.ExecuteNonQuery();
 
-                cmndPurge.CommandText = "DELETE FROM tActivityDetailExtra "
-                    + "WHERE tActivityDetailExtra.ActivityDetailRefno = " + this.Refno;
+                cmndPurge.CommandText = "DELETE FROM tActivityDetailExtra WHERE tActivityDetailExtra.ActivityDetailRefno = " + this.Refno;
                 cmndPurge.ExecuteNonQuery();
 
-                cmndPurge.CommandText = "DELETE FROM tActivityDetail "
-                    + "WHERE tActivityDetail.ActivityDetailRefno = " + this.Refno;
+                cmndPurge.CommandText = "DELETE FROM tActivityDetail WHERE tActivityDetail.ActivityDetailRefno = " + this.Refno;
                 cmndPurge.ExecuteNonQuery();
             }
         }
@@ -302,10 +295,9 @@ namespace dMobile.Controller
         public override void Submit(int rowIdx, XDocument data)
         {
             XmlDocument xmlDoc = new XmlDocument();
-            string xmlSend = this.CreateSubmitXML(
-                XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"));
-
+            string xmlSend = this.CreateSubmitXML(XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"));
             string reqData = SysCommon.SubmitComm(xmlSend);
+
             if (reqData.Length > 0)
             {
                 xmlDoc.LoadXml(reqData);
@@ -314,6 +306,7 @@ namespace dMobile.Controller
                 if (reqData.Contains("<message>ERROR</message>"))
                 {
                     string errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
+
                     if (errorDetail.Contains("MSGBOX-"))
                     {
                         throw new MessageOnlyException(errorDetail);
@@ -360,8 +353,7 @@ namespace dMobile.Controller
             if (!isAdd)
             {
                 this.FKRefno = Convert.ToInt32(this.DataViewDetails[idx]["ActivityDetailCountFKRefno"]);
-                this.LocMap.CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(
-                    (int)this.DataViewDetails[idx]["LocationMapRefno"]);
+                this.LocMap.CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno((int)this.DataViewDetails[idx]["LocationMapRefno"]);
             }
 
             return this;
@@ -466,7 +458,6 @@ namespace dMobile.Controller
                 sql.Append("INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno ");
                 sql.Append("INNER JOIN tLocationMapSlot ON tLocationMapSlot.LocationMapRefno ");
                 sql.Append("= tActivityDetail.LocationMapRefno ");
-                sql.Append("INNER JOIN tProductScheme ON tProductScheme.ProductSchemeRefno = tProduct.ProductSchemeRefno ");
                 sql.Append("LEFT JOIN tActivityDetailProductSchemeVariantXRef ON ");
                 sql.Append("tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno ");
                 sql.Append("= tActivityDetailCount.ActivityDetailRefno ");
@@ -523,7 +514,6 @@ namespace dMobile.Controller
                 sql.Append("INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno ");
                 sql.Append("INNER JOIN tLocationMapSection ON tLocationMapSection.LocationMapRefno ");
                 sql.Append("= tActivityDetail.LocationMapRefno ");
-                sql.Append("INNER JOIN tProductScheme ON tProductScheme.ProductSchemeRefno = tProduct.ProductSchemeRefno ");
                 sql.Append("LEFT JOIN tActivityDetailProductSchemeVariantXRef ON ");
                 sql.Append("tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno ");
                 sql.Append("= tActivityDetailCount.ActivityDetailRefno ");
@@ -580,7 +570,6 @@ namespace dMobile.Controller
                 sql.Append("INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno ");
                 sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
                 sql.Append("= tActivityDetail.LocationMapRefno ");
-                sql.Append("INNER JOIN tProductScheme ON tProductScheme.ProductSchemeRefno = tProduct.ProductSchemeRefno ");
                 sql.Append("LEFT JOIN tActivityDetailProductSchemeVariantXRef ON ");
                 sql.Append("tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno ");
                 sql.Append("= tActivityDetailCount.ActivityDetailRefno ");
@@ -681,7 +670,6 @@ namespace dMobile.Controller
             "INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno  " +
             "INNER JOIN tLocationMapSlot ON tLocationMapSlot.LocationMapRefno  " +
             "= tActivityDetail.LocationMapRefno  " +
-            "INNER JOIN tProductScheme ON tProductScheme.ProductSchemeRefno = tProduct.ProductSchemeRefno  " +
             "LEFT JOIN tActivityDetailProductSchemeVariantXRef ON  " +
             "tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno  " +
             "= tActivityDetailCount.ActivityDetailRefno  " +
@@ -693,6 +681,7 @@ namespace dMobile.Controller
            " AND tActivityDetail.ActivityDetailSubType = " + (int)SysCommon.ActSubTypes.CycleCounts;
 
             DataTable table = new DataTable();
+
             using (SQLiteDataAdapter da = new SQLiteDataAdapter(slotQuery, DatabaseConnection.GetInstance().SQLConn))
             {
                 da.Fill(table);
@@ -748,7 +737,6 @@ namespace dMobile.Controller
              "INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno  " +
              "INNER JOIN tLocationMapSection ON tLocationMapSection.LocationMapRefno  " +
              "= tActivityDetail.LocationMapRefno  " +
-             "INNER JOIN tProductScheme ON tProductScheme.ProductSchemeRefno = tProduct.ProductSchemeRefno  " +
              "LEFT JOIN tActivityDetailProductSchemeVariantXRef ON  " +
              "tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno  " +
              "= tActivityDetailCount.ActivityDetailRefno  " +
@@ -816,7 +804,6 @@ namespace dMobile.Controller
                  "INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno  " +
                  "INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno  " +
                  "= tActivityDetail.LocationMapRefno  " +
-                 "INNER JOIN tProductScheme ON tProductScheme.ProductSchemeRefno = tProduct.ProductSchemeRefno  " +
                  "LEFT JOIN tActivityDetailProductSchemeVariantXRef ON  " +
                  "tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno  " +
                  "= tActivityDetailCount.ActivityDetailRefno  " +
@@ -828,6 +815,7 @@ namespace dMobile.Controller
                 " AND tActivityDetail.ActivityDetailSubType = " + (int)SysCommon.ActSubTypes.CycleCounts;
 
             DataTable table = new DataTable();
+
             using (SQLiteDataAdapter da = new SQLiteDataAdapter(warehouseQuery, DatabaseConnection.GetInstance().SQLConn))
             {
                 da.Fill(table);

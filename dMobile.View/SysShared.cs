@@ -170,8 +170,7 @@ namespace dMobile.View
                             else if (deliScaleWeightUnit == "KG")
                             {
                                 barCodeParse.NetWeightMetricKG = deliScaleWeight;
-                                barCodeParse.NetWeightNonMetricLB = (decimal)SysCommon.ConvertKG2LB(
-                                    (double)barCodeParse.NetWeightMetricKG);
+                                barCodeParse.NetWeightNonMetricLB = (decimal)SysCommon.ConvertKG2LB((double)barCodeParse.NetWeightMetricKG);
                             }
                             else
                             {
@@ -305,13 +304,13 @@ namespace dMobile.View
         /// <param name="actDetail"></param>
         /// <param name="isForceStopForEdit"></param>
         /// <exception cref="GatherProductDataException">Throws when a user hits the cancel button on the manual input form.</exception>
-        public static void GatherProductData(
+        public static async Task<bool> GatherProductData(
             BarCodeParse barParse,
             SysCommon.ActSubTypes actSubType,
             ActItem actItem,
             SActItemSchemeData tempItemSchemeData,
             //UserControl callingControl,
-            ref bool isInsertDetailReady,
+            bool isInsertDetailReady,
             ActDetail actDetail,
             bool isForceStopForEdit)
         {
@@ -330,7 +329,6 @@ namespace dMobile.View
                     ref locMapRefno);
             }
 
-
             actDetail.SchemeData = GatherProductSchemeData(actDetail, barParse, tempItemSchemeData, actSubType);
 
             GatherProductQuantityData(ref actDetail, barParse, tempItemSchemeData, ref isForceStopForEdit);
@@ -338,6 +336,7 @@ namespace dMobile.View
             bool isStopForDetail = IsStopForDetail(actDetail, isForceStopForEdit);
 
             bool isStopForLabelDetail = false;
+
             if (actDetail.ActSubType == SysCommon.ActSubTypes.Receiving)
             {
                 if (!actDetail.IsLabelSchemeComplete())
@@ -354,28 +353,29 @@ namespace dMobile.View
                 // Check for quantity over occurrs in form
                 FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucActivityDetailEdit, actDetail, actSubType);
 
-                form.ShowDialog().ContinueWith(result =>
-                {
-                    if (form.DialogResult == DialogResult.OK)
-                    {
-                        continueIsStopForDetail = true;
-                    }
-                });
+                await form.DisplayControl.ShowDialog().ContinueWith(result =>
+                 {
+                     if (form.DisplayControl.DialogResult == DialogResult.OK)
+                     {
+                         continueIsStopForDetail = true;
+                     }
 
-                if (continueIsStopForDetail)
-                {
-                    XDocument xmlDoc = null;
-                    xmlDoc = form.DisplayControlData;
-                    UpdateActDetailFromXML(ref actDetail, xmlDoc);
+                     if (continueIsStopForDetail)
+                     {
+                         XDocument xmlDoc = null;
+                         //xmlDoc = form.DisplayControlData;
+                         xmlDoc = ((IAppArea)form.DisplayControl).GetXML();;
+                         UpdateActDetailFromXML(ref actDetail, xmlDoc);
 
-                    // No need to call actItem.IsReadyToApply(xmlParam) the form will call it.
-                    isInsertDetailReady = true;
-                }
-                else
-                {
-                    // TODO: Resource strings
-                    throw new GatherProductDataException("Cancelled from detail edit.", true);
-                }
+                         //No need to call actItem.IsReadyToApply(xmlParam) the form will call it.
+                         isInsertDetailReady = true;
+                     }
+                     else
+                     {
+                         //TODO: Resource strings
+                         throw new GatherProductDataException("Cancelled from detail edit.", true);
+                     }
+                 });
             }
             else if (isStopForLabelDetail)
             {
@@ -385,29 +385,29 @@ namespace dMobile.View
                 // No quantity over check needed for label printing
                 FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucActivityProductLabel, actDetail, actSubType);
 
-                form.ShowDialog().ContinueWith(result =>
+                await form.ShowDialog().ContinueWith(result =>
                 {
                     if (form.DialogResult == DialogResult.OK)
                     {
                         continueIsStopForLabelDetail = true;
                     }
+
+                    if (continueIsStopForLabelDetail)
+                    {
+                        XDocument xmlDoc = null;
+                        xmlDoc = form.DisplayControlData;
+                        UpdateActDetailFromXML(ref actDetail, xmlDoc);
+                    }
+                    ////else
+                    ////{
+                    ////  throw new GatherProductDataException("Cancelled from detail edit.", true);
+                    ////}
+
+                    //    // No need to call actItem.IsReadyToApply(xmlParam) the form will call it.
+                    //    // Insert the activity detail even if the print product label was cancelled.
+                    //    // All inventory tracked scheme components where complete before even call the print product labels control.
+                    isInsertDetailReady = true;
                 });
-
-                if (continueIsStopForLabelDetail)
-                {
-                    XDocument xmlDoc = null;
-                    xmlDoc = form.DisplayControlData;
-                    UpdateActDetailFromXML(ref actDetail, xmlDoc);
-                }
-                ////else
-                ////{
-                ////  throw new GatherProductDataException("Cancelled from detail edit.", true);
-                ////}
-
-                //    // No need to call actItem.IsReadyToApply(xmlParam) the form will call it.
-                //    // Insert the activity detail even if the print product label was cancelled.
-                //    // All inventory tracked scheme components where complete before even call the print product labels control.
-                isInsertDetailReady = true;
             }
             else
             {
@@ -435,6 +435,8 @@ namespace dMobile.View
 
                 isInsertDetailReady = true;
             }
+
+            return isInsertDetailReady;
         }
 
         /// <summary>

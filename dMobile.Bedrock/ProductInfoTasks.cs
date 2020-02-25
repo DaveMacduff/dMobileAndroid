@@ -476,9 +476,9 @@
         }
 
         /// <summary>
-        /// 
+        /// Get the product scheme from the product refno and the current location map instance.
         /// </summary>
-        /// <param name="productRefno"></param>
+        /// <param name="productRefno">Product refno</param>
         /// <returns></returns>
         public static ProdScheme GetSchemeComponentsFromRefno(int productRefno)
         {
@@ -516,9 +516,12 @@
                 "tProductScheme.ProductSchemeIsLotTrackedDefault, " +
                 "tProductScheme.ProductSchemeIsProductionDateTrackedDefault, " +
                 "tProductScheme.ProductSchemeIsBestBeforeDateTrackedDefault " +
-                "FROM tProduct " +
-                "INNER JOIN tProductScheme ON tProductScheme.ProductSchemeRefno = tProduct.ProductSchemeRefno " +
+                "FROM tProduct " +            
+                "INNER JOIN tLocationMapWarehouseProductScheme ON tLocationMapWarehouseProductScheme.ProductRefno = tProduct.ProductRefno " +
+                "AND tLocationMapWarehouseProductScheme.WarehouseLocationMapRefno = @whsLocMapRefno " +
+                "INNER JOIN tProductScheme ON tProductScheme.ProductSchemeRefno = tLocationMapWarehouseProductScheme.ProductSchemeRefno " +
                 "WHERE tProduct.ProductRefno = @productRefno";
+                cmndProductSchemeComponents.Parameters.Add(new SQLiteParameter("@whsLocMapRefno", LocationMap.GetInstance().CurrLocMap.WhsLocMapRefno));
                 cmndProductSchemeComponents.Parameters.Add(new SQLiteParameter("@productRefno", productRefno));
 
                 using (SQLiteDataReader dr = cmndProductSchemeComponents.ExecuteReader())
@@ -532,10 +535,8 @@
                         scheme.IsBestBeforeDateTracked = Convert.ToBoolean(dr["ProductSchemeIsBestBeforeDateTracked"]);
                         scheme.IsVariantTracked = Convert.ToBoolean(dr["ProductSchemeIsVariantTracked"]);
                         scheme.IsLotUniqueComponent = Convert.ToBoolean(dr["ProductSchemeIsLotUniqueComponent"]);
-                        scheme.IsProductionDateUniqueComponent = Convert.ToBoolean(
-                            dr["ProductSchemeIsProductionDateUniqueComponent"]);
-                        scheme.IsBestBeforeDateUniqueComponent = Convert.ToBoolean(
-                            dr["ProductSchemeIsBestBeforeDateUniqueComponent"]);
+                        scheme.IsProductionDateUniqueComponent = Convert.ToBoolean(dr["ProductSchemeIsProductionDateUniqueComponent"]);
+                        scheme.IsBestBeforeDateUniqueComponent = Convert.ToBoolean(dr["ProductSchemeIsBestBeforeDateUniqueComponent"]);
                         scheme.IsVariantUniqueComponent = Convert.ToBoolean(dr["ProductSchemeIsVariantUniqueComponent"]);
                         scheme.Extra1Type = Convert.ToInt32(dr["ProductSchemeExtra1Type"]);
                         scheme.Extra2Type = Convert.ToInt32(dr["ProductSchemeExtra2Type"]);
@@ -553,10 +554,8 @@
                         scheme.Extra4IsRequired = Convert.ToBoolean(dr["ProductSchemeExtra4IsRequired"]);
                         scheme.Extra5IsRequired = Convert.ToBoolean(dr["ProductSchemeExtra5IsRequired"]);
                         scheme.IsLotTrackedDefault = Convert.ToBoolean(dr["ProductSchemeIsLotTrackedDefault"]);
-                        scheme.IsProductionDateTrackedDefault = Convert.ToBoolean(
-                            dr["ProductSchemeIsProductionDateTrackedDefault"]);
-                        scheme.IsBestBeforeDateTrackedDefault = Convert.ToBoolean(
-                            dr["ProductSchemeIsBestBeforeDateTrackedDefault"]);
+                        scheme.IsProductionDateTrackedDefault = Convert.ToBoolean(dr["ProductSchemeIsProductionDateTrackedDefault"]);
+                        scheme.IsBestBeforeDateTrackedDefault = Convert.ToBoolean(dr["ProductSchemeIsBestBeforeDateTrackedDefault"]);
 
                         scheme.LabelInfo = labelScheme.GetSchemeInfoFromSchemeRefno(scheme.SchemeRefno);
                     }
@@ -793,10 +792,7 @@
         /// <param name="prodSchemeComponents"></param>
         /// <param name="prodSchemeData"></param>
         /// <returns></returns>
-        public static string GetActUniqueSchemeIDFromSProdSchemeData(
-            string prodCode,
-            ProdScheme prodSchemeComponents,
-            SProductSchemeData prodSchemeData)
+        public static string GetActUniqueSchemeIDFromSProdSchemeData(string prodCode, ProdScheme prodSchemeComponents, SProductSchemeData prodSchemeData)
         {
             string schemeID = string.Empty;
 
@@ -853,10 +849,7 @@
         /// <param name="prodSchemeComponents"></param>
         /// <param name="prodSchemeData"></param>
         /// <returns></returns>
-        public static string GetActSchemeIDFromSProdSchemeData(
-            string prodCode,
-            ProdScheme prodSchemeComponents,
-            SProductSchemeData prodSchemeData)
+        public static string GetActSchemeIDFromSProdSchemeData(string prodCode, ProdScheme prodSchemeComponents, SProductSchemeData prodSchemeData)
         {
             string schemeID = string.Empty;
 
@@ -911,16 +904,16 @@
 
             using (SQLiteCommand cmnd = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
             {
-                cmnd.CommandText = "tActivityDetail";
+                cmnd.CommandText = "SELECT ActivityDetailUniqueSchemeID FROM tActivityDetail WHERE ActivityDetailUniqueSchemeID = @activityDetailUniqueSchemeID";
                 cmnd.CommandType = CommandType.Text;
+                cmnd.Parameters.Add(new SQLiteParameter("@activityDetailUniqueSchemeID", unqSchemeID));
 
                 using (SQLiteDataReader dr = cmnd.ExecuteReader())
                 {
-                    // TODO: Fix SQL statement
-                    //if (dr.Seek(DbSeekOptions.FirstEqual, new object[] { unqSchemeID }))
-                    //{
+                    if (dr.Read())
+                    {
                         isDuplicate = true;
-                    //}
+                    }
                 }
             }
 

@@ -96,7 +96,8 @@
                 else if (keycode == Keycode.Num3)
                 {
                     this.DisableControls();
-                    //this.CallingControl = new ucInventoryMenu();
+                    ucInventoryMenu inventoryMenu = new ucInventoryMenu();
+                    Device.BeginInvokeOnMainThread(async () => await inventoryMenu.Show());
                     this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     this.IsControlLoaded = false;
                 }
@@ -648,6 +649,8 @@
         {
             this.DisableControls();
             //this.CallingControl = new ucInventoryMenu();
+            ucInventoryMenu inventoryMenu = new ucInventoryMenu();
+            Device.BeginInvokeOnMainThread(async () => await inventoryMenu.Show());
             this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
             this.IsControlLoaded = false;
         }

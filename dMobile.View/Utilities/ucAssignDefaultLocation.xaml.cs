@@ -559,19 +559,19 @@
             {
                 if (!LocationMapTasks.IsCompleteLocMapRefno(this.ActItem.LocMap.CurrLocMapRefno))
                 {
-                    if (this.LocMap.IsWhsLocMapTracked && 0 >= this.LocMap.CurrLocMap.WhsLocMapRefno)
+                    if (0 >= this.LocMap.CurrLocMap.WhsLocMapRefno)
                     {
                         // TODO: Resource strings
                         throw new Exceptions.MessageOnlyException("Warehouse is required.");
                     }
 
-                    if (this.LocMap.IsSectLocMapTracked && 0 >= this.LocMap.CurrLocMap.SectLocMapRefno)
+                    if (this.LocMap.CurrLocMap.IsSectionTracked && 0 >= this.LocMap.CurrLocMap.SectLocMapRefno)
                     {
                         // TODO: Resource strings
                         throw new Exceptions.MessageOnlyException("Section is required.");
                     }
 
-                    if (this.LocMap.IsSlotLocMapTracked && 0 >= this.LocMap.CurrLocMap.SlotLocMapRefno)
+                    if (this.LocMap.CurrLocMap.IsSlotTracked && 0 >= this.LocMap.CurrLocMap.SlotLocMapRefno)
                     {
                         // TODO: Resource strings
                         throw new Exceptions.MessageOnlyException("Slot is required.");
@@ -1038,76 +1038,27 @@
             {
                 this.ChangesMade = true;
 
-                //if (sender == this.updnBarCodeModifier1)
-                //{
-                    this.SysEnv.CurrentBarCodeModifier1 = this.updnBarCodeModifier1.SelectedItem.ToString();
-                //}
-                //else if (sender == this.chkDefaultPicking)
-                //{
-                    // This fixes a bug where the checkbox is the last thing changed before a save,
-                    // causing the wrong values to be saved.
-                    if (this.chkDefaultPicking.IsToggled)
-                    {
-                        this.NewLocMapDefPickingRefno = this.LocMap.CurrLocMapRefno;
-                    }
-                    else
-                    {
-                        this.NewLocMapDefPickingRefno = this.CurrLocMapDefPickingRefno;
-                    }
-                //}
-                //else if (sender == this.chkDefaultReceiving)
-                //{
-                    if (this.chkDefaultReceiving.IsToggled)
-                    {
-                        this.NewLocMapDefRecvRefno = this.LocMap.CurrLocMapRefno;
-                    }
-                    else
-                    {
-                        this.NewLocMapDefRecvRefno = this.CurrLocMapDefRecvRefno;
-                    }
-                //}
+                this.SysEnv.CurrentBarCodeModifier1 = this.updnBarCodeModifier1.SelectedItem.ToString();
+
+                if (this.chkDefaultPicking.IsToggled)
+                {
+                    this.NewLocMapDefPickingRefno = this.LocMap.CurrLocMapRefno;
+                }
+                else
+                {
+                    this.NewLocMapDefPickingRefno = this.CurrLocMapDefPickingRefno;
+                }
+
+                if (this.chkDefaultReceiving.IsToggled)
+                {
+                    this.NewLocMapDefRecvRefno = this.LocMap.CurrLocMapRefno;
+                }
+                else
+                {
+                    this.NewLocMapDefRecvRefno = this.CurrLocMapDefRecvRefno;
+                }
             }
         }
-
-        ///// <summary>
-        /////
-        ///// </summary>
-        ///// <param name="sender"></param>
-        ///// <param name="e"></param>
-        ///// <remarks></remarks>
-        //private void ValidateEntry(object sender, CancelEventArgs e)
-        //{
-        //    e.Cancel = false;
-
-        //    try
-        //    {
-        //        if (sender == this.chkDefaultPicking)
-        //        {
-        //        }
-
-        //        if (sender == this.chkDefaultReceiving)
-        //        {
-        //        }
-
-        //        if (sender == this.cmdLocation)
-        //        {
-        //        }
-
-        //        if (sender == this.cmdProduct)
-        //        {
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        // Do not allow the exit of control.
-        //        e.Cancel = true;
-
-        //        using (FormErrorReport errRpt = new FormErrorReport(this.ActSubType, this, ex))
-        //        {
-        //            errRpt.ShowDialog();
-        //        }
-        //    }
-        //}
 
         /// <summary>
         ///

@@ -45,12 +45,14 @@
         {
             try
             {
-                MasterDetailPage mainPage = (MasterDetailPage)Application.Current.MainPage;
-                await mainPage.Detail.Navigation.PushAsync(this);
+                if (Application.Current.MainPage is MasterDetailPage mainPage)
+                {
+                    await mainPage.Detail.Navigation.PushAsync(this);
+                }
             }
             catch (Exception ex)
             {
-                await DisplayAlert(Resource.Error, ex.Message, Resource.OK);
+                Device.BeginInvokeOnMainThread(async() => await DisplayAlert(Resource.Error, ex.Message, Resource.OK));
             }
         }
 
@@ -62,12 +64,14 @@
         {
             try
             {
-                MasterDetailPage mainPage = (MasterDetailPage)Application.Current.MainPage;
-                await mainPage.Detail.Navigation.PopAsync();
+                if (Application.Current.MainPage is MasterDetailPage mainPage)
+                {
+                    await mainPage.Detail.Navigation.PopAsync();
+                }
             }
             catch (Exception ex)
             {
-                await DisplayAlert(Resource.Error, ex.Message, Resource.OK);
+                Device.BeginInvokeOnMainThread(async() => await DisplayAlert(Resource.Error, ex.Message, Resource.OK));
             }
         }
     }

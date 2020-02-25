@@ -905,7 +905,7 @@
                 {
                     Device.BeginInvokeOnMainThread(async () =>
                     {
-                        FormErrorReport errReport = new FormErrorReport(SysCommon.ActSubTypes.SplashStartup, /*this,*/ ex, this.GetControlDescription(), "timerStatus_Tick");
+                        FormErrorReport errReport = new FormErrorReport(SysCommon.ActSubTypes.SplashStartup, ex, this.GetControlDescription(), "timerStatus_Tick");
                         await errReport.ShowDialog();
                         Android.OS.Process.KillProcess(Android.OS.Process.MyPid());
                     });

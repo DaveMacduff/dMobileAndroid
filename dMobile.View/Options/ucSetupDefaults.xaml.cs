@@ -479,8 +479,11 @@
                             if (result.Result)
                             {
                                 FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucRefreshDataStatus, SysCommon.ActSubTypes.PurgeActivityData /*this*/);
-                                Device.BeginInvokeOnMainThread(async () => await form.DisplayControl.ShowDialog());
-                                XDocument xmlDoc = form.DisplayControlData;
+                                Device.BeginInvokeOnMainThread(async () => await form.DisplayControl.ShowDialog().ContinueWith(_ =>
+                                {
+                                    form.SaveChanges(this, new EventArgs());
+                                    XDocument xmlDoc = form.DisplayControlData;
+                                }));
                             }
                             else
                             {

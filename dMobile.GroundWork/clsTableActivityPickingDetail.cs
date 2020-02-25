@@ -458,50 +458,10 @@ namespace dMobile.GroundWork
 
                                 //this.SaveDetailLocation(drow, drLocMapSlot, drLocMapSect, drLocMapWhs, ref recDetail, false);
 
-                                int locMapRefno = 0;
-                                int locMapWhsFKRefno = 0;
-                                int locMapSectFKRefno = 0;
-                                int locMapSlotFKRefno = 0;
                                 bool useFNo = false;
 
-                                if (useFNo)
-                                {
-                                    locMapWhsFKRefno = Convert.ToInt32(drow["f07"]);
-                                    locMapSectFKRefno = Convert.ToInt32(drow["f08"]);
-                                    locMapSlotFKRefno = Convert.ToInt32(drow["f09"]);
-                                }
-                                else
-                                {
-                                    locMapWhsFKRefno = Convert.ToInt32(drow["LocationMapWarehouseFKRefno"]);
-                                    locMapSectFKRefno = Convert.ToInt32(drow["LocationMapSectionFKRefno"]);
-                                    locMapSlotFKRefno = Convert.ToInt32(drow["LocationMapSlotFKRefno"]);
-                                }
-
-                                cmndLocMapSlot.CommandText = "SELECT * FROM tLocationMapSlot WHERE LocationMapSlotFKRefno = @locationMapSlotFKRefno";
-                                cmndLocMapSlot.CommandType = CommandType.Text;
-                                //cmndLocMapSlot.IndexName = "UQ_LocationMapSlotOnLocationMapSlotFKRefno";
-                                cmndLocMapSlot.Parameters.Add(new SQLiteParameter("@locationMapSlotFKRefno", locMapSlotFKRefno));
-
-                                cmndLocMapSect.CommandText = "SELECT * FROM tLocationMapSection WHERE LocationMapSectionFKRefno = @locationMapSectionFKRefno";
-                                cmndLocMapSect.CommandType = CommandType.Text;
-                                //cmndLocMapSect.IndexName = "UQ_LocationMapSectionOnLocationMapSectionFKRefno";
-                                cmndLocMapSect.Parameters.Add(new SQLiteParameter("@locationMapSectionFKRefno", locMapSlotFKRefno));
-
-                                cmndLocMapWhs.CommandText = "SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = @locationMapWarehouseFKRefno";
-                                cmndLocMapWhs.CommandType = CommandType.Text;
-                                //cmndLocMapWhs.IndexName = "UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno";
-                                cmndLocMapWhs.Parameters.Add(new SQLiteParameter("@locationMapWarehouseFKRefno", locMapWhsFKRefno));
-
-                                using (SQLiteDataReader drLocMapSlot = cmndLocMapSlot.ExecuteReader())
-                                using (SQLiteDataReader drLocMapSect = cmndLocMapSect.ExecuteReader())
-                                using (SQLiteDataReader drLocMapWhs = cmndLocMapWhs.ExecuteReader())
-                                {
-                                    locMapRefno = this.SaveDetailLocation(drow, drLocMapSlot, drLocMapSect, drLocMapWhs, /*ref recDetail, */ useFNo);
-                                }
-
-                                cmndDetail.Parameters.Add(new SQLiteParameter("@locationMapRefno", locMapRefno));
-
-                                this.SaveDetail(drow, ref cmndDetail, false);
+                                this.SaveDetailLocation(drow, ref conn, ref cmndDetail, useFNo);
+                                this.SaveDetail(drow, ref cmndDetail, useFNo);
 
                                 cmndDetail.ExecuteNonQuery();
                                 //rsDetail.Insert(recDetail);

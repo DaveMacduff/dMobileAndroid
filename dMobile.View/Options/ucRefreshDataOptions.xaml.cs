@@ -8,6 +8,7 @@
     using System;
     using System.ComponentModel;
     using System.Net.Sockets;
+    using System.Threading.Tasks;
     using System.Xml.Linq;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
@@ -411,11 +412,6 @@
 
                 if (isReadyToClose)
                 {
-                    // NOTE: This code is needed to clean up the scanner driver.
-                    // Symbol had threading issues without this call when dMobile was terminating.
-                    // All user controls that initalize a bar code need this code.
-                    // The parent form (not a user control) will call scanner.terminate and dispose
-                    // of the scanner instance upon exiting dMobile.
                     this.ScannerDisable();
                 }
             }
@@ -442,7 +438,7 @@
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public void RefreshCompelete()
+        public async Task RefreshCompelete()
         {
             if (this.IsRefreshComplete)
             {
@@ -450,18 +446,8 @@
                 {
                     this.IsDisplayShutDownMsg = false;
 
-                    //MessageBox.Show(
-                    //    "Please log back in for changes to be made in effect.",
-                    //    this.GetControlDescription(),
-                    //    MessageBoxButtons.OK,
-                    //    MessageBoxIcon.Asterisk,
-                    //    MessageBoxDefaultButton.Button1);
-
-                    Device.BeginInvokeOnMainThread(async () => 
-                    {
-                        // TODO: Resource strings
-                        await DisplayAlert(this.GetControlDescription(), "Please log back in for changes to be made in effect.", "OK");
-                    });
+                    // TODO: Resource strings
+                    await DisplayAlert(this.GetControlDescription(), "Please log back in for changes to be made in effect.", "OK");
 
                     // Attempt to record logout
                     if (!this.SysEnv.SysSettings.IsDisconnectedMode && (this.SysEnv.CommSetup.iHostIPAddressComponent1 + this.SysEnv.CommSetup.iHostIPAddressComponent2 + this.SysEnv.CommSetup.iHostIPAddressComponent3) != 0)
@@ -487,7 +473,7 @@
                             }
                             finally
                             {
-                                Device.BeginInvokeOnMainThread(() => Application.Current.MainPage = new NavigationPage(new SplashStartup()));
+                                Application.Current.MainPage = new NavigationPage(new SplashStartup());
                             }
                         }
                     }
@@ -768,7 +754,7 @@
 
                         XDocument xmlDoc = form.DisplayControlData;
                         this.IsRefreshComplete = bool.Parse(xmlDoc.Root.Element("IsRefreshComplete").Value);
-                        this.RefreshCompelete();
+                        await this.RefreshCompelete();
                     });
 
                     this.ReqCancelEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());

@@ -35,11 +35,7 @@ namespace dMobile.Controller
         /// <param name="baseQuantity"></param>
         /// <param name="weightQuantity"></param>
         /// <returns></returns>
-        public override int UpdateDataViewQuantity(
-            int rowIdx,
-            decimal quantity,
-            decimal baseQuantity,
-            decimal weightQuantity)
+        public override int UpdateDataViewQuantity(int rowIdx, decimal quantity, decimal baseQuantity, decimal weightQuantity)
         {
             throw new NotImplementedException();
         }
@@ -144,7 +140,7 @@ namespace dMobile.Controller
 //                string.Empty,
 //                dataGridStyle);
 
-            
+
 //            if (this.ProdInfo.Scheme.IsProductionDateTracked)
 //            {
 //                AddGridColumn(
@@ -171,7 +167,7 @@ namespace dMobile.Controller
 //                    dataGridStyle);
 //            }
 
-//            if (this.LocMap.IsSectLocMapTracked)
+//            if (this.LocMap.CurrLocMap.IsSectionTracked)
 //            {
 //                AddGridColumn(
 //                    columnWidthFactor * 60,
@@ -183,7 +179,7 @@ namespace dMobile.Controller
 //#endif
 //                    dataGridStyle);
 
-//                if (this.LocMap.IsSlotLocMapTracked)
+//                if (this.LocMap.CurrLocMap.IsSlotTracked)
 //                {
 //                    AddGridColumn(
 //                        columnWidthFactor * 60,
@@ -222,7 +218,7 @@ namespace dMobile.Controller
 //                "weightunitcode",
 //                string.Empty,
 //                dataGridStyle);
-            
+
 //            dataGridMain.TableStyles.Add(dataGridStyle);
 //            dataGridMain.RowHeadersVisible = false;
 //            dataGridMain.ColumnHeadersVisible = true;
@@ -265,7 +261,7 @@ namespace dMobile.Controller
 
             this.DataViewItems = dataTableItems.DefaultView;
             this.DataViewItems.Table.TableName = this.MainGridMappingName;
-            
+
             return this.DataViewItems;
         }
 
@@ -306,14 +302,15 @@ namespace dMobile.Controller
         /// <param name="data"></param>
         public override void Refresh(XDocument data)
         {
-            
+
             try
             {
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
-                
+
                 string reqData = SysCommon.SubmitComm(this.CreateSubmitXML(data));
 
                 this.DataViewItems = this.GetDataView(false);
+
                 if (reqData.Length > 0)
                 {
                     if (reqData.Contains("<message>ERROR</message>"))
@@ -325,28 +322,29 @@ namespace dMobile.Controller
                     else
                     {
                         this.DataLayerProgressOutHandler(this, new EventArgs(), 50);
+
                         using (DataSet ds = new DataSet())
                         {
                             ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
+
                             if (ds.Tables.Count != 0)
                             {
                                 this.DataViewItems = ds.Tables["tActivityItem"].DefaultView;
                             }
                         }
+
                         this.DataLayerProgressOutHandler(this, new EventArgs(), 80);
                     }
                 }
+
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 95);
                 FormatGrid();
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 100);
             }
             catch (Exception ex)
             {
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.RefreshInventoryInquiryItemsFailed), ex);
-#else
+                // TODO: Resource strings
                 throw new Exception("Refresh inventory inquiry summary items failed.", ex);
-#endif
             }
         }
 
@@ -356,47 +354,59 @@ namespace dMobile.Controller
         private void FormatGrid()
         {
 
-            if (this.LocMap.IsSectLocMapTracked)
+            if (this.LocMap.CurrLocMap.IsSectionTracked)
             {
                 // Format Section column
                 // Use a dictionary to only hit the database once per unique section number this call.
                 Dictionary<int, string> names = new Dictionary<int, string>();
                 int rowCount = this.DataViewItems.Table.Rows.Count;
+
                 for (int i = 0; i < rowCount; ++i)
                 {
                     int sectionFKRefno = Convert.ToInt32(this.DataViewItems.Table.Rows[i]["locationmapsectionfkrefno"]);
                     string sectionName;
+
                     if (names.ContainsKey(sectionFKRefno))
+                    {
                         sectionName = names[sectionFKRefno];
+                    }
                     else
                     {
                         sectionName = LocationMapTasks.GetSectionName(sectionFKRefno);
                         names.Add(sectionFKRefno, sectionName);
                     }
+
                     this.DataViewItems.Table.Rows[i]["locationmapsectionfkrefno"] = sectionName;
                 }
+
                 names.Clear();
             }
 
-            if (this.LocMap.IsSlotLocMapTracked)
+            if (this.LocMap.CurrLocMap.IsSlotTracked)
             {
                 // Format Slot column
                 // Use a dictionary to only hit the database once per unique slot number this call.
                 Dictionary<int, string> names = new Dictionary<int, string>();
                 int rowCount = this.DataViewItems.Table.Rows.Count;
+
                 for (int i = 0; i < rowCount; ++i)
                 {
                     int slotFKRefno = Convert.ToInt32(this.DataViewItems.Table.Rows[i]["locationmapslotfkrefno"]);
                     string slotName;
+
                     if (names.ContainsKey(slotFKRefno))
+                    {
                         slotName = names[slotFKRefno];
+                    }
                     else
                     {
                         slotName = LocationMapTasks.GetSlotName(slotFKRefno);
                         names.Add(slotFKRefno, slotName);
                     }
+
                     this.DataViewItems.Table.Rows[i]["locationmapslotfkrefno"] = slotName;
                 }
+
                 names.Clear();
             }
 
@@ -415,6 +425,7 @@ namespace dMobile.Controller
             // WO 15547, WO 13770
             string sectionRefno;
             string slotRefno;
+
             if (SysEnvironment.GetInstance().SysSettings.InventoryInquirySearchEntireWarehouse)
             {
                 sectionRefno = string.Empty;
@@ -425,6 +436,7 @@ namespace dMobile.Controller
                 sectionRefno = this.LocMap.CurrLocMap.SectFKRefno.ToString();
                 slotRefno = this.LocMap.CurrLocMap.SlotFKRefno.ToString();
             }
+
             string sectionXml = "<sect_refno>" + sectionRefno + "</sect_refno>";
             string slotXml = "<slot_refno>" + slotRefno + "</slot_refno>";
 

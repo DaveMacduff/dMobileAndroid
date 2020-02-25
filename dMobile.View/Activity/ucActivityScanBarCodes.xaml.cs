@@ -849,6 +849,7 @@ namespace dMobile.View.Activity
                 int prodSchemeRefno = 0;
                 string prodCode = string.Empty;
                 ProductInfo prodInfo = new ProductInfo();
+                SLocMap currLocMap = LocationMap.GetInstance().CurrLocMap;
 
                 try
                 {
@@ -877,6 +878,7 @@ namespace dMobile.View.Activity
                             cmndProdBCUnit.CommandType = CommandType.Text;
                             cmndProdBCUnit.CommandText = "SELECT tProductUnit.ProductUnitRefno,"
                                 + "tProductUnitBarCode.ProductUnitBarCodeRefno,"
+                                + "tLocationMapWarehouseProductScheme.ProductSchemeRefno,"
                                 + "tProduct.ProductSchemeRefno,"
                                 + "tProduct.ProductCode,"
                                 + "tProduct.ProductDescription,"
@@ -886,9 +888,12 @@ namespace dMobile.View.Activity
                                 + "INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = tProductUnitBarCode.ProductUnitRefno "
                                 + "INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno "
                                 + "INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno "
+                                + "INNER JOIN tLocationMapWarehouseProductScheme ON tLocationMapWarehouseProductScheme.ProductRefno = tProduct.ProductRefno "
                                 + "WHERE tProductUnitBarCode.ProductUnitBarCodeCode = @prodIdentifier "
+                                + "AND tLocationMapWarehouseProductScheme.WarehouseLocationMapRefno = @whsLocMapRefno "
                                 + "AND tProductUnitBarCode.ProductUnitBarCodeModifier1 = @productUnitBarCodeModifier1";
                             cmndProdBCUnit.Parameters.Add(new SQLiteParameter("@prodIdentifier", prodIdentifier));
+                            cmndProdBCUnit.Parameters.Add(new SQLiteParameter("@whsLocMapRefno", currLocMap.WhsLocMapRefno));
                             cmndProdBCUnit.Parameters.Add(new SQLiteParameter("@productUnitBarCodeModifier1", this.SysEnv.CurrentBarCodeModifier1));
 
                             using (SQLiteDataReader drProdBCUnit = cmndProdBCUnit.ExecuteReader())
@@ -964,14 +969,17 @@ namespace dMobile.View.Activity
                                     {
                                         cmndProdBCUnit.CommandType = CommandType.Text;
                                         cmndProdBCUnit.CommandText = "SELECT tProductUnit.ProductUnitRefno,"
-                                            + "tProduct.ProductSchemeRefno,"
-                                            + "tProduct.ProductCode,"
-                                            + "tProductUnit.ProductUnitBC,"
-                                            + "tUnit.UnitCode "
-                                            + "FROM tProductUnit "
-                                            + "INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno "
-                                            + "INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno "
-                                            + "WHERE tProductUnit.ProductUnitRefno = @productUnitRefno";
+                                        + "tLocationMapWarehouseProductScheme.ProductSchemeRefno,"    
+                                        + "tProduct.ProductCode,"
+                                        + "tProductUnit.ProductUnitBC,"
+                                        + "tUnit.UnitCode "
+                                        + "FROM tProductUnit "
+                                        + "INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno "
+                                        + "INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno "
+                                        + "INNER JOIN tLocationMapWarehouseProductScheme ON tLocationMapWarehouseProductScheme.ProductRefno = tProduct.ProductRefno "
+                                        + "WHERE tProductUnit.ProductUnitRefno = @productUnitRefno "
+                                        + "AND tLocationMapWarehouseProductScheme.WarehouseLocationMapRefno = @whsLocMapRefno";
+                                        cmndProdBCUnit.Parameters.Add(new SQLiteParameter("@whsLocMapRefno", currLocMap.WhsLocMapRefno));
                                         cmndProdBCUnit.Parameters.Add(new SQLiteParameter("@productUnitRefno", this.UnitRefno));
 
                                         using (SQLiteDataReader drProductBCUnit = cmndProdBCUnit.ExecuteReader())

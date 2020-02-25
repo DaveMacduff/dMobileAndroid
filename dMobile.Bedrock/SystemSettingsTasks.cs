@@ -17,16 +17,9 @@ namespace dMobile.Bedrock
         private static SysSocket socket = new SysSocket();
         private static CommunicationSetup commSetup = new CommunicationSetup();
 
-        public delegate void OnSysSettingsStatusOutEventHandler(
-            ISysSettingsEventPublisher sysSettingsEventPublisher,
-            SysSettingsEventArgs sysSettingsEventArgs);
-
-        public delegate void OnSysSettingsProgressOutEventHandler(
-            ISysSettingsEventPublisher sysSettingsEventPublisher,
-            SysSettingsEventArgs sysSettingsEventArgs);
-
+        public delegate void OnSysSettingsStatusOutEventHandler(ISysSettingsEventPublisher sysSettingsEventPublisher, SysSettingsEventArgs sysSettingsEventArgs);
+        public delegate void OnSysSettingsProgressOutEventHandler(ISysSettingsEventPublisher sysSettingsEventPublisher, SysSettingsEventArgs sysSettingsEventArgs);
         public static event OnSysSettingsStatusOutEventHandler OnSysSettingsStatusOut;
-
         public static event OnSysSettingsProgressOutEventHandler OnSysSettingsProgressOut;
 
         public static CommunicationSetup CommSetup
@@ -326,15 +319,15 @@ namespace dMobile.Bedrock
         /// <param name="drow"></param>
         public static void AssignPropertiesFromDataRowLocationMap(DataRow drow, ref SystemSettings settings)
         {
-            settings.LocMapWarehouseMask = Convert.ToString(drow["LocationMapWarehouseMask"]);
-            settings.LocMapSectionMask = Convert.ToString(drow["LocationMapSectionMask"]);
-            settings.LocMapSlotMask = Convert.ToString(drow["LocationMapSlotMask"]);
-            settings.LocMapSlotCoord1Mask = Convert.ToString(drow["LocationMapSlotCoordinate1Mask"]);
-            settings.LocMapSlotCoord2Mask = Convert.ToString(drow["LocationMapSlotCoordinate2Mask"]);
-            settings.LocMapSlotCoord3Mask = Convert.ToString(drow["LocationMapSlotCoordinate3Mask"]);
-            settings.LocMapSlotCoord1Name = Convert.ToString(drow["LocationMapSlotCoordinate1Name"]);
-            settings.LocMapSlotCoord2Name = Convert.ToString(drow["LocationMapSlotCoordinate2Name"]);
-            settings.LocMapSlotCoord3Name = Convert.ToString(drow["LocationMapSlotCoordinate3Name"]);
+            //settings.LocMapWarehouseMask = Convert.ToString(drow["LocationMapWarehouseMask"]);
+            //settings.LocMapSectionMask = Convert.ToString(drow["LocationMapSectionMask"]);
+            //settings.LocMapSlotMask = Convert.ToString(drow["LocationMapSlotMask"]);
+            //settings.LocMapSlotCoord1Mask = Convert.ToString(drow["LocationMapSlotCoordinate1Mask"]);
+            //settings.LocMapSlotCoord2Mask = Convert.ToString(drow["LocationMapSlotCoordinate2Mask"]);
+            //settings.LocMapSlotCoord3Mask = Convert.ToString(drow["LocationMapSlotCoordinate3Mask"]);
+            //settings.LocMapSlotCoord1Name = Convert.ToString(drow["LocationMapSlotCoordinate1Name"]);
+            //settings.LocMapSlotCoord2Name = Convert.ToString(drow["LocationMapSlotCoordinate2Name"]);
+            //settings.LocMapSlotCoord3Name = Convert.ToString(drow["LocationMapSlotCoordinate3Name"]);
             settings.IsDefaultLocToProductDefaultLoc = Convert.ToBoolean(drow["IsDefaultLocationToProductDefaultLocation"]);
         }
 

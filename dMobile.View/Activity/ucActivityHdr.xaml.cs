@@ -17,12 +17,13 @@ using dMobile.Resources.Enums;
 using static Android.Views.View;
 using System.Collections.ObjectModel;
 using Android.Views;
-using dMobile.View.Types;
+using dMobile.View.CustomPages;
+using dMobile.Resources.Types;
 
 namespace dMobile.View.Activity
 {
     [XamlCompilation(XamlCompilationOptions.Compile)]
-    public partial class ucActivityHdr : DMobileModal, IAppArea, IDataLayerEventListener, IAppPublisher
+    public partial class ucActivityHdr : DMobileContentPage, IAppArea, IDataLayerEventListener, IAppPublisher
     {
         #region Fields
 
@@ -42,6 +43,7 @@ namespace dMobile.View.Activity
         private bool isControlLoaded = false;
         private ObservableCollection<string> itemsList;
         private ObservableCollection<object> dataGridMainActivityItemsList;
+        //private int listPosition = 0;
 
         #endregion
 
@@ -62,7 +64,7 @@ namespace dMobile.View.Activity
             this.InitializeComponent();
 
             // TODO: Resource strings
-            //this.Title = this.GetControlDescription();
+            this.cmdAdd.IsEnabled = false;
             this.cmdAdd.Text = "Add";
             this.cmdFilter.Text = "Filter";
 
@@ -128,12 +130,37 @@ namespace dMobile.View.Activity
                     // Change pick selection.
                     this.DataGridMainActivity_KeyUpF5(this, null);
                 }
+                //else if (keycode == Keycode.DpadDown)
+                //{
+                //    if (this.listPosition < this.DataGridMainActivityItemsList.Count)
+                //    {
+                //        Console.WriteLine("_______ length " + this.DataGridMainActivityItemsList.Count);
+                //        this.listPosition++;
+                //        Console.WriteLine("_______" + this.listPosition);
+                //        this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem) + 1];
+                //        this.dataGridMainActivity.ScrollTo(this.dataGridMainActivity.SelectedItem, ScrollToPosition.MakeVisible, false);
+                //    }
+                //}
+                //else if (keycode == Keycode.DpadUp)
+                //{
+                //    if (this.listPosition > 0)
+                //    {
+                //        Console.WriteLine("_______ length " + this.DataGridMainActivityItemsList.Count);
+                //        this.listPosition--;
+                //        Console.WriteLine("_______" + this.listPosition);
+                //        this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem) - 1];
+                //        this.dataGridMainActivity.ScrollTo(this.dataGridMainActivity.SelectedItem, ScrollToPosition.MakeVisible, false);
+                //    }
+                //}
             });
 
             try
             {
-                this.ucActivityHdr_GotFocus(this, new EventArgs());
-                Device.BeginInvokeOnMainThread(async () => await this.tmrActivityLoaded_Tick(this, new EventArgs()));
+                Device.BeginInvokeOnMainThread(async () =>
+                {
+                    this.ucActivityHdr_GotFocus(this, new EventArgs());
+                    await this.tmrActivityLoaded_Tick(this, new EventArgs());
+                });
             }
             catch (Exception ex)
             {
@@ -147,9 +174,9 @@ namespace dMobile.View.Activity
         /// </summary>
         protected override void OnDisappearing()
         {
-            this.ScannerDisable();
-
             base.OnDisappearing();
+
+            this.ScannerDisable();
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
         }
 
@@ -936,7 +963,7 @@ namespace dMobile.View.Activity
                             {
                                 FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucActivityItem, this.ActHdr, this.ActSubType);
                                 this.IsChangesMade = false;
-                                await form.ShowDialog();
+                                await form.DisplayControl.ShowDialog();
                             });
 
                             //this.dataGridMainActivity.Select(rowIdx);
@@ -1028,82 +1055,100 @@ namespace dMobile.View.Activity
             Device.BeginInvokeOnMainThread(() => this.ItemsList.Clear());
             this.ActHdr.DataViewHdrs = this.ActHdr.GetDataView(false);
 
-            Device.BeginInvokeOnMainThread(() => this.DesignGrid());
-
-            this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
-
-            if (!string.IsNullOrEmpty(this.txtSearchHdr.Text))
+            Device.BeginInvokeOnMainThread(() =>
             {
-                this.ActHdr.Search(this.txtSearchHdr.Text);
-            }
+                this.DesignGrid();
 
-            if (this.ActHdr.DataViewHdrs.Count > 0)
-            {
-                this.ActHdr.SelectHdr(0);
-                Device.BeginInvokeOnMainThread(() => this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[0]);
-                this.dataGridMainActivity.Focus();
-            }
+                this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
 
-            this.DisplayData();
+                if (!string.IsNullOrEmpty(this.txtSearchHdr.Text))
+                {
+                    this.ActHdr.Search(this.txtSearchHdr.Text);
+                }
+
+                if (this.ActHdr.DataViewHdrs.Count > 0 && this.DataGridMainActivityItemsList.Count > 0)
+                {
+
+                    if (this.dataGridMainActivity.SelectedItem == null)
+                    {
+                        this.ActHdr.SelectHdr(0);
+                        this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[0];
+                    }
+                    else
+                    {  
+                        this.ActHdr.SelectHdr(this.ActHdr.SelectedIndex);
+                        this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[this.ActHdr.SelectedIndex];
+                    }
+
+                    this.dataGridMainActivity.Focus();
+                }
+
+                this.DisplayData();
+
+            });
         }
 
         private void DesignGrid()
         {
+            this.Title = this.GetControlDescription();
+
             switch (this.ActSubType)
             {
                 case SysCommon.ActSubTypes.Receiving:
-
                     // Header grid
-                    Grid gridHeader = new Grid
+                    Grid gridHeaderReceiving = new Grid
                     {
-                        RowDefinitions = { new RowDefinition { Height = GridLength.Auto }, new RowDefinition { Height = GridLength.Auto } },
-                        ColumnDefinitions = { new ColumnDefinition { Width = GridLength.Star }, new ColumnDefinition { Width = GridLength.Star }, new ColumnDefinition { Width = GridLength.Star } }
+                        Padding = new Thickness(5, 5, 5, 5),
+                        ColumnDefinitions =
+                        {
+                            new ColumnDefinition { Width = GridLength.Star },
+                            new ColumnDefinition { Width = GridLength.Star },
+                            new ColumnDefinition { Width = GridLength.Star }
+                        }
                     };
 
-                    gridHeader.SetDynamicResource(BackgroundColorProperty, "HeaderColor");
+                    gridHeaderReceiving.SetDynamicResource(BackgroundColorProperty, "HeaderColor");
 
-                    // TODO: Resource strings
-                    Label labelTitle = new Label { Text = this.GetControlDescription(), VerticalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
+                    Label labelPOReceiving = new Label { Text = "PO #", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
+                    Label labelIssuedReceiving = new Label { Text = "Issued", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
+                    Label labelArrivedReceiving = new Label { Text = "Arrived", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
 
-                    Label labelPO = new Label { Text = "PO #", VerticalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
-                    Label labelIssued = new Label { Text = "Issued", VerticalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
-                    Label labelArrived = new Label { Text = "Arrived", VerticalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
+                    gridHeaderReceiving.Children.Add(labelPOReceiving);
+                    gridHeaderReceiving.Children.Add(labelIssuedReceiving);
+                    gridHeaderReceiving.Children.Add(labelArrivedReceiving);
+                        
+                    Grid.SetColumn(labelPOReceiving, 0);
+                    Grid.SetColumn(labelIssuedReceiving, 1);
+                    Grid.SetColumn(labelArrivedReceiving, 2);
 
-                    gridHeader.Children.Add(labelTitle, 0, 0);
-                    gridHeader.Children.Add(labelPO, 0, 0);
-                    gridHeader.Children.Add(labelIssued, 0, 0);
-                    gridHeader.Children.Add(labelArrived, 0, 0);
+                    Grid.SetRow(gridHeaderReceiving, 0);
 
-                    Grid.SetRow(labelTitle, 0);
-                    Grid.SetRow(labelPO, 1);
-                    Grid.SetRow(labelIssued, 1);
-                    Grid.SetRow(labelArrived, 1);
-
-                    Grid.SetColumn(labelTitle, 0);
-                    Grid.SetColumn(labelPO, 0);
-                    Grid.SetColumn(labelIssued, 1);
-                    Grid.SetColumn(labelArrived, 2);
-
-                    this.gridContainer.Children.Add(gridHeader, 0, 0);
-
-                    Grid.SetColumnSpan(gridHeader, 2);
+                    this.dataGridMainActivityHeader.Children.Add(gridHeaderReceiving);
 
                     // Data grid
-                    DataTemplate dataTemplate = new DataTemplate(() =>
+                    DataTemplate dataTemplateReceiving = new DataTemplate(() =>
                     {
-                        Grid gridData = new Grid { ColumnDefinitions = { new ColumnDefinition { Width = GridLength.Star }, new ColumnDefinition { Width = GridLength.Star }, new ColumnDefinition { Width = GridLength.Star } } };
+                        Grid gridData = new Grid
+                        {
+                            Padding = new Thickness(5, 5, 5, 5),
+                            ColumnDefinitions = {
+                                new ColumnDefinition { Width = GridLength.Star },
+                                new ColumnDefinition { Width = GridLength.Star },
+                                new ColumnDefinition { Width = GridLength.Star }
+                            }
+                        };
 
-                        Label labelActivityReceivingPONumber = new Label { VerticalOptions = LayoutOptions.Center };
-                        Label labelActivityReceivingIssuedDateTime = new Label { VerticalOptions = LayoutOptions.Center };
-                        Label labelActivityReceivingArrivalDateTime = new Label { VerticalOptions = LayoutOptions.Center };
+                        Label labelActivityReceivingPONumber = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                        Label labelActivityReceivingIssuedDateTime = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                        Label labelActivityReceivingArrivalDateTime = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
 
                         labelActivityReceivingPONumber.SetBinding(Label.TextProperty, new Binding("ActivityReceivingPONumber"));
                         labelActivityReceivingIssuedDateTime.SetBinding(Label.TextProperty, new Binding("ActivityReceivingIssuedDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
                         labelActivityReceivingArrivalDateTime.SetBinding(Label.TextProperty, new Binding("ActivityReceivingArrivalDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
 
-                        gridData.Children.Add(labelActivityReceivingPONumber, 0, 0);
-                        gridData.Children.Add(labelActivityReceivingIssuedDateTime, 0, 0);
-                        gridData.Children.Add(labelActivityReceivingArrivalDateTime, 0, 0);
+                        gridData.Children.Add(labelActivityReceivingPONumber);
+                        gridData.Children.Add(labelActivityReceivingIssuedDateTime);
+                        gridData.Children.Add(labelActivityReceivingArrivalDateTime);
 
                         Grid.SetColumn(labelActivityReceivingPONumber, 0);
                         Grid.SetColumn(labelActivityReceivingIssuedDateTime, 1);
@@ -1112,7 +1157,8 @@ namespace dMobile.View.Activity
                         return new ViewCell { View = gridData };
                     });
 
-                    this.dataGridMainActivity.ItemTemplate = dataTemplate;
+                    this.dataGridMainActivity.ItemTemplate = dataTemplateReceiving;
+                    this.DataGridMainActivityItemsList.Clear();
 
                     foreach (DataRow row in this.ActHdr.DataViewHdrs.ToTable().Rows)
                     {
@@ -1124,6 +1170,95 @@ namespace dMobile.View.Activity
                         };
 
                         this.DataGridMainActivityItemsList.Add(receive);
+                    }
+
+                    break;
+
+                case SysCommon.ActSubTypes.PhysicalCounts:                    
+                    // Create header data template
+                    Grid gridHeaderPhysicalCount = new Grid
+                    {
+                        Padding = new Thickness(5, 5, 5, 5),
+                        ColumnDefinitions =
+                        {
+                            new ColumnDefinition { Width = GridLength.Star },
+                            new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) },
+                            new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) }
+                        }
+                    };
+
+                    gridHeaderPhysicalCount.SetDynamicResource(BackgroundColorProperty, "HeaderColor");
+
+                    Label labelPhysicalCountNumber = new Label { Text = "Count #", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+                    Label labelPhysicalCountDate = new Label { Text = "Date", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold};
+                    Label labelPhysicalCountType = new Label { Text = "Count Type", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+
+                    gridHeaderPhysicalCount.Children.Add(labelPhysicalCountNumber);
+                    gridHeaderPhysicalCount.Children.Add(labelPhysicalCountDate);
+                    gridHeaderPhysicalCount.Children.Add(labelPhysicalCountType);
+
+                    Grid.SetColumn(labelPhysicalCountNumber, 0);
+                    Grid.SetColumn(labelPhysicalCountDate, 1);
+                    Grid.SetColumn(labelPhysicalCountType, 2);
+
+                    Grid.SetRow(gridHeaderPhysicalCount, 0);
+
+                    this.dataGridMainActivityHeader.Children.Add(gridHeaderPhysicalCount);
+
+                    // Data grid
+                    DataTemplate dataTemplatePhysicalCount = new DataTemplate(() =>
+                    {
+                        Grid gridData = new Grid
+                        {
+                            Padding = new Thickness(5, 5, 5, 5),
+                            ColumnDefinitions =
+                            {
+                                new ColumnDefinition { Width = GridLength.Star },
+                                new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) },
+                                new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) }
+                            }
+                        };
+
+                        Label labelActivityRefno = new Label { VerticalOptions = LayoutOptions.Center };
+                        Label labelActivityCountDateTime = new Label { VerticalOptions = LayoutOptions.Center };
+                        Label labelActivityCountTypeDescription = new Label { VerticalOptions = LayoutOptions.Center };
+
+                        labelActivityRefno.SetBinding(Label.TextProperty, new Binding("ActivityRefno"));
+                        labelActivityCountDateTime.SetBinding(Label.TextProperty, new Binding("ActivityCountDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
+                        labelActivityCountTypeDescription.SetBinding(Label.TextProperty, new Binding("ActivityCountTypeDescription"));
+
+                        gridData.Children.Add(labelActivityRefno, 0, 0);
+                        gridData.Children.Add(labelActivityCountDateTime, 0, 0);
+                        gridData.Children.Add(labelActivityCountTypeDescription, 0, 0);
+
+                        Grid.SetColumn(labelActivityRefno, 0);
+                        Grid.SetColumn(labelActivityCountDateTime, 1);
+                        Grid.SetColumn(labelActivityCountTypeDescription, 2);
+
+                        return new ViewCell { View = gridData };
+                    });
+
+                    this.dataGridMainActivity.ItemTemplate = dataTemplatePhysicalCount;
+                    this.DataGridMainActivityItemsList.Clear();
+
+                    foreach (DataRow row in this.ActHdr.DataViewHdrs.ToTable().Rows)
+                    {
+                        string description = string.Empty;
+                        string[] descriptionSubstring = Convert.ToString(row["ActivityCountTypeDescription"]).Split();
+
+                        if (descriptionSubstring != null && descriptionSubstring.Length > 1)
+                        {
+                            description = descriptionSubstring[0] + " " + descriptionSubstring[1]; 
+                        }
+
+                        Count count = new Count
+                        {
+                            ActivityRefno = Convert.ToInt32(row["ActivityCountStringFKRefno"]),
+                            ActivityCountDateTime = Convert.ToDateTime(row["ActivityCountDateTime"]),
+                            ActivityCountTypeDescription = description,
+                        };
+
+                        this.DataGridMainActivityItemsList.Add(count);
                     }
 
                     break;
@@ -1221,8 +1356,6 @@ namespace dMobile.View.Activity
                 }
                 finally
                 {
-                    Device.BeginInvokeOnMainThread(() => this.cmdFilter.IsEnabled = true);
-
                     this.ReqCancelEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     this.ReqSaveEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
 
@@ -1290,11 +1423,9 @@ namespace dMobile.View.Activity
                     break;
 
                 case SysCommon.ActSubTypes.CycleCounts:
-                    Device.BeginInvokeOnMainThread(() => this.ItemsList.Clear());
-
-                    if (dataViewHdrs.Count > 0)
+                    Device.BeginInvokeOnMainThread(() =>
                     {
-                        Device.BeginInvokeOnMainThread(() => this.ItemsList.Clear());
+                        this.ItemsList.Clear();
 
                         if (dataViewHdrs.Count > 0)
                         {
@@ -1303,13 +1434,10 @@ namespace dMobile.View.Activity
 
                             for (int i = 0; i < lines.Count; i++)
                             {
-                                Device.BeginInvokeOnMainThread(() =>
-                                {
-                                    this.ItemsList.Add(lines[i]);
-                                });
+                                this.ItemsList.Add(lines[i]);
                             }
                         }
-                    }
+                    });
 
                     break;
 
@@ -1332,21 +1460,21 @@ namespace dMobile.View.Activity
                     break;
 
                 case SysCommon.ActSubTypes.PhysicalCounts:
-                    Device.BeginInvokeOnMainThread(() => this.ItemsList.Clear());
-
-                    if (dataViewHdrs.Count > 0)
+                    Device.BeginInvokeOnMainThread(() =>
                     {
-                        const int LineLength = 30;
-                        List<string> lines = SysCommon.WordWrap2List(dataViewHdrs[idx]["ActivityCountDescription"].ToString().TrimEnd(), LineLength);
+                        this.ItemsList.Clear();
 
-                        for (int i = 0; i < lines.Count; i++)
+                        if (dataViewHdrs.Count > 0)
                         {
-                            Device.BeginInvokeOnMainThread(() =>
+                            const int LineLength = 30;
+                            List<string> lines = SysCommon.WordWrap2List(dataViewHdrs[idx]["ActivityCountDescription"].ToString().TrimEnd(), LineLength);
+
+                            for (int i = 0; i < lines.Count; i++)
                             {
                                 this.ItemsList.Add(lines[i]);
-                            });
+                            }
                         }
-                    }
+                    });
 
                     break;
 
@@ -1497,7 +1625,7 @@ namespace dMobile.View.Activity
                 case SysCommon.ActSubTypes.SkidInfo:
                     break;
 
-                case SysCommon.ActSubTypes.Transfers:
+                case SysCommon.ActSubTypes.TransferFrom:
                     Device.BeginInvokeOnMainThread(() => this.ItemsList.Clear());
 
                     if (dataViewHdrs.Count > 0)
@@ -1526,9 +1654,6 @@ namespace dMobile.View.Activity
             {
                 try
                 {
-                    // Needed to check if the enter key was pressed last, because it seems that 
-                    // SelectNextControl in the keypress event causes a click event to fire
-                    // if a command button is the next control rather than just giving the button focus.
                     FormDialogContainer.EDialogTypes dlgType = 0;
 
                     this.ScannerDisable();
@@ -1547,7 +1672,11 @@ namespace dMobile.View.Activity
                             dlgType = FormDialogContainer.EDialogTypes.ucActivityHdrReceivingFilter;
                             break;
 
-                        case SysCommon.ActSubTypes.Transfers:
+                        case SysCommon.ActSubTypes.TransferFrom:
+                            dlgType = FormDialogContainer.EDialogTypes.ucActivityHdrTransferFilter;
+                            break;
+
+                        case SysCommon.ActSubTypes.TransferTo:
                             dlgType = FormDialogContainer.EDialogTypes.ucActivityHdrTransferFilter;
                             break;
 
@@ -1707,7 +1836,7 @@ namespace dMobile.View.Activity
                         {
                             //if (MessageBox.Show("Do you wish to clear the current picker?", "Picker Override", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
 
-                            if (DisplayAlert("Picker Override", "Do you wish to clear the current picker?", "Yes", "No").Result == true)
+                            if (await DisplayAlert("Picker Override", "Do you wish to clear the current picker?", "Yes", "No"))
                             {
                                 if (((PickingActivity)this.ActHdr).ClearSalesOrderBeingPicked(false))
                                 {
@@ -1727,7 +1856,7 @@ namespace dMobile.View.Activity
                     {
                         FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucActivityItemSingle, this.ActHdr, this.ActSubType);
                         this.IsChangesMade = false;
-                        await form.ShowDialog();
+                        await form.DisplayControl.ShowDialog();
                     }
                 }
                 else
@@ -1775,14 +1904,14 @@ namespace dMobile.View.Activity
                 this.ReqCancelDisableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                 this.ReqSaveDisableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
 
-                if (0 > (int)this.dataGridMainActivity.SelectedItem)
+                if (0 > Convert.ToInt32(this.dataGridMainActivity.SelectedItem))
                 {
                     // TODO: Resource strings
                     throw new Exceptions.MessageOnlyException("Please select a record to release.");
                 }
 
                 // Important! Need to ask for label quantity before the change status AND set this.ActHdr.Refno
-                this.ActHdr.Refno = this.ActHdr.GetRefnoFromRowIdx((int)this.dataGridMainActivity.SelectedItem);
+                this.ActHdr.Refno = this.ActHdr.GetRefnoFromRowIdx(Convert.ToInt32(this.dataGridMainActivity.SelectedItem));
 
                 SysCommon.SLabelQuantity labelQuantity = new SysCommon.SLabelQuantity();
 
@@ -1791,7 +1920,7 @@ namespace dMobile.View.Activity
                     labelQuantity = this.ActHdr.GetLabelQuantity(this.SysEnv.SysSettings.IsPickSinglePrintShipLabelFullQuantity);
                 }
 
-                if (this.ActHdr.ChangeStatus((int)this.dataGridMainActivity.SelectedItem))
+                if (this.ActHdr.ChangeStatus(Convert.ToInt32(this.dataGridMainActivity.SelectedItem)))
                 {
                     // Print labels after release
                     this.ScannerDisable();
@@ -1812,7 +1941,7 @@ namespace dMobile.View.Activity
                         }
                         else
                         {
-                            this.ActHdr.DataViewHdrs.Delete((int)dataGridMainActivity.SelectedItem);
+                            this.ActHdr.DataViewHdrs.Delete(Convert.ToInt32(dataGridMainActivity.SelectedItem));
                         }
                     }
                     else if (this.ActSubType == SysCommon.ActSubTypes.Adjustment)
@@ -1962,16 +2091,10 @@ namespace dMobile.View.Activity
 
         #endregion
 
-        private async void BtnClose_Clicked(object sender, EventArgs e)
-        {
-            this.DialogResult = DialogResult.None;
-            await this.Close();
-        }
-
         private void DataGridMainActivity_ItemSelected(object sender, SelectedItemChangedEventArgs e)
         {
             int index = this.DataGridMainActivityItemsList.IndexOf(e.SelectedItem);
-
+            
             if (index != -1)
             {
                 this.ActHdr.SelectHdr(Convert.ToInt32(index));
@@ -2046,6 +2169,28 @@ namespace dMobile.View.Activity
                     break;
 
                 case SysCommon.ActSubTypes.PhysicalCounts:
+                    this.DataGridMainActivityItemsList.Clear();
+
+                    foreach (DataRow row in this.ActHdr.DataViewHdrs.ToTable().Rows)
+                    {
+                        string description = string.Empty;
+                        string[] descriptionSubstring = Convert.ToString(row["ActivityCountTypeDescription"]).Split();
+
+                        if (descriptionSubstring != null && descriptionSubstring.Length > 1)
+                        {
+                            description = descriptionSubstring[0] + " " + descriptionSubstring[1]; 
+                        }
+
+                        Count count = new Count
+                        {
+                            ActivityRefno = Convert.ToInt32(row["ActivityCountStringFKRefno"]),
+                            ActivityCountDateTime = Convert.ToDateTime(row["ActivityCountDateTime"]),
+                            ActivityCountTypeDescription = description,
+                        };
+
+                        this.DataGridMainActivityItemsList.Add(count);
+                    }
+
                     break;
 
                 case SysCommon.ActSubTypes.Picking:
@@ -2073,7 +2218,6 @@ namespace dMobile.View.Activity
                     break;
 
                 case SysCommon.ActSubTypes.Receiving:
-
                     this.DataGridMainActivityItemsList.Clear();
 
                     foreach (DataRow row in this.ActHdr.DataViewHdrs.ToTable().Rows)
@@ -2111,7 +2255,10 @@ namespace dMobile.View.Activity
                 case SysCommon.ActSubTypes.SkidInfo:
                     break;
 
-                case SysCommon.ActSubTypes.Transfers:
+                case SysCommon.ActSubTypes.TransferFrom:
+                    break;
+
+                case SysCommon.ActSubTypes.TransferTo:
                     break;
             }
         }

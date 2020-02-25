@@ -205,6 +205,10 @@
       <Project>{07468172-3797-4cd2-8e9f-535a7afd58b3}</Project>
       <Name>dMobile.GroundWork</Name>
     </ProjectReference>
+    <ProjectReference Include="..\dMobile.Resources\dMobile.Resources.csproj">
+      <Project>{40fa21c1-9078-4713-9da0-66a15f03f5c8}</Project>
+      <Name>dMobile.Resources</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

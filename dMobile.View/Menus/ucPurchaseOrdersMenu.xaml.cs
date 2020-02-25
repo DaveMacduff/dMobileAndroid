@@ -37,9 +37,9 @@ namespace dMobile.View.Menus
             this.InitializeComponent();
 
             this.Title = this.GetControlDescription();
-            this.cmdReceiving.Text = "Receiving";
-            this.cmdPutAway.Text = "Put Away";
-            this.cmdWorkSheet.Text = "Work Sheet";
+            this.cmdReceiving.Text = "1) Receiving";
+            this.cmdPutAway.Text = "2) Put Away";
+            this.cmdWorkSheet.Text = "3) Work Sheet";
 
             if (!DesignMode.IsDesignModeEnabled)
             {
@@ -78,7 +78,7 @@ namespace dMobile.View.Menus
                 else if (keycode == Keycode.Num1)
                 {
                     ucActivityHdr receiving = new ucActivityHdr(SysCommon.ActSubTypes.Receiving);
-                    Device.BeginInvokeOnMainThread(async () => await receiving.ShowDialog());
+                    Device.BeginInvokeOnMainThread(async () => await receiving.Show());
                     this.DisableControls();
                     this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     this.IsControlLoaded = false;
@@ -589,7 +589,7 @@ namespace dMobile.View.Menus
         {
             //this.CallingControl = new ucActivityHdr(SysCommon.ActSubTypes.Receiving);
             ucActivityHdr receiving = new ucActivityHdr(SysCommon.ActSubTypes.Receiving);
-            Device.BeginInvokeOnMainThread(async () => await receiving.ShowDialog());
+            Device.BeginInvokeOnMainThread(async () => await receiving.Show());
             this.DisableControls();
             this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
             this.IsControlLoaded = false;

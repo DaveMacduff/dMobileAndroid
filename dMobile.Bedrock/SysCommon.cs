@@ -791,7 +791,8 @@ namespace dMobile.Bedrock
         {
             ActDetailRefno = 0,
             FKRefno = 1,
-            IsConfirmed = 2
+            IsConfirmed = 2,
+            TransModeEnum = 3
         }
 
         /// <summary>
@@ -849,7 +850,7 @@ namespace dMobile.Bedrock
             PhysicalCounts = 2,
             Receiving = 3,
             Picking = 4,
-            Transfers = 5,
+            TransferFrom = 5,
             RefreshData = 6,
             DataStatus = 7,
             Returns = 8,
@@ -883,7 +884,8 @@ namespace dMobile.Bedrock
             CommunicationSetup = 36,
             SetupDefaults = 37,
             InventoryInquirySummary = 38,
-            ConvertProduct = 39
+            ConvertProduct = 39,
+            TransferTo = 40
         }
 
         /// <summary>
@@ -962,6 +964,16 @@ namespace dMobile.Bedrock
             EnumType = 2,
             LocMapRefno = 3
         }
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        public enum WhsLocMapProdSchemeFields : int
+        {
+            WhsLocMapRefno = 0,
+            ProdRefno = 1,
+            ProdSchemeRefno = 2
+        }
 
         /// <summary>
         /// 
@@ -1027,17 +1039,16 @@ namespace dMobile.Bedrock
         public enum ProductFields : int
         {
             Refno = 0,
-            ProdSchemeRefno = 1,
-            FamilyRefno = 2,
-            Code = 3,
-            FKRefno = 4,
-            Description = 5,
-            IsCatchCount = 6,
-            IsCatchWeight = 7,
-            IsCatchAsk = 8,
-            IsCatchAskZero = 9,
-            BrandDescription = 10,
-            AllowConvertProduct = 11
+            FamilyRefno = 1,
+            Code = 2,
+            FKRefno = 3,
+            Description = 4,
+            IsCatchCount = 5,
+            IsCatchWeight = 6,
+            IsCatchAsk = 7,
+            IsCatchAskZero = 8,
+            BrandDescription = 9,
+            AllowConvertProduct = 10
         }
 
         /// <summary>
@@ -1262,7 +1273,19 @@ namespace dMobile.Bedrock
             Code = 3,
             FKRefno = 4,
             BarCode = 5,
-            IsWMS = 6
+            IsWMS = 6,
+            WhsMask = 7,
+            SectionMask = 8,
+            SlotMask = 9,
+            SlotCoord1Mask = 10,
+            SlotCoord2Mask = 11,
+            SlotCoord3Mask = 12,
+            SlotCoord1Name = 13,
+            SlotCoord2Name = 14,
+            SlotCoord3Name = 15,
+            IsSectionTracked = 16,
+            IsSlotTracked = 17,
+            IsAdhocEnabled = 18
         }
 
         /// <summary>

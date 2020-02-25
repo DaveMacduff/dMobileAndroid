@@ -20,7 +20,7 @@ using Android.Views;
 using dMobile.View.CustomPages;
 using dMobile.View.Menus;
 using Android.Widget;
-using dMobile.View.Types;
+using dMobile.Resources.Types;
 
 namespace dMobile.View
 {
@@ -789,11 +789,14 @@ namespace dMobile.View
                 }
             }
             
-            this.lstWarehouse.ItemsSource = dataViewLocMapWhs;
-            this.lstWarehouse.ItemDisplayBinding = new Binding("DisplayName");
-            Warehouse selectedWarehouse = dataViewLocMapWhs.Where(warehouse => warehouse.Id == this.SysEnv.ContactLog.WarehouseLocationMapRefno).FirstOrDefault();
-            this.lstWarehouse.SelectedIndex = this.lstWarehouse.ItemsSource.IndexOf(selectedWarehouse);
-            this.lstWarehouse.SelectedValue = selectedWarehouse.Id;
+            if (dataViewLocMapWhs.Count > 0)
+            {
+                this.lstWarehouse.ItemsSource = dataViewLocMapWhs;
+                this.lstWarehouse.ItemDisplayBinding = new Binding("DisplayName");
+                Warehouse selectedWarehouse = dataViewLocMapWhs.Where(warehouse => warehouse.Id == this.SysEnv.ContactLog.WarehouseLocationMapRefno).FirstOrDefault();
+                this.lstWarehouse.SelectedIndex = this.lstWarehouse.ItemsSource.IndexOf(selectedWarehouse);
+                this.lstWarehouse.SelectedValue = selectedWarehouse.Id;
+            }
         }
 
         /// <summary>
@@ -1027,8 +1030,11 @@ namespace dMobile.View
         /// <remarks></remarks>
         private void txtLoginID_GotFocus(object sender, FocusEventArgs e)
         {
-            this.txtLoginID.CursorPosition = 0;
-            this.txtLoginID.SelectionLength = this.txtLoginID.Text.Length;
+            if (this.txtLoginID.Text != null)
+            {
+                this.txtLoginID.CursorPosition = 0;
+                this.txtLoginID.SelectionLength = this.txtLoginID.Text.Length;
+            }
         }
 
         /// <summary>
@@ -1039,9 +1045,11 @@ namespace dMobile.View
         /// <remarks></remarks>
         private void txtLoginPassword_GotFocus(object sender, FocusEventArgs e)
         {
-            //this.txtLoginPassword.SelectAll();
-            this.txtLoginPassword.CursorPosition = 0;
-            this.txtLoginPassword.SelectionLength = this.txtLoginPassword.Text.Length;
+            if (this.txtLoginPassword.Text != null)
+            {
+                this.txtLoginPassword.CursorPosition = 0;
+                this.txtLoginPassword.SelectionLength = this.txtLoginPassword.Text.Length;
+            }
         }
 
         /// <summary>

@@ -9,7 +9,7 @@ using Xamarin.Forms.Xaml;
 using dMobile.View.Forms;
 using dMobile.Resources.Enums;
 using Android.Views;
-using dMobile.View.Types;
+using dMobile.Resources.Types;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Linq;
@@ -897,10 +897,6 @@ namespace dMobile.View
                 return;
             }
 
-            //this.ProdRefno = (int)this.DataViewProducts[selectedIndex]["ProductRefno"];
-            //this.ProdDesc = (string)this.DataViewProducts[selectedIndex]["ProductDescription"];
-            //this.ProdCode = (string)this.DataViewProducts[selectedIndex]["ProductCode"];
-
             try
             {
                 this.ProdRefno = Convert.ToInt32(prod.ProductRefno);
@@ -982,16 +978,22 @@ namespace dMobile.View
         }
 
 
-        private async void CmdSelect_Clicked(object sender, EventArgs e)
+        private void CmdSelect_Clicked(object sender, EventArgs e)
         {
-            this.DialogResult = DialogResult.OK;
-            await this.Close();
+            Device.BeginInvokeOnMainThread(async () =>
+            {
+                this.DialogResult = DialogResult.OK;
+                await this.Close();
+            });
         }
 
-        private async void CmdClose_Clicked(object sender, EventArgs e)
+        private void CmdClose_Clicked(object sender, EventArgs e)
         {
-            this.DialogResult = DialogResult.None;
-            await this.Close();
+            Device.BeginInvokeOnMainThread(async () =>
+            {
+                this.DialogResult = DialogResult.None;
+                await this.Close();
+            });
         }
 
         ///// <summary>

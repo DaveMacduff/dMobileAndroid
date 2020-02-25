@@ -724,8 +724,8 @@ namespace dMobile.View.Options
                     this.Activity = ActivityFacade.GetActivity(SysCommon.ActSubTypes.Returns);
                     break;
 
-                case SysCommon.ActSubTypes.Transfers:
-                    this.Activity = ActivityFacade.GetActivity(SysCommon.ActSubTypes.Transfers);
+                case SysCommon.ActSubTypes.TransferFrom:
+                    this.Activity = ActivityFacade.GetActivity(SysCommon.ActSubTypes.TransferFrom);
                     break;
 
                 case SysCommon.ActSubTypes.CycleCounts:
@@ -912,8 +912,8 @@ namespace dMobile.View.Options
                                     actItem = ActItemFacade.GetActItem(this.Activity, SysCommon.ActSubTypes.Returns);
                                     break;
 
-                                case SysCommon.ActSubTypes.Transfers:
-                                    actItem = ActItemFacade.GetActItem(this.Activity, SysCommon.ActSubTypes.Transfers);
+                                case SysCommon.ActSubTypes.TransferFrom:
+                                    actItem = ActItemFacade.GetActItem(this.Activity, SysCommon.ActSubTypes.TransferFrom);
                                     break;
 
                                 case SysCommon.ActSubTypes.CycleCounts:
@@ -981,9 +981,9 @@ namespace dMobile.View.Options
                                             actDetail = ActDetailFacade.GetActDetail(actItem, SysCommon.ActSubTypes.Returns);
                                             break;
 
-                                        case SysCommon.ActSubTypes.Transfers:
-                                            actDetail = ActDetailFacade.GetActDetail(actItem, SysCommon.ActSubTypes.Transfers);
-                                            break;
+                                        case SysCommon.ActSubTypes.TransferFrom:
+                                          actDetail = ActDetailFacade.GetActDetail(actItem, SysCommon.ActSubTypes.TransferFrom);
+                                          break;
 
                                         case SysCommon.ActSubTypes.CycleCounts:
                                             actDetail = ActDetailFacade.GetActDetail(actItem, SysCommon.ActSubTypes.CycleCounts);

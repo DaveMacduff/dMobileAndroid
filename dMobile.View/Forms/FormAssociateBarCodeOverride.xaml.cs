@@ -174,8 +174,11 @@
 
             if (isValidData && this.IsAllowedAssocBarCode)
             {
-                this.DialogResult = DialogResult.OK;
-                await this.Close();
+                Device.BeginInvokeOnMainThread(async () =>
+                {
+                    this.DialogResult = DialogResult.OK;
+                    await this.Close();
+                });
             }
             else
             {
@@ -188,10 +191,13 @@
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private async void cmdCancel_Click(object sender, EventArgs e)
+        private void cmdCancel_Click(object sender, EventArgs e)
         {
-            this.DialogResult = DialogResult.Cancel;
-            await this.Close();
+            Device.BeginInvokeOnMainThread(async () =>
+            {
+                this.DialogResult = DialogResult.Cancel;
+                await this.Close();
+            });
         }
 
         /// <summary>

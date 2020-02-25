@@ -21,10 +21,10 @@
         /// </summary>
         public bool Loading
         {
-            get { return loading; }
+            get { return this.loading; }
             set
             {
-                loading = value;
+                this.loading = value;
                 this.OnPropertyChanged();
             }
         }
@@ -33,9 +33,9 @@
         /// Gets the Closed
         /// Checks if content page has been close
         /// </summary>
-        public Task Closed
+        private Task Closed
         {
-            get { return Tcs.Task; }
+            get { return this.tcs.Task; }
         }
 
         /// <summary>
@@ -44,16 +44,16 @@
         public DialogResult DialogResult = DialogResult.None;
 
         /// <summary>
-        /// Gets or sets the Tcs
+        /// Gets or sets the tcs
         /// </summary>
-        private TaskCompletionSource<bool> Tcs { get; set; }
+        private TaskCompletionSource<bool> tcs { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DMobileModal"/> class.
         /// </summary>
         public DMobileModal()
         {
-            Tcs = new TaskCompletionSource<bool>();
+            this.tcs = new TaskCompletionSource<bool>();
             this.BindingContext = this;
             this.Loading = false;
         }
@@ -67,7 +67,10 @@
 
             try
             {
-                Tcs.SetResult(true);
+                while (!this.tcs.Task.IsCompleted)
+                {
+                    this.tcs.TrySetResult(true);
+                }
             }
             catch (Exception ex)
             {
@@ -79,7 +82,7 @@
         /// <summary>
         /// The ShowDialog
         /// </summary>
-        /// <returns>The <see cref="Task{DialogResult}"/></returns>
+        /// <returns>The <see cref="Task{DialogResult}"/></returns> 
         public virtual async Task<DialogResult> ShowDialog()
         {
             try

@@ -1231,9 +1231,9 @@
         public void ClearResetBarCodeProperties(bool resetSymbologyData)
         {
             SystemSettings sysSettings = SysEnvironment.GetInstance().SysSettings;
-            this.LocMapWhsCodeMask = sysSettings.LocMapWarehouseMask;
-            this.LocMapSectCodeMask = sysSettings.LocMapSectionMask;
-            this.LocMapSlotCodeMask = sysSettings.LocMapSlotMask;
+            //this.LocMapWhsCodeMask = sysSettings.LocMapWarehouseMask;
+            //this.LocMapSectCodeMask = sysSettings.LocMapSectionMask;
+            //this.LocMapSlotCodeMask = sysSettings.LocMapSlotMask;
             this.SystemGTINCompanyPrefix = sysSettings.GTINCompanyPrefix;
 
             if (resetSymbologyData)

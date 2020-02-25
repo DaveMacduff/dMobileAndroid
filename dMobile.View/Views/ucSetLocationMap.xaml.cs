@@ -13,8 +13,9 @@ using dMobile.Resources.Enums;
 using Android.Views;
 using dMobile.View.Forms;
 using System.Collections.ObjectModel;
-using dMobile.View.Types;
+using dMobile.Resources.Types;
 using System.Linq;
+using dMobile.Resources.Types;
 
 namespace dMobile.View
 {
@@ -149,7 +150,7 @@ namespace dMobile.View
         {
             base.OnAppearing();
 
-            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
+            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), (keyPressed) =>
             {
                 // TODO: Verify keycodes
                 Enum.TryParse(keyPressed, out Keycode keycode);
@@ -158,8 +159,12 @@ namespace dMobile.View
                 {
                     if (this.SaveChanges())
                     {
-                        this.DialogResult = DialogResult.OK;
-                        await this.Close();
+                        Device.BeginInvokeOnMainThread(async () =>
+                        {
+                            this.DialogResult = DialogResult.OK;
+                            await this.Close();
+                        });
+
                         this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     }
                 }
@@ -897,7 +902,7 @@ namespace dMobile.View
 
                     // Selecting the section and slot are required here even if the section / slot grids are not display 
                     // because we want to set the grid(s).CurrentRowIdx
-                    if (this.LocMap.IsSectLocMapTracked)
+                    if (this.LocMap.CurrLocMap.IsSectionTracked)
                     {
                         this.SelectSection();
                         this.SelectSlotCoordinate();
@@ -1344,7 +1349,7 @@ namespace dMobile.View
         /// <remarks></remarks>
         private void SelectSection()
         {
-            if (this.LocMap.IsSectLocMapTracked)
+            if (this.LocMap.CurrLocMap.IsSectionTracked)
             {
                 // attempt to find last selected section in section view
                 if (this.LocMapInfo.SectLocMapRefno != 0)
@@ -1401,7 +1406,7 @@ namespace dMobile.View
         /// <remarks></remarks>
         private void SelectSlotCoordinate()
         {
-            if (this.LocMap.IsSlotLocMapTracked)
+            if (this.LocMap.CurrLocMap.IsSlotTracked)
             {
                 // Attempt to find last selected slot coordinate in slot coordinate 1 view
                 if (this.LocMapInfo.SlotCoord1LocMapRefno != 0)
@@ -1640,18 +1645,24 @@ namespace dMobile.View
 
         #endregion
 
-        private async void BtnCancel_Clicked(object sender, EventArgs e)
+        private void BtnCancel_Clicked(object sender, EventArgs e)
         {
-            this.DialogResult = DialogResult.Cancel;
-            await this.Close();
+            Device.BeginInvokeOnMainThread(async () =>
+            {
+                this.DialogResult = DialogResult.Cancel;
+                await this.Close();
+            });
         }
 
-        private async void BtnSave_Clicked(object sender, EventArgs e)
+        private void BtnSave_Clicked(object sender, EventArgs e)
         {
             if (this.SaveChanges())
             {
-                this.DialogResult = DialogResult.OK;
-                await this.Close();
+                Device.BeginInvokeOnMainThread(async () =>
+                {
+                    this.DialogResult = DialogResult.OK;
+                    await this.Close();
+                });
             }
         }
 

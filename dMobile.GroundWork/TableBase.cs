@@ -485,48 +485,50 @@ namespace dMobile.GroundWork
         /// <param name="actDetailRefno"></param>
         /// <param name="useFNo"></param>
         /// <returns></returns>
-        protected virtual bool SaveCommonDetailVariant(
-        DataRow drow,
-        SQLiteDataReader drSchemeVar,
-        //ref SqlCeUpdatableRecord recSchemeVarXRef,
-        int actDetailRefno,
-        bool useFNo)
+        protected virtual bool SaveCommonDetailVariant(DataRow drow, ref SQLiteConnection conn, ref SQLiteCommand cmndSchemeVarXRef, int actDetailRefno, bool useFNo)
         {
             int schemeVariantNo = 0;
             bool isNeedToSave = false;
 
-            //if (useFNo)
-            //{
-            //    schemeVariantNo = Convert.ToInt32(drow["f17"]);
-            //}
-            //else
-            //{
-            //    schemeVariantNo = Convert.ToInt32(drow["ProductSchemeVariantNo"]);
-            //}
+            if (useFNo)
+            {
+                schemeVariantNo = Convert.ToInt32(drow["f17"]);
+            }
+            else
+            {
+                schemeVariantNo = Convert.ToInt32(drow["ProductSchemeVariantNo"]);
+            }
 
-            //if (0 < schemeVariantNo)
-            //{
-            //    if (drSchemeVar.Seek(DbSeekOptions.FirstEqual, new object[] { schemeVariantNo }))
-            //    {
-            //        if (drSchemeVar.Read())
-            //        {
-            //            recSchemeVarXRef.SetInt32((int)SysCommon.ActDetailSchemeVariantXRefFields.ActDetailRefno, actDetailRefno);
-            //            recSchemeVarXRef.SetInt32((int)SysCommon.ActDetailSchemeVariantXRefFields.ProdSchemeVariantRefno, drSchemeVar.GetInt32((int)SysCommon.ProdSchemeVariantFields.Refno));
+            if (0 < schemeVariantNo)
+            {
+                using (SQLiteCommand cmndSchemeVar = conn.CreateCommand())
+                {
+                    cmndSchemeVar.CommandText = "SELECT * FROM tProductSchemeVariant WHERE ProductSchemeVariantNo = @productSchemeVariantNo";
+                    cmndSchemeVar.CommandType = CommandType.Text;
+                    cmndSchemeVar.Parameters.Add(new SQLiteParameter("@productSchemeVariantNo", Convert.ToInt32(schemeVariantNo)));
 
-            //            isNeedToSave = true;
-            //        }
-            //        else
-            //        {
-            //            // TODO: Resource strings
-            //            throw new Exception("drSchemeVar.Read() failed.");
-            //        }
-            //    }
-            //    else
-            //    {
-            //        // TODO: Resource strings
-            //        throw new Exception(string.Format("Unable to locate product scheme no {0} in tProductSchemeVariant", schemeVariantNo));
-            //    }
-            //}
+                    using (SQLiteDataReader drSchemeVar = cmndSchemeVar.ExecuteReader())
+                    {
+                        if (drSchemeVar.Read())
+                        {
+                            cmndSchemeVarXRef.CommandText = "INSERT INTO tActivityDetailProductSchemeVariantXRef (ActivityDetailRefno, ProductSchemeVariantRefno) VALUES (@activityDetailRefno, @productSchemeVariantRefno)";
+                            cmndSchemeVarXRef.CommandType = CommandType.Text;
+                            cmndSchemeVarXRef.Parameters.Add(new SQLiteParameter("@activityDetailRefno", Convert.ToInt32(actDetailRefno)));
+                            cmndSchemeVarXRef.Parameters.Add(new SQLiteParameter("@productSchemeVariantRefno", drSchemeVar.GetInt32(Convert.ToInt32(SysCommon.ProdSchemeVariantFields.Refno))));
+
+                            //recSchemeVarXRef.SetInt32((int)SysCommon.ActDetailSchemeVariantXRefFields.ActDetailRefno, actDetailRefno);
+                            //recSchemeVarXRef.SetInt32((int)SysCommon.ActDetailSchemeVariantXRefFields.ProdSchemeVariantRefno, drSchemeVar.GetInt32((int)SysCommon.ProdSchemeVariantFields.Refno));
+
+                            isNeedToSave = true;
+                        }
+                        else
+                        {
+                            // TODO: Resource strings
+                            throw new Exception("drSchemeVar.Read() failed. " + string.Format("Unable to locate product scheme no {0} in tProductSchemeVariant", schemeVariantNo));
+                        }
+                    }
+                }
+            }
 
             return isNeedToSave;
         }
@@ -609,13 +611,7 @@ namespace dMobile.GroundWork
         /// <param name="drLocMapWhs"></param>
         /// <param name="recDetail"></param>
         /// <param name="useFNo"></param>
-        protected virtual int SaveDetailLocation(
-        DataRow drow,
-        SQLiteDataReader drLocMapSlot,
-        SQLiteDataReader drLocMapSection,
-        SQLiteDataReader drLocMapWhs,
-        //ref SqlCeUpdatableRecord recDetail,
-        bool useFNo)
+        protected virtual void SaveDetailLocation(DataRow drow, ref SQLiteConnection conn, ref SQLiteCommand cmndDetail, bool useFNo)
         {
             int locMapRefno = 0;
             int locMapWhsFKRefno = 0;
@@ -637,50 +633,56 @@ namespace dMobile.GroundWork
 
             if (locMapRefno == 0)
             {
-                //if (drLocMapSlot.Seek(DbSeekOptions.FirstEqual, new object[] { locMapSlotFKRefno }))
-                //{
-                if (drLocMapSlot.Read())
+                using (SQLiteCommand cmndLocMapSlot = conn.CreateCommand())
                 {
-                    locMapRefno = Convert.ToInt32(drLocMapSlot.GetValue((int)SysCommon.LocMapSlotFields.LocMapRefno));
+                    cmndLocMapSlot.CommandText = "SELECT * FROM tLocationMapSlot WHERE LocationMapSlotFKRefno = @locationMapSlotFKRefno";
+                    cmndLocMapSlot.CommandType = CommandType.Text;
+                    cmndLocMapSlot.Parameters.Add(new SQLiteParameter("@locationMapSlotFKRefno", locMapSlotFKRefno));
+
+                    using (SQLiteDataReader drLocMapSlot = cmndLocMapSlot.ExecuteReader())
+                    {
+                        if (drLocMapSlot.Read())
+                        {
+                            locMapRefno = Convert.ToInt32(drLocMapSlot.GetValue((int)SysCommon.LocMapSlotFields.LocMapRefno));
+                        }
+                    }
                 }
-                //else
-                //{
-                //    // TODO: Resource strings
-                //    throw new Exception("drLocMapSlot.Read() failed.");
-                //}
-                //}
             }
 
             if (locMapRefno == 0)
             {
-                //if (drLocMapSection.Seek(DbSeekOptions.FirstEqual, new object[] { locMapSectFKRefno }))
-                //{
-                    if (drLocMapSection.Read())
+                using (SQLiteCommand cmndLocMapSect = conn.CreateCommand())
+                {
+                    cmndLocMapSect.CommandText = "SELECT * FROM tLocationMapSection WHERE LocationMapSectionFKRefno = @locationMapSectionFKRefno";
+                    cmndLocMapSect.CommandType = CommandType.Text;
+                    cmndLocMapSect.Parameters.Add(new SQLiteParameter("@locationMapSectionFKRefno", locMapSlotFKRefno));
+
+                    using (SQLiteDataReader drLocMapSection = cmndLocMapSect.ExecuteReader())
                     {
-                        locMapRefno = Convert.ToInt32(drLocMapSection.GetValue((int)SysCommon.LocMapSectFields.LocMapRefno));
+                        if (drLocMapSection.Read())
+                        {
+                            locMapRefno = Convert.ToInt32(drLocMapSection.GetValue((int)SysCommon.LocMapSectFields.LocMapRefno));
+                        }
                     }
-                    //else
-                    //{
-                    //    // TODO: Resource strings
-                    //    throw new Exception("drLocMapSection.Read() failed.");
-                    //}
-                //}
+                }
             }
 
             if (locMapRefno == 0)
             {
-                //if (drLocMapWhs.Seek(DbSeekOptions.FirstEqual, new object[] { locMapWhsFKRefno }))
-                //{
-                    if (drLocMapWhs.Read())
+                using (SQLiteCommand cmndLocMapWhs = conn.CreateCommand())
+                {
+                    cmndLocMapWhs.CommandText = "SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = @locationMapWarehouseFKRefno";
+                    cmndLocMapWhs.CommandType = CommandType.Text;
+                    cmndLocMapWhs.Parameters.Add(new SQLiteParameter("@locationMapWarehouseFKRefno", locMapWhsFKRefno));
+
+                    using (SQLiteDataReader drLocMapWhs = cmndLocMapWhs.ExecuteReader())
                     {
-                        locMapRefno = Convert.ToInt32(drLocMapWhs.GetValue((int)SysCommon.LocMapWhsFields.LocMapRefno));
+                        if (drLocMapWhs.Read())
+                        {
+                            locMapRefno = Convert.ToInt32(drLocMapWhs.GetValue((int)SysCommon.LocMapWhsFields.LocMapRefno));
+                        }
                     }
-                    //else
-                    //{
-                        //// TODO: Resource strings
-                        //throw new Exception("drLocMapWhs.Read() failed.");
-                    //}
-                //}
+                }
             }
 
             if (locMapRefno == 0)
@@ -694,8 +696,7 @@ namespace dMobile.GroundWork
                     locMapSlotFKRefno));
             }
 
-            return locMapRefno;
-            //recDetail.SetInt32((int)SysCommon.ActDetailFields.LocationMapRefno, locMapRefno);
+            cmndDetail.Parameters.Add(new SQLiteParameter("@locationMapRefno", Convert.ToInt32(locMapRefno)));
         }
 
         /// <summary>
@@ -890,15 +891,15 @@ namespace dMobile.GroundWork
 
             //if (drWhs.Seek(DbSeekOptions.FirstEqual, new object[] { locMapWhsFKRefno }))
             //{
-                if (drWhs.Read())
-                {
-                    locMapRefno = drWhs.GetInt32((int)SysCommon.LocMapWhsFields.LocMapRefno);
-                }
-                else
-                {
-                    // TODO: Resource String
-                    throw new Exception("drWhs.Read() failed." + Environment.NewLine + errMsg);
-                }
+            if (drWhs.Read())
+            {
+                locMapRefno = drWhs.GetInt32((int)SysCommon.LocMapWhsFields.LocMapRefno);
+            }
+            else
+            {
+                // TODO: Resource String
+                throw new Exception("drWhs.Read() failed." + Environment.NewLine + errMsg);
+            }
             //}
 
             if (locMapRefno == 0)
@@ -920,105 +921,91 @@ namespace dMobile.GroundWork
         /// <param name="drProdUnit"></param>
         /// <param name="useFNo">The useFNo<see cref="bool"/></param>
         /// <returns></returns>
-        protected virtual int GetProductUnitRefnoFromDataRow(DataRow drow, ref string errMsg, SQLiteDataReader drProduct, SQLiteDataReader drUnit, SQLiteDataReader drProdUnit, bool useFNo)
+        protected virtual int GetProductUnitRefnoFromDataRow(DataRow drow, ref SQLiteConnection conn, ref string errMsg, bool useFNo)
         {
-            int prodRefno = 0;
-            int prodFKRefno = 0;
-
-            if (useFNo)
+            using (SQLiteCommand cmndProdUnit = conn.CreateCommand())
+            using (SQLiteCommand cmndProd = conn.CreateCommand())
+            using (SQLiteCommand cmndUnit = conn.CreateCommand())
             {
-                prodFKRefno = Convert.ToInt32(drow["f03"]);
-            }
-            else
-            {
-                prodFKRefno = Convert.ToInt32(drow["ProductFKRefno"]);
-            }
+                int prodRefno = 0;
+                int prodFKRefno = 0;
+                string unitCode = string.Empty;
+                int unitRefno = 0;
+                int prodUnitRefno = 0;
+                bool prodUnitIsBC = false;
 
-            errMsg += Environment.NewLine + "Prod fk refno " + prodFKRefno;
-
-            //if (drProduct.Seek(DbSeekOptions.FirstEqual, new object[] { prodFKRefno }))
-            //{
-                if (drProduct.Read())
+                if (useFNo)
                 {
-                    prodRefno = drProduct.GetInt32((int)SysCommon.ProductFields.Refno);
+                    prodFKRefno = Convert.ToInt32(drow["f03"]);
+                    unitCode = drow["f05"].ToString();
+                    prodUnitIsBC = Convert.ToBoolean(drow["f04"]);
                 }
                 else
                 {
-                    // TODO: Resource strings
-                    throw new Exception("drProduct.Read() failed." + Environment.NewLine + errMsg);
+                    prodFKRefno = Convert.ToInt32(drow["ProductFKRefno"]);
+                    unitCode = drow["UnitCode"].ToString();
+                    prodUnitIsBC = Convert.ToBoolean(drow["ProductUnitIsBC"]);
                 }
-            //}
-            //else
-            //{
-            //    // TODO: Resource strings
-            //    throw new Exception("Unable to locate the product refno from the product fk refno in tProduct." + Environment.NewLine + errMsg);
-            //}
 
-            string unitCode = string.Empty;
-            int unitRefno = 0;
+                errMsg += Environment.NewLine + "Prod fk refno " + prodFKRefno;
+                errMsg += Environment.NewLine + "Unit \'" + unitCode + "\'";
+                errMsg += Environment.NewLine + "Is bc " + prodUnitIsBC;
 
-            if (useFNo)
-            {
-                unitCode = drow["f05"].ToString();
-            }
-            else
-            {
-                unitCode = drow["UnitCode"].ToString();
-            }
+                cmndProd.CommandText = "SELECT * FROM tProduct WHERE ProductFKRefno = @productFKRefno";
+                cmndProd.CommandType = CommandType.Text;
+                cmndProd.Parameters.Add(new SQLiteParameter("@productFKRefno", Convert.ToInt32(prodFKRefno)));
 
-            errMsg += Environment.NewLine + "Unit \'" + unitCode + "\'";
-
-            //if (drUnit.Seek(DbSeekOptions.FirstEqual, new object[] { unitCode }))
-            //{
-                if (drUnit.Read())
+                using (SQLiteDataReader drProduct = cmndProd.ExecuteReader())
                 {
-                    unitRefno = drUnit.GetInt32((int)SysCommon.UnitFields.UnitRefno);
+                    if (drProduct.Read())
+                    {
+                        prodRefno = drProduct.GetInt32((int)SysCommon.ProductFields.Refno);
+                    }
+                    else
+                    {
+                        // TODO: Resource strings
+                        throw new Exception("drProduct.Read() failed. Unable to locate the product refno from the product fk refno in tProduct." + Environment.NewLine + errMsg);
+                    }
                 }
-                else
+
+                cmndUnit.CommandText = "SELECT * FROM tUnit WHERE UnitCode = @unitCode";
+                cmndUnit.CommandType = CommandType.Text;
+                cmndUnit.Parameters.Add(new SQLiteParameter("@unitCode", unitCode));
+
+                using (SQLiteDataReader drUnit = cmndUnit.ExecuteReader())
                 {
-                    // TODO: Resource strings
-                    throw new Exception("drUnit.Read() failed." + Environment.NewLine + errMsg);
+                    if (drUnit.Read())
+                    {
+                        unitRefno = drUnit.GetInt32((int)SysCommon.UnitFields.UnitRefno);
+                    }
+                    else
+                    {
+                        // TODO: Resource strings
+                        throw new Exception("drUnit.Read() failed." + Environment.NewLine + errMsg);
+                    }
                 }
-            //}
-            //else
-            //{
-            //    // TODO: Resource strings
-            //    throw new Exception("Unable to locate the unit refno from the unit code in  tUnit." + Environment.NewLine + errMsg);
-            //}
 
-            int prodUnitRefno = 0;
-            bool prodUnitIsBC = false;
+                cmndProdUnit.CommandText = "SELECT * FROM tProductUnit WHERE ProductRefno = @productRefno AND UnitRefno = @unitRefno AND ProductUnitIsBC = @productUnitIsBC";
+                cmndProdUnit.CommandType = CommandType.Text;
+                cmndProdUnit.Parameters.Add(new SQLiteParameter("@productRefno", Convert.ToInt32(prodRefno)));
+                cmndProdUnit.Parameters.Add(new SQLiteParameter("@unitRefno", Convert.ToInt32(unitRefno)));
+                cmndProdUnit.Parameters.Add(new SQLiteParameter("@productUnitIsBC", Convert.ToBoolean(prodUnitIsBC)));
 
-            if (useFNo)
-            {
-                prodUnitIsBC = Convert.ToBoolean(drow["f04"]);
+                using (SQLiteDataReader drProductUnit = cmndProdUnit.ExecuteReader())
+                {
+                    if (drProductUnit.Read())
+                    {
+                        prodUnitRefno = drProductUnit.GetInt32((int)SysCommon.ProdUnitFields.Refno);
+                    }
+                    else
+                    {
+                        // TODO: Resource strings
+                        throw new Exception("drProdUnit.Read() failed. Unable to locate the product unit refno from the product fk refno, bc and unit code in tProductUnit." + Environment.NewLine + errMsg);
+                    }
+                }
+
+                return prodUnitRefno;
             }
-            else
-            {
-                prodUnitIsBC = Convert.ToBoolean(drow["ProductUnitIsBC"]);
-            }
-
-            errMsg += Environment.NewLine + "Is bc " + prodUnitIsBC;
-
-            //if (drProdUnit.Seek(DbSeekOptions.FirstEqual, new object[] { prodRefno, unitRefno, prodUnitIsBC }))
-            //{
-                if (drProdUnit.Read())
-                {
-                    prodUnitRefno = drProdUnit.GetInt32((int)SysCommon.ProdUnitFields.Refno);
-                }
-                else
-                {
-                    // TODO: Resource strings
-                    throw new Exception("drProdUnit.Read() failed." + Environment.NewLine + errMsg);
-                }
-            //}
-            //else
-            //{
-            //    // TODO: Resource strings
-            //    throw new Exception("Unable to locate the product unit refno from the product fk refno, bc and unit code in tProductUnit." + Environment.NewLine + errMsg);
-            //}
-
-            return prodUnitRefno;
         }
     }
 }

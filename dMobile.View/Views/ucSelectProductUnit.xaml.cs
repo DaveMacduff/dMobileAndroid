@@ -6,7 +6,7 @@
     using dMobile.Resources.Enums;
     using dMobile.View.CustomPages.Modal;
     using dMobile.View.Forms;
-    using dMobile.View.Types;
+    using dMobile.Resources.Types;
     using System;
     using System.Collections.ObjectModel;
     using System.Data;
@@ -606,7 +606,7 @@
 
                 Device.BeginInvokeOnMainThread(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex);
+                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
                     await errRpt.ShowDialog();
                 });
             }
@@ -1532,18 +1532,26 @@
             this.SelectProdUnit(prodUnit);
         }
 
-        private async void CmdSelect_Clicked(object sender, EventArgs e)
+        private void CmdSelect_Clicked(object sender, EventArgs e)
         {
             this.Loading = true;
-            this.DialogResult = DialogResult.OK;
-            await this.Close();
+
+            Device.BeginInvokeOnMainThread(async () =>
+            {
+                this.DialogResult = DialogResult.OK;
+                await this.Close();
+            });
+
             this.Loading = false;
         }
 
-        private async void CmdClose_Clicked(object sender, EventArgs e)
+        private void CmdClose_Clicked(object sender, EventArgs e)
         {
-            this.DialogResult = DialogResult.None;
-            await this.Close();
+            Device.BeginInvokeOnMainThread(async () =>
+            {
+                this.DialogResult = DialogResult.None;
+                await this.Close();
+            });
         }
     }
 }

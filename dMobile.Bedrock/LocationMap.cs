@@ -7,9 +7,6 @@
 namespace dMobile.Bedrock
 {
     using System;
-    using System.Data;
-    
-    using Microsoft.VisualBasic;
 
     /// <summary>
     /// 
@@ -23,18 +20,18 @@ namespace dMobile.Bedrock
         private static LocationMap locMap;
         private static int currLocMapRefno = 0;
         private static int loginWhsLocMapRefno = 0;
-        private static string locMapWhsCodeMask = string.Empty;
-        private static bool isWhsLocMapTracked = false;
-        private static bool isSectLocMapTracked = false;
-        private static bool isSlotLocMapTracked = false;
-        private static string locMapSectCodeMask = string.Empty;
-        private static string locMapSlotCodeMask = string.Empty;
-        private static string locMapSlotCodeCoord1Mask = string.Empty;
-        private static string locMapSlotCodeCoord2Mask = string.Empty;
-        private static string locMapSlotCodeCoord3Mask = string.Empty;
-        private static bool isSlotCoord1LocMapTracked = false;
-        private static bool isSlotCoord2LocMapTracked = false;
-        private static bool isSlotCoord3LocMapTracked = false;
+        //private static string locMapWhsCodeMask = string.Empty;
+        //private static bool isWhsLocMapTracked = false;
+        //private static bool isSectLocMapTracked = false;
+        //private static bool isSlotLocMapTracked = false;
+        //private static string locMapSectCodeMask = string.Empty;
+        //private static string locMapSlotCodeMask = string.Empty;
+        //private static string locMapSlotCodeCoord1Mask = string.Empty;
+        //private static string locMapSlotCodeCoord2Mask = string.Empty;
+        //private static string locMapSlotCodeCoord3Mask = string.Empty;
+        //private static bool isSlotCoord1LocMapTracked = false;
+        //private static bool isSlotCoord2LocMapTracked = false;
+        //private static bool isSlotCoord3LocMapTracked = false;
 
         // maintains last selected location for ucSetLocationMap 
         private static SLocMap currLocMap = new SLocMap();
@@ -68,209 +65,209 @@ namespace dMobile.Bedrock
             }
         }
 
-        public bool IsWhsLocMapTracked
-        {
-            get
-            {
-                return isWhsLocMapTracked;
-            }
+        //public bool IsWhsLocMapTracked
+        //{
+        //    get
+        //    {
+        //        return isWhsLocMapTracked;
+        //    }
 
-            set
-            {
-                isWhsLocMapTracked = value;
-            }
-        }
+        //    set
+        //    {
+        //        isWhsLocMapTracked = value;
+        //    }
+        //}
 
-        public bool IsSectLocMapTracked
-        {
-            get
-            {
-                return isSectLocMapTracked;
-            }
+        //public bool IsSectLocMapTracked
+        //{
+        //    get
+        //    {
+        //        return isSectLocMapTracked;
+        //    }
 
-            set
-            {
-                isSectLocMapTracked = value;
-            }
-        }
+        //    set
+        //    {
+        //        isSectLocMapTracked = value;
+        //    }
+        //}
 
-        public bool IsSlotLocMapTracked
-        {
-            get
-            {
-                return isSlotLocMapTracked;
-            }
+        //public bool IsSlotLocMapTracked
+        //{
+        //    get
+        //    {
+        //        return isSlotLocMapTracked;
+        //    }
 
-            set
-            {
-                isSlotLocMapTracked = value;
-            }
-        }
+        //    set
+        //    {
+        //        isSlotLocMapTracked = value;
+        //    }
+        //}
 
-        public bool IsSlotCoord1LocMapTracked
-        {
-            get
-            {
-                return isSlotCoord1LocMapTracked;
-            }
+        //public bool IsSlotCoord1LocMapTracked
+        //{
+        //    get
+        //    {
+        //        return isSlotCoord1LocMapTracked;
+        //    }
 
-            set
-            {
-                isSlotCoord1LocMapTracked = value;
-            }
-        }
+        //    set
+        //    {
+        //        isSlotCoord1LocMapTracked = value;
+        //    }
+        //}
 
-        public bool IsSlotCoord2LocMapTracked
-        {
-            get
-            {
-                return isSlotCoord2LocMapTracked;
-            }
+        //public bool IsSlotCoord2LocMapTracked
+        //{
+        //    get
+        //    {
+        //        return isSlotCoord2LocMapTracked;
+        //    }
 
-            set
-            {
-                isSlotCoord2LocMapTracked = value;
-            }
-        }
+        //    set
+        //    {
+        //        isSlotCoord2LocMapTracked = value;
+        //    }
+        //}
 
-        public bool IsSlotCoord3LocMapTracked
-        {
-            get
-            {
-                return isSlotCoord3LocMapTracked;
-            }
+        //public bool IsSlotCoord3LocMapTracked
+        //{
+        //    get
+        //    {
+        //        return isSlotCoord3LocMapTracked;
+        //    }
 
-            set
-            {
-                isSlotCoord3LocMapTracked = value;
-            }
-        }
+        //    set
+        //    {
+        //        isSlotCoord3LocMapTracked = value;
+        //    }
+        //}
 
-        public string LocMapWhsCodeMask
-        {
-            get
-            {
-                return locMapWhsCodeMask;
-            }
+        //public string LocMapWhsCodeMask
+        //{
+        //    get
+        //    {
+        //        return locMapWhsCodeMask;
+        //    }
 
-            set
-            {
-                locMapWhsCodeMask = value;
-                if (string.IsNullOrEmpty(locMapWhsCodeMask))
-                {
-                    this.IsWhsLocMapTracked = false;
-                }
-                else
-                {
-                    this.IsWhsLocMapTracked = true;
-                }
-            }
-        }
+        //    set
+        //    {
+        //        locMapWhsCodeMask = value;
+        //        if (string.IsNullOrEmpty(locMapWhsCodeMask))
+        //        {
+        //            this.IsWhsLocMapTracked = false;
+        //        }
+        //        else
+        //        {
+        //            this.IsWhsLocMapTracked = true;
+        //        }
+        //    }
+        //}
 
-        public string LocMapSectCodeMask
-        {
-            get
-            {
-                return locMapSectCodeMask;
-            }
+        //public string LocMapSectCodeMask
+        //{
+        //    get
+        //    {
+        //        return locMapSectCodeMask;
+        //    }
 
-            set
-            {
-                locMapSectCodeMask = value;
-                if (string.IsNullOrEmpty(locMapSectCodeMask))
-                {
-                    this.IsSectLocMapTracked = false;
-                }
-                else
-                {
-                    this.IsSectLocMapTracked = true;
-                }
-            }
-        }
+        //    set
+        //    {
+        //        locMapSectCodeMask = value;
+        //        if (string.IsNullOrEmpty(locMapSectCodeMask))
+        //        {
+        //            this.IsSectLocMapTracked = false;
+        //        }
+        //        else
+        //        {
+        //            this.IsSectLocMapTracked = true;
+        //        }
+        //    }
+        //}
 
-        public string LocMapSlotCodeMask
-        {
-            get
-            {
-                return locMapSlotCodeMask;
-            }
+        //public string LocMapSlotCodeMask
+        //{
+        //    get
+        //    {
+        //        return locMapSlotCodeMask;
+        //    }
 
-            set
-            {
-                locMapSlotCodeMask = value;
-                if (string.IsNullOrEmpty(locMapSlotCodeMask))
-                {
-                    this.IsSlotLocMapTracked = false;
-                }
-                else
-                {
-                    this.IsSlotLocMapTracked = true;
-                }
-            }
-        }
+        //    set
+        //    {
+        //        locMapSlotCodeMask = value;
+        //        if (string.IsNullOrEmpty(locMapSlotCodeMask))
+        //        {
+        //            this.IsSlotLocMapTracked = false;
+        //        }
+        //        else
+        //        {
+        //            this.IsSlotLocMapTracked = true;
+        //        }
+        //    }
+        //}
 
-        public string LocMapSlotCodeCoord1Mask
-        {
-            get
-            {
-                return locMapSlotCodeCoord1Mask;
-            }
+        //public string LocMapSlotCodeCoord1Mask
+        //{
+        //    get
+        //    {
+        //        return locMapSlotCodeCoord1Mask;
+        //    }
 
-            set
-            {
-                locMapSlotCodeCoord1Mask = value;
-                if (string.IsNullOrEmpty(locMapSlotCodeCoord1Mask))
-                {
-                    this.IsSlotCoord1LocMapTracked = false;
-                }
-                else
-                {
-                    this.IsSlotCoord1LocMapTracked = true;
-                }
-            }
-        }
+        //    set
+        //    {
+        //        locMapSlotCodeCoord1Mask = value;
+        //        if (string.IsNullOrEmpty(locMapSlotCodeCoord1Mask))
+        //        {
+        //            this.IsSlotCoord1LocMapTracked = false;
+        //        }
+        //        else
+        //        {
+        //            this.IsSlotCoord1LocMapTracked = true;
+        //        }
+        //    }
+        //}
 
-        public string LocMapSlotCodeCoord2Mask
-        {
-            get
-            {
-                return locMapSlotCodeCoord2Mask;
-            }
+        //public string LocMapSlotCodeCoord2Mask
+        //{
+        //    get
+        //    {
+        //        return locMapSlotCodeCoord2Mask;
+        //    }
 
-            set
-            {
-                locMapSlotCodeCoord2Mask = value;
-                if (string.IsNullOrEmpty(locMapSlotCodeCoord2Mask))
-                {
-                    this.IsSlotCoord2LocMapTracked = false;
-                }
-                else
-                {
-                    this.IsSlotCoord2LocMapTracked = true;
-                }
-            }
-        }
+        //    set
+        //    {
+        //        locMapSlotCodeCoord2Mask = value;
+        //        if (string.IsNullOrEmpty(locMapSlotCodeCoord2Mask))
+        //        {
+        //            this.IsSlotCoord2LocMapTracked = false;
+        //        }
+        //        else
+        //        {
+        //            this.IsSlotCoord2LocMapTracked = true;
+        //        }
+        //    }
+        //}
 
-        public string LocMapSlotCodeCoord3Mask
-        {
-            get
-            {
-                return locMapSlotCodeCoord3Mask;
-            }
+        //public string LocMapSlotCodeCoord3Mask
+        //{
+        //    get
+        //    {
+        //        return locMapSlotCodeCoord3Mask;
+        //    }
 
-            set
-            {
-                locMapSlotCodeCoord3Mask = value;
-                if (string.IsNullOrEmpty(locMapSlotCodeCoord3Mask))
-                {
-                    this.IsSlotCoord3LocMapTracked = false;
-                }
-                else
-                {
-                    this.IsSlotCoord3LocMapTracked = true;
-                }
-            }
-        }
+        //    set
+        //    {
+        //        locMapSlotCodeCoord3Mask = value;
+        //        if (string.IsNullOrEmpty(locMapSlotCodeCoord3Mask))
+        //        {
+        //            this.IsSlotCoord3LocMapTracked = false;
+        //        }
+        //        else
+        //        {
+        //            this.IsSlotCoord3LocMapTracked = true;
+        //        }
+        //    }
+        //}
 
         public int CurrLocMapRefno
         {
@@ -350,12 +347,12 @@ namespace dMobile.Bedrock
         {
             SysEnvironment sysEnv = SysEnvironment.GetInstance();
 
-            this.LocMapWhsCodeMask = sysEnv.SysSettings.LocMapWarehouseMask;
-            this.LocMapSectCodeMask = sysEnv.SysSettings.LocMapSectionMask;
-            this.LocMapSlotCodeMask = sysEnv.SysSettings.LocMapSlotMask;
-            this.LocMapSlotCodeCoord1Mask = sysEnv.SysSettings.LocMapSlotCoord1Mask;
-            this.LocMapSlotCodeCoord2Mask = sysEnv.SysSettings.LocMapSlotCoord2Mask;
-            this.LocMapSlotCodeCoord3Mask = sysEnv.SysSettings.LocMapSlotCoord3Mask;
+            //this.LocMapWhsCodeMask = sysEnv.SysSettings.LocMapWarehouseMask;
+            //this.LocMapSectCodeMask = sysEnv.SysSettings.LocMapSectionMask;
+            //this.LocMapSlotCodeMask = sysEnv.SysSettings.LocMapSlotMask;
+            //this.LocMapSlotCodeCoord1Mask = sysEnv.SysSettings.LocMapSlotCoord1Mask;
+            //this.LocMapSlotCodeCoord2Mask = sysEnv.SysSettings.LocMapSlotCoord2Mask;
+            //this.LocMapSlotCodeCoord3Mask = sysEnv.SysSettings.LocMapSlotCoord3Mask;
         }
 
         #endregion

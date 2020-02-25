@@ -1,6 +1,7 @@
 namespace dMobile.Controller
 {
     using System;
+    using System.Collections.ObjectModel;
     using System.Data;
     using System.Data.SQLite;
     using System.Xml.Linq;
@@ -289,7 +290,7 @@ namespace dMobile.Controller
         /// 
         /// </summary>
         /// <param name="dg"></param>
-        //public abstract void DesignDataGrid(DataGrid dg);
+        //public abstract void DesignDataGrid(ref ObservableCollection<object> obeservableCollection, ref ListView dataGrid);
 
         /// <summary>
         /// 

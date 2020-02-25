@@ -60,7 +60,11 @@ namespace dMobile.Controller
                     actFactory = new RecvFactory();
                     break;
 
-                case SysCommon.ActSubTypes.Transfers:
+                case SysCommon.ActSubTypes.TransferFrom:
+                    actFactory = new TransferActivityFactory();
+                    break;
+
+                case SysCommon.ActSubTypes.TransferTo:
                     actFactory = new TransferActivityFactory();
                     break;
 

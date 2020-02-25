@@ -4,6 +4,10 @@
              x:Class="dMobile.View.App">
     <Application.Resources>
         <ResourceDictionary>
+            <OnPlatform x:Key="FramePadding"
+                        x:TypeArguments="Thickness"
+                        Android="0,0,0,0"
+                        />
             <!--Entry-->
             <Style TargetType="Entry">
                 <Setter Property="TextColor" Value="{DynamicResource PrimaryTextColor}"/>
@@ -34,7 +38,7 @@
             <Style TargetType="Frame" ApplyToDerivedTypes="True">
                 <Setter Property="BackgroundColor" Value="{DynamicResource SecondaryBackgroundColor}"/>
                 <Setter Property="HasShadow" Value="True"/>
-                <Setter Property="Padding" Value="10"/>
+                <Setter Property="Padding" Value="{StaticResource FramePadding}"/>
             </Style>
 
             <!--Picker-->

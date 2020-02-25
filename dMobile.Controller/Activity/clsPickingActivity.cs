@@ -600,8 +600,7 @@ namespace dMobile.Controller
 
             if (isResult)
             {
-                if (this.SysEnv.SysSettings.PickQtyUnderWarn
-                    != SysCommon.ActPickingQtyUnderValLevels.NoValidationOrWarning)
+                if (this.SysEnv.SysSettings.PickQtyUnderWarn != SysCommon.ActPickingQtyUnderValLevels.NoValidationOrWarning)
                 {
                     try
                     {
