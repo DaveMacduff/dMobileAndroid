@@ -15,6 +15,8 @@
         /// Defines the loading
         /// </summary>
         private bool loading;
+        private bool actionsVisible;
+        private string iconSource;
 
         /// <summary>
         /// Gets or sets a value indicating whether Loading
@@ -25,6 +27,31 @@
             set
             {
                 this.loading = value;
+                this.OnPropertyChanged();
+            }
+        }
+
+        public bool ActionsVisible
+        {
+            get { return this.actionsVisible; }
+            set
+            {
+                this.actionsVisible = value;
+                this.IconSource = this.actionsVisible ? Convert.ToString(Application.Current.Resources["ShowLessIcon"]) : Convert.ToString(Application.Current.Resources["ShowMoreIcon"]);
+                this.OnPropertyChanged();
+            }
+        }
+
+        public string IconSource
+        {
+            get
+            {
+                return iconSource;
+            }
+
+            set
+            {
+                this.iconSource = value;
                 this.OnPropertyChanged();
             }
         }
@@ -56,6 +83,7 @@
             this.tcs = new TaskCompletionSource<bool>();
             this.BindingContext = this;
             this.Loading = false;
+            this.IconSource = Convert.ToString(Application.Current.Resources["ShowMoreIcon"]);
         }
 
         /// <summary>
@@ -89,18 +117,18 @@
             {
                 if (Application.Current.MainPage is MasterDetailPage mainPage)
                 {
-                    await mainPage.Detail.Navigation.PushModalAsync(this);
+                    await Device.InvokeOnMainThreadAsync(async () => await mainPage.Detail.Navigation.PushModalAsync(new NavigationPage(this)));
                 }
                 else
                 {
-                    await Application.Current.MainPage.Navigation.PushModalAsync(this);
+                    await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.Navigation.PushModalAsync(new NavigationPage(this)));
                 }
 
                 await this.Closed;
             }
             catch (Exception ex)
             {
-                await DisplayAlert(Resource.Error, ex.Message, Resource.OK);
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(Resource.Error, ex.Message, Resource.OK));
             }
 
             return this.DialogResult;
@@ -116,16 +144,16 @@
             {
                 if (Application.Current.MainPage is MasterDetailPage mainPage)
                 {
-                    await mainPage.Detail.Navigation.PopModalAsync();
+                    await Device.InvokeOnMainThreadAsync(async () => await mainPage.Detail.Navigation.PopModalAsync());
                 }
                 else
                 {
-                    await Application.Current.MainPage.Navigation.PopModalAsync();
+                    await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.Navigation.PopModalAsync());
                 }
             }
             catch (Exception ex)
             {
-                await DisplayAlert(Resource.Error, ex.Message, Resource.OK);
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(Resource.Error, ex.Message, Resource.OK));
             }
         }
     }

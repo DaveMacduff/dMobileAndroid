@@ -9,6 +9,7 @@
     using dMobile.View.Forms;
     using System;
     using System.Text;
+    using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
     using Xamarin.Forms;
@@ -1154,118 +1155,121 @@
         /// <param name="sender"></param>
         /// <param name="oBarCodeScanArgs"></param>
         /// <remarks></remarks>
-        private void BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
+        private async void BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
             int prodUnitRefno = 0;
             BarCodeParse parse = null;
 
-            try
+            await Task.Run(async () =>
             {
-                this.ScannerDisable();
-
-                parse = scanArgs.ParseInfo;
-
-                // Global location identifier scanned
-                if (!string.IsNullOrEmpty(parse.LocationIdentifier))
+                try
                 {
-                    int locMapRefno = LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(parse.LocationIdentifier);
+                    this.ScannerDisable();
 
-                    this.LocMap.CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
+                    parse = scanArgs.ParseInfo;
 
-                    if (this.LocMap.CurrLocMap.WhsLocMapRefno == 0)
+                    // Global location identifier scanned
+                    if (!string.IsNullOrEmpty(parse.LocationIdentifier))
                     {
-                        throw new Exception("Unexpected result this.LocMap.CurrLocMap.WhsLocMapRefno == 0.");
-                    }
+                        int locMapRefno = LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(parse.LocationIdentifier);
 
-                    this.ActItem.LocMap = this.LocMap;
+                        this.LocMap.CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
 
-                    if (this.chkDefaultPicking.IsToggled)
-                    {
-                        this.NewLocMapDefPickingRefno = this.LocMap.CurrLocMapRefno;
-                    }
-                    else
-                    {
-                        this.NewLocMapDefPickingRefno = this.CurrLocMapDefPickingRefno;
-                    }
-
-                    if (this.chkDefaultReceiving.IsToggled)
-                    {
-                        this.NewLocMapDefRecvRefno = this.LocMap.CurrLocMapRefno;
-                    }
-                    else
-                    {
-                        this.NewLocMapDefRecvRefno = this.CurrLocMapDefRecvRefno;
-                    }
-
-                    this.DisplayData();
-                }
-                else
-                {
-                    // Product identifier
-                    if (!string.IsNullOrEmpty(parse.ProductIdentifier))
-                    {
-                        SysShared.IdentifyProductScanned(this.ActSubType, parse, ref prodUnitRefno);
-
-                        if (prodUnitRefno == 0)
+                        if (this.LocMap.CurrLocMap.WhsLocMapRefno == 0)
                         {
-                            this.CurrLocMapDefPickingRefno = 0;
-                            this.CurrLocMapDefRecvRefno = 0;
+                            throw new Exception("Unexpected result this.LocMap.CurrLocMap.WhsLocMapRefno == 0.");
+                        }
+
+                        this.ActItem.LocMap = this.LocMap;
+
+                        if (this.chkDefaultPicking.IsToggled)
+                        {
+                            this.NewLocMapDefPickingRefno = this.LocMap.CurrLocMapRefno;
                         }
                         else
                         {
-                            this.ActItem.ProdInfo = ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
-
-                            if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
-                            {
-                                this.CurrLocMapDefPickingRefno = LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(
-                                    this.LocMap.CurrLocMap.WhsLocMapRefno,
-                                    this.ActItem.ProdInfo.Refno,
-                                    SysCommon.ProdLocMapTypes.Picking);
-
-                                this.CurrLocMapDefRecvRefno = LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(
-                                    this.LocMap.CurrLocMap.WhsLocMapRefno,
-                                    this.ActItem.ProdInfo.Refno,
-                                    SysCommon.ProdLocMapTypes.Receiving);
-                            }
+                            this.NewLocMapDefPickingRefno = this.CurrLocMapDefPickingRefno;
                         }
 
-                        this.DisplayData();
-                    }
+                        if (this.chkDefaultReceiving.IsToggled)
+                        {
+                            this.NewLocMapDefRecvRefno = this.LocMap.CurrLocMapRefno;
+                        }
+                        else
+                        {
+                            this.NewLocMapDefRecvRefno = this.CurrLocMapDefRecvRefno;
+                        }
 
-                    // Activity item fk refno
-                    if (!string.IsNullOrEmpty(parse.ActItemFKRefno))
-                    {
-                        // TODO: Resource strings
-                        throw new Exception("Scanning a line item bar code is not supported here!");
+                        Device.BeginInvokeOnMainThread(() => this.DisplayData());
                     }
-
-                    // Activity detail fk refno
-                    if (!string.IsNullOrEmpty(parse.ActDetailFKRefno))
+                    else
                     {
-                        // TODO: Resource strings
-                        throw new Exception("Scanning a detail bar code is not supported here!");
-                    }
+                        // Product identifier
+                        if (!string.IsNullOrEmpty(parse.ProductIdentifier))
+                        {
+                            prodUnitRefno = await SysShared.IdentifyProductScanned(this.ActSubType, parse, prodUnitRefno);
 
-                    // Shipping container scanned, skid
-                    if (!string.IsNullOrEmpty(parse.SSCC18))
-                    {
-                        // TODO: Resource strings
-                        throw new Exception("Scanning an shipping container bar code is not supported here!");
+                            if (prodUnitRefno == 0)
+                            {
+                                this.CurrLocMapDefPickingRefno = 0;
+                                this.CurrLocMapDefRecvRefno = 0;
+                            }
+                            else
+                            {
+                                this.ActItem.ProdInfo = ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
+
+                                if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
+                                {
+                                    this.CurrLocMapDefPickingRefno = LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(
+                                        this.LocMap.CurrLocMap.WhsLocMapRefno,
+                                        this.ActItem.ProdInfo.Refno,
+                                        SysCommon.ProdLocMapTypes.Picking);
+
+                                    this.CurrLocMapDefRecvRefno = LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(
+                                        this.LocMap.CurrLocMap.WhsLocMapRefno,
+                                        this.ActItem.ProdInfo.Refno,
+                                        SysCommon.ProdLocMapTypes.Receiving);
+                                }
+                            }
+
+                            this.DisplayData();
+                        }
+
+                        // Activity item fk refno
+                        if (!string.IsNullOrEmpty(parse.ActItemFKRefno))
+                        {
+                            // TODO: Resource strings
+                            throw new Exception("Scanning a line item bar code is not supported here!");
+                        }
+
+                        // Activity detail fk refno
+                        if (!string.IsNullOrEmpty(parse.ActDetailFKRefno))
+                        {
+                            // TODO: Resource strings
+                            throw new Exception("Scanning a detail bar code is not supported here!");
+                        }
+
+                        // Shipping container scanned, skid
+                        if (!string.IsNullOrEmpty(parse.SSCC18))
+                        {
+                            // TODO: Resource strings
+                            throw new Exception("Scanning an shipping container bar code is not supported here!");
+                        }
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                Device.BeginInvokeOnMainThread(async () =>
+                catch (Exception ex)
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
-                    await errRpt.ShowDialog();
-                });
-            }
-            finally
-            {
-                this.ScannerEnable();
-            }
+                    Device.BeginInvokeOnMainThread(async () =>
+                    {
+                        FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                        await errRpt.ShowDialog();
+                    });
+                }
+                finally
+                {
+                    this.ScannerEnable();
+                }
+            });
         }
 
         /// <summary>

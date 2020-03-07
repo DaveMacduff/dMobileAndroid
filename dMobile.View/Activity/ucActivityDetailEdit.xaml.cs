@@ -2,12 +2,14 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data;
+using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
 using Android.Views;
 using dMobile.Bedrock;
 using dMobile.Controller;
 using dMobile.Resources.Enums;
+using dMobile.Resources.Types;
 using dMobile.View.CustomPages.Modal;
 using dMobile.View.Forms;
 using Xamarin.Forms;
@@ -111,6 +113,8 @@ namespace dMobile.View.Activity
                 {
                     this.dtProductionDate.Date = new DateTime(1900, 1, 1);
                 }
+
+                this.Title = this.GetControlDescription();
             }
         }
 
@@ -140,11 +144,42 @@ namespace dMobile.View.Activity
                 }
                 else if (keycode == Keycode.Grave)
                 {
-                    if (this.CancelChanges())
+                    if (this.SaveChanges())
                     {
+                        if (this.printLabels)
+                        {
+                            if (!this.SysEnv.SysSettings.IsPrintProductLabelsAsBatch)
+                            {
+                                // TODO: Resource strings
+                                if (await DisplayAlert(this.GetControlDescription(), "Print product labels?", "Yes", "No"))
+                                {
+                                    try
+                                    {
+                                        this.PrintProductLabels();
+                                    }
+                                    catch (Exceptions.MessageOnlyException ex)
+                                    {
+                                        // Even though an error was raised, during label printing allow the control to close.
+                                        ex.Show(this.ActSubType);
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        // Even though an error was raised, during label printing allow the control to close.
+
+                                        Device.BeginInvokeOnMainThread(async () =>
+                                        {
+                                            FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                                            await errRpt.ShowDialog();
+                                        });
+                                    }
+                                }
+                            }
+                        }
+
                         this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-                        await this.Close();
                     }
+
+                    await this.Close();
                 }
                 else if (keycode == Keycode.F1)
                 {
@@ -609,7 +644,8 @@ namespace dMobile.View.Activity
             catch (Exceptions.MessageOnlyException ex)
             {
                 isReadyToSave = false;
-                ex.Show(this.ActSubType);
+                //ex.Show(this.ActSubType);
+                Device.BeginInvokeOnMainThread(async () => await DisplayAlert(this.ActSubType.ToString(), ex.Message, "OK"));
             }
             catch (Exception ex)
             {
@@ -721,7 +757,9 @@ namespace dMobile.View.Activity
             catch (Exceptions.MessageOnlyException ex)
             {
                 saveComplete = false;
-                ex.Show(this.ActSubType);
+                //ex.Show(this.ActSubType);
+                // TODO: Resource strings
+                Device.BeginInvokeOnMainThread(async () => await DisplayAlert(this.ActSubType.ToString(), ex.Message, "OK"));
             }
             catch (Exception ex)
             {
@@ -925,7 +963,7 @@ namespace dMobile.View.Activity
                     actDetailLabel.ActExtra = this.ActDetailEdit.ActExtra;
 
                     FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucActivityProductLabel, actDetailLabel, this.ActSubType);
-                    form.DisplayControl.ShowDialog();
+                    form.DisplayControl.ShowDialog().ContinueWith(result => { });
                     // Printing of product labels will be handled in ucActivityProductLabel
                 }
                 else
@@ -943,7 +981,7 @@ namespace dMobile.View.Activity
 
                             if (errorDetail.Contains("MSGBOX-"))
                             {
-                                throw new MessageOnlyException(errorDetail);
+                                throw new Exceptions.MessageOnlyException(errorDetail);
                             }
                             else
                             {
@@ -1167,7 +1205,23 @@ namespace dMobile.View.Activity
         private void GetProductVariantList(int prodRefno)
         {
             this.DataViewVariants = this.ActDetailEdit.GetVariantDataView(prodRefno);
-            this.cboVariantCode.ItemsSource = this.DataViewVariants;
+            ObservableCollection<object> productVariantList = new ObservableCollection<object>();
+
+            foreach (DataRow row in this.DataViewVariants.ToTable().Rows)
+            {
+                ProductVariant productVariant = new ProductVariant()
+                {
+                    ProductSchemeVariantCode = Convert.ToString(row["ProductSchemeVariantCode"] != DBNull.Value ? row["ProductSchemeVariantCode"] : null),
+                    ProductSchemeVariantNo = Convert.ToInt32(row["ProductSchemeVariantNo"] != DBNull.Value ? row["ProductSchemeVariantNo"] : null),
+                    ProductSchemeVariantDisplay = Convert.ToString(row["ProductSchemeVariantDisplay"] != DBNull.Value ? row["ProductSchemeVariantDisplay"] : null),
+                };
+
+                productVariantList.Add(productVariant);
+            }
+
+            this.cboVariantCode.ItemDisplayBinding = new Binding("ProductSchemeVariantDisplay");
+            this.cboVariantCode.ItemsSource = productVariantList;
+            
             //this.cboVariantCode.ValueMember = "ProductSchemeVariantNo";
             //this.cboVariantCode.DisplayMember = "ProductSchemeVariantDisplay";
         }
@@ -1179,7 +1233,21 @@ namespace dMobile.View.Activity
         private void GetLotNumberList(int prodRefno)
         {
             this.DataViewLots = this.ActDetailEdit.GetLotDataView(prodRefno);
-            this.cboLotNo.ItemsSource = this.DataViewLots;
+            ObservableCollection<object> lotNumberList = new ObservableCollection<object>();
+
+            foreach (DataRow row in this.DataViewLots.ToTable().Rows)
+            {
+                LotNumber lotNumber = new LotNumber()
+                {
+                    ActivityDetailLogisticUnitBatchLotNumber = Convert.ToString(row["ActivityDetailLogisticUnitBatchLotNumber"] != DBNull.Value ? row["ActivityDetailLogisticUnitBatchLotNumber"] : null)
+                };
+
+                lotNumberList.Add(lotNumber);
+            }
+
+            this.cboLotNo.ItemDisplayBinding = new Binding("ActivityDetailLogisticUnitBatchLotNumber");
+            this.cboLotNo.ItemsSource = lotNumberList;
+            
             //this.cboLotNo.ValueMember = "ActivityDetailLogisticUnitBatchLotNumber";
             //this.cboLotNo.DisplayMember = "ActivityDetailLogisticUnitBatchLotNumber";
         }
@@ -1191,7 +1259,21 @@ namespace dMobile.View.Activity
         private void GetSerialNumberList(int prodRefno)
         {
             this.DataViewSerialNumbers = this.ActDetailEdit.GetSerialNumberDataView(prodRefno);
-            this.cboSerialNo.ItemsSource = this.DataViewSerialNumbers;
+            ObservableCollection<object> serialNumberList = new ObservableCollection<object>();
+
+            foreach (DataRow row in this.DataViewSerialNumbers.ToTable().Rows)
+            {
+                SerialNumber serialNumber = new SerialNumber()
+                {
+                     ActivityDetailSingleTradeItemSerialNumber = Convert.ToString(row["ActivityDetailSingleTradeItemSerialNumber"] != DBNull.Value ? row["ActivityDetailSingleTradeItemSerialNumber"] : null)
+                };
+
+                serialNumberList.Add(serialNumber);
+            }
+
+            this.cboSerialNo.ItemDisplayBinding = new Binding("ActivityDetailSingleTradeItemSerialNumber");
+            this.cboSerialNo.ItemsSource = serialNumberList;
+
             //this.cboSerialNo.ValueMember = "ActivityDetailSingleTradeItemSerialNumber";
             //this.cboSerialNo.DisplayMember = "ActivityDetailSingleTradeItemSerialNumber";
         }
@@ -1204,8 +1286,11 @@ namespace dMobile.View.Activity
         private void IsValidData()
         {
             SProductSchemeData s = this.ActDetailEdit.SchemeData;
-            s.SingleTradeItemSerialNumber = this.cboSerialNo.SelectedItem != null ? this.cboSerialNo.SelectedItem.ToString() : string.Empty;
-            s.LogisticUnitBatchLotNumber = this.cboLotNo.SelectedItem != null ? this.cboLotNo.SelectedItem.ToString() : string.Empty;
+            SerialNumber serialNumber = this.cboSerialNo.SelectedItem != null ? this.cboSerialNo.SelectedItem as SerialNumber : null;
+            LotNumber lotNumber = this.cboLotNo.SelectedItem != null ? this.cboLotNo.SelectedItem as LotNumber : null;
+
+            s.SingleTradeItemSerialNumber = serialNumber != null ? serialNumber.ActivityDetailSingleTradeItemSerialNumber : string.Empty;
+            s.LogisticUnitBatchLotNumber = lotNumber != null ? lotNumber.ActivityDetailLogisticUnitBatchLotNumber : string.Empty;
 
             if (this.ActDetail.ActItem.ProdInfo.Scheme.IsVariantTracked)
             {
@@ -1227,12 +1312,12 @@ namespace dMobile.View.Activity
             //if (!Information.IsNumeric(txtAltQty.Text))
             //{
             //    // TODO: Resource strings
-            //    throw new MessageOnlyException("Invalid quantity.");
+            //    throw new Exceptions.MessageOnlyException("Invalid quantity.");
             //}
             //else if (!Information.IsNumeric(txtWtQty.Text))
             //{
             //    // TODO: Resource strings
-            //    throw new MessageOnlyException("Invalid weight quantity.");
+            //    throw new Exceptions.MessageOnlyException("Invalid weight quantity.");
             //}
             //else
             //{
@@ -1244,7 +1329,7 @@ namespace dMobile.View.Activity
                 if (Math.Sign(this.ActDetailEdit.Quantity) != Math.Sign(this.ActDetailEdit.WeightQuantity))
                 {
                     // TODO: Resource strings
-                    throw new MessageOnlyException("The sign of quantities must be the same.");
+                    throw new Exceptions.MessageOnlyException("The sign of quantities must be the same.");
                 }
             }
 
@@ -1268,25 +1353,25 @@ namespace dMobile.View.Activity
             if (decimal.Parse(this.txtAltQty.Text) == 0 && decimal.Parse(this.txtWtQty.Text) == 0)
             {
                 // TODO: Resource strings
-                throw new MessageOnlyException("Both quantity and weight quantity cannot be zero.");
+                throw new Exceptions.MessageOnlyException("Both quantity and weight quantity cannot be zero.");
             }
 
             if (this.ActDetail.ActItem.ProdInfo.Scheme.IsSerialTracked && this.ActDetailEdit.SchemeData.SingleTradeItemSerialNumber == string.Empty)
             {
                 // TODO: Resource strings
-                throw new MessageOnlyException("Serial number required.");
+                throw new Exceptions.MessageOnlyException("Serial number required.");
             }
 
             if (this.ActDetail.ActItem.ProdInfo.Scheme.IsLotTracked && this.ActDetailEdit.SchemeData.LogisticUnitBatchLotNumber == string.Empty)
             {
                 // TODO: Resource strings
-                throw new MessageOnlyException("Lot number required.");
+                throw new Exceptions.MessageOnlyException("Lot number required.");
             }
 
             if (this.ActDetail.ActItem.ProdInfo.Scheme.IsBestBeforeDateTracked && SysCommon.IsEmptyDateTime(this.ActDetailEdit.SchemeData.LogisticUnitBestBeforeSellByDate))
             {
                 // TODO: Resource strings
-                throw new MessageOnlyException("Best before date required.");
+                throw new Exceptions.MessageOnlyException("Best before date required.");
             }
 
             if (this.ActDetail.ActItem.ProdInfo.Scheme.IsBestBeforeDateTracked && this.SysEnv.SysSettings.DetailDateMinMaxValidYearRange != 0)
@@ -1297,14 +1382,14 @@ namespace dMobile.View.Activity
                 if (this.dtBestBeforeDate.Date < lower || this.dtBestBeforeDate.Date > upper)
                 {
                     // TODO: Resource strings
-                    throw new MessageOnlyException("The entered best before date is outside an acceptable range.");
+                    throw new Exceptions.MessageOnlyException("The entered best before date is outside an acceptable range.");
                 }
             }
 
             if (this.ActDetail.ActItem.ProdInfo.Scheme.IsProductionDateTracked && SysCommon.IsEmptyDateTime(this.ActDetailEdit.SchemeData.LogisticUnitProductionDate))
             {
                 // TODO: Resource strings
-                throw new MessageOnlyException("Production date required.");
+                throw new Exceptions.MessageOnlyException("Production date required.");
             }
 
             if (this.ActDetail.ActItem.ProdInfo.Scheme.IsProductionDateTracked && this.SysEnv.SysSettings.DetailDateMinMaxValidYearRange != 0)
@@ -1315,44 +1400,44 @@ namespace dMobile.View.Activity
                 if (this.dtProductionDate.Date < lower || this.dtProductionDate.Date > upper)
                 {
                     // TODO: Resource strings
-                    throw new MessageOnlyException("The entered production date is outside an acceptable range.");
+                    throw new Exceptions.MessageOnlyException("The entered production date is outside an acceptable range.");
                 }
             }
 
             if (this.ActDetail.ActItem.ProdInfo.Scheme.IsVariantTracked && this.ActDetailEdit.SchemeData.VariantCode == string.Empty)
             {
                 // TODO: Resource strings
-                throw new MessageOnlyException("Variant code required.");
+                throw new Exceptions.MessageOnlyException("Variant code required.");
             }
 
             if (this.ActDetail.ActItem.ProdInfo.Scheme.Extra1Type != (int)SysCommon.SchemeExtraTypes.Disabled && this.ActDetail.ActItem.ProdInfo.Scheme.Extra1IsRequired && string.IsNullOrEmpty(this.ActDetailEdit.ActExtra.Text1))
             {
                 // TODO: Resource strings
-                throw new MessageOnlyException(this.ActDetail.ActItem.ProdInfo.Scheme.Extra1Caption.TrimEnd() + " is required.");
+                throw new Exceptions.MessageOnlyException(this.ActDetail.ActItem.ProdInfo.Scheme.Extra1Caption.TrimEnd() + " is required.");
             }
 
             if (this.ActDetail.ActItem.ProdInfo.Scheme.Extra2Type != (int)SysCommon.SchemeExtraTypes.Disabled && this.ActDetail.ActItem.ProdInfo.Scheme.Extra2IsRequired && string.IsNullOrEmpty(this.ActDetailEdit.ActExtra.Text2))
             {
                 // TODO: Resource strings
-                throw new MessageOnlyException(this.ActDetail.ActItem.ProdInfo.Scheme.Extra2Caption.TrimEnd() + " is required.");
+                throw new Exceptions.MessageOnlyException(this.ActDetail.ActItem.ProdInfo.Scheme.Extra2Caption.TrimEnd() + " is required.");
             }
 
             if (this.ActDetail.ActItem.ProdInfo.Scheme.Extra3Type != (int)SysCommon.SchemeExtraTypes.Disabled && this.ActDetail.ActItem.ProdInfo.Scheme.Extra3IsRequired && string.IsNullOrEmpty(this.ActDetailEdit.ActExtra.Text3))
             {
                 // TODO: Resource strings
-                throw new MessageOnlyException(this.ActDetail.ActItem.ProdInfo.Scheme.Extra3Caption.TrimEnd() + " is required.");
+                throw new Exceptions.MessageOnlyException(this.ActDetail.ActItem.ProdInfo.Scheme.Extra3Caption.TrimEnd() + " is required.");
             }
 
             if (this.ActDetail.ActItem.ProdInfo.Scheme.Extra4Type != (int)SysCommon.SchemeExtraTypes.Disabled && this.ActDetail.ActItem.ProdInfo.Scheme.Extra4IsRequired && string.IsNullOrEmpty(this.ActDetailEdit.ActExtra.Text4))
             {
                 // TODO: Resource strings
-                throw new MessageOnlyException(this.ActDetail.ActItem.ProdInfo.Scheme.Extra4Caption.TrimEnd() + " is required.");
+                throw new Exceptions.MessageOnlyException(this.ActDetail.ActItem.ProdInfo.Scheme.Extra4Caption.TrimEnd() + " is required.");
             }
 
             if (this.ActDetail.ActItem.ProdInfo.Scheme.Extra5Type != (int)SysCommon.SchemeExtraTypes.Disabled && this.ActDetail.ActItem.ProdInfo.Scheme.Extra5IsRequired && string.IsNullOrEmpty(this.ActDetailEdit.ActExtra.Text5))
             {
                 // TODO: Resource strings
-                throw new MessageOnlyException(this.ActDetail.ActItem.ProdInfo.Scheme.Extra5Caption.TrimEnd() + " is required.");
+                throw new Exceptions.MessageOnlyException(this.ActDetail.ActItem.ProdInfo.Scheme.Extra5Caption.TrimEnd() + " is required.");
             }
 
             this.ActDetail.UniqueSchemeID = ProductInfoTasks.GetActUniqueSchemeIDFromSProdSchemeData(
@@ -1397,108 +1482,121 @@ namespace dMobile.View.Activity
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        private void ucActivityDetailEdit_GotFocus(object sender, EventArgs e)
+        private async Task ucActivityDetailEdit_GotFocus(object sender, EventArgs e)
         {
-            if (!SysEnvironment.GetInstance().IsApplicationExitInvoked)
+            await Task.Run(() =>
             {
-                if (!this.IsControlLoaded)
+                this.Loading = true;
+
+                if (!SysEnvironment.GetInstance().IsApplicationExitInvoked)
                 {
-                    ProductInfo prodInfo = this.ActDetail.ActItem.ProdInfo;
-                    ProdScheme scheme = prodInfo.Scheme;
-                    this.lblUnit.Text = prodInfo.UnitCode;
-                    this.lblWtUnit.Text = prodInfo.WeightUnitCode;
-
-                    if (!scheme.IsBestBeforeDateTracked)
+                    if (!this.IsControlLoaded)
                     {
-                        this.dtBestBeforeDate.IsEnabled = false;
-                    }
+                        ProductInfo prodInfo = this.ActDetail.ActItem.ProdInfo;
+                        ProdScheme scheme = prodInfo.Scheme;
 
-                    if (!scheme.IsProductionDateTracked)
-                    {
-                        this.dtProductionDate.IsEnabled = false;
-                    }
-
-                    if (!scheme.IsLotTracked)
-                    {
-                        this.cboLotNo.IsEnabled = false;
-                    }
-
-                    if (!scheme.IsSerialTracked)
-                    {
-                        this.cboSerialNo.IsEnabled = false;
-                    }
-
-                    if (!scheme.IsVariantTracked)
-                    {
-                        this.cboVariantCode.IsEnabled = false;
-                    }
-
-                    if (!prodInfo.IsCatchWeight || (prodInfo.UnitCode == "LB" || prodInfo.UnitCode == "KG"))
-                    {
-                        this.txtWtQty.IsEnabled = false;
-                    }
-
-                    if (scheme.Extra1Type == (int)SysCommon.SchemeExtraTypes.Disabled)
-                    {
-                        this.txtExtraDetail1.IsEnabled = false;
-                    }
-
-                    if (scheme.Extra2Type == (int)SysCommon.SchemeExtraTypes.Disabled)
-                    {
-                        this.txtExtraDetail2.IsEnabled = false;
-                    }
-
-                    if (scheme.Extra3Type == (int)SysCommon.SchemeExtraTypes.Disabled)
-                    {
-                        this.txtExtraDetail3.IsEnabled = false;
-                    }
-
-                    if (scheme.Extra4Type == (int)SysCommon.SchemeExtraTypes.Disabled)
-                    {
-                        this.txtExtraDetail4.IsEnabled = false;
-                    }
-
-                    if (scheme.Extra5Type == (int)SysCommon.SchemeExtraTypes.Disabled)
-                    {
-                        this.txtExtraDetail5.IsEnabled = false;
-                    }
-
-                    this.GetProductVariantList(prodInfo.Refno);
-                    this.GetSerialNumberList(prodInfo.Refno);
-                    this.GetLotNumberList(prodInfo.Refno);
-
-                    this.LoadData();
-                    this.ShowProductInfo();
-
-                    if (this.SysEnv.SysSettings.IsDetailEditScreenSetFocus2CatchWeight)
-                    {
-                        if (prodInfo.IsCatchWeight)
+                        Device.BeginInvokeOnMainThread(() =>
                         {
-                            //this.txtWtQty.Focus();
+                            this.lblUnit.Text = prodInfo.UnitCode;
+                            this.lblWtUnit.Text = prodInfo.WeightUnitCode;
+                        });
+
+                        if (!scheme.IsBestBeforeDateTracked)
+                        {
+                            Device.BeginInvokeOnMainThread(() => this.dtBestBeforeDate.IsEnabled = false);
+                        }
+
+                        if (!scheme.IsProductionDateTracked)
+                        {
+                            Device.BeginInvokeOnMainThread(() => this.dtProductionDate.IsEnabled = false);
+                        }
+
+                        if (!scheme.IsLotTracked)
+                        {
+                            Device.BeginInvokeOnMainThread(() => this.cboLotNo.IsEnabled = false);
+                        }
+
+                        if (!scheme.IsSerialTracked)
+                        {
+                            Device.BeginInvokeOnMainThread(() => this.cboSerialNo.IsEnabled = false);
+                        }
+
+                        if (!scheme.IsVariantTracked)
+                        {
+                            Device.BeginInvokeOnMainThread(() => this.cboVariantCode.IsEnabled = false);
+                        }
+
+                        if (!prodInfo.IsCatchWeight || (prodInfo.UnitCode == "LB" || prodInfo.UnitCode == "KG"))
+                        {
+                            Device.BeginInvokeOnMainThread(() => this.txtWtQty.IsEnabled = false);
+                        }
+
+                        if (scheme.Extra1Type == (int)SysCommon.SchemeExtraTypes.Disabled)
+                        {
+                            Device.BeginInvokeOnMainThread(() => this.txtExtraDetail1.IsEnabled = false);
+                        }
+
+                        if (scheme.Extra2Type == (int)SysCommon.SchemeExtraTypes.Disabled)
+                        {
+                            Device.BeginInvokeOnMainThread(() => this.txtExtraDetail2.IsEnabled = false);
+                        }
+
+                        if (scheme.Extra3Type == (int)SysCommon.SchemeExtraTypes.Disabled)
+                        {
+                            Device.BeginInvokeOnMainThread(() => this.txtExtraDetail3.IsEnabled = false);
+                        }
+
+                        if (scheme.Extra4Type == (int)SysCommon.SchemeExtraTypes.Disabled)
+                        {
+                            Device.BeginInvokeOnMainThread(() => this.txtExtraDetail4.IsEnabled = false);
+                        }
+
+                        if (scheme.Extra5Type == (int)SysCommon.SchemeExtraTypes.Disabled)
+                        {
+                            Device.BeginInvokeOnMainThread(() => this.txtExtraDetail5.IsEnabled = false);
+                        }
+
+                        Device.BeginInvokeOnMainThread(() =>
+                        {
+                            this.GetProductVariantList(prodInfo.Refno);
+                            this.GetSerialNumberList(prodInfo.Refno);
+                            this.GetLotNumberList(prodInfo.Refno);
+
+                            this.LoadData();
+                            this.ShowProductInfo();
+                        });
+
+                        if (this.SysEnv.SysSettings.IsDetailEditScreenSetFocus2CatchWeight)
+                        {
+                            if (prodInfo.IsCatchWeight)
+                            {
+                                //this.txtWtQty.Focus();
+                            }
+                            else
+                            {
+                                //this.txtAltQty.Focus();
+                            }
                         }
                         else
                         {
-                            //this.txtAltQty.Focus();
+                            if (scheme.IsSerialTracked && prodInfo.IsCatchWeight)
+                            {
+                                //this.txtWtQty.Focus();
+                            }
+                            else
+                            {
+                                //this.txtAltQty.Focus();
+                            }
                         }
                     }
-                    else
-                    {
-                        if (scheme.IsSerialTracked && prodInfo.IsCatchWeight)
-                        {
-                            //this.txtWtQty.Focus();
-                        }
-                        else
-                        {
-                            //this.txtAltQty.Focus();
-                        }
-                    }
+
+                    this.ReqCancelEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                    this.ReqSaveEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+
+                    this.IsControlLoaded = true;
+                    this.Loading = false;
                 }
-
-                this.ReqCancelEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-                this.ReqSaveEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-
-                this.IsControlLoaded = true;
-            }
+            });
         }
 
         /// <summary>
@@ -1583,8 +1681,42 @@ namespace dMobile.View.Activity
 
         private async void BtnSave_Clicked(object sender, EventArgs e)
         {
-            this.DialogResult = DialogResult.OK;
-            await this.Close();
+            if (this.SaveChanges())
+            {
+                if (this.printLabels)
+                {
+                    if (!this.SysEnv.SysSettings.IsPrintProductLabelsAsBatch)
+                    {
+                        // TODO: Resource strings
+                        if (await DisplayAlert(this.GetControlDescription(), "Print product labels?", "Yes", "No"))
+                        {
+                            try
+                            {
+                                this.PrintProductLabels();
+                            }
+                            catch (Exceptions.MessageOnlyException ex)
+                            {
+                                // Even though an error was raised, during label printing allow the control to close.
+                                ex.Show(this.ActSubType);
+                            }
+                            catch (Exception ex)
+                            {
+                                // Even though an error was raised, during label printing allow the control to close.
+
+                                Device.BeginInvokeOnMainThread(async () =>
+                                {
+                                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                                    await errRpt.ShowDialog();
+                                });
+                            }
+                        }
+                    }
+                }
+
+                this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                this.DialogResult = DialogResult.OK;
+                await this.Close();
+            }
         }
 
         private async void BtnCancel_Clicked(object sender, EventArgs e)

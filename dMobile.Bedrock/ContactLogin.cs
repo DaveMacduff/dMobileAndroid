@@ -5,12 +5,11 @@ namespace dMobile.Bedrock
     using System.Data.SQLite;
     using System.IO;
     using System.Net.Sockets;
-    using System.Reflection;
     using System.Text;
     using System.Xml;
     using System.Xml.Linq;
     using System.Xml.Serialization;
-    using Microsoft.VisualBasic;
+   
 
     [Serializable]
     public class ContactLogin : IContactLoginEventPublisher, ISysSocketEventListener

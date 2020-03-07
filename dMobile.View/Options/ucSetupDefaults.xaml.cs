@@ -1,6 +1,4 @@
-﻿namespace dMobile.View.Options
-{
-    using dMobile.View.CustomPages;
+﻿    using dMobile.View.CustomPages;
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
@@ -17,6 +15,8 @@
     using dMobile.View.Themes;
     using System.Collections.ObjectModel;
 
+namespace dMobile.View.Options
+{
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ucSetupDefaults : DMobileContentPage, IAppPublisher
     {
@@ -478,7 +478,7 @@
                         {
                             if (result.Result)
                             {
-                                FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucRefreshDataStatus, SysCommon.ActSubTypes.PurgeActivityData /*this*/);
+                                FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucRefreshDataStatus, SysCommon.ActSubTypes.PurgeActivityData);
                                 Device.BeginInvokeOnMainThread(async () => await form.DisplayControl.ShowDialog().ContinueWith(_ =>
                                 {
                                     form.SaveChanges(this, new EventArgs());
@@ -497,13 +497,6 @@
                             }
                         });
                     }
-                    //else
-                    //{
-                    //    this.chkDisconnectMode.IsToggled = this.SysEnv.SysSettings.IsDisconnectedMode;
-                    //    this.chkDisconnectedModeLoadDetail.IsToggled = this.SysEnv.SysSettings.IsDisconnectedModeLoadDetail;
-                    //    this.chkVerifyLocationWhenProductChanged.IsToggled = this.SysEnv.SysSettings.IsVerifyProductLocation;
-                    //    this.chkPrintProductLabelsAsBatch.IsToggled = this.SysEnv.SysSettings.IsPrintProductLabelsAsBatch;
-                    //}
 
                     this.SysEnv.SysSettings.IsDisconnectedMode = this.chkDisconnectMode.IsToggled;
                     this.SysEnv.SysSettings.IsDisconnectedModeLoadDetail = this.chkDisconnectedModeLoadDetail.IsToggled;

@@ -499,11 +499,11 @@ namespace dMobile.View
                         {
                             this.SysEnv.ContactLog.SubmitContactLogOut();
                         }
-                        catch (SocketException ex)
+                        catch (SocketException)
                         {
                             // do nothing if login failed
-                            FormErrorReport errReport = new FormErrorReport(SysCommon.ActSubTypes.LoginStartup, ex);
-                            Device.BeginInvokeOnMainThread(async () => await errReport.ShowDialog());
+                            //FormErrorReport errReport = new FormErrorReport(SysCommon.ActSubTypes.LoginStartup, ex);
+                            //Device.BeginInvokeOnMainThread(async () => await errReport.ShowDialog());
                         }
                         catch (Exception ex)
                         {
@@ -584,11 +584,9 @@ namespace dMobile.View
                         {
                             this.SysEnv.ContactLog.SubmitContactLogIn();
                         }
-                        catch (SocketException ex)
+                        catch (SocketException)
                         {
                             // do nothing if login failed
-                            FormErrorReport errReport = new FormErrorReport(SysCommon.ActSubTypes.LoginStartup, ex);
-                            Device.BeginInvokeOnMainThread(async () => await errReport.ShowDialog());
                         }
                         catch (Exception ex)
                         {
@@ -778,13 +776,13 @@ namespace dMobile.View
 
             using (SQLiteCommand cmnd = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
             {
-                cmnd.CommandText = "SELECT LocationMapRefno, LocationMapWarehouseName FROM tLocationMapWarehouse";
+                cmnd.CommandText = "SELECT LocationMapRefno, LocationMapWarehouseCode, LocationMapWarehouseName FROM tLocationMapWarehouse";
 
                 using(SQLiteDataReader reader = cmnd.ExecuteReader())
                 {
                     while (reader.Read())
                     {
-                        dataViewLocMapWhs.Add(new Warehouse(reader.GetInt32(0), reader.GetString(1)));
+                        dataViewLocMapWhs.Add(new Warehouse(reader.GetInt32(0), reader.GetInt32(1), reader.GetString(2)));
                     }
                 }
             }
@@ -793,9 +791,9 @@ namespace dMobile.View
             {
                 this.lstWarehouse.ItemsSource = dataViewLocMapWhs;
                 this.lstWarehouse.ItemDisplayBinding = new Binding("DisplayName");
-                Warehouse selectedWarehouse = dataViewLocMapWhs.Where(warehouse => warehouse.Id == this.SysEnv.ContactLog.WarehouseLocationMapRefno).FirstOrDefault();
+                Warehouse selectedWarehouse = dataViewLocMapWhs.Where(warehouse => warehouse.LocationMapRefno == this.SysEnv.ContactLog.WarehouseLocationMapRefno).FirstOrDefault();
                 this.lstWarehouse.SelectedIndex = this.lstWarehouse.ItemsSource.IndexOf(selectedWarehouse);
-                this.lstWarehouse.SelectedValue = selectedWarehouse.Id;
+                this.lstWarehouse.SelectedValue = selectedWarehouse.LocationMapRefno;
             }
         }
 
@@ -1082,7 +1080,7 @@ namespace dMobile.View
         private void LstWarehouse_SelectedIndexChanged(object sender, EventArgs e)
         {
             Warehouse selectedWarehouse = (Warehouse)this.lstWarehouse.SelectedItem;
-            this.lstWarehouse.SelectedValue = selectedWarehouse.Id;
+            this.lstWarehouse.SelectedValue = selectedWarehouse.LocationMapRefno;
         }
     }
 }

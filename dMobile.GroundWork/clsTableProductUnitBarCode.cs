@@ -210,6 +210,7 @@ namespace dMobile.GroundWork
                     sett.IgnoreWhitespace = false;
                     sett.ValidationFlags = System.Xml.Schema.XmlSchemaValidationFlags.None;
                     sett.ValidationType = ValidationType.None;
+
                     using (StringReader stringReader = new StringReader(reqData.Substring(startIndex)))
                     using (XmlReader reader = XmlReader.Create(stringReader, sett))
                     {
@@ -373,9 +374,9 @@ namespace dMobile.GroundWork
                             cmndProdUnit.CommandText = "SELECT * FROM tProductUnit WHERE ProductRefno = @productRefno AND UnitRefno = @unitRefno AND ProductUnitIsBC = @productUnitIsBC";
                             cmndProdUnit.CommandType = CommandType.Text;
                             //cmndProdUnit.IndexName = "UQ_ProductUnitOnProductRefnoAndUnitRefnoAndProductUnitIsBC";
-                            cmndProdUnit.Parameters.Add(new SQLiteParameter("@productRefno", prodRefno));
-                            cmndProdUnit.Parameters.Add(new SQLiteParameter("@unitRefno", unitRefno));
-                            cmndProdUnit.Parameters.Add(new SQLiteParameter("@productUnitIsBC", prodUnitBarCodeIsBC));
+                            cmndProdUnit.Parameters.Add(new SQLiteParameter("@productRefno", Convert.ToInt32(prodRefno)));
+                            cmndProdUnit.Parameters.Add(new SQLiteParameter("@unitRefno", Convert.ToInt32(unitRefno)));
+                            cmndProdUnit.Parameters.Add(new SQLiteParameter("@productUnitIsBC", Convert.ToInt32(prodUnitBarCodeIsBC)));
 
                             using (SQLiteDataReader drProdUnit = cmndProdUnit.ExecuteReader())
                             {
@@ -400,36 +401,36 @@ namespace dMobile.GroundWork
 
                             isProdUnitBarCodeFound = false;
 
-                            // TODO: Uncomment SysEnv.RefreshOpt.RefreshDataChangesOnly
-                            //if (SysEnv.RefreshOpt.RefreshDataChangesOnly)
-                            //{
-                            cmndProdUnitBar.CommandText = "SELECT ProductUnitBarCodeCode, ProductUnitBarCodeModifier1 FROM tProductUnitBarCode WHERE ProductUnitBarCodeCode = @productUnitBarCodeCode AND ProductUnitBarCodeModifier1 = @productUnitBarCodeModifier1";
-                            cmndProdUnitBar.CommandType = CommandType.Text;
-                            //cmndProdUnitBar.IndexName = "UQ_ProductUnitBarCodeOnProductUnitBarCodeCodeAndProductUnitBarCodeModifier1";
-                            cmndProdUnitBar.Parameters.Add(new SQLiteParameter("@productUnitBarCodeCode", prodUnitBarCodeCode));
-                            cmndProdUnitBar.Parameters.Add(new SQLiteParameter("@productUnitBarCodeModifier1", prodUnitBarCodeModifier1));
-
-                            using (SQLiteDataReader drProdUnitBar = cmndProdUnitBar.ExecuteReader())
+                            if (SysEnv.RefreshOpt.RefreshDataChangesOnly)
                             {
-                                //if (drProdUnitBar.Seek(DbSeekOptions.FirstEqual, new object[] { prodUnitBarCodeCode, prodUnitBarCodeModifier1 }))
-                                if (drProdUnitBar.Read())
+                                cmndProdUnitBar.CommandText = "SELECT ProductUnitBarCodeCode, ProductUnitBarCodeModifier1 FROM tProductUnitBarCode WHERE ProductUnitBarCodeCode = @productUnitBarCodeCode AND ProductUnitBarCodeModifier1 = @productUnitBarCodeModifier1";
+                                cmndProdUnitBar.CommandType = CommandType.Text;
+                                //cmndProdUnitBar.IndexName = "UQ_ProductUnitBarCodeOnProductUnitBarCodeCodeAndProductUnitBarCodeModifier1";
+                                cmndProdUnitBar.Parameters.Add(new SQLiteParameter("@productUnitBarCodeCode", prodUnitBarCodeCode));
+                                cmndProdUnitBar.Parameters.Add(new SQLiteParameter("@productUnitBarCodeModifier1", prodUnitBarCodeModifier1));
+
+                                using (SQLiteDataReader drProdUnitBar = cmndProdUnitBar.ExecuteReader())
                                 {
-                                    isProdUnitBarCodeFound = true;
+                                    //if (drProdUnitBar.Seek(DbSeekOptions.FirstEqual, new object[] { prodUnitBarCodeCode, prodUnitBarCodeModifier1 }))
+                                    if (drProdUnitBar.Read())
+                                    {
+                                        isProdUnitBarCodeFound = true;
 
-                                    cmndProdUnitBarUpdate.CommandText = "UPDATE tProductUnitBarCode " +
-                                        "SET ProductUnitRefno = @prodUnitRefno, " +
-                                        "ProductUnitBarCodeSymbologyEnum = @prodUnitBarCodeSymbologyEnum, " +
-                                        "ProductUnitBarCodeStatus = @productUnitBarCodeStatus " +
-                                        "WHERE ProductUnitBarCodeCode = @prodUnitBarCodeCode " +
-                                        "AND ProductUnitBarCodeModifier1 = @prodUnitBarCodeModifier1";
-                                    cmndProdUnitBarUpdate.CommandType = CommandType.Text;
-                                    cmndProdUnitBarUpdate.Parameters.Add(new SQLiteParameter("@prodUnitRefno", prodUnitRefno));
-                                    cmndProdUnitBarUpdate.Parameters.Add(new SQLiteParameter("@prodUnitBarCodeSymbologyEnum", prodUnitBarCodeSymbologyEnum));
-                                    cmndProdUnitBarUpdate.Parameters.Add(new SQLiteParameter("@productUnitBarCodeStatus", Convert.ToInt32(SysCommon.ActStatus.NoChange)));
-                                    cmndProdUnitBarUpdate.Parameters.Add(new SQLiteParameter("@prodUnitBarCodeCode", prodUnitBarCodeCode));
-                                    cmndProdUnitBarUpdate.Parameters.Add(new SQLiteParameter("@prodUnitBarCodeModifier1", prodUnitBarCodeModifier1));
+                                        cmndProdUnitBarUpdate.CommandText = "UPDATE tProductUnitBarCode " +
+                                            "SET ProductUnitRefno = @prodUnitRefno, " +
+                                            "ProductUnitBarCodeSymbologyEnum = @prodUnitBarCodeSymbologyEnum, " +
+                                            "ProductUnitBarCodeStatus = @productUnitBarCodeStatus " +
+                                            "WHERE ProductUnitBarCodeCode = @prodUnitBarCodeCode " +
+                                            "AND ProductUnitBarCodeModifier1 = @prodUnitBarCodeModifier1";
+                                        cmndProdUnitBarUpdate.CommandType = CommandType.Text;
+                                        cmndProdUnitBarUpdate.Parameters.Add(new SQLiteParameter("@prodUnitRefno", prodUnitRefno));
+                                        cmndProdUnitBarUpdate.Parameters.Add(new SQLiteParameter("@prodUnitBarCodeSymbologyEnum", prodUnitBarCodeSymbologyEnum));
+                                        cmndProdUnitBarUpdate.Parameters.Add(new SQLiteParameter("@productUnitBarCodeStatus", Convert.ToInt32(SysCommon.ActStatus.NoChange)));
+                                        cmndProdUnitBarUpdate.Parameters.Add(new SQLiteParameter("@prodUnitBarCodeCode", prodUnitBarCodeCode));
+                                        cmndProdUnitBarUpdate.Parameters.Add(new SQLiteParameter("@prodUnitBarCodeModifier1", prodUnitBarCodeModifier1));
 
-                                    cmndProdUnitBarUpdate.ExecuteNonQuery();
+                                        cmndProdUnitBarUpdate.ExecuteNonQuery();
+                                    }
                                 }
                             }
 

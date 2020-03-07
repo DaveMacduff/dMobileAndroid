@@ -721,7 +721,7 @@ namespace dMobile.View.Forms
                     break;
 
                 case EDialogTypes.ucActivityHdrReceivingFilter:
-                    //control = new ucActivityHdrReceivingFilter(/*callingControl*/);
+                    control = new ucActivityHdrReceivingFilter();
                     break;
 
                 case EDialogTypes.ucActivityHdrPhysicalCountFilter:

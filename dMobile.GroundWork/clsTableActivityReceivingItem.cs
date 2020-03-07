@@ -42,7 +42,7 @@ namespace dMobile.GroundWork
                 {
                     using (SQLiteCommand cmndRecv = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
                     {
-                        cmndRecv.CommandText = "SELECT ActivityRefno FROM tActivity WHERE ActivitySubType = @activitySubType";
+                        cmndRecv.CommandText = "SELECT * FROM tActivity WHERE ActivitySubType = @activitySubType";
                         cmndRecv.CommandType = CommandType.Text;
                         cmndRecv.Parameters.Add(new SQLiteParameter("@activitySubType", Convert.ToInt32(SysCommon.ActSubTypes.Receiving)));
 
@@ -343,7 +343,7 @@ namespace dMobile.GroundWork
                                 cmndItem.CommandType = CommandType.Text;
                                 cmndItem.Parameters.Add(new SQLiteParameter("@activityItemSubType", Convert.ToInt32(SysCommon.ActSubTypes.Receiving)));
                                 cmndItem.Parameters.Add(new SQLiteParameter("@activityItemStatus", Convert.ToInt32(0)));
-                                cmndItem.Parameters.Add(new SQLiteParameter("@activityRefno", actRefno));
+                                cmndItem.Parameters.Add(new SQLiteParameter("@activityRefno", Convert.ToInt32(actRefno)));
 
                                 cmndItem.ExecuteNonQuery();
 
@@ -456,8 +456,8 @@ namespace dMobile.GroundWork
                                 cmndProdUnit.CommandText = "SELECT * FROM tProductUnit WHERE ProductRefno = @productRefno AND UnitRefno = @unitRefno AND ProductUnitIsBC = @productUnitIsBC";
                                 cmndProdUnit.CommandType = CommandType.Text;
                                 //cmndProdUnit.IndexName = "UQ_ProductUnitOnProductRefnoAndUnitRefnoAndProductUnitIsBC";
-                                cmndProdUnit.Parameters.Add(new SQLiteParameter("@productRefno", prodRefno));
-                                cmndProdUnit.Parameters.Add(new SQLiteParameter("@unitRefno", unitRefno));
+                                cmndProdUnit.Parameters.Add(new SQLiteParameter("@productRefno", Convert.ToInt32(prodRefno)));
+                                cmndProdUnit.Parameters.Add(new SQLiteParameter("@unitRefno", Convert.ToInt32(unitRefno)));
                                 cmndProdUnit.Parameters.Add(new SQLiteParameter("@productUnitIsBC", prodUnitIsBC));
 
                                 using (SQLiteDataReader drProdUnit = cmndProdUnit.ExecuteReader())
@@ -533,20 +533,20 @@ namespace dMobile.GroundWork
                                     ")";
                                 cmndRecvItem.CommandType = CommandType.Text;
                                 //cmndRecvItem.IndexName = "UQ_ActivityItemReceivingOnActivityItemReceivingFKRefno";
-                                cmndRecvItem.Parameters.Add(new SQLiteParameter("@activityItemRefno", actItemRefno));
+                                cmndRecvItem.Parameters.Add(new SQLiteParameter("@activityItemRefno", Convert.ToInt32(actItemRefno)));
                                 cmndRecvItem.Parameters.Add(new SQLiteParameter("@activityItemSubType", Convert.ToInt32(SysCommon.ActSubTypes.Receiving)));
                                 cmndRecvItem.Parameters.Add(new SQLiteParameter("@activityItemReceivingFKRefno", Convert.ToInt32(recvItemFKRefno)));
                                 cmndRecvItem.Parameters.Add(new SQLiteParameter("@activityItemReceivingStringFKRefno", Convert.ToString(recvItemFKRefno)));
-                                cmndRecvItem.Parameters.Add(new SQLiteParameter("@productUnitRefno", prodUnitRefno));
-                                cmndRecvItem.Parameters.Add(new SQLiteParameter("@warehouseLocationMapRefno", locMapRefno));
+                                cmndRecvItem.Parameters.Add(new SQLiteParameter("@productUnitRefno", Convert.ToInt32(prodUnitRefno)));
+                                cmndRecvItem.Parameters.Add(new SQLiteParameter("@warehouseLocationMapRefno", Convert.ToInt32(locMapRefno)));
                                 cmndRecvItem.Parameters.Add(new SQLiteParameter("@activityItemReceivingQuantityOrdered", Convert.ToDecimal(drow["ActivityItemPurchaseOrderQuantityOrdered"])));
                                 cmndRecvItem.Parameters.Add(new SQLiteParameter("@activityItemReceivingBaseQuantityOrdered", Convert.ToDecimal(drow["ActivityItemPurchaseOrderBaseQuantityOrdered"])));
                                 cmndRecvItem.Parameters.Add(new SQLiteParameter("@activityItemReceivingWeightQuantityOrdered", Convert.ToDecimal(drow["ActivityItemPurchaseOrderWeightQuantityOrdered"])));
                                 cmndRecvItem.Parameters.Add(new SQLiteParameter("@activityItemReceivingQuantityReceived", Convert.ToDecimal(drow["ActivityItemPurchaseOrderQuantityReceived"])));
                                 cmndRecvItem.Parameters.Add(new SQLiteParameter("@activityItemReceivingBaseQuantityReceived", Convert.ToDecimal(drow["ActivityItemPurchaseOrderBaseQuantityReceived"])));
                                 cmndRecvItem.Parameters.Add(new SQLiteParameter("@activityItemReceivingWeightQuantityReceived", Convert.ToDecimal(drow["ActivityItemPurchaseOrderWeightQuantityReceived"])));
-                                cmndRecvItem.Parameters.Add(new SQLiteParameter("@activityItemReceivingVendorProductUnitCode", drow["ActivityItemPurchaseOrderVendorProductUnitCode"].ToString()));
-                                cmndRecvItem.Parameters.Add(new SQLiteParameter("@activityItemReceivingDescription", drow["ActivityItemPurchaseOrderDescription"].ToString()));
+                                cmndRecvItem.Parameters.Add(new SQLiteParameter("@activityItemReceivingVendorProductUnitCode", Convert.ToString(drow["ActivityItemPurchaseOrderVendorProductUnitCode"])));
+                                cmndRecvItem.Parameters.Add(new SQLiteParameter("@activityItemReceivingDescription", Convert.ToString(drow["ActivityItemPurchaseOrderDescription"])));
                                 cmndRecvItem.Parameters.Add(new SQLiteParameter("@activityItemReceivingQuantityReceivedToDate", Convert.ToDecimal(drow["ActivityItemPurchaseOrderQuantityReceivedToDate"])));
                                 cmndRecvItem.Parameters.Add(new SQLiteParameter("@activityItemReceivingBaseQuantityReceivedToDate", Convert.ToDecimal(drow["ActivityItemPurchaseOrderBaseQuantityReceivedToDate"])));
                                 cmndRecvItem.Parameters.Add(new SQLiteParameter("@activityItemReceivingWeightQuantityReceivedToDate", Convert.ToDecimal(drow["ActivityItemPurchaseOrderWeightQuantityReceivedToDate"])));

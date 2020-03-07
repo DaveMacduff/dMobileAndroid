@@ -39,7 +39,8 @@ namespace dMobile.Controller
     public override string GetItemNotFoundMessage(LocationMap locMap, ProductInfo prodInfo)
     {
       string msg = base.GetItemNotFoundMessage(locMap, prodInfo);
-      if (this.SysEnv.SysSettings.IsPickOverrideMsg1)
+
+            if (this.SysEnv.SysSettings.IsPickOverrideMsg1)
       {
         msg = string.Format(
 #if MULTILANGUAGE

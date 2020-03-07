@@ -77,14 +77,14 @@ namespace dMobile.View.Exceptions
             switch (this.ShowMessageType)
             {
                 case SysCommon.ShowErrorMessageType.MessageBox:
-                    Device.BeginInvokeOnMainThread(() => App.Current.MainPage.DisplayAlert(Resource.Error, this.Message, Resource.OK));
+                    Device.BeginInvokeOnMainThread(async () => await App.Current.MainPage.DisplayAlert(Resource.Error, this.Message, Resource.OK));
 
                     break;
 
                 case SysCommon.ShowErrorMessageType.ErrorReport:
-                    Device.BeginInvokeOnMainThread(() => {
+                    Device.BeginInvokeOnMainThread(async () => {
                         FormErrorReport errRpt = new FormErrorReport(actSubType, this);
-                        errRpt.ShowDialog().ContinueWith(result => { });
+                        await errRpt.ShowDialog();
                     });
 
                     break;

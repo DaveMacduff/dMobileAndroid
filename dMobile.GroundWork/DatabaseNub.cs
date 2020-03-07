@@ -495,8 +495,7 @@ namespace dMobile.GroundWork
         {
             string sqlTable = "CREATE TABLE IF NOT EXISTS tActivityDetail"
                 + "("
-                + "ActivityDetailRefno INTEGER NOT NULL "
-                + "CONSTRAINT PK_ActivityDetailOnActivityDetailRefno PRIMARY KEY,"
+                + "ActivityDetailRefno INTEGER NOT NULL CONSTRAINT PK_ActivityDetailOnActivityDetailRefno PRIMARY KEY,"
                 + "ActivityDetailSubType INTEGER NOT NULL,"
                 + "ActivityDetailStatus INTEGER NOT NULL,"
                 + "ActivityItemRefno INTEGER NOT NULL,"

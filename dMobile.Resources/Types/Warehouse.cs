@@ -2,10 +2,7 @@
 {
     public class Warehouse
     {
-        private int id;
-        private string name;
         private string displayName;
-
         private int locationMapRefno;
         private int locationMapSubType;
         private string locationMapWarehouseName;
@@ -17,15 +14,14 @@
         {
         }
 
-        public Warehouse(int id, string name)
+        public Warehouse(int locationMapRefno, int locationMapWarehouseCode, string locationMapWarehouseName)
         {
-            this.Id = id;
-            this.Name = name;
-            this.DisplayName = this.Id + " " + this.Name;
+            this.LocationMapRefno = locationMapRefno;
+            this.LocationMapWarehouseName = locationMapWarehouseName;
+            this.LocationMapWarehouseCode = locationMapWarehouseCode;
+            this.DisplayName = this.LocationMapWarehouseCode + " " + this.LocationMapWarehouseName;
         }
 
-        public int Id { get => this.id; set => this.id = value; }
-        public string Name { get => this.name; set => this.name = value; }
         public string DisplayName { get => this.displayName; set => this.displayName = value; }
         public int LocationMapRefno { get => locationMapRefno; set => locationMapRefno = value; }
         public int LocationMapSubType { get => locationMapSubType; set => locationMapSubType = value; }

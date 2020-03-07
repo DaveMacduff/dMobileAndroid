@@ -34,6 +34,10 @@ namespace dMobile.Bedrock
         private bool isProductLabelCatchAsk = false;
         private string defaultLanguage = "ENU";
         private List<string> languagePaths = new List<string>();
+        private bool activityActionsVisible = false;
+        private bool activityItemActionsVisible = false;
+        private bool activityDetailActionsVisible = false;
+
         /// <summary>
         /// When true, inventory inquiry will search the whole warehouse instead
         /// of specific section or slot.
@@ -2757,6 +2761,10 @@ namespace dMobile.Bedrock
                 this.isReplenishmentModule = value;
             }
         }
+
+        public bool ActivityActionsVisible { get => activityActionsVisible; set => activityActionsVisible = value; }
+        public bool ActivityItemActionsVisible { get => activityItemActionsVisible; set => activityItemActionsVisible = value; }
+        public bool ActivityDetailActionsVisible { get => activityDetailActionsVisible; set => activityDetailActionsVisible = value; }
 
         #region ISysSettingsEventPublisher Members
 

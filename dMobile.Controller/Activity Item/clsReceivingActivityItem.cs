@@ -37,6 +37,7 @@ namespace dMobile.Controller
         public override bool IsCatchAsk()
         {
             bool isCatchAsk = base.IsCatchAsk();
+
             if (isCatchAsk)
             {
                 // modules are for exclusions
@@ -53,6 +54,7 @@ namespace dMobile.Controller
         public override bool IsCatchAskZero()
         {
             bool isCatchAskZero = base.IsCatchAskZero();
+
             if (isCatchAskZero)
             {
                 isCatchAskZero = !this.SysEnv.SysSettings.IsReceivingNoCatchAskZeroEnabled;
@@ -75,6 +77,7 @@ namespace dMobile.Controller
                     + "</params>"));
 
                 string reqData = SysCommon.SubmitComm(sendReq);
+
                 if (reqData.Length > 0)
                 {
                     if (reqData.Contains("<message>ERROR</message>"))
@@ -82,6 +85,7 @@ namespace dMobile.Controller
                         XmlDocument docError = new XmlDocument();
                         docError.LoadXml(reqData);
                         string errorDetail = docError.DocumentElement["detail"].InnerText;
+
                         if (errorDetail.Contains("MSGBOX-"))
                         {
                             throw new MessageOnlyException(errorDetail);
@@ -174,12 +178,7 @@ namespace dMobile.Controller
         /// <returns></returns>
         public override int GetDefaultLocMapRefno(int whsLocMapRefno, int prodRefno)
         {
-            int locMapRefno = LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(
-                whsLocMapRefno,
-                prodRefno,
-                SysCommon.ProdLocMapTypes.Receiving);
-
-            return locMapRefno;
+            return LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(whsLocMapRefno, prodRefno, SysCommon.ProdLocMapTypes.Receiving);;
         }
 
         /// <summary>
@@ -189,11 +188,8 @@ namespace dMobile.Controller
         /// <returns></returns>
         public override string GetUnableToParseItemFKRefnoMessage(string actItemStringFKRefno)
         {
-#if MULTILANGUAGE
-      return string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.UnableToParsePurchaseOrderItem), actItemStringFKRefno);
-#else
+            // TODO: Resource strings
             return string.Format("Unable to parse purchase order item# {0}", actItemStringFKRefno);
-#endif
         }
 
         /// <summary>
@@ -203,11 +199,8 @@ namespace dMobile.Controller
         /// <returns></returns>
         public override string GetUnableToFindItemFKRefnoMessage(string actItemStringFKRefno)
         {
-#if MULTILANGUAGE
-      return string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.UnableToFindPurchaseOrderItem), actItemStringFKRefno);
-#else
+            // TODO: Resource strings
             return string.Format("Unable to find purchase order item# {0}", actItemStringFKRefno);
-#endif
         }
 
         /// <summary>
@@ -217,6 +210,7 @@ namespace dMobile.Controller
         /// <remarks></remarks>
         public override string GetDataViewSortFKRefnoIdx()
         {
+            // TODO: Resource strings
             return "ActivityItemReceivingStringFKRefno";
         }
 
@@ -571,9 +565,7 @@ namespace dMobile.Controller
                 sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = ");
                 sql.Append("tActivityItemReceiving.WarehouseLocationMapRefno ");
                 sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.Refno);
-                sql.AppendFormat(
-                    "AND tActivityItemReceiving.WarehouseLocationMapRefno = {0} ",
-                    this.LocMap.CurrLocMap.WhsLocMapRefno);
+                sql.AppendFormat("AND tActivityItemReceiving.WarehouseLocationMapRefno = {0} ", this.LocMap.CurrLocMap.WhsLocMapRefno);
                 sql.AppendFormat("AND tActivityItemReceiving.ProductUnitRefno = {0}", prodUnitRefno);
 
                 cmndItem.CommandType = CommandType.Text;
@@ -584,9 +576,9 @@ namespace dMobile.Controller
                     if (drItem.Read())
                     {
                         ////this.LocMap.CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno((int)drItem["LocationMapRefno"]);
-                        this.Refno = (int)drItem["ActivityItemRefno"];
-                        this.FKRefno = (int)drItem["ActivityItemReceivingFKRefno"];
-                        this.ProdInfo = ProductInfoTasks.GetInfoFromUnitRefno((int)drItem["ProductUnitRefno"]);
+                        this.Refno = Convert.ToInt32(drItem["ActivityItemRefno"]);
+                        this.FKRefno = Convert.ToInt32(drItem["ActivityItemReceivingFKRefno"]);
+                        this.ProdInfo = ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(drItem["ProductUnitRefno"]));
                         this.ProdInfo.Scheme = ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
                         foundActItemRefno = this.Refno;
                     }
@@ -661,12 +653,9 @@ namespace dMobile.Controller
         public override int UpdateDataViewQuantity(int idx, decimal quantity, decimal baseQuantity, decimal weightQuantity)
         {
             this.DataViewItems[idx].BeginEdit();
-            this.DataViewItems[idx]["ActivityItemReceivingQuantityReceived"]
-                = (decimal)DataViewItems[idx]["ActivityItemReceivingQuantityReceived"] + quantity;
-            this.DataViewItems[idx]["ActivityItemReceivingBaseQuantityReceived"] =
-                (decimal)DataViewItems[idx]["ActivityItemReceivingBaseQuantityReceived"] + baseQuantity;
-            this.DataViewItems[idx]["ActivityItemReceivingWeightQuantityReceived"] =
-                (decimal)DataViewItems[idx]["ActivityItemReceivingWeightQuantityReceived"] + weightQuantity;
+            this.DataViewItems[idx]["ActivityItemReceivingQuantityReceived"] = Convert.ToDecimal(DataViewItems[idx]["ActivityItemReceivingQuantityReceived"]) + quantity;
+            this.DataViewItems[idx]["ActivityItemReceivingBaseQuantityReceived"] = Convert.ToDecimal(DataViewItems[idx]["ActivityItemReceivingBaseQuantityReceived"]) + baseQuantity;
+            this.DataViewItems[idx]["ActivityItemReceivingWeightQuantityReceived"] = Convert.ToDecimal(DataViewItems[idx]["ActivityItemReceivingWeightQuantityReceived"]) + weightQuantity;
             this.DataViewItems[idx].EndEdit();
 
             return idx;
@@ -717,20 +706,15 @@ namespace dMobile.Controller
 
                 using (SQLiteDataReader dr = cmndItemRecv.ExecuteReader())
                 {
-#if MULTILANGUAGE
-          msg = Translator.GetInstance().Translate(TranslatorVocabulary.TotalReceived);
-#else
+                    // TODO: Resource strings
                     msg = "Total received:";
-#endif
+
                     while (dr.Read())
                     {
                         // Because an agregate sum function is used in a query. There will always be a result record.
                         // This causes problems detecting if there is a valid result. 
                         // Converting Convert.ToDecimal(dr["Ordered"]) fails because there is not data. However to a string works.
-                        msg = msg + string.Format(
-                            "\r{0} / {1}",
-                            Convert.ToString(dr["Ordered"]),
-                            Convert.ToString(dr["Received"]));
+                        msg = msg + string.Format("\r{0} / {1}", Convert.ToString(dr["Ordered"]), Convert.ToString(dr["Received"]));
                     }
                 }
             }
@@ -748,15 +732,11 @@ namespace dMobile.Controller
             base.IsReadyToApply(data);
 
             // New items are identified with 0 < this.FKRefno, do not validate.
-            if (this.SysEnv.SysSettings.RecvQtyOverWarn
-                != SysCommon.ActReceivingQtyOverValLevels.NoValidationOrWarning
-                && 0 < this.FKRefno)
+            if (this.SysEnv.SysSettings.RecvQtyOverWarn != SysCommon.ActReceivingQtyOverValLevels.NoValidationOrWarning && 0 < this.FKRefno)
             {
                 try
                 {
-                    this.ReceivingModuleQuantityOverCheck(
-                        int.Parse(data.Root.Element("itm_refno").Value),
-                        decimal.Parse(data.Root.Element("alt_qty").Value));
+                    this.ReceivingModuleQuantityOverCheck(int.Parse(data.Root.Element("itm_refno").Value), decimal.Parse(data.Root.Element("alt_qty").Value));
                 }
                 catch (Exception ex)
                 {
@@ -805,22 +785,13 @@ namespace dMobile.Controller
         {
             if (this.CurrRowIdx >= 0 && this.CurrRowIdx < this.DataViewItems.Count)
             {
-                decimal received = (decimal)this.DataViewItems[this.CurrRowIdx]["ActivityItemPickingQuantityReceived"];
-                decimal ordered = (decimal)this.DataViewItems[this.CurrRowIdx]["ActivityItemPickingQuantityOrdered"];
+                decimal received = Convert.ToDecimal(this.DataViewItems[this.CurrRowIdx]["ActivityItemPickingQuantityReceived"]);
+                decimal ordered = Convert.ToDecimal(this.DataViewItems[this.CurrRowIdx]["ActivityItemPickingQuantityOrdered"]);
 
                 if (received + actItemRecvQuantity > ordered)
                 {
-                    throw new Exception(
-                        string.Format(
-#if MULTILANGUAGE
-              Translator.GetInstance().Translate(TranslatorVocabulary.TheResultingQuantityReceivedWillBeGreaterThanTheQuantityOrdered),
-#else
-              "The resulting quantity received {0} {1} will be greater than the quantity ordered {2} {3}.",
-#endif
-              received + actItemRecvQuantity,
-                        this.ProdInfo.UnitCode,
-                        ordered,
-                        this.ProdInfo.UnitCode));
+                    // TODO: Resource strings
+                    throw new Exception(string.Format("The resulting quantity received {0} {1} will be greater than the quantity ordered {2} {3}.", received + actItemRecvQuantity, this.ProdInfo.UnitCode, ordered, this.ProdInfo.UnitCode));
                 }
             }
         }

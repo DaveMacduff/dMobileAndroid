@@ -14,6 +14,8 @@
         /// Defines the loading
         /// </summary>
         private bool loading;
+        private bool actionsVisible;
+        private string iconSource;
 
         /// <summary>
         /// Gets or sets a value indicating whether Loading
@@ -24,6 +26,31 @@
             set
             {
                 loading = value;
+                this.OnPropertyChanged();
+            }
+        }
+
+        public bool ActionsVisible
+        {
+            get { return this.actionsVisible; }
+            set
+            {
+                this.actionsVisible = value;
+                this.IconSource = this.actionsVisible ? Convert.ToString(Application.Current.Resources["ShowLessIcon"]) : Convert.ToString(Application.Current.Resources["ShowMoreIcon"]);
+                this.OnPropertyChanged();
+            }
+        }
+
+        public string IconSource
+        {
+            get
+            {
+                return iconSource;
+            }
+
+            set
+            {
+                this.iconSource = value;
                 this.OnPropertyChanged();
             }
         }

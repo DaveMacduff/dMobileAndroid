@@ -5,6 +5,9 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:Helpers="clr-namespace:dMobile.View.Helpers"
     x:Class="dMobile.View.Activity.ucActivityItem">
+    <ContentPage.ToolbarItems>
+        <ToolbarItem x:Name="actionItemsMenu" IconImageSource="{Binding IconSource}" Clicked="ActionItemsMenu_Clicked" />
+    </ContentPage.ToolbarItems>
     <ContentPage.Content>
         <AbsoluteLayout VerticalOptions="Center">
             <Grid Padding="10" AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0,0,1,1">
@@ -50,13 +53,15 @@
                     <Button x:Name="cmdFilter" Grid.Row="0" Grid.Column="1" Clicked="CmdFilter_Clicked" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
                 </Grid>
 
-                <Grid Grid.Row="3">
+                <StackLayout Grid.Row="3" IsVisible="{Binding ActionsVisible}">
+                    <Grid>
                     <Button x:Name="cmdAddProduct" Grid.Row="0" Grid.Column="0" Clicked="cmdAddProduct_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
                     <Button x:Name="cmdAddSkid" Grid.Row="0" Grid.Column="1" Clicked="cmdAddSkid_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
 
                     <Button x:Name="cmdLocation" Grid.Row="1" Grid.Column="0" Clicked="cmdLocation_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
                     <Button x:Name="cmdSelectSkid" Grid.Row="1" Grid.Column="1" Clicked="cmdSelectSkid_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
                 </Grid>
+                </StackLayout>
 
             </Grid>
 

@@ -110,7 +110,7 @@
         /// <summary>
         /// The OnAppearing
         /// </summary>
-        protected override void OnAppearing()
+        protected override async void OnAppearing()
         {
             base.OnAppearing();
 
@@ -137,7 +137,7 @@
 
             try
             {
-                this.ucSelectProduct_GotFocus(this, new EventArgs());
+                await this.ucSelectProduct_GotFocus(this, new EventArgs());
             }
             catch (Exception ex)
             {
@@ -903,7 +903,7 @@
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        private void ucSelectProduct_GotFocus(object sender, EventArgs e)
+        private async Task ucSelectProduct_GotFocus(object sender, EventArgs e)
         {
             if (!SysEnvironment.GetInstance().IsApplicationExitInvoked)
             {
@@ -911,14 +911,15 @@
 
                 this.Loading = true;
 
-                Task.Run(() => this.LoadData()).ContinueWith(res =>
+                await Task.Run(() => this.LoadData()).ContinueWith(res =>
                 {
                     Device.BeginInvokeOnMainThread(() => 
                     {
                         this.dgProducts.ItemsSource = this.ProductUnitsFilteredList.OrderBy((prodUnit) => prodUnit.UnitCode).OrderBy((prodUnit) => prodUnit.ProductUnitBC);
-                        this.Loading = false;
                     });
                 });
+
+                this.Loading = false;
 
                 this.lblProductDescription.Text = string.Empty;
                 this.cboSearch.SelectedIndex = 0;
@@ -927,7 +928,7 @@
                 this.ReqSaveEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
 
                 this.IsControlLoaded = true;
-                this.dgProducts.Focus();
+                //this.dgProducts.Focus();
             }
         }
 
@@ -1532,26 +1533,16 @@
             this.SelectProdUnit(prodUnit);
         }
 
-        private void CmdSelect_Clicked(object sender, EventArgs e)
+        private async void CmdSelect_Clicked(object sender, EventArgs e)
         {
-            this.Loading = true;
-
-            Device.BeginInvokeOnMainThread(async () =>
-            {
-                this.DialogResult = DialogResult.OK;
-                await this.Close();
-            });
-
-            this.Loading = false;
+            this.DialogResult = DialogResult.OK;
+            await this.Close();
         }
 
-        private void CmdClose_Clicked(object sender, EventArgs e)
+        private async void CmdClose_Clicked(object sender, EventArgs e)
         {
-            Device.BeginInvokeOnMainThread(async () =>
-            {
-                this.DialogResult = DialogResult.None;
-                await this.Close();
-            });
+            this.DialogResult = DialogResult.None;
+            await this.Close();
         }
     }
 }

@@ -274,6 +274,7 @@ namespace dMobile.GroundWork
 
                     // TODO: Resource Strings
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
+
                     using (StringReader stringReader = new StringReader(reqData.Substring(startIndex)))
                     using (XmlReader reader = XmlReader.Create(stringReader))
                     {
@@ -298,7 +299,8 @@ namespace dMobile.GroundWork
                         {
                             while (drUnit.Read())
                             {
-                                unitLookup.Add(drUnit.GetString((int)SysCommon.UnitFields.UnitCode), Convert.ToInt32(drUnit.GetValue(Convert.ToInt32(SysCommon.UnitFields.UnitRefno))));
+                                Console.WriteLine("___ unit: " + drUnit.GetString(Convert.ToInt32(SysCommon.UnitFields.UnitCode)) + " " + Convert.ToInt32(drUnit.GetValue(Convert.ToInt32(SysCommon.UnitFields.UnitRefno))));
+                                unitLookup.Add(drUnit.GetString(Convert.ToInt32(SysCommon.UnitFields.UnitCode)), Convert.ToInt32(drUnit.GetValue(Convert.ToInt32(SysCommon.UnitFields.UnitRefno))));
                             }
                         }
 
@@ -336,6 +338,7 @@ namespace dMobile.GroundWork
                         {
                             bool recordFilled = false;
                             string elementName = string.Empty;
+
                             while (!recordFilled && reader.Read())
                             {
                                 // fill one record
@@ -502,7 +505,7 @@ namespace dMobile.GroundWork
 
                             errMsg.Append(Environment.NewLine).Append("Weight unit: \'").Append(wtUnitCode).Append("\'");
 
-                            unitLookup.TryGetValue(unitCode, out wtUnitRefno);
+                            unitLookup.TryGetValue(wtUnitCode, out wtUnitRefno);
                             //if (!unitLookup.TryGetValue(wtUnitCode, out wtUnitRefno))
                             //{
                             //    cmndUnit.CommandText = "SELECT * FROM tUnit WHERE UnitCode = @unitCode";
@@ -552,9 +555,9 @@ namespace dMobile.GroundWork
                                     isProdUnitFound = true;
 
                                     // TODO: Uncomment SysEnv.RefreshOpt.RefreshDataChangesOnly
-                                    //if (SysEnv.RefreshOpt.RefreshDataChangesOnly)
-                                    //{
-                                    cmndProdUnitUpdate.CommandText = @"UPDATE tProductUnit
+                                    if (SysEnv.RefreshOpt.RefreshDataChangesOnly)
+                                    {
+                                        cmndProdUnitUpdate.CommandText = @"UPDATE tProductUnit
                                             SET BaseUnitRefno =  @baseUnitRefno,
                                             WtUnitRefno = @wtUnitRefno,
                                             ProductUnitWeight = @prodUnitWeight,
@@ -581,31 +584,31 @@ namespace dMobile.GroundWork
                                     //SqlCeParameter unitRefnoParam = new SqlCeParameter("@unitRefno", SqlDbType.Int);
                                     //SqlCeParameter brokenCaseParam = new SqlCeParameter("@isBC", SqlDbType.Bit);
 
-                                    cmndProdUnitUpdate.Parameters.Add(new SQLiteParameter("@baseUnitRefno", baseUnitRefno));
-                                    cmndProdUnitUpdate.Parameters.Add(new SQLiteParameter("@wtUnitRefno", wtUnitRefno));
-                                    cmndProdUnitUpdate.Parameters.Add(new SQLiteParameter("@prodUnitWeight", prodUnitWeight));
-                                    cmndProdUnitUpdate.Parameters.Add(new SQLiteParameter("@desc", description));
-                                    cmndProdUnitUpdate.Parameters.Add(new SQLiteParameter("@isSellUnit", isProdUnitSellUnit));
-                                    cmndProdUnitUpdate.Parameters.Add(new SQLiteParameter("@isDefault", isProdUnitDefault));
-                                    cmndProdUnitUpdate.Parameters.Add(new SQLiteParameter("@boxCount", boxCount));
-                                    cmndProdUnitUpdate.Parameters.Add(new SQLiteParameter("@prodRefno", prodRefno));
-                                    cmndProdUnitUpdate.Parameters.Add(new SQLiteParameter("@unitRefno", unitRefno));
-                                    cmndProdUnitUpdate.Parameters.Add(new SQLiteParameter("@isBC", isProdUnitBC));
+                                    cmndProdUnitUpdate.Parameters.Add(new SQLiteParameter("@baseUnitRefno", Convert.ToInt32(baseUnitRefno)));
+                                    cmndProdUnitUpdate.Parameters.Add(new SQLiteParameter("@wtUnitRefno", Convert.ToInt32(wtUnitRefno)));
+                                    cmndProdUnitUpdate.Parameters.Add(new SQLiteParameter("@prodUnitWeight", Convert.ToDecimal(prodUnitWeight)));
+                                    cmndProdUnitUpdate.Parameters.Add(new SQLiteParameter("@desc", Convert.ToString(description)));
+                                    cmndProdUnitUpdate.Parameters.Add(new SQLiteParameter("@isSellUnit", Convert.ToInt32(isProdUnitSellUnit)));
+                                    cmndProdUnitUpdate.Parameters.Add(new SQLiteParameter("@isDefault", Convert.ToInt32(isProdUnitDefault)));
+                                    cmndProdUnitUpdate.Parameters.Add(new SQLiteParameter("@boxCount", Convert.ToDecimal(boxCount)));
+                                    cmndProdUnitUpdate.Parameters.Add(new SQLiteParameter("@prodRefno", Convert.ToInt32(prodRefno)));
+                                    cmndProdUnitUpdate.Parameters.Add(new SQLiteParameter("@unitRefno", Convert.ToInt32(unitRefno)));
+                                    cmndProdUnitUpdate.Parameters.Add(new SQLiteParameter("@isBC", Convert.ToInt32(isProdUnitBC)));
 
                                     cmndProdUnitUpdate.ExecuteNonQuery();
 
-                                    //cmndProdUnitUpdate.Prepare();
-                                    //baseRefnoParam.Value = baseUnitRefno;
-                                    //wtRefnoParam.Value = wtUnitRefno;
-                                    //prodWeightParam.Value = prodUnitWeight;
-                                    //descParam.Value = description;
-                                    //sellUnitParam.Value = isProdUnitSellUnit;
-                                    //defaultParam.Value = isProdUnitDefault;
-                                    //boxCountParam.Value = boxCount;
-                                    //prodRefnoParam.Value = prodRefno;
-                                    //unitRefnoParam.Value = unitRefno;
-                                    //brokenCaseParam.Value = isProdUnitBC;
-                                    //}
+                                        //cmndProdUnitUpdate.Prepare();
+                                        //baseRefnoParam.Value = baseUnitRefno;
+                                        //wtRefnoParam.Value = wtUnitRefno;
+                                        //prodWeightParam.Value = prodUnitWeight;
+                                        //descParam.Value = description;
+                                        //sellUnitParam.Value = isProdUnitSellUnit;
+                                        //defaultParam.Value = isProdUnitDefault;
+                                        //boxCountParam.Value = boxCount;
+                                        //prodRefnoParam.Value = prodRefno;
+                                        //unitRefnoParam.Value = unitRefno;
+                                        //brokenCaseParam.Value = isProdUnitBC;
+                                    }
                                 }
 
                                 drProdUnit.Close();
@@ -641,17 +644,17 @@ namespace dMobile.GroundWork
                                 cmndProdUnit.CommandType = CommandType.Text;
                                 //cmndProdUnit.IndexName = "UQ_ProductUnitOnProductRefnoAndUnitRefnoAndProductUnitIsBC";
                                 cmndProdUnit.Parameters.Clear();
-                                cmndProdUnit.Parameters.Add(new SQLiteParameter("@productRefno", prodRefno));
-                                cmndProdUnit.Parameters.Add(new SQLiteParameter("@unitRefno", unitRefno));
-                                cmndProdUnit.Parameters.Add(new SQLiteParameter("@baseUnitRefno", baseUnitRefno));
-                                cmndProdUnit.Parameters.Add(new SQLiteParameter("@wtUnitRefno", wtUnitRefno));
-                                cmndProdUnit.Parameters.Add(new SQLiteParameter("@productUnitIsBC", isProdUnitBC));
-                                cmndProdUnit.Parameters.Add(new SQLiteParameter("@productUnitBC", isProdUnitBC ? "X" : " "));
-                                cmndProdUnit.Parameters.Add(new SQLiteParameter("@productUnitWeight", prodUnitWeight));
-                                cmndProdUnit.Parameters.Add(new SQLiteParameter("@productUnitSizeDescription", description));
-                                cmndProdUnit.Parameters.Add(new SQLiteParameter("@productUnitIsSellUnit", isProdUnitSellUnit));
-                                cmndProdUnit.Parameters.Add(new SQLiteParameter("@productUnitIsDefault", isProdUnitDefault));
-                                cmndProdUnit.Parameters.Add(new SQLiteParameter("@productUnitBoxCount", boxCount));
+                                cmndProdUnit.Parameters.Add(new SQLiteParameter("@productRefno", Convert.ToInt32(prodRefno)));
+                                cmndProdUnit.Parameters.Add(new SQLiteParameter("@unitRefno", Convert.ToInt32(unitRefno)));
+                                cmndProdUnit.Parameters.Add(new SQLiteParameter("@baseUnitRefno", Convert.ToInt32(baseUnitRefno)));
+                                cmndProdUnit.Parameters.Add(new SQLiteParameter("@wtUnitRefno", Convert.ToInt32(wtUnitRefno)));
+                                cmndProdUnit.Parameters.Add(new SQLiteParameter("@productUnitIsBC", Convert.ToInt32(isProdUnitBC)));
+                                cmndProdUnit.Parameters.Add(new SQLiteParameter("@productUnitBC", Convert.ToString(isProdUnitBC ? "X" : " ")));
+                                cmndProdUnit.Parameters.Add(new SQLiteParameter("@productUnitWeight", Convert.ToDecimal(prodUnitWeight)));
+                                cmndProdUnit.Parameters.Add(new SQLiteParameter("@productUnitSizeDescription", Convert.ToString(description)));
+                                cmndProdUnit.Parameters.Add(new SQLiteParameter("@productUnitIsSellUnit", Convert.ToInt32(isProdUnitSellUnit)));
+                                cmndProdUnit.Parameters.Add(new SQLiteParameter("@productUnitIsDefault", Convert.ToInt32(isProdUnitDefault)));
+                                cmndProdUnit.Parameters.Add(new SQLiteParameter("@productUnitBoxCount", Convert.ToDecimal(boxCount)));
 
                                 cmndProdUnit.ExecuteNonQuery();
 

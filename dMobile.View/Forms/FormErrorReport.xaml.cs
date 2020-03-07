@@ -62,7 +62,7 @@
         {
             this.InitializeComponent();
 
-            this.labelExceptionReport.Text = Resource.ExceptionReport;
+            this.Title = Resource.ExceptionReport;
             this.buttonSendReport.Text = Resource.SendReport;
             this.buttonSupportDetail.Text = Resource.SupportDetail;
             this.buttonContinue.Text = Resource.Continue;
@@ -84,8 +84,8 @@
         public FormErrorReport(SQLiteException ex)
         {
             this.InitializeComponent();
-            
-            this.labelExceptionReport.Text = Resource.ExceptionReport;
+
+            this.Title = Resource.ExceptionReport;
             this.buttonSendReport.Text = Resource.SendReport;
             this.buttonSupportDetail.Text = Resource.SupportDetail;
             this.buttonContinue.Text = Resource.Continue;
@@ -115,7 +115,7 @@
         {
             this.InitializeComponent();
 
-            this.labelExceptionReport.Text = Resource.ExceptionReport;
+            this.Title = Resource.ExceptionReport;
             this.buttonSendReport.Text = Resource.SendReport;
             this.buttonSupportDetail.Text = Resource.SupportDetail;
             this.buttonContinue.Text = Resource.Continue;
@@ -141,7 +141,7 @@
         {
             this.InitializeComponent();
 
-            this.labelExceptionReport.Text = Resource.ExceptionReport;
+            this.Title = Resource.ExceptionReport;
             this.buttonSendReport.Text = Resource.SendReport;
             this.buttonSupportDetail.Text = Resource.SupportDetail;
             this.buttonContinue.Text = Resource.Continue;
@@ -178,7 +178,7 @@
         {
             this.InitializeComponent();
 
-            this.labelExceptionReport.Text = Resource.ExceptionReport;
+            this.Title = Resource.ExceptionReport;
             this.buttonSendReport.Text = Resource.SendReport;
             this.buttonSupportDetail.Text = Resource.SupportDetail;
             this.buttonContinue.Text = Resource.Continue;
@@ -215,7 +215,7 @@
         {
             this.InitializeComponent();
 
-            this.labelExceptionReport.Text = Resource.ExceptionReport;
+            this.Title = Resource.ExceptionReport;
             this.buttonSendReport.Text = Resource.SendReport;
             this.buttonSupportDetail.Text = Resource.SupportDetail;
             this.buttonContinue.Text = Resource.Continue;

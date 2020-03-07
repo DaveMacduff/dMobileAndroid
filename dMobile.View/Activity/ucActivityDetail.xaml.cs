@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Data;
@@ -13,12 +11,10 @@ using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 using dMobile.View.Forms;
 using dMobile.Resources.Enums;
-using static Android.Views.View;
 using dMobile.View.CustomPages.Modal;
 using System.Collections.ObjectModel;
 using Android.Views;
 using dMobile.Resources.Types;
-using System.IO;
 
 namespace dMobile.View.Activity
 {
@@ -43,6 +39,7 @@ namespace dMobile.View.Activity
         private BarCodeScanner.BarCodeScanner scanner;
         private ObservableCollection<string> itemsList;
         private ObservableCollection<object> dataGridMainActivityItemsList;
+        private int selectedIndex;
 
         #endregion
 
@@ -92,6 +89,9 @@ namespace dMobile.View.Activity
                 this.ActDetail.ActItem = actItem;
 
                 this.ActDetail.ActItem.ProdInfo.Unit2BaseUnitFactor = ProductInfoTasks.GetUnitRelationFactor(this.ActDetail.ActItem.ProdInfo);
+
+                this.Title = this.GetControlDescription();
+                this.ActionsVisible = this.SysEnv.SysSettings.ActivityDetailActionsVisible;
             }
         }
 
@@ -100,7 +100,7 @@ namespace dMobile.View.Activity
         /// <summary>
         /// The OnAppearing
         /// </summary>
-        protected override void OnAppearing()
+        protected override async void OnAppearing()
         {
             base.OnAppearing();
 
@@ -112,56 +112,59 @@ namespace dMobile.View.Activity
                 // TODO: Verify keycodes
                 Enum.TryParse(keyPressed, out Keycode keycode);
 
-                if (keycode == Keycode.Del || keycode == Keycode.Clear)
+                if (!this.Loading)
                 {
-                    await this.dataGridMainActivity_KeyUpDelete(this, new EventArgs());
-                }
-                else if (keycode == Keycode.Escape)
-                {
-                    if (this.CancelChanges())
+                    if (keycode == Keycode.Del || keycode == Keycode.Clear)
                     {
-                        this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                        if (this.dataGridMainActivity.SelectedItem != null)
+                        {
+                            await this.dataGridMainActivity_KeyUpDelete(this, new EventArgs());
+                        }
                     }
-                }
-                // TODO: remove this
-                else if (keycode == Keycode.Grave)
-                {
-                    if (this.CancelChanges())
+                    else if (keycode == Keycode.Escape)
                     {
-                        this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-                        await this.Close();
+                        if (this.CancelChanges())
+                        {
+                            this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                        }
                     }
-                }
-                else if (keycode == Keycode.F1)
-                {
-                    if (this.SaveChanges())
+                    // TODO: remove this
+                    else if (keycode == Keycode.Grave)
                     {
-                        this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                        if (this.CancelChanges())
+                        {
+                            this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                            await this.Close();
+                        }
                     }
-                }
-                else if (keycode == Keycode.F3)
-                {
-                    this.KeyUpF3_ShowTotalQuantity(this, new EventArgs());
-                    this.dataGridMainActivity.Focus();
-                }
-                else if (keycode == Keycode.F4)
-                {
-                    this.KeyUpF4_ConfirmDetail(this, new EventArgs());
-                    this.dataGridMainActivity.Focus();
+                    else if (keycode == Keycode.F1)
+                    {
+                        if (this.SaveChanges())
+                        {
+                            this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                        }
+                    }
+                    else if (keycode == Keycode.F3)
+                    {
+                        this.KeyUpF3_ShowTotalQuantity(this, new EventArgs());
+                        this.dataGridMainActivity.Focus();
+                    }
+                    else if (keycode == Keycode.F4)
+                    {
+                        this.KeyUpF4_ConfirmDetail(this, new EventArgs());
+                        this.dataGridMainActivity.Focus();
+                    }
                 }
             });
 
             try
             {
-                Device.BeginInvokeOnMainThread(async () =>
-                {
-                    await this.ucActivityDetail_GotFocus(this, new EventArgs());
-                });
+                await this.ucActivityDetail_GotFocus(this, new EventArgs());
             }
             catch (Exception ex)
             {
                 // TODO: Resource strings
-                DisplayAlert("Error", "this.ucActivityDetail_GotFocus/tmrActivityDetailLoaded_Tick threw an error " + ex, "OK");
+                await DisplayAlert("Error", "this.ucActivityDetail_GotFocus/tmrActivityDetailLoaded_Tick threw an error " + ex, "OK");
             }
         }
 
@@ -170,10 +173,11 @@ namespace dMobile.View.Activity
         /// </summary>
         protected override void OnDisappearing()
         {
-            MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
-            this.ScannerDisable();
-
             base.OnDisappearing();
+
+            this.Loading = true;
+            this.ScannerDisable();
+            MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
         }
 
         #region Delegates
@@ -441,6 +445,7 @@ namespace dMobile.View.Activity
 
         public ObservableCollection<string> ItemsList { get => itemsList; set => itemsList = value; }
         public ObservableCollection<object> DataGridMainActivityItemsList { get => dataGridMainActivityItemsList; set => dataGridMainActivityItemsList = value; }
+        public int SelectedIndex { get => selectedIndex; set => selectedIndex = value; }
 
         #endregion
 
@@ -860,7 +865,7 @@ namespace dMobile.View.Activity
                         else
                         {
                             //DialogResult result = MessageBox.Show(errDetail, "Printing Label(s)", MessageBoxButtons.AbortRetryIgnore, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
-
+                            // TODO: Resource strings
                             if (await DisplayAlert("Printing Label(s)", errDetail, "Retry", "Abort"))
                             {
                                 rowIdx--;
@@ -873,6 +878,7 @@ namespace dMobile.View.Activity
                     }
                     catch (Exception ex)
                     {
+                        // TODO: Resource strings
                         //MessageBox.Show("Print product label(s) failed. " + Environment.NewLine + ex.Message, "Print Label(s)", MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
                         await DisplayAlert("Print Label(s)", "Print product label(s) failed. " + Environment.NewLine + ex.Message, "OK");
                     }
@@ -894,7 +900,7 @@ namespace dMobile.View.Activity
 
                 FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucSelectLocationMap, SysCommon.ActSubTypes.NotApplicable);
 
-                if (await form.ShowDialog() == DialogResult.OK)
+                if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
                 {
                     if (0 >= this.LocMap.CurrLocMap.WhsLocMapRefno)
                     {
@@ -1041,16 +1047,16 @@ namespace dMobile.View.Activity
                         if (sysEnv.SysSettings.IsPickAddManualDetailPasswordRequired && (this.ActSubType == SysCommon.ActSubTypes.PickingSingle || this.ActSubType == SysCommon.ActSubTypes.Picking))
                         {
                             // TODO: Do form
-                            //FormAddManualDetailOverride form = new FormAddManualDetailOverride();
+                            FormAddManualDetailOverride form = new FormAddManualDetailOverride();
 
-                            //if (await form.ShowDialog() == DialogResult.OK)
-                            //{
-                            //    isAllowedAddManualDetail = true;
-                            //}
+                            //if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
+                            {
+                                isAllowedAddManualDetail = true;
+                            }
                             //else
-                            //{
-                            //isAllowedAddManualDetail = false;
-                            //}
+                            {
+                                isAllowedAddManualDetail = false;
+                            }
                         }
 
                         if (isAllowedAddManualDetail)
@@ -1102,8 +1108,16 @@ namespace dMobile.View.Activity
                             actDetail.SchemeData = schemeData;
 
                             isInsertReady = await SysShared.GatherProductData(parse, this.ActSubType, this.ActDetail.ActItem, tempItemProdSchemeData, isInsertReady, this.ActDetail, true);
-                            this.InsertActivityDetail(this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem), this.ActDetail, parse, isInsertReady);
-                            this.ActDetail.SelectDetail(this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem));
+
+                            await Task.Run(() =>
+                            {
+                                this.Loading = true;
+
+                                this.InsertActivityDetail(this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem), this.ActDetail, parse, isInsertReady);
+                                this.ActDetail.SelectDetail(this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem));
+
+                                this.Loading = false;
+                            });
                         }
                     }
                     catch (GatherProductDataException ex)
@@ -1223,12 +1237,15 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         private async Task ucActivityDetail_GotFocus(object sender, EventArgs e)
         {
-            this.Loading = true;
-
-            await Task.Run(() =>
+            await Task.Run(async () =>
             {
                 if (!SysEnvironment.GetInstance().IsApplicationExitInvoked)
                 {
+                    this.Loading = true;
+
+                    // This prevents UI lag when pushing modal into view
+                    await Task.Delay(500);
+
                     this.ScannerEnable();
 
                     if (this.IsControlLoaded == false)
@@ -1595,13 +1612,13 @@ namespace dMobile.View.Activity
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="scanArgs"></param>
-        private void BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
+        private async void BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
             int prodUnitRefno = 0;
             int currRowIdx = this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem);
             int svdActDetailFKRefno = this.ActDetail.FKRefno;
 
-            Device.BeginInvokeOnMainThread(async () =>
+            await Task.Run(async () =>
             {
                 try
                 {
@@ -1615,17 +1632,17 @@ namespace dMobile.View.Activity
 
                         if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
                         {
-                            this.cmdLocation.Text = LocationMapTasks.GetCurrentReadableLocation();
+                            string currentReadableLocation = LocationMapTasks.GetCurrentReadableLocation();
+                            Device.BeginInvokeOnMainThread(() => this.cmdLocation.Text = currentReadableLocation);
                         }
                         else
                         {
                             // TODO: Resource strings
-                            this.cmdLocation.Text = "Set Location";
+                            Device.BeginInvokeOnMainThread(() => this.cmdLocation.Text = "Set Location");
                         }
                     }
                     else
                     {
-
                         if (!string.IsNullOrEmpty(this.Parse.ProductIdentifier))
                         {
                             if (!LocationMapTasks.IsCompleteLocMapRefno(this.LocMap.CurrLocMapRefno))
@@ -1633,11 +1650,11 @@ namespace dMobile.View.Activity
                                 // TODO: Resource strings
                                 //MessageBox.Show("Location must be set first.", this.GetControlDescription(), MessageBoxButtons.OK, MessageBoxIcon.Hand, MessageBoxDefaultButton.Button1);
 
-                                await DisplayAlert(this.GetControlDescription(), "Location must be set first.", "Ok");
+                                Device.BeginInvokeOnMainThread(async () => await DisplayAlert(this.GetControlDescription(), "Location must be set first.", "Ok"));
                             }
                             else
                             {
-                                SysShared.IdentifyProductScanned(this.ActSubType, this.Parse, ref prodUnitRefno);
+                                prodUnitRefno = await SysShared.IdentifyProductScanned(this.ActSubType, this.Parse, prodUnitRefno);
 
                                 if (prodUnitRefno != this.ActDetail.ActItem.ProdInfo.UnitRefno)
                                 {
@@ -1689,7 +1706,7 @@ namespace dMobile.View.Activity
 
                                     // TODO: Resource strings
                                     //MessageBox.Show((string)this.ActDetail.ActItem.GetItemNotFoundMessage(this.LocMap, prodInfo), this.GetControlDescription(), MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
-                                    await DisplayAlert(this.GetControlDescription(), Convert.ToString(this.ActDetail.ActItem.GetItemNotFoundMessage(this.LocMap, prodInfo)), "Ok");
+                                    Device.BeginInvokeOnMainThread(async () => await DisplayAlert(this.GetControlDescription(), Convert.ToString(this.ActDetail.ActItem.GetItemNotFoundMessage(this.LocMap, prodInfo)), "Ok"));
 
                                 }
 
@@ -1720,8 +1737,11 @@ namespace dMobile.View.Activity
                                     tempItemProdSchemeData.ProdSchemeData = schemeData;
                                     actDetail.SchemeData = schemeData;
 
-                                    isInsertReady = await SysShared.GatherProductData(this.Parse, this.ActSubType, this.ActDetail.ActItem, tempItemProdSchemeData, isInsertReady, this.ActDetail, false);
-                                    this.InsertActivityDetail(currRowIdx, this.ActDetail, this.Parse, isInsertReady);
+                                    Device.BeginInvokeOnMainThread(async () =>
+                                    {
+                                        isInsertReady = await SysShared.GatherProductData(this.Parse, this.ActSubType, this.ActDetail.ActItem, tempItemProdSchemeData, isInsertReady, this.ActDetail, false);
+                                        this.InsertActivityDetail(currRowIdx, this.ActDetail, this.Parse, isInsertReady);
+                                    });
                                 }
                             }
                         }
@@ -1729,19 +1749,19 @@ namespace dMobile.View.Activity
                         {
                             // TODO: Resource strings
                             //MessageBox.Show("Scanning a header reference # is not supported here.", this.GetControlDescription(), MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
-                            await DisplayAlert(this.GetControlDescription(), "Scanning a header reference # is not supported here.", "Ok");
+                            Device.BeginInvokeOnMainThread(async () => await DisplayAlert(this.GetControlDescription(), "Scanning a header reference # is not supported here.", "Ok"));
                         }
                         else if (!string.IsNullOrEmpty(this.Parse.ActItemFKRefno))
                         {
                             // TODO: Resource strings
                             //MessageBox.Show("Scanning an item reference # is not supported here.", this.GetControlDescription(), MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
-                            await DisplayAlert(this.GetControlDescription(), "Scanning an item reference # is not supported here.", "Ok");
+                            Device.BeginInvokeOnMainThread(async () => await DisplayAlert(this.GetControlDescription(), "Scanning an item reference # is not supported here.", "Ok"));
                         }
                         else if (!string.IsNullOrEmpty(this.Parse.ActDetailFKRefno))
                         {
                             // TODO: Resource strings
                             //MessageBox.Show("Scanning a detail reference # is not supported here.", this.GetControlDescription(), MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
-                            await DisplayAlert(this.GetControlDescription(), "Scanning a detail reference # is not supported here.", "Ok");
+                            Device.BeginInvokeOnMainThread(async () => await DisplayAlert(this.GetControlDescription(), "Scanning a detail reference # is not supported here.", "Ok"));
                         }
                         else if (!string.IsNullOrEmpty(this.Parse.SSCC18))
                         {
@@ -1839,7 +1859,7 @@ namespace dMobile.View.Activity
                         {
                             // TODO: Resource strings
                             //MessageBox.Show("Scanned bar code type is not supported here.", this.GetControlDescription(), MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
-                            await DisplayAlert(this.GetControlDescription(), "Scanned bar code type is not supported here.", "Ok");
+                            Device.BeginInvokeOnMainThread(async () => await DisplayAlert(this.GetControlDescription(), "Scanned bar code type is not supported here.", "Ok"));
                         }
                     }
                 }
@@ -1892,17 +1912,23 @@ namespace dMobile.View.Activity
         {
             if (this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
             {
-                this.cmdAddSkid.IsEnabled = true;
+                Device.BeginInvokeOnMainThread(() =>
+                {
+                    this.cmdAddSkid.IsEnabled = true;
 
-                // TODO: Resource strings
-                this.cmdSelectSkid.Text = "Skid # " + this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode;
+                    // TODO: Resource strings
+                    this.cmdSelectSkid.Text = "Skid # " + this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode;
+                });
             }
             else
             {
-                this.cmdAddSkid.IsEnabled = false;
+                Device.BeginInvokeOnMainThread(() =>
+                {
+                    this.cmdAddSkid.IsEnabled = false;
 
-                // TODO: Resource strings
-                this.cmdSelectSkid.Text = "Select Skid";
+                    // TODO: Resource strings
+                    this.cmdSelectSkid.Text = "Select Skid";
+                });
             }
 
             this.ActDetail.FKRefno = svdActDetailFKRefno;
@@ -1910,7 +1936,10 @@ namespace dMobile.View.Activity
             if (this.ActDetail.DataViewDetails.Count > 0 && currRowIdx + 1 <= this.ActDetail.DataViewDetails.Count)
             {
                 //this.dataGridMainActivity.CurrentRowIndex = currRowIdx;
-                this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[currRowIdx];
+                Device.BeginInvokeOnMainThread(() =>
+                {
+                    this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[currRowIdx];
+                });
             }
         }
 
@@ -1959,14 +1988,12 @@ namespace dMobile.View.Activity
                 if (this.ActDetail.DataViewDetails.Count > 0 && this.DataGridMainActivityItemsList.Count > 0)
                 {
                     this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[0];
-                    this.ActDetail.SelectDetail(this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem));
-                    this.DisplayData();
-                    this.dataGridMainActivity.Focus();
+                    //this.ActDetail.SelectDetail(this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem));
+                    //this.DisplayData();
                 }
-                else
+                else if (this.DataGridMainActivityItemsList.Count > this.SelectedIndex)
                 {
-                    this.ActDetail.SelectDetail(-1);
-                    this.DisplayData();
+                    this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[this.SelectedIndex];
                 }
 
                 this.ScannerEnable();
@@ -1990,11 +2017,11 @@ namespace dMobile.View.Activity
                 actDetail.ActItem.UpdateDataViewQuantity(actDetail.ActItem.CurrRowIdx, actDetail.Quantity, actDetail.BaseQuantity, actDetail.WeightQuantity);
             }
 
-            if (actDetail.DataViewDetails.Count > 0)
+            if (actDetail.DataViewDetails.Count > 0 && this.DataGridMainActivityItemsList.Count > 0)
             {
                 //this.dataGridMainActivity.CurrentRowIndex = actDetail.DataViewDetails.Count - 1;
                 //this.dataGridMainActivity.Select(dataGridMainActivity.CurrentRowIndex);
-                this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[this.DataGridMainActivityItemsList.Count - 1];
+                Device.BeginInvokeOnMainThread(() => this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[this.DataGridMainActivityItemsList.Count - 1]);
             }
         }
 
@@ -2289,7 +2316,8 @@ namespace dMobile.View.Activity
 
         private void DataGridMainActivity_ItemSelected(object sender, SelectedItemChangedEventArgs e)
         {
-            this.ActDetail.SelectDetail(this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem));
+            this.SelectedIndex = this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem);
+            this.ActDetail.SelectDetail(this.SelectedIndex);
             this.DisplayData();
             // TODO: Apply filter
         }
@@ -2362,7 +2390,7 @@ namespace dMobile.View.Activity
                     break;
 
                 case SysCommon.ActSubTypes.Receiving:
-                       // Header grid
+                    // Header grid
                     Grid gridHeaderReceiving = new Grid
                     {
                         Padding = new Thickness(5),
@@ -2371,7 +2399,7 @@ namespace dMobile.View.Activity
                             new ColumnDefinition { Width = GridLength.Star },
                             new ColumnDefinition { Width = GridLength.Star },
                             new ColumnDefinition { Width = GridLength.Star },
-                            new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) },
+                            new ColumnDefinition { Width = new GridLength(4, GridUnitType.Star) },
                         }
                     };
 
@@ -2387,7 +2415,7 @@ namespace dMobile.View.Activity
                     gridHeaderReceiving.Children.Add(labelActivityDetailWeightQuantityReceiveDetailHeader);
                     gridHeaderReceiving.Children.Add(labelUnitCodeReceiveDetailHeader);
                     gridHeaderReceiving.Children.Add(labelActivityDetailSchemeIDReceiveDetailHeader);
-                        
+
                     Grid.SetColumn(labelActivityDetailQuantityReceiveDetailHeader, 0);
                     Grid.SetColumn(labelActivityDetailWeightQuantityReceiveDetailHeader, 1);
                     Grid.SetColumn(labelUnitCodeReceiveDetailHeader, 2);
@@ -2408,7 +2436,7 @@ namespace dMobile.View.Activity
                                 new ColumnDefinition { Width = GridLength.Star },
                                 new ColumnDefinition { Width = GridLength.Star },
                                 new ColumnDefinition { Width = GridLength.Star },
-                                new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) },
+                                new ColumnDefinition { Width = new GridLength(4, GridUnitType.Star) },
                             }
                         };
 
@@ -2442,46 +2470,49 @@ namespace dMobile.View.Activity
                     {
                         ReceiveDetail receiveDetail = new ReceiveDetail
                         {
-                            ActivityDetailRefno = Convert.ToInt32(row["ActivityDetailRefno"]),
-                            LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"]),
-                            ActivityDetailReceivingFKRefno = Convert.ToInt32(row["ActivityDetailReceivingFKRefno"]),
-                            UnitCode = Convert.ToString(row["UnitCode"]),
-                            WtUnitCode = Convert.ToInt32(row["WtUnitCode"]),
-                            BaseUnitCode = Convert.ToInt32(row["BaseUnitCode"]),
-                            ProductCode = Convert.ToString(row["ProductCode"]),
-                            ProductRefno = Convert.ToInt32(row["ProductRefno"]),
-                            ProductDescription = Convert.ToString(row["ProductDescription"]),
-                            ProductUnitBC = Convert.ToString(row["ProductUnitBC"]),
-                            ProductUnitIsBC = Convert.ToBoolean(row["ProductUnitIsBC"]),
-                            ProductUnitSizeDescription = Convert.ToString(row["ProductUnitSizeDescription"]),
-                            ActivityDetailQuantity = Convert.ToInt32(row["ActivityDetailQuantity"]),
-                            ActivityDetailBaseQuantity = Convert.ToInt32(row["ActivityDetailBaseQuantity"]),
-                            ActivityDetailWeightQuantity = Convert.ToInt32(row["ActivityDetailWeightQuantity"]),
-                            ActivityDetailLogisticUnitBestBeforeSellByDate = Convert.ToDateTime(row["ActivityDetailLogisticUnitBestBeforeSellByDate"]),
-                            ActivityDetailSchemeID = Convert.ToString(row["ActivityDetailSchemeID"]),
-                            ActivityDetailUniqueSchemeID = Convert.ToString(row["ActivityDetailUniqueSchemeID"]),
-                            ActivityDetailSingleTradeItemSerialNumber = Convert.ToString(row["ActivityDetailSingleTradeItemSerialNumber"]),
-                            ActivityDetailLogisticUnitBatchLotNumber = Convert.ToString(row["ActivityDetailLogisticUnitBatchLotNumber"]),
-                            ActivityDetailLogisticUnitExpiryUseByDate = Convert.ToDateTime(row["ActivityDetailLogisticUnitExpiryUseByDate"]),
-                            ActivityDetailLogisticUnitProductionDate = Convert.ToDateTime(row["ActivityDetailLogisticUnitProductionDate"]),
-                            ActivityDetailLogisticUnitSkidNumber = Convert.ToString(row["ActivityDetailLogisticUnitSkidNumber"]),
-                            LocationCode = Convert.ToInt32(row["LocationCode"]),
-                            LocationName = Convert.ToString(row["LocationName"]),
-                            Location = Convert.ToString(row["Location"]),
-                            ProductSchemeVariantCode = Convert.ToString(row["ProductSchemeVariantCode"]),
-                            ProductSchemeVariantNo = Convert.ToInt32(row["ProductSchemeVariantNo"]),
-                            ProductSchemeVariantDescription = Convert.ToString(row["ProductSchemeVariantDescription"]),
-                            ActivityDetailStatus = Convert.ToInt32(row["ActivityDetailStatus"]),
-                            IsBatchProductLabel = Convert.ToBoolean(row["IsBatchProductLabel"]),
-                            ActivityDetailExtra1Text = Convert.ToString(row["ActivityDetailExtra1Text"]),
-                            ActivityDetailExtra2Text = Convert.ToString(row["ActivityDetailExtra2Text"]),
-                            ActivityDetailExtra3Text = Convert.ToString(row["ActivityDetailExtra3Text"]),
-                            ActivityDetailExtra4Text = Convert.ToString(row["ActivityDetailExtra4Text"]),
-                            ActivityDetailExtra5Text = Convert.ToString(row["ActivityDetailExtra5Text"])
+                            ActivityDetailRefno = Convert.ToInt32(row["ActivityDetailRefno"] != DBNull.Value ? row["ActivityDetailRefno"] : null),
+                            LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
+                            ActivityDetailReceivingFKRefno = Convert.ToInt32(row["ActivityDetailReceivingFKRefno"] != DBNull.Value ? row["ActivityDetailReceivingFKRefno"] : null),
+                            UnitCode = Convert.ToString(row["UnitCode"] != DBNull.Value ? row["UnitCode"] : null),
+                            WtUnitCode = Convert.ToString(row["WtUnitCode"] != DBNull.Value ? row["WtUnitCode"] : null),
+                            BaseUnitCode = Convert.ToString(row["BaseUnitCode"] != DBNull.Value ? row["BaseUnitCode"] : null),
+                            ProductCode = Convert.ToString(row["ProductCode"] != DBNull.Value ? row["ProductCode"] : null),
+                            ProductRefno = Convert.ToInt32(row["ProductRefno"] != DBNull.Value ? row["ProductRefno"] : null),
+                            ProductDescription = Convert.ToString(row["ProductDescription"] != DBNull.Value ? row["ProductDescription"] : null),
+                            ProductUnitBC = Convert.ToString(row["ProductUnitBC"] != DBNull.Value ? row["ProductUnitBC"] : null),
+                            ProductUnitIsBC = Convert.ToBoolean(row["ProductUnitIsBC"] != DBNull.Value ? row["ProductUnitIsBC"] : null),
+                            ProductUnitSizeDescription = Convert.ToString(row["ProductUnitSizeDescription"] != DBNull.Value ? row["ProductUnitSizeDescription"] : null),
+                            ActivityDetailQuantity = Convert.ToDecimal(row["ActivityDetailQuantity"] != DBNull.Value ? row["ActivityDetailQuantity"] : null),
+                            ActivityDetailBaseQuantity = Convert.ToDecimal(row["ActivityDetailBaseQuantity"] != DBNull.Value ? row["ActivityDetailBaseQuantity"] : null),
+                            ActivityDetailWeightQuantity = Convert.ToDecimal(row["ActivityDetailWeightQuantity"] != DBNull.Value ? row["ActivityDetailWeightQuantity"] : null),
+                            ActivityDetailLogisticUnitBestBeforeSellByDate = Convert.ToDateTime(row["ActivityDetailLogisticUnitBestBeforeSellByDate"] != DBNull.Value ? row["ActivityDetailLogisticUnitBestBeforeSellByDate"] : null),
+                            ActivityDetailSchemeID = Convert.ToString(row["ActivityDetailSchemeID"] != DBNull.Value ? row["ActivityDetailSchemeID"] : null),
+                            ActivityDetailUniqueSchemeID = Convert.ToString(row["ActivityDetailUniqueSchemeID"] != DBNull.Value ? row["ActivityDetailUniqueSchemeID"] : null),
+                            ActivityDetailSingleTradeItemSerialNumber = Convert.ToString(row["ActivityDetailSingleTradeItemSerialNumber"] != DBNull.Value ? row["ActivityDetailSingleTradeItemSerialNumber"] : null),
+                            ActivityDetailLogisticUnitBatchLotNumber = Convert.ToString(row["ActivityDetailLogisticUnitBatchLotNumber"] != DBNull.Value ? row["ActivityDetailLogisticUnitBatchLotNumber"] : null),
+                            ActivityDetailLogisticUnitExpiryUseByDate = Convert.ToDateTime(row["ActivityDetailLogisticUnitExpiryUseByDate"] != DBNull.Value ? row["ActivityDetailLogisticUnitExpiryUseByDate"] : null),
+                            ActivityDetailLogisticUnitProductionDate = Convert.ToDateTime(row["ActivityDetailLogisticUnitProductionDate"] != DBNull.Value ? row["ActivityDetailLogisticUnitProductionDate"] : null),
+                            ActivityDetailLogisticUnitSkidNumber = Convert.ToString(row["ActivityDetailLogisticUnitSkidNumber"] != DBNull.Value ? row["ActivityDetailLogisticUnitSkidNumber"] : null),
+                            LocationCode = Convert.ToInt32(row["LocationCode"] != DBNull.Value ? row["LocationCode"] : null),
+                            LocationName = Convert.ToString(row["LocationName"] != DBNull.Value ? row["LocationName"] : null),
+                            Location = Convert.ToString(row["Location"] != DBNull.Value ? row["Location"] : null),
+                            ProductSchemeVariantCode = Convert.ToString(row["ProductSchemeVariantCode"] != DBNull.Value ? row["ProductSchemeVariantCode"] : null),
+                            ProductSchemeVariantNo = Convert.ToInt32(row["ProductSchemeVariantNo"] != DBNull.Value ? row["ProductSchemeVariantNo"] : null),
+                            ProductSchemeVariantDescription = Convert.ToString(row["ProductSchemeVariantDescription"] != DBNull.Value ? row["ProductSchemeVariantDescription"] : null),
+                            ActivityDetailStatus = Convert.ToInt32(row["ActivityDetailStatus"] != DBNull.Value ? row["ActivityDetailStatus"] : null),
+                            IsBatchProductLabel = Convert.ToBoolean(row["IsBatchProductLabel"] != DBNull.Value ? row["IsBatchProductLabel"] : null),
+                            ActivityDetailExtra1Text = Convert.ToString(row["ActivityDetailExtra1Text"] != DBNull.Value ? row["ActivityDetailExtra1Text"] : null),
+                            ActivityDetailExtra2Text = Convert.ToString(row["ActivityDetailExtra2Text"] != DBNull.Value ? row["ActivityDetailExtra2Text"] : null),
+                            ActivityDetailExtra3Text = Convert.ToString(row["ActivityDetailExtra3Text"] != DBNull.Value ? row["ActivityDetailExtra3Text"] : null),
+                            ActivityDetailExtra4Text = Convert.ToString(row["ActivityDetailExtra4Text"] != DBNull.Value ? row["ActivityDetailExtra4Text"] : null),
+                            ActivityDetailExtra5Text = Convert.ToString(row["ActivityDetailExtra5Text"] != DBNull.Value ? row["ActivityDetailExtra5Text"] : null)
                         };
 
                         this.DataGridMainActivityItemsList.Add(receiveDetail);
                     }
+
+                    this.dataGridMainActivity.WidthRequest = 450;
+
                     break;
 
                 case SysCommon.ActSubTypes.RefreshData:
@@ -2613,5 +2644,11 @@ namespace dMobile.View.Activity
         }
 
         #endregion
+
+        private void ActionItemsMenu_Clicked(object sender, EventArgs e)
+        {
+            this.ActionsVisible = !this.ActionsVisible;
+            this.SysEnv.SysSettings.ActivityDetailActionsVisible = this.ActionsVisible;
+        }
     }
 }

@@ -257,8 +257,7 @@
 
                         if (result.SelectSingleNode("/VFPData/DeliScaleWeightUnit").HasChildNodes)
                         {
-                            deliScaleWeightUnit = Convert.ToString(result.SelectSingleNode(
-                                "/VFPData/DeliScaleWeightUnit").FirstChild.Value);
+                            deliScaleWeightUnit = Convert.ToString(result.SelectSingleNode("/VFPData/DeliScaleWeightUnit").FirstChild.Value);
                         }
 
                         if (prodInfo.FKRefno != 0)
@@ -273,7 +272,7 @@
                                 cmndProd.CommandText = "SELECT * FROM tProduct WHERE ProductFKRefno = @productFKRefno";
                                 cmndProd.CommandType = CommandType.Text;
                                 //cmndProd.IndexName = "UQ_ProductOnProductFKRefno";
-                                cmndProd.Parameters.Add(new SQLiteParameter("@productFKRefno", prodInfo.FKRefno));
+                                cmndProd.Parameters.Add(new SQLiteParameter("@productFKRefno", Convert.ToInt32(prodInfo.FKRefno)));
 
                                 using (SQLiteDataReader drProd = cmndProd.ExecuteReader())
                                 {
@@ -283,18 +282,18 @@
 
                                         cmndUnit.CommandText = "SELECT * FROM tUnit WHERE UnitCode = @unitCode";
                                         cmndUnit.CommandType = CommandType.Text;
-                                        cmndUnit.Parameters.Add(new SQLiteParameter("@unitCode", prodInfo.UnitCode));
+                                        cmndUnit.Parameters.Add(new SQLiteParameter("@unitCode", Convert.ToString(prodInfo.UnitCode)));
 
                                         using (SQLiteDataReader drUnit = cmndUnit.ExecuteReader())
                                         {
                                             if (drUnit.Read())
                                             {
-                                                int unitRefno = drUnit.GetInt32((int)SysCommon.UnitFields.UnitRefno);
+                                                int unitRefno = drUnit.GetInt32(Convert.ToInt32(SysCommon.UnitFields.UnitRefno));
 
                                                 cmndProdUnit.CommandText = "SELECT * FROM tProductUnit WHERE ProductRefno = @productRefno AND UnitRefno = @unitRefno AND ProductUnitIsBC = @productUnitIsBC";
                                                 cmndProdUnit.CommandType = CommandType.Text;
-                                                cmndProdUnit.Parameters.Add(new SQLiteParameter("@productRefno", prodInfo.Refno));
-                                                cmndProdUnit.Parameters.Add(new SQLiteParameter("@unitRefno", unitRefno));
+                                                cmndProdUnit.Parameters.Add(new SQLiteParameter("@productRefno", Convert.ToInt32(prodInfo.Refno)));
+                                                cmndProdUnit.Parameters.Add(new SQLiteParameter("@unitRefno", Convert.ToInt32(unitRefno)));
                                                 cmndProdUnit.Parameters.Add(new SQLiteParameter("@productUnitIsBC", prodInfo.UnitIsBC));
 
                                                 using (SQLiteDataReader drProdUnit = cmndProdUnit.ExecuteReader())

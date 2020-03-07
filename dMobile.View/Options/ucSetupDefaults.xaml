@@ -13,9 +13,8 @@
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
-                <ScrollView AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0,0,1,1" Grid.Row="0">
-
-                    <Grid AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0,0,1,1">
+                <ScrollView Grid.Row="0">
+                    <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
@@ -31,8 +30,8 @@
                             <Label x:Name="tabSetupDefaults" Text="Setup" FontAttributes="Bold"/>
                         </Grid>
 
-                        <Frame VerticalOptions="Start" Grid.Row="2" OutlineColor="White">
-                            <Grid>
+                        <Frame Grid.Row="2" OutlineColor="{DynamicResource BorderColor}">
+                            <Grid Padding="5">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto" />
                                     <RowDefinition Height="Auto" />
@@ -67,8 +66,8 @@
                             <Label x:Name="tabSetupDefaultsPrinters" Text="Portable Printers" FontAttributes="Bold"/>
                         </Grid>
 
-                        <Frame VerticalOptions="Start" Grid.Row="8" OutlineColor="White">
-                            <Grid>
+                        <Frame VerticalOptions="Start" Grid.Row="8" OutlineColor="{DynamicResource BorderColor}">
+                            <Grid Padding="5">
                                 <Label x:Name="lblEnableShippingMobilePrinter" Text="Shipping Label Printer" VerticalTextAlignment="Center" />
                                 <Custom:CustomSwitch x:Name="chkEnableShippingMobilePrinter" Toggled="ChkEnableShippingMobilePrinter_Toggled"/>
 

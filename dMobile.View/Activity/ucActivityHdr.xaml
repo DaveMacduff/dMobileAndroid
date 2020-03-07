@@ -5,11 +5,13 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:Helpers="clr-namespace:dMobile.View.Helpers"
     x:Class="dMobile.View.Activity.ucActivityHdr">
+    <ContentPage.ToolbarItems>
+        <ToolbarItem x:Name="actionItemsMenu" IconImageSource="{Binding IconSource}" Clicked="ActionItemsMenu_Clicked" />
+    </ContentPage.ToolbarItems>
     <ContentPage.Content>
         <AbsoluteLayout VerticalOptions="Center">
             <Grid x:Name="gridContainer" Padding="10" AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0,0,1,1">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
                     <RowDefinition Height="3*"/>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="Auto"/>
@@ -21,7 +23,7 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <Frame VerticalOptions="Start" Grid.Row="1" Grid.ColumnSpan="2" OutlineColor="{DynamicResource BorderColor}">
+                <Frame VerticalOptions="Start" Grid.Row="0" Grid.ColumnSpan="2" OutlineColor="{DynamicResource BorderColor}">
                     <Grid x:Name="dataGridMainActivityHeader">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -31,7 +33,7 @@
                     </Grid>
                 </Frame>
 
-                <Frame VerticalOptions="Start" Grid.Row="2" Grid.ColumnSpan="2" OutlineColor="{DynamicResource BorderColor}">
+                <Frame VerticalOptions="Start" Grid.Row="1" Grid.ColumnSpan="2" OutlineColor="{DynamicResource BorderColor}">
                     <ListView x:Name="lstDisplay" SelectionMode="None" HasUnevenRows="True" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" SeparatorVisibility="None">
                         <ListView.ItemTemplate>
                             <DataTemplate>
@@ -45,10 +47,10 @@
                     </ListView>
                 </Frame>
 
-                <Entry x:Name="txtSearchHdr" Grid.Row="3" Grid.Column="0" TextChanged="TxtSearchHdr_TextChanged" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
-                <Button x:Name="cmdFilter" Grid.Row="3" Grid.Column="1" Text="Filter" Clicked="cmdFilter_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                <Entry x:Name="txtSearchHdr" Grid.Row="2" Grid.Column="0" TextChanged="TxtSearchHdr_TextChanged" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                <Button x:Name="cmdFilter" Grid.Row="2" Grid.Column="1" Text="Filter" Clicked="cmdFilter_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
 
-                <Button x:Name="cmdAdd" Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" Text="Add" Clicked="cmdAdd_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                <Button x:Name="cmdAdd" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Text="Add" Clicked="cmdAdd_Click" IsVisible="{Binding ActionsVisible}" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
             </Grid>
 
             <ActivityIndicator IsVisible="{Binding Loading}" 

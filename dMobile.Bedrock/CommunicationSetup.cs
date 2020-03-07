@@ -48,7 +48,7 @@ namespace dMobile.Bedrock
         /// <summary>
         /// 
         /// </summary>
-        private int hostIPAddressComponent1 = 0;
+        private int hostIPAddressComponent1 = 127;
 
         /// <summary>
         /// 
@@ -63,7 +63,7 @@ namespace dMobile.Bedrock
         /// <summary>
         /// 
         /// </summary>
-        private int hostIPAddressComponent4 = 0;
+        private int hostIPAddressComponent4 = 1;
 
         /// <summary>
         /// 

@@ -766,9 +766,8 @@
                     Device.BeginInvokeOnMainThread(async () =>
                     {
                         //TODO: Resource Strings
-                        await DisplayAlert(this.GetControlDescription(), "Communication test failed.", "OK", "Cancel");
+                        await DisplayAlert(this.GetControlDescription(), "Database creation failed.", "OK");
                     });
-
                 }
                 else
                 {
@@ -1031,7 +1030,7 @@
                     Device.BeginInvokeOnMainThread(async () =>
                     {
                         //TODO: Resource Strings
-                        await DisplayAlert(this.GetControlDescription(), "Communication test failed.", "OK", "Cancel");
+                        await DisplayAlert(this.GetControlDescription(), "Communication test failed.", "OK");
                     });
                 }
             }

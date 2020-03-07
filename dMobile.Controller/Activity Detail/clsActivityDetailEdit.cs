@@ -100,8 +100,8 @@ namespace dMobile.Controller
             SLocMap currLocMap = LocationMap.GetInstance().CurrLocMap;
 
             StringBuilder s = new StringBuilder();
-            s.Append("SELECT tProductSchemeVariant.ProductSchemeVariantCode,");
-            s.Append("tProductSchemeVariant.ProductSchemeVariantNo,");
+            s.Append("SELECT tProductSchemeVariant.ProductSchemeVariantCode AS ProductSchemeVariantCode,");
+            s.Append("tProductSchemeVariant.ProductSchemeVariantNo AS ProductSchemeVariantNo,");
             s.Append("tProductSchemeVariant.ProductSchemeVariantCode + \'  \' ");
             s.Append("+ tProductSchemeVariant.ProductSchemeVariantDescription AS ProductSchemeVariantDisplay ");
             s.Append("FROM tProduct ");
@@ -139,7 +139,7 @@ namespace dMobile.Controller
             // tProductSchemeLotNumber the exception would be receiving. The supplier Lot needs to exist in the list for
             // a lookup match.
             StringBuilder s = new StringBuilder();
-            s.Append("SELECT DISTINCT tActivityDetail.ActivityDetailLogisticUnitBatchLotNumber ");
+            s.Append("SELECT DISTINCT tActivityDetail.ActivityDetailLogisticUnitBatchLotNumber AS ActivityDetailLogisticUnitBatchLotNumber ");
             s.Append("FROM tActivityDetail ");
             s.Append("INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = tActivityDetail.ProductUnitRefno ");
             s.Append("INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno ");
@@ -172,7 +172,7 @@ namespace dMobile.Controller
             DataView dataViewSerial;
 
             StringBuilder s = new StringBuilder();
-            s.Append("SELECT DISTINCT tActivityDetail.ActivityDetailSingleTradeItemSerialNumber ");
+            s.Append("SELECT DISTINCT tActivityDetail.ActivityDetailSingleTradeItemSerialNumber AS ActivityDetailSingleTradeItemSerialNumber ");
             s.Append("FROM tActivityDetail ");
             s.Append("INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = tActivityDetail.ProductUnitRefno ");
             s.Append("INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno ");

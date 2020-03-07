@@ -869,11 +869,11 @@ namespace dMobile.Controller
                 using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
                 using (SQLiteCommand cmndID = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
                 {
-                    cmndItem.CommandText = "INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityItemRefno) VALUES (@activityItemSubType, @activityItemStatus, @activityItemRefno)";
+                    cmndItem.CommandText = "INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (@activityItemSubType, @activityItemStatus, @activityRefno)";
                     cmndItem.CommandType = CommandType.Text;
                     cmndItem.Parameters.Add(new SQLiteParameter("@activityItemSubType", Convert.ToInt32(actSubTypes)));
-                    cmndItem.Parameters.Add(new SQLiteParameter("@activityItemStatus", Convert.ToInt32(this.ActHdr.Refno)));
-                    cmndItem.Parameters.Add(new SQLiteParameter("@activityItemRefno", Convert.ToInt32(SysCommon.ActStatus.Inserted)));
+                    cmndItem.Parameters.Add(new SQLiteParameter("@activityItemStatus", Convert.ToInt32(SysCommon.ActStatus.Inserted)));
+                    cmndItem.Parameters.Add(new SQLiteParameter("@activityRefno", Convert.ToInt32(this.ActHdr.Refno)));
 
                     cmndItem.ExecuteNonQuery();
 

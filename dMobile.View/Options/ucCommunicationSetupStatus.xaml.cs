@@ -29,6 +29,9 @@
         public ucCommunicationSetupStatus()
         {
             InitializeComponent();
+
+            // TODO: Resource strings
+            this.Title = "Communication Status";
         }
 
         /// <summary>

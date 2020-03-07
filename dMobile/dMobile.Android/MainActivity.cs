@@ -30,11 +30,26 @@
         }
 
         /// <summary>
+        /// The OnPause
+        /// </summary>
+        protected override void OnPause()
+        {
+            base.OnPause();            
+
+            SystemSettings tempSystemSettings = SysEnvironment.GetInstance().SysSettings;
+            SystemSettingsTasks.SaveData(ref tempSystemSettings);
+            SysEnvironment.GetInstance().ContactLog.SubmitContactLogOut();
+        }
+        
+        /// <summary>
         /// The OnStop
         /// </summary>
         protected override void OnStop()
         {
-            base.OnStop();
+            base.OnStop();            
+
+            SystemSettings tempSystemSettings = SysEnvironment.GetInstance().SysSettings;
+            SystemSettingsTasks.SaveData(ref tempSystemSettings);
             SysEnvironment.GetInstance().ContactLog.SubmitContactLogOut();
         }
 

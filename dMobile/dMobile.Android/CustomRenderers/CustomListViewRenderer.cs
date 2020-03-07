@@ -14,6 +14,7 @@ using Xamarin.Forms;
 using Xamarin.Forms.Platform.Android;
 using ListView = Xamarin.Forms.ListView;
 
+// Not using this class at the moment
 //[assembly: ExportRenderer(typeof(ListView), typeof(CustomListViewRenderer))]
 namespace dMobile.Droid.CustomRenderers
 {

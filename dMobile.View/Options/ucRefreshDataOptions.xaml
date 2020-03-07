@@ -25,7 +25,7 @@
 
                 <Frame VerticalOptions="Start" Grid.Row="1" OutlineColor="{DynamicResource BorderColor}">
                     <ScrollView>
-                        <Grid>
+                        <Grid Padding="5">
                             <Label x:Name="lblSystemData" Text="System Data" VerticalTextAlignment="Center" />
                             <Custom:CustomSwitch x:Name="chkSystemData" Clicked="ClickHandler" Toggled="IdentifyChangesMade"/>
                             <Label x:Name="lblAdjustments" Text="Adjustments" VerticalTextAlignment="Center" Grid.Row="1"/>

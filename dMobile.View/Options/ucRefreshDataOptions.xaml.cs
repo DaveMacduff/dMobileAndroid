@@ -744,9 +744,10 @@
                     this.ReqCancelDisableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     this.ReqSaveDisableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
 
-                    Device.BeginInvokeOnMainThread(async () =>
+                    await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucRefreshDataStatus, SysCommon.ActSubTypes.RefreshData);
+
                         await form.DisplayControl.ShowDialog().ContinueWith(result => 
                         {
                             form.SaveChanges(this, new EventArgs());

@@ -12,84 +12,98 @@
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
+                
+                <Frame Grid.Row="0" Grid.ColumnSpan="2" OutlineColor="{DynamicResource BorderColor}">
+                    <ScrollView>
+                        <Grid Padding="10">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
 
-                <ScrollView Grid.Row="0" Grid.ColumnSpan="2">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="*"/>
-                            <RowDefinition Height="*"/>
-                            <RowDefinition Height="*"/>
-                            <RowDefinition Height="*"/>
-                            <RowDefinition Height="*"/>
-                            <RowDefinition Height="*"/>
-                            <RowDefinition Height="*"/>
-                            <RowDefinition Height="*"/>
-                            <RowDefinition Height="*"/>
-                            <RowDefinition Height="*"/>
-                            <RowDefinition Height="*"/>
-                            <RowDefinition Height="*"/>
-                        </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="2*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
 
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
+                            <!--Row 0-->
+                            <Label x:Name="lblQty" Grid.Row="0" Grid.Column="0" VerticalOptions="CenterAndExpand"/>
+                            <Entry x:Name="txtAltQty" Grid.Row="0" Grid.Column="1" Keyboard="Numeric" VerticalOptions="CenterAndExpand"/>
+                            <Label x:Name="lblUnit" Grid.Row="0" Grid.Column="2" VerticalOptions="CenterAndExpand"/>
 
-                        <!--Row 0-->
-                        <Label x:Name="lblQty" Grid.Row="0" Grid.Column="0" VerticalOptions="CenterAndExpand"/>
-                        <Entry x:Name="txtAltQty" Grid.Row="0" Grid.Column="1" Keyboard="Numeric" VerticalOptions="CenterAndExpand"/>
-                        <Label x:Name="lblUnit" Grid.Row="0" Grid.Column="2" VerticalOptions="CenterAndExpand"/>
+                            <!--Row 1-->
+                            <Label x:Name="lblWeight" Grid.Row="1" Grid.Column="0" VerticalOptions="CenterAndExpand"/>
+                            <Entry x:Name="txtWtQty" Grid.Row="1" Grid.Column="1" Keyboard="Numeric" VerticalOptions="CenterAndExpand"/>
+                            <Label x:Name="lblWtUnit" Grid.Row="1" Grid.Column="2" VerticalOptions="CenterAndExpand"/>
 
-                        <!--Row 1-->
-                        <Label x:Name="lblWeight" Grid.Row="1" Grid.Column="0" VerticalOptions="CenterAndExpand"/>
-                        <Entry x:Name="txtWtQty" Grid.Row="1" Grid.Column="1" Keyboard="Numeric" VerticalOptions="CenterAndExpand"/>
-                        <Label x:Name="lblWtUnit" Grid.Row="1" Grid.Column="2" VerticalOptions="CenterAndExpand"/>
+                            <!--Row 2-->
+                            <Label x:Name="lblSerialNo" Grid.Row="2" Grid.Column="0" VerticalOptions="CenterAndExpand"/>
+                            <Picker x:Name="cboSerialNo" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" VerticalOptions="CenterAndExpand"/>
 
-                        <!--Row 2-->
-                        <Label x:Name="lblSerialNo" Grid.Row="2" Grid.Column="0" VerticalOptions="CenterAndExpand"/>
-                        <Picker x:Name="cboSerialNo" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" VerticalOptions="CenterAndExpand"/>
+                            <!--Row 3-->
+                            <Label x:Name="lblProductionDate" Grid.Row="3" Grid.Column="0" VerticalOptions="CenterAndExpand"/>
+                            <DatePicker x:Name="dtProductionDate" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" VerticalOptions="CenterAndExpand"/>
 
-                        <!--Row 3-->
-                        <Label x:Name="lblProductionDate" Grid.Row="3" Grid.Column="0" VerticalOptions="CenterAndExpand"/>
-                        <DatePicker x:Name="dtProductionDate" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" VerticalOptions="CenterAndExpand"/>
+                            <!--Row 4-->
+                            <Label x:Name="lblLotNo" Grid.Row="4" Grid.Column="0" VerticalOptions="CenterAndExpand"/>
+                            <Picker x:Name="cboLotNo" Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2" VerticalOptions="CenterAndExpand"/>
 
-                        <!--Row 4-->
-                        <Label x:Name="lblLotNo" Grid.Row="4" Grid.Column="0" VerticalOptions="CenterAndExpand"/>
-                        <Picker x:Name="cboLotNo" Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2" VerticalOptions="CenterAndExpand"/>
+                            <!--Row 5-->
+                            <Label x:Name="lblBestBeforeDate" Grid.Row="5" Grid.Column="0" VerticalOptions="CenterAndExpand"/>
+                            <DatePicker x:Name="dtBestBeforeDate" Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2" VerticalOptions="CenterAndExpand"/>
 
-                        <!--Row 5-->
-                        <Label x:Name="lblBestBeforeDate" Grid.Row="5" Grid.Column="0" VerticalOptions="CenterAndExpand"/>
-                        <DatePicker x:Name="dtBestBeforeDate" Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2" VerticalOptions="CenterAndExpand"/>
+                            <!--Row 6-->
+                            <Label x:Name="lblVariantCode" Grid.Row="6" Grid.Column="0" VerticalOptions="CenterAndExpand"/>
+                            <Picker x:Name="cboVariantCode" Grid.Row="6" Grid.Column="1" Grid.ColumnSpan="2" VerticalOptions="CenterAndExpand"/>
 
-                        <!--Row 6-->
-                        <Label x:Name="lblVariantCode" Grid.Row="6" Grid.Column="0" VerticalOptions="CenterAndExpand"/>
-                        <Picker x:Name="cboVariantCode" Grid.Row="6" Grid.Column="1" Grid.ColumnSpan="2" VerticalOptions="CenterAndExpand"/>
+                            <!--Row 7-->
+                            <Label x:Name="lbl1" Grid.Row="7" Grid.Column="0" VerticalOptions="CenterAndExpand"/>
+                            <Entry x:Name="txtExtraDetail1" Grid.Row="7" Grid.Column="1" Grid.ColumnSpan="2" VerticalOptions="CenterAndExpand"/>
 
-                        <!--Row 7-->
-                        <Label x:Name="lbl1" Grid.Row="7" Grid.Column="0" VerticalOptions="CenterAndExpand"/>
-                        <Entry x:Name="txtExtraDetail1" Grid.Row="7" Grid.Column="1" VerticalOptions="CenterAndExpand"/>
+                            <!--Row 8-->
+                            <Label x:Name="lbl2" Grid.Row="8" Grid.Column="0" VerticalOptions="CenterAndExpand"/>
+                            <Entry x:Name="txtExtraDetail2" Grid.Row="8" Grid.Column="1" Grid.ColumnSpan="2" VerticalOptions="CenterAndExpand"/>
 
-                        <!--Row 8-->
-                        <Label x:Name="lbl2" Grid.Row="8" Grid.Column="0" VerticalOptions="CenterAndExpand"/>
-                        <Entry x:Name="txtExtraDetail2" Grid.Row="8" Grid.Column="1" VerticalOptions="CenterAndExpand"/>
+                            <!--Row 9-->
+                            <Label x:Name="lbl3" Grid.Row="9" Grid.Column="0" VerticalOptions="CenterAndExpand"/>
+                            <Entry x:Name="txtExtraDetail3" Grid.Row="9" Grid.Column="1" Grid.ColumnSpan="2" VerticalOptions="CenterAndExpand"/>
 
-                        <!--Row 9-->
-                        <Label x:Name="lbl3" Grid.Row="9" Grid.Column="0" VerticalOptions="CenterAndExpand"/>
-                        <Entry x:Name="txtExtraDetail3" Grid.Row="9" Grid.Column="1" VerticalOptions="CenterAndExpand"/>
+                            <!--Row 10-->
+                            <Label x:Name="lbl4" Grid.Row="10" Grid.Column="0" VerticalOptions="CenterAndExpand"/>
+                            <Entry x:Name="txtExtraDetail4" Grid.Row="10" Grid.Column="1" Grid.ColumnSpan="2" VerticalOptions="CenterAndExpand"/>
 
-                        <!--Row 10-->
-                        <Label x:Name="lbl4" Grid.Row="10" Grid.Column="0" VerticalOptions="CenterAndExpand"/>
-                        <Entry x:Name="txtExtraDetail4" Grid.Row="10" Grid.Column="1" VerticalOptions="CenterAndExpand"/>
+                            <!--Row 11-->
+                            <Label x:Name="lbl5" Grid.Row="11" Grid.Column="0" VerticalOptions="CenterAndExpand"/>
+                            <Entry x:Name="txtExtraDetail5" Grid.Row="11" Grid.Column="1" Grid.ColumnSpan="2" VerticalOptions="CenterAndExpand"/>
 
-                        <!--Row 11-->
-                        <Label x:Name="lbl5" Grid.Row="11" Grid.Column="0" VerticalOptions="CenterAndExpand"/>
-                        <Entry x:Name="txtExtraDetail5" Grid.Row="11" Grid.Column="1" VerticalOptions="CenterAndExpand"/>
+                        </Grid>
+                    </ScrollView>
+                </Frame>
 
-                    </Grid>
-                </ScrollView>
-
-                <ListView x:Name="lstDisplay" Grid.Row="1" />
+                <Frame Grid.Row="1" Grid.ColumnSpan="2" OutlineColor="{DynamicResource BorderColor}" Padding="1,5,1,5">
+                    <ListView x:Name="lstDisplay" SelectionMode="None" SeparatorVisibility="None" HasUnevenRows="True">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <ViewCell>
+                                    <StackLayout Padding="5,1,5,1">
+                                        <Label Text="{Binding}" VerticalTextAlignment="Center"/>
+                                    </StackLayout>
+                                </ViewCell>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </Frame>
 
                 <Button x:Name="btnSave" Grid.Row="2" Text="Save" Clicked="BtnSave_Clicked"/>
                 <Button x:Name="btnCancel" Grid.Row="2" Grid.Column="1" Text="Cancel" Clicked="BtnCancel_Clicked"/>

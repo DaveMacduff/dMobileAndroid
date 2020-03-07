@@ -390,9 +390,9 @@ namespace dMobile.Controller
             {
                 for (int i = 0; i <= this.DataViewDetails.Count - 1; i++)
                 {
-                    fillQty.Quantity = fillQty.Quantity + (decimal)this.DataViewDetails[i]["ActivityDetailQuantity"];
-                    fillQty.BaseQuantity = fillQty.BaseQuantity + (decimal)this.DataViewDetails[i]["ActivityDetailBaseQuantity"];
-                    fillQty.WeightQuantity = fillQty.WeightQuantity + (decimal)this.DataViewDetails[i]["ActivityDetailWeightQuantity"];
+                    fillQty.Quantity = fillQty.Quantity + Convert.ToDecimal(this.DataViewDetails[i]["ActivityDetailQuantity"]);
+                    fillQty.BaseQuantity = fillQty.BaseQuantity + Convert.ToDecimal(this.DataViewDetails[i]["ActivityDetailBaseQuantity"]);
+                    fillQty.WeightQuantity = fillQty.WeightQuantity + Convert.ToDecimal(this.DataViewDetails[i]["ActivityDetailWeightQuantity"]);
                 }
             }
 
@@ -445,12 +445,12 @@ namespace dMobile.Controller
             }
             else
             {
-                this.Quantity = (decimal)details[idx]["ActivityDetailQuantity"];
-                this.BaseQuantity = (decimal)details[idx]["ActivityDetailBaseQuantity"];
-                this.WeightQuantity = (decimal)details[idx]["ActivityDetailWeightQuantity"];
-                this.Refno = (int)details[idx]["ActivityDetailRefno"];
-                this.SchemeID = (string)details[idx]["ActivityDetailSchemeID"];
-                this.UniqueSchemeID = (string)details[idx]["ActivityDetailUniqueSchemeID"];
+                this.Quantity = Convert.ToDecimal(details[idx]["ActivityDetailQuantity"]);
+                this.BaseQuantity = Convert.ToDecimal(details[idx]["ActivityDetailBaseQuantity"]);
+                this.WeightQuantity = Convert.ToDecimal(details[idx]["ActivityDetailWeightQuantity"]);
+                this.Refno = Convert.ToInt32(details[idx]["ActivityDetailRefno"]);
+                this.SchemeID = Convert.ToString(details[idx]["ActivityDetailSchemeID"]);
+                this.UniqueSchemeID = Convert.ToString(details[idx]["ActivityDetailUniqueSchemeID"]);
 
                 if (details.Table.Columns.Contains("ActivityDetailExtra1Text"))
                 {
@@ -598,15 +598,15 @@ namespace dMobile.Controller
             // We want to send a 'blank' date if it is not tracked rather than {01/01/1900} as the empty date.
 
             string bestBeforeDate = string.Empty;
-            if (this.ActItem.ProdInfo.Scheme.IsBestBeforeDateTracked
-                && !SysCommon.IsEmptyDateTime(this.SchemeData.LogisticUnitBestBeforeSellByDate))
+
+            if (this.ActItem.ProdInfo.Scheme.IsBestBeforeDateTracked && !SysCommon.IsEmptyDateTime(this.SchemeData.LogisticUnitBestBeforeSellByDate))
             {
                 bestBeforeDate = this.SchemeData.LogisticUnitBestBeforeSellByDate.ToString("MM/dd/yyyy");
             }
 
             string productionDate = string.Empty;
-            if (this.ActItem.ProdInfo.Scheme.IsProductionDateTracked
-                && !SysCommon.IsEmptyDateTime(this.SchemeData.LogisticUnitProductionDate))
+
+            if (this.ActItem.ProdInfo.Scheme.IsProductionDateTracked && !SysCommon.IsEmptyDateTime(this.SchemeData.LogisticUnitProductionDate))
             {
                 productionDate = this.SchemeData.LogisticUnitProductionDate.ToString("MM/dd/yyyy");
             }
@@ -1011,6 +1011,7 @@ namespace dMobile.Controller
                 if (reqData.Contains("<message>ERROR</message>"))
                 {
                     string errorDetail = xmlData.DocumentElement["detail"].InnerText;
+
                     if (errorDetail.Contains("MSGBOX-"))
                     {
                         throw new MessageOnlyException(errorDetail);

@@ -5,6 +5,9 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:Helpers="clr-namespace:dMobile.View.Helpers"
     x:Class="dMobile.View.Activity.ucActivityDetail">
+    <ContentPage.ToolbarItems>
+        <ToolbarItem x:Name="actionItemsMenu" IconImageSource="{Binding IconSource}" Clicked="ActionItemsMenu_Clicked" />
+    </ContentPage.ToolbarItems>
     <ContentPage.Content>
         <AbsoluteLayout VerticalOptions="Center">
             <Grid x:Name="gridContainer" Padding="10" AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0,0,1,1">
@@ -13,23 +16,23 @@
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-
+                
                 <Frame VerticalOptions="Start" Grid.Row="0" Grid.ColumnSpan="2" OutlineColor="{DynamicResource BorderColor}">
-                    <Grid x:Name="dataGridMainActivityHeader">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
+                    <ScrollView Orientation="Horizontal">
+                        <Grid x:Name="dataGridMainActivityHeader">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
 
-                        <ListView x:Name="dataGridMainActivity" ItemSelected="DataGridMainActivity_ItemSelected" HasUnevenRows="True" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" Grid.Row="1"/>
-                    </Grid>
+                            <ListView x:Name="dataGridMainActivity" ItemSelected="DataGridMainActivity_ItemSelected" HasUnevenRows="True" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" Grid.Row="1"/>
+                        </Grid>
+                    </ScrollView>
                 </Frame>
 
                 <Frame VerticalOptions="Start" Grid.Row="1" Grid.ColumnSpan="2" OutlineColor="{DynamicResource BorderColor}">
@@ -47,14 +50,14 @@
                 </Frame>
 
                 <Entry x:Name="txtSearchDetail" Grid.Row="2" Grid.Column="0" TextChanged="txtSearchHdr_TextChanged" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                <Button x:Name="cmdAddDetail" Grid.Row="2" Grid.Column="1" Text="Add Detail" Clicked="cmdAddDetail_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
 
-                <Button x:Name="cmdSelectSkid" Grid.Row="3" Grid.Column="0" Text="Select Skid" Clicked="cmdSelectSkid_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
-                <Button x:Name="cmdLocation" Grid.Row="3" Grid.Column="1" Text="Set Location" Clicked="cmdLocation_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                <Grid x:Name="gridButtonContainer" Grid.Row="3" Grid.ColumnSpan="2" IsVisible="{Binding ActionsVisible}" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}">
+                    <Button x:Name="cmdSelectSkid" Grid.Row="0" Grid.Column="0" Text="Select Skid" Clicked="cmdSelectSkid_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                    <Button x:Name="cmdLocation" Grid.Row="0" Grid.Column="1" Text="Set Location" Clicked="cmdLocation_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
 
-                <Button x:Name="cmdAddSkid" Grid.Row="4" Grid.Column="0" Text="Add Skid" Clicked="cmdAddSkid_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
-                <Button x:Name="cmdAddDetail" Grid.Row="4" Grid.Column="1" Text="Add Detail" Clicked="cmdAddDetail_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
-
-
+                    <Button x:Name="cmdAddSkid" Grid.Row="1" Grid.Column="0" Text="Add Skid" Clicked="cmdAddSkid_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                </Grid>
             </Grid>
 
             <ActivityIndicator IsVisible="{Binding Loading}" 

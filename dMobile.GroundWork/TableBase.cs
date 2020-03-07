@@ -5,7 +5,6 @@ namespace dMobile.GroundWork
     using System.Data;
     using System.Data.SQLite;
     using System.Xml.Linq;
-    using Xamarin.Forms;
 
     /// <summary>
     /// Defines the <see cref="TableBase" />
@@ -714,14 +713,14 @@ namespace dMobile.GroundWork
 
             if (useFNo)
             {
-                detail.Parameters.Add(new SQLiteParameter("@activityDetailUniqueSchemeID", drow["f05"].ToString()));
-                detail.Parameters.Add(new SQLiteParameter("@activityDetailSchemeID", drow["f06"].ToString()));
+                detail.Parameters.Add(new SQLiteParameter("@activityDetailUniqueSchemeID", Convert.ToString(drow["f05"])));
+                detail.Parameters.Add(new SQLiteParameter("@activityDetailSchemeID", Convert.ToString(drow["f06"])));
                 detail.Parameters.Add(new SQLiteParameter("@activityDetailQuantity", Convert.ToDecimal(drow["f02"])));
                 detail.Parameters.Add(new SQLiteParameter("@activityDetailBaseQuantity", Convert.ToDecimal(drow["f03"])));
                 detail.Parameters.Add(new SQLiteParameter("@activityDetailWeightQuantity", Convert.ToDecimal(drow["f04"])));
-                detail.Parameters.Add(new SQLiteParameter("@activityDetailSingleTradeItemSerialNumber", drow["f10"].ToString()));
-                detail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitBatchLotNumber", drow["f11"].ToString()));
-                detail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitSkidNumber", drow["f18"].ToString()));
+                detail.Parameters.Add(new SQLiteParameter("@activityDetailSingleTradeItemSerialNumber", Convert.ToString(drow["f10"])));
+                detail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitBatchLotNumber", Convert.ToString(drow["f11"])));
+                detail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitSkidNumber", Convert.ToString(drow["f18"])));
 
                 //detail.SetString((int)SysCommon.ActDetailFields.UniqueSchemeID, drow["f05"].ToString());
                 //detail.SetString((int)SysCommon.ActDetailFields.SchemeID, drow["f06"].ToString());
@@ -732,7 +731,7 @@ namespace dMobile.GroundWork
                 //detail.SetString((int)SysCommon.ActDetailFields.LogisticUnitBatchLotNumber, drow["f11"].ToString());
                 //detail.SetString((int)SysCommon.ActDetailFields.LogisticUnitSkidNumber, drow["f18"].ToString());
 
-                if (string.IsNullOrEmpty(drow["f13"].ToString()))
+                if (string.IsNullOrEmpty(Convert.ToString(drow["f13"])))
                 {
                     detail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitBestBeforeSellByDate", DateTime.Parse(emptyDate)));
                     //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitBestBeforeSellByDate, DateTime.Parse(emptyDate));
@@ -743,7 +742,7 @@ namespace dMobile.GroundWork
                     //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitBestBeforeSellByDate, Convert.ToDateTime(drow["f13"]));
                 }
 
-                if (string.IsNullOrEmpty(drow["f14"].ToString()))
+                if (string.IsNullOrEmpty(Convert.ToString(drow["f14"])))
                 {
                     detail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitExpiryUseByDate", DateTime.Parse(emptyDate)));
                     //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitExpiryUseByDate, DateTime.Parse(emptyDate));
@@ -754,7 +753,7 @@ namespace dMobile.GroundWork
                     //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitExpiryUseByDate, Convert.ToDateTime(drow["f14"]));
                 }
 
-                if (string.IsNullOrEmpty(drow["f12"].ToString()))
+                if (string.IsNullOrEmpty(Convert.ToString(drow["f12"])))
                 {
                     detail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitProductionDate", DateTime.Parse(emptyDate)));
                     //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitProductionDate, DateTime.Parse(emptyDate));
@@ -765,7 +764,7 @@ namespace dMobile.GroundWork
                     //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitProductionDate, Convert.ToDateTime(drow["f12"]));
                 }
 
-                if (string.IsNullOrEmpty(drow["f15"].ToString()))
+                if (string.IsNullOrEmpty(Convert.ToString(drow["f15"])))
                 {
                     detail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitDueDate", DateTime.Parse(emptyDate)));
                     //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitDueDate, DateTime.Parse(emptyDate));
@@ -776,7 +775,7 @@ namespace dMobile.GroundWork
                     //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitDueDate, Convert.ToDateTime(drow["f15"]));
                 }
 
-                if (string.IsNullOrEmpty(drow["f16"].ToString()))
+                if (string.IsNullOrEmpty(Convert.ToString(drow["f16"])))
                 {
                     detail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitPackagingDate", DateTime.Parse(emptyDate)));
                     //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitPackagingDate, DateTime.Parse(emptyDate));
@@ -789,14 +788,14 @@ namespace dMobile.GroundWork
             }
             else
             {
-                detail.Parameters.Add(new SQLiteParameter("@activityDetailUniqueSchemeID", drow["ActivityDetailUniqueSchemeID"].ToString()));
-                detail.Parameters.Add(new SQLiteParameter("@activityDetailSchemeID", drow["ActivityDetailSchemeID"].ToString()));
+                detail.Parameters.Add(new SQLiteParameter("@activityDetailUniqueSchemeID", Convert.ToString(drow["ActivityDetailUniqueSchemeID"])));
+                detail.Parameters.Add(new SQLiteParameter("@activityDetailSchemeID", Convert.ToString(drow["ActivityDetailSchemeID"])));
                 detail.Parameters.Add(new SQLiteParameter("@activityDetailQuantity", Convert.ToDecimal(drow["ActivityDetailQuantity"])));
                 detail.Parameters.Add(new SQLiteParameter("@activityDetailBaseQuantity", Convert.ToDecimal(drow["ActivityDetailBaseQuantity"])));
                 detail.Parameters.Add(new SQLiteParameter("@activityDetailWeightQuantity", Convert.ToDecimal(drow["ActivityDetailWeightQuantity"])));
-                detail.Parameters.Add(new SQLiteParameter("@activityDetailSingleTradeItemSerialNumber", drow["ActivityDetailSingleTradeItemSerialNumber"].ToString()));
-                detail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitBatchLotNumber", drow["ActivityDetailLogisticUnitBatchLotNumber"].ToString()));
-                detail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitSkidNumber", drow["ActivityDetailLogisticUnitSkidCode"].ToString()));
+                detail.Parameters.Add(new SQLiteParameter("@activityDetailSingleTradeItemSerialNumber", Convert.ToString(drow["ActivityDetailSingleTradeItemSerialNumber"])));
+                detail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitBatchLotNumber", Convert.ToString(drow["ActivityDetailLogisticUnitBatchLotNumber"])));
+                detail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitSkidNumber", Convert.ToString(drow["ActivityDetailLogisticUnitSkidCode"])));
 
 
                 //detail.SetString((int)SysCommon.ActDetailFields.UniqueSchemeID, drow["ActivityDetailUniqueSchemeID"].ToString());
@@ -808,7 +807,7 @@ namespace dMobile.GroundWork
                 //detail.SetString((int)SysCommon.ActDetailFields.LogisticUnitBatchLotNumber, drow["ActivityDetailLogisticUnitBatchLotNumber"].ToString());
                 //detail.SetString((int)SysCommon.ActDetailFields.LogisticUnitSkidNumber, drow["ActivityDetailLogisticUnitSkidCode"].ToString());
 
-                if (string.IsNullOrEmpty(drow["ActivityDetailLogisticUnitBestBeforeSellByDate"].ToString()))
+                if (string.IsNullOrEmpty(Convert.ToString(drow["ActivityDetailLogisticUnitBestBeforeSellByDate"])))
                 {
                     detail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitBestBeforeSellByDate", DateTime.Parse(emptyDate)));
                     //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitBestBeforeSellByDate, DateTime.Parse(emptyDate));
@@ -819,7 +818,7 @@ namespace dMobile.GroundWork
                     //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitBestBeforeSellByDate, Convert.ToDateTime(drow["ActivityDetailLogisticUnitBestBeforeSellByDate"]));
                 }
 
-                if (string.IsNullOrEmpty(drow["ActivityDetailLogisticUnitExpiryUseByDate"].ToString()))
+                if (string.IsNullOrEmpty(Convert.ToString(drow["ActivityDetailLogisticUnitExpiryUseByDate"])))
                 {
                     detail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitExpiryUseByDate", DateTime.Parse(emptyDate)));
                     //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitExpiryUseByDate, DateTime.Parse(emptyDate));
@@ -830,7 +829,7 @@ namespace dMobile.GroundWork
                     //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitExpiryUseByDate, Convert.ToDateTime(drow["ActivityDetailLogisticUnitExpiryUseByDate"]));
                 }
 
-                if (string.IsNullOrEmpty(drow["ActivityDetailLogisticUnitProductionDate"].ToString()))
+                if (string.IsNullOrEmpty(Convert.ToString(drow["ActivityDetailLogisticUnitProductionDate"])))
                 {
                     detail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitProductionDate", DateTime.Parse(emptyDate)));
                     //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitProductionDate, DateTime.Parse(emptyDate));
@@ -841,7 +840,7 @@ namespace dMobile.GroundWork
                     //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitProductionDate, Convert.ToDateTime(drow["ActivityDetailLogisticUnitProductionDate"]));
                 }
 
-                if (string.IsNullOrEmpty(drow["ActivityDetailLogisticUnitDueDate"].ToString()))
+                if (string.IsNullOrEmpty(Convert.ToString(drow["ActivityDetailLogisticUnitDueDate"])))
                 {
                     detail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitDueDate", DateTime.Parse(emptyDate)));
                     //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitDueDate, DateTime.Parse(emptyDate));
@@ -852,7 +851,7 @@ namespace dMobile.GroundWork
                     //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitDueDate, Convert.ToDateTime(drow["ActivityDetailLogisticUnitDueDate"]));
                 }
 
-                if (string.IsNullOrEmpty(drow["ActivityDetailLogisticUnitPackagingDate"].ToString()))
+                if (string.IsNullOrEmpty(Convert.ToString(drow["ActivityDetailLogisticUnitPackagingDate"])))
                 {
                     detail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitPackagingDate", DateTime.Parse(emptyDate)));
                     //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitPackagingDate, DateTime.Parse(emptyDate));
@@ -893,7 +892,7 @@ namespace dMobile.GroundWork
             //{
             if (drWhs.Read())
             {
-                locMapRefno = drWhs.GetInt32((int)SysCommon.LocMapWhsFields.LocMapRefno);
+                locMapRefno = drWhs.GetInt32(Convert.ToInt32(SysCommon.LocMapWhsFields.LocMapRefno));
             }
             else
             {
@@ -937,13 +936,13 @@ namespace dMobile.GroundWork
                 if (useFNo)
                 {
                     prodFKRefno = Convert.ToInt32(drow["f03"]);
-                    unitCode = drow["f05"].ToString();
+                    unitCode = Convert.ToString(drow["f05"]);
                     prodUnitIsBC = Convert.ToBoolean(drow["f04"]);
                 }
                 else
                 {
                     prodFKRefno = Convert.ToInt32(drow["ProductFKRefno"]);
-                    unitCode = drow["UnitCode"].ToString();
+                    unitCode = Convert.ToString(drow["UnitCode"]);
                     prodUnitIsBC = Convert.ToBoolean(drow["ProductUnitIsBC"]);
                 }
 

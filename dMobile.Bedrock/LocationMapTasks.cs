@@ -399,9 +399,9 @@
                     cmndLocMap.CommandText = "SELECT tLocationMapSlot.LocationMapRefno "
                         + "FROM tLocationMapSlot "
                         + "WHERE tLocationMapSlot.SectionLocationMapRefno = @sectionLocMapRefno"
-                        + " AND tLocationMapSlot.SlotCoord1LocationMapRefno = @coordinate1"
-                        + " AND tLocationMapSlot.SlotCoord2LocationMapRefno = @coordinate2"
-                        + " AND tLocationMapSlot.SlotCoord3LocationMapRefno = @coordinate3";
+                        + " AND tLocationMapSlot.SlotCoord1LocationMapRefno = @slotCoord1Refno"
+                        + " AND tLocationMapSlot.SlotCoord2LocationMapRefno = @slotCoord2Refno"
+                        + " AND tLocationMapSlot.SlotCoord3LocationMapRefno = @slotCoord3Refno";
                     cmndLocMap.Parameters.Add(new SQLiteParameter("@sectionLocMapRefno", Convert.ToInt32(sectionLocMapRefno)));
                     cmndLocMap.Parameters.Add(new SQLiteParameter("@slotCoord1Refno", Convert.ToInt32(slotCoord1Refno)));
                     cmndLocMap.Parameters.Add(new SQLiteParameter("@slotCoord2Refno", Convert.ToInt32(slotCoord2Refno)));
@@ -412,8 +412,8 @@
                     cmndLocMap.CommandText = "SELECT tLocationMapSlot.LocationMapRefno "
                         + "FROM tLocationMapSlot "
                         + "WHERE tLocationMapSlot.SectionLocationMapRefno = @sectionLocMapRefno"
-                        + " AND tLocationMapSlot.SlotCoord1LocationMapRefno = @coordinate1"
-                        + " AND tLocationMapSlot.SlotCoord2LocationMapRefno = @coordinate2";
+                        + " AND tLocationMapSlot.SlotCoord1LocationMapRefno = @slotCoord1Refno"
+                        + " AND tLocationMapSlot.SlotCoord2LocationMapRefno = @slotCoord2Refno";
                     cmndLocMap.Parameters.Add(new SQLiteParameter("@sectionLocMapRefno", Convert.ToInt32(sectionLocMapRefno)));
                     cmndLocMap.Parameters.Add(new SQLiteParameter("@slotCoord1Refno", Convert.ToInt32(slotCoord1Refno)));
                     cmndLocMap.Parameters.Add(new SQLiteParameter("@slotCoord2Refno", Convert.ToInt32(slotCoord2Refno)));
@@ -423,7 +423,7 @@
                     cmndLocMap.CommandText = "SELECT tLocationMapSlot.LocationMapRefno "
                         + "FROM tLocationMapSlot "
                         + "WHERE tLocationMapSlot.SectionLocationMapRefno = @sectionLocMapRefno"
-                        + " AND tLocationMapSlot.SlotCoord1LocationMapRefno = @coordinate1";
+                        + " AND tLocationMapSlot.SlotCoord1LocationMapRefno = @slotCoord1Refno";
                     cmndLocMap.Parameters.Add(new SQLiteParameter("@sectionLocMapRefno", Convert.ToInt32(sectionLocMapRefno)));
                     cmndLocMap.Parameters.Add(new SQLiteParameter("@slotCoord1Refno", Convert.ToInt32(slotCoord1Refno)));
                 }

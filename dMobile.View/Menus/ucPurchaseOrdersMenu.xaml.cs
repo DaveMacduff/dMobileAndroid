@@ -63,7 +63,9 @@ namespace dMobile.View.Menus
 
                 if (keycode == Keycode.Enter)
                 {
-                    //this.CallingControl = new ucActivityHdr(SysCommon.ActSubTypes.PurchaseOrderWorkSheet);
+                    //this.CallingControl = new ucActivityHdr(SysCommon.ActSubTypes.PurchaseOrderWorkSheet);                            
+                    ucActivityHdr worksheet = new ucActivityHdr(SysCommon.ActSubTypes.PurchaseOrderWorkSheet);
+                    Device.BeginInvokeOnMainThread(async () => await worksheet.Show());
                     this.DisableControls();
                     this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     this.IsControlLoaded = false;
@@ -92,7 +94,9 @@ namespace dMobile.View.Menus
                 }
                 else if (keycode == Keycode.Num3)
                 {
-                    //this.CallingControl = new ucActivityHdr(SysCommon.ActSubTypes.PurchaseOrderWorkSheet);
+                    //this.CallingControl = new ucActivityHdr(SysCommon.ActSubTypes.PurchaseOrderWorkSheet);                    
+                    ucActivityHdr worksheet = new ucActivityHdr(SysCommon.ActSubTypes.PurchaseOrderWorkSheet);
+                    Device.BeginInvokeOnMainThread(async () => await worksheet.Show());
                     this.DisableControls();
                     this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     this.IsControlLoaded = false;
@@ -617,7 +621,9 @@ namespace dMobile.View.Menus
         /// <remarks></remarks>
         private void cmdWorkSheet_Click(object sender, EventArgs e)
         {
-            //this.CallingControl = new ucActivityPurchaseOrderWorkSheet(SysCommon.ActSubTypes.PurchaseOrderWorkSheet);
+            //this.CallingControl = new ucActivityPurchaseOrderWorkSheet(SysCommon.ActSubTypes.PurchaseOrderWorkSheet);                    
+            ucActivityPurchaseOrderWorkSheet worksheet = new ucActivityPurchaseOrderWorkSheet(SysCommon.ActSubTypes.PurchaseOrderWorkSheet);        
+            Device.BeginInvokeOnMainThread(async () => await worksheet.Show());
             this.DisableControls();
             this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
             this.IsControlLoaded = false;

@@ -1,24 +1,22 @@
-﻿using dMobile.View.CustomPages.Modal;
-using System;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Xml.Linq;
-using dMobile.BarCodeScanner;
-using dMobile.Bedrock;
-using Xamarin.Forms;
-using Xamarin.Forms.Xaml;
-using Color = Xamarin.Forms.Color;
-using dMobile.Resources.Enums;
-using Android.Views;
-using dMobile.View.Forms;
-using System.Collections.ObjectModel;
-using dMobile.Resources.Types;
-using System.Linq;
-using dMobile.Resources.Types;
-
-namespace dMobile.View
+﻿namespace dMobile.View
 {
+    using Android.Views;
+    using dMobile.BarCodeScanner;
+    using dMobile.Bedrock;
+    using dMobile.Resources.Enums;
+    using dMobile.Resources.Types;
+    using dMobile.View.CustomPages.Modal;
+    using dMobile.View.Forms;
+    using System;
+    using System.Collections.ObjectModel;
+    using System.Data;
+    using System.Linq;
+    using System.Threading.Tasks;
+    using System.Xml.Linq;
+    using Xamarin.Forms;
+    using Xamarin.Forms.Xaml;
+    using Color = Xamarin.Forms.Color;
+
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ucSetLocationMap : DMobileModal, IAppArea, IAppPublisher
     {
@@ -28,7 +26,7 @@ namespace dMobile.View
         private bool isChangesMade = false;
         private LocationMap locMap;
         private BarCodeParse parse = null;
-        private BarCodeScanner.BarCodeScanner scanner = null;
+        private BarCodeScanner scanner = null;
         private bool isBarCodeHandlerRegistered = false;
         private SLocMap locMapInfo;
         private ReqCloseHandler reqCloseEvent;
@@ -89,7 +87,7 @@ namespace dMobile.View
                 this.SlotCoord2List = new ObservableCollection<Slot>();
                 this.SlotCoord3List = new ObservableCollection<Slot>();
 
-                this.locMapInfo = new SLocMap();
+                this.LocMapInfo = new SLocMap();
                 this.LocMap = LocationMap.GetInstance();
                 this.LoadData();
                 this.Scanner = BarCodeSingleton.GetInstance().Scanner;
@@ -130,7 +128,7 @@ namespace dMobile.View
                 this.SlotCoord2List = new ObservableCollection<Slot>();
                 this.SlotCoord3List = new ObservableCollection<Slot>();
 
-                this.locMapInfo = new SLocMap();
+                this.LocMapInfo = new SLocMap();
                 this.LocMap = LocationMap.GetInstance();
                 this.Scanner = BarCodeSingleton.GetInstance().Scanner;
                 this.DefaultWhsLocMapRefno = defaultWhsLocMapRefno;
@@ -146,11 +144,11 @@ namespace dMobile.View
         /// <summary>
         /// The OnAppearing
         /// </summary>
-        protected override void OnAppearing()
+        protected override async void OnAppearing()
         {
             base.OnAppearing();
 
-            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), (keyPressed) =>
+            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
             {
                 // TODO: Verify keycodes
                 Enum.TryParse(keyPressed, out Keycode keycode);
@@ -159,11 +157,8 @@ namespace dMobile.View
                 {
                     if (this.SaveChanges())
                     {
-                        Device.BeginInvokeOnMainThread(async () =>
-                        {
-                            this.DialogResult = DialogResult.OK;
-                            await this.Close();
-                        });
+                        this.DialogResult = DialogResult.OK;
+                        await this.Close();
 
                         this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     }
@@ -180,7 +175,7 @@ namespace dMobile.View
             try
             {
                 this.ucSetLocationMap_GotFocus(this, new EventArgs());
-                this.tabLocation_GotFocus(this, new EventArgs());
+                await this.tabLocation_GotFocus(this, new EventArgs());
             }
             catch (Exception ex)
             {
@@ -195,8 +190,9 @@ namespace dMobile.View
         protected override void OnDisappearing()
         {
             this.ucSetLocationMap_LostFocus(this, new EventArgs());
-            base.OnDisappearing();
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
+            
+            base.OnDisappearing();
         }
 
         public delegate void ReqCloseHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
@@ -205,7 +201,6 @@ namespace dMobile.View
         public delegate void ReqCancelEnableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
         public delegate void ReqSaveEnableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
 
-        #region Events
 
         public event ReqCloseHandler ReqClose
         {
@@ -272,9 +267,7 @@ namespace dMobile.View
             }
         }
 
-        #endregion
 
-        #region Properties
 
         private bool LockWhsSelection
         {
@@ -458,7 +451,7 @@ namespace dMobile.View
             }
         }
 
-        private BarCodeScanner.BarCodeScanner Scanner
+        private BarCodeScanner Scanner
         {
             get
             {
@@ -559,11 +552,6 @@ namespace dMobile.View
         public ObservableCollection<Slot> FilteredSlotCoord2List { get => filteredSlotCoord2List; set => filteredSlotCoord2List = value; }
         public ObservableCollection<Slot> FilteredSlotCoord3List { get => filteredSlotCoord3List; set => filteredSlotCoord3List = value; }
 
-        #endregion
-
-        #region Public Members
-        #region IAppArea
-
         /// <summary>
         /// Unregister the bar code scan event handler and disable the scanner.
         /// </summary>
@@ -572,7 +560,7 @@ namespace dMobile.View
         {
             if (this.IsBarCodeHandlerRegistered && this.Scanner != null)
             {
-                this.Scanner.BarCodeScan -= new BarCodeScanner.BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                this.Scanner.BarCodeScan -= new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
                 this.Scanner.Stop();
                 this.IsBarCodeHandlerRegistered = false;
             }
@@ -588,7 +576,7 @@ namespace dMobile.View
             {
                 this.IsBarCodeHandlerRegistered = true;
                 this.Scanner.Start();
-                this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
             }
         }
 
@@ -784,10 +772,6 @@ namespace dMobile.View
             return request;
         }
 
-        #endregion
-
-        #region IAppPublisher Members
-
         /// <summary>
         /// 
         /// </summary>
@@ -878,12 +862,6 @@ namespace dMobile.View
             this.ReqSaveDisable -= new ReqSaveDisableHandler(appEventListener.ReqCancelDisable);
         }
 
-        #endregion
-
-        #endregion
-
-        #region Private Members
-
         /// <summary>
         ///
         /// </summary>
@@ -923,7 +901,7 @@ namespace dMobile.View
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        private void tabLocation_GotFocus(object sender, EventArgs e)
+        private async Task tabLocation_GotFocus(object sender, EventArgs e)
         {
             try
             {
@@ -933,7 +911,7 @@ namespace dMobile.View
                 if (this.DataViewWhs == null || this.LocMapInfo.WhsLocMapRefno == 0)
                 {
                     //MessageBox.Show("Select the warehouse first!", this.GetControlDescription(), MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
-                    Device.BeginInvokeOnMainThread(async () => await DisplayAlert(this.GetControlDescription(), "Select the warehouse first!", "OK"));
+                    await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Select the warehouse first!", "OK"));
                 }
                 else
                 {
@@ -963,7 +941,7 @@ namespace dMobile.View
                 if (this.DataViewSections == null || this.LocMapInfo.SectLocMapRefno == 0)
                 {
                     //MessageBox.Show("Select the section first!", this.GetControlDescription(), MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
-                    Device.BeginInvokeOnMainThread(async () => await DisplayAlert(this.GetControlDescription(), "Select the section first!", "OK"));
+                    await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Select the section first!", "OK"));
 
                     //this.tabLocation.SelectedIndex = 1;
                 }
@@ -995,8 +973,7 @@ namespace dMobile.View
 
                             if (slotCoord1 != null && slotCoord2 != null && slotCoord3 != null)
                             {
-                                int slotLocMapRefno = LocationMapTasks.GetSlotRefnoFromCoordinates(
-                                    this.LocMapInfo.SectLocMapRefno,
+                                int slotLocMapRefno = LocationMapTasks.GetSlotRefnoFromCoordinates(this.LocMapInfo.SectLocMapRefno,
                                     slotCoord1.LocationMapSlotCoordinateRefno,
                                     slotCoord2.LocationMapSlotCoordinateRefno,
                                     slotCoord3.LocationMapSlotCoordinateRefno);
@@ -1018,7 +995,7 @@ namespace dMobile.View
             }
             catch (Exception ex)
             {
-                Device.BeginInvokeOnMainThread(async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
                     await errRpt.ShowDialog();
@@ -1369,9 +1346,9 @@ namespace dMobile.View
 
                         foreach (var item in this.FilteredSectionsList)
                         {
-                            if (item is Section sect && section.LocationMapRefno == this.LocMapInfo.WhsLocMapRefno)
+                            if (item is Section sect && sect.LocationMapRefno == this.LocMapInfo.SectLocMapRefno)
                             {
-                                this.dgWhs.SelectedItem = sect;
+                                this.dgSections.SelectedItem = sect;
 
                                 break;
                             }
@@ -1643,7 +1620,6 @@ namespace dMobile.View
             }
         }
 
-        #endregion
 
         private void BtnCancel_Clicked(object sender, EventArgs e)
         {

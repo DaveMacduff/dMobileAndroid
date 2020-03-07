@@ -8,8 +8,8 @@ namespace dMobile.Resources.Types
         private int locationMapRefno;
         private int activityDetailReceivingFKRefno;
         private string unitCode;
-        private int wtUnitCode;
-        private int baseUnitCode;
+        private string wtUnitCode;
+        private string baseUnitCode;
         private string productCode;
         private int productRefno;
         private string productDescription;
@@ -45,8 +45,8 @@ namespace dMobile.Resources.Types
         public int LocationMapRefno { get => locationMapRefno; set => locationMapRefno = value; }
         public int ActivityDetailReceivingFKRefno { get => activityDetailReceivingFKRefno; set => activityDetailReceivingFKRefno = value; }
         public string UnitCode { get => unitCode; set => unitCode = value; }
-        public int WtUnitCode { get => wtUnitCode; set => wtUnitCode = value; }
-        public int BaseUnitCode { get => baseUnitCode; set => baseUnitCode = value; }
+        public string WtUnitCode { get => wtUnitCode; set => wtUnitCode = value; }
+        public string BaseUnitCode { get => baseUnitCode; set => baseUnitCode = value; }
         public string ProductCode { get => productCode; set => productCode = value; }
         public int ProductRefno { get => productRefno; set => productRefno = value; }
         public string ProductDescription { get => productDescription; set => productDescription = value; }
