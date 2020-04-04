@@ -611,9 +611,7 @@ namespace dMobile.View.Forms
 
                 case EDialogTypes.ucActivityPurchaseOrderWorkSheetEdit:
                     // Override the subtype to PurchaseOrderWorkSheet
-                    //control = new ucActivityItemPurchaseOrderWorkSheetEdit(
-                    //    actDetail,
-                    //    SysCommon.ActSubTypes.PurchaseOrderWorkSheet);
+                    control = new ucActivityItemPurchaseOrderWorkSheetEdit(actDetail, SysCommon.ActSubTypes.PurchaseOrderWorkSheet);
                     break;
 
                 case EDialogTypes.ucActivityConvertUnitEdit:

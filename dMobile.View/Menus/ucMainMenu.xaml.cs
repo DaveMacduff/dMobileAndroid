@@ -90,6 +90,8 @@
                 {
                     this.DisableControls();
                     //this.CallingControl = new ucSalesOrdersMenu();
+                    ucSalesOrdersMenu salesOrders = new ucSalesOrdersMenu();
+                    Device.BeginInvokeOnMainThread(async () => await salesOrders.Show());
                     this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     this.IsControlLoaded = false;
                 }
@@ -634,7 +636,9 @@
         private void cmdSalesOrders_Click(object sender, EventArgs e)
         {
             this.DisableControls();
-            //this.CallingControl = new ucSalesOrdersMenu();
+            //this.CallingControl = new ucSalesOrdersMenu();            
+            ucSalesOrdersMenu salesOrdersMenu = new ucSalesOrdersMenu();
+            Device.BeginInvokeOnMainThread(async () => await salesOrdersMenu.Show());
             this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
             this.IsControlLoaded = false;
         }

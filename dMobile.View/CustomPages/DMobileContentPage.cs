@@ -61,7 +61,7 @@
         public DMobileContentPage()
         {
             this.BindingContext = this;
-            this.Loading = false;
+            this.Loading = false;            
         }
 
         /// <summary>

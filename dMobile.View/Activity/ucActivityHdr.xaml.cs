@@ -37,7 +37,6 @@
         private bool isControlLoaded = false;
         private ObservableCollection<string> itemsList;
         private ObservableCollection<object> dataGridMainActivityItemsList;
-        private int listPosition = 0;
 
         public ucActivityHdr()
         {
@@ -77,7 +76,6 @@
                 this.ActionsVisible = this.SysEnv.SysSettings.ActivityActionsVisible;
             }
         }
-
 
         /// <summary>
         /// The OnAppearing
@@ -425,7 +423,6 @@
         {
             if (this.IsBarCodeHandlerRegistered && this.BarScanner != null)
             {
-                Console.WriteLine("Unsubscribed");
                 this.BarScanner.BarCodeScan -= new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
                 this.BarScanner.Stop();
                 this.IsBarCodeHandlerRegistered = false;
@@ -507,19 +504,19 @@
                                 {
                                     isReadyToClose = false;
                                 }
+
+                                if (isReadyToClose)
+                                {
+                                    // NOTE: This code is needed to clean up the scanner driver.
+                                    // Symbol had threading issues without this call when dMobile was terminating.
+                                    // All user controls that initalize a bar code need this code.
+                                    // The parent form (not a user control) will call scanner.terminate and dispose
+                                    // of the scanner instance upon exiting dMobile.
+                                    this.ScannerDisable();
+                                }
                             });
                         });
                     }
-                }
-
-                if (isReadyToClose)
-                {
-                    // NOTE: This code is needed to clean up the scanner driver.
-                    // Symbol had threading issues without this call when dMobile was terminating.
-                    // All user controls that initalize a bar code need this code.
-                    // The parent form (not a user control) will call scanner.terminate and dispose
-                    // of the scanner instance upon exiting dMobile.
-                    this.ScannerDisable();
                 }
             }
             catch (Exceptions.MessageOnlyException ex)
@@ -1225,6 +1222,120 @@
 
                     break;
 
+                case SysCommon.ActSubTypes.Picking:
+                    // Create header data template
+                    Grid gridHeaderPicking = new Grid
+                    {
+                        Padding = new Thickness(5, 5, 5, 5),
+                        ColumnDefinitions =
+                        {
+                            new ColumnDefinition { Width = GridLength.Star },
+                            new ColumnDefinition { Width = GridLength.Star },
+                            new ColumnDefinition { Width = GridLength.Star },
+                            new ColumnDefinition { Width = GridLength.Star },
+                            new ColumnDefinition { Width = new GridLength(5, GridUnitType.Star) }
+                        }
+                    };
+
+                    gridHeaderPicking.SetDynamicResource(BackgroundColorProperty, "HeaderColor");
+
+                    Label labelPickingOrderNumber = new Label { Text = "Order #", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+                    Label labelPickingDelDate = new Label { Text = "Del Date", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+                    Label labelPickingRoute = new Label { Text = "Route", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+                    Label labelPickingStop = new Label { Text = "Stop", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+                    Label labelPickingShipTo = new Label { Text = "Ship To", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+
+                    gridHeaderPicking.Children.Add(labelPickingOrderNumber);
+                    gridHeaderPicking.Children.Add(labelPickingDelDate);
+                    gridHeaderPicking.Children.Add(labelPickingRoute);
+                    gridHeaderPicking.Children.Add(labelPickingStop);
+                    gridHeaderPicking.Children.Add(labelPickingShipTo);
+
+                    Grid.SetColumn(labelPickingOrderNumber, 0);
+                    Grid.SetColumn(labelPickingDelDate, 1);
+                    Grid.SetColumn(labelPickingRoute, 2);
+                    Grid.SetColumn(labelPickingStop, 3);
+                    Grid.SetColumn(labelPickingShipTo, 4);
+
+                    Grid.SetRow(gridHeaderPicking, 0);
+
+                    this.dataGridMainActivityHeader.Children.Add(gridHeaderPicking);
+
+                    // Data grid
+                    DataTemplate dataTemplatePicking = new DataTemplate(() =>
+                    {
+                        Grid gridData = new Grid
+                        {
+                            Padding = new Thickness(5, 5, 5, 5),
+                            ColumnDefinitions =
+                            {
+                                new ColumnDefinition { Width = GridLength.Star },
+                                new ColumnDefinition { Width = GridLength.Star },
+                                new ColumnDefinition { Width = GridLength.Star },
+                                new ColumnDefinition { Width = GridLength.Star },
+                                new ColumnDefinition { Width = new GridLength(5, GridUnitType.Star) }
+                            }
+                        };
+
+                        Label labelActivityPickingStringFKRefno = new Label { VerticalOptions = LayoutOptions.Center };
+                        Label labelActivityPickingDeliveryDateTime = new Label { VerticalOptions = LayoutOptions.Center };
+                        Label labelActivityPickingRouteCode = new Label { VerticalOptions = LayoutOptions.Center };
+                        Label labelActivityPickingRouteStop = new Label { VerticalOptions = LayoutOptions.Center };
+                        Label labelActivityPickingCustomerShipToInfo = new Label { VerticalOptions = LayoutOptions.Center };
+
+                        labelActivityPickingStringFKRefno.SetBinding(Label.TextProperty, new Binding("ActivityPickingStringFKRefno"));
+                        labelActivityPickingDeliveryDateTime.SetBinding(Label.TextProperty, new Binding("ActivityPickingDeliveryDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
+                        labelActivityPickingRouteCode.SetBinding(Label.TextProperty, new Binding("RouteCode"));
+                        labelActivityPickingRouteStop.SetBinding(Label.TextProperty, new Binding("RouteStop"));
+                        labelActivityPickingCustomerShipToInfo.SetBinding(Label.TextProperty, new Binding("ActivityPickingCustomerShipToInfo"));
+
+                        gridData.Children.Add(labelActivityPickingStringFKRefno);
+                        gridData.Children.Add(labelActivityPickingDeliveryDateTime);
+                        gridData.Children.Add(labelActivityPickingRouteCode);
+                        gridData.Children.Add(labelActivityPickingRouteStop);
+                        gridData.Children.Add(labelActivityPickingCustomerShipToInfo);
+
+                        Grid.SetColumn(labelActivityPickingStringFKRefno, 0);
+                        Grid.SetColumn(labelActivityPickingDeliveryDateTime, 1);
+                        Grid.SetColumn(labelActivityPickingRouteCode, 2);
+                        Grid.SetColumn(labelActivityPickingRouteStop, 3);
+                        Grid.SetColumn(labelActivityPickingCustomerShipToInfo, 4);
+
+                        return new ViewCell { View = gridData };
+                    });
+                    
+                    this.dataGridMainActivity.ItemTemplate = dataTemplatePicking;
+                    this.DataGridMainActivityItemsList.Clear();
+
+                    foreach (DataRow row in this.ActHdr.DataViewHdrs.ToTable().Rows)
+                    {
+                        Picking picking = new Picking
+                        {
+                            ActivityRefno = Convert.ToInt32(row["ActivityRefno"] != DBNull.Value ? row["ActivityRefno"] : null),
+                            ActivityPickingFKRefno = Convert.ToInt32(row["ActivityPickingFKRefno"] != DBNull.Value ? row["ActivityPickingFKRefno"] : null),
+                            ActivityPickingStringFKRefno = Convert.ToString(row["ActivityPickingStringFKRefno"] != DBNull.Value ? row["ActivityPickingStringFKRefno"] : null),
+                            LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
+                            LocationMapWarehouseFKRefno = Convert.ToInt32(row["LocationMapWarehouseFKRefno"] != DBNull.Value ? row["LocationMapWarehouseFKRefno"] : null),
+                            LocationMapWarehouseName = Convert.ToString(row["LocationMapWarehouseName"] != DBNull.Value ? row["LocationMapWarehouseName"] : null),
+                            ActivityPickingOrderedDateTime = Convert.ToDateTime(row["ActivityPickingOrderedDateTime"] != DBNull.Value ? row["ActivityPickingOrderedDateTime"] : null),
+                            ActivityPickingDeliveryDateTime = Convert.ToDateTime(row["ActivityPickingDeliveryDateTime"] != DBNull.Value ? row["ActivityPickingDeliveryDateTime"] : null),
+                            ActivityPickingCustomerContactName = Convert.ToString(row["ActivityPickingCustomerContactName"] != DBNull.Value ? row["ActivityPickingCustomerContactName"] : null),
+                            ActivityPickingCustomerShipToInfo = Convert.ToString(row["ActivityPickingCustomerShipToInfo"] != DBNull.Value ? row["ActivityPickingCustomerShipToInfo"] : null),
+                            RouteCode = Convert.ToString(row["RouteCode"] != DBNull.Value ? row["RouteCode"] : null),
+                            RouteDescription = Convert.ToString(row["RouteDescription"] != DBNull.Value ? row["RouteDescription"] : null),
+                            RouteDayOfWeek = Convert.ToString(row["RouteDayOfWeek"] != DBNull.Value ? row["RouteDayOfWeek"] : null),
+                            RouteStop = Convert.ToInt32(row["RouteStop"] != DBNull.Value ? row["RouteStop"] : null),
+                            ActivityStatus = Convert.ToInt32(row["ActivityStatus"] != DBNull.Value ? row["ActivityStatus"] : null),
+                            ActivityPickingIsReviewed = Convert.ToBoolean(row["ActivityPickingIsReviewed"] != DBNull.Value ? row["ActivityPickingIsReviewed"] : null),
+                        };
+
+                        this.DataGridMainActivityItemsList.Add(picking);
+                    }
+
+                    this.dataGridColumnWidth.Width = 750;
+
+                    break;
+
                 default:
                     break;
             }
@@ -1794,7 +1905,7 @@
                     {
                         bool isAllowedToPick = true;
 
-                        if (((PickingActivity)this.ActHdr).IsSalesOrderBeingPicked())
+                        if (await ((PickingActivity)this.ActHdr).IsSalesOrderBeingPicked())
                         {
                             isAllowedToPick = false;
 
@@ -1804,7 +1915,7 @@
 
                                 if (await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Picker Override", "Do you wish to clear the current picker?", "Yes", "No")))
                                 {
-                                    if (((PickingActivity)this.ActHdr).ClearSalesOrderBeingPicked(false))
+                                    if (await ((PickingActivity)this.ActHdr).ClearSalesOrderBeingPicked(false))
                                     {
                                         //MessageBox.Show("Picker cleared.", "Picker Override", MessageBoxButtons.OK, MessageBoxIcon.Hand, MessageBoxDefaultButton.Button1);
                                         await Device.InvokeOnMainThreadAsync(async () =>await DisplayAlert("Picker Override", "Picker cleared.", "OK"));
@@ -1886,7 +1997,7 @@
                         labelQuantity = this.ActHdr.GetLabelQuantity(this.SysEnv.SysSettings.IsPickSinglePrintShipLabelFullQuantity);
                     }
 
-                    if (this.ActHdr.ChangeStatus(Convert.ToInt32(this.dataGridMainActivity.SelectedItem)))
+                    if (await this.ActHdr.ChangeStatus(Convert.ToInt32(this.dataGridMainActivity.SelectedItem)))
                     {
                         // Print labels after release
                         this.ScannerDisable();

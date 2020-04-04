@@ -2,7 +2,8 @@ namespace dMobile.Controller
 {
   using System;
   using System.Data;
-  using System.Xml.Linq;
+    using System.Threading.Tasks;
+    using System.Xml.Linq;
   using dMobile.Bedrock;
 
   public class MoveSkidActivity : Activity
@@ -24,7 +25,7 @@ namespace dMobile.Controller
     /// </summary>
     /// <param name="idx"></param>
     /// <returns></returns>
-    public override bool ChangeStatus(int idx)
+    public override async Task<bool> ChangeStatus(int idx)
     {
       return true;
     }

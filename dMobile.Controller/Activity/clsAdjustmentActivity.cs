@@ -8,11 +8,12 @@ namespace dMobile.Controller
   using dMobile.Bedrock;
   using dMobile.GroundWork;
     using System.Xml;
+    using System.Threading.Tasks;
 
-  /// <summary>
-  /// 
-  /// </summary>
-  public class AdjActivity : Activity
+    /// <summary>
+    /// 
+    /// </summary>
+    public class AdjActivity : Activity
   {
     #region Fields
 
@@ -521,7 +522,7 @@ namespace dMobile.Controller
         }
     }
 
-    public override bool ChangeStatus(int selectedIndex)
+    public override async Task<bool> ChangeStatus(int selectedIndex)
     {
         bool result = false;
         if (AdjSettings.AdjustmentType == SysCommon.AdjTypes.Debox &&

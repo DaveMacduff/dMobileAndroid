@@ -2,7 +2,8 @@ namespace dMobile.Controller
 {
   using System;
   using System.Data;
-  using System.Xml.Linq;
+    using System.Threading.Tasks;
+    using System.Xml.Linq;
 
   public class SkidInfoActItem : ActItem
   {
@@ -94,7 +95,7 @@ namespace dMobile.Controller
     /// </summary>
     /// <param name="data"></param>
     /// <param name="askToInsertAsNewItem"></param>
-    public override void Insert(XDocument data, bool askToInsertAsNewItem)
+    public override async Task Insert(XDocument data, bool askToInsertAsNewItem)
     {
       throw new NotImplementedException();
     }

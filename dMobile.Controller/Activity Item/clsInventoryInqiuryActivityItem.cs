@@ -3,6 +3,7 @@ namespace dMobile.Controller
     using System;
     using System.Data;
     using System.Text;
+    using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
     using dMobile.Bedrock;
@@ -78,7 +79,7 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="data"></param>
         /// <param name="askToInsertAsNewItem"></param>
-        public override void Insert(XDocument data, bool askToInsertAsNewItem)
+        public override async Task Insert(XDocument data, bool askToInsertAsNewItem)
         {
             int prodUnitRefno = int.Parse(data.Root.Element("ProductUnitRefno").Value);
 

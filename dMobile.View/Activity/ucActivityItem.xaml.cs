@@ -11,6 +11,7 @@
     using System;
     using System.Collections.ObjectModel;
     using System.Data;
+    using System.IO;
     using System.Text;
     using System.Threading.Tasks;
     using System.Xml;
@@ -1667,8 +1668,8 @@
                         labelProductCodeItem.SetBinding(Label.TextProperty, new Binding("ProductCode"));
                         labelProductUnitBCItem.SetBinding(Label.TextProperty, new Binding("ProductUnitBC"));
                         labelUnitCodeItem.SetBinding(Label.TextProperty, new Binding("UnitCode"));
-                        labelActivityItemReceivingQuantityOrderedItem.SetBinding(Label.TextProperty, new Binding("ActivityItemReceivingQuantityOrdered"));
-                        labelActivityItemReceivingQuantityReceivedItem.SetBinding(Label.TextProperty, new Binding("ActivityItemReceivingQuantityReceived"));
+                        labelActivityItemReceivingQuantityOrderedItem.SetBinding(Label.TextProperty, new Binding("ActivityItemReceivingQuantityOrdered", BindingMode.Default, null, null, "{0:F3}"));
+                        labelActivityItemReceivingQuantityReceivedItem.SetBinding(Label.TextProperty, new Binding("ActivityItemReceivingQuantityReceived", BindingMode.Default, null, null, "{0:F3}"));
 
                         gridData.Children.Add(labelIsActivityItemReceivingCommentItem);
                         gridData.Children.Add(labelProductCodeItem);
@@ -1726,6 +1727,132 @@
                     break;
 
                 case SysCommon.ActSubTypes.Picking:
+                    // Header grid
+                    Grid gridHeaderPicking = new Grid
+                    {
+                        Padding = new Thickness(5),
+                        ColumnDefinitions =
+                            {
+                                new ColumnDefinition { Width = GridLength.Star },
+                                new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) },
+                                new ColumnDefinition { Width = GridLength.Star },
+                                new ColumnDefinition { Width = GridLength.Star },
+                                new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) },
+                                new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) }
+                            }
+                    };
+
+                    gridHeaderPicking.SetDynamicResource(BackgroundColorProperty, "HeaderColor");
+
+                    Label labelIsActivityItemPickingCommentHeader = new Label { Text = "C", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
+                    Label labelActivityItemPickingProductCodeHeader = new Label { Text = "Product ID", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
+                    Label labelActivityItemPickingProductUnitBCHeader = new Label { Text = " ", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
+                    Label labelActivityItemPickingUnitCodeHeader = new Label { Text = " ", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
+                    Label labelActivityItemPickingQuantityOrderedHeader = new Label { Text = "Ordered", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
+                    Label labelActivityItemPickingQuantityReceivedHeader = new Label { Text = "Shipped", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
+
+                    gridHeaderPicking.Children.Add(labelIsActivityItemPickingCommentHeader);
+                    gridHeaderPicking.Children.Add(labelActivityItemPickingProductCodeHeader);
+                    gridHeaderPicking.Children.Add(labelActivityItemPickingProductUnitBCHeader);
+                    gridHeaderPicking.Children.Add(labelActivityItemPickingUnitCodeHeader);
+                    gridHeaderPicking.Children.Add(labelActivityItemPickingQuantityOrderedHeader);
+                    gridHeaderPicking.Children.Add(labelActivityItemPickingQuantityReceivedHeader);
+
+                    Grid.SetColumn(labelIsActivityItemPickingCommentHeader, 0);
+                    Grid.SetColumn(labelActivityItemPickingProductCodeHeader, 1);
+                    Grid.SetColumn(labelActivityItemPickingProductUnitBCHeader, 2);
+                    Grid.SetColumn(labelActivityItemPickingUnitCodeHeader, 3);
+                    Grid.SetColumn(labelActivityItemPickingQuantityOrderedHeader, 4);
+                    Grid.SetColumn(labelActivityItemPickingQuantityReceivedHeader, 5);
+
+                    Grid.SetRow(gridHeaderPicking, 0);
+
+                    this.dataGridMainActivityHeader.Children.Add(gridHeaderPicking);
+
+                    // Data grid
+                    DataTemplate dataTemplatePicking = new DataTemplate(() =>
+                    {
+                        Grid gridData = new Grid
+                        {
+                            Padding = new Thickness(5),
+                            ColumnDefinitions =
+                            {
+                                new ColumnDefinition { Width = GridLength.Star },
+                                new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) },
+                                new ColumnDefinition { Width = GridLength.Star },
+                                new ColumnDefinition { Width = GridLength.Star },
+                                new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) },
+                                new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) }
+                            }
+                        };
+
+                        Label labelActivityItemPickingIsActivityItemPickingComment = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                        Label labelActivityItemPickingProductCode = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                        Label labelActivityItemPickingProductUnitBC = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                        Label labelActivityItemPickingUnitCode = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                        Label labelActivityItemPickingQuantityOrdered = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                        Label labelActivityItemPickingQuantityReceived = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+
+                        labelActivityItemPickingIsActivityItemPickingComment.SetBinding(Label.TextProperty, new Binding("IsActivityItemPickingComment"));
+                        labelActivityItemPickingProductCode.SetBinding(Label.TextProperty, new Binding("ProductCode"));
+                        labelActivityItemPickingProductUnitBC.SetBinding(Label.TextProperty, new Binding("ProductUnitBC"));
+                        labelActivityItemPickingUnitCode.SetBinding(Label.TextProperty, new Binding("UnitCode"));
+                        labelActivityItemPickingQuantityOrdered.SetBinding(Label.TextProperty, new Binding("ActivityItemPickingQuantityOrdered", BindingMode.Default, null, null, "{0:F3}"));
+                        labelActivityItemPickingQuantityReceived.SetBinding(Label.TextProperty, new Binding("ActivityItemPickingQuantityShipped", BindingMode.Default, null, null, "{0:F3}"));
+
+                        gridData.Children.Add(labelActivityItemPickingIsActivityItemPickingComment);
+                        gridData.Children.Add(labelActivityItemPickingProductCode);
+                        gridData.Children.Add(labelActivityItemPickingProductUnitBC);
+                        gridData.Children.Add(labelActivityItemPickingUnitCode);
+                        gridData.Children.Add(labelActivityItemPickingQuantityOrdered);
+                        gridData.Children.Add(labelActivityItemPickingQuantityReceived);
+
+                        Grid.SetColumn(labelActivityItemPickingIsActivityItemPickingComment, 0);
+                        Grid.SetColumn(labelActivityItemPickingProductCode, 1);
+                        Grid.SetColumn(labelActivityItemPickingProductUnitBC, 2);
+                        Grid.SetColumn(labelActivityItemPickingUnitCode, 3);
+                        Grid.SetColumn(labelActivityItemPickingQuantityOrdered, 4);
+                        Grid.SetColumn(labelActivityItemPickingQuantityReceived, 5);
+
+                        return new ViewCell { View = gridData };
+                    });
+
+                    this.dataGridMainActivity.ItemTemplate = dataTemplatePicking;
+                    this.DataGridMainActivityItemsList.Clear();
+
+                    foreach (DataRow row in this.ActItem.DataViewItems.ToTable().Rows)
+                    {
+                        PickingItem pickingItem = new PickingItem
+                        {
+                            ActivityItemRefno = Convert.ToInt32(row["ActivityItemRefno"] != DBNull.Value ? row["ActivityItemRefno"] : null),
+                            ActivityItemPickingFKRefno = Convert.ToInt32(row["ActivityItemPickingFKRefno"] != DBNull.Value ? row["ActivityItemPickingFKRefno"] : null),
+                            ActivityItemPickingStringFKRefno = Convert.ToString(row["ActivityItemPickingStringFKRefno"] != DBNull.Value ? row["ActivityItemPickingStringFKRefno"] : null),
+                            ProductUnitRefno = Convert.ToInt32(row["ProductUnitRefno"] != DBNull.Value ? row["ProductUnitRefno"] : null),
+                            ProductCode = Convert.ToString(row["ProductCode"] != DBNull.Value ? row["ProductCode"] : null),
+                            ProductDescription = Convert.ToString(row["ProductDescription"] != DBNull.Value ? row["ProductDescription"] : null),
+                            ProductBrandDescription = Convert.ToString(row["ProductBrandDescription"] != DBNull.Value ? row["ProductBrandDescription"] : null),
+                            UnitCode = Convert.ToString(row["UnitCode"] != DBNull.Value ? row["UnitCode"] : null),
+                            ProductUnitBC = Convert.ToString(row["ProductUnitBC"] != DBNull.Value ? row["ProductUnitBC"] : null),
+                            ProductUnitSizeDescription = Convert.ToString(row["ProductUnitSizeDescription"] != DBNull.Value ? row["ProductUnitSizeDescription"] : null),
+                            ActivityItemPickingQuantityOrdered = Convert.ToDecimal(row["ActivityItemPickingQuantityOrdered"] != DBNull.Value ? row["ActivityItemPickingQuantityOrdered"] : null),
+                            ActivityItemPickingBaseQuantityOrdered = Convert.ToDecimal(row["ActivityItemPickingBaseQuantityOrdered"] != DBNull.Value ? row["ActivityItemPickingBaseQuantityOrdered"] : null),
+                            ActivityItemPickingWeightQuantityOrdered = Convert.ToDecimal(row["ActivityItemPickingWeightQuantityOrdered"] != DBNull.Value ? row["ActivityItemPickingWeightQuantityOrdered"] : null),
+                            ActivityItemPickingQuantityShipped = Convert.ToDecimal(row["ActivityItemPickingQuantityShipped"] != DBNull.Value ? row["ActivityItemPickingQuantityShipped"] : null),
+                            ActivityItemPickingBaseQuantityShipped = Convert.ToDecimal(row["ActivityItemPickingBaseQuantityShipped"] != DBNull.Value ? row["ActivityItemPickingBaseQuantityShipped"] : null),
+                            ActivityItemPickingWeightQuantityShipped = Convert.ToDecimal(row["ActivityItemPickingWeightQuantityShipped"] != DBNull.Value ? row["ActivityItemPickingWeightQuantityShipped"] : null),
+                            ActivityItemPickingCustomerProductUnitCode = Convert.ToString(row["ActivityItemPickingCustomerProductUnitCode"] != DBNull.Value ? row["ActivityItemPickingCustomerProductUnitCode"] : null),
+                            LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
+                            LocationCode = Convert.ToInt32(row["LocationCode"] != DBNull.Value ? row["LocationCode"] : null),
+                            LocationName = Convert.ToString(row["LocationName"] != DBNull.Value ? row["LocationName"] : null),
+                            ActivityItemPickingQuantityAvailable = Convert.ToDecimal(row["ActivityItemPickingQuantityAvailable"] != DBNull.Value ? row["ActivityItemPickingQuantityAvailable"] : null),
+                            ActivityItemPickingWeightQuantityAvailable = Convert.ToDecimal(row["ActivityItemPickingWeightQuantityAvailable"] != DBNull.Value ? row["ActivityItemPickingWeightQuantityAvailable"] : null),
+                            IsActivityItemPickingComment = !string.IsNullOrWhiteSpace(Convert.ToString(row["IsActivityItemPickingComment"] != DBNull.Value ? row["IsActivityItemPickingComment"] : null)) ? "X" : "",
+                            ActivityItemStatus = Convert.ToInt32(row["ActivityItemStatus"] != DBNull.Value ? row["ActivityItemStatus"] : null) 
+                        };
+
+                        this.DataGridMainActivityItemsList.Add(pickingItem);
+                    }
+
                     break;
 
                 case SysCommon.ActSubTypes.TransferFrom:
@@ -2338,7 +2465,7 @@
                 }
                 catch (Exception ex)
                 {
-                    await Device.InvokeOnMainThreadAsync(async () => 
+                    await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
                         await errRpt.ShowDialog();

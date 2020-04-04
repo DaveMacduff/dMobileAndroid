@@ -4,6 +4,7 @@ namespace dMobile.Controller
     using System.Collections.ObjectModel;
     using System.Data;
     using System.Data.SQLite;
+    using System.Threading.Tasks;
     using System.Xml.Linq;
     using dMobile.Bedrock;
     using dMobile.GroundWork;
@@ -455,11 +456,11 @@ namespace dMobile.Controller
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public virtual bool ChangeStatus(int selectedIndex)
+        public virtual async Task<bool> ChangeStatus(int selectedIndex)
         {
             return true;
         }
-
+        
         /// <summary>
         /// 
         /// </summary>

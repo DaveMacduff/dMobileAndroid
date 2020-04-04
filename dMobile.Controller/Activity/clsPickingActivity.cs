@@ -4,10 +4,12 @@ namespace dMobile.Controller
     using System.Data;
     using System.Data.SQLite;
     using System.Text;
+    using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
     using dMobile.Bedrock;
     using dMobile.GroundWork;
+    using Xamarin.Forms;
 
     /// <summary>
     /// 
@@ -101,6 +103,7 @@ namespace dMobile.Controller
                 xml.Close();
 
                 reqData = SysCommon.SubmitComm(xmlString.ToString());
+                
                 if (reqData.Length > 0)
                 {
                     // check if result is an error message
@@ -108,24 +111,13 @@ namespace dMobile.Controller
                     {
                         XmlDocument docError = new XmlDocument();
                         docError.LoadXml(reqData);
-                        throw new MessageOnlyException(
-                            string.Format(
-#if MULTILANGUAGE
-                Translator.GetInstance().Translate(TranslatorVocabulary.OrderPrintShippingLabelsFailed) + Environment.NewLine + "{1}",
-#else
-                "Order# {0} print shipping label(s) failed." + Environment.NewLine + "{1}",
-#endif
-                this.FKRefno,
-                            docError.DocumentElement["detail"].InnerText));
+                        throw new MessageOnlyException(string.Format("Order# {0} print shipping label(s) failed." + Environment.NewLine + "{1}", this.FKRefno, docError.DocumentElement["detail"].InnerText));
                     }
                 }
                 else
                 {
-#if MULTILANGUAGE
-          throw new Exception(string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.OrderPrintShippingLabelsFailedz), this.FKRefno));
-#else
+                    // TODO: Resource strings
                     throw new Exception(string.Format("Order# {0} Print shipping label(s) failed.", this.FKRefno));
-#endif
                 }
             }
         }
@@ -147,11 +139,7 @@ namespace dMobile.Controller
                 StringBuilder xmlString = new StringBuilder();
                 XmlWriter xml = XmlWriter.Create(xmlString);
                 XDocument request = null;
-                SLocMap locMap = LocationMapTasks.GetSLocMapFromLocMapFKRefno(
-                    int.Parse(this.XMLDataCriteria.Root.Element("whs_id").Value),
-                    int.Parse(this.XMLDataCriteria.Root.Element("sect_refno").Value),
-                    0,
-                    ref locMapRefno);
+                SLocMap locMap = LocationMapTasks.GetSLocMapFromLocMapFKRefno(int.Parse(this.XMLDataCriteria.Root.Element("whs_id").Value), int.Parse(this.XMLDataCriteria.Root.Element("sect_refno").Value), 0, ref locMapRefno);
 
                 request = XDocument.Parse(
                     "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
@@ -169,8 +157,8 @@ namespace dMobile.Controller
                 xml.Close();
 
                 sendReq = xmlString.ToString();
-
                 reqData = SysCommon.SubmitComm(sendReq);
+                
                 if (reqData.Length > 0)
                 {
                     XmlDocument xmlResult = new XmlDocument();
@@ -179,76 +167,46 @@ namespace dMobile.Controller
                     // Check if result is an error message
                     if (reqData.Contains("<message>ERROR</message>"))
                     {
-                        throw new Exception(string.Format(
-#if MULTILANGUAGE
-                Translator.GetInstance().Translate(TranslatorVocabulary.OrderRequestShippingLabelsQuantityFailed) + Environment.NewLine + "{1}",
-#else
-                "Order# {0} request shipping label(s) quantity failed." + Environment.NewLine + "{1}",
-#endif
-                this.FKRefno,
-                            xmlResult.DocumentElement["detail"].InnerText));
+                        // TODO: Resource strings
+                        throw new Exception(string.Format("Order# {0} request shipping label(s) quantity failed." + Environment.NewLine + "{1}", this.FKRefno, xmlResult.DocumentElement["detail"].InnerText));
                     }
                     else
                     {
                         if (!isRepackQuantityOnly)
                         {
-                            labelQty.FullQuantity = int.Parse(
-                                xmlResult.SelectSingleNode("/VFPData/FullCaseQuantity").FirstChild.Value);
-
-                            labelQty.DryQuantity = int.Parse(
-                                xmlResult.SelectSingleNode("/VFPData/DryQuantity").FirstChild.Value);
-
-                            labelQty.FrozenQuantity = int.Parse(
-                                xmlResult.SelectSingleNode("/VFPData/FrozenQuantity").FirstChild.Value);
-
-                            labelQty.LiveQuantity = int.Parse(
-                                xmlResult.SelectSingleNode("/VFPData/LiveQuantity").FirstChild.Value);
-
-                            labelQty.FreshQuantity = int.Parse(
-                                xmlResult.SelectSingleNode("/VFPData/FreshQuantity").FirstChild.Value);
-
-                            labelQty.BundleQuantity = int.Parse(
-                                xmlResult.SelectSingleNode("/VFPData/BundleQuantity").FirstChild.Value);
-
-                            labelQty.PalletQuantity = int.Parse(
-                                xmlResult.SelectSingleNode("/VFPData/PalletQuantity").FirstChild.Value);
+                            labelQty.FullQuantity = int.Parse(xmlResult.SelectSingleNode("/VFPData/FullCaseQuantity").FirstChild.Value);
+                            labelQty.DryQuantity = int.Parse(xmlResult.SelectSingleNode("/VFPData/DryQuantity").FirstChild.Value);
+                            labelQty.FrozenQuantity = int.Parse(xmlResult.SelectSingleNode("/VFPData/FrozenQuantity").FirstChild.Value);
+                            labelQty.LiveQuantity = int.Parse(xmlResult.SelectSingleNode("/VFPData/LiveQuantity").FirstChild.Value);
+                            labelQty.FreshQuantity = int.Parse(xmlResult.SelectSingleNode("/VFPData/FreshQuantity").FirstChild.Value);
+                            labelQty.BundleQuantity = int.Parse(xmlResult.SelectSingleNode("/VFPData/BundleQuantity").FirstChild.Value);
+                            labelQty.PalletQuantity = int.Parse(xmlResult.SelectSingleNode("/VFPData/PalletQuantity").FirstChild.Value);
                         }
 
-                        labelQty.RepackQuantity = int.Parse(
-                            xmlResult.SelectSingleNode("/VFPData/RepackQuantity").FirstChild.Value);
-
-                        labelQty.RepackDryQuantity = int.Parse(
-                            xmlResult.SelectSingleNode("/VFPData/RepackDryQuantity").FirstChild.Value);
-
-                        labelQty.RepackFrozenQuantity = int.Parse(
-                            xmlResult.SelectSingleNode("/VFPData/RepackFrozenQuantity").FirstChild.Value);
-
-                        labelQty.RepackLiveQuantity = int.Parse(
-                            xmlResult.SelectSingleNode("/VFPData/RepackLiveQuantity").FirstChild.Value);
-
-                        labelQty.RepackFreshQuantity = int.Parse(
-                            xmlResult.SelectSingleNode("/VFPData/RepackFreshQuantity").FirstChild.Value);
+                        labelQty.RepackQuantity = int.Parse(xmlResult.SelectSingleNode("/VFPData/RepackQuantity").FirstChild.Value);
+                        labelQty.RepackDryQuantity = int.Parse(xmlResult.SelectSingleNode("/VFPData/RepackDryQuantity").FirstChild.Value);
+                        labelQty.RepackFrozenQuantity = int.Parse(xmlResult.SelectSingleNode("/VFPData/RepackFrozenQuantity").FirstChild.Value);
+                        labelQty.RepackLiveQuantity = int.Parse(xmlResult.SelectSingleNode("/VFPData/RepackLiveQuantity").FirstChild.Value);
+                        labelQty.RepackFreshQuantity = int.Parse(xmlResult.SelectSingleNode("/VFPData/RepackFreshQuantity").FirstChild.Value);
 
                         // Used to determine if there should be a repack quantity gathered.
                         labelQty.IsRepack = bool.Parse(xmlResult.SelectSingleNode("/VFPData/IsRepackCase").FirstChild.Value);
                         labelQty.IsRepackLive = bool.Parse(xmlResult.SelectSingleNode("/VFPData/IsRepackLive").FirstChild.Value);
-                        labelQty.IsRepackFrozen = bool.Parse(
-                              xmlResult.SelectSingleNode("/VFPData/IsRepackFrozen").FirstChild.Value);
+                        labelQty.IsRepackFrozen = bool.Parse(xmlResult.SelectSingleNode("/VFPData/IsRepackFrozen").FirstChild.Value);
                         labelQty.IsRepackFresh = bool.Parse(xmlResult.SelectSingleNode("/VFPData/IsRepackFresh").FirstChild.Value);
                         labelQty.IsRepackDry = bool.Parse(xmlResult.SelectSingleNode("/VFPData/IsRepackDry").FirstChild.Value);
                     }
                 }
                 else
                 {
-#if MULTILANGUAGE
-          throw new Exception(string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.OrderRequestShippingLabelsQuantityFailed), this.FKRefno));
-#else
+                    // TODO: Resource strings
                     throw new Exception(string.Format("Order# {0} request shipping label(s) quantity failed.", this.FKRefno));
-#endif
                 }
             }
             catch (Exception ex)
             {
+                // TODO: Logging
+                Console.WriteLine(ex);
                 // TODO: DisplayAlert
                 //        MessageBox.Show(
                 //#if MULTILANGUAGE
@@ -269,7 +227,7 @@ namespace dMobile.Controller
         ///
         /// </summary>
         /// <remarks></remarks>
-        public bool IsSalesOrderBeingPicked()
+        public async Task<bool> IsSalesOrderBeingPicked()
         {
             int locMapRefno = 0;
             SLocMap locMap = LocationMapTasks.GetSLocMapFromLocMapFKRefno(
@@ -305,17 +263,19 @@ namespace dMobile.Controller
             {
                 XmlDocument xmlDoc = new XmlDocument();
                 xmlDoc.LoadXml(reqData);
+                
                 if (reqData.Contains("<message>ERROR</message>"))
                 {
                     isBeingPicked = true;
                     string errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
-                    // TODO: DisplayAlert
+                    // TODO: Resource strings
                     //MessageBox.Show(
                     //    errorDetail, 
                     //    this.GetControlDescription(), 
                     //    MessageBoxButtons.OK, 
                     //    MessageBoxIcon.Hand, 
                     //    MessageBoxDefaultButton.Button1);
+                    await Application.Current.MainPage.DisplayAlert(this.GetControlDescription(), errorDetail, "OK");
                 }
             }
 
@@ -327,7 +287,7 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="clearDeviceOnly"></param>
         /// <returns></returns>
-        public bool ClearSalesOrderBeingPicked(bool clearDeviceOnly)
+        public async Task<bool> ClearSalesOrderBeingPicked(bool clearDeviceOnly)
         {
             bool isClearedBeingPicked = true;
 
@@ -363,20 +323,23 @@ namespace dMobile.Controller
                 xml.Close();
 
                 reqData = SysCommon.SubmitComm(xmlString.ToString());
+                
                 if (reqData.Length > 0)
                 {
                     XmlDocument xmlDoc = new XmlDocument();
                     xmlDoc.LoadXml(reqData);
+                    
                     if (reqData.Contains("<message>ERROR</message>"))
                     {
                         string errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
-                        // TODO: DisplayAlert
+                        // TODO: Resource strings
                         //MessageBox.Show(
                         //    errorDetail, 
                         //    this.GetControlDescription(), 
                         //    MessageBoxButtons.OK, 
                         //    MessageBoxIcon.Hand, 
                         //    MessageBoxDefaultButton.Button1);
+                        await Application.Current.MainPage.DisplayAlert(this.GetControlDescription(), errorDetail, "OK");
                     }
                     else
                     {
@@ -392,69 +355,54 @@ namespace dMobile.Controller
         ///
         /// </summary>
         /// <remarks></remarks>
-        public bool ReleaseByOrder()
+        public async Task<bool> ReleaseByOrder()
         {
             bool isReleased = false;
 
-            // TODO: DisplayAlert and logic
-            //      if (MessageBox.Show(
-            //#if MULTILANGUAGE
-            //          string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.ReleaseOrder), this.FKRefno),
-            //#else
-            //          string.Format("Release order# {0} ?", this.FKRefno),
-            //#endif
-            //          this.GetControlDescription(),
-            //          MessageBoxButtons.YesNo,
-            //          MessageBoxIcon.Question,
-            //          MessageBoxDefaultButton.Button2) == DialogResult.Yes)
-            //      {
-            //        string reqResult = string.Empty;
-            //        StringBuilder xmlString = new StringBuilder();
-            //        XmlWriter xml = XmlWriter.Create(xmlString);
+            // TODO: Pull view logic out of this project
+            //if (MessageBox.Show(string.Format("Release order# {0} ?", this.FKRefno), this.GetControlDescription(), MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
+            if (await Application.Current.MainPage.DisplayAlert(this.GetControlDescription(), string.Format("Release order# {0} ?", this.FKRefno), "Yes", "No"))
+            {
+                string reqResult = string.Empty;
+                StringBuilder xmlString = new StringBuilder();
+                XmlWriter xml = XmlWriter.Create(xmlString);
 
-            //        XDocument request = XDocument.Parse(
-            //            "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" 
-            //            + "<imclient>" 
-            //            + "<command>" 
-            //            + "<action>RELEASE SALES ORDER BY ORDER</action>" 
-            //            + "</command>" 
-            //            + SysCommon.GetRequestDefaults(false)
-            //            + ("<refno>" + this.FKRefno.ToString() + "</refno>")
-            //            + "</imclient>");
+                XDocument request = XDocument.Parse(
+                    "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
+                    + "<imclient>"
+                    + "<command>"
+                    + "<action>RELEASE SALES ORDER BY ORDER</action>"
+                    + "</command>"
+                    + SysCommon.GetRequestDefaults(false)
+                    + ("<refno>" + this.FKRefno.ToString() + "</refno>")
+                    + "</imclient>");
 
-            //        request.Save(xml);
-            //        xml.Flush();
-            //        xml.Close();
+                request.Save(xml);
+                xml.Flush();
+                xml.Close();
 
-            //        reqResult = SysCommon.SubmitComm(xmlString.ToString());
-            //        if (reqResult.Length > 0)
-            //        {
-            //          if (reqResult.Contains("<message>ERROR</message>"))
-            //          {
-            //            XmlDocument docError = new XmlDocument();
-            //            docError.LoadXml(reqResult);
-            //            string errorDetail = docError.DocumentElement["detail"].InnerText;
-            //            throw new Exception(string.Format(
-            //#if MULTILANGUAGE
-            //                Translator.GetInstance().Translate(TranslatorVocabulary.ReleaseOrderFailed) + Environment.NewLine + errorDetail,
-            //#else
-            //                "Release order# {0} failed." + Environment.NewLine + errorDetail,
-            //#endif
-            //                this.FKRefno,
-            //                null));
-            //          }
+                reqResult = SysCommon.SubmitComm(xmlString.ToString());
+                
+                if (reqResult.Length > 0)
+                {
+                    if (reqResult.Contains("<message>ERROR</message>"))
+                    {
+                        XmlDocument docError = new XmlDocument();
+                        docError.LoadXml(reqResult);
+                        string errorDetail = docError.DocumentElement["detail"].InnerText;
+                            
+                        // TODO: Resource strings
+                        throw new Exception(string.Format("Release order# {0} failed." + Environment.NewLine + errorDetail, this.FKRefno, null));
+                    }
 
-            //          isReleased = true;
-            //        }
-            //        else
-            //        {
-            //#if MULTILANGUAGE
-            //          throw new Exception(string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.ReleaseOrderFailed), FKRefno));
-            //#else
-            //          throw new Exception(string.Format("Release order# {0} failed.", FKRefno));
-            //#endif
-            //        }
-            //      }
+                    isReleased = true;
+                }
+                else
+                {
+                    // TODO: Resource strings
+                    throw new Exception(string.Format("Release order# {0} failed.", FKRefno));
+                }
+            }
 
             return isReleased;
         }
@@ -488,16 +436,8 @@ namespace dMobile.Controller
                 // Do not warn if product is out of stock WO# 12054
                 if (rowsAffected > 0)
                 {
-                    throw new Exception(string.Format(
-#if MULTILANGUAGE
-              Translator.GetInstance().Translate(TranslatorVocabulary.OrderQuantityUnderCheckFailed) + Environment.NewLine
-              + Translator.GetInstance().Translate(TranslatorVocabulary.ItemsExistWhereTheQuantityShippedIsLessThanTheQuantityOrdered),
-#else
-              "Order# {0} quantity under check failed." + Environment.NewLine
-                        + "{1} Items exist where the quantity shipped is less than the quantity ordered.",
-#endif
-              this.FKRefno,
-                        rowsAffected));
+                    // TODO: Resource strings
+                    throw new Exception(string.Format("Order# {0} quantity under check failed." + Environment.NewLine + "{1} Items exist where the quantity shipped is less than the quantity ordered.", this.FKRefno, rowsAffected));
                 }
             }
             else
@@ -524,6 +464,7 @@ namespace dMobile.Controller
                 xml.Close();
 
                 reqResult = SysCommon.SubmitComm(xmlString.ToString());
+                
                 if (reqResult.Length > 0)
                 {
                     if (reqResult.Contains("<message>ERROR</message>"))
@@ -531,24 +472,15 @@ namespace dMobile.Controller
                         XmlDocument docError = new XmlDocument();
                         docError.LoadXml(reqResult);
                         string errorDetail = docError.DocumentElement["detail"].InnerText;
-                        throw new Exception(
-                            string.Format(
-#if MULTILANGUAGE
-                Translator.GetInstance().Translate(TranslatorVocabulary.OrderQuantityUnderCheckFailed) + Environment.NewLine + "{1}", 
-#else
-                "Order# {0} quantity under check failed." + Environment.NewLine + "{1}",
-#endif
-                this.FKRefno,
-                            errorDetail));
+                        
+                        // TODO: Resource strings
+                        throw new Exception(string.Format("Order# {0} quantity under check failed." + Environment.NewLine + "{1}", this.FKRefno, errorDetail));
                     }
                 }
                 else
                 {
-#if MULTILANGUAGE
-          throw new Exception(string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.OrderQuantityUnderCheckFailed), FKRefno));
-#else
+                    // TODO: Resource strings
                     throw new Exception(string.Format("Order# {0} quantity under check failed.", FKRefno));
-#endif
                 }
             }
         }
@@ -560,7 +492,7 @@ namespace dMobile.Controller
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public override bool ChangeStatus(int idx)
+        public override async Task<bool> ChangeStatus(int idx)
         {
             bool isResult = true;
 
@@ -568,7 +500,7 @@ namespace dMobile.Controller
             {
                 if (this.SysEnv.SysSettings.IsPickMustReviewItemsBeforeRel && idx >= 0)
                 {
-                    isResult = (bool)this.DataViewHdrs[idx]["ActivityPickingIsReviewed"];
+                    isResult = Convert.ToBoolean(this.DataViewHdrs[idx]["ActivityPickingIsReviewed"]);
                     if (this.SysEnv.SysSettings.IsPrePickCrit
                         && this.SysEnv.SysSettings.IsRelBySect
                         && !this.SysEnv.SysSettings.IsDisconnectedMode
@@ -577,22 +509,16 @@ namespace dMobile.Controller
                     {
                         if (!isResult)
                         {
-#if MULTILANGUAGE
-              throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.ItemsThatHaveNotBeenReviewedExistForThisSection));
-#else
+                            // TODO: Resource strings
                             throw new Exception("Items that have not been reviewed exist for this section.");
-#endif
                         }
                     }
                     else if (this.SysEnv.SysSettings.IsRelByOrder && !this.SysEnv.SysSettings.IsDisconnectedMode)
                     {
                         if (!isResult)
                         {
-#if MULTILANGUAGE
-              throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.ItemsThatHaveNotBeenReviewedExistForThisOrder));
-#else
+                            // TODO: Resource strings
                             throw new Exception("Items that have not been reviewed exist for this order.");
-#endif
                         }
                     }
                 }
@@ -611,7 +537,7 @@ namespace dMobile.Controller
                         switch (this.SysEnv.SysSettings.PickQtyUnderWarn)
                         {
                             case SysCommon.ActPickingQtyUnderValLevels.ValidateWarnAndContinue:
-                                // TODO: DisplayAlert
+                                // TODO: Resource strings
                                 //                if (MessageBox.Show(
                                 //#if MULTILANGUAGE
                                 //                    ex.Message + Environment.NewLine + Translator.GetInstance().Translate(TranslatorVocabulary.Continue),
@@ -626,10 +552,16 @@ namespace dMobile.Controller
                                 //                  isResult = false;
                                 //                }
 
+                                if (await Application.Current.MainPage.DisplayAlert(this.GetControlDescription(), string.Format("Release order# {0} ?", this.FKRefno), "Yes", "No"))
+                                {
+                                    isResult = false;
+                                }
+
                                 break;
 
                             case SysCommon.ActPickingQtyUnderValLevels.ValidateWarnAndStop:
-                                // TODO: DisplayAlert
+                                // TODO: Resource strings
+                                await Application.Current.MainPage.DisplayAlert(this.GetControlDescription(), ex.Message, "OK");
                                 //MessageBox.Show(
                                 //    ex.Message,
                                 //    this.GetControlDescription(),
@@ -651,11 +583,11 @@ namespace dMobile.Controller
                     && this.XMLDataCriteria != null
                     && int.Parse(this.XMLDataCriteria.Root.Element("sect_refno").Value) != 0)
                 {
-                    isResult = this.ReleaseBySection();
+                    isResult = await this.ReleaseBySection();
                 }
                 else if (this.SysEnv.SysSettings.IsRelByOrder && !this.SysEnv.SysSettings.IsDisconnectedMode)
                 {
-                    isResult = this.ReleaseByOrder();
+                    isResult = await this.ReleaseByOrder();
                 }
             }
 
@@ -679,11 +611,8 @@ namespace dMobile.Controller
         /// <remarks></remarks>
         public override string GetControlDescription()
         {
-#if MULTILANGUAGE
-      return Translator.GetInstance().Translate(TranslatorVocabulary.DmobilePicking);
-#else
+            // TODO: Resource strings
             return "dMobile Picking";
-#endif
         }
 
         //    /// <summary>
@@ -895,10 +824,7 @@ namespace dMobile.Controller
 
                     this.DataViewHdrs = ds.Tables[0].DefaultView;
                     this.DataViewHdrs.Table.TableName = this.MainGridMappingName;
-
-                    // TODO: Fix sorts
-                    //this.DataViewHdrs.Sort = pickingSettings.GetDataViewSortBy();
-
+                    this.DataViewHdrs.Sort = pickingSettings.GetDataViewSortBy();
                     this.DataViewHdrs.RowFilter = this.GetFilter();
                 }
             }
@@ -916,11 +842,11 @@ namespace dMobile.Controller
         {
             if (string.IsNullOrEmpty(this.ActFilter))
             {
-                this.DataViewHdrs.RowFilter = "ActivityPickingStringFKRefno LIKE \'" + searchText.Trim() + "%\'";
+                this.DataViewHdrs.RowFilter = "ActivityPickingStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
             }
             else
             {
-                this.DataViewHdrs.RowFilter = this.ActFilter + " AND ActivityPickingStringFKRefno LIKE \'"
+                this.DataViewHdrs.RowFilter = this.ActFilter + " AND ActivityPickingStringFKRefno LIKE \'%"
                     + searchText.Trim() + "%\'";
             }
 
@@ -933,15 +859,14 @@ namespace dMobile.Controller
         /// <param name="idx"></param>
         public override void SelectHdr(int idx)
         {
-            this.FKRefno = (int)this.DataViewHdrs[idx]["ActivityPickingFKRefno"];
-            this.Refno = (int)this.DataViewHdrs[idx]["ActivityRefno"];
+            this.FKRefno = Convert.ToInt32(this.DataViewHdrs[idx]["ActivityPickingFKRefno"]);
+            this.Refno = Convert.ToInt32(this.DataViewHdrs[idx]["ActivityRefno"]);
             this.SelectedIndex = idx;
 
             // Set the selected warehouse to the activity header warehouse.
-            if (LocationMap.GetInstance().CurrLocMap.WhsLocMapRefno != (int)this.DataViewHdrs[idx]["LocationMapRefno"])
+            if (LocationMap.GetInstance().CurrLocMap.WhsLocMapRefno != Convert.ToInt32(this.DataViewHdrs[idx]["LocationMapRefno"]))
             {
-                LocationMap.GetInstance().CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(
-                    (int)this.DataViewHdrs[idx]["LocationMapRefno"]);
+                LocationMap.GetInstance().CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(this.DataViewHdrs[idx]["LocationMapRefno"]));
             }
         }
 
@@ -952,8 +877,8 @@ namespace dMobile.Controller
         /// <returns></returns>
         public override int GetRefnoFromRowIdx(int idx)
         {
-            this.FKRefno = (int)this.DataViewHdrs[idx]["ActivityPickingFKRefno"];
-            this.Refno = (int)this.DataViewHdrs[idx]["ActivityRefno"];
+            this.FKRefno = Convert.ToInt32(this.DataViewHdrs[idx]["ActivityPickingFKRefno"]);
+            this.Refno = Convert.ToInt32(this.DataViewHdrs[idx]["ActivityRefno"]);
 
             return this.Refno;
         }
@@ -1190,7 +1115,7 @@ namespace dMobile.Controller
         ///
         /// </summary>
         /// <remarks></remarks>
-        private bool ReleaseBySection()
+        private async Task<bool> ReleaseBySection()
         {
             bool isReleased = false;
 
@@ -1200,67 +1125,58 @@ namespace dMobile.Controller
             // TODO: Resource strings                
             string msg = string.Format("Release order# {0} for warehouse {1}, section {2}?", this.FKRefno, locMap.WhsName, locMap.SectName);
 
-            // TODO: DisplayAlert and logic
-            //      if (MessageBox.Show(
-            //          msg,
-            //          this.GetControlDescription(),
-            //          MessageBoxButtons.YesNo,
-            //          MessageBoxIcon.Question,
-            //          MessageBoxDefaultButton.Button2) == DialogResult.Yes)
-            //      {
-            //        string reqData = string.Empty;
-            //        StringBuilder xmlString = new StringBuilder();
-            //        XmlWriter xml = XmlWriter.Create(xmlString);
-            //        XDocument request = null;
+            // TODO: Resource strings
+            //if (MessageBox.Show(
+            //    msg,
+            //    this.GetControlDescription(),
+            //    MessageBoxButtons.YesNo,
+            //    MessageBoxIcon.Question,
+            //    MessageBoxDefaultButton.Button2) == DialogResult.Yes)
+            await Application.Current.MainPage.DisplayAlert(this.GetControlDescription(), msg, "Yes", "No");
+            {
+                string reqData = string.Empty;
+                StringBuilder xmlString = new StringBuilder();
+                XmlWriter xml = XmlWriter.Create(xmlString);
+                XDocument request = null;
 
-            //        request = XDocument.Parse(
-            //            "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" 
-            //            + "<imclient>" 
-            //            + "<command>" 
-            //            + "<action>RELEASE SALES ORDER BY ORDER ITEM SECTION</action>" 
-            //            + "</command>" 
-            //            + SysCommon.GetRequestDefaults(false)
-            //            + ("<refno>" + this.FKRefno.ToString() + "</refno>") 
-            //            + ("<whs_id>" + locMap.WhsFKRefno + "</whs_id>") 
-            //            + ("<sect_refno>" + locMap.SectFKRefno + "</sect_refno>") 
-            //            + "</imclient>");
+                request = XDocument.Parse(
+                    "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
+                    + "<imclient>"
+                    + "<command>"
+                    + "<action>RELEASE SALES ORDER BY ORDER ITEM SECTION</action>"
+                    + "</command>"
+                    + SysCommon.GetRequestDefaults(false)
+                    + ("<refno>" + this.FKRefno.ToString() + "</refno>")
+                    + ("<whs_id>" + locMap.WhsFKRefno + "</whs_id>")
+                    + ("<sect_refno>" + locMap.SectFKRefno + "</sect_refno>")
+                    + "</imclient>");
 
-            //        request.Save(xml);
-            //        xml.Flush();
-            //        xml.Close();
+                request.Save(xml);
+                xml.Flush();
+                xml.Close();
 
-            //        reqData = SysCommon.SubmitComm(xmlString.ToString());
-            //        if (reqData.Length > 0)
-            //        {
-            //          if (reqData.Contains("<message>ERROR</message>"))
-            //          {
-            //            XmlDocument docError = new XmlDocument();
-            //            docError.LoadXml(reqData);
-            //            string errorDetail = docError.DocumentElement["detail"].InnerText;
-            //            throw new Exception(string.Format(
-            //#if MULTILANGUAGE
-            //                Translator.GetInstance().Translate(TranslatorVocabulary.ReleaseOrderByOrderItemSectionFailed) + Environment.NewLine + errorDetail,
-            //#else
-            //                "Release order# {0} by order item section {1} failed." + Environment.NewLine + errorDetail,
-            //#endif
-            //                this.FKRefno.ToString(),
-            //                locMap.SectName));
-            //          }
+                reqData = SysCommon.SubmitComm(xmlString.ToString());
+                
+                if (reqData.Length > 0)
+                {
+                    if (reqData.Contains("<message>ERROR</message>"))
+                    {
+                        XmlDocument docError = new XmlDocument();
+                        docError.LoadXml(reqData);
+                        string errorDetail = docError.DocumentElement["detail"].InnerText;
+                        
+                        // TODO: Resource strings
+                        throw new Exception(string.Format("Release order# {0} by order item section {1} failed." + Environment.NewLine + errorDetail, this.FKRefno.ToString(), locMap.SectName));
+                    }
 
-            //          isReleased = true;
-            //        }
-            //        else
-            //        {
-            //          throw new Exception(string.Format(
-            //#if MULTILANGUAGE
-            //              Translator.GetInstance().Translate(TranslatorVocabulary.ReleaseOrderByOrderItemSectionFailed),
-            //#else
-            //              "Release order# {0} by order item section {1} failed.",
-            //#endif
-            //              this.FKRefno,
-            //              locMap.SectName));
-            //        }
-            //      }
+                    isReleased = true;
+                }
+                else
+                {
+                    // TODO: Resource strings
+                    throw new Exception(string.Format("Release order# {0} by order item section {1} failed.", this.FKRefno, locMap.SectName));
+                }
+            }
 
             return isReleased;
         }

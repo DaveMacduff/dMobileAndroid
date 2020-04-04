@@ -4,10 +4,13 @@ namespace dMobile.Controller
     using System.Data;
     using System.Data.SQLite;
     using System.Text;
+    using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
     using dMobile.Bedrock;
     using dMobile.GroundWork;
+    using dMobile.Resources.Enums;
+    using Xamarin.Forms;
 
     public class PhysicalActItem : ActItem
     {
@@ -100,10 +103,10 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="data"></param>
         /// <param name="askToInsertAsNewItem"></param>
-        public override void Insert(XDocument data, bool askToInsertAsNewItem)
+        public override async Task Insert(XDocument data, bool askToInsertAsNewItem)
         {
             int foundActItemRefno = 0;
-            //var result = DialogResult.None;
+            DialogResult result = DialogResult.None;
             int prodUnitRefno = int.Parse(data.Root.Element("ProductUnitRefno").Value);
             int locMapRefno = this.LocMap.CurrLocMap.WhsLocMapRefno;
 
@@ -118,13 +121,8 @@ namespace dMobile.Controller
 
                 if (foundActItemRefno > 0)
                 {
-                    //#if MULTILANGUAGE
-                    //                      string msg = Translator.GetInstance().Translate(TranslatorVocabulary.ALineItemAlreadyExistsForThisLocationAndProduct) + Environment.NewLine
-                    //                          + Translator.GetInstance().Translate(TranslatorVocabulary.DoYouWishToCreateOne);
-                    //#else
-                    //                    string msg = "A line item already exists for this location and product." + Environment.NewLine
-                    //                        + "Do you wish to create one?";
-                    //#endif
+                    // TODO: Resource strings
+                    string msg = "A line item already exists for this location and product." + Environment.NewLine + "Do you wish to create one?";
                     //                    result = MessageBox.Show(msg,
                     //#if MULTILANGUAGE
                     //                          Translator.GetInstance().Translate(TranslatorVocabulary.NewItem), 
@@ -135,133 +133,159 @@ namespace dMobile.Controller
                     //                        MessageBoxIcon.Question,
                     //                        MessageBoxDefaultButton.Button3);
 
-                    throw new Exception("A line item already exists for this location and product.");
-                }
-                //else
-                //{
-                //    //if the selected product to insert was not found, force the dialog result to insert it.
-                //    result = DialogResult.Yes;
-                //}
-
-                //if (result == DialogResult.Yes)
-                //{
-                using (SQLiteCommand cmndCountItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                using (SQLiteCommand cmndID = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                {
-                    //using (SqlCeResultSet rs = cmndCountItem.ExecuteResultSet(ResultSetOptions.Updatable))
-                    //{
-                    //SqlCeUpdatableRecord rec = rs.CreateRecord();
-
-                    //using (SqlCeResultSet rsItem = cmndItem.ExecuteResultSet(ResultSetOptions.Updatable))
-                    //{
-                    //SqlCeUpdatableRecord recItem = rsItem.CreateRecord();
-
-                    cmndItem.CommandText = "INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (@activityItemSubType, @activityItemStatus, @activityRefno)";
-                    cmndItem.CommandType = CommandType.Text;
-                    cmndItem.Parameters.Add(new SQLiteParameter("@activityItemSubType", Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts)));
-                    cmndItem.Parameters.Add(new SQLiteParameter("@activityItemStatus", Convert.ToInt32(SysCommon.ActStatus.NoChange)));
-                    cmndItem.Parameters.Add(new SQLiteParameter("@activityRefno", Convert.ToInt32(this.ActHdr.Refno)));
-
-                    cmndItem.ExecuteNonQuery();
-
-                    //recItem.SetInt32((int)SysCommon.ActItemFields.SubType, (int)SysCommon.ActSubTypes.PhysicalCounts);
-                    //recItem.SetInt32((int)SysCommon.ActItemFields.Status, (int)SysCommon.ActStatus.NoChange);
-                    //recItem.SetInt32((int)SysCommon.ActItemFields.ActRefno, this.ActHdr.Refno);
-                    //rsItem.Insert(recItem);
-
-                    cmndID.CommandText = "SELECT last_insert_rowid() FROM tActivityItem";
-                    cmndID.CommandType = CommandType.Text;
-
-                    this.Refno = Convert.ToInt32(cmndID.ExecuteScalar());
-                    this.FKRefno = this.Refno * -1;
-
-                    cmndCountItem.CommandText = "INSERT INTO tActivityItemCount (" +
-                        "ActivityItemRefno, " +
-                        "ActivityItemSubType, " +
-                        "ActivityItemCountFKRefno, " +
-                        "ActivityItemCountStringFKRefno, " +
-                        "ProductUnitRefno, " +
-                        "LocationMapRefno, " +
-                        "ActivityItemCountQuantityOnHand, " +
-                        "ActivityItemCountBaseQuantityOnHand, " +
-                        "ActivityItemCountWeightQuantityOnHand, " +
-                        "ActivityItemCountQuantity, " +
-                        "ActivityItemCountBaseQuantity, " +
-                        "ActivityItemCountWeightQuantity" +
-                        ") VALUES (" +                        
-                        "@activityItemRefno, " +
-                        "@activityItemSubType, " +
-                        "@activityItemCountFKRefno, " +
-                        "@activityItemCountStringFKRefno, " +
-                        "@productUnitRefno, " +
-                        "@locationMapRefno, " +
-                        "@activityItemCountQuantityOnHand, " +
-                        "@activityItemCountBaseQuantityOnHand, " +
-                        "@activityItemCountWeightQuantityOnHand, " +
-                        "@activityItemCountQuantity, " +
-                        "@activityItemCountBaseQuantity, " +
-                        "@activityItemCountWeightQuantity" +
-                        ")";
-                    cmndCountItem.CommandType = CommandType.Text;
-                    //cmndCountItem.IndexName = "UQ_ActivityItemCountOnActivityItemCountFKRefno";
-                    cmndCountItem.Parameters.Add(new SQLiteParameter("@activityItemRefno", Convert.ToInt32(this.Refno)));
-                    cmndCountItem.Parameters.Add(new SQLiteParameter("@activityItemSubType", Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts)));
-                    cmndCountItem.Parameters.Add(new SQLiteParameter("@activityItemCountFKRefno", Convert.ToInt32(this.FKRefno)));
-                    cmndCountItem.Parameters.Add(new SQLiteParameter("@activityItemCountStringFKRefno", Convert.ToString(this.FKRefno)));
-                    cmndCountItem.Parameters.Add(new SQLiteParameter("@productUnitRefno", Convert.ToInt32(prodUnitRefno)));
-                    cmndCountItem.Parameters.Add(new SQLiteParameter("@locationMapRefno", Convert.ToInt32(locMapRefno)));
-                    cmndCountItem.Parameters.Add(new SQLiteParameter("@activityItemCountQuantityOnHand", Convert.ToInt32(0)));
-                    cmndCountItem.Parameters.Add(new SQLiteParameter("@activityItemCountBaseQuantityOnHand", Convert.ToInt32(0)));
-                    cmndCountItem.Parameters.Add(new SQLiteParameter("@activityItemCountWeightQuantityOnHand", Convert.ToInt32(0)));
-                    cmndCountItem.Parameters.Add(new SQLiteParameter("@activityItemCountQuantity", Convert.ToInt32(0)));
-                    cmndCountItem.Parameters.Add(new SQLiteParameter("@activityItemCountBaseQuantity", Convert.ToInt32(0)));
-                    cmndCountItem.Parameters.Add(new SQLiteParameter("@activityItemCountWeightQuantity", Convert.ToInt32(0)));
-
-                    cmndCountItem.ExecuteNonQuery();
-
-                    //rec.SetInt32((int)SysCommon.ActItemCountFields.ActItemRefno, this.Refno);
-                    //rec.SetInt32((int)SysCommon.ActItemCountFields.ActItemSubType, (int)SysCommon.ActSubTypes.PhysicalCounts);
-                    //rec.SetInt32((int)SysCommon.ActItemCountFields.FKRefno, this.FKRefno);
-                    //rec.SetString((int)SysCommon.ActItemCountFields.StringFKRefno, this.FKRefno.ToString());
-                    //rec.SetInt32((int)SysCommon.ActItemCountFields.ProdUnitRefno, prodUnitRefno);
-                    //rec.SetInt32((int)SysCommon.ActItemCountFields.LocMapRefno, locMapRefno);
-                    //rec.SetDecimal((int)SysCommon.ActItemCountFields.QuantityOnHand, 0);
-                    //rec.SetDecimal((int)SysCommon.ActItemCountFields.BaseQuantityOnHand, 0);
-                    //rec.SetDecimal((int)SysCommon.ActItemCountFields.WeightQuantityOnHand, 0);
-                    //rec.SetDecimal((int)SysCommon.ActItemCountFields.Quantity, 0);
-                    //rec.SetDecimal((int)SysCommon.ActItemCountFields.BaseQuantity, 0);
-                    //rec.SetDecimal((int)SysCommon.ActItemCountFields.WeightQuantity, 0);
-                    //rs.Insert(rec);
-
-                    this.LocMap.CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
-                    this.ProdInfo = ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
-                    this.ProdInfo.Scheme = ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
-
-                    if (DataViewItems != null)
+                    // TODO: Resource strings
+                    if (await Application.Current.MainPage.DisplayAlert("New Item", msg, "Yes", "No"))
                     {
-                        DataRowView rowView = this.DataViewItems.AddNew();
-                        rowView["ActivityItemRefno"] = this.Refno;
-                        rowView["ActivityItemCountFKRefno"] = this.FKRefno;
-                        rowView["ActivityItemCountStringFKRefno"] = this.FKRefno.ToString();
-                        rowView["ProductUnitRefno"] = prodUnitRefno;
-                        rowView["ProductRefno"] = this.ProdInfo.Refno;
-                        rowView["ProductCode"] = this.ProdInfo.Code;
-                        rowView["ProductDescription"] = this.ProdInfo.Desc;
-                        rowView["UnitCode"] = this.ProdInfo.UnitCode;
-                        rowView["ProductUnitBC"] = this.ProdInfo.UnitBC;
-                        rowView["ProductUnitSizeDescription"] = this.ProdInfo.UnitSizeDesc;
-                        rowView["LocationMapRefno"] = locMapRefno;
-                        rowView["LocationCode"] = this.LocMap.CurrLocMap.WhsCode;
-                        rowView["LocationName"] = this.LocMap.CurrLocMap.WhsName;
-                        rowView["ActivityItemStatus"] = SysCommon.ActStatus.Inserted;
-                        rowView["ActivityItemCountQuantityOnHand"] = 0;
-                        rowView["ActivityItemCountBaseQuantityOnHand"] = 0;
-                        rowView["ActivityItemCountWeightQuantityOnHand"] = 0;
-                        rowView["ActivityItemCountQuantity"] = 0;
-                        rowView["ActivityItemCountBaseQuantity"] = 0;
-                        rowView["ActivityItemCountWeightQuantity"] = 0;
-                        rowView.EndEdit();
+                        result = DialogResult.Yes;
+                    }
+                    else
+                    {
+                        // TODO: Resource strings
+                        throw new Exception("A line item already exists for this location and product.");
+                    }
+
+                }
+                else
+                {
+                    //if the selected product to insert was not found, force the dialog result to insert it.
+                    result = DialogResult.Yes;
+                }
+
+                if (result == DialogResult.Yes)
+                {
+                    SQLiteConnection conn = DatabaseConnection.GetInstance().SQLConn;
+
+                    using (SQLiteCommand cmndCountItem = conn.CreateCommand())
+                    using (SQLiteCommand cmndItem = conn.CreateCommand())
+                    using (SQLiteCommand cmndID = conn.CreateCommand())
+                    using (SQLiteTransaction transaction = conn.BeginTransaction())
+                    {
+                        try
+                        {
+                            //using (SqlCeResultSet rs = cmndCountItem.ExecuteResultSet(ResultSetOptions.Updatable))
+                            //{
+                            //SqlCeUpdatableRecord rec = rs.CreateRecord();
+
+                            //using (SqlCeResultSet rsItem = cmndItem.ExecuteResultSet(ResultSetOptions.Updatable))
+                            //{
+                            //SqlCeUpdatableRecord recItem = rsItem.CreateRecord();
+
+                            cmndItem.CommandText = "INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (@activityItemSubType, @activityItemStatus, @activityRefno)";
+                            cmndItem.CommandType = CommandType.Text;
+                            cmndItem.Parameters.Add(new SQLiteParameter("@activityItemSubType", Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts)));
+                            cmndItem.Parameters.Add(new SQLiteParameter("@activityItemStatus", Convert.ToInt32(SysCommon.ActStatus.NoChange)));
+                            cmndItem.Parameters.Add(new SQLiteParameter("@activityRefno", Convert.ToInt32(this.ActHdr.Refno)));
+
+                            cmndItem.ExecuteNonQuery();
+
+                            //recItem.SetInt32((int)SysCommon.ActItemFields.SubType, (int)SysCommon.ActSubTypes.PhysicalCounts);
+                            //recItem.SetInt32((int)SysCommon.ActItemFields.Status, (int)SysCommon.ActStatus.NoChange);
+                            //recItem.SetInt32((int)SysCommon.ActItemFields.ActRefno, this.ActHdr.Refno);
+                            //rsItem.Insert(recItem);
+
+                            cmndID.CommandText = "SELECT last_insert_rowid() FROM tActivityItem";
+                            cmndID.CommandType = CommandType.Text;
+
+                            this.Refno = Convert.ToInt32(cmndID.ExecuteScalar());
+                            this.FKRefno = this.Refno * -1;
+
+                            cmndCountItem.CommandText = "INSERT INTO tActivityItemCount (" +
+                                "ActivityItemRefno, " +
+                                "ActivityItemSubType, " +
+                                "ActivityItemCountFKRefno, " +
+                                "ActivityItemCountStringFKRefno, " +
+                                "ProductUnitRefno, " +
+                                "LocationMapRefno, " +
+                                "ActivityItemCountQuantityOnHand, " +
+                                "ActivityItemCountBaseQuantityOnHand, " +
+                                "ActivityItemCountWeightQuantityOnHand, " +
+                                "ActivityItemCountQuantity, " +
+                                "ActivityItemCountBaseQuantity, " +
+                                "ActivityItemCountWeightQuantity" +
+                                ") VALUES (" +
+                                "@activityItemRefno, " +
+                                "@activityItemSubType, " +
+                                "@activityItemCountFKRefno, " +
+                                "@activityItemCountStringFKRefno, " +
+                                "@productUnitRefno, " +
+                                "@locationMapRefno, " +
+                                "@activityItemCountQuantityOnHand, " +
+                                "@activityItemCountBaseQuantityOnHand, " +
+                                "@activityItemCountWeightQuantityOnHand, " +
+                                "@activityItemCountQuantity, " +
+                                "@activityItemCountBaseQuantity, " +
+                                "@activityItemCountWeightQuantity" +
+                                ")";
+                            cmndCountItem.CommandType = CommandType.Text;
+                            //cmndCountItem.IndexName = "UQ_ActivityItemCountOnActivityItemCountFKRefno";
+                            cmndCountItem.Parameters.Add(new SQLiteParameter("@activityItemRefno", Convert.ToInt32(this.Refno)));
+                            cmndCountItem.Parameters.Add(new SQLiteParameter("@activityItemSubType", Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts)));
+                            cmndCountItem.Parameters.Add(new SQLiteParameter("@activityItemCountFKRefno", Convert.ToInt32(this.FKRefno)));
+                            cmndCountItem.Parameters.Add(new SQLiteParameter("@activityItemCountStringFKRefno", Convert.ToString(this.FKRefno)));
+                            cmndCountItem.Parameters.Add(new SQLiteParameter("@productUnitRefno", Convert.ToInt32(prodUnitRefno)));
+                            cmndCountItem.Parameters.Add(new SQLiteParameter("@locationMapRefno", Convert.ToInt32(locMapRefno)));
+                            cmndCountItem.Parameters.Add(new SQLiteParameter("@activityItemCountQuantityOnHand", Convert.ToInt32(0)));
+                            cmndCountItem.Parameters.Add(new SQLiteParameter("@activityItemCountBaseQuantityOnHand", Convert.ToInt32(0)));
+                            cmndCountItem.Parameters.Add(new SQLiteParameter("@activityItemCountWeightQuantityOnHand", Convert.ToInt32(0)));
+                            cmndCountItem.Parameters.Add(new SQLiteParameter("@activityItemCountQuantity", Convert.ToInt32(0)));
+                            cmndCountItem.Parameters.Add(new SQLiteParameter("@activityItemCountBaseQuantity", Convert.ToInt32(0)));
+                            cmndCountItem.Parameters.Add(new SQLiteParameter("@activityItemCountWeightQuantity", Convert.ToInt32(0)));
+
+                            cmndCountItem.ExecuteNonQuery();
+
+                            transaction.Commit();
+
+                            //rec.SetInt32((int)SysCommon.ActItemCountFields.ActItemRefno, this.Refno);
+                            //rec.SetInt32((int)SysCommon.ActItemCountFields.ActItemSubType, (int)SysCommon.ActSubTypes.PhysicalCounts);
+                            //rec.SetInt32((int)SysCommon.ActItemCountFields.FKRefno, this.FKRefno);
+                            //rec.SetString((int)SysCommon.ActItemCountFields.StringFKRefno, this.FKRefno.ToString());
+                            //rec.SetInt32((int)SysCommon.ActItemCountFields.ProdUnitRefno, prodUnitRefno);
+                            //rec.SetInt32((int)SysCommon.ActItemCountFields.LocMapRefno, locMapRefno);
+                            //rec.SetDecimal((int)SysCommon.ActItemCountFields.QuantityOnHand, 0);
+                            //rec.SetDecimal((int)SysCommon.ActItemCountFields.BaseQuantityOnHand, 0);
+                            //rec.SetDecimal((int)SysCommon.ActItemCountFields.WeightQuantityOnHand, 0);
+                            //rec.SetDecimal((int)SysCommon.ActItemCountFields.Quantity, 0);
+                            //rec.SetDecimal((int)SysCommon.ActItemCountFields.BaseQuantity, 0);
+                            //rec.SetDecimal((int)SysCommon.ActItemCountFields.WeightQuantity, 0);
+                            //rs.Insert(rec);
+
+                            this.LocMap.CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
+                            this.ProdInfo = ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
+                            this.ProdInfo.Scheme = ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
+
+                            if (DataViewItems != null)
+                            {
+                                DataRowView rowView = this.DataViewItems.AddNew();
+                                rowView["ActivityItemRefno"] = this.Refno;
+                                rowView["ActivityItemCountFKRefno"] = this.FKRefno;
+                                rowView["ActivityItemCountStringFKRefno"] = this.FKRefno.ToString();
+                                rowView["ProductUnitRefno"] = prodUnitRefno;
+                                rowView["ProductRefno"] = this.ProdInfo.Refno;
+                                rowView["ProductCode"] = this.ProdInfo.Code;
+                                rowView["ProductDescription"] = this.ProdInfo.Desc;
+                                rowView["UnitCode"] = this.ProdInfo.UnitCode;
+                                rowView["ProductUnitBC"] = this.ProdInfo.UnitBC;
+                                rowView["ProductUnitSizeDescription"] = this.ProdInfo.UnitSizeDesc;
+                                rowView["LocationMapRefno"] = locMapRefno;
+                                rowView["LocationCode"] = this.LocMap.CurrLocMap.WhsCode;
+                                rowView["LocationName"] = this.LocMap.CurrLocMap.WhsName;
+                                rowView["ActivityItemStatus"] = SysCommon.ActStatus.Inserted;
+                                rowView["ActivityItemCountQuantityOnHand"] = 0;
+                                rowView["ActivityItemCountBaseQuantityOnHand"] = 0;
+                                rowView["ActivityItemCountWeightQuantityOnHand"] = 0;
+                                rowView["ActivityItemCountQuantity"] = 0;
+                                rowView["ActivityItemCountBaseQuantity"] = 0;
+                                rowView["ActivityItemCountWeightQuantity"] = 0;
+                                rowView.EndEdit();
+                            }
+                        }
+                        catch (SQLiteException ex)
+                        {
+                            // TODO: Logging
+                            Console.WriteLine(ex);
+
+                            transaction.Rollback();
+                        }
                     }
                 }
             }

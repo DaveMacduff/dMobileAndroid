@@ -55,9 +55,12 @@
     <Compile Include="Types\Count.cs" />
     <Compile Include="Types\CountItem.cs" />
     <Compile Include="Types\LotNumber.cs" />
+    <Compile Include="Types\Picking.cs" />
+    <Compile Include="Types\PickingItem.cs" />
     <Compile Include="Types\Product.cs" />
     <Compile Include="Types\ProductUnit.cs" />
     <Compile Include="Types\ProductVariant.cs" />
+    <Compile Include="Types\PurchaseOrderWorkSheetItem.cs" />
     <Compile Include="Types\Receive.cs" />
     <Compile Include="Types\ReceiveDetail.cs" />
     <Compile Include="Types\ReceiveItem.cs" />

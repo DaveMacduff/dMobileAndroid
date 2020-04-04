@@ -3,6 +3,7 @@ namespace dMobile.Controller
     using System;
     using System.Data;
     using System.Data.SQLite;
+    using System.Threading.Tasks;
     using System.Xml.Linq;
     using dMobile.Bedrock;
     using dMobile.GroundWork;
@@ -516,7 +517,7 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="data"></param>
         /// <param name="askToInsertAsNewItem"></param>
-        public abstract void Insert(XDocument data, bool askToInsertAsNewItem);
+        public abstract Task Insert(XDocument data, bool askToInsertAsNewItem);
 
         /// <summary>
         /// 
