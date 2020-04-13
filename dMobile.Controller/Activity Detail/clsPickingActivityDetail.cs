@@ -52,6 +52,7 @@ namespace dMobile.Controller
                 if (reqData.Contains("<message>ERROR</message>"))
                 {
                     string errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
+                    
                     if (errorDetail.Contains("MSGBOX-"))
                     {
                         throw new MessageOnlyException(errorDetail);
@@ -124,6 +125,7 @@ namespace dMobile.Controller
                         XmlDocument docError = new XmlDocument();
                         docError.LoadXml(reqData);
                         string errorDetail = docError.DocumentElement["detail"].InnerText;
+                        
                         if (errorDetail.Contains("MSGBOX-"))
                         {
                             throw new MessageOnlyException(errorDetail);
@@ -374,7 +376,7 @@ namespace dMobile.Controller
         /// <returns></returns>
         public override int GetRefno(int selectedIndex)
         {
-            return (int)this.DataViewDetails[selectedIndex]["ActivityDetailRefno"];
+            return Convert.ToInt32(this.DataViewDetails[selectedIndex]["ActivityDetailRefno"]);
         }
 
         /// <summary>
@@ -384,7 +386,7 @@ namespace dMobile.Controller
         /// <returns></returns>
         public override int GetFKRefno(int selectedIndex)
         {
-            return (int)this.DataViewDetails[selectedIndex]["ActivityDetailPickingFKRefno"];
+            return Convert.ToInt32(this.DataViewDetails[selectedIndex]["ActivityDetailPickingFKRefno"]);
         }
 
         /// <summary>
@@ -405,45 +407,45 @@ namespace dMobile.Controller
 
             if (isSubmitBatch)
             {
-                sql.Append("SELECT tActivityDetail.ActivityDetailRefno,");
-                sql.Append("tActivityDetail.LocationMapRefno,");
-                sql.Append("tActivityDetailPicking.ActivityDetailPickingFKRefno,");
-                sql.Append("tUnit.UnitCode,");
+                sql.Append("SELECT tActivityDetail.ActivityDetailRefno AS ActivityDetailRefno,");
+                sql.Append("tActivityDetail.LocationMapRefno AS LocationMapRefno,");
+                sql.Append("tActivityDetailPicking.ActivityDetailPickingFKRefno AS ActivityDetailPickingFKRefno,");
+                sql.Append("tUnit.UnitCode AS UnitCode,");
                 sql.Append("aUnitWeight.UnitCode AS WtUnitCode,");
                 sql.Append("aUnitBase.UnitCode AS BaseUnitCode,");
-                sql.Append("tProduct.ProductCode,");
-                sql.Append("tProduct.ProductRefno,");
-                sql.Append("tProduct.ProductDescription,");
-                sql.Append("tProduct.ProductBrandDescription,");
-                sql.Append("tProductUnit.ProductUnitBC,");
-                sql.Append("tProductUnit.ProductUnitIsBC,");
-                sql.Append("tProductUnit.ProductUnitSizeDescription,");
-                sql.Append("tActivityDetail.ActivityDetailQuantity,");
-                sql.Append("tActivityDetail.ActivityDetailBaseQuantity,");
-                sql.Append("tActivityDetail.ActivityDetailWeightQuantity,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitBestBeforeSellByDate,");
-                sql.Append("tActivityDetail.ActivityDetailSchemeID,");
-                sql.Append("tActivityDetail.ActivityDetailUniqueSchemeID,");
-                sql.Append("tActivityDetail.ActivityDetailSingleTradeItemSerialNumber,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitBatchLotNumber,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitExpiryUseByDate,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitProductionDate,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitSkidNumber,");
+                sql.Append("tProduct.ProductCode AS ProductCode,");
+                sql.Append("tProduct.ProductRefno AS ProductRefno,");
+                sql.Append("tProduct.ProductDescription AS ProductDescription,");
+                sql.Append("tProduct.ProductBrandDescription AS ProductBrandDescription,");
+                sql.Append("tProductUnit.ProductUnitBC AS ProductUnitBC,");
+                sql.Append("tProductUnit.ProductUnitIsBC AS ProductUnitIsBC,");
+                sql.Append("tProductUnit.ProductUnitSizeDescription AS ProductUnitSizeDescription,");
+                sql.Append("tActivityDetail.ActivityDetailQuantity AS ActivityDetailQuantity,");
+                sql.Append("tActivityDetail.ActivityDetailBaseQuantity AS ActivityDetailBaseQuantity,");
+                sql.Append("tActivityDetail.ActivityDetailWeightQuantity AS ActivityDetailWeightQuantity,");
+                sql.Append("tActivityDetail.ActivityDetailLogisticUnitBestBeforeSellByDate AS ActivityDetailLogisticUnitBestBeforeSellByDate,");
+                sql.Append("tActivityDetail.ActivityDetailSchemeID AS ActivityDetailSchemeID,");
+                sql.Append("tActivityDetail.ActivityDetailUniqueSchemeID AS ActivityDetailUniqueSchemeID,");
+                sql.Append("tActivityDetail.ActivityDetailSingleTradeItemSerialNumber AS ActivityDetailSingleTradeItemSerialNumber,");
+                sql.Append("tActivityDetail.ActivityDetailLogisticUnitBatchLotNumber AS ActivityDetailLogisticUnitBatchLotNumber,");
+                sql.Append("tActivityDetail.ActivityDetailLogisticUnitExpiryUseByDate AS ActivityDetailLogisticUnitExpiryUseByDate,");
+                sql.Append("tActivityDetail.ActivityDetailLogisticUnitProductionDate AS ActivityDetailLogisticUnitProductionDate,");
+                sql.Append("tActivityDetail.ActivityDetailLogisticUnitSkidNumber AS ActivityDetailLogisticUnitSkidNumber,");
                 sql.Append("tLocationMapSlot.LocationMapSlotCode AS LocationCode,");
                 sql.Append("CAST(tLocationMapSlot.LocationMapSlotName AS NVARCHAR(22)) AS LocationName,");
                 sql.Append("CAST(\'Slot\' AS NVARCHAR(8)) AS Location,");
-                sql.Append("tProductSchemeVariant.ProductSchemeVariantCode,");
-                sql.Append("tProductSchemeVariant.ProductSchemeVariantNo,");
-                sql.Append("tProductSchemeVariant.ProductSchemeVariantDescription,");
-                sql.Append("tActivityDetail.ActivityDetailStatus,");
+                sql.Append("tProductSchemeVariant.ProductSchemeVariantCode AS ProductSchemeVariantCode,");
+                sql.Append("tProductSchemeVariant.ProductSchemeVariantNo AS ProductSchemeVariantNo,");
+                sql.Append("tProductSchemeVariant.ProductSchemeVariantDescription AS ProductSchemeVariantDescription,");
+                sql.Append("tActivityDetail.ActivityDetailStatus AS ActivityDetailStatus,");
                 sql.Append("tActivityDetailPicking.ActivityDetailPickingIsConfirmed AS ActivityDetailIsConfirmed,");
                 sql.Append("CASE tActivityDetailPicking.ActivityDetailPickingIsConfirmed WHEN 1 THEN \'C\' ELSE \' \' END ");
                 sql.Append("AS ActivityDetailIsConfirmedString,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra1Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra2Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra3Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra4Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra5Text ");
+                sql.Append("tActivityDetailExtra.ActivityDetailExtra1Text AS ActivityDetailExtra1Text,");
+                sql.Append("tActivityDetailExtra.ActivityDetailExtra2Text AS ActivityDetailExtra2Text,");
+                sql.Append("tActivityDetailExtra.ActivityDetailExtra3Text AS ActivityDetailExtra3Text,");
+                sql.Append("tActivityDetailExtra.ActivityDetailExtra4Text AS ActivityDetailExtra4Text,");
+                sql.Append("tActivityDetailExtra.ActivityDetailExtra5Text AS ActivityDetailExtra5Text ");
                 sql.Append("FROM tActivityDetailPicking ");
                 sql.Append("INNER JOIN tActivityDetail ON tActivityDetail.ActivityDetailRefno ");
                 sql.Append("= tActivityDetailPicking.ActivityDetailRefno ");
@@ -585,45 +587,45 @@ namespace dMobile.Controller
             }
             else
             {
-                sql.Append("SELECT tActivityDetail.ActivityDetailRefno,");
-                sql.Append("tActivityDetail.LocationMapRefno,");
-                sql.Append("tActivityDetailPicking.ActivityDetailPickingFKRefno,");
-                sql.Append("tUnit.UnitCode,");
+                sql.Append("SELECT tActivityDetail.ActivityDetailRefno AS ActivityDetailRefno,");
+                sql.Append("tActivityDetail.LocationMapRefno AS LocationMapRefno,");
+                sql.Append("tActivityDetailPicking.ActivityDetailPickingFKRefno AS ActivityDetailPickingFKRefno,");
+                sql.Append("tUnit.UnitCode AS UnitCode,");
                 sql.Append("aUnitWeight.UnitCode AS WtUnitCode,");
                 sql.Append("aUnitBase.UnitCode AS BaseUnitCode,");
-                sql.Append("tProduct.ProductCode,");
-                sql.Append("tProduct.ProductRefno,");
-                sql.Append("tProduct.ProductDescription,");
-                sql.Append("tProduct.ProductBrandDescription,");
-                sql.Append("tProductUnit.ProductUnitBC,");
-                sql.Append("tProductUnit.ProductUnitIsBC,");
-                sql.Append("tProductUnit.ProductUnitSizeDescription,");
-                sql.Append("tActivityDetail.ActivityDetailQuantity,");
-                sql.Append("tActivityDetail.ActivityDetailBaseQuantity,");
-                sql.Append("tActivityDetail.ActivityDetailWeightQuantity,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitBestBeforeSellByDate,");
-                sql.Append("tActivityDetail.ActivityDetailSchemeID,");
-                sql.Append("tActivityDetail.ActivityDetailUniqueSchemeID,");
-                sql.Append("tActivityDetail.ActivityDetailSingleTradeItemSerialNumber,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitBatchLotNumber,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitExpiryUseByDate,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitProductionDate,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitSkidNumber,");
+                sql.Append("tProduct.ProductCode AS ProductCode,");
+                sql.Append("tProduct.ProductRefno AS ProductRefno,");
+                sql.Append("tProduct.ProductDescription AS ProductDescription,");
+                sql.Append("tProduct.ProductBrandDescription AS ProductBrandDescription,");
+                sql.Append("tProductUnit.ProductUnitBC AS ProductUnitBC,");
+                sql.Append("tProductUnit.ProductUnitIsBC AS ProductUnitIsBC,");
+                sql.Append("tProductUnit.ProductUnitSizeDescription AS ProductUnitSizeDescription,");
+                sql.Append("tActivityDetail.ActivityDetailQuantity AS ActivityDetailQuantity,");
+                sql.Append("tActivityDetail.ActivityDetailBaseQuantity AS ActivityDetailBaseQuantity,");
+                sql.Append("tActivityDetail.ActivityDetailWeightQuantity AS ActivityDetailWeightQuantity,");
+                sql.Append("tActivityDetail.ActivityDetailLogisticUnitBestBeforeSellByDate AS ActivityDetailLogisticUnitBestBeforeSellByDate,");
+                sql.Append("tActivityDetail.ActivityDetailSchemeID AS ActivityDetailSchemeID,");
+                sql.Append("tActivityDetail.ActivityDetailUniqueSchemeID AS ActivityDetailUniqueSchemeID,");
+                sql.Append("tActivityDetail.ActivityDetailSingleTradeItemSerialNumber AS ActivityDetailSingleTradeItemSerialNumber,");
+                sql.Append("tActivityDetail.ActivityDetailLogisticUnitBatchLotNumber AS ActivityDetailLogisticUnitBatchLotNumber,");
+                sql.Append("tActivityDetail.ActivityDetailLogisticUnitExpiryUseByDate AS ActivityDetailLogisticUnitExpiryUseByDate,");
+                sql.Append("tActivityDetail.ActivityDetailLogisticUnitProductionDate AS ActivityDetailLogisticUnitProductionDate,");
+                sql.Append("tActivityDetail.ActivityDetailLogisticUnitSkidNumber AS ActivityDetailLogisticUnitSkidNumber,");
                 sql.Append("tLocationMapSlot.LocationMapSlotCode AS LocationCode,");
                 sql.Append("CAST(tLocationMapSlot.LocationMapSlotName AS NVARCHAR(22)) AS LocationName,");
                 sql.Append("CAST(\'Slot\' AS NVARCHAR(8)) AS Location,");
-                sql.Append("tProductSchemeVariant.ProductSchemeVariantCode,");
-                sql.Append("tProductSchemeVariant.ProductSchemeVariantNo,");
-                sql.Append("tProductSchemeVariant.ProductSchemeVariantDescription,");
-                sql.Append("tActivityDetail.ActivityDetailStatus,");
+                sql.Append("tProductSchemeVariant.ProductSchemeVariantCode AS ProductSchemeVariantCode,");
+                sql.Append("tProductSchemeVariant.ProductSchemeVariantNo AS ProductSchemeVariantNo,");
+                sql.Append("tProductSchemeVariant.ProductSchemeVariantDescription AS ProductSchemeVariantDescription,");
+                sql.Append("tActivityDetail.ActivityDetailStatus AS ActivityDetailStatus,");
                 sql.Append("tActivityDetailPicking.ActivityDetailPickingIsConfirmed AS ActivityDetailIsConfirmed,");
                 sql.Append("CASE tActivityDetailPicking.ActivityDetailPickingIsConfirmed WHEN 1 THEN \'C\' ELSE \' \' END ");
                 sql.Append("AS ActivityDetailIsConfirmedString,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra1Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra2Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra3Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra4Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra5Text ");
+                sql.Append("tActivityDetailExtra.ActivityDetailExtra1Text AS ActivityDetailExtra1Text,");
+                sql.Append("tActivityDetailExtra.ActivityDetailExtra2Text AS ActivityDetailExtra2Text,");
+                sql.Append("tActivityDetailExtra.ActivityDetailExtra3Text AS ActivityDetailExtra3Text,");
+                sql.Append("tActivityDetailExtra.ActivityDetailExtra4Text AS ActivityDetailExtra4Text,");
+                sql.Append("tActivityDetailExtra.ActivityDetailExtra5Text AS ActivityDetailExtra5Text ");
                 sql.Append("FROM tActivityDetailPicking ");
                 sql.Append("INNER JOIN tActivityDetail ON tActivityDetail.ActivityDetailRefno ");
                 sql.Append("= tActivityDetailPicking.ActivityDetailRefno ");
@@ -905,7 +907,7 @@ namespace dMobile.Controller
         public override DataView Search(string searchText)
         {
             string fieldName = "ActivityPickingStringFKRefno";
-            this.DataViewDetails.RowFilter = fieldName + " LIKE \'" + searchText.Trim() + "%\'";
+            this.DataViewDetails.RowFilter = fieldName + " LIKE \'%" + searchText.Trim() + "%\'";
 
             return this.DataViewDetails;
         }
@@ -921,14 +923,14 @@ namespace dMobile.Controller
                 this.SelectedLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(this.DataViewDetails[idx]["LocationMapRefno"]));
                 this.Refno = Convert.ToInt32(this.DataViewDetails[idx]["ActivityDetailRefno"]);
                 this.FKRefno = Convert.ToInt32(this.DataViewDetails[idx]["ActivityDetailPickingFKRefno"]);
-                this.SchemeID = (string)this.DataViewDetails[idx]["ActivityDetailSchemeID"];
-                this.UniqueSchemeID = (string)this.DataViewDetails[idx]["ActivityDetailUniqueSchemeID"];
+                this.SchemeID = Convert.ToString(this.DataViewDetails[idx]["ActivityDetailSchemeID"]);
+                this.UniqueSchemeID = Convert.ToString(this.DataViewDetails[idx]["ActivityDetailUniqueSchemeID"]);
 
-                this.ActExtra.Text1 = (string)this.DataViewDetails[idx]["ActivityDetailExtra1Text"];
-                this.ActExtra.Text2 = (string)this.DataViewDetails[idx]["ActivityDetailExtra2Text"];
-                this.ActExtra.Text3 = (string)this.DataViewDetails[idx]["ActivityDetailExtra3Text"];
-                this.ActExtra.Text4 = (string)this.DataViewDetails[idx]["ActivityDetailExtra4Text"];
-                this.ActExtra.Text5 = (string)this.DataViewDetails[idx]["ActivityDetailExtra5Text"];
+                this.ActExtra.Text1 = Convert.ToString(this.DataViewDetails[idx]["ActivityDetailExtra1Text"]);
+                this.ActExtra.Text2 = Convert.ToString(this.DataViewDetails[idx]["ActivityDetailExtra2Text"]);
+                this.ActExtra.Text3 = Convert.ToString(this.DataViewDetails[idx]["ActivityDetailExtra3Text"]);
+                this.ActExtra.Text4 = Convert.ToString(this.DataViewDetails[idx]["ActivityDetailExtra4Text"]);
+                this.ActExtra.Text5 = Convert.ToString(this.DataViewDetails[idx]["ActivityDetailExtra5Text"]);
             }
             else
             {
@@ -1157,18 +1159,18 @@ namespace dMobile.Controller
                 {
                     if (this.SysEnv.SysSettings.IsPickConfirmDet)
                     {
-                        if ((bool)this.DataViewDetails[i]["ActivityDetailIsConfirmed"] == true)
+                        if (Convert.ToBoolean(this.DataViewDetails[i]["ActivityDetailIsConfirmed"]) == true)
                         {
-                            fillQty.Quantity = fillQty.Quantity + (decimal)this.DataViewDetails[i]["ActivityDetailQuantity"];
-                            fillQty.BaseQuantity = fillQty.BaseQuantity + (decimal)this.DataViewDetails[i]["ActivityDetailBaseQuantity"];
-                            fillQty.WeightQuantity = fillQty.WeightQuantity + (decimal)this.DataViewDetails[i]["ActivityDetailWeightQuantity"];
+                            fillQty.Quantity += Convert.ToDecimal(this.DataViewDetails[i]["ActivityDetailQuantity"]);
+                            fillQty.BaseQuantity += Convert.ToDecimal(this.DataViewDetails[i]["ActivityDetailBaseQuantity"]);
+                            fillQty.WeightQuantity += Convert.ToDecimal(this.DataViewDetails[i]["ActivityDetailWeightQuantity"]);
                         }
                     }
                     else
                     {
-                        fillQty.Quantity = fillQty.Quantity + (decimal)this.DataViewDetails[i]["ActivityDetailQuantity"];
-                        fillQty.BaseQuantity = fillQty.BaseQuantity + (decimal)this.DataViewDetails[i]["ActivityDetailBaseQuantity"];
-                        fillQty.WeightQuantity = fillQty.WeightQuantity + (decimal)this.DataViewDetails[i]["ActivityDetailWeightQuantity"];
+                        fillQty.Quantity = fillQty.Quantity + Convert.ToDecimal(this.DataViewDetails[i]["ActivityDetailQuantity"]);
+                        fillQty.BaseQuantity = fillQty.BaseQuantity + Convert.ToDecimal(this.DataViewDetails[i]["ActivityDetailBaseQuantity"]);
+                        fillQty.WeightQuantity = fillQty.WeightQuantity + Convert.ToDecimal(this.DataViewDetails[i]["ActivityDetailWeightQuantity"]);
                     }
                 }
             }

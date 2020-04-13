@@ -56,6 +56,7 @@
     <Compile Include="Types\CountItem.cs" />
     <Compile Include="Types\LotNumber.cs" />
     <Compile Include="Types\Picking.cs" />
+    <Compile Include="Types\PickingDetail.cs" />
     <Compile Include="Types\PickingItem.cs" />
     <Compile Include="Types\Product.cs" />
     <Compile Include="Types\ProductUnit.cs" />
@@ -64,6 +65,7 @@
     <Compile Include="Types\Receive.cs" />
     <Compile Include="Types\ReceiveDetail.cs" />
     <Compile Include="Types\ReceiveItem.cs" />
+    <Compile Include="Types\Return.cs" />
     <Compile Include="Types\Section.cs" />
     <Compile Include="Types\SerialNumber.cs" />
     <Compile Include="Types\Slot.cs" />

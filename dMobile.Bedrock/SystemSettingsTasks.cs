@@ -515,16 +515,15 @@ namespace dMobile.Bedrock
 
                 if (OnSysSettingsStatusOut != null)
                 {
-#if MULTILANGUAGE
-                    msgEventArg.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.SeedingSystemSettings);
-#else
+
+                    // TODO: Resource strings
                     msgEventArg.StatusOutMsg = "Seeding system settings.";
-#endif
                     OnSysSettingsStatusOut(settings, msgEventArg);
                 }
 
                 // First request
                 reqData = SendFirstRequest();
+                
                 if (reqData.Length > 0)
                 {
                     // check if result is an error message
@@ -540,6 +539,7 @@ namespace dMobile.Bedrock
 
                 // Second request
                 reqData = SendSecondRequest();
+
                 if (reqData.Length > 0)
                 {
                     // check if result is an error message
@@ -555,11 +555,8 @@ namespace dMobile.Bedrock
 
                 if (OnSysSettingsStatusOut != null)
                 {
-#if MULTILANGUAGE
-                    msgEventArg.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.SeedingSystemSettingsComplete);
-#else
+                    // TODO: Resource strings
                     msgEventArg.StatusOutMsg = "Seeding system settings complete.";
-#endif
                     OnSysSettingsStatusOut(settings, msgEventArg);
                 }
             }
@@ -567,19 +564,13 @@ namespace dMobile.Bedrock
             {
                 if (OnSysSettingsStatusOut != null)
                 {
-#if MULTILANGUAGE
-                    msgEventArg.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.SeedingSystemSettingsFailed);
-#else
+                    // TODO: Resource strings
                     msgEventArg.StatusOutMsg = "Seeding system settings failed.";
-#endif
                     OnSysSettingsStatusOut(settings, msgEventArg);
                 }
 
-#if MULTILANGUAGE
-                throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.SeedingSystemSettingsFailed), ex);
-#else
+                // TODO: Resource strings
                 throw new Exception("Seeding system settings failed.", ex);
-#endif
             }
         }
 
@@ -617,11 +608,8 @@ namespace dMobile.Bedrock
                 {
                     if (OnSysSettingsStatusOut != null)
                     {
-#if MULTILANGUAGE
-                        msgEventArg.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.ReadingReceivedData);
-#else
+                        // TODO: Resource strings
                         msgEventArg.StatusOutMsg = "Reading received data.";
-#endif
                         OnSysSettingsStatusOut(settings, msgEventArg);
                     }
 
@@ -629,11 +617,8 @@ namespace dMobile.Bedrock
 
                     if (OnSysSettingsStatusOut != null)
                     {
-#if MULTILANGUAGE
-                        msgEventArg.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.SavingSystemSettings);
-#else
+                        // TODO: Resource strings
                         msgEventArg.StatusOutMsg = string.Format("Saving system settings {0}.", sysSettingsNumber);
-#endif
                         OnSysSettingsStatusOut(settings, msgEventArg);
                     }
 
@@ -643,11 +628,8 @@ namespace dMobile.Bedrock
 
                         if (OnSysSettingsStatusOut != null)
                         {
-#if MULTILANGUAGE
-                            msgEventArg.StatusOutMsg = string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.Records), progMax);
-#else
+                            // TODO: Resource strings
                             msgEventArg.StatusOutMsg = string.Format("Records {0}.", progMax);
-#endif
                             OnSysSettingsStatusOut(settings, msgEventArg);
                         }
 
@@ -676,7 +658,8 @@ namespace dMobile.Bedrock
                                 AssignPropertiesFromDataRow2(drow, ref settings);
                             }
                             
-                            progValue = progValue + 1;
+                            progValue += 1;
+
                             if (OnSysSettingsProgressOut != null)
                             {
                                 msgEventArg.CurrentValue = progValue;
@@ -697,11 +680,8 @@ namespace dMobile.Bedrock
 
                     if (OnSysSettingsStatusOut != null)
                     {
-#if MULTILANGUAGE
-                        msgEventArg.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.SavingSystemSettingsComplete);
-#else
+                        // TODO: Resource strings
                         msgEventArg.StatusOutMsg = string.Format("Saving system settings {0} complete.", sysSettingsNumber);
-#endif
                         OnSysSettingsStatusOut(settings, msgEventArg);
                     }
                 }
@@ -710,19 +690,13 @@ namespace dMobile.Bedrock
             {
                 if (OnSysSettingsStatusOut != null)
                 {
-#if MULTILANGUAGE
-                    msgEventArg.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.SavingSystemSettingsFailed);
-#else
+                    // TODO: Resource strings
                     msgEventArg.StatusOutMsg = "Saving system settings failed.";
-#endif
                     OnSysSettingsStatusOut(settings, msgEventArg);
                 }
 
-#if MULTILANGUAGE
-                throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.SavingSystemSettingsFailed), ex);
-#else
+                // TODO: Resource strings
                 throw new Exception("Saving system settings failed.", ex);
-#endif
             }
         }
     }

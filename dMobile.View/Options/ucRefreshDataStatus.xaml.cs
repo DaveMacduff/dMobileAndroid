@@ -1790,7 +1790,7 @@ namespace dMobile.View.Options
 
             this.Loading = true;
 
-            await Task.Run(() => {
+            await Task.Run(async () => {
                 //this.TotalTicks = this.TotalTicks + this.tmrRefreshData.Interval;
 
                 //if (this.tmrRefreshData.Enabled && this.TotalTicks >= 1000)
@@ -1874,7 +1874,8 @@ namespace dMobile.View.Options
                         this.StatusOut(sender, e, Resource.RefreshDataFailed);
 
                         FormErrorReport errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex, this.FullClassName, "tmrRefreshData_Tick");
-                        Device.BeginInvokeOnMainThread(async () => await errRpt.ShowDialog());
+                        //Device.BeginInvokeOnMainThread(async () => await errRpt.ShowDialog());
+                        await Device.InvokeOnMainThreadAsync(async () => await errRpt.ShowDialog());
                     }
                     catch (Exception ex)
                     {
@@ -1884,7 +1885,8 @@ namespace dMobile.View.Options
                         this.StatusOut(sender, e, Resource.RefreshDataFailed);
 
                         FormErrorReport errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex, this.FullClassName, "tmrRefreshData_Tick");
-                        Device.BeginInvokeOnMainThread(async () => await errRpt.ShowDialog());
+                        //Device.BeginInvokeOnMainThread(async () => await errRpt.ShowDialog());
+                        await Device.InvokeOnMainThreadAsync(async () => await errRpt.ShowDialog());
                     }
                     finally
                     {

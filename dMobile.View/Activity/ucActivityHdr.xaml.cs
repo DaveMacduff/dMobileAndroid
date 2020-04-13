@@ -1336,6 +1336,106 @@
 
                     break;
 
+                case SysCommon.ActSubTypes.Returns:
+                                        // Create header data template
+                    Grid gridHeaderReturns = new Grid
+                    {
+                        Padding = new Thickness(5, 5, 5, 5),
+                        ColumnDefinitions =
+                        {
+                            new ColumnDefinition { Width = GridLength.Star },
+                            new ColumnDefinition { Width = GridLength.Star },
+                            new ColumnDefinition { Width = GridLength.Star },
+                            new ColumnDefinition { Width = GridLength.Star },
+                        }
+                    };
+
+                    gridHeaderReturns.SetDynamicResource(BackgroundColorProperty, "HeaderColor");
+
+                    Label labelReturnNumber = new Label { Text = "Return #", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+                    Label labelReturnEntered = new Label { Text = "Entered", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+                    Label labelReturnReturned = new Label { Text = "Returned", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+                    Label labelReturnedShipTo = new Label { Text = "Ship To", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+
+                    gridHeaderReturns.Children.Add(labelReturnNumber);
+                    gridHeaderReturns.Children.Add(labelReturnEntered);
+                    gridHeaderReturns.Children.Add(labelReturnReturned);
+                    gridHeaderReturns.Children.Add(labelReturnedShipTo);
+
+                    Grid.SetColumn(labelReturnNumber, 0);
+                    Grid.SetColumn(labelReturnEntered, 1);
+                    Grid.SetColumn(labelReturnReturned, 2);
+                    Grid.SetColumn(labelReturnedShipTo, 3);
+
+                    Grid.SetRow(gridHeaderReturns, 0);
+
+                    this.dataGridMainActivityHeader.Children.Add(gridHeaderReturns);
+
+                    // Data grid
+                    DataTemplate dataTemplateReturns = new DataTemplate(() =>
+                    {
+                        Grid gridData = new Grid
+                        {
+                            Padding = new Thickness(5, 5, 5, 5),
+                            ColumnDefinitions =
+                            {
+                                new ColumnDefinition { Width = GridLength.Star },
+                                new ColumnDefinition { Width = GridLength.Star },
+                                new ColumnDefinition { Width = GridLength.Star },
+                                new ColumnDefinition { Width = GridLength.Star },
+                                new ColumnDefinition { Width = new GridLength(5, GridUnitType.Star) }
+                            }
+                        };
+
+                        Label labelActivityReturnsStringFKRefno = new Label { VerticalOptions = LayoutOptions.Center };
+                        Label labelActivityReturnsOrderedDateTime = new Label { VerticalOptions = LayoutOptions.Center };
+                        Label labelActivityReturnsDeliveryDateTime = new Label { VerticalOptions = LayoutOptions.Center };
+                        Label labelActivityReturnsCustomerShipToInfo = new Label { VerticalOptions = LayoutOptions.Center };
+
+                        labelActivityReturnsStringFKRefno.SetBinding(Label.TextProperty, new Binding("ActivityReturnsStringFKRefno"));
+                        labelActivityReturnsOrderedDateTime.SetBinding(Label.TextProperty, new Binding("ActivityReturnsOrderedDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
+                        labelActivityReturnsDeliveryDateTime.SetBinding(Label.TextProperty, new Binding("ActivityReturnsDeliveryDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
+                        labelActivityReturnsCustomerShipToInfo.SetBinding(Label.TextProperty, new Binding("ActivityReturnsCustomerShipToInfo"));
+
+                        gridData.Children.Add(labelActivityReturnsStringFKRefno);
+                        gridData.Children.Add(labelActivityReturnsOrderedDateTime);
+                        gridData.Children.Add(labelActivityReturnsDeliveryDateTime);
+                        gridData.Children.Add(labelActivityReturnsCustomerShipToInfo);
+
+                        Grid.SetColumn(labelActivityReturnsStringFKRefno, 0);
+                        Grid.SetColumn(labelActivityReturnsOrderedDateTime, 1);
+                        Grid.SetColumn(labelActivityReturnsDeliveryDateTime, 2);
+                        Grid.SetColumn(labelActivityReturnsCustomerShipToInfo, 4);
+
+                        return new ViewCell { View = gridData };
+                    });
+                    
+                    this.dataGridMainActivity.ItemTemplate = dataTemplateReturns;
+                    this.DataGridMainActivityItemsList.Clear();
+
+                    foreach (DataRow row in this.ActHdr.DataViewHdrs.ToTable().Rows)
+                    {
+                        Return returns = new Return
+                        {
+                            ActivityReturnsFKRefno = Convert.ToInt32(row["ActivityReturnsFKRefno"] != DBNull.Value ? row["ActivityReturnsFKRefno"] : null),
+                            ActivityReturnsStringFKRefno = Convert.ToString(row["ActivityReturnsStringFKRefno"] != DBNull.Value ? row["ActivityReturnsStringFKRefno"] : null),
+                            ActivityReturnsOrderedDateTime = Convert.ToDateTime(row["ActivityReturnsOrderedDateTime"] != DBNull.Value ? row["ActivityReturnsOrderedDateTime"] : null),
+                            ActivityReturnsDeliveryDateTime = Convert.ToDateTime(row["ActivityReturnsDeliveryDateTime"] != DBNull.Value ? row["ActivityReturnsDeliveryDateTime"] : null),
+                            LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
+                            LocationMapWarehouseFKRefno = Convert.ToInt32(row["LocationMapWarehouseFKRefno"] != DBNull.Value ? row["LocationMapWarehouseFKRefno"] : null),
+                            LocationMapWarehouseName = Convert.ToString(row["LocationMapWarehouseName"] != DBNull.Value ? row["LocationMapWarehouseName"] : null),
+                            ActivityReturnsCustomerContactName = Convert.ToString(row["ActivityReturnsCustomerContactName"] != DBNull.Value ? row["ActivityReturnsCustomerContactName"] : null),
+                            ActivityReturnsCustomerShipToInfo = Convert.ToString(row["ActivityReturnsCustomerShipToInfo"] != DBNull.Value ? row["ActivityReturnsCustomerShipToInfo"] : null),
+                            ActivityStatus = Convert.ToInt32(row["ActivityStatus"] != DBNull.Value ? row["ActivityStatus"] : null),
+                        };
+
+                        this.DataGridMainActivityItemsList.Add(returns);
+                    }
+
+                    //this.dataGridColumnWidth.Width = 750;
+
+                    break;
+
                 default:
                     break;
             }

@@ -15,6 +15,7 @@ using dMobile.View.CustomPages.Modal;
 using System.Collections.ObjectModel;
 using Android.Views;
 using dMobile.Resources.Types;
+using System.IO;
 
 namespace dMobile.View.Activity
 {
@@ -2366,6 +2367,130 @@ namespace dMobile.View.Activity
                     break;
 
                 case SysCommon.ActSubTypes.Picking:
+                    //DataType.Name.ToString()
+                       // Header grid
+                    Grid gridHeaderPicking = new Grid
+                    {
+                        Padding = new Thickness(5),
+                        ColumnDefinitions =
+                        {
+                            new ColumnDefinition { Width = GridLength.Star },
+                            new ColumnDefinition { Width = GridLength.Star },
+                            new ColumnDefinition { Width = GridLength.Star },
+                            new ColumnDefinition { Width = new GridLength(4, GridUnitType.Star) },
+                        }
+                    };
+
+                    gridHeaderPicking.SetDynamicResource(BackgroundColorProperty, "HeaderColor");
+
+                    // TODO: Resource strings
+                    Label labelPickingQuantityHeader = new Label { Text = "Qty", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
+                    Label labelPickingWeightQuantityHeader = new Label { Text = "Weight", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
+                    Label labelPickingUnitCodeHeader = new Label { Text = " ", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
+                    Label labelPickingSchemeIDHeader = new Label { Text = "Scheme ID", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
+
+                    gridHeaderPicking.Children.Add(labelPickingQuantityHeader);
+                    gridHeaderPicking.Children.Add(labelPickingWeightQuantityHeader);
+                    gridHeaderPicking.Children.Add(labelPickingUnitCodeHeader);
+                    gridHeaderPicking.Children.Add(labelPickingSchemeIDHeader);
+
+                    Grid.SetColumn(labelPickingQuantityHeader, 0);
+                    Grid.SetColumn(labelPickingWeightQuantityHeader, 1);
+                    Grid.SetColumn(labelPickingUnitCodeHeader, 2);
+                    Grid.SetColumn(labelPickingSchemeIDHeader, 3);
+
+                    Grid.SetRow(gridHeaderPicking, 0);
+
+                    this.dataGridMainActivityHeader.Children.Add(gridHeaderPicking);
+
+                    // Data grid
+                    DataTemplate dataTemplatePicking = new DataTemplate(() =>
+                    {
+                        Grid gridData = new Grid
+                        {
+                            Padding = new Thickness(5),
+                            ColumnDefinitions =
+                            {
+                                new ColumnDefinition { Width = GridLength.Star },
+                                new ColumnDefinition { Width = GridLength.Star },
+                                new ColumnDefinition { Width = GridLength.Star },
+                                new ColumnDefinition { Width = new GridLength(4, GridUnitType.Star) },
+                            }
+                        };
+
+                        Label labelPickingQuantity = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                        Label labelPickingWeightQuantity = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                        Label labelPickingUnitCode = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                        Label labelPickingSchemeID = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+
+                        labelPickingQuantity.SetBinding(Label.TextProperty, new Binding("ActivityDetailQuantity", BindingMode.Default, null, null, "{0:F3}"));
+                        labelPickingWeightQuantity.SetBinding(Label.TextProperty, new Binding("ActivityDetailWeightQuantity", BindingMode.Default, null, null, "{0:F3}"));
+                        labelPickingUnitCode.SetBinding(Label.TextProperty, new Binding("UnitCode"));
+                        labelPickingSchemeID.SetBinding(Label.TextProperty, new Binding("ActivityDetailSchemeID"));
+
+                        gridData.Children.Add(labelPickingQuantity);
+                        gridData.Children.Add(labelPickingWeightQuantity);
+                        gridData.Children.Add(labelPickingUnitCode);
+                        gridData.Children.Add(labelPickingSchemeID);
+
+                        Grid.SetColumn(labelPickingQuantity, 0);
+                        Grid.SetColumn(labelPickingWeightQuantity, 1);
+                        Grid.SetColumn(labelPickingUnitCode, 2);
+                        Grid.SetColumn(labelPickingSchemeID, 3);
+
+                        return new ViewCell { View = gridData };
+                    });
+
+                    this.dataGridMainActivity.ItemTemplate = dataTemplatePicking;
+                    this.DataGridMainActivityItemsList.Clear();
+                    
+                    foreach (DataRow row in this.ActDetail.DataViewDetails.ToTable().Rows)
+                    {
+                        PickingDetail pickingDetail = new PickingDetail
+                        {
+                            ActivityDetailRefno = Convert.ToInt32(row["ActivityDetailRefno"] != DBNull.Value ? row["ActivityDetailRefno"] : null),
+                            LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
+                            ActivityDetailPickingFKRefno = Convert.ToInt32(row["ActivityDetailPickingFKRefno"] != DBNull.Value ? row["ActivityDetailPickingFKRefno"] : null),
+                            UnitCode = Convert.ToString(row["UnitCode"] != DBNull.Value ? row["UnitCode"] : null),
+                            WtUnitCode = Convert.ToString(row["WtUnitCode"] != DBNull.Value ? row["WtUnitCode"] : null),
+                            BaseUnitCode = Convert.ToString(row["BaseUnitCode"] != DBNull.Value ? row["BaseUnitCode"] : null),
+                            ProductCode = Convert.ToString(row["ProductCode"] != DBNull.Value ? row["ProductCode"] : null),
+                            ProductRefno = Convert.ToInt32(row["ProductRefno"] != DBNull.Value ? row["ProductRefno"] : null),
+                            ProductDescription = Convert.ToString(row["ProductDescription"] != DBNull.Value ? row["ProductDescription"] : null),
+                            ProductBrandDescription = Convert.ToString(row["ProductBrandDescription"] != DBNull.Value ? row["ProductBrandDescription"] : null),
+                            ProductUnitBC = Convert.ToString(row["ProductUnitBC"] != DBNull.Value ? row["ProductUnitBC"] : null),
+                            ProductUnitIsBC = Convert.ToBoolean(row["ProductUnitIsBC"] != DBNull.Value ? row["ProductUnitIsBC"] : null),
+                            ProductUnitSizeDescription = Convert.ToString(row["ProductUnitSizeDescription"] != DBNull.Value ? row["ProductUnitSizeDescription"] : null),
+                            ActivityDetailQuantity = Convert.ToDecimal(row["ActivityDetailQuantity"] != DBNull.Value ? row["ActivityDetailQuantity"] : null),
+                            ActivityDetailBaseQuantity = Convert.ToDecimal(row["ActivityDetailBaseQuantity"] != DBNull.Value ? row["ActivityDetailBaseQuantity"] : null),
+                            ActivityDetailWeightQuantity = Convert.ToDecimal(row["ActivityDetailWeightQuantity"] != DBNull.Value ? row["ActivityDetailWeightQuantity"] : null),
+                            ActivityDetailLogisticUnitBestBeforeSellByDate = Convert.ToDateTime(row["ActivityDetailLogisticUnitBestBeforeSellByDate"] != DBNull.Value ? row["ActivityDetailLogisticUnitBestBeforeSellByDate"] : null),
+                            ActivityDetailSchemeID = Convert.ToString(row["ActivityDetailSchemeID"] != DBNull.Value ? row["ActivityDetailSchemeID"] : null),
+                            ActivityDetailUniqueSchemeID = Convert.ToString(row["ActivityDetailUniqueSchemeID"] != DBNull.Value ? row["ActivityDetailUniqueSchemeID"] : null),
+                            ActivityDetailSingleTradeItemSerialNumber = Convert.ToString(row["ActivityDetailSingleTradeItemSerialNumber"] != DBNull.Value ? row["ActivityDetailSingleTradeItemSerialNumber"] : null),
+                            ActivityDetailLogisticUnitBatchLotNumber = Convert.ToString(row["ActivityDetailLogisticUnitBatchLotNumber"] != DBNull.Value ? row["ActivityDetailLogisticUnitBatchLotNumber"] : null),
+                            ActivityDetailLogisticUnitExpiryUseByDate = Convert.ToDateTime(row["ActivityDetailLogisticUnitExpiryUseByDate"] != DBNull.Value ? row["ActivityDetailLogisticUnitExpiryUseByDate"] : null),
+                            ActivityDetailLogisticUnitProductionDate = Convert.ToDateTime(row["ActivityDetailLogisticUnitProductionDate"] != DBNull.Value ? row["ActivityDetailLogisticUnitProductionDate"] : null),
+                            ActivityDetailLogisticUnitSkidNumber = Convert.ToString(row["ActivityDetailLogisticUnitSkidNumber"] != DBNull.Value ? row["ActivityDetailLogisticUnitSkidNumber"] : null),
+                            LocationCode = Convert.ToInt32(row["LocationCode"] != DBNull.Value ? row["LocationCode"] : null),
+                            LocationName = Convert.ToString(row["LocationName"] != DBNull.Value ? row["LocationName"] : null),
+                            Location = Convert.ToString(row["Location"] != DBNull.Value ? row["Location"] : null),
+                            ProductSchemeVariantCode = Convert.ToString(row["ProductSchemeVariantCode"] != DBNull.Value ? row["ProductSchemeVariantCode"] : null),
+                            ProductSchemeVariantNo = Convert.ToInt32(row["ProductSchemeVariantNo"] != DBNull.Value ? row["ProductSchemeVariantNo"] : null),
+                            ProductSchemeVariantDescription = Convert.ToString(row["ProductSchemeVariantDescription"] != DBNull.Value ? row["ProductSchemeVariantDescription"] : null),
+                            ActivityDetailStatus = Convert.ToInt32(row["ActivityDetailStatus"] != DBNull.Value ? row["ActivityDetailStatus"] : null),
+                            ActivityDetailIsConfirmed = Convert.ToBoolean(row["ActivityDetailIsConfirmed"] != DBNull.Value ? row["ActivityDetailIsConfirmed"] : null),
+                            ActivityDetailIsConfirmedString = Convert.ToString(row["ActivityDetailIsConfirmedString"] != DBNull.Value ? row["ActivityDetailIsConfirmedString"] : null),
+                            ActivityDetailExtra1Text = Convert.ToString(row["ActivityDetailExtra1Text"] != DBNull.Value ? row["ActivityDetailExtra1Text"] : null),
+                            ActivityDetailExtra2Text = Convert.ToString(row["ActivityDetailExtra2Text"] != DBNull.Value ? row["ActivityDetailExtra2Text"] : null),
+                            ActivityDetailExtra3Text = Convert.ToString(row["ActivityDetailExtra3Text"] != DBNull.Value ? row["ActivityDetailExtra3Text"] : null),
+                            ActivityDetailExtra4Text = Convert.ToString(row["ActivityDetailExtra4Text"] != DBNull.Value ? row["ActivityDetailExtra4Text"] : null),
+                            ActivityDetailExtra5Text = Convert.ToString(row["ActivityDetailExtra5Text"] != DBNull.Value ? row["ActivityDetailExtra5Text"] : null)
+                        };
+
+                        this.DataGridMainActivityItemsList.Add(pickingDetail);
+                    }
+
                     break;
 
                 case SysCommon.ActSubTypes.PickingSingle:
@@ -2445,8 +2570,8 @@ namespace dMobile.View.Activity
                         Label labelUnitCodeReceiveDetail = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
                         Label labelActivityDetailSchemeIDReceiveDetail = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
 
-                        labelActivityDetailQuantityReceiveDetail.SetBinding(Label.TextProperty, new Binding("ActivityDetailQuantity"));
-                        labelActivityDetailWeightQuantityReceiveDetail.SetBinding(Label.TextProperty, new Binding("ActivityDetailWeightQuantity"));
+                        labelActivityDetailQuantityReceiveDetail.SetBinding(Label.TextProperty, new Binding("ActivityDetailQuantity", BindingMode.Default, null, null, "{0:F3}"));
+                        labelActivityDetailWeightQuantityReceiveDetail.SetBinding(Label.TextProperty, new Binding("ActivityDetailWeightQuantity", BindingMode.Default, null, null, "{0:F3}"));
                         labelUnitCodeReceiveDetail.SetBinding(Label.TextProperty, new Binding("UnitCode"));
                         labelActivityDetailSchemeIDReceiveDetail.SetBinding(Label.TextProperty, new Binding("ActivityDetailSchemeID"));
 
@@ -2546,6 +2671,7 @@ namespace dMobile.View.Activity
 
         private void ApplySearch()
         {
+            // TODO: Search
             switch (this.ActDetail.ActSubType)
             {
                 case SysCommon.ActSubTypes.Adjustment:
