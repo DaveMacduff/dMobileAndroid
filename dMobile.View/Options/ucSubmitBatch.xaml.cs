@@ -53,22 +53,13 @@ namespace dMobile.View.Options
 
                 this.SysEnv = SysEnvironment.GetInstance();
                 this.SubmitBatchSettings = new SubmitBatchSettings().LoadData();
-
-                try
-                {
-                    this.ucSubmitBatch_GotFocus(this, new EventArgs());
-                }
-                catch (Exception ex)
-                {
-                    DisplayAlert("Error", "ucSubmitBatch_GotFocus exception: " + ex.Message, "OK");
-                }
             }
         }
 
         /// <summary>
         /// The OnAppearing
         /// </summary>
-        protected override void OnAppearing()
+        protected override async void OnAppearing()
         {
             base.OnAppearing();
 
@@ -83,13 +74,22 @@ namespace dMobile.View.Options
                 }
                 else if (keycode == Keycode.Escape || keycode == Keycode.F1)
                 {
-                    if (this.SaveChanges())
+                    if (await this.SaveChanges())
                     {
                         //await this.Close();
                         this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     }
                 }
             });
+
+            try
+            {
+                await this.ucSubmitBatch_GotFocus(this, new EventArgs());
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert("Error", "ucSubmitBatch_GotFocus exception: " + ex.Message, "OK");
+            }
         }
 
         /// <summary>
@@ -380,7 +380,7 @@ namespace dMobile.View.Options
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool IsReadyToSave()
+        public async Task<bool> IsReadyToSave()
         {
             bool isReadyToSave = false;
 
@@ -397,14 +397,9 @@ namespace dMobile.View.Options
             {
                 isReadyToSave = false;
 
-                //using (FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.SubmitBatch, this, ex))
-                //{
-                //    errRpt.ShowDialog();
-                //}
-
-                Device.BeginInvokeOnMainThread(async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.SubmitBatch, /*this,*/ ex);
+                    FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.SubmitBatch, ex);
                     await errRpt.ShowDialog();
                 });
             }
@@ -417,7 +412,7 @@ namespace dMobile.View.Options
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool IsReadyToClose()
+        public async Task<bool> IsReadyToClose()
         {
             bool isReadyToClose = true;
 
@@ -455,7 +450,7 @@ namespace dMobile.View.Options
                 //    errRpt.ShowDialog();
                 //}
 
-                Device.BeginInvokeOnMainThread(async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errorReport = new FormErrorReport(SysCommon.ActSubTypes.SubmitBatch, /*this,*/ ex);
                     await errorReport.ShowDialog();
@@ -491,13 +486,13 @@ namespace dMobile.View.Options
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool SaveChanges()
+        public async Task<bool> SaveChanges()
         {
             bool saveComplete = false;
 
             try
             {
-                if (this.IsReadyToSave())
+                if (await this.IsReadyToSave())
                 {
                     this.IsChangesMade = false;
                     saveComplete = true;
@@ -523,7 +518,7 @@ namespace dMobile.View.Options
                 //    errRpt.ShowDialog();
                 //}
 
-                Device.BeginInvokeOnMainThread(async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errorReport = new FormErrorReport(SysCommon.ActSubTypes.SubmitBatch, /*this,*/ ex);
                     await errorReport.ShowDialog();
@@ -539,14 +534,14 @@ namespace dMobile.View.Options
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool CancelChanges()
+        public async Task<bool> CancelChanges()
         {
             bool cancelChanges = true;
 
             try
             {
                 // IsReadyToClose checks if any changes where made.
-                if (this.IsReadyToClose())
+                if (await this.IsReadyToClose())
                 {
                     // Expect the control to close.
                 }
@@ -572,14 +567,9 @@ namespace dMobile.View.Options
             {
                 cancelChanges = true;
 
-                //using (FormErrorReport errorReport = new FormErrorReport(SysCommon.ActSubTypes.SubmitBatch, this, ex))
-                //{
-                //    errorReport.ShowDialog();
-                //}
-
-                Device.BeginInvokeOnMainThread(async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errorReport = new FormErrorReport(SysCommon.ActSubTypes.SubmitBatch, /*this,*/ ex);
+                    FormErrorReport errorReport = new FormErrorReport(SysCommon.ActSubTypes.SubmitBatch, ex);
                     await errorReport.ShowDialog();
                 });
             }
@@ -1147,7 +1137,7 @@ namespace dMobile.View.Options
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        private void ucSubmitBatch_GotFocus(object sender, EventArgs e)
+        private async Task ucSubmitBatch_GotFocus(object sender, EventArgs e)
         {
             if (!SysEnvironment.GetInstance().IsApplicationExitInvoked)
             {

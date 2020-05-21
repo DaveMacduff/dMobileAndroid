@@ -1,12 +1,14 @@
 namespace dMobile.Controller
 {
     using System;
+    using System.Collections.ObjectModel;
     using System.Data;
     using System.Data.SQLite;
     using System.Threading.Tasks;
     using System.Xml.Linq;
     using dMobile.Bedrock;
     using dMobile.GroundWork;
+    using Xamarin.Forms;
 
     /// <summary>
     /// Used as return value for GetActivityItemProductSchemeDataFromActivityDetailRefno
@@ -537,7 +539,7 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="searchText"></param>
         /// <returns></returns>
-        public abstract DataView Search(string searchText);
+        public abstract ObservableCollection<object> Search(string searchText);
 
         /// <summary>
         /// 
@@ -549,8 +551,8 @@ namespace dMobile.Controller
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="dg"></param>
-        //public abstract void DesignDataGrid(DataGrid dg);
+        /// <param name="dataview"></param>
+        public abstract ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity, ref ColumnDefinition dataGridWidth);
 
         /// <summary>
         /// 

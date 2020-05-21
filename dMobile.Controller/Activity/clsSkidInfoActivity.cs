@@ -1,10 +1,12 @@
 namespace dMobile.Controller
 {
     using System;
+    using System.Collections.ObjectModel;
     using System.Data;
     using System.Diagnostics.CodeAnalysis;
     using System.Xml.Linq;
     using dMobile.Bedrock;
+    using Xamarin.Forms;
 
     public class SkidInfoActivity : Activity
     {
@@ -203,7 +205,12 @@ namespace dMobile.Controller
         /// <param name="searchText"></param>
         /// <returns></returns>
         /// <remarks></remarks>
-        public override DataView Search(string searchText)
+        public override ObservableCollection<object> Search( string searchText)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity, ref ColumnDefinition dataGridWidth)
         {
             throw new NotImplementedException();
         }

@@ -7,6 +7,7 @@
     using dMobile.View.Themes;
     using System;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
     using System.Xml.Linq;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
@@ -55,11 +56,11 @@
         /// <summary>
         /// The OnAppearing
         /// </summary>
-        protected override void OnAppearing()
+        protected override async void OnAppearing()
         {
             base.OnAppearing();
 
-            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), (keyPressed) =>
+            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
             {
                 // TODO: Verify keycodes
                 Enum.TryParse(keyPressed, out Keycode keycode);
@@ -81,27 +82,30 @@
                 {
                     this.DisableControls();
                     //this.CallingControl = new ucPurchaseOrdersMenu();
-                    ucPurchaseOrdersMenu purchaseOrders = new ucPurchaseOrdersMenu();
-                    Device.BeginInvokeOnMainThread(async () => await purchaseOrders.Show());
                     this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     this.IsControlLoaded = false;
+                    
+                    ucPurchaseOrdersMenu purchaseOrders = new ucPurchaseOrdersMenu();
+                    await purchaseOrders.Show();
                 }
                 else if (keycode == Keycode.Num2)
                 {
                     this.DisableControls();
                     //this.CallingControl = new ucSalesOrdersMenu();
-                    ucSalesOrdersMenu salesOrders = new ucSalesOrdersMenu();
-                    Device.BeginInvokeOnMainThread(async () => await salesOrders.Show());
                     this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     this.IsControlLoaded = false;
+                    
+                    ucSalesOrdersMenu salesOrders = new ucSalesOrdersMenu();
+                    await salesOrders.Show();
                 }
                 else if (keycode == Keycode.Num3)
                 {
                     this.DisableControls();
-                    ucInventoryMenu inventoryMenu = new ucInventoryMenu();
-                    Device.BeginInvokeOnMainThread(async () => await inventoryMenu.Show());
                     this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     this.IsControlLoaded = false;
+                    
+                    ucInventoryMenu inventoryMenu = new ucInventoryMenu();
+                    await inventoryMenu.Show();
                 }
                 else if (keycode == Keycode.Num4)
                 {
@@ -113,10 +117,11 @@
                 else if (keycode == Keycode.Num5)
                 {
                     this.DisableControls();
-                    ucOptionsMenu optionsMenu = new ucOptionsMenu();
-                    Device.BeginInvokeOnMainThread(async () => await optionsMenu.Show());
                     this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     this.IsControlLoaded = false;
+                    
+                    ucOptionsMenu optionsMenu = new ucOptionsMenu();
+                    await optionsMenu.Show();
                 }
             });
 
@@ -127,7 +132,7 @@
             catch (Exception ex)
             {
                 // TODO: Resource strings
-                DisplayAlert("Error", "this.ucMainMenu_GotFocus threw an error " + ex, "OK");
+                await DisplayAlert("Error", "this.ucMainMenu_GotFocus threw an error " + ex, "OK");
             }
         }
 
@@ -331,7 +336,7 @@
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool IsReadyToSave()
+        public async Task<bool> IsReadyToSave()
         {
             return true;
         }
@@ -341,7 +346,7 @@
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool IsReadyToClose()
+        public async Task<bool> IsReadyToClose()
         {
             return true;
         }
@@ -372,7 +377,7 @@
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool SaveChanges()
+        public async Task<bool> SaveChanges()
         {
             return true;
         }
@@ -382,7 +387,7 @@
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool CancelChanges()
+        public async Task<bool> CancelChanges()
         {
             return true;
         }
@@ -616,15 +621,15 @@
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        public void cmdPurchaseOrders_Click(object sender, EventArgs e)
+        public async void cmdPurchaseOrders_Click(object sender, EventArgs e)
         {
             this.DisableControls();
             //this.CallingControl = new ucPurchaseOrdersMenu();
-
-            ucPurchaseOrdersMenu purchaseOrders = new ucPurchaseOrdersMenu();
-            Device.BeginInvokeOnMainThread(async () => await purchaseOrders.Show());
             this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
             this.IsControlLoaded = false;
+
+            ucPurchaseOrdersMenu purchaseOrders = new ucPurchaseOrdersMenu();
+            await purchaseOrders.Show();
         }
 
         /// <summary>
@@ -633,14 +638,15 @@
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        private void cmdSalesOrders_Click(object sender, EventArgs e)
+        private async void cmdSalesOrders_Click(object sender, EventArgs e)
         {
             this.DisableControls();
             //this.CallingControl = new ucSalesOrdersMenu();            
-            ucSalesOrdersMenu salesOrdersMenu = new ucSalesOrdersMenu();
-            Device.BeginInvokeOnMainThread(async () => await salesOrdersMenu.Show());
             this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
             this.IsControlLoaded = false;
+            
+            ucSalesOrdersMenu salesOrdersMenu = new ucSalesOrdersMenu();
+            await salesOrdersMenu.Show();
         }
 
         /// <summary>
@@ -649,14 +655,15 @@
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        private void cmdInventory_Click(object sender, EventArgs e)
+        private async void cmdInventory_Click(object sender, EventArgs e)
         {
             this.DisableControls();
             //this.CallingControl = new ucInventoryMenu();
-            ucInventoryMenu inventoryMenu = new ucInventoryMenu();
-            Device.BeginInvokeOnMainThread(async () => await inventoryMenu.Show());
             this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
             this.IsControlLoaded = false;
+
+            ucInventoryMenu inventoryMenu = new ucInventoryMenu();
+            await inventoryMenu.Show();
         }
 
         /// <summary>
@@ -679,13 +686,14 @@
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        private void cmdOptions_Click(object sender, EventArgs e)
+        private async void cmdOptions_Click(object sender, EventArgs e)
         {
             this.DisableControls();
-            ucOptionsMenu optionsMenu = new ucOptionsMenu();
-            Device.BeginInvokeOnMainThread(async () => await optionsMenu.Show());
             this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
             this.IsControlLoaded = false;
+            
+            ucOptionsMenu optionsMenu = new ucOptionsMenu();
+            await optionsMenu.Show();
         }
     }
 }

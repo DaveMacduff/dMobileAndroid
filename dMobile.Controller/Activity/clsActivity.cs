@@ -8,6 +8,7 @@ namespace dMobile.Controller
     using System.Xml.Linq;
     using dMobile.Bedrock;
     using dMobile.GroundWork;
+    using Xamarin.Forms;
 
     public abstract class Activity : IDataLayerEventPublisher, IDataAccessEventListener
     {
@@ -278,7 +279,7 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="searchText"></param>
         /// <returns></returns>
-        public abstract DataView Search(string searchText);
+        public abstract ObservableCollection<object> Search(string searchText);
 
         /// <summary>
         /// 
@@ -291,7 +292,7 @@ namespace dMobile.Controller
         /// 
         /// </summary>
         /// <param name="dg"></param>
-        //public abstract void DesignDataGrid(ref ObservableCollection<object> obeservableCollection, ref ListView dataGrid);
+        public abstract ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity, ref ColumnDefinition dataGridWidth);
 
         /// <summary>
         /// 

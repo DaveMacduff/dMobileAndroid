@@ -1,10 +1,11 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<ContentView xmlns="http://xamarin.com/schemas/2014/forms" 
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="dMobile.View.Forms.FormAddManualDetailOverride">
-  <ContentView.Content>
+<modal:DMobileModal  xmlns:modal="clr-namespace:dMobile.View.CustomPages.Modal"
+                     xmlns="http://xamarin.com/schemas/2014/forms" 
+                     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                     x:Class="dMobile.View.Forms.FormAddManualDetailOverride">
+  <ContentPage.Content>
       <StackLayout>
           <Label Text="Hello Xamarin.Forms!" />
       </StackLayout>
-  </ContentView.Content>
-</ContentView>
+  </ContentPage.Content>
+</modal:DMobileModal>

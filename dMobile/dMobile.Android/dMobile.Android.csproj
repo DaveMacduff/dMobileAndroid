@@ -146,7 +146,10 @@
     <AndroidResource Include="Resources\drawable\unfold_less_white.png" />
   </ItemGroup>
   <ItemGroup>
-    <AndroidResource Include="Resources\drawable\unfold_more_white.png" />
+    <AndroidResource Include="Resources\drawable\options_icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable\arrow_drop_down.png" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
 </Project>

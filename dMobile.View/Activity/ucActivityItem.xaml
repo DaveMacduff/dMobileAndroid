@@ -3,19 +3,18 @@
     xmlns:custompages="clr-namespace:dMobile.View.CustomPages.Modal"
     xmlns="http://xamarin.com/schemas/2014/forms"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:Helpers="clr-namespace:dMobile.View.Helpers"
+    xmlns:Helpers="clr-namespace:dMobile.View.Helpers" xmlns:customcontrols="clr-namespace:dMobile.View.CustomControls"
     x:Class="dMobile.View.Activity.ucActivityItem">
     <ContentPage.ToolbarItems>
-        <ToolbarItem x:Name="actionItemsMenu" IconImageSource="{Binding IconSource}" Clicked="ActionItemsMenu_Clicked" />
+        <ToolbarItem x:Name="optionsMenu" IconImageSource="{Binding OptionsIconSource}" Clicked="OptionsMenu_Clicked" />
     </ContentPage.ToolbarItems>
     <ContentPage.Content>
         <AbsoluteLayout VerticalOptions="Center">
             <Grid Padding="10" AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0,0,1,1">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="3*"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="65*"/>
+                    <RowDefinition Height="20*"/>
+                    <RowDefinition Height="15*"/>
                 </Grid.RowDefinitions>
 
                 <Frame VerticalOptions="Start" OutlineColor="{DynamicResource BorderColor}" Grid.Row="0">
@@ -24,7 +23,10 @@
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
-                            
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition x:Name="dataGridWidth" Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
                             <ListView x:Name="dataGridMainActivity" ItemSelected="DataGridMainActivity_ItemSelected" HasUnevenRows="True" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" Grid.Row="1"/>
                         </Grid>
                     </ScrollView>
@@ -46,14 +48,16 @@
 
                 <Grid x:Name="gridControls" Grid.Row="2">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="2*"/>
-                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="70*"/>
+                        <ColumnDefinition Width="30*"/>
                     </Grid.ColumnDefinitions>
+                    
                     <Entry x:Name="txtSearchItem" Grid.Row="0" Grid.Column="0" Focused="TxtSearchItem_Focused" TextChanged="TxtSearchItem_TextChanged" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
-                    <Button x:Name="cmdFilter" Grid.Row="0" Grid.Column="1" Clicked="CmdFilter_Clicked" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                    <customcontrols:CustomPicker x:Name="updnBarCodeModifier1" Grid.Row="0" Grid.Column="1" Image="arrow_drop_down" SelectedIndexChanged="UpdnBarCodeModifier1_SelectedIndexChanged" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                    <!--<Button x:Name="cmdFilter" Grid.Row="0" Grid.Column="1" Clicked="CmdFilter_Clicked" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>-->
                 </Grid>
 
-                <StackLayout Grid.Row="3" IsVisible="{Binding ActionsVisible}">
+                <!--<StackLayout Grid.Row="3">
                     <Grid>
                     <Button x:Name="cmdAddProduct" Grid.Row="0" Grid.Column="0" Clicked="cmdAddProduct_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
                     <Button x:Name="cmdAddSkid" Grid.Row="0" Grid.Column="1" Clicked="cmdAddSkid_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
@@ -61,7 +65,7 @@
                     <Button x:Name="cmdLocation" Grid.Row="1" Grid.Column="0" Clicked="cmdLocation_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
                     <Button x:Name="cmdSelectSkid" Grid.Row="1" Grid.Column="1" Clicked="cmdSelectSkid_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
                 </Grid>
-                </StackLayout>
+                </StackLayout>-->
 
             </Grid>
 

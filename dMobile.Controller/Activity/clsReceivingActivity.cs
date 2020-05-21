@@ -1,12 +1,15 @@
 namespace dMobile.Controller
 {
     using System;
+    using System.Collections.ObjectModel;
     using System.Data;
     using System.Data.SQLite;
     using System.Text;
     using System.Xml.Linq;
     using dMobile.Bedrock;
     using dMobile.GroundWork;
+    using dMobile.Resources.Types;
+    using Xamarin.Forms;
 
     public class RecvActivity : Activity
     {
@@ -44,6 +47,90 @@ namespace dMobile.Controller
         {
             // TODO: Resource strings
             return "Receiving";
+        }
+
+        public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity, ref ColumnDefinition dataGridWidth)
+        {
+            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+
+            Grid gridHeaderReceiving = new Grid
+            {
+                Padding = new Thickness(5, 5, 5, 5),
+                ColumnDefinitions =
+                {
+                    new ColumnDefinition { Width = GridLength.Star },
+                    new ColumnDefinition { Width = GridLength.Star },
+                    new ColumnDefinition { Width = GridLength.Star }
+                }
+            };
+
+            gridHeaderReceiving.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
+
+            Label labelPOReceiving = new Label { Text = "PO #", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
+            Label labelIssuedReceiving = new Label { Text = "Issued", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
+            Label labelArrivedReceiving = new Label { Text = "Arrived", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
+
+            gridHeaderReceiving.Children.Add(labelPOReceiving);
+            gridHeaderReceiving.Children.Add(labelIssuedReceiving);
+            gridHeaderReceiving.Children.Add(labelArrivedReceiving);
+
+            Grid.SetColumn(labelPOReceiving, 0);
+            Grid.SetColumn(labelIssuedReceiving, 1);
+            Grid.SetColumn(labelArrivedReceiving, 2);
+
+            Grid.SetRow(gridHeaderReceiving, 0);
+
+            dataGridMainActivityHeader.Children.Add(gridHeaderReceiving);
+
+            // Data grid
+            DataTemplate dataTemplateReceiving = new DataTemplate(() =>
+            {
+                Grid gridData = new Grid
+                {
+                    Padding = new Thickness(5, 5, 5, 5),
+                    ColumnDefinitions = 
+                    {
+                        new ColumnDefinition { Width = GridLength.Star },
+                        new ColumnDefinition { Width = GridLength.Star },
+                        new ColumnDefinition { Width = GridLength.Star }
+                    }
+                };
+
+                Label labelActivityReceivingPONumber = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                Label labelActivityReceivingIssuedDateTime = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                Label labelActivityReceivingArrivalDateTime = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+
+                labelActivityReceivingPONumber.SetBinding(Label.TextProperty, new Binding("ActivityReceivingPONumber"));
+                labelActivityReceivingIssuedDateTime.SetBinding(Label.TextProperty, new Binding("ActivityReceivingIssuedDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
+                labelActivityReceivingArrivalDateTime.SetBinding(Label.TextProperty, new Binding("ActivityReceivingArrivalDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
+
+                gridData.Children.Add(labelActivityReceivingPONumber);
+                gridData.Children.Add(labelActivityReceivingIssuedDateTime);
+                gridData.Children.Add(labelActivityReceivingArrivalDateTime);
+
+                Grid.SetColumn(labelActivityReceivingPONumber, 0);
+                Grid.SetColumn(labelActivityReceivingIssuedDateTime, 1);
+                Grid.SetColumn(labelActivityReceivingArrivalDateTime, 2);
+
+                return new ViewCell { View = gridData };
+            });
+
+            dataGridMainActivity.ItemTemplate = dataTemplateReceiving;
+            observableCollection.Clear();
+
+            foreach (DataRow row in this.DataViewHdrs.ToTable().Rows)
+            {
+                Receive receive = new Receive
+                {
+                    ActivityReceivingPONumber = Convert.ToString(row["ActivityReceivingPONumber"]),
+                    ActivityReceivingIssuedDateTime = Convert.ToDateTime(row["ActivityReceivingIssuedDateTime"]),
+                    ActivityReceivingArrivalDateTime = Convert.ToDateTime(row["ActivityReceivingArrivalDateTime"])
+                };
+
+                observableCollection.Add(receive);
+            }
+
+            return observableCollection;
         }
 
         //    /// <summary>
@@ -238,18 +325,32 @@ namespace dMobile.Controller
         /// <param name="searchText"></param>
         /// <returns></returns>
         /// <remarks></remarks>
-        public override DataView Search(string searchText)
+        public override ObservableCollection<object> Search(string searchText)
         {
+            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+
             if (string.IsNullOrEmpty(this.ActFilter))
             {
                 this.DataViewHdrs.RowFilter = "ActivityReceivingPONumber LIKE \'%" + searchText.Trim() + "%\'";
             }
             else
             {
-                this.DataViewHdrs.RowFilter = this.ActFilter + " AND ActivityReceivingPONumber LIKE \'%" + searchText.Trim()
-                    + "%\'";
+                this.DataViewHdrs.RowFilter = this.ActFilter + " AND ActivityReceivingPONumber LIKE \'%" + searchText.Trim() + "%\'";
             }
-            return this.DataViewHdrs;
+
+            foreach (DataRow row in this.DataViewHdrs.ToTable().Rows)
+            {
+                Receive receive = new Receive
+                {
+                    ActivityReceivingPONumber = Convert.ToString(row["ActivityReceivingPONumber"]),
+                    ActivityReceivingIssuedDateTime = Convert.ToDateTime(row["ActivityReceivingIssuedDateTime"]),
+                    ActivityReceivingArrivalDateTime = Convert.ToDateTime(row["ActivityReceivingArrivalDateTime"])
+                };
+
+                observableCollection.Add(receive);
+            }
+
+            return observableCollection;
         }
 
         /// <summary>

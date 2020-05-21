@@ -1,12 +1,14 @@
 namespace dMobile.Controller
 {
     using System;
+    using System.Collections.ObjectModel;
     using System.Data;
     using System.Text;
     using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
     using dMobile.Bedrock;
+    using Xamarin.Forms;
 
     public class InvInquiryActItem : ActItem
     {
@@ -90,94 +92,99 @@ namespace dMobile.Controller
             }
         }
 
-//        /// <summary>
-//        ///
-//        /// </summary>
-//        /// <param name="dataGridMain"></param>
-//        /// <remarks></remarks>
-//        public override void DesignDataGrid(DataGrid dataGridMain)
-//        {
-//            int columnWidthFactor = 1;
+        public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity, ref ColumnDefinition dataGridWidth)
+        {
+            throw new NotImplementedException();
+        }
 
-//            if (this.SysEnv.IsWindowsMobile6Device)
-//            {
-//                columnWidthFactor = 2;
-//            }
+        //        /// <summary>
+        //        ///
+        //        /// </summary>
+        //        /// <param name="dataGridMain"></param>
+        //        /// <remarks></remarks>
+        //        public override void DesignDataGrid(DataGrid dataGridMain)
+        //        {
+        //            int columnWidthFactor = 1;
 
-//            if (dataGridMain.TableStyles.Count > 0)
-//            {
-//                dataGridMain.TableStyles.Clear();
-//            }
+        //            if (this.SysEnv.IsWindowsMobile6Device)
+        //            {
+        //                columnWidthFactor = 2;
+        //            }
 
-//            DataGridTableStyle dataGridStyle = new DataGridTableStyle();
-//            dataGridStyle.MappingName = this.MainGridMappingName;
+        //            if (dataGridMain.TableStyles.Count > 0)
+        //            {
+        //                dataGridMain.TableStyles.Clear();
+        //            }
 
-//            DataGridTextBoxColumn dataGridCol = null;
+        //            DataGridTableStyle dataGridStyle = new DataGridTableStyle();
+        //            dataGridStyle.MappingName = this.MainGridMappingName;
 
-//            dataGridCol = new DataGridTextBoxColumn();
-//            dataGridCol.MappingName = "productcode";
-//#if MULTILANGUAGE
-//      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.ProductId);
-//#else
-//            dataGridCol.HeaderText = "Product ID";
-//#endif
-//            if (0 < ProdInfo.Refno)
-//            {
-//                dataGridCol.Width = -1;
-//            }
-//            else
-//            {
-//                dataGridCol.Width = (int)(65 * columnWidthFactor);
-//            }
+        //            DataGridTextBoxColumn dataGridCol = null;
 
-//            dataGridStyle.GridColumnStyles.Add(dataGridCol);
+        //            dataGridCol = new DataGridTextBoxColumn();
+        //            dataGridCol.MappingName = "productcode";
+        //#if MULTILANGUAGE
+        //      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.ProductId);
+        //#else
+        //            dataGridCol.HeaderText = "Product ID";
+        //#endif
+        //            if (0 < ProdInfo.Refno)
+        //            {
+        //                dataGridCol.Width = -1;
+        //            }
+        //            else
+        //            {
+        //                dataGridCol.Width = (int)(65 * columnWidthFactor);
+        //            }
 
-//            dataGridCol = new DataGridTextBoxColumn();
-//            dataGridCol.MappingName = "productunitbc";
-//            dataGridCol.HeaderText = string.Empty;
-//            dataGridCol.Width = (int)(10 * columnWidthFactor);
-//            dataGridStyle.GridColumnStyles.Add(dataGridCol);
+        //            dataGridStyle.GridColumnStyles.Add(dataGridCol);
 
-//            dataGridCol = new DataGridTextBoxColumn();
-//            dataGridCol.MappingName = "activityitemquantity";
-//#if MULTILANGUAGE
-//      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Quantity);
-//#else
-//            dataGridCol.HeaderText = "Quantity";
-//#endif
-//            dataGridCol.Width = (int)(60 * columnWidthFactor);
-//            dataGridCol.Format = "0.000";
-//            dataGridStyle.GridColumnStyles.Add(dataGridCol);
+        //            dataGridCol = new DataGridTextBoxColumn();
+        //            dataGridCol.MappingName = "productunitbc";
+        //            dataGridCol.HeaderText = string.Empty;
+        //            dataGridCol.Width = (int)(10 * columnWidthFactor);
+        //            dataGridStyle.GridColumnStyles.Add(dataGridCol);
 
-//            dataGridCol = new DataGridTextBoxColumn();
-//            dataGridCol.MappingName = "unitcode";
-//            dataGridCol.HeaderText = string.Empty;
-//            dataGridCol.Width = (int)(20 * columnWidthFactor);
-//            dataGridStyle.GridColumnStyles.Add(dataGridCol);
+        //            dataGridCol = new DataGridTextBoxColumn();
+        //            dataGridCol.MappingName = "activityitemquantity";
+        //#if MULTILANGUAGE
+        //      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Quantity);
+        //#else
+        //            dataGridCol.HeaderText = "Quantity";
+        //#endif
+        //            dataGridCol.Width = (int)(60 * columnWidthFactor);
+        //            dataGridCol.Format = "0.000";
+        //            dataGridStyle.GridColumnStyles.Add(dataGridCol);
 
-//            dataGridCol = new DataGridTextBoxColumn();
-//            dataGridCol.MappingName = "activityitemweightquantity";
-//#if MULTILANGUAGE
-//      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Weight);
-//#else
-//            dataGridCol.HeaderText = "Weight";
-//#endif
-//            dataGridCol.Width = (int)(60 * columnWidthFactor);
-//            dataGridCol.Format = "0.000";
-//            dataGridStyle.GridColumnStyles.Add(dataGridCol);
+        //            dataGridCol = new DataGridTextBoxColumn();
+        //            dataGridCol.MappingName = "unitcode";
+        //            dataGridCol.HeaderText = string.Empty;
+        //            dataGridCol.Width = (int)(20 * columnWidthFactor);
+        //            dataGridStyle.GridColumnStyles.Add(dataGridCol);
 
-//            dataGridCol = new DataGridTextBoxColumn();
-//            dataGridCol.MappingName = "weightunitcode";
-//            dataGridCol.HeaderText = string.Empty;
-//            dataGridCol.Width = (int)(20 * columnWidthFactor);
-//            dataGridStyle.GridColumnStyles.Add(dataGridCol);
+        //            dataGridCol = new DataGridTextBoxColumn();
+        //            dataGridCol.MappingName = "activityitemweightquantity";
+        //#if MULTILANGUAGE
+        //      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Weight);
+        //#else
+        //            dataGridCol.HeaderText = "Weight";
+        //#endif
+        //            dataGridCol.Width = (int)(60 * columnWidthFactor);
+        //            dataGridCol.Format = "0.000";
+        //            dataGridStyle.GridColumnStyles.Add(dataGridCol);
 
-//            dataGridMain.TableStyles.Add(dataGridStyle);
+        //            dataGridCol = new DataGridTextBoxColumn();
+        //            dataGridCol.MappingName = "weightunitcode";
+        //            dataGridCol.HeaderText = string.Empty;
+        //            dataGridCol.Width = (int)(20 * columnWidthFactor);
+        //            dataGridStyle.GridColumnStyles.Add(dataGridCol);
 
-//            // dataGridMain.Font = "Arial, 10pt, style=Bold"
-//            dataGridMain.RowHeadersVisible = false;
-//            dataGridMain.ColumnHeadersVisible = true;
-//        }
+        //            dataGridMain.TableStyles.Add(dataGridStyle);
+
+        //            // dataGridMain.Font = "Arial, 10pt, style=Bold"
+        //            dataGridMain.RowHeadersVisible = false;
+        //            dataGridMain.ColumnHeadersVisible = true;
+        //        }
 
         /// <summary>
         /// 
@@ -207,7 +214,7 @@ namespace dMobile.Controller
         /// <param name="searchText"></param>
         /// <returns></returns>
         /// <remarks></remarks>
-        public override DataView Search(string searchText)
+        public override ObservableCollection<object> Search(string searchText)
         {
             throw new NotImplementedException();
         }

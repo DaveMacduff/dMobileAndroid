@@ -10,6 +10,7 @@
     using System.Net;
     using System.Net.NetworkInformation;
     using System.Net.Sockets;
+    using System.Threading.Tasks;
     using System.Xml.Linq;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
@@ -79,21 +80,21 @@
                 this.lstDeviceNameIP.SelectedItem = this.itemsList[0];
             }
 
-            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), (keyPressed) =>
+            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
             {
                 // TODO: Verify keycodes
                 Enum.TryParse(keyPressed, out Keycode keycode);
 
                 if (keycode == Keycode.Enter || keycode == Keycode.F1)
                 {
-                    if (this.SaveChanges())
+                    if (await this.SaveChanges())
                     {
                         this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     }
                 }
                 else if (keycode == Keycode.Escape)
                 {
-                    if (this.CancelChanges())
+                    if (await this.CancelChanges())
                     {
                         this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     }
@@ -111,15 +112,11 @@
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
         }
 
-
-
         public delegate void ReqCloseHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
         public delegate void ReqCancelDisableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
         public delegate void ReqSaveDisableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
         public delegate void ReqCancelEnableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
         public delegate void ReqSaveEnableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
-
-
 
         public event ReqCloseHandler ReqClose
         {
@@ -316,7 +313,7 @@
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool IsReadyToSave()
+        public async Task<bool> IsReadyToSave()
         {
             return true;
         }
@@ -326,7 +323,7 @@
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool IsReadyToClose()
+        public async Task<bool> IsReadyToClose()
         {
             return true;
         }
@@ -357,7 +354,7 @@
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool SaveChanges()
+        public async Task<bool> SaveChanges()
         {
             return true;
         }
@@ -367,7 +364,7 @@
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool CancelChanges()
+        public async Task<bool> CancelChanges()
         {
             return true;
         }

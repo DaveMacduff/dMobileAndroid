@@ -88,13 +88,13 @@
         /// <summary>
         /// The OnAppearing
         /// </summary>
-        protected override void OnAppearing()
+        protected override async void OnAppearing()
         {
             base.OnAppearing();
 
             this.lstDisplay.ItemsSource = this.ItemsList;
 
-            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), (keyPressed) =>
+            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
             {
                 // TODO: Verify keycodes
                 Enum.TryParse(keyPressed, out Keycode keycode);
@@ -103,13 +103,13 @@
                 {
                     if (keycode == Keycode.Escape)
                     {
-                        if (SaveChanges())
+                        if (await SaveChanges())
                         {
                             ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                         }
                         else
                         {
-                            CancelChanges();
+                            await CancelChanges();
                         }
                     }
                 }
@@ -117,12 +117,12 @@
 
             try
             {
-                this.ucActivityDetailEdit_GotFocus(this, new EventArgs());
+                await this.ucActivityDetailEdit_GotFocus(this, new EventArgs());
             }
             catch (Exception ex)
             {
                 // TODO: Resource strings
-                DisplayAlert("Error", "this.ucActivityHdr_GotFocus threw an error " + ex, "OK");
+                await DisplayAlert("Error", "this.ucActivityHdr_GotFocus threw an error " + ex, "OK");
             }
         }
 
@@ -512,7 +512,7 @@
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        public void ucActivityDetailEdit_GotFocus(object sender, EventArgs e)
+        public async Task ucActivityDetailEdit_GotFocus(object sender, EventArgs e)
         {
             if (!SysEnvironment.GetInstance().IsApplicationExitInvoked)
             {
@@ -536,7 +536,7 @@
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool IsReadyToSave()
+        public async Task<bool> IsReadyToSave()
         {
             bool IsReadyToSave = true;
 
@@ -565,7 +565,7 @@
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool IsReadyToClose()
+        public async Task<bool> IsReadyToClose()
         {
             return !isChangesMade;
         }
@@ -597,13 +597,13 @@
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool SaveChanges()
+        public async Task<bool> SaveChanges()
         {
             bool bSaveComplete = false;
 
             try
             {
-                if (IsReadyToSave())
+                if (await IsReadyToSave())
                 {
                     bSaveComplete = IsValidData();
                     isChangesMade = false;
@@ -611,7 +611,7 @@
                 else
                 {
                     //MessageBox.Show("Data Failed Validation. Check Your Data.");
-                    DisplayAlert("Data Validation", "Data Failed Validation. Check Your Data.", "OK");
+                    await DisplayAlert("Data Validation", "Data Failed Validation. Check Your Data.", "OK");
                 }
             }
             catch (Exception Ex)
@@ -632,14 +632,14 @@
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool CancelChanges()
+        public async Task<bool> CancelChanges()
         {
             bool cancelChanges = true;
 
             try
             {
                 // IsReadyToClose checks if any changes where made.
-                if (this.IsReadyToClose())
+                if (await this.IsReadyToClose())
                 {
                     // Clear any properties.
                     actDetailEdit.SchemeData = ActDetail.SchemeData;
@@ -666,7 +666,7 @@
             {
                 cancelChanges = false;
 
-                Device.BeginInvokeOnMainThread(async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errorReport = new FormErrorReport(SysCommon.ActSubTypes.NotApplicable, ex);
                     await errorReport.ShowDialog();

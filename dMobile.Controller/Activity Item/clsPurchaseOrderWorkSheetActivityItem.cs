@@ -1,6 +1,7 @@
 namespace dMobile.Controller
 {
     using System;
+    using System.Collections.ObjectModel;
     using System.Data;
     using System.Data.SQLite;
     using System.Text;
@@ -9,6 +10,7 @@ namespace dMobile.Controller
     using System.Xml.Linq;
     using dMobile.Bedrock;
     using dMobile.GroundWork;
+    using Xamarin.Forms;
 
     public class POWorkSheetActItem : ActItem
     {
@@ -548,6 +550,11 @@ namespace dMobile.Controller
             }
         }
 
+        public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity, ref ColumnDefinition dataGridWidth)
+        {
+            throw new NotImplementedException();
+        }
+
         //    /// <summary>
         //    ///
         //    /// </summary>
@@ -705,8 +712,10 @@ namespace dMobile.Controller
         /// <param name="searchText"></param>
         /// <returns></returns>
         /// <remarks></remarks>
-        public override DataView Search(string searchText)
+        public override ObservableCollection<object> Search(string searchText)
         {
+            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+
             if (string.IsNullOrEmpty(this.ActItemFilter))
             {
                 this.DataViewItems.RowFilter = "ProductCode LIKE \'%" + searchText.Trim() + "%\'";
@@ -716,7 +725,17 @@ namespace dMobile.Controller
                 this.DataViewItems.RowFilter = this.ActItemFilter + " AND ProductCode LIKE \'%" + searchText.Trim() + "%\'";
             }
 
-            return this.DataViewItems;
+            // TODO: search
+            //foreach (DataRow row in this.DataViewHdrs.ToTable().Rows)
+            //{
+            //    ObjectType objectType = new ObjectType
+            //    {
+            //    };
+
+            //    observableCollection.Add(objectType);
+            //}
+
+            return observableCollection;
         }
 
         /// <summary>

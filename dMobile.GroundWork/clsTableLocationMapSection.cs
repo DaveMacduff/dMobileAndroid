@@ -256,127 +256,112 @@ namespace dMobile.GroundWork
                                 sectBarCode = Convert.ToString(drowSection["LocationMapSectionBarCode"]);
                                 errMsg += Environment.NewLine + "Section bar code \'" + sectBarCode + "\'";
 
-                                cmndWhs.CommandText = "SELECT LocationMapWarehouseFKRefno FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = @locationMapWarehouseFKRefno";
-                                cmndWhs.CommandType = CommandType.Text;
-                                //cmndWhs.IndexName = "UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno";
-                                cmndWhs.Parameters.Add(new SQLiteParameter("@locationMapWarehouseFKRefno", Convert.ToInt32(drowSection["LocationMapWarehouseFKRefno"])));
+                                whsLocMapRefno = this.GetWhsLocMapRefnoFromDataRow(drowSection, ref errMsg, cmndWhs);
 
-                                using (SQLiteDataReader drWhs = cmndWhs.ExecuteReader())
+                                isSectFound = false;
+
+                                cmndSect.CommandText = "SELECT LocationMapSectionFKRefno FROM tLocationMapSection WHERE LocationMapSectionFKRefno = @locationMapSectionFKRefno";
+                                cmndSect.CommandType = CommandType.Text;
+                                //cmndSect.IndexName = "UQ_LocationMapSectionOnLocationMapSectionFKRefno";
+                                cmndSect.Parameters.Clear();
+                                cmndSect.Parameters.Add(new SQLiteParameter("@locationMapSectionFKRefno", sectFKRefno.ToString()));
+
+                                using (SQLiteDataReader drSect = cmndSect.ExecuteReader())
                                 {
-                                    whsLocMapRefno = this.GetWhsLocMapRefnoFromDataRow(drowSection, ref errMsg, drWhs);
-
-                                    isSectFound = false;
-
-                                    cmndSect.CommandText = "SELECT LocationMapSectionFKRefno FROM tLocationMapSection WHERE LocationMapSectionFKRefno = @locationMapSectionFKRefno";
-                                    cmndSect.CommandType = CommandType.Text;
+                                    //cmndSect.CommandText = "tLocationMapSection";
+                                    //cmndSect.CommandType = CommandType.Text;
                                     //cmndSect.IndexName = "UQ_LocationMapSectionOnLocationMapSectionFKRefno";
-                                    cmndSect.Parameters.Clear();
-                                    cmndSect.Parameters.Add(new SQLiteParameter("@locationMapSectionFKRefno", sectFKRefno.ToString()));
 
-                                    using (SQLiteDataReader drSect = cmndSect.ExecuteReader())
+                                    //if (drSect.Seek(DbSeekOptions.FirstEqual, new object[] { sectFKRefno }))
+
+                                    if (drSect.Read())
                                     {
-                                        //cmndSect.CommandText = "tLocationMapSection";
-                                        //cmndSect.CommandType = CommandType.Text;
-                                        //cmndSect.IndexName = "UQ_LocationMapSectionOnLocationMapSectionFKRefno";
+                                        isSectFound = true;
 
-                                        //if (drSect.Seek(DbSeekOptions.FirstEqual, new object[] { sectFKRefno }))
-
-                                        if (drSect.Read())
+                                        if (SysEnv.RefreshOpt.RefreshDataChangesOnly)
                                         {
-                                            isSectFound = true;
+                                            cmndSect.CommandType = CommandType.Text;
+                                            //cmndSect.IndexName = string.Empty;
+                                            cmndSect.CommandText = "UPDATE tLocationMapSection "
+                                            + "SET WarehouseLocationMapRefno = " + whsLocMapRefno + ","
+                                            + "LocationMapSectionCode = " + sectCode + ","
+                                            + "LocationMapSectionName = \'" + sectName + "\',"
+                                            + "LocationMapSectionBarCode = \'" + sectBarCode + "\' "
+                                            + "WHERE LocationMapSectionFKRefno = " + sectFKRefno;
 
-                                            if (SysEnv.RefreshOpt.RefreshDataChangesOnly)
-                                            {
-                                                cmndSect.CommandType = CommandType.Text;
-                                                //cmndSect.IndexName = string.Empty;
-                                                cmndSect.CommandText = "UPDATE tLocationMapSection "
-                                                + "SET WarehouseLocationMapRefno = " + whsLocMapRefno + ","
-                                                + "LocationMapSectionCode = " + sectCode + ","
-                                                + "LocationMapSectionName = \'" + sectName + "\',"
-                                                + "LocationMapSectionBarCode = \'" + sectBarCode + "\' "
-                                                + "WHERE LocationMapSectionFKRefno = " + sectFKRefno;
-
-                                                cmndSect.ExecuteNonQuery();
-                                            }
+                                            cmndSect.ExecuteNonQuery();
                                         }
-
-                                        if (!isSectFound)
-                                        {
-                                            cmndLocMapInsert.CommandText = "INSERT INTO tLocationMap (LocationMapSubType) VALUES (@locationMapSubType)";
-                                            cmndLocMapInsert.CommandType = CommandType.Text;
-                                            cmndLocMapInsert.Parameters.Add(new SQLiteParameter("@locationMapSubType", (int)SysCommon.LocMapSubTypes.Section));
-
-                                            cmndLocMapInsert.ExecuteNonQuery();
-
-                                            //recLocMap.SetInt32((int)SysCommon.LocMapFields.SubType, (int)SysCommon.LocMapSubTypes.Section);
-                                            //    rsLocMap.Insert(recLocMap);
-
-                                            cmndID.CommandText = "SELECT last_insert_rowid() FROM tLocationMap";
-                                            cmndID.CommandType = CommandType.Text;
-
-                                            locMapRefno = Convert.ToInt32(cmndID.ExecuteScalar());
-
-                                            cmndSectInsert.CommandText = "INSERT INTO tLocationMapSection " +
-                                            "(LocationMapRefno, " +
-                                            "LocationMapSubType, " +
-                                            "WarehouseLocationMapRefno, " +
-                                            "LocationMapSectionCode, " +
-                                            "LocationMapSectionName, " +
-                                            "LocationMapSectionFKRefno, " +
-                                            "LocationMapSectionBarCode " +
-                                            ") " +
-                                            "VALUES " +
-                                            "(@locationMapRefno, " +
-                                            "@locationMapSubType, " +
-                                            "@warehouseLocationMapRefno, " +
-                                            "@locationMapSectionCode, " +
-                                            "@locationMapSectionName, " +
-                                            "@locationMapSectionFKRefno, " +
-                                            "@locationMapSectionBarCode" +
-                                            ")";
-                                            cmndSectInsert.CommandType = CommandType.Text;
-                                            //cmndSectInsert.IndexName = string.Empty;
-                                            cmndSectInsert.Parameters.Add(new SQLiteParameter("@locationMapRefno", locMapRefno));
-                                            cmndSectInsert.Parameters.Add(new SQLiteParameter("@locationMapSubType", (int)SysCommon.LocMapSubTypes.Section));
-                                            cmndSectInsert.Parameters.Add(new SQLiteParameter("@warehouseLocationMapRefno", whsLocMapRefno));
-                                            cmndSectInsert.Parameters.Add(new SQLiteParameter("@locationMapSectionCode", sectCode));
-                                            cmndSectInsert.Parameters.Add(new SQLiteParameter("@locationMapSectionName", sectName));
-                                            cmndSectInsert.Parameters.Add(new SQLiteParameter("@locationMapSectionFKRefno", sectFKRefno));
-                                            cmndSectInsert.Parameters.Add(new SQLiteParameter("@locationMapSectionBarCode", sectBarCode));
-
-                                            cmndSectInsert.ExecuteNonQuery();
-
-                                            //rec.SetInt32((int)SysCommon.LocMapSectFields.LocMapRefno, locMapRefno);
-                                            //rec.SetInt32((int)SysCommon.LocMapSectFields.LocMapSubType, (int)SysCommon.LocMapSubTypes.Section);
-                                            //rec.SetInt32((int)SysCommon.LocMapSectFields.WhsLocMapRefno, whsLocMapRefno);
-                                            //rec.SetInt32((int)SysCommon.LocMapSectFields.Code, sectCode);
-                                            //rec.SetString((int)SysCommon.LocMapSectFields.Name, sectName);
-                                            //rec.SetInt32((int)SysCommon.LocMapSectFields.FKRefno, sectFKRefno);
-                                            //rec.SetString((int)SysCommon.LocMapSectFields.BarCode, sectBarCode);
-
-                                            //rs.Insert(rec);
-                                        }
-
-                                        progValue++;
-
-                                        if (progValue % 100 == 0)
-                                        {
-                                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
-                                        }
-
-                                        drSect.Close();
                                     }
 
-                                    this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
-                                    //}
+                                    if (!isSectFound)
+                                    {
+                                        cmndLocMapInsert.CommandText = "INSERT INTO tLocationMap (LocationMapSubType) VALUES (@locationMapSubType)";
+                                        cmndLocMapInsert.CommandType = CommandType.Text;
+                                        cmndLocMapInsert.Parameters.Add(new SQLiteParameter("@locationMapSubType", (int)SysCommon.LocMapSubTypes.Section));
 
-                                    drWhs.Close();
+                                        cmndLocMapInsert.ExecuteNonQuery();
+
+                                        //recLocMap.SetInt32((int)SysCommon.LocMapFields.SubType, (int)SysCommon.LocMapSubTypes.Section);
+                                        //    rsLocMap.Insert(recLocMap);
+
+                                        cmndID.CommandText = "SELECT last_insert_rowid() FROM tLocationMap";
+                                        cmndID.CommandType = CommandType.Text;
+
+                                        locMapRefno = Convert.ToInt32(cmndID.ExecuteScalar());
+
+                                        cmndSectInsert.CommandText = "INSERT INTO tLocationMapSection " +
+                                        "(LocationMapRefno, " +
+                                        "LocationMapSubType, " +
+                                        "WarehouseLocationMapRefno, " +
+                                        "LocationMapSectionCode, " +
+                                        "LocationMapSectionName, " +
+                                        "LocationMapSectionFKRefno, " +
+                                        "LocationMapSectionBarCode " +
+                                        ") " +
+                                        "VALUES " +
+                                        "(@locationMapRefno, " +
+                                        "@locationMapSubType, " +
+                                        "@warehouseLocationMapRefno, " +
+                                        "@locationMapSectionCode, " +
+                                        "@locationMapSectionName, " +
+                                        "@locationMapSectionFKRefno, " +
+                                        "@locationMapSectionBarCode" +
+                                        ")";
+                                        cmndSectInsert.CommandType = CommandType.Text;
+                                        //cmndSectInsert.IndexName = string.Empty;
+                                        cmndSectInsert.Parameters.Add(new SQLiteParameter("@locationMapRefno", locMapRefno));
+                                        cmndSectInsert.Parameters.Add(new SQLiteParameter("@locationMapSubType", (int)SysCommon.LocMapSubTypes.Section));
+                                        cmndSectInsert.Parameters.Add(new SQLiteParameter("@warehouseLocationMapRefno", whsLocMapRefno));
+                                        cmndSectInsert.Parameters.Add(new SQLiteParameter("@locationMapSectionCode", sectCode));
+                                        cmndSectInsert.Parameters.Add(new SQLiteParameter("@locationMapSectionName", sectName));
+                                        cmndSectInsert.Parameters.Add(new SQLiteParameter("@locationMapSectionFKRefno", sectFKRefno));
+                                        cmndSectInsert.Parameters.Add(new SQLiteParameter("@locationMapSectionBarCode", sectBarCode));
+
+                                        cmndSectInsert.ExecuteNonQuery();
+
+                                        //rec.SetInt32((int)SysCommon.LocMapSectFields.LocMapRefno, locMapRefno);
+                                        //rec.SetInt32((int)SysCommon.LocMapSectFields.LocMapSubType, (int)SysCommon.LocMapSubTypes.Section);
+                                        //rec.SetInt32((int)SysCommon.LocMapSectFields.WhsLocMapRefno, whsLocMapRefno);
+                                        //rec.SetInt32((int)SysCommon.LocMapSectFields.Code, sectCode);
+                                        //rec.SetString((int)SysCommon.LocMapSectFields.Name, sectName);
+                                        //rec.SetInt32((int)SysCommon.LocMapSectFields.FKRefno, sectFKRefno);
+                                        //rec.SetString((int)SysCommon.LocMapSectFields.BarCode, sectBarCode);
+
+                                        //rs.Insert(rec);
+                                    }
+
+                                    progValue++;
+
+                                    if (progValue % 100 == 0)
+                                    {
+                                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
+                                    }
+
+                                    drSect.Close();
                                 }
-                            }
-                            //}
 
-                            //drSect.Close();
-                            //}
+                                this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
+                            }
                         }
 
                         transaction.Commit();

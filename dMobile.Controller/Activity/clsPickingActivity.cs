@@ -1,6 +1,7 @@
 namespace dMobile.Controller
 {
     using System;
+    using System.Collections.ObjectModel;
     using System.Data;
     using System.Data.SQLite;
     using System.Text;
@@ -9,6 +10,7 @@ namespace dMobile.Controller
     using System.Xml.Linq;
     using dMobile.Bedrock;
     using dMobile.GroundWork;
+    using dMobile.Resources.Types;
     using Xamarin.Forms;
 
     /// <summary>
@@ -615,6 +617,124 @@ namespace dMobile.Controller
             return "dMobile Picking";
         }
 
+        public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity, ref ColumnDefinition dataGridWidth)
+        {
+            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+
+            // Create header data template
+            Grid gridHeaderPicking = new Grid
+            {
+                Padding = new Thickness(5, 5, 5, 5),
+                ColumnDefinitions =
+                        {
+                            new ColumnDefinition { Width = GridLength.Star },
+                            new ColumnDefinition { Width = GridLength.Star },
+                            new ColumnDefinition { Width = GridLength.Star },
+                            new ColumnDefinition { Width = GridLength.Star },
+                            new ColumnDefinition { Width = new GridLength(5, GridUnitType.Star) }
+                        }
+            };
+
+            gridHeaderPicking.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
+
+            Label labelPickingOrderNumber = new Label { Text = "Order #", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            Label labelPickingDelDate = new Label { Text = "Del Date", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            Label labelPickingRoute = new Label { Text = "Route", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            Label labelPickingStop = new Label { Text = "Stop", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            Label labelPickingShipTo = new Label { Text = "Ship To", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+
+            gridHeaderPicking.Children.Add(labelPickingOrderNumber);
+            gridHeaderPicking.Children.Add(labelPickingDelDate);
+            gridHeaderPicking.Children.Add(labelPickingRoute);
+            gridHeaderPicking.Children.Add(labelPickingStop);
+            gridHeaderPicking.Children.Add(labelPickingShipTo);
+
+            Grid.SetColumn(labelPickingOrderNumber, 0);
+            Grid.SetColumn(labelPickingDelDate, 1);
+            Grid.SetColumn(labelPickingRoute, 2);
+            Grid.SetColumn(labelPickingStop, 3);
+            Grid.SetColumn(labelPickingShipTo, 4);
+
+            Grid.SetRow(gridHeaderPicking, 0);
+
+            dataGridMainActivityHeader.Children.Add(gridHeaderPicking);
+
+            // Data grid
+            DataTemplate dataTemplatePicking = new DataTemplate(() =>
+            {
+                Grid gridData = new Grid
+                {
+                    Padding = new Thickness(5, 5, 5, 5),
+                    ColumnDefinitions =
+                    {
+                        new ColumnDefinition { Width = GridLength.Star },
+                        new ColumnDefinition { Width = GridLength.Star },
+                        new ColumnDefinition { Width = GridLength.Star },
+                        new ColumnDefinition { Width = GridLength.Star },
+                        new ColumnDefinition { Width = new GridLength(5, GridUnitType.Star) }
+                    }
+                };
+
+                Label labelActivityPickingStringFKRefno = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelActivityPickingDeliveryDateTime = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelActivityPickingRouteCode = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelActivityPickingRouteStop = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelActivityPickingCustomerShipToInfo = new Label { VerticalOptions = LayoutOptions.Center };
+
+                labelActivityPickingStringFKRefno.SetBinding(Label.TextProperty, new Binding("ActivityPickingStringFKRefno"));
+                labelActivityPickingDeliveryDateTime.SetBinding(Label.TextProperty, new Binding("ActivityPickingDeliveryDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
+                labelActivityPickingRouteCode.SetBinding(Label.TextProperty, new Binding("RouteCode"));
+                labelActivityPickingRouteStop.SetBinding(Label.TextProperty, new Binding("RouteStop"));
+                labelActivityPickingCustomerShipToInfo.SetBinding(Label.TextProperty, new Binding("ActivityPickingCustomerShipToInfo"));
+
+                gridData.Children.Add(labelActivityPickingStringFKRefno);
+                gridData.Children.Add(labelActivityPickingDeliveryDateTime);
+                gridData.Children.Add(labelActivityPickingRouteCode);
+                gridData.Children.Add(labelActivityPickingRouteStop);
+                gridData.Children.Add(labelActivityPickingCustomerShipToInfo);
+
+                Grid.SetColumn(labelActivityPickingStringFKRefno, 0);
+                Grid.SetColumn(labelActivityPickingDeliveryDateTime, 1);
+                Grid.SetColumn(labelActivityPickingRouteCode, 2);
+                Grid.SetColumn(labelActivityPickingRouteStop, 3);
+                Grid.SetColumn(labelActivityPickingCustomerShipToInfo, 4);
+
+                return new ViewCell { View = gridData };
+            });
+
+            dataGridMainActivity.ItemTemplate = dataTemplatePicking;
+            observableCollection.Clear();
+
+            foreach (DataRow row in this.DataViewHdrs.ToTable().Rows)
+            {
+                Picking picking = new Picking
+                {
+                    ActivityRefno = Convert.ToInt32(row["ActivityRefno"] != DBNull.Value ? row["ActivityRefno"] : null),
+                    ActivityPickingFKRefno = Convert.ToInt32(row["ActivityPickingFKRefno"] != DBNull.Value ? row["ActivityPickingFKRefno"] : null),
+                    ActivityPickingStringFKRefno = Convert.ToString(row["ActivityPickingStringFKRefno"] != DBNull.Value ? row["ActivityPickingStringFKRefno"] : null),
+                    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
+                    LocationMapWarehouseFKRefno = Convert.ToInt32(row["LocationMapWarehouseFKRefno"] != DBNull.Value ? row["LocationMapWarehouseFKRefno"] : null),
+                    LocationMapWarehouseName = Convert.ToString(row["LocationMapWarehouseName"] != DBNull.Value ? row["LocationMapWarehouseName"] : null),
+                    ActivityPickingOrderedDateTime = Convert.ToDateTime(row["ActivityPickingOrderedDateTime"] != DBNull.Value ? row["ActivityPickingOrderedDateTime"] : null),
+                    ActivityPickingDeliveryDateTime = Convert.ToDateTime(row["ActivityPickingDeliveryDateTime"] != DBNull.Value ? row["ActivityPickingDeliveryDateTime"] : null),
+                    ActivityPickingCustomerContactName = Convert.ToString(row["ActivityPickingCustomerContactName"] != DBNull.Value ? row["ActivityPickingCustomerContactName"] : null),
+                    ActivityPickingCustomerShipToInfo = Convert.ToString(row["ActivityPickingCustomerShipToInfo"] != DBNull.Value ? row["ActivityPickingCustomerShipToInfo"] : null),
+                    RouteCode = Convert.ToString(row["RouteCode"] != DBNull.Value ? row["RouteCode"] : null),
+                    RouteDescription = Convert.ToString(row["RouteDescription"] != DBNull.Value ? row["RouteDescription"] : null),
+                    RouteDayOfWeek = Convert.ToString(row["RouteDayOfWeek"] != DBNull.Value ? row["RouteDayOfWeek"] : null),
+                    RouteStop = Convert.ToInt32(row["RouteStop"] != DBNull.Value ? row["RouteStop"] : null),
+                    ActivityStatus = Convert.ToInt32(row["ActivityStatus"] != DBNull.Value ? row["ActivityStatus"] : null),
+                    ActivityPickingIsReviewed = Convert.ToBoolean(row["ActivityPickingIsReviewed"] != DBNull.Value ? row["ActivityPickingIsReviewed"] : null),
+                };
+
+                observableCollection.Add(picking);
+            }
+
+            dataGridWidth.Width = 750;
+
+            return observableCollection;
+        }
+
         //    /// <summary>
         //    ///
         //    /// </summary>
@@ -838,8 +958,10 @@ namespace dMobile.Controller
         /// <param name="searchText"></param>
         /// <returns></returns>
         /// <remarks></remarks>
-        public override DataView Search(string searchText)
+        public override ObservableCollection<object> Search(string searchText)
         {
+            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+
             if (string.IsNullOrEmpty(this.ActFilter))
             {
                 this.DataViewHdrs.RowFilter = "ActivityPickingStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
@@ -850,7 +972,32 @@ namespace dMobile.Controller
                     + searchText.Trim() + "%\'";
             }
 
-            return this.DataViewHdrs;
+            foreach (DataRow row in this.DataViewHdrs.ToTable().Rows)
+            {
+                Picking picking = new Picking
+                {
+                    ActivityRefno = Convert.ToInt32(row["ActivityRefno"] != DBNull.Value ? row["ActivityRefno"] : null),
+                    ActivityPickingFKRefno = Convert.ToInt32(row["ActivityPickingFKRefno"] != DBNull.Value ? row["ActivityPickingFKRefno"] : null),
+                    ActivityPickingStringFKRefno = Convert.ToString(row["ActivityPickingStringFKRefno"] != DBNull.Value ? row["ActivityPickingStringFKRefno"] : null),
+                    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
+                    LocationMapWarehouseFKRefno = Convert.ToInt32(row["LocationMapWarehouseFKRefno"] != DBNull.Value ? row["LocationMapWarehouseFKRefno"] : null),
+                    LocationMapWarehouseName = Convert.ToString(row["LocationMapWarehouseName"] != DBNull.Value ? row["LocationMapWarehouseName"] : null),
+                    ActivityPickingOrderedDateTime = Convert.ToDateTime(row["ActivityPickingOrderedDateTime"] != DBNull.Value ? row["ActivityPickingOrderedDateTime"] : null),
+                    ActivityPickingDeliveryDateTime = Convert.ToDateTime(row["ActivityPickingDeliveryDateTime"] != DBNull.Value ? row["ActivityPickingDeliveryDateTime"] : null),
+                    ActivityPickingCustomerContactName = Convert.ToString(row["ActivityPickingCustomerContactName"] != DBNull.Value ? row["ActivityPickingCustomerContactName"] : null),
+                    ActivityPickingCustomerShipToInfo = Convert.ToString(row["ActivityPickingCustomerShipToInfo"] != DBNull.Value ? row["ActivityPickingCustomerShipToInfo"] : null),
+                    RouteCode = Convert.ToString(row["RouteCode"] != DBNull.Value ? row["RouteCode"] : null),
+                    RouteDescription = Convert.ToString(row["RouteDescription"] != DBNull.Value ? row["RouteDescription"] : null),
+                    RouteDayOfWeek = Convert.ToString(row["RouteDayOfWeek"] != DBNull.Value ? row["RouteDayOfWeek"] : null),
+                    RouteStop = Convert.ToInt32(row["RouteStop"] != DBNull.Value ? row["RouteStop"] : null),
+                    ActivityStatus = Convert.ToInt32(row["ActivityStatus"] != DBNull.Value ? row["ActivityStatus"] : null),
+                    ActivityPickingIsReviewed = Convert.ToBoolean(row["ActivityPickingIsReviewed"] != DBNull.Value ? row["ActivityPickingIsReviewed"] : null),
+                };
+
+                observableCollection.Add(picking);
+            }
+
+            return observableCollection;
         }
 
         /// <summary>

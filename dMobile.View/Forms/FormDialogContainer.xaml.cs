@@ -13,6 +13,7 @@ namespace dMobile.View.Forms
     using Xamarin.Forms.Xaml;
     using dMobile.Resources.Enums;
     using Resource = dMobile.Resources.Properties.Resources;
+    using System.Threading.Tasks;
 
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class FormDialogContainer : DMobileModal, IAppListener
@@ -336,7 +337,7 @@ namespace dMobile.View.Forms
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        public void SaveChanges(object sender, EventArgs e)
+        public async Task SaveChanges(object sender, EventArgs e)
         {
             if (this.DisplayControl == null)
             {
@@ -344,7 +345,7 @@ namespace dMobile.View.Forms
             }
             else
             {
-                if (((IAppArea)this.DisplayControl).SaveChanges())
+                if (await ((IAppArea)this.DisplayControl).SaveChanges())
                 {
                     this.ReqCloseDialogContainer(this.DisplayControl, EventArgs.Empty);
 
@@ -365,7 +366,7 @@ namespace dMobile.View.Forms
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        public void menuItemCancel_Click(object sender, EventArgs e)
+        public async void menuItemCancel_Click(object sender, EventArgs e)
         {
             //this.menuItemCancel.Enabled = false;
 
@@ -375,7 +376,7 @@ namespace dMobile.View.Forms
             }
             else
             {
-                if (((IAppArea)this.DisplayControl).CancelChanges())
+                if (await ((IAppArea)this.DisplayControl).CancelChanges())
                 {
                     this.ReqCloseDialogContainer(this.DisplayControl, EventArgs.Empty);
                 }
@@ -580,7 +581,7 @@ namespace dMobile.View.Forms
                     break;
 
                 case EDialogTypes.ucSkidInfo:
-                    //control = new ucActivityHdrSkidInfo(callingControl, actSubType, activity);
+                    control = new ucActivityHdrSkidInfo(actSubType, activity);
                     break;
             }
 
@@ -616,7 +617,7 @@ namespace dMobile.View.Forms
 
                 case EDialogTypes.ucActivityConvertUnitEdit:
                     // Override the subtype to ConvertUnit
-                    //control = new ucActivityConvertUnitEdit(actDetail, SysCommon.ActSubTypes.ConvertUnit);
+                    control = new ucActivityConvertUnitEdit(actDetail, SysCommon.ActSubTypes.ConvertUnit);
                     break;
 
                 case EDialogTypes.ucActivityInventoryInquiryDetail:
@@ -654,11 +655,11 @@ namespace dMobile.View.Forms
                     break;
 
                 case EDialogTypes.ucSelectProductUnitFilterToProduct:
-                    control = new ucSelectProductUnit(/*callingControl,*/ actItem.ProdInfo.Refno, actItem.ProdInfo.UnitRefno, actSubType);
+                    control = new ucSelectProductUnit(actItem.ProdInfo.Refno, actItem.ProdInfo.UnitRefno, actSubType);
                     break;
 
                 case EDialogTypes.ucSkidInfo:
-                    //control = new ucActivityHdrSkidInfo(/*callingControl,*/ actSubType, actItem);
+                    control = new ucActivityHdrSkidInfo(actSubType, actItem);
                     break;
 
                 case EDialogTypes.ucActivityDetailSkid:
@@ -715,7 +716,7 @@ namespace dMobile.View.Forms
                     break;
 
                 case EDialogTypes.ucActivityHdrPickingFilter:
-                    //control = new ucActivityHdrPickingFilter(/*callingControl*/);
+                    control = new ucActivityHdrPickingFilter();
                     break;
 
                 case EDialogTypes.ucActivityHdrReceivingFilter:
@@ -763,7 +764,7 @@ namespace dMobile.View.Forms
                     break;
 
                 case EDialogTypes.ucSkidInfo:
-                    //control = new ucActivityHdrSkidInfo(/*callingControl*/);
+                    control = new ucActivityHdrSkidInfo();
                     break;
             }
 

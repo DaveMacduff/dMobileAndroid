@@ -55,46 +55,46 @@
                 this.SysEnv = SysEnvironment.GetInstance();
                 this.SysSock = new SysSocket();
                 this.ItemsList = new ObservableCollection<string>();
-
-                try
-                {
-                    this.ucCommunicationSetup_GotFocus(this, null);
-                }
-                catch (Exception ex)
-                {
-                    // TODO: Logging
-                    Console.WriteLine("ucCommunicationSetup_GotFocus threw an error" + ex);
-                }
             }
         }
 
         /// <summary>
         /// The OnAppearing
         /// </summary>
-        protected override void OnAppearing()
+        protected override async void OnAppearing()
         {
             base.OnAppearing();
 
-            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), (keyPressed) =>
+            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
             {
                 // TODO: Verify keycodes
                 Enum.TryParse(keyPressed, out Keycode keycode);
 
                 if (keycode == Keycode.Enter || keycode == Keycode.F1)
                 {
-                    if (this.SaveChanges())
+                    if (await this.SaveChanges())
                     {
                         this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     }
                 }
                 else if (keycode == Keycode.Escape)
                 {
-                    if (this.CancelChanges())
+                    if (await this.CancelChanges())
                     {
                         this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     }
                 }
             });
+
+            try
+            {
+                await this.ucCommunicationSetup_GotFocus(this, null);
+            }
+            catch (Exception ex)
+            {
+                // TODO: Logging
+                Console.WriteLine("ucCommunicationSetup_GotFocus threw an error" + ex);
+            }
         }
 
         /// <summary>
@@ -406,7 +406,7 @@
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool IsReadyToSave()
+        public async Task<bool> IsReadyToSave()
         {
             bool isReadyToSave = true;
 
@@ -431,7 +431,7 @@
             {
                 isReadyToSave = false;
 
-                Device.BeginInvokeOnMainThread(async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errorReport = new FormErrorReport(SysCommon.ActSubTypes.CommunicationSetup, /*this,*/ ex);
                     await errorReport.ShowDialog();
@@ -446,12 +446,13 @@
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool SaveChanges()
+        public async Task<bool> SaveChanges()
         {
             bool isSaveComplete = false;
+            
             try
             {
-                if (this.IsReadyToSave())
+                if (await this.IsReadyToSave())
                 {
                     this.SysEnv.CommSetup.iHostIPAddressComponent1 = int.Parse(this.updnIP1.Text);
                     this.SysEnv.CommSetup.iHostIPAddressComponent2 = int.Parse(this.updnIP2.Text);
@@ -479,7 +480,7 @@
             }
             catch (Exception ex)
             {
-                Device.BeginInvokeOnMainThread(async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errorReport = new FormErrorReport(SysCommon.ActSubTypes.CommunicationSetup, /*this,*/ ex);
                     await errorReport.ShowDialog();
@@ -494,7 +495,7 @@
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool IsReadyToClose()
+        public async Task<bool> IsReadyToClose()
         {
             bool isReadyToClose = true;
 
@@ -532,7 +533,7 @@
                 //    errRpt.ShowDialog();
                 //}
 
-                Device.BeginInvokeOnMainThread(async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errorReport = new FormErrorReport(SysCommon.ActSubTypes.CommunicationSetup, /*this,*/ ex);
                     await errorReport.ShowDialog();
@@ -547,14 +548,14 @@
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool CancelChanges()
+        public async Task<bool> CancelChanges()
         {
             bool cancelChanges = true;
 
             try
             {
                 // IsReadyToClose checks if any changes where made.
-                if (this.IsReadyToClose())
+                if (await this.IsReadyToClose())
                 {
                     // Expect the control to close.
                 }
@@ -585,7 +586,7 @@
                 //    errorReport.ShowDialog();
                 //}
 
-                Device.BeginInvokeOnMainThread(async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errorReport = new FormErrorReport(SysCommon.ActSubTypes.CommunicationSetup, /*this,*/ ex);
                     await errorReport.ShowDialog();
@@ -616,7 +617,7 @@
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        public void ucCommunicationSetup_GotFocus(object sender, EventArgs e)
+        public async Task ucCommunicationSetup_GotFocus(object sender, EventArgs e)
         {
             if (!SysEnvironment.GetInstance().IsApplicationExitInvoked)
             {
@@ -810,7 +811,7 @@
         {
             this.ValidateEntry(this, new CancelEventArgs());
 
-            if (this.SaveChanges())
+            if (await this.SaveChanges())
             {
                 await this.Connect();
                 ucCommunicationSetupStatus status = new ucCommunicationSetupStatus();

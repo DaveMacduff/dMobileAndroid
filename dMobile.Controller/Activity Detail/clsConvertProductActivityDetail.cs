@@ -6,6 +6,8 @@ namespace dMobile.Controller
     using dMobile.Bedrock;
     using System.Text;
     using System.Xml;
+    using System.Collections.ObjectModel;
+    using Xamarin.Forms;
 
     public class ConvertProductActDetail : ActDetail
     {
@@ -198,150 +200,155 @@ namespace dMobile.Controller
             return this;
         }
 
+        public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity, ref ColumnDefinition dataGridWidth)
+        {
+            throw new NotImplementedException();
+        }
+
         //        /// <summary>
-//        ///
-//        /// </summary>
-//        /// <param name="dataGridMain"></param>
-//        /// <remarks></remarks>
-//        public override void DesignDataGrid(DataGrid dataGridMain)
-//        {
-//            int columnWidthFactor = 1;
+        //        ///
+        //        /// </summary>
+        //        /// <param name="dataGridMain"></param>
+        //        /// <remarks></remarks>
+        //        public override void DesignDataGrid(DataGrid dataGridMain)
+        //        {
+        //            int columnWidthFactor = 1;
 
-//            if (this.SysEnv.IsWindowsMobile6Device)
-//            {
-//                columnWidthFactor = 2;
-//            }
+        //            if (this.SysEnv.IsWindowsMobile6Device)
+        //            {
+        //                columnWidthFactor = 2;
+        //            }
 
-//            if (dataGridMain.TableStyles.Count > 0)
-//            {
-//                dataGridMain.TableStyles.Clear();
-//            }
+        //            if (dataGridMain.TableStyles.Count > 0)
+        //            {
+        //                dataGridMain.TableStyles.Clear();
+        //            }
 
-//            DataGridTableStyle dataGridStyle = new DataGridTableStyle();
-//            dataGridStyle.MappingName = this.MainGridMappingName;
-
-
-//            dataGridStyle.GridColumnStyles.Add(
-//                CreateColumn(
-//                "ActivityDetailQuantity",
-//#if MULTILANGUAGE
-//                Translator.GetInstance().Translate(TranslatorVocabulary.Quantity),
-//#else
-//                "Quantity",
-//#endif
-//                80 * columnWidthFactor,
-//                "0.000"
-//                ));
-
-//            dataGridStyle.GridColumnStyles.Add(
-//                CreateColumn(
-//                "ActivityDetailWeightQuantity",
-//#if MULTILANGUAGE
-//                Translator.GetInstance().Translate(TranslatorVocabulary.Weight),
-//#else
-//                "Weight",
-//#endif
-//                80 * columnWidthFactor,
-//                "0.000"
-//                ));
-
-//            if (this.ActItem.ProdInfo.Scheme.IsSerialTracked)
-//            {
-//                dataGridStyle.GridColumnStyles.Add(
-//                    CreateColumn(
-//                    "ActivityDetailSingleTradeItemSerialNumber",
-//#if MULTILANGUAGE
-//                    Translator.GetInstance().Translate(TranslatorVocabulary.Serialno),
-//#else
-//                    "SerialNo",
-//#endif
-//                    60 * columnWidthFactor,
-//                    null
-//                    ));
-//            }
-
-//            if (this.ActItem.ProdInfo.Scheme.IsProductionDateTracked)
-//            {
-//                dataGridStyle.GridColumnStyles.Add(
-//                    CreateColumn(
-//                    "ActivityDetailLogisticUnitProductionDate",
-//#if MULTILANGUAGE
-//                    Translator.GetInstance().Translate(TranslatorVocabulary.ProdDate),
-//#else
-//                    "Prod Date",
-//#endif
-//                    60 * columnWidthFactor,
-//                    null
-//                    ));
-//            }
-//            if (this.ActItem.ProdInfo.Scheme.IsBestBeforeDateTracked)
-//            {
-//                dataGridStyle.GridColumnStyles.Add(
-//                    CreateColumn(
-//                    "ActivityDetailLogisticUnitBestBeforeSellByDate",
-//#if MULTILANGUAGE
-//                    Translator.GetInstance().Translate(TranslatorVocabulary.BbsbDate),
-//#else
-//                    "BBSB Date",
-//#endif
-//                    60 * columnWidthFactor,
-//                    null
-//                    ));
-//            }
-//            if (this.ActItem.ProdInfo.Scheme.IsLotTracked)
-//            {
-//                dataGridStyle.GridColumnStyles.Add(
-//                    CreateColumn(
-//                    "ActivityDetailLogisticUnitBatchLotNumber",
-//#if MULTILANGUAGE
-//                    Translator.GetInstance().Translate(TranslatorVocabulary.Lot),
-//#else
-//                    "Lot",
-//#endif
-//                    60 * columnWidthFactor,
-//                    null
-//                    ));
-//            }
-//            if (this.ActItem.ProdInfo.Scheme.IsVariantTracked)
-//            {
-//                dataGridStyle.GridColumnStyles.Add(
-//                    CreateColumn(
-//                    "ProductSchemeVariantCode",
-//#if MULTILANGUAGE
-//                    Translator.GetInstance().Translate(TranslatorVocabulary.Variant),
-//#else
-//                    "Variant",
-//#endif
-//                    60 * columnWidthFactor,
-//                    null
-//                    ));
-//            }
+        //            DataGridTableStyle dataGridStyle = new DataGridTableStyle();
+        //            dataGridStyle.MappingName = this.MainGridMappingName;
 
 
-//            dataGridMain.TableStyles.Add(dataGridStyle);
-//            dataGridMain.RowHeadersVisible = false;
-//            dataGridMain.ColumnHeadersVisible = true;
-//        }
+        //            dataGridStyle.GridColumnStyles.Add(
+        //                CreateColumn(
+        //                "ActivityDetailQuantity",
+        //#if MULTILANGUAGE
+        //                Translator.GetInstance().Translate(TranslatorVocabulary.Quantity),
+        //#else
+        //                "Quantity",
+        //#endif
+        //                80 * columnWidthFactor,
+        //                "0.000"
+        //                ));
 
-//        private static DataGridTextBoxColumn CreateColumn(string mappingName, string header, int width, string format)
-//        {
-//            DataGridTextBoxColumn dataGridCol = new DataGridTextBoxColumn();
-//            dataGridCol.MappingName = mappingName;
-//            dataGridCol.HeaderText = header;
-//            dataGridCol.Width = width;
-//            if (format != null)
-//            {
-//                dataGridCol.Format = format;
-//            }
-//            return dataGridCol;
-//        }
+        //            dataGridStyle.GridColumnStyles.Add(
+        //                CreateColumn(
+        //                "ActivityDetailWeightQuantity",
+        //#if MULTILANGUAGE
+        //                Translator.GetInstance().Translate(TranslatorVocabulary.Weight),
+        //#else
+        //                "Weight",
+        //#endif
+        //                80 * columnWidthFactor,
+        //                "0.000"
+        //                ));
+
+        //            if (this.ActItem.ProdInfo.Scheme.IsSerialTracked)
+        //            {
+        //                dataGridStyle.GridColumnStyles.Add(
+        //                    CreateColumn(
+        //                    "ActivityDetailSingleTradeItemSerialNumber",
+        //#if MULTILANGUAGE
+        //                    Translator.GetInstance().Translate(TranslatorVocabulary.Serialno),
+        //#else
+        //                    "SerialNo",
+        //#endif
+        //                    60 * columnWidthFactor,
+        //                    null
+        //                    ));
+        //            }
+
+        //            if (this.ActItem.ProdInfo.Scheme.IsProductionDateTracked)
+        //            {
+        //                dataGridStyle.GridColumnStyles.Add(
+        //                    CreateColumn(
+        //                    "ActivityDetailLogisticUnitProductionDate",
+        //#if MULTILANGUAGE
+        //                    Translator.GetInstance().Translate(TranslatorVocabulary.ProdDate),
+        //#else
+        //                    "Prod Date",
+        //#endif
+        //                    60 * columnWidthFactor,
+        //                    null
+        //                    ));
+        //            }
+        //            if (this.ActItem.ProdInfo.Scheme.IsBestBeforeDateTracked)
+        //            {
+        //                dataGridStyle.GridColumnStyles.Add(
+        //                    CreateColumn(
+        //                    "ActivityDetailLogisticUnitBestBeforeSellByDate",
+        //#if MULTILANGUAGE
+        //                    Translator.GetInstance().Translate(TranslatorVocabulary.BbsbDate),
+        //#else
+        //                    "BBSB Date",
+        //#endif
+        //                    60 * columnWidthFactor,
+        //                    null
+        //                    ));
+        //            }
+        //            if (this.ActItem.ProdInfo.Scheme.IsLotTracked)
+        //            {
+        //                dataGridStyle.GridColumnStyles.Add(
+        //                    CreateColumn(
+        //                    "ActivityDetailLogisticUnitBatchLotNumber",
+        //#if MULTILANGUAGE
+        //                    Translator.GetInstance().Translate(TranslatorVocabulary.Lot),
+        //#else
+        //                    "Lot",
+        //#endif
+        //                    60 * columnWidthFactor,
+        //                    null
+        //                    ));
+        //            }
+        //            if (this.ActItem.ProdInfo.Scheme.IsVariantTracked)
+        //            {
+        //                dataGridStyle.GridColumnStyles.Add(
+        //                    CreateColumn(
+        //                    "ProductSchemeVariantCode",
+        //#if MULTILANGUAGE
+        //                    Translator.GetInstance().Translate(TranslatorVocabulary.Variant),
+        //#else
+        //                    "Variant",
+        //#endif
+        //                    60 * columnWidthFactor,
+        //                    null
+        //                    ));
+        //            }
+
+
+        //            dataGridMain.TableStyles.Add(dataGridStyle);
+        //            dataGridMain.RowHeadersVisible = false;
+        //            dataGridMain.ColumnHeadersVisible = true;
+        //        }
+
+        //        private static DataGridTextBoxColumn CreateColumn(string mappingName, string header, int width, string format)
+        //        {
+        //            DataGridTextBoxColumn dataGridCol = new DataGridTextBoxColumn();
+        //            dataGridCol.MappingName = mappingName;
+        //            dataGridCol.HeaderText = header;
+        //            dataGridCol.Width = width;
+        //            if (format != null)
+        //            {
+        //                dataGridCol.Format = format;
+        //            }
+        //            return dataGridCol;
+        //        }
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="searchText"></param>
         /// <returns></returns>
-        public override DataView Search(string searchText)
+        public override ObservableCollection<object> Search(string searchText)
         {
             throw new NotImplementedException();
         }
@@ -480,7 +487,7 @@ namespace dMobile.Controller
             DateTime prodDate = Convert.ToDateTime(data.Root.Element("pdate").Value);
             DateTime bestBeforeDate = Convert.ToDateTime(data.Root.Element("bdate").Value);
 
-            string serial = data.Root.Element("ser_refno").Value;
+            string serial = data.Root.Element("serial").Value;
             string pdate = prodDate.ToString("MM/dd/yyyy");
             string bdate = bestBeforeDate.ToString("MM/dd/yyyy");
             string lotno = data.Root.Element("lot_no").Value;

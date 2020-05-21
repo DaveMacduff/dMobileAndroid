@@ -219,7 +219,7 @@ namespace dMobile.Controller
                 + ("<extra2>" + detailEdit.ActExtra.Text2 + "</extra2>")
                 + ("<extra3>" + detailEdit.ActExtra.Text3 + "</extra3>")
                 + ("<extra4>" + detailEdit.ActExtra.Text4 + "</extra4>")
-                + ("<extra5>" + detailEdit.ActExtra.Text5 + "</extra5>")
+                + ("<extra5>" + detailEdit.ActExtra.DateTime5 + "</extra5>")
                 + "</params>");
 
             return xmlDoc;

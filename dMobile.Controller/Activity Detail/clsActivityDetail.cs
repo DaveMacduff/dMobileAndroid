@@ -8,6 +8,8 @@ namespace dMobile.Controller
     using dMobile.Bedrock;
     using dMobile.GroundWork;
     using System.Text;
+    using System.Collections.ObjectModel;
+    using Xamarin.Forms;
 
     /// <summary>
     ///
@@ -362,11 +364,11 @@ namespace dMobile.Controller
 
         public abstract void Submit(int selectedRowIndex, XDocument data);
 
-        public abstract DataView Search(string searchText);
+        public abstract ObservableCollection<object> Search(string searchText);
 
         public abstract DataView GetDataView(bool isSubmitBatch);
 
-        //public abstract void DesignDataGrid(DataGrid dgGrid);
+        public abstract ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity, ref ColumnDefinition dataGridWidth);
 
         public abstract void SelectDetail(int selectedIndex);
 
@@ -416,7 +418,7 @@ namespace dMobile.Controller
             this.ActExtra.Text2 = string.Empty;
             this.ActExtra.Text3 = string.Empty;
             this.ActExtra.Text4 = string.Empty;
-            this.ActExtra.Text5 = string.Empty;
+            this.ActExtra.DateTime5 = new DateTime(1900, 1, 1);
             this.NewItemFKRefno = 0;
             this.NewFKRefno = 0;
         }
@@ -457,7 +459,7 @@ namespace dMobile.Controller
                     // Check for DBNull because extra detail is in a child table, left join from the dataview query.
                     if (details[idx]["ActivityDetailExtra1Text"] != DBNull.Value)
                     {
-                        this.ActExtra.Text1 = (string)details[idx]["ActivityDetailExtra1Text"];
+                        this.ActExtra.Text1 = Convert.ToString(details[idx]["ActivityDetailExtra1Text"]);
                     }
                 }
 
@@ -466,7 +468,7 @@ namespace dMobile.Controller
                     // Check for DBNull because extra detail is in a child table, left join from the dataview query.
                     if (details[idx]["ActivityDetailExtra2Text"] != DBNull.Value)
                     {
-                        this.ActExtra.Text2 = (string)details[idx]["ActivityDetailExtra2Text"];
+                        this.ActExtra.Text2 = Convert.ToString(details[idx]["ActivityDetailExtra2Text"]);
                     }
                 }
 
@@ -475,7 +477,7 @@ namespace dMobile.Controller
                     // Check for DBNull because extra detail is in a child table, left join from the dataview query.
                     if (details[idx]["ActivityDetailExtra3Text"] != DBNull.Value)
                     {
-                        this.ActExtra.Text3 = (string)details[idx]["ActivityDetailExtra3Text"];
+                        this.ActExtra.Text3 = Convert.ToString(details[idx]["ActivityDetailExtra3Text"]);
                     }
                 }
 
@@ -484,20 +486,20 @@ namespace dMobile.Controller
                     // Check for DBNull because extra detail is in a child table, left join from the dataview query.
                     if (details[idx]["ActivityDetailExtra4Text"] != DBNull.Value)
                     {
-                        this.ActExtra.Text4 = (string)details[idx]["ActivityDetailExtra4Text"];
+                        this.ActExtra.Text4 = Convert.ToString(details[idx]["ActivityDetailExtra4Text"]);
                     }
                 }
 
-                if (details.Table.Columns.Contains("ActivityDetailExtra5Text"))
+                if (details.Table.Columns.Contains("ActivityDetailExtra5Date"))
                 {
                     // Check for DBNull because extra detail is in a child table, left join from the dataview query.
-                    if (details[idx]["ActivityDetailExtra5Text"] != DBNull.Value)
+                    if (details[idx]["ActivityDetailExtra5Date"] != DBNull.Value)
                     {
-                        this.ActExtra.Text5 = (string)details[idx]["ActivityDetailExtra5Text"];
+                        this.ActExtra.DateTime5 = Convert.ToDateTime(details[idx]["ActivityDetailExtra5Date"]);
                     }
                 }
 
-                DateTime bestBefore = (DateTime)details[idx]["ActivityDetailLogisticUnitBestBeforeSellByDate"];
+                DateTime bestBefore = Convert.ToDateTime(details[idx]["ActivityDetailLogisticUnitBestBeforeSellByDate"]);
 
                 if (SysCommon.IsEmptyDateTime(bestBefore))
                 {
@@ -511,7 +513,7 @@ namespace dMobile.Controller
                     tmpSchemeData.LogisticUnitBestBeforeSellByDate = bestBefore;
                 }
 
-                DateTime production = (DateTime)details[idx]["ActivityDetailLogisticUnitProductionDate"];
+                DateTime production = Convert.ToDateTime(details[idx]["ActivityDetailLogisticUnitProductionDate"]);
 
                 if (SysCommon.IsEmptyDateTime(production))
                 {
@@ -525,19 +527,19 @@ namespace dMobile.Controller
                     tmpSchemeData.LogisticUnitProductionDate = production;
                 }
 
-                tmpSchemeData.SingleTradeItemSerialNumber = (string)details[idx]["ActivityDetailSingleTradeItemSerialNumber"];
-                tmpSchemeData.LogisticUnitBatchLotNumber = (string)details[idx]["ActivityDetailLogisticUnitBatchLotNumber"];
+                tmpSchemeData.SingleTradeItemSerialNumber = Convert.ToString(details[idx]["ActivityDetailSingleTradeItemSerialNumber"]);
+                tmpSchemeData.LogisticUnitBatchLotNumber = Convert.ToString(details[idx]["ActivityDetailLogisticUnitBatchLotNumber"]);
 
                 // Check for DBNull because variants are in a child table, left join from the dataview query.
                 if (details[idx]["ProductSchemeVariantCode"] != DBNull.Value)
                 {
-                    tmpSchemeData.VariantCode = (string)details[idx]["ProductSchemeVariantCode"];
+                    tmpSchemeData.VariantCode = Convert.ToString(details[idx]["ProductSchemeVariantCode"]);
                 }
 
                 // Check for DBNull because variants are in a child table, left join from the dataview query.
                 if (details[idx]["ProductSchemeVariantNo"] != DBNull.Value)
                 {
-                    tmpSchemeData.VariantNumber = (int)details[idx]["ProductSchemeVariantNo"];
+                    tmpSchemeData.VariantNumber = Convert.ToInt32(details[idx]["ProductSchemeVariantNo"]);
                 }
             }
 
@@ -634,7 +636,7 @@ namespace dMobile.Controller
                 + ("<extra2>" + this.ActExtra.Text2 + "</extra2>")
                 + ("<extra3>" + this.ActExtra.Text3 + "</extra3>")
                 + ("<extra4>" + this.ActExtra.Text4 + "</extra4>")
-                + ("<extra5>" + this.ActExtra.Text5 + "</extra5>")
+                + ("<extra5>" + this.ActExtra.DateTime5 + "</extra5>")
                 + ("<is_disconnected>" + this.SysEnv.SysSettings.IsDisconnectedMode + "</is_disconnected>");
 
             return def;
@@ -668,7 +670,7 @@ namespace dMobile.Controller
                 + ("<extra2>" + actDetail.ActExtra.Text2 + "</extra2>")
                 + ("<extra3>" + actDetail.ActExtra.Text3 + "</extra3>")
                 + ("<extra4>" + actDetail.ActExtra.Text4 + "</extra4>")
-                + ("<extra5>" + actDetail.ActExtra.Text5 + "</extra5>")
+                + ("<extra5>" + actDetail.ActExtra.DateTime5 + "</extra5>")
                 + "</params>");
         }
 
@@ -882,7 +884,7 @@ namespace dMobile.Controller
 
             if (!string.IsNullOrEmpty(data.Root.Element("extra5").Value))
             {
-                this.ActExtra.Text5 = data.Root.Element("extra5").Value;
+                this.ActExtra.DateTime5 = Convert.ToDateTime(data.Root.Element("extra5").Value);
             }
         }
 
@@ -949,7 +951,7 @@ namespace dMobile.Controller
                 rowView["ActivityDetailExtra2Text"] = this.ActExtra.Text2;
                 rowView["ActivityDetailExtra3Text"] = this.ActExtra.Text3;
                 rowView["ActivityDetailExtra4Text"] = this.ActExtra.Text4;
-                rowView["ActivityDetailExtra5Text"] = this.ActExtra.Text5;
+                rowView["ActivityDetailExtra5Date"] = this.ActExtra.DateTime5;
 
                 string locCode = string.Empty;
                 string locName = string.Empty;
@@ -975,7 +977,18 @@ namespace dMobile.Controller
                 rowView["ActivityDetailSchemeID"] = this.SchemeID;
                 rowView["ActivityDetailUniqueSchemeID"] = this.UniqueSchemeID;
 
-                if (this.ActSubType == SysCommon.ActSubTypes.Returns || this.ActSubType == SysCommon.ActSubTypes.Picking || this.ActSubType == SysCommon.ActSubTypes.PickingSingle || this.ActSubType == SysCommon.ActSubTypes.TransferFrom)
+                ////if (this.ActSubType == SysCommon.ActSubTypes.Returns
+                ////    || this.ActSubType == SysCommon.ActSubTypes.Picking
+                ////    || this.ActSubType == SysCommon.ActSubTypes.PickingSingle
+                ////    || this.ActSubType == SysCommon.ActSubTypes.TransferFrom
+                ////    || this.ActSubType == SysCommon.ActSubTypes.TransferTo)
+                ////{
+                ////    rowView["ActivityDetailIsConfirmed"] = true;
+                ////    rowView["ActivityDetailIsConfirmedString"] = "C";
+                ////}
+                ///
+
+                if (this.ActSubType == SysCommon.ActSubTypes.Returns || this.ActSubType == SysCommon.ActSubTypes.Picking || this.ActSubType == SysCommon.ActSubTypes.PickingSingle)
                 {
                     rowView["ActivityDetailIsConfirmed"] = true;
                     rowView["ActivityDetailIsConfirmedString"] = "C";
@@ -1212,7 +1225,7 @@ namespace dMobile.Controller
                     }
                 }
 
-                if (!string.IsNullOrEmpty(this.ActExtra.Text1) || string.IsNullOrEmpty(this.ActExtra.Text2) || string.IsNullOrEmpty(this.ActExtra.Text3) || string.IsNullOrEmpty(this.ActExtra.Text4) || string.IsNullOrEmpty(this.ActExtra.Text5))
+                if (!string.IsNullOrEmpty(this.ActExtra.Text1) || string.IsNullOrEmpty(this.ActExtra.Text2) || string.IsNullOrEmpty(this.ActExtra.Text3) || string.IsNullOrEmpty(this.ActExtra.Text4) || SysCommon.IsEmptyDate(this.ActExtra.DateTime5))
                 {
                     using (SQLiteCommand cmndExtra = conn.CreateCommand())
                     {
@@ -1241,7 +1254,7 @@ namespace dMobile.Controller
                         cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra2", Convert.ToString(this.ActExtra.Text2)));
                         cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra3", Convert.ToString(this.ActExtra.Text3)));
                         cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra4", Convert.ToString(this.ActExtra.Text4)));
-                        cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra5", Convert.ToString(this.ActExtra.Text5)));
+                        cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra5", Convert.ToDateTime(this.ActExtra.DateTime5)));
 
                         cmndExtra.ExecuteNonQuery();
 

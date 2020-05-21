@@ -29,18 +29,19 @@
 
                 <Label x:Name="lblProductDescription" Text="Description" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" VerticalOptions="Center"/>
 
-                <Grid Grid.Row="2" Grid.ColumnSpan="3" BackgroundColor="{DynamicResource HeaderColor}">
+                <Grid Padding="10" Grid.Row="2" Grid.ColumnSpan="3" BackgroundColor="{DynamicResource HeaderColor}">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="20*"/>
+                        <ColumnDefinition Width="20*"/>
+                        <ColumnDefinition Width="20*"/>
+                        <ColumnDefinition Width="40*"/>
                     </Grid.ColumnDefinitions>
 
-                    <Label Grid.Column="0" Text="Code" HorizontalOptions="Center" FontAttributes="Bold"/>
-                    <Label Grid.Column="1" Text="BC" HorizontalOptions="Center" FontAttributes="Bold"/>
-                    <Label Grid.Column="2" Text="Unit" HorizontalOptions="Center" FontAttributes="Bold"/>
-                    <Label Grid.Column="3" Text="Size" HorizontalOptions="Center" FontAttributes="Bold"/>
+                    <!--TODO: Resource strings-->
+                    <Label Grid.Column="0" Text="Code" VerticalOptions="Center" FontAttributes="Bold"/>
+                    <Label Grid.Column="1" Text="BC" VerticalOptions="Center" FontAttributes="Bold"/>
+                    <Label Grid.Column="2" Text="Unit" VerticalOptions="Center" FontAttributes="Bold"/>
+                    <Label Grid.Column="3" Text="Size" VerticalOptions="Center" FontAttributes="Bold"/>
                 </Grid>
 
                 <Frame VerticalOptions="Start" Grid.Row="3" Grid.ColumnSpan="3" OutlineColor="{DynamicResource BorderColor}">
@@ -48,18 +49,18 @@
                         <ListView.ItemTemplate>
                             <DataTemplate>
                                 <ViewCell>
-                                    <Grid>
+                                    <Grid Padding="10">
                                         <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="2*"/>
+                                            <ColumnDefinition Width="20*"/>
+                                            <ColumnDefinition Width="20*"/>
+                                            <ColumnDefinition Width="20*"/>
+                                            <ColumnDefinition Width="40*"/>
                                         </Grid.ColumnDefinitions>
 
-                                        <Label Grid.Column="0" Text="{Binding ProductCode}" VerticalOptions="Center" HorizontalOptions="Center"/>
-                                        <Label Grid.Column="1" Text="{Binding ProductUnitBC}" VerticalOptions="Center" HorizontalOptions="Center"/>
-                                        <Label Grid.Column="2" Text="{Binding UnitCode}" VerticalOptions="Center" HorizontalOptions="Center"/>
-                                        <Label Grid.Column="3" Text="{Binding ProductUnitSizeDescription}" VerticalOptions="Center" HorizontalOptions="Center"/>
+                                        <Label Grid.Column="0" Text="{Binding ProductCode}" VerticalOptions="Center"/>
+                                        <Label Grid.Column="1" Text="{Binding ProductUnitBC}" VerticalOptions="Center"/>
+                                        <Label Grid.Column="2" Text="{Binding UnitCode}" VerticalOptions="Center"/>
+                                        <Label Grid.Column="3" Text="{Binding ProductUnitSizeDescription}" VerticalOptions="Center"/>
                                     </Grid>
                                 </ViewCell>
                             </DataTemplate>

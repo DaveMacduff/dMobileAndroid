@@ -260,19 +260,9 @@ namespace dMobile.GroundWork
                                 //rsAct.Insert(recAct);
 
                                 actRefno = Convert.ToInt32(cmndID.ExecuteScalar());
-
                                 actPickFKRefno = Convert.ToInt32(drow["ActivityPickingFKRefno"]);
                                 errMsg += Environment.NewLine + "FK refno " + actPickFKRefno;
-
-                                cmndWhs.CommandText = "SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = @locationMapWarehouseFKRefno";
-                                cmndWhs.CommandType = CommandType.Text;
-                                //cmndWhs.IndexName = "UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno";
-                                cmndWhs.Parameters.Add(new SQLiteParameter("@locationMapWarehouseFKRefno", Convert.ToInt32(drow["LocationMapWarehouseFKRefno"])));
-
-                                using (SQLiteDataReader drWhs = cmndWhs.ExecuteReader())
-                                {
-                                    whsLocMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, ref errMsg, drWhs);
-                                }
+                                whsLocMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, ref errMsg, cmndWhs);
 
                                 cmndPick.CommandText = "INSERT INTO tActivityPicking (" +
                                     "ActivityRefno, " +

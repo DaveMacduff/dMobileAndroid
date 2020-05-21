@@ -1,12 +1,15 @@
 namespace dMobile.Controller
 {
     using System;
+    using System.Collections.ObjectModel;
     using System.Data;
     using System.Data.SQLite;
     using System.Text;
     using System.Xml.Linq;
     using dMobile.Bedrock;
     using dMobile.GroundWork;
+    using dMobile.Resources.Types;
+    using Xamarin.Forms;
 
     /// <summary>
     /// 
@@ -49,14 +52,99 @@ namespace dMobile.Controller
             return "Physical Counts";
         }
 
-        ///// <summary>
-        /////
-        ///// </summary>
-        ///// <remarks></remarks>
-        //public override void DesignDataGrid(DataGrid dataGridMain)
-        //{
+        public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity, ref ColumnDefinition dataGridWidth)
+        {
+            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
-        //}
+            Grid gridHeaderPhysicalCount = new Grid
+            {
+                Padding = new Thickness(5, 5, 5, 5),
+                ColumnSpacing = 15,
+                ColumnDefinitions =
+                {
+                    new ColumnDefinition { Width = new GridLength(20, GridUnitType.Star) },
+                    new ColumnDefinition { Width = new GridLength(30, GridUnitType.Star) },
+                    new ColumnDefinition { Width = new GridLength(50, GridUnitType.Star) }
+                }
+            };
+
+            gridHeaderPhysicalCount.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
+
+            Label labelPhysicalCountNumber = new Label { Text = "Count #", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            Label labelPhysicalCountDate = new Label { Text = "Date", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            Label labelPhysicalCountType = new Label { Text = "Count Type", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+
+            gridHeaderPhysicalCount.Children.Add(labelPhysicalCountNumber);
+            gridHeaderPhysicalCount.Children.Add(labelPhysicalCountDate);
+            gridHeaderPhysicalCount.Children.Add(labelPhysicalCountType);
+
+            Grid.SetColumn(labelPhysicalCountNumber, 0);
+            Grid.SetColumn(labelPhysicalCountDate, 1);
+            Grid.SetColumn(labelPhysicalCountType, 2);
+
+            Grid.SetRow(gridHeaderPhysicalCount, 0);
+
+            dataGridMainActivityHeader.Children.Add(gridHeaderPhysicalCount);
+
+            // Data grid
+            DataTemplate dataTemplatePhysicalCount = new DataTemplate(() =>
+            {
+                Grid gridData = new Grid
+                {
+                    Padding = new Thickness(5, 5, 5, 5),
+                    ColumnSpacing = 15,
+                    ColumnDefinitions =
+                    {
+                        new ColumnDefinition { Width = new GridLength(20, GridUnitType.Star) },
+                        new ColumnDefinition { Width = new GridLength(30, GridUnitType.Star) },
+                        new ColumnDefinition { Width = new GridLength(50, GridUnitType.Star) }
+                    }
+                };
+
+                Label labelActivityRefno = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelActivityCountDateTime = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelActivityCountTypeDescription = new Label { VerticalOptions = LayoutOptions.Center };
+
+                labelActivityRefno.SetBinding(Label.TextProperty, new Binding("ActivityRefno"));
+                labelActivityCountDateTime.SetBinding(Label.TextProperty, new Binding("ActivityCountDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
+                labelActivityCountTypeDescription.SetBinding(Label.TextProperty, new Binding("ActivityCountTypeDescription"));
+
+                gridData.Children.Add(labelActivityRefno, 0, 0);
+                gridData.Children.Add(labelActivityCountDateTime, 0, 0);
+                gridData.Children.Add(labelActivityCountTypeDescription, 0, 0);
+
+                Grid.SetColumn(labelActivityRefno, 0);
+                Grid.SetColumn(labelActivityCountDateTime, 1);
+                Grid.SetColumn(labelActivityCountTypeDescription, 2);
+
+                return new ViewCell { View = gridData };
+            });
+
+            dataGridMainActivity.ItemTemplate = dataTemplatePhysicalCount;
+            observableCollection.Clear();
+
+            foreach (DataRow row in this.DataViewHdrs.ToTable().Rows)
+            {
+                string description = string.Empty;
+                string[] descriptionSubstring = Convert.ToString(row["ActivityCountTypeDescription"]).Split();
+
+                if (descriptionSubstring != null && descriptionSubstring.Length > 1)
+                {
+                    description = descriptionSubstring[0] + " " + descriptionSubstring[1];
+                }
+
+                Count count = new Count
+                {
+                    ActivityRefno = Convert.ToInt32(row["ActivityCountStringFKRefno"]),
+                    ActivityCountDateTime = Convert.ToDateTime(row["ActivityCountDateTime"]),
+                    ActivityCountTypeDescription = description,
+                };
+
+                observableCollection.Add(count);
+            }
+
+            return observableCollection;
+        }
 
         /// <summary>
         ///
@@ -170,8 +258,10 @@ namespace dMobile.Controller
         /// <param name="searchText"></param>
         /// <returns></returns>
         /// <remarks></remarks>
-        public override DataView Search(string searchText)
+        public override ObservableCollection<object> Search(string searchText)
         {
+            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+
             if (string.IsNullOrEmpty(this.ActFilter))
             {
                 this.DataViewHdrs.RowFilter = "ActivityCountStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
@@ -182,7 +272,27 @@ namespace dMobile.Controller
                     + searchText.Trim() + "%\'";
             }
 
-            return this.DataViewHdrs;
+            foreach (DataRow row in this.DataViewHdrs.ToTable().Rows)
+            {
+                string description = string.Empty;
+                string[] descriptionSubstring = Convert.ToString(row["ActivityCountTypeDescription"]).Split();
+
+                if (descriptionSubstring != null && descriptionSubstring.Length > 1)
+                {
+                    description = descriptionSubstring[0] + " " + descriptionSubstring[1];
+                }
+
+                Count count = new Count
+                {
+                    ActivityRefno = Convert.ToInt32(row["ActivityCountStringFKRefno"]),
+                    ActivityCountDateTime = Convert.ToDateTime(row["ActivityCountDateTime"]),
+                    ActivityCountTypeDescription = description,
+                };
+
+                observableCollection.Add(count);
+            }
+
+            return observableCollection;
         }
 
         /// <summary>

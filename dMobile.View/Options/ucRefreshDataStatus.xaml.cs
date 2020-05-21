@@ -109,79 +109,6 @@ namespace dMobile.View.Options
         public ucRefreshDataStatus()
         {
             InitializeComponent();
-
-            this.Title = GetControlDescription();
-
-            if (!DesignMode.IsDesignModeEnabled)
-            {
-                this.SysEnv = SysEnvironment.GetInstance();
-                this.locMapWarehouse = new TableLocationMapWarehouse();
-                this.locMapSection = new TableLocationMapSection();
-                this.locMapType = new TableLocationMapType();
-                this.locMapSlotCoordinate = new TableLocationMapSlotCoordinate();
-                this.locMapSlot = new TableLocationMapSlot();
-                this.whsLocMapType = new TableWarehouseLocationMapType();
-                this.unit = new TableUnit();
-                this.route = new TableRoute();
-                this.prodScheme = new TableProductScheme();
-                this.prodSchemeVariant = new TableProductSchemeVariant();
-                this.prodSchemeVariantXRef = new TableProductSchemeVariantXRef();
-                this.prodSchemeLot = new TableProductSchemeLotNumber();
-                this.prodSchemeLotXRef = new TableProductSchemeLotNumberXRef();
-                this.product = new TableProduct();
-                this.family = new TableFamily();
-                this.prodUnit = new TableProductUnit();
-                this.prodUnitRelation = new TableProductUnitRelation();
-                this.prodUnitBarCode = new TableProductUnitBarCode();
-                this.prodLocMapType = new TableProductLocationMapType();
-                this.prodLocMapWhsProdScheme  = new TableLocationMapWarehouseProductScheme();
-                this.contactUsers = new TableContactUsers();
-                this.physicalCount = new TableActivityPhysicalCount();
-                this.physicalCountItem = new TableActivityPhysicalCountItem();
-                this.physicalCountDetail = new TableActivityPhysicalCountDetail();
-                this.cycleCount = new TableActivityCycleCount();
-                this.cycleCountItem = new TableActivityCycleCountItem();
-                this.cycleCountDetail = new TableActivityCycleCountDetail();
-                this.actDetailProdSchemeVariantXRef = new TableActivityDetailProductSchemeVariantXRef();
-                this.actItemBarCodeAssocXRef = new TableActivityItemBarCodeAssociationXRef();
-                this.picking = new TableActivityPicking();
-                this.pickingItem = new TableActivityPickingItem();
-                this.pickingItemComment = new TableActivityPickingItemComment();
-                this.pickingDetail = new TableActivityPickingDetail();
-                this.pickingRoute = new TableActivityPickingRoute();
-                this.receiving = new TableActivityReceiving();
-                this.receivingItem = new TableActivityRecevingItem();
-                this.receivingItemComment = new TableActivityReceivingItemComment();
-                this.receivingDetail = new TableActivityReceivingDetail();
-                this.transferFrom = new TableActivityTransferFrom();
-                this.transferFromItem = new TableActivityTransferFromItem();
-                this.transferFromDetail = new TableActivityTransferFromDetail();
-                this.transferTo = new TableActivityTransferTo();
-                this.transferToItem = new TableActivityTransferToItem();
-                this.transferToDetail = new TableActivityTransferToDetail();
-                this.returns = new TableActivityReturns();
-                this.returnsItem = new TableActivityReturnsItem();
-                this.returnsItemComment = new TableActivityReturnsItemComment();
-                this.returnsDetail = new TableActivityReturnsDetail();
-                this.adjustment = new TableActivityAdjustment();
-                this.adjustmentItem = new TableActivityAdjustmentItem();
-                this.adjustmentDetail = new TableActivityAdjustmentDetail();
-                this.activity = new TableActivity();
-                this.activityItem = new TableActivityItem();
-                this.ticketFinished = new TableActivityProductionTicketFinished();
-                this.ticketMaterial = new TableActivityProductionTicketMaterial();
-                this.ticketByProduct = new TableActivityProductionTicketByProduct();
-                this.ticketFinishedItem = new TableActivityProductionTicketFinishedItem();
-                this.ticketMaterialItem = new TableActivityProductionTicketMaterialItem();
-                this.ticketByProductItem = new TableActivityProductionTicketByProductItem();
-                this.ticketDetailFinished = new TableActivityProductionTicketFinishedDetail();
-                this.ticketDetailMaterial = new TableActivityProductionTicketMaterialDetail();
-                this.ticketDetailByProduct = new TableActivityProductionTicketByProductDetail();
-                this.purchaseOrderWorkSheetItem = new TableActivityPurchaseOrderWorkSheetItem();
-                this.printerSettings = new PrinterSettings();
-                this.schemeLabelSettings = new ProdSchemeLabelSettings();
-                this.itemsList = new ObservableCollection<string>();
-            }
         }
 
         public ucRefreshDataStatus(SysCommon.ActSubTypes actSubTypes)
@@ -262,6 +189,9 @@ namespace dMobile.View.Options
             }
 
             this.ActSubType = actSubTypes;
+
+            this.lstStatus.ItemsSource = this.ItemsList;
+            Task.Run(async () => await this.tmrRefreshData_Tick(this, new EventArgs()));
         }
 
         /// <summary>
@@ -271,29 +201,23 @@ namespace dMobile.View.Options
         {
             base.OnAppearing();
 
-            this.lstStatus.ItemsSource = this.ItemsList;
-
-            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), (keyPressed) =>
+            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
             {
                 // TODO: Verify keycodes
                 Enum.TryParse(keyPressed, out Keycode keycode);
 
                 if (keycode == Keycode.Escape)
                 {
-                    if (this.IsReadyToClose())
+                    if (await this.IsReadyToClose())
                     {
-                        // TODO: show form
-                        //this.CallingControl = new ucRefreshDataOptions();
                         this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     }
                     else
                     {
-                        this.CancelChanges();
+                        await this.CancelChanges();
                     }
                 }
             });
-
-            Task.Run(async () => await this.tmrRefreshData_Tick(this, new EventArgs()));
         }
 
         /// <summary>
@@ -1413,7 +1337,7 @@ namespace dMobile.View.Options
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool IsReadyToSave()
+        public async Task<bool> IsReadyToSave()
         {
             bool isReadyToSave = true;
 
@@ -1439,7 +1363,7 @@ namespace dMobile.View.Options
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool IsReadyToClose()
+        public async Task<bool> IsReadyToClose()
         {
             return true;
         }
@@ -1476,7 +1400,7 @@ namespace dMobile.View.Options
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool SaveChanges()
+        public async Task<bool> SaveChanges()
         {
             return true;
         }
@@ -1486,7 +1410,7 @@ namespace dMobile.View.Options
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool CancelChanges()
+        public async Task<bool> CancelChanges()
         {
             return true;
         }
@@ -1808,7 +1732,8 @@ namespace dMobile.View.Options
                         this.StatusOut(sender, e, Resource.DataStatusFailed);
 
                         FormErrorReport errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex, this.FullClassName, "tmrRefreshData_Tick");
-                        Device.BeginInvokeOnMainThread(async () => await errRpt.ShowDialog());
+                        //Device.BeginInvokeOnMainThread(async () => await errRpt.ShowDialog());
+                        await Device.InvokeOnMainThreadAsync(async () => await errRpt.ShowDialog());
                     }
                 }
                 else
@@ -1874,7 +1799,6 @@ namespace dMobile.View.Options
                         this.StatusOut(sender, e, Resource.RefreshDataFailed);
 
                         FormErrorReport errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex, this.FullClassName, "tmrRefreshData_Tick");
-                        //Device.BeginInvokeOnMainThread(async () => await errRpt.ShowDialog());
                         await Device.InvokeOnMainThreadAsync(async () => await errRpt.ShowDialog());
                     }
                     catch (Exception ex)
@@ -1885,7 +1809,6 @@ namespace dMobile.View.Options
                         this.StatusOut(sender, e, Resource.RefreshDataFailed);
 
                         FormErrorReport errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex, this.FullClassName, "tmrRefreshData_Tick");
-                        //Device.BeginInvokeOnMainThread(async () => await errRpt.ShowDialog());
                         await Device.InvokeOnMainThreadAsync(async () => await errRpt.ShowDialog());
                     }
                     finally

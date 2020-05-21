@@ -1,12 +1,14 @@
 namespace dMobile.Controller
 {
     using System;
+    using System.Collections.ObjectModel;
     using System.Data;
     using System.Data.SQLite;
     using System.Text;
     using System.Xml.Linq;
     using dMobile.Bedrock;
     using dMobile.GroundWork;
+    using Xamarin.Forms;
 
     public class CycleActivity : Activity
     {
@@ -39,11 +41,13 @@ namespace dMobile.Controller
         /// <remarks></remarks>
         public override string GetControlDescription()
         {
-#if MULTILANGUAGE
-            return Translator.GetInstance().Translate(TranslatorVocabulary.CycleCounts);
-#else
+            // TODO: Resource strings
             return "Cycle Counts";
-#endif
+        }
+
+        public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity, ref ColumnDefinition dataGridWidth)
+        {
+            throw new NotImplementedException();
         }
 
 //        /// <summary>
@@ -214,19 +218,31 @@ namespace dMobile.Controller
         /// <param name="searchText"></param>
         /// <returns></returns>
         /// <remarks></remarks>
-        public override DataView Search(string searchText)
+        public override ObservableCollection<object> Search(string searchText)
         {
+            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+
             if (string.IsNullOrEmpty(this.ActFilter))
             {
-                this.DataViewHdrs.RowFilter = "ActivityCountStringFKRefno LIKE \'" + searchText.Trim() + "%\'";
+                this.DataViewHdrs.RowFilter = "ActivityCountStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
             }
             else
             {
-                this.DataViewHdrs.RowFilter = this.ActFilter + " AND ActivityCountStringFKRefno LIKE \'"
+                this.DataViewHdrs.RowFilter = this.ActFilter + " AND ActivityCountStringFKRefno LIKE \'%"
                     + searchText.Trim() + "%\'";
             }
 
-            return this.DataViewHdrs;
+            // TODO: search
+            //foreach (DataRow row in this.DataViewHdrs.ToTable().Rows)
+            //{
+            //    ObjectType objectType = new ObjectType
+            //    {
+            //    };
+
+            //    observableCollection.Add(objectType);
+            //}
+
+            return observableCollection;
         }
 
         /// <summary>

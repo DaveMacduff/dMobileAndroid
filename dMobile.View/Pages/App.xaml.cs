@@ -13,6 +13,7 @@ namespace dMobile.View
             InitializeComponent();
 
             MainPage = new NavigationPage(new SplashStartup());
+            //MainPage = new TestPage();
 
             if (!DesignMode.IsDesignModeEnabled)
             {

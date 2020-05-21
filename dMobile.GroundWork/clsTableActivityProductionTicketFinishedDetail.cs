@@ -795,7 +795,7 @@ namespace dMobile.GroundWork
                                         "ActivityDetailExtra2Text, " +
                                         "ActivityDetailExtra3Text, " +
                                         "ActivityDetailExtra4Text, " +
-                                        "ActivityDetailExtra5Text" +
+                                        "ActivityDetailExtra5Date" +
                                         ") VALUES (" +
                                         "@activityDetailRefno, " +
                                         "@activityDetailSubType, " +
@@ -803,7 +803,7 @@ namespace dMobile.GroundWork
                                         "@activityDetailExtra2Text, " +
                                         "@activityDetailExtra3Text, " +
                                         "@activityDetailExtra4Text, " +
-                                        "@activityDetailExtra5Text" +
+                                        "@activityDetailExtra5Date" +
                                         ")";
                                     cmndExtra.CommandType = CommandType.Text;
                                     //cmndExtra.IndexName = "PK_ActivityDetailExtraOnActivityDetailRefno";
@@ -819,7 +819,7 @@ namespace dMobile.GroundWork
                                         cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra2Text", drow["f20"].ToString()));
                                         cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra3Text", drow["f21"].ToString()));
                                         cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra4Text", drow["f22"].ToString()));
-                                        cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra5Text", drow["f23"].ToString()));
+                                        cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra5Date", drow["f23"].ToString()));
 
                                         //recExtra.SetString((int)SysCommon.ActDetailExtraFields.Text1, drow["f19"].ToString());
                                         //recExtra.SetString((int)SysCommon.ActDetailExtraFields.Text2, drow["f20"].ToString());
@@ -833,7 +833,7 @@ namespace dMobile.GroundWork
                                         cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra2Text", drow["ActivityDetailExtra2"].ToString()));
                                         cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra3Text", drow["ActivityDetailExtra3"].ToString()));
                                         cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra4Text", drow["ActivityDetailExtra4"].ToString()));
-                                        cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra5Text", drow["ActivityDetailExtra5"].ToString()));
+                                        cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra5Date", drow["ActivityDetailExtra5"].ToString()));
 
                                         //recExtra.SetString((int)SysCommon.ActDetailExtraFields.Text1, drow["ActivityDetailExtra1"].ToString());
                                         //recExtra.SetString((int)SysCommon.ActDetailExtraFields.Text2, drow["ActivityDetailExtra2"].ToString());

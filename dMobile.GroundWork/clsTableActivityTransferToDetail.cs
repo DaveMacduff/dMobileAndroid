@@ -435,7 +435,7 @@
 
                                     //recDetailTransfer.SetInt32((int)SysCommon.ActDetailTransferFields.ActDetailRefno, actDetailRefno);
                                     //recDetailTransfer.SetInt32((int)SysCommon.ActDetailTransferFields.FKRefno, actDetailTransferFKRefno);
-                                    //recDetailTransfer.SetBoolean((int)SysCommon.ActDetailTransferFields.IsConfirmed, Convert.ToBoolean(drow["ActivityDetailTransferIsConfirmed"]));
+                                    ////recDetailTransfer.SetBoolean((int)SysCommon.ActDetailTransferFields.IsConfirmed, Convert.ToBoolean(drow["ActivityDetailTransferIsConfirmed"]));
                                     //recDetailTransfer.SetInt32((int)SysCommon.ActDetailTransferFields.TransModeEnum, Convert.ToInt32(drow["ActivityDetailTransferTransModeEnum"]));
                                     //rsDetailTransfer.Insert(recDetailTransfer);
 

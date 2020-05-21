@@ -11,10 +11,18 @@
         /// Defines the selectedValue
         /// </summary>
         private int selectedValue;
-
+        public static readonly BindableProperty ImageProperty = BindableProperty.Create(nameof(Image), typeof(string), typeof(CustomPicker), string.Empty);
+        
         /// <summary>
+        /// 
         /// Gets or sets the SelectedValue
         /// </summary>
         public int SelectedValue { get => this.selectedValue; set => this.selectedValue = value; }
+
+		public string Image
+		{
+			get { return (string)GetValue(ImageProperty); }
+			set { SetValue(ImageProperty, value); }
+		}
     }
 }

@@ -1,12 +1,14 @@
 ﻿namespace dMobile.Controller
 {
     using System;
+    using System.Collections.ObjectModel;
     using System.Data;
     using System.Text;
     using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
     using dMobile.Bedrock;
+    using Xamarin.Forms;
 
     public class ConvertProductActItem : ActItem
     {
@@ -153,6 +155,11 @@
         //{
         //    throw new NotImplementedException();
         //}
+                
+        public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity, ref ColumnDefinition dataGridWidth)
+        {
+            throw new NotImplementedException();
+        }
 
         /// <summary>
         /// 
@@ -179,7 +186,7 @@
         /// </summary>
         /// <param name="searchText"></param>
         /// <returns></returns>
-        public override DataView Search(string searchText)
+        public override ObservableCollection<object> Search(string searchText)
         {
             throw new NotImplementedException();
         }

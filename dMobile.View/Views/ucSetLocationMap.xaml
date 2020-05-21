@@ -36,7 +36,7 @@
                         <Label x:Name="tabWarehouse" Text="Warehouse" Grid.Row="0" FontAttributes="Bold"/>
 
                         <Frame Grid.Row="1" OutlineColor="{DynamicResource BorderColor}" Grid.ColumnSpan="3">
-                            <ListView x:Name="dgWhs" ItemSelected="DgWhs_ItemSelected" HasUnevenRows="True" HeightRequest="100">
+                            <ListView x:Name="dgWhs" ItemSelected="dgWhs_ItemSelected" HasUnevenRows="True" HeightRequest="100">
                                 <ListView.ItemTemplate>
                                     <DataTemplate>
                                         <ViewCell>
@@ -63,7 +63,7 @@
                         <Entry x:Name="txtSearchSection" Grid.Row="3" Grid.Column="2" TextChanged="txtSearchSection_TextChanged" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
 
                         <Frame VerticalOptions="Start" Grid.Row="4" OutlineColor="{DynamicResource BorderColor}" Grid.ColumnSpan="3">
-                            <ListView x:Name="dgSections" ItemSelected="DgSections_ItemSelected" HasUnevenRows="True" HeightRequest="100">
+                            <ListView x:Name="dgSections" ItemSelected="dgSections_ItemSelected" HasUnevenRows="True" HeightRequest="100">
                                 <ListView.ItemTemplate>
                                     <DataTemplate>
                                         <ViewCell>
@@ -101,7 +101,7 @@
                             <Label x:Name="lblSlotCoordinate1" Grid.Row="0" Grid.Column="0" Text="Coord 1" FontAttributes="Bold"/>
                             <Entry x:Name="txtSlotCoordinate1" TextChanged="txtSlotCoordinate1_TextChanged" Grid.Row="1" Grid.Column="0"/>
                             <Frame VerticalOptions="Start" Grid.Row="2" Grid.Column="0" OutlineColor="{DynamicResource BorderColor}">
-                                <ListView x:Name="dgCoord1" ItemSelected="DgCoord1_ItemSelected" Grid.Row="3" Grid.Column="0" HasUnevenRows="True" HeightRequest="100">
+                                <ListView x:Name="dgCoord1" ItemSelected="dgCoord1_ItemSelected" Grid.Row="3" Grid.Column="0" HasUnevenRows="True" HeightRequest="100">
                                     <ListView.ItemTemplate>
                                         <DataTemplate>
                                             <ViewCell>
@@ -118,7 +118,7 @@
                             <Label x:Name="lblSlotCoordinate2" Grid.Row="0" Grid.Column="1" Text="Coord 2" FontAttributes="Bold"/>
                             <Entry x:Name="txtSlotCoordinate2" TextChanged="txtSlotCoordinate2_TextChanged" Grid.Row="1" Grid.Column="1"/>
                             <Frame VerticalOptions="Start" Grid.Row="2" Grid.Column="1" OutlineColor="{DynamicResource BorderColor}">
-                                <ListView x:Name="dgCoord2" ItemSelected="DgCoord2_ItemSelected" Grid.Row="3" Grid.Column="1" HasUnevenRows="True" HeightRequest="100">
+                                <ListView x:Name="dgCoord2" ItemSelected="dgCoord2_ItemSelected" Grid.Row="3" Grid.Column="1" HasUnevenRows="True" HeightRequest="100">
                                     <ListView.ItemTemplate>
                                         <DataTemplate>
                                             <ViewCell>
@@ -135,7 +135,7 @@
                             <Label x:Name="lblSlotCoordinate3" Grid.Row="0" Grid.Column="2" Text="Coord 3" FontAttributes="Bold"/>
                             <Entry x:Name="txtSlotCoordinate3" TextChanged="txtSlotCoordinate3_TextChanged" Grid.Row="1" Grid.Column="2"/>
                             <Frame VerticalOptions="Start" Grid.Row="2" Grid.Column="2" OutlineColor="{DynamicResource BorderColor}">
-                                <ListView x:Name="dgCoord3" ItemSelected="DgCoord3_ItemSelected" Grid.Row="3" Grid.Column="2" HasUnevenRows="True" HeightRequest="100">
+                                <ListView x:Name="dgCoord3" ItemSelected="dgCoord3_ItemSelected" Grid.Row="3" Grid.Column="2" HasUnevenRows="True" HeightRequest="100">
                                     <ListView.ItemTemplate>
                                         <DataTemplate>
                                             <ViewCell>

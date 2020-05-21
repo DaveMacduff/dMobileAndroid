@@ -1,5 +1,6 @@
 ﻿namespace dMobile.View.Activity
 {
+    using Android.Util;
     using Android.Views;
     using dMobile.BarCodeScanner;
     using dMobile.Bedrock;
@@ -12,6 +13,7 @@
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Data;
+    using System.Runtime.CompilerServices;
     using System.Threading.Tasks;
     using System.Xml.Linq;
     using Xamarin.Forms;
@@ -25,7 +27,6 @@
         private SysCommon.ActSubTypes actSubType;
         private BarCodeParse barParse;
         private BarCodeScanner barScanner;
-        private int totalTicks = 0;
         private bool isBarCodeHandlerRegistered = false;
         private SysEnvironment sysEnv;
         private ReqCloseHandler reqCloseEvent;
@@ -35,8 +36,13 @@
         private ReqCancelDisableHandler reqCancelDisableEvent;
         private bool isChangesMade = false;
         private bool isControlLoaded = false;
-        private ObservableCollection<string> itemsList;
-        private ObservableCollection<object> dataGridMainActivityItemsList;
+        private ObservableCollection<string> itemsList = new ObservableCollection<string>();
+        private ObservableCollection<object> dataGridMainActivityItemsList = new ObservableCollection<object>();
+        private List<string> optionsMenuItems = new List<string>();
+        private string addText;
+        private bool addIsEnabled;
+        private string filterText;
+        private bool filterIsEnabled;
 
         public ucActivityHdr()
         {
@@ -53,14 +59,14 @@
             this.InitializeComponent();
 
             // TODO: Resource strings
-            this.cmdAdd.IsEnabled = false;
-            this.cmdAdd.Text = "Add";
-            this.cmdFilter.Text = "Filter";
+            this.AddText = "Add";
+            this.FilterText = "Filter";
+            
+            this.AddIsEnabled = false;
+            this.FilterIsEnabled = true;
 
             if (!DesignMode.IsDesignModeEnabled)
             {
-                this.ItemsList = new ObservableCollection<string>();
-                this.DataGridMainActivityItemsList = new ObservableCollection<object>();
                 this.SysEnv = SysEnvironment.GetInstance();
                 this.BarScanner = BarCodeSingleton.GetInstance().Scanner;
 
@@ -73,7 +79,20 @@
                 }
 
                 this.Title = this.GetControlDescription();
-                this.ActionsVisible = this.SysEnv.SysSettings.ActivityActionsVisible;
+            }
+        }
+
+        /// <summary>
+        /// Check if options in displayActionSheet are enabled/disabled and rebuild list
+        /// </summary>
+        /// <param name="propertyName"></param>
+        protected override void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            base.OnPropertyChanged(propertyName);
+
+            if (propertyName == "AddIsEnabled" || propertyName == "FilterIsEnabled" || propertyName == "AddText" || propertyName == "FilterText")
+            {
+                this.PopulateOptionsMenu();
             }
         }
 
@@ -103,14 +122,14 @@
                     }
                     else if (keycode == Keycode.Escape)
                     {
-                        if (this.CancelChanges())
+                        if (await this.CancelChanges())
                         {
                             this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                         }
                     }
                     else if (keycode == Keycode.F1)
                     {
-                        if (this.SaveChanges())
+                        if (await this.SaveChanges())
                         {
                             this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                         }
@@ -151,14 +170,11 @@
             base.OnDisappearing();
         }
 
-
         public delegate void ReqCloseHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
         public delegate void ReqSaveEnableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
         public delegate void ReqSaveDisableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
         public delegate void ReqCancelEnableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
         public delegate void ReqCancelDisableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
-
-
 
         public event ReqCloseHandler ReqClose
         {
@@ -224,8 +240,6 @@
                 this.ReqCancelDisableEvent = (ReqCancelDisableHandler)Delegate.Remove(this.ReqCancelDisableEvent, value);
             }
         }
-
-
 
         private bool IsControlLoaded
         {
@@ -396,24 +410,13 @@
             }
         }
 
-        private int TotalTicks
-        {
-            get
-            {
-                return this.totalTicks;
-            }
-
-            set
-            {
-                this.totalTicks = value;
-            }
-        }
-
         public ObservableCollection<string> ItemsList { get => itemsList; set => itemsList = value; }
         public ObservableCollection<object> DataGridMainActivityItemsList { get => dataGridMainActivityItemsList; set => dataGridMainActivityItemsList = value; }
-
-
-
+        public List<string> OptionsMenuItems { get => optionsMenuItems; set => optionsMenuItems = value; }
+        public string AddText { get => addText; set { addText = value; this.OnPropertyChanged(); } }
+        public bool AddIsEnabled { get => addIsEnabled; set { addIsEnabled = value; this.OnPropertyChanged(); } }
+        public string FilterText { get => filterText; set { filterText = value; this.OnPropertyChanged(); } }
+        public bool FilterIsEnabled { get => filterIsEnabled; set { filterIsEnabled = value; this.OnPropertyChanged(); } }
 
         /// <summary>
         /// Unregister the bar code scan event handler and disable the scanner.
@@ -449,7 +452,7 @@
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool IsReadyToSave()
+        public async Task<bool> IsReadyToSave()
         {
             bool isReadyToSave = false;
 
@@ -465,7 +468,7 @@
             {
                 isReadyToSave = false;
 
-                Device.BeginInvokeOnMainThread(async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
                     await errRpt.ShowDialog();
@@ -480,7 +483,7 @@
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool IsReadyToClose()
+        public async Task<bool> IsReadyToClose()
         {
             bool isReadyToClose = !this.IsChangesMade;
 
@@ -495,7 +498,7 @@
                         //    isReadyToClose = false;
                         //}
 
-                        Device.BeginInvokeOnMainThread(async () =>
+                        await Device.InvokeOnMainThreadAsync(async () =>
                         {
                             // TODO: Resource strings
                             await DisplayAlert(this.GetControlDescription(), "Confirm exit?", "Yes", "No").ContinueWith(result =>
@@ -527,7 +530,7 @@
             {
                 isReadyToClose = false;
 
-                Device.BeginInvokeOnMainThread(async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
                     await errRpt.ShowDialog();
@@ -638,13 +641,13 @@
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool SaveChanges()
+        public async Task<bool> SaveChanges()
         {
             bool saveComplete = false;
 
             try
             {
-                if (this.IsReadyToSave())
+                if (await this.IsReadyToSave())
                 {
                     saveComplete = true;
                 }
@@ -666,7 +669,7 @@
             {
                 saveComplete = false;
 
-                Device.BeginInvokeOnMainThread(async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
                     await errRpt.ShowDialog();
@@ -681,14 +684,14 @@
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool CancelChanges()
+        public async Task<bool> CancelChanges()
         {
             bool cancelChanges = true;
 
             try
             {
                 // IsReadyToClose checks if any changes where made.
-                if (this.IsReadyToClose())
+                if (await this.IsReadyToClose())
                 {
                     // Expect the control to close.
                 }
@@ -712,7 +715,7 @@
             {
                 cancelChanges = false;
 
-                Device.BeginInvokeOnMainThread(async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
                     await errRpt.ShowDialog();
@@ -736,8 +739,6 @@
 
             return xmldocParams;
         }
-
-
 
         /// <summary>
         /// 
@@ -987,6 +988,24 @@
         }
 
         /// <summary>
+        /// Populates a string array to be used in DisplayActionSheet
+        /// </summary>
+        private void PopulateOptionsMenu()
+        {
+            this.OptionsMenuItems.Clear();
+            
+            if (this.AddIsEnabled)
+            {
+                this.OptionsMenuItems.Add(this.AddText);
+            }
+
+            if (this.FilterIsEnabled)
+            {
+                this.OptionsMenuItems.Add(this.FilterText);
+            }
+        }
+
+        /// <summary>
         ///
         /// </summary>
         /// <remarks></remarks>
@@ -1017,14 +1036,14 @@
 
                 await Device.InvokeOnMainThreadAsync(() =>
                 {
-                    this.DesignGrid();
-
-                    this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
+                    this.DataGridMainActivityItemsList = this.ActHdr.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity, ref this.dataGridWidth);
 
                     if (!string.IsNullOrEmpty(this.txtSearchHdr.Text))
                     {
-                        this.ActHdr.Search(this.txtSearchHdr.Text);
+                        this.DataGridMainActivityItemsList = this.ActHdr.Search(this.txtSearchHdr.Text);
                     }
+
+                    this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
 
                     if (this.ActHdr.DataViewHdrs.Count > 0 && this.DataGridMainActivityItemsList.Count > 0)
                     {
@@ -1045,400 +1064,6 @@
                     this.DisplayData();
                 });
             });
-        }
-
-        private void DesignGrid()
-        {
-            this.Title = this.GetControlDescription();
-
-            switch (this.ActSubType)
-            {
-                case SysCommon.ActSubTypes.Receiving:
-                    // Header grid
-                    Grid gridHeaderReceiving = new Grid
-                    {
-                        Padding = new Thickness(5, 5, 5, 5),
-                        ColumnDefinitions =
-                        {
-                            new ColumnDefinition { Width = GridLength.Star },
-                            new ColumnDefinition { Width = GridLength.Star },
-                            new ColumnDefinition { Width = GridLength.Star }
-                        }
-                    };
-
-                    gridHeaderReceiving.SetDynamicResource(BackgroundColorProperty, "HeaderColor");
-
-                    Label labelPOReceiving = new Label { Text = "PO #", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
-                    Label labelIssuedReceiving = new Label { Text = "Issued", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
-                    Label labelArrivedReceiving = new Label { Text = "Arrived", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
-
-                    gridHeaderReceiving.Children.Add(labelPOReceiving);
-                    gridHeaderReceiving.Children.Add(labelIssuedReceiving);
-                    gridHeaderReceiving.Children.Add(labelArrivedReceiving);
-
-                    Grid.SetColumn(labelPOReceiving, 0);
-                    Grid.SetColumn(labelIssuedReceiving, 1);
-                    Grid.SetColumn(labelArrivedReceiving, 2);
-
-                    Grid.SetRow(gridHeaderReceiving, 0);
-
-                    this.dataGridMainActivityHeader.Children.Add(gridHeaderReceiving);
-
-                    // Data grid
-                    DataTemplate dataTemplateReceiving = new DataTemplate(() =>
-                    {
-                        Grid gridData = new Grid
-                        {
-                            Padding = new Thickness(5, 5, 5, 5),
-                            ColumnDefinitions = {
-                                new ColumnDefinition { Width = GridLength.Star },
-                                new ColumnDefinition { Width = GridLength.Star },
-                                new ColumnDefinition { Width = GridLength.Star }
-                            }
-                        };
-
-                        Label labelActivityReceivingPONumber = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-                        Label labelActivityReceivingIssuedDateTime = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-                        Label labelActivityReceivingArrivalDateTime = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-
-                        labelActivityReceivingPONumber.SetBinding(Label.TextProperty, new Binding("ActivityReceivingPONumber"));
-                        labelActivityReceivingIssuedDateTime.SetBinding(Label.TextProperty, new Binding("ActivityReceivingIssuedDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
-                        labelActivityReceivingArrivalDateTime.SetBinding(Label.TextProperty, new Binding("ActivityReceivingArrivalDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
-
-                        gridData.Children.Add(labelActivityReceivingPONumber);
-                        gridData.Children.Add(labelActivityReceivingIssuedDateTime);
-                        gridData.Children.Add(labelActivityReceivingArrivalDateTime);
-
-                        Grid.SetColumn(labelActivityReceivingPONumber, 0);
-                        Grid.SetColumn(labelActivityReceivingIssuedDateTime, 1);
-                        Grid.SetColumn(labelActivityReceivingArrivalDateTime, 2);
-
-                        return new ViewCell { View = gridData };
-                    });
-
-                    this.dataGridMainActivity.ItemTemplate = dataTemplateReceiving;
-                    this.DataGridMainActivityItemsList.Clear();
-
-                    foreach (DataRow row in this.ActHdr.DataViewHdrs.ToTable().Rows)
-                    {
-                        Receive receive = new Receive
-                        {
-                            ActivityReceivingPONumber = Convert.ToString(row["ActivityReceivingPONumber"]),
-                            ActivityReceivingIssuedDateTime = Convert.ToDateTime(row["ActivityReceivingIssuedDateTime"]),
-                            ActivityReceivingArrivalDateTime = Convert.ToDateTime(row["ActivityReceivingArrivalDateTime"])
-                        };
-
-                        this.DataGridMainActivityItemsList.Add(receive);
-                    }
-
-                    break;
-
-                case SysCommon.ActSubTypes.PhysicalCounts:
-                    // Create header data template
-                    Grid gridHeaderPhysicalCount = new Grid
-                    {
-                        Padding = new Thickness(5, 5, 5, 5),
-                        ColumnDefinitions =
-                        {
-                            new ColumnDefinition { Width = GridLength.Star },
-                            new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) },
-                            new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) }
-                        }
-                    };
-
-                    gridHeaderPhysicalCount.SetDynamicResource(BackgroundColorProperty, "HeaderColor");
-
-                    Label labelPhysicalCountNumber = new Label { Text = "Count #", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-                    Label labelPhysicalCountDate = new Label { Text = "Date", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-                    Label labelPhysicalCountType = new Label { Text = "Count Type", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-
-                    gridHeaderPhysicalCount.Children.Add(labelPhysicalCountNumber);
-                    gridHeaderPhysicalCount.Children.Add(labelPhysicalCountDate);
-                    gridHeaderPhysicalCount.Children.Add(labelPhysicalCountType);
-
-                    Grid.SetColumn(labelPhysicalCountNumber, 0);
-                    Grid.SetColumn(labelPhysicalCountDate, 1);
-                    Grid.SetColumn(labelPhysicalCountType, 2);
-
-                    Grid.SetRow(gridHeaderPhysicalCount, 0);
-
-                    this.dataGridMainActivityHeader.Children.Add(gridHeaderPhysicalCount);
-
-                    // Data grid
-                    DataTemplate dataTemplatePhysicalCount = new DataTemplate(() =>
-                    {
-                        Grid gridData = new Grid
-                        {
-                            Padding = new Thickness(5, 5, 5, 5),
-                            ColumnDefinitions =
-                            {
-                                new ColumnDefinition { Width = GridLength.Star },
-                                new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) },
-                                new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) }
-                            }
-                        };
-
-                        Label labelActivityRefno = new Label { VerticalOptions = LayoutOptions.Center };
-                        Label labelActivityCountDateTime = new Label { VerticalOptions = LayoutOptions.Center };
-                        Label labelActivityCountTypeDescription = new Label { VerticalOptions = LayoutOptions.Center };
-
-                        labelActivityRefno.SetBinding(Label.TextProperty, new Binding("ActivityRefno"));
-                        labelActivityCountDateTime.SetBinding(Label.TextProperty, new Binding("ActivityCountDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
-                        labelActivityCountTypeDescription.SetBinding(Label.TextProperty, new Binding("ActivityCountTypeDescription"));
-
-                        gridData.Children.Add(labelActivityRefno, 0, 0);
-                        gridData.Children.Add(labelActivityCountDateTime, 0, 0);
-                        gridData.Children.Add(labelActivityCountTypeDescription, 0, 0);
-
-                        Grid.SetColumn(labelActivityRefno, 0);
-                        Grid.SetColumn(labelActivityCountDateTime, 1);
-                        Grid.SetColumn(labelActivityCountTypeDescription, 2);
-
-                        return new ViewCell { View = gridData };
-                    });
-
-                    this.dataGridMainActivity.ItemTemplate = dataTemplatePhysicalCount;
-                    this.DataGridMainActivityItemsList.Clear();
-
-                    foreach (DataRow row in this.ActHdr.DataViewHdrs.ToTable().Rows)
-                    {
-                        string description = string.Empty;
-                        string[] descriptionSubstring = Convert.ToString(row["ActivityCountTypeDescription"]).Split();
-
-                        if (descriptionSubstring != null && descriptionSubstring.Length > 1)
-                        {
-                            description = descriptionSubstring[0] + " " + descriptionSubstring[1];
-                        }
-
-                        Count count = new Count
-                        {
-                            ActivityRefno = Convert.ToInt32(row["ActivityCountStringFKRefno"]),
-                            ActivityCountDateTime = Convert.ToDateTime(row["ActivityCountDateTime"]),
-                            ActivityCountTypeDescription = description,
-                        };
-
-                        this.DataGridMainActivityItemsList.Add(count);
-                    }
-
-                    break;
-
-                case SysCommon.ActSubTypes.Picking:
-                    // Create header data template
-                    Grid gridHeaderPicking = new Grid
-                    {
-                        Padding = new Thickness(5, 5, 5, 5),
-                        ColumnDefinitions =
-                        {
-                            new ColumnDefinition { Width = GridLength.Star },
-                            new ColumnDefinition { Width = GridLength.Star },
-                            new ColumnDefinition { Width = GridLength.Star },
-                            new ColumnDefinition { Width = GridLength.Star },
-                            new ColumnDefinition { Width = new GridLength(5, GridUnitType.Star) }
-                        }
-                    };
-
-                    gridHeaderPicking.SetDynamicResource(BackgroundColorProperty, "HeaderColor");
-
-                    Label labelPickingOrderNumber = new Label { Text = "Order #", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-                    Label labelPickingDelDate = new Label { Text = "Del Date", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-                    Label labelPickingRoute = new Label { Text = "Route", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-                    Label labelPickingStop = new Label { Text = "Stop", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-                    Label labelPickingShipTo = new Label { Text = "Ship To", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-
-                    gridHeaderPicking.Children.Add(labelPickingOrderNumber);
-                    gridHeaderPicking.Children.Add(labelPickingDelDate);
-                    gridHeaderPicking.Children.Add(labelPickingRoute);
-                    gridHeaderPicking.Children.Add(labelPickingStop);
-                    gridHeaderPicking.Children.Add(labelPickingShipTo);
-
-                    Grid.SetColumn(labelPickingOrderNumber, 0);
-                    Grid.SetColumn(labelPickingDelDate, 1);
-                    Grid.SetColumn(labelPickingRoute, 2);
-                    Grid.SetColumn(labelPickingStop, 3);
-                    Grid.SetColumn(labelPickingShipTo, 4);
-
-                    Grid.SetRow(gridHeaderPicking, 0);
-
-                    this.dataGridMainActivityHeader.Children.Add(gridHeaderPicking);
-
-                    // Data grid
-                    DataTemplate dataTemplatePicking = new DataTemplate(() =>
-                    {
-                        Grid gridData = new Grid
-                        {
-                            Padding = new Thickness(5, 5, 5, 5),
-                            ColumnDefinitions =
-                            {
-                                new ColumnDefinition { Width = GridLength.Star },
-                                new ColumnDefinition { Width = GridLength.Star },
-                                new ColumnDefinition { Width = GridLength.Star },
-                                new ColumnDefinition { Width = GridLength.Star },
-                                new ColumnDefinition { Width = new GridLength(5, GridUnitType.Star) }
-                            }
-                        };
-
-                        Label labelActivityPickingStringFKRefno = new Label { VerticalOptions = LayoutOptions.Center };
-                        Label labelActivityPickingDeliveryDateTime = new Label { VerticalOptions = LayoutOptions.Center };
-                        Label labelActivityPickingRouteCode = new Label { VerticalOptions = LayoutOptions.Center };
-                        Label labelActivityPickingRouteStop = new Label { VerticalOptions = LayoutOptions.Center };
-                        Label labelActivityPickingCustomerShipToInfo = new Label { VerticalOptions = LayoutOptions.Center };
-
-                        labelActivityPickingStringFKRefno.SetBinding(Label.TextProperty, new Binding("ActivityPickingStringFKRefno"));
-                        labelActivityPickingDeliveryDateTime.SetBinding(Label.TextProperty, new Binding("ActivityPickingDeliveryDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
-                        labelActivityPickingRouteCode.SetBinding(Label.TextProperty, new Binding("RouteCode"));
-                        labelActivityPickingRouteStop.SetBinding(Label.TextProperty, new Binding("RouteStop"));
-                        labelActivityPickingCustomerShipToInfo.SetBinding(Label.TextProperty, new Binding("ActivityPickingCustomerShipToInfo"));
-
-                        gridData.Children.Add(labelActivityPickingStringFKRefno);
-                        gridData.Children.Add(labelActivityPickingDeliveryDateTime);
-                        gridData.Children.Add(labelActivityPickingRouteCode);
-                        gridData.Children.Add(labelActivityPickingRouteStop);
-                        gridData.Children.Add(labelActivityPickingCustomerShipToInfo);
-
-                        Grid.SetColumn(labelActivityPickingStringFKRefno, 0);
-                        Grid.SetColumn(labelActivityPickingDeliveryDateTime, 1);
-                        Grid.SetColumn(labelActivityPickingRouteCode, 2);
-                        Grid.SetColumn(labelActivityPickingRouteStop, 3);
-                        Grid.SetColumn(labelActivityPickingCustomerShipToInfo, 4);
-
-                        return new ViewCell { View = gridData };
-                    });
-                    
-                    this.dataGridMainActivity.ItemTemplate = dataTemplatePicking;
-                    this.DataGridMainActivityItemsList.Clear();
-
-                    foreach (DataRow row in this.ActHdr.DataViewHdrs.ToTable().Rows)
-                    {
-                        Picking picking = new Picking
-                        {
-                            ActivityRefno = Convert.ToInt32(row["ActivityRefno"] != DBNull.Value ? row["ActivityRefno"] : null),
-                            ActivityPickingFKRefno = Convert.ToInt32(row["ActivityPickingFKRefno"] != DBNull.Value ? row["ActivityPickingFKRefno"] : null),
-                            ActivityPickingStringFKRefno = Convert.ToString(row["ActivityPickingStringFKRefno"] != DBNull.Value ? row["ActivityPickingStringFKRefno"] : null),
-                            LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
-                            LocationMapWarehouseFKRefno = Convert.ToInt32(row["LocationMapWarehouseFKRefno"] != DBNull.Value ? row["LocationMapWarehouseFKRefno"] : null),
-                            LocationMapWarehouseName = Convert.ToString(row["LocationMapWarehouseName"] != DBNull.Value ? row["LocationMapWarehouseName"] : null),
-                            ActivityPickingOrderedDateTime = Convert.ToDateTime(row["ActivityPickingOrderedDateTime"] != DBNull.Value ? row["ActivityPickingOrderedDateTime"] : null),
-                            ActivityPickingDeliveryDateTime = Convert.ToDateTime(row["ActivityPickingDeliveryDateTime"] != DBNull.Value ? row["ActivityPickingDeliveryDateTime"] : null),
-                            ActivityPickingCustomerContactName = Convert.ToString(row["ActivityPickingCustomerContactName"] != DBNull.Value ? row["ActivityPickingCustomerContactName"] : null),
-                            ActivityPickingCustomerShipToInfo = Convert.ToString(row["ActivityPickingCustomerShipToInfo"] != DBNull.Value ? row["ActivityPickingCustomerShipToInfo"] : null),
-                            RouteCode = Convert.ToString(row["RouteCode"] != DBNull.Value ? row["RouteCode"] : null),
-                            RouteDescription = Convert.ToString(row["RouteDescription"] != DBNull.Value ? row["RouteDescription"] : null),
-                            RouteDayOfWeek = Convert.ToString(row["RouteDayOfWeek"] != DBNull.Value ? row["RouteDayOfWeek"] : null),
-                            RouteStop = Convert.ToInt32(row["RouteStop"] != DBNull.Value ? row["RouteStop"] : null),
-                            ActivityStatus = Convert.ToInt32(row["ActivityStatus"] != DBNull.Value ? row["ActivityStatus"] : null),
-                            ActivityPickingIsReviewed = Convert.ToBoolean(row["ActivityPickingIsReviewed"] != DBNull.Value ? row["ActivityPickingIsReviewed"] : null),
-                        };
-
-                        this.DataGridMainActivityItemsList.Add(picking);
-                    }
-
-                    this.dataGridColumnWidth.Width = 750;
-
-                    break;
-
-                case SysCommon.ActSubTypes.Returns:
-                                        // Create header data template
-                    Grid gridHeaderReturns = new Grid
-                    {
-                        Padding = new Thickness(5, 5, 5, 5),
-                        ColumnDefinitions =
-                        {
-                            new ColumnDefinition { Width = GridLength.Star },
-                            new ColumnDefinition { Width = GridLength.Star },
-                            new ColumnDefinition { Width = GridLength.Star },
-                            new ColumnDefinition { Width = GridLength.Star },
-                        }
-                    };
-
-                    gridHeaderReturns.SetDynamicResource(BackgroundColorProperty, "HeaderColor");
-
-                    Label labelReturnNumber = new Label { Text = "Return #", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-                    Label labelReturnEntered = new Label { Text = "Entered", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-                    Label labelReturnReturned = new Label { Text = "Returned", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-                    Label labelReturnedShipTo = new Label { Text = "Ship To", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-
-                    gridHeaderReturns.Children.Add(labelReturnNumber);
-                    gridHeaderReturns.Children.Add(labelReturnEntered);
-                    gridHeaderReturns.Children.Add(labelReturnReturned);
-                    gridHeaderReturns.Children.Add(labelReturnedShipTo);
-
-                    Grid.SetColumn(labelReturnNumber, 0);
-                    Grid.SetColumn(labelReturnEntered, 1);
-                    Grid.SetColumn(labelReturnReturned, 2);
-                    Grid.SetColumn(labelReturnedShipTo, 3);
-
-                    Grid.SetRow(gridHeaderReturns, 0);
-
-                    this.dataGridMainActivityHeader.Children.Add(gridHeaderReturns);
-
-                    // Data grid
-                    DataTemplate dataTemplateReturns = new DataTemplate(() =>
-                    {
-                        Grid gridData = new Grid
-                        {
-                            Padding = new Thickness(5, 5, 5, 5),
-                            ColumnDefinitions =
-                            {
-                                new ColumnDefinition { Width = GridLength.Star },
-                                new ColumnDefinition { Width = GridLength.Star },
-                                new ColumnDefinition { Width = GridLength.Star },
-                                new ColumnDefinition { Width = GridLength.Star },
-                                new ColumnDefinition { Width = new GridLength(5, GridUnitType.Star) }
-                            }
-                        };
-
-                        Label labelActivityReturnsStringFKRefno = new Label { VerticalOptions = LayoutOptions.Center };
-                        Label labelActivityReturnsOrderedDateTime = new Label { VerticalOptions = LayoutOptions.Center };
-                        Label labelActivityReturnsDeliveryDateTime = new Label { VerticalOptions = LayoutOptions.Center };
-                        Label labelActivityReturnsCustomerShipToInfo = new Label { VerticalOptions = LayoutOptions.Center };
-
-                        labelActivityReturnsStringFKRefno.SetBinding(Label.TextProperty, new Binding("ActivityReturnsStringFKRefno"));
-                        labelActivityReturnsOrderedDateTime.SetBinding(Label.TextProperty, new Binding("ActivityReturnsOrderedDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
-                        labelActivityReturnsDeliveryDateTime.SetBinding(Label.TextProperty, new Binding("ActivityReturnsDeliveryDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
-                        labelActivityReturnsCustomerShipToInfo.SetBinding(Label.TextProperty, new Binding("ActivityReturnsCustomerShipToInfo"));
-
-                        gridData.Children.Add(labelActivityReturnsStringFKRefno);
-                        gridData.Children.Add(labelActivityReturnsOrderedDateTime);
-                        gridData.Children.Add(labelActivityReturnsDeliveryDateTime);
-                        gridData.Children.Add(labelActivityReturnsCustomerShipToInfo);
-
-                        Grid.SetColumn(labelActivityReturnsStringFKRefno, 0);
-                        Grid.SetColumn(labelActivityReturnsOrderedDateTime, 1);
-                        Grid.SetColumn(labelActivityReturnsDeliveryDateTime, 2);
-                        Grid.SetColumn(labelActivityReturnsCustomerShipToInfo, 4);
-
-                        return new ViewCell { View = gridData };
-                    });
-                    
-                    this.dataGridMainActivity.ItemTemplate = dataTemplateReturns;
-                    this.DataGridMainActivityItemsList.Clear();
-
-                    foreach (DataRow row in this.ActHdr.DataViewHdrs.ToTable().Rows)
-                    {
-                        Return returns = new Return
-                        {
-                            ActivityReturnsFKRefno = Convert.ToInt32(row["ActivityReturnsFKRefno"] != DBNull.Value ? row["ActivityReturnsFKRefno"] : null),
-                            ActivityReturnsStringFKRefno = Convert.ToString(row["ActivityReturnsStringFKRefno"] != DBNull.Value ? row["ActivityReturnsStringFKRefno"] : null),
-                            ActivityReturnsOrderedDateTime = Convert.ToDateTime(row["ActivityReturnsOrderedDateTime"] != DBNull.Value ? row["ActivityReturnsOrderedDateTime"] : null),
-                            ActivityReturnsDeliveryDateTime = Convert.ToDateTime(row["ActivityReturnsDeliveryDateTime"] != DBNull.Value ? row["ActivityReturnsDeliveryDateTime"] : null),
-                            LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
-                            LocationMapWarehouseFKRefno = Convert.ToInt32(row["LocationMapWarehouseFKRefno"] != DBNull.Value ? row["LocationMapWarehouseFKRefno"] : null),
-                            LocationMapWarehouseName = Convert.ToString(row["LocationMapWarehouseName"] != DBNull.Value ? row["LocationMapWarehouseName"] : null),
-                            ActivityReturnsCustomerContactName = Convert.ToString(row["ActivityReturnsCustomerContactName"] != DBNull.Value ? row["ActivityReturnsCustomerContactName"] : null),
-                            ActivityReturnsCustomerShipToInfo = Convert.ToString(row["ActivityReturnsCustomerShipToInfo"] != DBNull.Value ? row["ActivityReturnsCustomerShipToInfo"] : null),
-                            ActivityStatus = Convert.ToInt32(row["ActivityStatus"] != DBNull.Value ? row["ActivityStatus"] : null),
-                        };
-
-                        this.DataGridMainActivityItemsList.Add(returns);
-                    }
-
-                    //this.dataGridColumnWidth.Width = 750;
-
-                    break;
-
-                default:
-                    break;
-            }
         }
 
         /// <summary>
@@ -1487,7 +1112,7 @@
 
                         await Device.InvokeOnMainThreadAsync(async () =>
                         {
-                            if (await formPickSelect.ShowDialog() == DialogResult.OK)
+                            if (await formPickSelect.DisplayControl.ShowDialog() == DialogResult.OK)
                             {
                                 XDocument xmlResult = formPickSelect.GetXML();
                                 LocationMap locMap = LocationMap.GetInstance();
@@ -1524,7 +1149,7 @@
                 }
                 catch (Exception ex)
                 {
-                    Device.BeginInvokeOnMainThread(async () =>
+                    await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
                         await errRpt.ShowDialog();
@@ -1893,18 +1518,18 @@
 
                     if (dialogResult == DialogResult.OK)
                     {
-                        form.SaveChanges(null, new EventArgs());
+                        await form.SaveChanges(null, new EventArgs());
                         XDocument xmlDoc = form.DisplayControlData;
                         this.ActHdr.DataViewHdrs.RowFilter = this.ActHdr.GetFilter(xmlDoc);
-
-                        if (!string.IsNullOrEmpty(this.txtSearchHdr.Text))
-                        {
-                            this.ActHdr.Search(this.txtSearchHdr.Text);
-                        }
 
                         if (!string.IsNullOrEmpty(xmlDoc.Root.Element("sortby").Value))
                         {
                             this.ActHdr.DataViewHdrs.Sort = xmlDoc.Root.Element("sortby").Value;
+                        }
+
+                        if (!string.IsNullOrEmpty(this.txtSearchHdr.Text))
+                        {
+                            this.DataGridMainActivityItemsList = this.ActHdr.Search(this.txtSearchHdr.Text);
                         }
                     }
 
@@ -1993,7 +1618,7 @@
             {
                 try
                 {
-                    this.Loading = true; 
+                    this.Loading = true;
 
                     this.ReqCancelDisableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     this.ReqSaveDisableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
@@ -2018,12 +1643,12 @@
                                     if (await ((PickingActivity)this.ActHdr).ClearSalesOrderBeingPicked(false))
                                     {
                                         //MessageBox.Show("Picker cleared.", "Picker Override", MessageBoxButtons.OK, MessageBoxIcon.Hand, MessageBoxDefaultButton.Button1);
-                                        await Device.InvokeOnMainThreadAsync(async () =>await DisplayAlert("Picker Override", "Picker cleared.", "OK"));
+                                        await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Picker Override", "Picker cleared.", "OK"));
                                     }
                                     else
                                     {
                                         //MessageBox.Show("Unable to clear the current picker.", "Picker Override", MessageBoxButtons.OK, MessageBoxIcon.Hand, MessageBoxDefaultButton.Button1);
-                                        await Device.InvokeOnMainThreadAsync(async () =>await DisplayAlert("Picker Override", "Unable to clear the current picker.", "OK"));
+                                        await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Picker Override", "Unable to clear the current picker.", "OK"));
                                     }
                                 }
                             }
@@ -2134,7 +1759,7 @@
                                     // Show pop up screen
                                     FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucActivityDeboxLabelCount, ActSubType);
 
-                                    if (await form.ShowDialog() == DialogResult.OK)
+                                    if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
                                     {
                                         XDocument doc = form.GetXML();
                                         actHdr.PrintLabel(doc);
@@ -2175,7 +1800,7 @@
                 {
                     FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucActivityShippingLabelEdit, this.ActSubType, labelQuantity, this.ActHdr, SysCommon.ShippingLabelQuantitySelectionMode.RepackOnly);
 
-                    if (await Device.InvokeOnMainThreadAsync(async () => await form.ShowDialog() == DialogResult.OK))
+                    if (await Device.InvokeOnMainThreadAsync(async () => await form.DisplayControl.ShowDialog() == DialogResult.OK))
                     {
                         XDocument request = form.GetXML();
 
@@ -2189,7 +1814,7 @@
                 {
                     FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucActivityShippingLabelEdit, this.ActSubType, labelQuantity, this.ActHdr, SysCommon.ShippingLabelQuantitySelectionMode.BothFullRepack);
 
-                    if (await Device.InvokeOnMainThreadAsync(async () => await form.ShowDialog() == DialogResult.OK))
+                    if (await Device.InvokeOnMainThreadAsync(async () => await form.DisplayControl.ShowDialog() == DialogResult.OK))
                     {
                         XDocument request = form.GetXML();
 
@@ -2266,7 +1891,6 @@
             });
         }
 
-
         private void DataGridMainActivity_ItemSelected(object sender, SelectedItemChangedEventArgs e)
         {
             int index = this.DataGridMainActivityItemsList.IndexOf(e.SelectedItem);
@@ -2275,19 +1899,18 @@
             {
                 this.ActHdr.SelectHdr(Convert.ToInt32(index));
                 this.DisplayData();
-
             }
         }
 
-        private void TxtSearchHdr_TextChanged(object sender, TextChangedEventArgs e)
+        private async void TxtSearchHdr_TextChanged(object sender, TextChangedEventArgs e)
         {
             try
             {
                 if (this.IsControlLoaded)
                 {
                     this.IsChangesMade = true;
-                    this.ActHdr.Search(this.txtSearchHdr.Text);
-                    this.ApplySearch();
+                    this.DataGridMainActivityItemsList = this.ActHdr.Search(this.txtSearchHdr.Text);
+                    this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
                 }
             }
             catch (Exceptions.MessageOnlyException ex)
@@ -2296,7 +1919,7 @@
             }
             catch (Exception ex)
             {
-                Device.BeginInvokeOnMainThread(async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
                     await errRpt.ShowDialog();
@@ -2304,147 +1927,24 @@
             }
         }
 
-        private void ApplySearch()
+        private async void OptionsMenu_Clicked(object sender, EventArgs e)
         {
-            switch (this.ActSubType)
+            if (this.Loading)
             {
-                case SysCommon.ActSubTypes.Adjustment:
-                    break;
-
-                case SysCommon.ActSubTypes.AssignDefaultLocation:
-                    break;
-
-                case SysCommon.ActSubTypes.BarCodeAssociation:
-                    break;
-
-                case SysCommon.ActSubTypes.BreakSkid:
-                    break;
-
-                case SysCommon.ActSubTypes.ConvertUnit:
-                    break;
-
-                case SysCommon.ActSubTypes.CycleCounts:
-                    break;
-
-                case SysCommon.ActSubTypes.DataStatus:
-                    break;
-
-                case SysCommon.ActSubTypes.InventoryInquiry:
-                    break;
-
-                case SysCommon.ActSubTypes.InventoryReplenishment:
-                    break;
-
-                case SysCommon.ActSubTypes.MoveInventory:
-                    break;
-
-                case SysCommon.ActSubTypes.MoveSkid:
-                    break;
-
-                case SysCommon.ActSubTypes.NotApplicable:
-                    break;
-
-                case SysCommon.ActSubTypes.PhysicalCounts:
-                    this.DataGridMainActivityItemsList.Clear();
-
-                    foreach (DataRow row in this.ActHdr.DataViewHdrs.ToTable().Rows)
-                    {
-                        string description = string.Empty;
-                        string[] descriptionSubstring = Convert.ToString(row["ActivityCountTypeDescription"]).Split();
-
-                        if (descriptionSubstring != null && descriptionSubstring.Length > 1)
-                        {
-                            description = descriptionSubstring[0] + " " + descriptionSubstring[1];
-                        }
-
-                        Count count = new Count
-                        {
-                            ActivityRefno = Convert.ToInt32(row["ActivityCountStringFKRefno"]),
-                            ActivityCountDateTime = Convert.ToDateTime(row["ActivityCountDateTime"]),
-                            ActivityCountTypeDescription = description,
-                        };
-
-                        this.DataGridMainActivityItemsList.Add(count);
-                    }
-
-                    break;
-
-                case SysCommon.ActSubTypes.Picking:
-                    break;
-
-                case SysCommon.ActSubTypes.PickingSingle:
-                    break;
-
-                case SysCommon.ActSubTypes.TicketAddProduct:
-                    break;
-
-                case SysCommon.ActSubTypes.TicketFinished:
-                    break;
-
-                case SysCommon.ActSubTypes.TicketMaterial:
-                    break;
-
-                case SysCommon.ActSubTypes.PurchaseOrderWorkSheet:
-                    break;
-
-                case SysCommon.ActSubTypes.PurgeActivityData:
-                    break;
-
-                case SysCommon.ActSubTypes.PutAwaySkid:
-                    break;
-
-                case SysCommon.ActSubTypes.Receiving:
-                    this.DataGridMainActivityItemsList.Clear();
-
-                    foreach (DataRow row in this.ActHdr.DataViewHdrs.ToTable().Rows)
-                    {
-                        Receive receive = new Receive
-                        {
-                            ActivityReceivingPONumber = Convert.ToString(row["ActivityReceivingPONumber"]),
-                            ActivityReceivingIssuedDateTime = Convert.ToDateTime(row["ActivityReceivingIssuedDateTime"]),
-                            ActivityReceivingArrivalDateTime = Convert.ToDateTime(row["ActivityReceivingArrivalDateTime"])
-                        };
-
-                        this.DataGridMainActivityItemsList.Add(receive);
-                    }
-
-                    break;
-
-                case SysCommon.ActSubTypes.RefreshData:
-                    break;
-
-                case SysCommon.ActSubTypes.ReleaseByItemSection:
-                    break;
-
-                case SysCommon.ActSubTypes.ReleaseByOrder:
-                    break;
-
-                case SysCommon.ActSubTypes.Returns:
-                    break;
-
-                case SysCommon.ActSubTypes.SelectLocation:
-                    break;
-
-                case SysCommon.ActSubTypes.SelectProduct:
-                    break;
-
-                case SysCommon.ActSubTypes.SkidInfo:
-                    break;
-
-                case SysCommon.ActSubTypes.TransferFrom:
-                    break;
-
-                case SysCommon.ActSubTypes.TransferTo:
-                    break;
+                return;
             }
-        }
+            
+            // TODO: Resource strings
+            string result = await DisplayActionSheet("Activity Options", "Close", null, this.OptionsMenuItems.ToArray());
 
-        private void ActionItemsMenu_Clicked(object sender, EventArgs e)
-        {
-            this.IsVisible = false;
-            this.ActionsVisible = !this.ActionsVisible;
-            this.SysEnv.SysSettings.ActivityActionsVisible = this.ActionsVisible;
-            this.IsVisible = true;
+            if (result == this.AddText && this.AddIsEnabled)
+            {
+                this.cmdAdd_Click(sender, e);
+            }
+            else if (result == this.FilterText && this.FilterIsEnabled)
+            {
+                this.cmdFilter_Click(sender, e);
+            }
         }
     }
 }

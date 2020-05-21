@@ -114,7 +114,7 @@
 
             this.lstDisplay.ItemsSource = this.ItemsList;
 
-            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), (keyPressed) =>
+            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
             {
                 // TODO: Verify keycodes
                 Enum.TryParse(keyPressed, out Keycode keycode);
@@ -123,13 +123,13 @@
                 {
                     if (keycode == Keycode.Escape)
                     {
-                        if (SaveChanges())
+                        if (await SaveChanges())
                         {
                             ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                         }
                         else
                         {
-                            CancelChanges();
+                            await CancelChanges();
                         }
                     }
                 }
@@ -874,7 +874,7 @@
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool IsReadyToSave()
+        public async Task<bool> IsReadyToSave()
         {
             bool IsReadyToSave = true;
 
@@ -886,7 +886,7 @@
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool IsReadyToClose()
+        public async Task<bool> IsReadyToClose()
         {
             // NOTE: This code is needed to clean up the scanner driver.
             // Symbol had threading issues without this call when dMobile was terminating.
@@ -926,7 +926,7 @@
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool SaveChanges()
+        public async Task<bool> SaveChanges()
         {
             return true;
         }
@@ -936,14 +936,14 @@
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool CancelChanges()
+        public async Task<bool> CancelChanges()
         {
             bool cancelChanges = true;
 
             try
             {
                 // IsReadyToClose checks if any changes where made.
-                if (this.IsReadyToClose())
+                if (await this.IsReadyToClose())
                 {
                     // Clear any properties.
                     // this.ProdUnitRefno = 0;
@@ -967,7 +967,7 @@
             {
                 cancelChanges = false;
 
-                Device.BeginInvokeOnMainThread(async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.PurchaseOrderWorkSheet, ex);
                     await errRpt.ShowDialog();

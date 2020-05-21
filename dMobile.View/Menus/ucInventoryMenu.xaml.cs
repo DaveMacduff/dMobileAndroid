@@ -10,6 +10,7 @@ using System.Xml.Linq;
 using dMobile.Bedrock;
 using dMobile.Resources.Enums;
 using Android.Views;
+using dMobile.View.Activity;
 
 namespace dMobile.View.Menus
 {
@@ -63,60 +64,64 @@ namespace dMobile.View.Menus
         {
             base.OnAppearing();
 
-            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), (keyPressed) =>
+            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
             {
                 // TODO: Verify keycodes
                 Enum.TryParse(keyPressed, out Keycode keycode);
 
                 if (keycode == Keycode.Enter)
                 {
-                    //this.CallingControl = new ucInventoryMovementMenu();
                     this.DisableControls();
                     this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-
                     this.IsControlLoaded = false;
+
+                    ucInventoryMovementMenu inventoryMovementMenu = new ucInventoryMovementMenu();
+                    await inventoryMovementMenu.Show();
                 }
                 else if (keycode == Keycode.Escape)
                 {
                     //this.CallingControl = new ucMainMenu();
                     this.DisableControls();
                     this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-
                     this.IsControlLoaded = false;
                 }
                 else if (keycode == Keycode.Num1)
                 {
-                    //this.CallingControl = new ucInventoryMovementMenu();
                     this.DisableControls();
                     this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-
                     this.IsControlLoaded = false;
+
+                    ucInventoryMovementMenu inventoryMovementMenu = new ucInventoryMovementMenu();
+                    await inventoryMovementMenu.Show();
                 }
                 else if (keycode == Keycode.Num2)
                 {
                     //this.CallingControl = new ucActivityConvertUnit();
                     this.DisableControls();
                     this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-
                     this.IsControlLoaded = false;
+
+                    ucActivityConvertUnit convertUnit = new ucActivityConvertUnit();
+                    await convertUnit.Show();
                 }
                 else if (keycode == Keycode.Num3)
                 {
-                    //this.CallingControl = new ucInventoryCountsMenu();
-                    ucInventoryCountsMenu countsMenu = new ucInventoryCountsMenu();
-                    Device.BeginInvokeOnMainThread(async () => await countsMenu.Show());
                     this.DisableControls();
                     this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-
                     this.IsControlLoaded = false;
+
+                    ucInventoryCountsMenu countsMenu = new ucInventoryCountsMenu();
+                    await countsMenu.Show();
                 }
                 else if (keycode == Keycode.Num4)
                 {
                     //this.callingControl = new ucActivityHdrSkidInfo(new ucInventoryMenu());
                     this.DisableControls();
                     this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-
                     this.IsControlLoaded = false;
+
+                    ucActivityHdrSkidInfo skidInfo = new ucActivityHdrSkidInfo();
+                    await skidInfo.ShowDialog();
                 }
                 else if (keycode == Keycode.Num5)
                 {
@@ -152,9 +157,8 @@ namespace dMobile.View.Menus
         /// </summary>
         protected override void OnDisappearing()
         {
-            base.OnDisappearing();
-
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
+            base.OnDisappearing();
         }
 
         #region Delegates
@@ -367,7 +371,7 @@ namespace dMobile.View.Menus
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool IsReadyToSave()
+        public async Task<bool> IsReadyToSave()
         {
             return true;
         }
@@ -377,7 +381,7 @@ namespace dMobile.View.Menus
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool IsReadyToClose()
+        public async Task<bool> IsReadyToClose()
         {
             return true;
         }
@@ -408,7 +412,7 @@ namespace dMobile.View.Menus
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool SaveChanges()
+        public async Task<bool> SaveChanges()
         {
             return true;
         }
@@ -418,7 +422,7 @@ namespace dMobile.View.Menus
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool CancelChanges()
+        public async Task<bool> CancelChanges()
         {
             return true;
         }
@@ -546,13 +550,15 @@ namespace dMobile.View.Menus
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        public void cmdMovement_Click(object sender, EventArgs e)
+        public async void cmdMovement_Click(object sender, EventArgs e)
         {
             //this.CallingControl = new ucInventoryMovementMenu();
             this.DisableControls();
             this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-
             this.IsControlLoaded = false;
+
+            ucInventoryMovementMenu inventoryMovementMenu = new ucInventoryMovementMenu();
+            await inventoryMovementMenu.Show();
         }
 
         /// <summary>
@@ -561,13 +567,15 @@ namespace dMobile.View.Menus
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        public void cmdConvertUnits_Click(object sender, EventArgs e)
+        public async void cmdConvertUnits_Click(object sender, EventArgs e)
         {
             //this.CallingControl = new ucActivityConvertUnit();
             this.DisableControls();
             this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-
             this.IsControlLoaded = false;
+
+            ucActivityConvertUnit convertUnit = new ucActivityConvertUnit();
+            await convertUnit.Show();
         }
 
         /// <summary>
@@ -576,15 +584,15 @@ namespace dMobile.View.Menus
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        public void cmdInventoryCounts_Click(object sender, EventArgs e)
+        public async void cmdInventoryCounts_Click(object sender, EventArgs e)
         {
             //this.CallingControl = new ucInventoryCountsMenu();
-            ucInventoryCountsMenu countsMenu = new ucInventoryCountsMenu();
-            Device.BeginInvokeOnMainThread(async () => await countsMenu.Show());
             this.DisableControls();
             this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-
             this.IsControlLoaded = false;
+            
+            ucInventoryCountsMenu countsMenu = new ucInventoryCountsMenu();
+            await countsMenu.Show();
         }
 
         /// <summary>
@@ -593,13 +601,15 @@ namespace dMobile.View.Menus
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        public void cmdSkidMaintenance_Click(object sender, EventArgs e)
+        public async void cmdSkidMaintenance_Click(object sender, EventArgs e)
         {
             //this.callingControl = new ucActivityHdrSkidInfo(new ucInventoryMenu());
             this.DisableControls();
             this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-
             this.IsControlLoaded = false;
+
+            ucActivityHdrSkidInfo skidInfo = new ucActivityHdrSkidInfo();
+            await skidInfo.ShowDialog();
         }
 
         /// <summary>

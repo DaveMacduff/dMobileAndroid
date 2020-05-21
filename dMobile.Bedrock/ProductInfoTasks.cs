@@ -356,7 +356,7 @@
                 "INNER JOIN tUnit AS aUnitBase ON aUnitBase.UnitRefno = tProductUnit.BaseUnitRefno " +
                 "INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno " +
                 "WHERE tProductUnit.ProductUnitRefno = @productUnitRefno";
-                cmndProdInfo.Parameters.Add(new SQLiteParameter("@productUnitRefno", productUnitRefno));
+                cmndProdInfo.Parameters.Add(new SQLiteParameter("@productUnitRefno", Convert.ToInt32(productUnitRefno)));
 
                 using (SQLiteDataReader drProdInfo = cmndProdInfo.ExecuteReader())
                 {
@@ -528,35 +528,39 @@
                     if (dr.Read())
                     {
                         scheme.SchemeRefno = Convert.ToInt32(dr["ProductSchemeRefno"]);
-                        scheme.IsSerialTracked = Convert.ToBoolean(dr["ProductSchemeIsSerialTracked"]);
-                        scheme.IsProductionDateTracked = Convert.ToBoolean(dr["ProductSchemeIsProductionDateTracked"]);
-                        scheme.IsLotTracked = Convert.ToBoolean(dr["ProductSchemeIsLotTracked"]);
-                        scheme.IsBestBeforeDateTracked = Convert.ToBoolean(dr["ProductSchemeIsBestBeforeDateTracked"]);
-                        scheme.IsVariantTracked = Convert.ToBoolean(dr["ProductSchemeIsVariantTracked"]);
-                        scheme.IsLotUniqueComponent = Convert.ToBoolean(dr["ProductSchemeIsLotUniqueComponent"]);
-                        scheme.IsProductionDateUniqueComponent = Convert.ToBoolean(dr["ProductSchemeIsProductionDateUniqueComponent"]);
-                        scheme.IsBestBeforeDateUniqueComponent = Convert.ToBoolean(dr["ProductSchemeIsBestBeforeDateUniqueComponent"]);
-                        scheme.IsVariantUniqueComponent = Convert.ToBoolean(dr["ProductSchemeIsVariantUniqueComponent"]);
-                        scheme.Extra1Type = Convert.ToInt32(dr["ProductSchemeExtra1Type"]);
-                        scheme.Extra2Type = Convert.ToInt32(dr["ProductSchemeExtra2Type"]);
-                        scheme.Extra3Type = Convert.ToInt32(dr["ProductSchemeExtra3Type"]);
-                        scheme.Extra4Type = Convert.ToInt32(dr["ProductSchemeExtra4Type"]);
-                        scheme.Extra5Type = Convert.ToInt32(dr["ProductSchemeExtra5Type"]);
-                        scheme.Extra1Caption = Convert.ToString(dr["ProductSchemeExtra1Caption"]);
-                        scheme.Extra2Caption = Convert.ToString(dr["ProductSchemeExtra2Caption"]);
-                        scheme.Extra3Caption = Convert.ToString(dr["ProductSchemeExtra3Caption"]);
-                        scheme.Extra4Caption = Convert.ToString(dr["ProductSchemeExtra4Caption"]);
-                        scheme.Extra5Caption = Convert.ToString(dr["ProductSchemeExtra5Caption"]);
-                        scheme.Extra1IsRequired = Convert.ToBoolean(dr["ProductSchemeExtra1IsRequired"]);
-                        scheme.Extra2IsRequired = Convert.ToBoolean(dr["ProductSchemeExtra2IsRequired"]);
-                        scheme.Extra3IsRequired = Convert.ToBoolean(dr["ProductSchemeExtra3IsRequired"]);
-                        scheme.Extra4IsRequired = Convert.ToBoolean(dr["ProductSchemeExtra4IsRequired"]);
-                        scheme.Extra5IsRequired = Convert.ToBoolean(dr["ProductSchemeExtra5IsRequired"]);
-                        scheme.IsLotTrackedDefault = Convert.ToBoolean(dr["ProductSchemeIsLotTrackedDefault"]);
-                        scheme.IsProductionDateTrackedDefault = Convert.ToBoolean(dr["ProductSchemeIsProductionDateTrackedDefault"]);
-                        scheme.IsBestBeforeDateTrackedDefault = Convert.ToBoolean(dr["ProductSchemeIsBestBeforeDateTrackedDefault"]);
+                        
+                        if (LocationMap.GetInstance().CurrLocMap.IsWhsWMS)
+                        {
+                            scheme.IsSerialTracked = Convert.ToBoolean(dr["ProductSchemeIsSerialTracked"]);
+                            scheme.IsProductionDateTracked = Convert.ToBoolean(dr["ProductSchemeIsProductionDateTracked"]);
+                            scheme.IsLotTracked = Convert.ToBoolean(dr["ProductSchemeIsLotTracked"]);
+                            scheme.IsBestBeforeDateTracked = Convert.ToBoolean(dr["ProductSchemeIsBestBeforeDateTracked"]);
+                            scheme.IsVariantTracked = Convert.ToBoolean(dr["ProductSchemeIsVariantTracked"]);
+                            scheme.IsLotUniqueComponent = Convert.ToBoolean(dr["ProductSchemeIsLotUniqueComponent"]);
+                            scheme.IsProductionDateUniqueComponent = Convert.ToBoolean(dr["ProductSchemeIsProductionDateUniqueComponent"]);
+                            scheme.IsBestBeforeDateUniqueComponent = Convert.ToBoolean(dr["ProductSchemeIsBestBeforeDateUniqueComponent"]);
+                            scheme.IsVariantUniqueComponent = Convert.ToBoolean(dr["ProductSchemeIsVariantUniqueComponent"]);
+                            scheme.Extra1Type = Convert.ToInt32(dr["ProductSchemeExtra1Type"]);
+                            scheme.Extra2Type = Convert.ToInt32(dr["ProductSchemeExtra2Type"]);
+                            scheme.Extra3Type = Convert.ToInt32(dr["ProductSchemeExtra3Type"]);
+                            scheme.Extra4Type = Convert.ToInt32(dr["ProductSchemeExtra4Type"]);
+                            scheme.Extra5Type = Convert.ToInt32(dr["ProductSchemeExtra5Type"]);
+                            scheme.Extra1Caption = Convert.ToString(dr["ProductSchemeExtra1Caption"]);
+                            scheme.Extra2Caption = Convert.ToString(dr["ProductSchemeExtra2Caption"]);
+                            scheme.Extra3Caption = Convert.ToString(dr["ProductSchemeExtra3Caption"]);
+                            scheme.Extra4Caption = Convert.ToString(dr["ProductSchemeExtra4Caption"]);
+                            scheme.Extra5Caption = Convert.ToString(dr["ProductSchemeExtra5Caption"]);
+                            scheme.Extra1IsRequired = Convert.ToBoolean(dr["ProductSchemeExtra1IsRequired"]);
+                            scheme.Extra2IsRequired = Convert.ToBoolean(dr["ProductSchemeExtra2IsRequired"]);
+                            scheme.Extra3IsRequired = Convert.ToBoolean(dr["ProductSchemeExtra3IsRequired"]);
+                            scheme.Extra4IsRequired = Convert.ToBoolean(dr["ProductSchemeExtra4IsRequired"]);
+                            scheme.Extra5IsRequired = Convert.ToBoolean(dr["ProductSchemeExtra5IsRequired"]);
+                            scheme.IsLotTrackedDefault = Convert.ToBoolean(dr["ProductSchemeIsLotTrackedDefault"]);
+                            scheme.IsProductionDateTrackedDefault = Convert.ToBoolean(dr["ProductSchemeIsProductionDateTrackedDefault"]);
+                            scheme.IsBestBeforeDateTrackedDefault = Convert.ToBoolean(dr["ProductSchemeIsBestBeforeDateTrackedDefault"]);
 
-                        scheme.LabelInfo = labelScheme.GetSchemeInfoFromSchemeRefno(scheme.SchemeRefno);
+                            scheme.LabelInfo = labelScheme.GetSchemeInfoFromSchemeRefno(scheme.SchemeRefno);
+                        }
                     }
 
                     dr.Close();

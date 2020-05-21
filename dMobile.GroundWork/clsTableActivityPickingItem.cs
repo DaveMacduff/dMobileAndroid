@@ -328,6 +328,7 @@ namespace dMobile.GroundWork
                             //{
                             //SqlCeUpdatableRecord recPickItem = rsPickItem.CreateRecord();
                             int actItemRefno = 0;
+                            int prodUnitRefno = 0;
                             int progValue = 0;
                             int locMapRefno = 0;
                             string actItemPickComment = string.Empty;
@@ -357,99 +358,8 @@ namespace dMobile.GroundWork
                                 actItemPickFKRefno = Convert.ToInt32(drow["ActivityItemPickingFKRefno"]);
                                 errMsg += Environment.NewLine + "Item fk refno " + actItemPickFKRefno;
 
-                                //prodUnitRefno = this.GetProductUnitRefnoFromDataRow(drow, ref errMsg, drProd, drUnit, drProdUnit, false);
-
-                                int prodRefno = 0;
-                                int prodFKRefno = 0;
-                                string unitCode = string.Empty;
-                                int unitRefno = 0;
-                                int prodUnitRefno = 0;
-                                bool prodUnitIsBC = false;
-                                bool useFNo = false;
-
-                                if (useFNo)
-                                {
-                                    prodFKRefno = Convert.ToInt32(drow["f03"]);
-                                    unitCode = drow["f05"].ToString();
-                                    prodUnitIsBC = Convert.ToBoolean(drow["f04"]);
-                                }
-                                else
-                                {
-                                    prodFKRefno = Convert.ToInt32(drow["ProductFKRefno"]);
-                                    unitCode = drow["UnitCode"].ToString();
-                                    prodUnitIsBC = Convert.ToBoolean(drow["ProductUnitIsBC"]);
-                                }
-
-                                actItemRefno = Convert.ToInt32(cmndID.ExecuteScalar());
-
-                                cmndProd.CommandText = "SELECT * FROM tProduct WHERE ProductFKRefno = @productFKRefno";
-                                cmndProd.CommandType = CommandType.Text;
-                                //cmndProd.IndexName = "UQ_ProductOnProductFKRefno";
-                                cmndProd.Parameters.Add(new SQLiteParameter("@productFKRefno", prodFKRefno));
-
-                                cmndUnit.CommandText = "SELECT * FROM tUnit WHERE UnitCode = @unitCode";
-                                cmndUnit.CommandType = CommandType.Text;
-                                //cmndUnit.IndexName = "UQ_UnitOnUnitCode";
-                                cmndUnit.Parameters.Add(new SQLiteParameter("@unitCode", unitCode));
-
-                                using (SQLiteDataReader drProd = cmndProd.ExecuteReader())
-                                using (SQLiteDataReader drUnit = cmndUnit.ExecuteReader())
-                                {
-                                    errMsg += Environment.NewLine + "Prod fk refno " + prodFKRefno;
-                                    errMsg += Environment.NewLine + "Unit \'" + unitCode + "\'";
-                                    errMsg += Environment.NewLine + "Is bc " + prodUnitIsBC;
-
-                                    if (drProd.Read())
-                                    {
-                                        prodRefno = drProd.GetInt32((int)SysCommon.ProductFields.Refno);
-                                    }
-                                    else
-                                    {
-                                        // TODO: Resource strings
-                                        throw new Exception("drProduct.Read() failed." + Environment.NewLine + errMsg);
-                                    }
-
-
-                                    if (drUnit.Read())
-                                    {
-                                        unitRefno = drUnit.GetInt32((int)SysCommon.UnitFields.UnitRefno);
-                                    }
-                                    else
-                                    {
-                                        // TODO: Resource strings
-                                        throw new Exception("drUnit.Read() failed." + Environment.NewLine + errMsg);
-                                    }
-
-                                    cmndProdUnit.CommandText = "SELECT * FROM tProductUnit WHERE ProductRefno = @productRefno AND UnitRefno = @unitRefno AND ProductUnitIsBC = @productUnitIsBC";
-                                    cmndProdUnit.CommandType = CommandType.Text;
-                                    //cmndProdUnit.IndexName = "UQ_ProductUnitOnProductRefnoAndUnitRefnoAndProductUnitIsBC";
-                                    cmndProdUnit.Parameters.Add(new SQLiteParameter("@productRefno", prodRefno));
-                                    cmndProdUnit.Parameters.Add(new SQLiteParameter("@unitRefno", unitRefno));
-                                    cmndProdUnit.Parameters.Add(new SQLiteParameter("@productUnitIsBC", prodUnitIsBC));
-
-                                    using (SQLiteDataReader drProdUnit = cmndProdUnit.ExecuteReader())
-                                    {
-                                        if (drProdUnit.Read())
-                                        {
-                                            prodUnitRefno = drProdUnit.GetInt32((int)SysCommon.ProdUnitFields.Refno);
-                                        }
-                                        else
-                                        {
-                                            // TODO: Resource strings
-                                            throw new Exception("drProdUnit.Read() failed." + Environment.NewLine + errMsg);
-                                        }
-                                    }
-                                }
-
-                                cmndLocMapWhs.CommandText = "SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = @locationMapWarehouseFKRefno";
-                                cmndLocMapWhs.CommandType = CommandType.Text;
-                                //cmndLocMapWhs.IndexName = "UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno";
-                                cmndLocMapWhs.Parameters.Add(new SQLiteParameter("@locationMapWarehouseFKRefno", Convert.ToInt32(drow["LocationMapWarehouseFKRefno"])));
-
-                                using (SQLiteDataReader drLocMapWhs = cmndLocMapWhs.ExecuteReader())
-                                {
-                                    locMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, ref errMsg, drLocMapWhs);
-                                }
+                                prodUnitRefno = this.GetProductUnitRefnoFromDataRow(drow, ref conn, ref errMsg, false);
+                                locMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, ref errMsg, cmndLocMapWhs);
 
                                 cmndPickItem.CommandText = "INSERT INTO tActivityItemPicking (" +
                                     "ActivityItemRefno, " +

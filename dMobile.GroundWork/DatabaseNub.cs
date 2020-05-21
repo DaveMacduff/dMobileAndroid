@@ -578,7 +578,7 @@ namespace dMobile.GroundWork
                 + "ActivityDetailExtra2Text nvarchar(10) NOT NULL,"
                 + "ActivityDetailExtra3Text nvarchar(10) NOT NULL,"
                 + "ActivityDetailExtra4Text nvarchar(10) NOT NULL,"
-                + "ActivityDetailExtra5Text nvarchar(10) NOT NULL, "
+                + "ActivityDetailExtra5Date datetime NOT NULL, "
                 + "CONSTRAINT ActivityDetailExtraToActivityDetailOnActivityDetailRefno FOREIGN KEY (ActivityDetailRefno) REFERENCES tActivityDetail(ActivityDetailRefno) ON DELETE CASCADE ON UPDATE CASCADE"
                 + ")";
 

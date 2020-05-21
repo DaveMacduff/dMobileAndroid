@@ -15,8 +15,7 @@
         /// Defines the loading
         /// </summary>
         private bool loading;
-        private bool actionsVisible;
-        private string iconSource;
+        private string optionsIconSource;
 
         /// <summary>
         /// Gets or sets a value indicating whether Loading
@@ -31,27 +30,16 @@
             }
         }
 
-        public bool ActionsVisible
-        {
-            get { return this.actionsVisible; }
-            set
-            {
-                this.actionsVisible = value;
-                this.IconSource = this.actionsVisible ? Convert.ToString(Application.Current.Resources["ShowLessIcon"]) : Convert.ToString(Application.Current.Resources["ShowMoreIcon"]);
-                this.OnPropertyChanged();
-            }
-        }
-
-        public string IconSource
+        public string OptionsIconSource
         {
             get
             {
-                return iconSource;
+                return optionsIconSource;
             }
 
             set
             {
-                this.iconSource = value;
+                this.optionsIconSource = value;
                 this.OnPropertyChanged();
             }
         }
@@ -83,7 +71,7 @@
             this.tcs = new TaskCompletionSource<bool>();
             this.BindingContext = this;
             this.Loading = false;
-            this.IconSource = Convert.ToString(Application.Current.Resources["ShowMoreIcon"]);
+            this.OptionsIconSource = Convert.ToString(Application.Current.Resources["OptionsIcon"]);
         }
 
         /// <summary>

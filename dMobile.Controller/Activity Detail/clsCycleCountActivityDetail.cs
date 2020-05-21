@@ -1,6 +1,7 @@
 namespace dMobile.Controller
 {
     using System;
+    using System.Collections.ObjectModel;
     using System.Data;
     using System.Data.SQLite;
     using System.Text;
@@ -8,6 +9,7 @@ namespace dMobile.Controller
     using System.Xml.Linq;
     using dMobile.Bedrock;
     using dMobile.GroundWork;
+    using Xamarin.Forms;
 
     public class CycleCountActDetail : ActDetail
     {
@@ -447,7 +449,7 @@ namespace dMobile.Controller
                 sql.Append("tActivityDetailExtra.ActivityDetailExtra2Text,");
                 sql.Append("tActivityDetailExtra.ActivityDetailExtra3Text,");
                 sql.Append("tActivityDetailExtra.ActivityDetailExtra4Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra5Text ");
+                sql.Append("tActivityDetailExtra.ActivityDetailExtra5Date ");
                 sql.Append("FROM tActivityDetailCount ");
                 sql.Append("INNER JOIN tActivityDetail ON tActivityDetail.ActivityDetailRefno ");
                 sql.Append("= tActivityDetailCount.ActivityDetailRefno ");
@@ -503,7 +505,7 @@ namespace dMobile.Controller
                 sql.Append("tActivityDetailExtra.ActivityDetailExtra2Text,");
                 sql.Append("tActivityDetailExtra.ActivityDetailExtra3Text,");
                 sql.Append("tActivityDetailExtra.ActivityDetailExtra4Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra5Text ");
+                sql.Append("tActivityDetailExtra.ActivityDetailExtra5Date ");
                 sql.Append("FROM tActivityDetailCount ");
                 sql.Append("INNER JOIN tActivityDetail ON tActivityDetail.ActivityDetailRefno ");
                 sql.Append("= tActivityDetailCount.ActivityDetailRefno ");
@@ -559,7 +561,7 @@ namespace dMobile.Controller
                 sql.Append("tActivityDetailExtra.ActivityDetailExtra2Text,");
                 sql.Append("tActivityDetailExtra.ActivityDetailExtra3Text,");
                 sql.Append("tActivityDetailExtra.ActivityDetailExtra4Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra5Text ");
+                sql.Append("tActivityDetailExtra.ActivityDetailExtra5Date ");
                 sql.Append("FROM tActivityDetailCount ");
                 sql.Append("INNER JOIN tActivityDetail ON tActivityDetail.ActivityDetailRefno ");
                 sql.Append("= tActivityDetailCount.ActivityDetailRefno ");
@@ -659,7 +661,7 @@ namespace dMobile.Controller
             "tActivityDetailExtra.ActivityDetailExtra2Text, " +
             "tActivityDetailExtra.ActivityDetailExtra3Text, " +
             "tActivityDetailExtra.ActivityDetailExtra4Text, " +
-            "tActivityDetailExtra.ActivityDetailExtra5Text  " +
+            "tActivityDetailExtra.ActivityDetailExtra5Date  " +
             "FROM tActivityDetailCount  " +
             "INNER JOIN tActivityDetail ON tActivityDetail.ActivityDetailRefno  " +
             "= tActivityDetailCount.ActivityDetailRefno  " +
@@ -726,7 +728,7 @@ namespace dMobile.Controller
              "tActivityDetailExtra.ActivityDetailExtra2Text, " +
              "tActivityDetailExtra.ActivityDetailExtra3Text, " +
              "tActivityDetailExtra.ActivityDetailExtra4Text, " +
-             "tActivityDetailExtra.ActivityDetailExtra5Text  " +
+             "tActivityDetailExtra.ActivityDetailExtra5Date  " +
              "FROM tActivityDetailCount  " +
              "INNER JOIN tActivityDetail ON tActivityDetail.ActivityDetailRefno  " +
              "= tActivityDetailCount.ActivityDetailRefno  " +
@@ -793,7 +795,7 @@ namespace dMobile.Controller
                  "tActivityDetailExtra.ActivityDetailExtra2Text, " +
                  "tActivityDetailExtra.ActivityDetailExtra3Text, " +
                  "tActivityDetailExtra.ActivityDetailExtra4Text, " +
-                 "tActivityDetailExtra.ActivityDetailExtra5Text  " +
+                 "tActivityDetailExtra.ActivityDetailExtra5Date  " +
                  "FROM tActivityDetailCount  " +
                  "INNER JOIN tActivityDetail ON tActivityDetail.ActivityDetailRefno  " +
                  "= tActivityDetailCount.ActivityDetailRefno  " +
@@ -824,81 +826,98 @@ namespace dMobile.Controller
             return table;
         }
 
-//        /// <summary>
-//        ///
-//        /// </summary>
-//        /// <param name="dataGridMain"></param>
-//        /// <remarks></remarks>
-//        public override void DesignDataGrid(DataGrid dataGridMain)
-//        {
-//            int colWidthFactor = 1;
+        public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity, ref ColumnDefinition dataGridWidth)
+        {
+            throw new NotImplementedException();
+        }
 
-//            if (this.SysEnv.IsWindowsMobile6Device)
-//            {
-//                colWidthFactor = 2;
-//            }
+        //        /// <summary>
+        //        ///
+        //        /// </summary>
+        //        /// <param name="dataGridMain"></param>
+        //        /// <remarks></remarks>
+        //        public override void DesignDataGrid(DataGrid dataGridMain)
+        //        {
+        //            int colWidthFactor = 1;
 
-//            if (dataGridMain.TableStyles.Count > 0)
-//            {
-//                dataGridMain.TableStyles.Clear();
-//            }
+        //            if (this.SysEnv.IsWindowsMobile6Device)
+        //            {
+        //                colWidthFactor = 2;
+        //            }
 
-//            DataGridTableStyle dataGridStyle = new DataGridTableStyle();
-//            dataGridStyle.MappingName = this.MainGridMappingName;
+        //            if (dataGridMain.TableStyles.Count > 0)
+        //            {
+        //                dataGridMain.TableStyles.Clear();
+        //            }
 
-//            DataGridTextBoxColumn dataGridCol = new DataGridTextBoxColumn();
-//            dataGridCol.MappingName = "ActivityDetailQuantity";
-//#if MULTILANGUAGE
-//      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Qtyzzz);
-//#else
-//            dataGridCol.HeaderText = "Qty";
-//#endif
-//            dataGridCol.Width = 50 * colWidthFactor;
-//            dataGridCol.Format = "0.000";
-//            dataGridStyle.GridColumnStyles.Add(dataGridCol);
+        //            DataGridTableStyle dataGridStyle = new DataGridTableStyle();
+        //            dataGridStyle.MappingName = this.MainGridMappingName;
 
-//            dataGridCol = new DataGridTextBoxColumn();
-//            dataGridCol.MappingName = "ActivityDetailWeightQuantity";
-//#if MULTILANGUAGE
-//      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Weight);
-//#else
-//            dataGridCol.HeaderText = "Weight";
-//#endif
-//            dataGridCol.Width = 55 * colWidthFactor;
-//            dataGridCol.Format = "0.000";
-//            dataGridStyle.GridColumnStyles.Add(dataGridCol);
+        //            DataGridTextBoxColumn dataGridCol = new DataGridTextBoxColumn();
+        //            dataGridCol.MappingName = "ActivityDetailQuantity";
+        //#if MULTILANGUAGE
+        //      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Qtyzzz);
+        //#else
+        //            dataGridCol.HeaderText = "Qty";
+        //#endif
+        //            dataGridCol.Width = 50 * colWidthFactor;
+        //            dataGridCol.Format = "0.000";
+        //            dataGridStyle.GridColumnStyles.Add(dataGridCol);
 
-//            dataGridCol = new DataGridTextBoxColumn();
-//            dataGridCol.MappingName = "UnitCode";
-//            dataGridCol.HeaderText = string.Empty;
-//            dataGridCol.Width = 30 * colWidthFactor;
-//            dataGridStyle.GridColumnStyles.Add(dataGridCol);
+        //            dataGridCol = new DataGridTextBoxColumn();
+        //            dataGridCol.MappingName = "ActivityDetailWeightQuantity";
+        //#if MULTILANGUAGE
+        //      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Weight);
+        //#else
+        //            dataGridCol.HeaderText = "Weight";
+        //#endif
+        //            dataGridCol.Width = 55 * colWidthFactor;
+        //            dataGridCol.Format = "0.000";
+        //            dataGridStyle.GridColumnStyles.Add(dataGridCol);
 
-//            dataGridCol = new DataGridTextBoxColumn();
-//            dataGridCol.MappingName = "ActivityDetailSchemeID";
-//#if MULTILANGUAGE
-//      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.SchemeId);
-//#else
-//            dataGridCol.HeaderText = "Scheme ID";
-//#endif
-//            dataGridCol.Width = 500 * colWidthFactor;
-//            dataGridStyle.GridColumnStyles.Add(dataGridCol);
+        //            dataGridCol = new DataGridTextBoxColumn();
+        //            dataGridCol.MappingName = "UnitCode";
+        //            dataGridCol.HeaderText = string.Empty;
+        //            dataGridCol.Width = 30 * colWidthFactor;
+        //            dataGridStyle.GridColumnStyles.Add(dataGridCol);
 
-//            dataGridMain.TableStyles.Add(dataGridStyle);
-//            dataGridMain.RowHeadersVisible = false;
-//            dataGridMain.ColumnHeadersVisible = true;
-//        }
+        //            dataGridCol = new DataGridTextBoxColumn();
+        //            dataGridCol.MappingName = "ActivityDetailSchemeID";
+        //#if MULTILANGUAGE
+        //      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.SchemeId);
+        //#else
+        //            dataGridCol.HeaderText = "Scheme ID";
+        //#endif
+        //            dataGridCol.Width = 500 * colWidthFactor;
+        //            dataGridStyle.GridColumnStyles.Add(dataGridCol);
+
+        //            dataGridMain.TableStyles.Add(dataGridStyle);
+        //            dataGridMain.RowHeadersVisible = false;
+        //            dataGridMain.ColumnHeadersVisible = true;
+        //        }
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="searchText"></param>
         /// <returns></returns>
-        public override DataView Search(string searchText)
+        public override ObservableCollection<object> Search(string searchText)
         {
-            this.DataViewDetails.RowFilter = "ActivityCountStringFKRefno LIKE \'" + searchText.Trim() + "%\'";
+            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
-            return this.DataViewDetails;
+            this.DataViewDetails.RowFilter = "ActivityCountStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
+
+            // TODO: search
+            //foreach (DataRow row in this.DataViewHdrs.ToTable().Rows)
+            //{
+            //    ObjectType objectType = new ObjectType
+            //    {
+            //    };
+
+            //    observableCollection.Add(objectType);
+            //}
+
+            return observableCollection;
         }
 
         /// <summary>
@@ -909,17 +928,17 @@ namespace dMobile.Controller
         {
             if (idx >= 0)
             {
-                this.SelectedLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno((int)DataViewDetails[idx]["LocationMapRefno"]);
-                this.Refno = (int)this.DataViewDetails[idx]["ActivityDetailRefno"];
-                this.FKRefno = (int)this.DataViewDetails[idx]["ActivityDetailCountFKRefno"];
-                this.SchemeID = (string)this.DataViewDetails[idx]["ActivityDetailSchemeID"];
-                this.UniqueSchemeID = (string)this.DataViewDetails[idx]["ActivityDetailUniqueSchemeID"];
+                this.SelectedLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(DataViewDetails[idx]["LocationMapRefno"]));
+                this.Refno = Convert.ToInt32(this.DataViewDetails[idx]["ActivityDetailRefno"]);
+                this.FKRefno = Convert.ToInt32(this.DataViewDetails[idx]["ActivityDetailCountFKRefno"]);
+                this.SchemeID = Convert.ToString(this.DataViewDetails[idx]["ActivityDetailSchemeID"]);
+                this.UniqueSchemeID = Convert.ToString(this.DataViewDetails[idx]["ActivityDetailUniqueSchemeID"]);
 
-                this.ActExtra.Text1 = (string)this.DataViewDetails[idx]["ActivityDetailExtra1Text"];
-                this.ActExtra.Text2 = (string)this.DataViewDetails[idx]["ActivityDetailExtra2Text"];
-                this.ActExtra.Text3 = (string)this.DataViewDetails[idx]["ActivityDetailExtra3Text"];
-                this.ActExtra.Text4 = (string)this.DataViewDetails[idx]["ActivityDetailExtra4Text"];
-                this.ActExtra.Text5 = (string)this.DataViewDetails[idx]["ActivityDetailExtra5Text"];
+                this.ActExtra.Text1 = Convert.ToString(this.DataViewDetails[idx]["ActivityDetailExtra1Text"]);
+                this.ActExtra.Text2 = Convert.ToString(this.DataViewDetails[idx]["ActivityDetailExtra2Text"]);
+                this.ActExtra.Text3 = Convert.ToString(this.DataViewDetails[idx]["ActivityDetailExtra3Text"]);
+                this.ActExtra.Text4 = Convert.ToString(this.DataViewDetails[idx]["ActivityDetailExtra4Text"]);
+                this.ActExtra.DateTime5 = Convert.ToDateTime(this.DataViewDetails[idx]["ActivityDetailExtra5Date"]);
             }
             else
             {
@@ -996,7 +1015,7 @@ namespace dMobile.Controller
                     + ("<extra2>" + this.ActExtra.Text2 + "</extra2>")
                     + ("<extra3>" + this.ActExtra.Text3 + "</extra3>")
                     + ("<extra4>" + this.ActExtra.Text4 + "</extra4>")
-                    + ("<extra5>" + this.ActExtra.Text5 + "</extra5>")
+                    + ("<extra5>" + this.ActExtra.DateTime5 + "</extra5>")
                     + "</imclient>");
             }
 

@@ -262,15 +262,7 @@ namespace dMobile.GroundWork
                                 //recProduction.SetInt32((int)SysCommon.ActProdFields.ActRefno, actRefno);
                                 //recProduction.SetInt32((int)SysCommon.ActProdFields.ActSubType, (int)SysCommon.ActSubTypes.TicketFinished);
 
-                                cmndWhs.CommandText = "SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = @locationMapWarehouseFKRefno";
-                                cmndWhs.CommandType = CommandType.Text;
-                                //cmndWhs.IndexName = "UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno";
-                                cmndWhs.Parameters.Add(new SQLiteParameter("@locationMapWarehouseFKRefno", Convert.ToInt32(drow["LocationMapWarehouseFKRefno"])));
-
-                                using (SQLiteDataReader drWhs = cmndWhs.ExecuteReader())
-                                {
-                                    whsLocMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, ref errMsg, drWhs);
-                                }
+                                whsLocMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, ref errMsg, cmndWhs);
 
                                 cmndProduction.Parameters.Add(new SQLiteParameter("@warehouseLocationMapRefno", whsLocMapRefno));
                                 //recProduction.SetInt32((int)SysCommon.ActProdFields.WhsLocMapRefno, whsLocMapRefno);

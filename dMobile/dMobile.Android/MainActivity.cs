@@ -8,11 +8,12 @@
     using dMobile.Resources.Enums;
     using dMobile.View;
     using System;
+    using Xamarin.Forms;
 
     /// <summary>
     /// Defines the <see cref="MainActivity" />
     /// </summary>
-    [Activity(Label = "dMobile", Icon = "@mipmap/icon", Theme = "@style/MainTheme", ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation, ScreenOrientation = ScreenOrientation.Portrait)]
+    [Activity(Label = "dMobile", Icon = "@drawable/dtec_logo", Theme = "@style/MainTheme", ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation, ScreenOrientation = ScreenOrientation.Portrait)]
     public class MainActivity : global::Xamarin.Forms.Platform.Android.FormsAppCompatActivity
     {
         /// <summary>
@@ -34,11 +35,11 @@
         /// </summary>
         protected override void OnPause()
         {
-            base.OnPause();            
-
             SystemSettings tempSystemSettings = SysEnvironment.GetInstance().SysSettings;
             SystemSettingsTasks.SaveData(ref tempSystemSettings);
             SysEnvironment.GetInstance().ContactLog.SubmitContactLogOut();
+         
+            base.OnPause();            
         }
         
         /// <summary>
@@ -46,11 +47,11 @@
         /// </summary>
         protected override void OnStop()
         {
-            base.OnStop();            
-
             SystemSettings tempSystemSettings = SysEnvironment.GetInstance().SysSettings;
             SystemSettingsTasks.SaveData(ref tempSystemSettings);
             SysEnvironment.GetInstance().ContactLog.SubmitContactLogOut();
+
+            base.OnStop();            
         }
 
         /// <summary>
@@ -63,7 +64,7 @@
         {
             try
             {
-                Xamarin.Forms.MessagingCenter.Send(keyCode.ToString(), EventTypes.OnKeyUp.ToString());
+                MessagingCenter.Send(keyCode.ToString(), EventTypes.OnKeyUp.ToString());
             }
             catch (Exception ex)
             {

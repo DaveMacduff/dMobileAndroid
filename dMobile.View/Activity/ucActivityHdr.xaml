@@ -6,31 +6,25 @@
     xmlns:Helpers="clr-namespace:dMobile.View.Helpers"
     x:Class="dMobile.View.Activity.ucActivityHdr">
     <ContentPage.ToolbarItems>
-        <ToolbarItem x:Name="actionItemsMenu" IconImageSource="{Binding IconSource}" Clicked="ActionItemsMenu_Clicked" />
+        <ToolbarItem x:Name="optionsMenu" IconImageSource="{Binding OptionsIconSource}" Clicked="OptionsMenu_Clicked" />
     </ContentPage.ToolbarItems>
     <ContentPage.Content>
         <AbsoluteLayout VerticalOptions="Center">
             <Grid x:Name="gridContainer" Padding="10" AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0,0,1,1">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="3*"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="65*"/>
+                    <RowDefinition Height="20*"/>
+                    <RowDefinition Height="15*"/>
                 </Grid.RowDefinitions>
 
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-
-                <Frame VerticalOptions="Start" Grid.Row="0" Grid.ColumnSpan="2" OutlineColor="{DynamicResource BorderColor}">
+                <Frame VerticalOptions="Start" Grid.Row="0" OutlineColor="{DynamicResource BorderColor}">
                     <ScrollView Orientation="Horizontal">
                         <Grid x:Name="dataGridMainActivityHeader">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition x:Name="dataGridColumnWidth" Width="Auto"/>
+                                <ColumnDefinition x:Name="dataGridWidth" Width="Auto"/>
                             </Grid.ColumnDefinitions>
 
                             <ListView x:Name="dataGridMainActivity" ItemSelected="DataGridMainActivity_ItemSelected" HasUnevenRows="True" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" Grid.Row="1"/>
@@ -38,7 +32,7 @@
                     </ScrollView>
                 </Frame>
 
-                <Frame VerticalOptions="Start" Grid.Row="1" Grid.ColumnSpan="2" OutlineColor="{DynamicResource BorderColor}">
+                <Frame VerticalOptions="Start" Grid.Row="1" OutlineColor="{DynamicResource BorderColor}">
                     <ListView x:Name="lstDisplay" SelectionMode="None" HasUnevenRows="True" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" SeparatorVisibility="None">
                         <ListView.ItemTemplate>
                             <DataTemplate>
@@ -52,10 +46,12 @@
                     </ListView>
                 </Frame>
 
-                <Entry x:Name="txtSearchHdr" Grid.Row="2" Grid.Column="0" TextChanged="TxtSearchHdr_TextChanged" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                <!--
                 <Button x:Name="cmdFilter" Grid.Row="2" Grid.Column="1" Text="Filter" Clicked="cmdFilter_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
-
-                <Button x:Name="cmdAdd" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Text="Add" Clicked="cmdAdd_Click" IsVisible="{Binding ActionsVisible}" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                <Button x:Name="cmdAdd" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Text="Add" Clicked="cmdAdd_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                -->
+                <Entry x:Name="txtSearchHdr" Grid.Row="2" TextChanged="TxtSearchHdr_TextChanged" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                
             </Grid>
 
             <ActivityIndicator IsVisible="{Binding Loading}" 

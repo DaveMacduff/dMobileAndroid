@@ -6,12 +6,15 @@
     using dMobile.Controller;
     using dMobile.Resources.Enums;
     using dMobile.Resources.Types;
+    using dMobile.View.CustomControls;
     using dMobile.View.CustomPages.Modal;
     using dMobile.View.Forms;
     using System;
+    using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Data;
     using System.IO;
+    using System.Runtime.CompilerServices;
     using System.Text;
     using System.Threading.Tasks;
     using System.Xml;
@@ -39,10 +42,30 @@
         private bool isChangesMade = false;
         private bool isControlLoaded = false;
         private bool isShowDataValidMsg = true;
-        private ObservableCollection<string> itemsList;
-        private ObservableCollection<object> dataGridMainActivityItemsList;
-        private Picker updnBarCodeModifier1;
+        private ObservableCollection<string> itemsList = new ObservableCollection<string>();
+        private ObservableCollection<object> dataGridMainActivityItemsList = new ObservableCollection<object>();
         private int selectedIndex;
+        private List<string> optionsMenuItems = new List<string>();
+        
+        // cmdLocation
+        private string cmdLocationText;
+        private bool cmdLocationIsEnabled;
+
+        // cmdFilter
+        private string cmdFilterText;
+        private bool cmdFilterIsEnabled;
+        
+        // cmdSelectSkid
+        private string cmdSelectSkidText;
+        private bool cmdSelectSkidIsEnabled;
+        
+        // cmdAddProduct
+        private string cmdAddProductText;
+        private bool cmdAddProductIsEnabled;
+
+        // cmdAddSkid
+        private string cmdAddSkidText;
+        private bool cmdAddSkidIsEnabled;
 
         public ucActivityItem()
         {
@@ -54,28 +77,28 @@
         /// </summary>
         /// <param name="activity"></param>
         /// <param name="actSubTypes"></param>
-        public ucActivityItem(Controller.Activity activity, SysCommon.ActSubTypes actSubTypes)
+        public ucActivityItem(Activity activity, SysCommon.ActSubTypes actSubTypes)
         {
             this.InitializeComponent();
 
             // TODO: Resource strings
-            this.cmdLocation.Text = "Set Location";
-            this.cmdFilter.Text = "Filter";
-            this.cmdSelectSkid.Text = "Select Skid";
-            this.cmdAddProduct.Text = "Add Prod";
-            this.cmdAddSkid.Text = "Add Skid";
+            this.CmdLocationText = "Set Location";
+            this.CmdLocationIsEnabled = false;
+
+            this.CmdFilterText = "Filter";
+            this.CmdFilterIsEnabled = false;
+
+            this.CmdSelectSkidText = "Select Skid";
+            this.CmdSelectSkidIsEnabled = false;
+
+            this.CmdAddProductText = "Add Prod";
+            this.CmdAddProductIsEnabled = false;
+
+            this.CmdAddSkidText = "Add Skid";
+            this.CmdAddSkidIsEnabled = false;
 
             if (!DesignMode.IsDesignModeEnabled)
             {
-                this.cmdLocation.IsEnabled = false;
-                this.cmdFilter.IsEnabled = false;
-                this.cmdSelectSkid.IsEnabled = false;
-                this.cmdAddProduct.IsEnabled = false;
-                this.cmdAddSkid.IsEnabled = false;
-
-                this.ItemsList = new ObservableCollection<string>();
-                this.DataGridMainActivityItemsList = new ObservableCollection<object>();
-
                 this.LocMap = LocationMap.GetInstance();
                 this.SysEnv = SysEnvironment.GetInstance();
 
@@ -89,20 +112,12 @@
                 }
 
                 this.Title = this.GetControlDescription();
-                this.ActionsVisible = this.SysEnv.SysSettings.ActivityItemActionsVisible;
-
-                this.updnBarCodeModifier1 = new Picker();
-                this.updnBarCodeModifier1.SelectedIndexChanged += this.UpdnBarCodeModifier1_SelectedIndexChanged;
 
                 // Parse and seed the modifiers control
                 this.updnBarCodeModifier1.Items.Clear();
 
                 if (this.SysEnv.SysSettings.IsProductUnitBarCodeModifier1)
                 {
-                    this.gridControls.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Star });
-                    this.gridControls.Children.Add(this.updnBarCodeModifier1);
-                    Grid.SetColumn(this.updnBarCodeModifier1, 2);
-
                     this.updnBarCodeModifier1.Items.Add(" ");
                     string[] modifiers = this.SysEnv.SysSettings.ProductUnitBarCodeModifier1Codes.Split(',');
 
@@ -130,6 +145,30 @@
             }
         }
 
+        /// <summary>
+        /// Check if options in displayActionSheet are enabled/disabled and rebuild list
+        /// </summary>
+        /// <param name="propertyName"></param>
+        protected override void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            base.OnPropertyChanged(propertyName);
+
+            if (
+                propertyName == "CmdLocationText" || 
+                propertyName == "CmdLocationIsEnabled" || 
+                propertyName == "CmdFilterText" || 
+                propertyName == "CmdFilterIsEnabled" ||
+                propertyName == "CmdSelectSkidText" ||
+                propertyName == "CmdSelectSkidIsEnabled" ||
+                propertyName == "CmdAddProductText" ||
+                propertyName == "CmdAddProductIsEnabled" ||
+                propertyName == "CmdAddSkidText" ||
+                propertyName == "CmdAddSkidIsEnabled"
+               )
+            {
+                this.PopulateOptionsMenu();
+            }
+        }
 
         /// <summary>
         /// The OnAppearing
@@ -157,29 +196,34 @@
                     }
                     else if (keycode == Keycode.Escape)
                     {
-                        if (this.CancelChanges())
+                        if (await this.CancelChanges())
                         {
                             this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                         }
                     }
                     else if (keycode == Keycode.Grave)
                     {
-                        if (this.CancelChanges())
+                        if (await this.CancelChanges())
                         {
                             this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                             await this.Close();
                         }
                     }
-                    else if (keycode == Keycode.Del || keycode == Keycode.Clear)
+                    else if (keycode == Keycode.Clear)
                     {
-                        if (this.CancelChanges())
+                        if (await this.CancelChanges())
                         {
                             this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                         }
                     }
+                    else if (keycode == Keycode.Del)
+                    {
+                        // TODO: Confirm this works
+                        await this.DataGridMainActivity_KeyUpDelete();
+                    }
                     else if (keycode == Keycode.F1)
                     {
-                        if (this.SaveChanges())
+                        if (await this.SaveChanges())
                         {
                             this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                         }
@@ -219,6 +263,39 @@
             this.ScannerDisable();
 
             base.OnDisappearing();
+        }
+
+        /// <summary>
+        /// Populates a string array to be used in DisplayActionSheet
+        /// </summary>
+        private void PopulateOptionsMenu()
+        {
+            this.OptionsMenuItems.Clear();
+            
+            if (this.CmdLocationIsEnabled)
+            {
+                this.OptionsMenuItems.Add(this.CmdLocationText);
+            }
+            
+            if (this.CmdFilterIsEnabled)
+            {
+                this.OptionsMenuItems.Add(this.CmdFilterText);
+            }            
+            
+            if (this.CmdSelectSkidIsEnabled)
+            {
+                this.OptionsMenuItems.Add(this.CmdSelectSkidText);
+            }
+            
+            if (this.CmdAddProductIsEnabled)
+            {
+                this.OptionsMenuItems.Add(this.CmdAddProductText);
+            }
+            
+            if (this.CmdAddSkidIsEnabled)
+            {
+                this.OptionsMenuItems.Add(this.CmdAddSkidText);
+            }
         }
 
         public delegate void ReqCloseHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
@@ -518,9 +595,17 @@
         public ObservableCollection<string> ItemsList { get => itemsList; set => itemsList = value; }
         public ObservableCollection<object> DataGridMainActivityItemsList { get => dataGridMainActivityItemsList; set => dataGridMainActivityItemsList = value; }
         public int SelectedIndex { get => selectedIndex; set => selectedIndex = value; }
-
-
-
+        public List<string> OptionsMenuItems { get => optionsMenuItems; set => optionsMenuItems = value; }
+        public string CmdLocationText { get => cmdLocationText; set { cmdLocationText = value; this.OnPropertyChanged(); } }
+        public bool CmdLocationIsEnabled { get => cmdLocationIsEnabled; set { cmdLocationIsEnabled = value; this.OnPropertyChanged(); } }
+        public string CmdFilterText { get => cmdFilterText; set { cmdFilterText = value; this.OnPropertyChanged(); } }
+        public bool CmdFilterIsEnabled { get => cmdFilterIsEnabled; set { cmdFilterIsEnabled = value; this.OnPropertyChanged(); } }
+        public string CmdSelectSkidText { get => cmdSelectSkidText; set { cmdSelectSkidText = value; this.OnPropertyChanged(); } }
+        public bool CmdSelectSkidIsEnabled { get => cmdSelectSkidIsEnabled; set { cmdSelectSkidIsEnabled = value; this.OnPropertyChanged(); } }
+        public string CmdAddProductText { get => cmdAddProductText; set { cmdAddProductText = value; this.OnPropertyChanged(); } }
+        public bool CmdAddProductIsEnabled { get => cmdAddProductIsEnabled; set { cmdAddProductIsEnabled = value; this.OnPropertyChanged(); } }
+        public string CmdAddSkidText { get => cmdAddSkidText; set { cmdAddSkidText = value; this.OnPropertyChanged(); } }
+        public bool CmdAddSkidIsEnabled { get => cmdAddSkidIsEnabled; set { cmdAddSkidIsEnabled = value; this.OnPropertyChanged(); } }
 
         /// <summary>
         /// Unregister the bar code scan event handler and disable the scanner.
@@ -555,12 +640,10 @@
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool IsReadyToSave()
+        public async Task<bool> IsReadyToSave()
         {
             bool isReadyToSave = true;
 
-            Device.BeginInvokeOnMainThread(async () =>
-            {
                 if (isReadyToSave)
                 {
                     if (this.ActSubType == SysCommon.ActSubTypes.Picking)
@@ -605,7 +688,7 @@
                         {
                             isReadyToSave = false;
 
-                            Device.BeginInvokeOnMainThread(async () =>
+                            await Device.InvokeOnMainThreadAsync(async () =>
                             {
                                 FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
                                 await errRpt.ShowDialog();
@@ -613,7 +696,6 @@
                         }
                     }
                 }
-            });
 
             return isReadyToSave;
         }
@@ -623,12 +705,10 @@
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool IsReadyToClose()
+        public async Task<bool> IsReadyToClose()
         {
             bool isReadyToClose = true;
 
-            Device.BeginInvokeOnMainThread(async () =>
-            {
                 // NOTE: This code is needed to clean up the scanner driver.
                 // Symbol had threading issues without this call when dMobile was terminating.
                 // All user controls that initalize a bar code need this code.
@@ -642,7 +722,7 @@
                 {
                     isReadyToClose = false;
 
-                    Device.BeginInvokeOnMainThread(async () =>
+                    await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
                         await errRpt.ShowDialog();
@@ -716,7 +796,7 @@
                                 case SysCommon.ActPickingQtyUnderValLevels.ValidateWarnAndStop:
                                     //MessageBox.Show(ex.Message, "Quantity Validation", MessageBoxButtons.OK, MessageBoxIcon.Hand, MessageBoxDefaultButton.Button1);
                                     // TODO: Resource strings
-                                    await DisplayAlert("Quantity Validation", ex.Message + Environment.NewLine + "Continue?", "OK");
+                                    await DisplayAlert("Quantity Validation", ex.Message, "OK");
                                     isReadyToClose = false;
                                     this.IsShowDataValidMsg = false;
 
@@ -728,9 +808,9 @@
                         }
                         catch (Exception ex)
                         {
-                            isReadyToClose = false;
+                            isReadyToClose = true;
 
-                            Device.BeginInvokeOnMainThread(async () =>
+                            await Device.InvokeOnMainThreadAsync(async () =>
                             {
                                 FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
                                 await errRpt.ShowDialog();
@@ -738,7 +818,6 @@
                         }
                     }
                 }
-            });
 
             return isReadyToClose;
         }
@@ -748,12 +827,13 @@
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool SaveChanges()
+        public async Task<bool> SaveChanges()
         {
             bool isSaveComplete = false;
+            
             try
             {
-                if (this.IsReadyToSave())
+                if (await this.IsReadyToSave())
                 {
                     ////if (this.ActSubType == SysCommon.ActSubTypes.Picking)
                     ////{
@@ -781,7 +861,7 @@
                     ////ClearContents();
 
                     // Print all receiving skid labels.
-                    Task.Run(async () => await PrintSkidLabels());
+                    await PrintSkidLabels();
 
                     this.IsChangesMade = false;
                     isSaveComplete = true;
@@ -810,7 +890,7 @@
             {
                 isSaveComplete = false;
 
-                Device.BeginInvokeOnMainThread(async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
                     await errRpt.ShowDialog();
@@ -825,13 +905,13 @@
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool CancelChanges()
+        public async Task<bool> CancelChanges()
         {
             bool cancelChanges = false;
 
             try
             {
-                if (this.IsReadyToClose())
+                if (await this.IsReadyToClose())
                 {
                     ////if (this.ActSubType == SysCommon.ActSubTypes.Picking)
                     ////{
@@ -886,7 +966,7 @@
             {
                 cancelChanges = false;
 
-                Device.BeginInvokeOnMainThread(async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
                     await errRpt.ShowDialog();
@@ -1340,45 +1420,48 @@
         /// <remarks>Line items must exist, one needs to be selected.</remarks>
         private void ItemQuantityUnderCheck()
         {
-            if (this.SysEnv.SysSettings.PickQtyUnderWarn != SysCommon.ActPickingQtyUnderValLevels.NoValidationOrWarning)
+            if (this.ActItem.DataViewItems != null)
             {
-                int currIdx = this.ActItem.CurrRowIdx;
-
-                if (0 <= currIdx && this.ActItem.DataViewItems.Count > currIdx)
+                if (this.SysEnv.SysSettings.PickQtyUnderWarn != SysCommon.ActPickingQtyUnderValLevels.NoValidationOrWarning)
                 {
-                    DataView dvItems = this.ActItem.DataViewItems;
-                    decimal available = Convert.ToDecimal(dvItems[currIdx]["ActivityItemPickingBaseQuantityAvailable"]);
-                    decimal shipped = Convert.ToDecimal(dvItems[currIdx]["ActivityItemPickingQuantityShipped"]);
-                    decimal ordered = Convert.ToDecimal(dvItems[currIdx]["ActivityItemPickingQuantityOrdered"]);
+                    int currIdx = this.ActItem.CurrRowIdx;
 
-                    if (this.SysEnv.SysSettings.IsPickShowItemQtyAvail)
+                    if (0 <= currIdx && this.ActItem.DataViewItems.Count > currIdx)
                     {
-                        // Do not warn if product is out of stock WO# 12054 was only applied to ucActivityItemSingle
-                        // if (0 < available && shipped < ordered)
-                        if (shipped < ordered)
+                        DataView dvItems = this.ActItem.DataViewItems;
+                        decimal available = Convert.ToDecimal(dvItems[currIdx]["ActivityItemPickingBaseQuantityAvailable"]);
+                        decimal shipped = Convert.ToDecimal(dvItems[currIdx]["ActivityItemPickingQuantityShipped"]);
+                        decimal ordered = Convert.ToDecimal(dvItems[currIdx]["ActivityItemPickingQuantityOrdered"]);
+
+                        if (this.SysEnv.SysSettings.IsPickShowItemQtyAvail)
                         {
-                            string msg = string.Empty;
-
-                            if (this.SysEnv.SysSettings.IsPickQtyUnderShowBaseQtyAvail)
+                            // Do not warn if product is out of stock WO# 12054 was only applied to ucActivityItemSingle
+                            // if (0 < available && shipped < ordered)
+                            if (shipped < ordered)
                             {
-                                // TODO: Resource strings
-                                msg = string.Format("The quantity shipped is less than the quantity ordered." + Environment.NewLine + "On Hand {0} {1}", (decimal)dvItems[currIdx]["ActivityItemPickingBaseQuantityAvailable"], (string)dvItems[currIdx]["BaseUnitCode"]);
-                            }
-                            else
-                            {
-                                // TODO: Resource strings
-                                msg = string.Format("The quantity shipped is less than the quantity ordered." + Environment.NewLine + "On Hand {0} {1}", (decimal)dvItems[currIdx]["ActivityItemPickingQuantityAvailable"], (string)dvItems[currIdx]["UnitCode"]);
-                            }
+                                string msg = string.Empty;
 
-                            throw new Exceptions.MessageOnlyException(msg);
+                                if (this.SysEnv.SysSettings.IsPickQtyUnderShowBaseQtyAvail)
+                                {
+                                    // TODO: Resource strings
+                                    msg = string.Format("The quantity shipped is less than the quantity ordered." + Environment.NewLine + "On Hand {0} {1}", (decimal)dvItems[currIdx]["ActivityItemPickingBaseQuantityAvailable"], (string)dvItems[currIdx]["BaseUnitCode"]);
+                                }
+                                else
+                                {
+                                    // TODO: Resource strings
+                                    msg = string.Format("The quantity shipped is less than the quantity ordered." + Environment.NewLine + "On Hand {0} {1}", (decimal)dvItems[currIdx]["ActivityItemPickingQuantityAvailable"], (string)dvItems[currIdx]["UnitCode"]);
+                                }
+
+                                throw new Exceptions.MessageOnlyException(msg);
+                            }
                         }
-                    }
-                    else
-                    {
-                        if (shipped < ordered)
+                        else
                         {
-                            // TODO: Resource strings
-                            throw new Exceptions.MessageOnlyException("The quantity shipped is less than the quantity ordered.");
+                            if (shipped < ordered)
+                            {
+                                // TODO: Resource strings
+                                throw new Exceptions.MessageOnlyException("The quantity shipped is less than the quantity ordered.");
+                            }
                         }
                     }
                 }
@@ -1404,7 +1487,7 @@
 
                     this.ScannerEnable();
 
-                    Device.BeginInvokeOnMainThread(() => this.updnBarCodeModifier1.SelectedItem = this.SysEnv.CurrentBarCodeModifier1);
+                    await Device.InvokeOnMainThreadAsync(() => this.updnBarCodeModifier1.SelectedItem = this.SysEnv.CurrentBarCodeModifier1);
 
                     if (this.IsControlLoaded == false)
                     {
@@ -1413,20 +1496,20 @@
                         if (0 < this.LocMap.CurrLocMap.WhsLocMapRefno)
                         {
                             string getCurrentReadableLocation = LocationMapTasks.GetCurrentReadableLocation();
-                            Device.BeginInvokeOnMainThread(() => this.cmdLocation.Text = getCurrentReadableLocation);
+                            await Device.InvokeOnMainThreadAsync(() => this.CmdLocationText = "Location: " + Environment.NewLine + getCurrentReadableLocation);
                         }
                         else
                         {
                             // TODO: Resource strings
-                            Device.BeginInvokeOnMainThread(() => this.cmdLocation.Text = "Set Location");
+                            Device.BeginInvokeOnMainThread(() => this.CmdLocationText = "Set Location");
                         }
                     }
 
-                    Device.BeginInvokeOnMainThread(() =>
+                    await Device.InvokeOnMainThreadAsync(() =>
                     {
-                        this.cmdLocation.IsEnabled = true;
-                        this.cmdSelectSkid.IsEnabled = this.SysEnv.SysSettings.IsSkidTrackingModule;
-                        this.cmdAddProduct.IsEnabled = this.ActItem.IsAllowAddItem;
+                        this.CmdLocationIsEnabled = true;
+                        this.CmdSelectSkidIsEnabled = this.SysEnv.SysSettings.IsSkidTrackingModule;
+                        this.CmdAddProductIsEnabled = this.ActItem.IsAllowAddItem;
                     });
 
                     this.ActItem.RegLayerListenerProgOut(this);
@@ -1438,7 +1521,7 @@
                 }
                 catch (Exception ex)
                 {
-                    Device.BeginInvokeOnMainThread(async () =>
+                    await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
                         await errRpt.ShowDialog();
@@ -1459,432 +1542,6 @@
 
                 this.IsControlLoaded = true;
             });
-        }
-
-        private void DesignGrid()
-        {
-            switch (this.ActSubType)
-            {
-                case SysCommon.ActSubTypes.PhysicalCounts:
-                    // Create header data template
-                    Grid gridHeaderPhysicalCount = new Grid
-                    {
-                        Padding = new Thickness(5),
-                        ColumnDefinitions =
-                        {
-                            new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) },
-                            new ColumnDefinition { Width = GridLength.Star },
-                            new ColumnDefinition { Width = GridLength.Star },
-                            new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) },
-                            new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) },
-                            new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) },
-                        }
-                    };
-
-                    gridHeaderPhysicalCount.SetDynamicResource(BackgroundColorProperty, "HeaderColor");
-
-                    // TODO: Resource strings
-                    Label labelPhysicalCountCode = new Label { Text = "Code", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-                    Label labelPhysicalCountBC = new Label { Text = "BC", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-                    Label labelPhysicalCountUnit = new Label { Text = "", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-                    Label labelPhysicalCountOnHand = new Label { Text = "On Hand", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-                    Label labelPhysicalCountCounted = new Label { Text = "Counted", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-                    Label labelPhysicalCountWtOn = new Label { Text = "Wt On", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-
-                    // Add labels to grid
-                    gridHeaderPhysicalCount.Children.Add(labelPhysicalCountCode);
-                    gridHeaderPhysicalCount.Children.Add(labelPhysicalCountBC);
-                    gridHeaderPhysicalCount.Children.Add(labelPhysicalCountUnit);
-                    gridHeaderPhysicalCount.Children.Add(labelPhysicalCountOnHand);
-                    gridHeaderPhysicalCount.Children.Add(labelPhysicalCountCounted);
-                    gridHeaderPhysicalCount.Children.Add(labelPhysicalCountWtOn);
-
-                    // Set label columns
-                    Grid.SetColumn(labelPhysicalCountCode, 0);
-                    Grid.SetColumn(labelPhysicalCountBC, 1);
-                    Grid.SetColumn(labelPhysicalCountUnit, 2);
-                    Grid.SetColumn(labelPhysicalCountOnHand, 3);
-                    Grid.SetColumn(labelPhysicalCountCounted, 4);
-                    Grid.SetColumn(labelPhysicalCountWtOn, 5);
-
-                    Grid.SetRow(gridHeaderPhysicalCount, 0);
-
-                    this.dataGridMainActivityHeader.Children.Add(gridHeaderPhysicalCount);
-
-                    // Create item template
-                    DataTemplate dataTemplatePhysicalCount = new DataTemplate(() =>
-                    {
-                        Grid gridData = new Grid
-                        {
-                            Padding = new Thickness(5),
-                            ColumnDefinitions =
-                            {
-                                new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) },
-                                new ColumnDefinition { Width = GridLength.Star },
-                                new ColumnDefinition { Width = GridLength.Star },
-                                new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) },
-                                new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) },
-                                new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) },
-                            }
-                        };
-
-                        Label labelProductCode = new Label { VerticalOptions = LayoutOptions.Center };
-                        Label labelProductUnitBC = new Label { VerticalOptions = LayoutOptions.Center };
-                        Label labelUnitCode = new Label { VerticalOptions = LayoutOptions.Center };
-                        Label labelActivityItemCountQuantityOnHand = new Label { VerticalOptions = LayoutOptions.Center };
-                        Label labelActivityItemCountQuantity = new Label { VerticalOptions = LayoutOptions.Center };
-                        Label labelActivityItemCountWeightQuantityOnHand = new Label { VerticalOptions = LayoutOptions.Center };
-
-                        // Set label bindings
-                        labelProductCode.SetBinding(Label.TextProperty, new Binding("ProductCode"));
-                        labelProductUnitBC.SetBinding(Label.TextProperty, new Binding("ProductUnitBC"));
-                        labelUnitCode.SetBinding(Label.TextProperty, new Binding("UnitCode"));
-                        labelActivityItemCountQuantityOnHand.SetBinding(Label.TextProperty, new Binding("ActivityItemCountQuantityOnHand"));
-                        labelActivityItemCountQuantity.SetBinding(Label.TextProperty, new Binding("ActivityItemCountQuantity"));
-                        labelActivityItemCountQuantity.SetBinding(Label.TextProperty, new Binding("ActivityItemCountWeightQuantityOnHand"));
-
-                        // Add labels to grid
-                        gridData.Children.Add(labelProductCode);
-                        gridData.Children.Add(labelProductUnitBC);
-                        gridData.Children.Add(labelUnitCode);
-                        gridData.Children.Add(labelActivityItemCountQuantityOnHand);
-                        gridData.Children.Add(labelActivityItemCountQuantity);
-                        gridData.Children.Add(labelActivityItemCountWeightQuantityOnHand);
-
-                        // Set label columns
-                        Grid.SetColumn(labelProductCode, 0);
-                        Grid.SetColumn(labelProductUnitBC, 1);
-                        Grid.SetColumn(labelUnitCode, 2);
-                        Grid.SetColumn(labelActivityItemCountQuantityOnHand, 3);
-                        Grid.SetColumn(labelActivityItemCountQuantity, 4);
-                        Grid.SetColumn(labelActivityItemCountWeightQuantityOnHand, 5);
-
-                        return new ViewCell { View = gridData };
-                    });
-
-                    this.dataGridMainActivity.ItemTemplate = dataTemplatePhysicalCount;
-                    this.DataGridMainActivityItemsList.Clear();
-
-                    // Add all items in dataview to observable collection for display
-                    foreach (DataRow row in this.ActItem.DataViewItems.ToTable().Rows)
-                    {
-                        CountItem countItem = new CountItem
-                        {
-                            ActivityItemRefno = Convert.ToInt32(row["ActivityItemRefno"]),
-                            ActivityItemCountFKRefno = Convert.ToInt32(row["ActivityItemCountFKRefno"]),
-                            ActivityItemCountStringFKRefno = Convert.ToString(row["ActivityItemCountStringFKRefno"]),
-                            ActivityItemCountQuantityOnHand = Convert.ToDecimal(row["ActivityItemCountQuantityOnHand"]),
-                            ActivityItemCountBaseQuantityOnHand = Convert.ToDecimal(row["ActivityItemCountBaseQuantityOnHand"]),
-                            ActivityItemCountWeightQuantityOnHand = Convert.ToDecimal(row["ActivityItemCountWeightQuantityOnHand"]),
-                            ActivityItemCountQuantity = Convert.ToDecimal(row["ActivityItemCountQuantity"]),
-                            ActivityItemCountBaseQuantity = Convert.ToDecimal(row["ActivityItemCountBaseQuantity"]),
-                            ActivityItemCountWeightQuantity = Convert.ToDecimal(row["ActivityItemCountWeightQuantity"]),
-                            ProductUnitRefno = Convert.ToInt32(row["ProductUnitRefno"]),
-                            ProductRefno = Convert.ToInt32(row["ProductRefno"]),
-                            ProductCode = Convert.ToString(row["ProductCode"]),
-                            ProductDescription = Convert.ToString(row["ProductDescription"]),
-                            UnitCode = Convert.ToString(row["UnitCode"]),
-                            ProductUnitBC = Convert.ToString(row["ProductUnitBC"]),
-                            ProductUnitSizeDescription = Convert.ToString(row["ProductUnitSizeDescription"]),
-                            LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"]),
-                            LocationCode = Convert.ToString(row["LocationCode"]),
-                            LocationName = Convert.ToString(row["LocationName"]),
-                            ActivityItemStatus = Convert.ToInt32(row["ActivityItemStatus"])
-                        };
-
-                        this.DataGridMainActivityItemsList.Add(countItem);
-                    }
-
-                    break;
-
-                case SysCommon.ActSubTypes.Receiving:
-                    // Header grid
-                    Grid gridHeaderReceiving = new Grid
-                    {
-                        Padding = new Thickness(5),
-                        ColumnDefinitions =
-                            {
-                                new ColumnDefinition { Width = GridLength.Star },
-                                new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) },
-                                new ColumnDefinition { Width = GridLength.Star },
-                                new ColumnDefinition { Width = GridLength.Star },
-                                new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) },
-                                new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) }
-                            }
-                    };
-
-                    gridHeaderReceiving.SetDynamicResource(BackgroundColorProperty, "HeaderColor");
-
-                    Label labelIsActivityItemReceivingCommentReceiving = new Label { Text = "C", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
-                    Label labelProductCodeReceiving = new Label { Text = "Product ID", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
-                    Label labelProductUnitBCReceiving = new Label { Text = " ", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
-                    Label labelUnitCodeReceiving = new Label { Text = " ", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
-                    Label labelActivityItemReceivingQuantityOrderedReceiving = new Label { Text = "Ordered", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
-                    Label labelActivityItemReceivingQuantityReceivedReceiving = new Label { Text = "Received", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
-
-                    gridHeaderReceiving.Children.Add(labelIsActivityItemReceivingCommentReceiving);
-                    gridHeaderReceiving.Children.Add(labelProductCodeReceiving);
-                    gridHeaderReceiving.Children.Add(labelProductUnitBCReceiving);
-                    gridHeaderReceiving.Children.Add(labelUnitCodeReceiving);
-                    gridHeaderReceiving.Children.Add(labelActivityItemReceivingQuantityOrderedReceiving);
-                    gridHeaderReceiving.Children.Add(labelActivityItemReceivingQuantityReceivedReceiving);
-
-                    Grid.SetColumn(labelIsActivityItemReceivingCommentReceiving, 0);
-                    Grid.SetColumn(labelProductCodeReceiving, 1);
-                    Grid.SetColumn(labelProductUnitBCReceiving, 2);
-                    Grid.SetColumn(labelUnitCodeReceiving, 3);
-                    Grid.SetColumn(labelActivityItemReceivingQuantityOrderedReceiving, 4);
-                    Grid.SetColumn(labelActivityItemReceivingQuantityReceivedReceiving, 5);
-
-                    Grid.SetRow(gridHeaderReceiving, 0);
-
-                    this.dataGridMainActivityHeader.Children.Add(gridHeaderReceiving);
-
-                    // Data grid
-                    DataTemplate dataTemplateReceiving = new DataTemplate(() =>
-                    {
-                        Grid gridData = new Grid
-                        {
-                            Padding = new Thickness(5),
-                            ColumnDefinitions =
-                            {
-                                new ColumnDefinition { Width = GridLength.Star },
-                                new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) },
-                                new ColumnDefinition { Width = GridLength.Star },
-                                new ColumnDefinition { Width = GridLength.Star },
-                                new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) },
-                                new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) }
-                            }
-                        };
-
-                        Label labelIsActivityItemReceivingCommentItem = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-                        Label labelProductCodeItem = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-                        Label labelProductUnitBCItem = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-                        Label labelUnitCodeItem = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-                        Label labelActivityItemReceivingQuantityOrderedItem = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-                        Label labelActivityItemReceivingQuantityReceivedItem = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-
-                        labelIsActivityItemReceivingCommentItem.SetBinding(Label.TextProperty, new Binding("IsActivityItemReceivingCommentString"));
-                        labelProductCodeItem.SetBinding(Label.TextProperty, new Binding("ProductCode"));
-                        labelProductUnitBCItem.SetBinding(Label.TextProperty, new Binding("ProductUnitBC"));
-                        labelUnitCodeItem.SetBinding(Label.TextProperty, new Binding("UnitCode"));
-                        labelActivityItemReceivingQuantityOrderedItem.SetBinding(Label.TextProperty, new Binding("ActivityItemReceivingQuantityOrdered", BindingMode.Default, null, null, "{0:F3}"));
-                        labelActivityItemReceivingQuantityReceivedItem.SetBinding(Label.TextProperty, new Binding("ActivityItemReceivingQuantityReceived", BindingMode.Default, null, null, "{0:F3}"));
-
-                        gridData.Children.Add(labelIsActivityItemReceivingCommentItem);
-                        gridData.Children.Add(labelProductCodeItem);
-                        gridData.Children.Add(labelProductUnitBCItem);
-                        gridData.Children.Add(labelUnitCodeItem);
-                        gridData.Children.Add(labelActivityItemReceivingQuantityOrderedItem);
-                        gridData.Children.Add(labelActivityItemReceivingQuantityReceivedItem);
-
-                        Grid.SetColumn(labelIsActivityItemReceivingCommentItem, 0);
-                        Grid.SetColumn(labelProductCodeItem, 1);
-                        Grid.SetColumn(labelProductUnitBCItem, 2);
-                        Grid.SetColumn(labelUnitCodeItem, 3);
-                        Grid.SetColumn(labelActivityItemReceivingQuantityOrderedItem, 4);
-                        Grid.SetColumn(labelActivityItemReceivingQuantityReceivedItem, 5);
-
-                        return new ViewCell { View = gridData };
-                    });
-
-                    this.dataGridMainActivity.ItemTemplate = dataTemplateReceiving;
-                    this.DataGridMainActivityItemsList.Clear();
-
-                    foreach (DataRow row in this.ActItem.DataViewItems.ToTable().Rows)
-                    {
-                        ReceiveItem receiveItem = new ReceiveItem
-                        {
-                            ActivityItemRefno = Convert.ToInt32(row["ActivityItemRefno"]),
-                            ActivityItemReceivingFKRefno = Convert.ToInt32(row["ActivityItemReceivingFKRefno"]),
-                            ActivityItemReceivingStringFKRefno = Convert.ToString(row["ActivityItemReceivingStringFKRefno"]),
-                            ProductUnitRefno = Convert.ToInt32(row["ProductUnitRefno"]),
-                            ProductRefno = Convert.ToInt32(row["ProductRefno"]),
-                            ProductCode = Convert.ToString(row["ProductCode"]),
-                            ProductDescription = Convert.ToString(row["ProductDescription"]),
-                            UnitCode = Convert.ToString(row["UnitCode"]),
-                            ProductUnitBC = Convert.ToString(row["ProductUnitBC"]),
-                            ProductUnitSizeDescription = Convert.ToString(row["ProductUnitSizeDescription"]),
-                            ActivityItemReceivingQuantityOrdered = Convert.ToDecimal(row["ActivityItemReceivingQuantityOrdered"]),
-                            ActivityItemReceivingBaseQuantityOrdered = Convert.ToDecimal(row["ActivityItemReceivingBaseQuantityOrdered"]),
-                            ActivityItemReceivingWeightQuantityOrdered = Convert.ToDecimal(row["ActivityItemReceivingWeightQuantityOrdered"]),
-                            ActivityItemReceivingQuantityReceived = Convert.ToDecimal(row["ActivityItemReceivingQuantityReceived"]),
-                            ActivityItemReceivingBaseQuantityReceived = Convert.ToDecimal(row["ActivityItemReceivingBaseQuantityReceived"]),
-                            ActivityItemReceivingWeightQuantityReceived = Convert.ToDecimal(row["ActivityItemReceivingWeightQuantityReceived"]),
-                            ActivityItemReceivingVendorProductUnitCode = Convert.ToString(row["ActivityItemReceivingVendorProductUnitCode"]),
-                            ActivityItemReceivingDescription = Convert.ToString(row["ActivityItemReceivingDescription"]),
-                            LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"]),
-                            LocationCode = Convert.ToInt32(row["LocationCode"]),
-                            LocationName = Convert.ToString(row["LocationName"]),
-                            ActivityItemReceivingQuantityReceivedToDate = Convert.ToDecimal(row["ActivityItemReceivingQuantityReceivedToDate"]),
-                            ActivityItemReceivingWeightQuantityReceivedToDate = Convert.ToDecimal(row["ActivityItemReceivingWeightQuantityReceivedToDate"]),
-                            IsActivityItemReceivingCommentString = !string.IsNullOrWhiteSpace(Convert.ToString(row["IsActivityItemReceivingComment"])) ? "X" : "",
-                        };
-
-                        this.DataGridMainActivityItemsList.Add(receiveItem);
-                    }
-
-                    break;
-
-                case SysCommon.ActSubTypes.Picking:
-                    // Header grid
-                    Grid gridHeaderPicking = new Grid
-                    {
-                        Padding = new Thickness(5),
-                        ColumnDefinitions =
-                            {
-                                new ColumnDefinition { Width = GridLength.Star },
-                                new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) },
-                                new ColumnDefinition { Width = GridLength.Star },
-                                new ColumnDefinition { Width = GridLength.Star },
-                                new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) },
-                                new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) }
-                            }
-                    };
-
-                    gridHeaderPicking.SetDynamicResource(BackgroundColorProperty, "HeaderColor");
-
-                    Label labelIsActivityItemPickingCommentHeader = new Label { Text = "C", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
-                    Label labelActivityItemPickingProductCodeHeader = new Label { Text = "Product ID", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
-                    Label labelActivityItemPickingProductUnitBCHeader = new Label { Text = " ", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
-                    Label labelActivityItemPickingUnitCodeHeader = new Label { Text = " ", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
-                    Label labelActivityItemPickingQuantityOrderedHeader = new Label { Text = "Ordered", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
-                    Label labelActivityItemPickingQuantityReceivedHeader = new Label { Text = "Shipped", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
-
-                    gridHeaderPicking.Children.Add(labelIsActivityItemPickingCommentHeader);
-                    gridHeaderPicking.Children.Add(labelActivityItemPickingProductCodeHeader);
-                    gridHeaderPicking.Children.Add(labelActivityItemPickingProductUnitBCHeader);
-                    gridHeaderPicking.Children.Add(labelActivityItemPickingUnitCodeHeader);
-                    gridHeaderPicking.Children.Add(labelActivityItemPickingQuantityOrderedHeader);
-                    gridHeaderPicking.Children.Add(labelActivityItemPickingQuantityReceivedHeader);
-
-                    Grid.SetColumn(labelIsActivityItemPickingCommentHeader, 0);
-                    Grid.SetColumn(labelActivityItemPickingProductCodeHeader, 1);
-                    Grid.SetColumn(labelActivityItemPickingProductUnitBCHeader, 2);
-                    Grid.SetColumn(labelActivityItemPickingUnitCodeHeader, 3);
-                    Grid.SetColumn(labelActivityItemPickingQuantityOrderedHeader, 4);
-                    Grid.SetColumn(labelActivityItemPickingQuantityReceivedHeader, 5);
-
-                    Grid.SetRow(gridHeaderPicking, 0);
-
-                    this.dataGridMainActivityHeader.Children.Add(gridHeaderPicking);
-
-                    // Data grid
-                    DataTemplate dataTemplatePicking = new DataTemplate(() =>
-                    {
-                        Grid gridData = new Grid
-                        {
-                            Padding = new Thickness(5),
-                            ColumnDefinitions =
-                            {
-                                new ColumnDefinition { Width = GridLength.Star },
-                                new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) },
-                                new ColumnDefinition { Width = GridLength.Star },
-                                new ColumnDefinition { Width = GridLength.Star },
-                                new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) },
-                                new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) }
-                            }
-                        };
-
-                        Label labelActivityItemPickingIsActivityItemPickingComment = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-                        Label labelActivityItemPickingProductCode = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-                        Label labelActivityItemPickingProductUnitBC = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-                        Label labelActivityItemPickingUnitCode = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-                        Label labelActivityItemPickingQuantityOrdered = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-                        Label labelActivityItemPickingQuantityReceived = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-
-                        labelActivityItemPickingIsActivityItemPickingComment.SetBinding(Label.TextProperty, new Binding("IsActivityItemPickingComment"));
-                        labelActivityItemPickingProductCode.SetBinding(Label.TextProperty, new Binding("ProductCode"));
-                        labelActivityItemPickingProductUnitBC.SetBinding(Label.TextProperty, new Binding("ProductUnitBC"));
-                        labelActivityItemPickingUnitCode.SetBinding(Label.TextProperty, new Binding("UnitCode"));
-                        labelActivityItemPickingQuantityOrdered.SetBinding(Label.TextProperty, new Binding("ActivityItemPickingQuantityOrdered", BindingMode.Default, null, null, "{0:F3}"));
-                        labelActivityItemPickingQuantityReceived.SetBinding(Label.TextProperty, new Binding("ActivityItemPickingQuantityShipped", BindingMode.Default, null, null, "{0:F3}"));
-
-                        gridData.Children.Add(labelActivityItemPickingIsActivityItemPickingComment);
-                        gridData.Children.Add(labelActivityItemPickingProductCode);
-                        gridData.Children.Add(labelActivityItemPickingProductUnitBC);
-                        gridData.Children.Add(labelActivityItemPickingUnitCode);
-                        gridData.Children.Add(labelActivityItemPickingQuantityOrdered);
-                        gridData.Children.Add(labelActivityItemPickingQuantityReceived);
-
-                        Grid.SetColumn(labelActivityItemPickingIsActivityItemPickingComment, 0);
-                        Grid.SetColumn(labelActivityItemPickingProductCode, 1);
-                        Grid.SetColumn(labelActivityItemPickingProductUnitBC, 2);
-                        Grid.SetColumn(labelActivityItemPickingUnitCode, 3);
-                        Grid.SetColumn(labelActivityItemPickingQuantityOrdered, 4);
-                        Grid.SetColumn(labelActivityItemPickingQuantityReceived, 5);
-
-                        return new ViewCell { View = gridData };
-                    });
-
-                    this.dataGridMainActivity.ItemTemplate = dataTemplatePicking;
-                    this.DataGridMainActivityItemsList.Clear();
-
-                    foreach (DataRow row in this.ActItem.DataViewItems.ToTable().Rows)
-                    {
-                        PickingItem pickingItem = new PickingItem
-                        {
-                            ActivityItemRefno = Convert.ToInt32(row["ActivityItemRefno"] != DBNull.Value ? row["ActivityItemRefno"] : null),
-                            ActivityItemPickingFKRefno = Convert.ToInt32(row["ActivityItemPickingFKRefno"] != DBNull.Value ? row["ActivityItemPickingFKRefno"] : null),
-                            ActivityItemPickingStringFKRefno = Convert.ToString(row["ActivityItemPickingStringFKRefno"] != DBNull.Value ? row["ActivityItemPickingStringFKRefno"] : null),
-                            ProductUnitRefno = Convert.ToInt32(row["ProductUnitRefno"] != DBNull.Value ? row["ProductUnitRefno"] : null),
-                            ProductCode = Convert.ToString(row["ProductCode"] != DBNull.Value ? row["ProductCode"] : null),
-                            ProductDescription = Convert.ToString(row["ProductDescription"] != DBNull.Value ? row["ProductDescription"] : null),
-                            ProductBrandDescription = Convert.ToString(row["ProductBrandDescription"] != DBNull.Value ? row["ProductBrandDescription"] : null),
-                            UnitCode = Convert.ToString(row["UnitCode"] != DBNull.Value ? row["UnitCode"] : null),
-                            ProductUnitBC = Convert.ToString(row["ProductUnitBC"] != DBNull.Value ? row["ProductUnitBC"] : null),
-                            ProductUnitSizeDescription = Convert.ToString(row["ProductUnitSizeDescription"] != DBNull.Value ? row["ProductUnitSizeDescription"] : null),
-                            ActivityItemPickingQuantityOrdered = Convert.ToDecimal(row["ActivityItemPickingQuantityOrdered"] != DBNull.Value ? row["ActivityItemPickingQuantityOrdered"] : null),
-                            ActivityItemPickingBaseQuantityOrdered = Convert.ToDecimal(row["ActivityItemPickingBaseQuantityOrdered"] != DBNull.Value ? row["ActivityItemPickingBaseQuantityOrdered"] : null),
-                            ActivityItemPickingWeightQuantityOrdered = Convert.ToDecimal(row["ActivityItemPickingWeightQuantityOrdered"] != DBNull.Value ? row["ActivityItemPickingWeightQuantityOrdered"] : null),
-                            ActivityItemPickingQuantityShipped = Convert.ToDecimal(row["ActivityItemPickingQuantityShipped"] != DBNull.Value ? row["ActivityItemPickingQuantityShipped"] : null),
-                            ActivityItemPickingBaseQuantityShipped = Convert.ToDecimal(row["ActivityItemPickingBaseQuantityShipped"] != DBNull.Value ? row["ActivityItemPickingBaseQuantityShipped"] : null),
-                            ActivityItemPickingWeightQuantityShipped = Convert.ToDecimal(row["ActivityItemPickingWeightQuantityShipped"] != DBNull.Value ? row["ActivityItemPickingWeightQuantityShipped"] : null),
-                            ActivityItemPickingCustomerProductUnitCode = Convert.ToString(row["ActivityItemPickingCustomerProductUnitCode"] != DBNull.Value ? row["ActivityItemPickingCustomerProductUnitCode"] : null),
-                            LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
-                            LocationCode = Convert.ToInt32(row["LocationCode"] != DBNull.Value ? row["LocationCode"] : null),
-                            LocationName = Convert.ToString(row["LocationName"] != DBNull.Value ? row["LocationName"] : null),
-                            ActivityItemPickingQuantityAvailable = Convert.ToDecimal(row["ActivityItemPickingQuantityAvailable"] != DBNull.Value ? row["ActivityItemPickingQuantityAvailable"] : null),
-                            ActivityItemPickingWeightQuantityAvailable = Convert.ToDecimal(row["ActivityItemPickingWeightQuantityAvailable"] != DBNull.Value ? row["ActivityItemPickingWeightQuantityAvailable"] : null),
-                            IsActivityItemPickingComment = !string.IsNullOrWhiteSpace(Convert.ToString(row["IsActivityItemPickingComment"] != DBNull.Value ? row["IsActivityItemPickingComment"] : null)) ? "X" : "",
-                            ActivityItemStatus = Convert.ToInt32(row["ActivityItemStatus"] != DBNull.Value ? row["ActivityItemStatus"] : null) 
-                        };
-
-                        this.DataGridMainActivityItemsList.Add(pickingItem);
-                    }
-
-                    break;
-
-                case SysCommon.ActSubTypes.TransferFrom:
-                    break;
-
-                case SysCommon.ActSubTypes.TransferTo:
-                    break;
-
-                case SysCommon.ActSubTypes.Returns:
-                    break;
-
-                case SysCommon.ActSubTypes.CycleCounts:
-                    break;
-
-                case SysCommon.ActSubTypes.Adjustment:
-                    break;
-
-                case SysCommon.ActSubTypes.TicketFinished:
-                    break;
-
-                case SysCommon.ActSubTypes.TicketMaterial:
-                    break;
-
-                case SysCommon.ActSubTypes.TicketAddProduct:
-                    break;
-
-                case SysCommon.ActSubTypes.PickingSingle:
-                    break;
-
-                default:
-                    break;
-            }
         }
 
         /// <summary>
@@ -1992,9 +1649,9 @@
 
                 FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucSkidInfo, this.ActItem, this.ActSubType);
 
-                await form.DisplayControl.ShowDialog().ContinueWith(result =>
+                await form.DisplayControl.ShowDialog().ContinueWith(async (result) =>
                 {
-                    form.SaveChanges(this, new EventArgs());
+                    await form.SaveChanges(this, new EventArgs());
                 });
 
                 XDocument xmlDoc = form.DisplayControlData;
@@ -2078,7 +1735,7 @@
 
                         if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
                         {
-                            form.SaveChanges(null, new EventArgs());
+                            await form.SaveChanges(this, new EventArgs());
                             xmlDoc = form.DisplayControlData;
                             prodUnitRefno = Convert.ToInt32(xmlDoc.Root.Element("ProductUnitRefno").Value);
                         }
@@ -2121,7 +1778,7 @@
                         {
                             if (this.ActItem.IsAllowAddItem)
                             {
-                                this.ActItem.Insert(xmlDoc, false);
+                                await this.ActItem.Insert(xmlDoc, false);
 
                                 // This is a little dangerous we assume that the new row idx will be the last one
                                 foundRowIdx = this.ActItem.DataViewItems.Count - 1;
@@ -2204,7 +1861,7 @@
                 {
                     if (!ex.SuppressError)
                     {
-                        Device.BeginInvokeOnMainThread(async () =>
+                        await Device.InvokeOnMainThreadAsync(async () =>
                         {
                             FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
                             await errRpt.ShowDialog();
@@ -2235,7 +1892,7 @@
                 }
                 catch (Exception ex)
                 {
-                    Device.BeginInvokeOnMainThread(async () =>
+                    await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
                         await errRpt.ShowDialog();
@@ -2304,7 +1961,7 @@
                         {
                             if (this.ActItem.IsAllowAddItem)
                             {
-                                this.ActItem.Insert(ProductInfoTasks.GetXML(this.ActItem.ActHdr.SkidInfo.CurrSkid.ProdInfo), false);
+                                await this.ActItem.Insert(ProductInfoTasks.GetXML(this.ActItem.ActHdr.SkidInfo.CurrSkid.ProdInfo), false);
 
                                 // This is a little dangerous we assume that the new row idx will be the last one
                                 foundRowIdx = this.ActItem.DataViewItems.Count - 1;
@@ -2380,7 +2037,7 @@
                 }
                 catch (Exception ex)
                 {
-                    Device.BeginInvokeOnMainThread(async () =>
+                    await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
                         await errRpt.ShowDialog();
@@ -2434,7 +2091,6 @@
 
                             if (currSkid.ProdInfo.Refno != this.ActItem.ProdInfo.Refno)
                             {
-
                                 // TODO: Resource strings
                                 throw new Exceptions.MessageOnlyException("Selected line item product must match the selected skid product.");
                             }
@@ -2444,18 +2100,16 @@
 
                         await Device.InvokeOnMainThreadAsync(async () =>
                         {
-                            await form.DisplayControl.ShowDialog().ContinueWith(result =>
-                            {
-                                form.SaveChanges(this, new EventArgs());
+                            await form.DisplayControl.ShowDialog();
+                            await form.SaveChanges(this, new EventArgs());
 
-                                XDocument xmlDoc = form.DisplayControlData;
-                                this.ActItem.RefreshQuantity(
-                                    this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem),
-                                    Math.Round(decimal.Parse(xmlDoc.Root.Element("qty").Value), 3),
-                                    Math.Round(decimal.Parse(xmlDoc.Root.Element("base_qty").Value), 3),
-                                    Math.Round(decimal.Parse(xmlDoc.Root.Element("wt_qty").Value), 3));
-                                this.ActItem.UpdateQuantityFromDataView(this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem), this.ActItem.Refno);
-                            });
+                            XDocument xmlDoc = form.DisplayControlData;
+                            this.ActItem.RefreshQuantity(
+                                this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem),
+                                Math.Round(decimal.Parse(xmlDoc.Root.Element("qty").Value), 3),
+                                Math.Round(decimal.Parse(xmlDoc.Root.Element("base_qty").Value), 3),
+                                Math.Round(decimal.Parse(xmlDoc.Root.Element("wt_qty").Value), 3));
+                            this.ActItem.UpdateQuantityFromDataView(this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem), this.ActItem.Refno);
                         });
                     }
                 }
@@ -2944,12 +2598,12 @@
                         if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
                         {
                             string currentReadableLocation = LocationMapTasks.GetCurrentReadableLocation();
-                            await Device.InvokeOnMainThreadAsync(() => this.cmdLocation.Text = currentReadableLocation);
+                            await Device.InvokeOnMainThreadAsync(() => this.CmdLocationText = "Location: " + Environment.NewLine + currentReadableLocation);
                         }
                         else
                         {
                             // TODO: Resource strings
-                            await Device.InvokeOnMainThreadAsync(() => this.cmdLocation.Text = "Set Location");
+                            await Device.InvokeOnMainThreadAsync(() => this.CmdLocationText = "Set Location");
                         }
                     }
                     else
@@ -3301,16 +2955,16 @@
                         {
                             await Device.InvokeOnMainThreadAsync(() =>
                             {
-                                this.cmdAddSkid.IsEnabled = true;
+                                this.CmdAddSkidIsEnabled = true;
 
                                 // TODO: Resource strings
-                                this.cmdSelectSkid.Text = (string)("Skid# " + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode);
+                                this.CmdSelectSkidText = (string)("Skid# " + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode);
                             });
                         }
                         else
                         {
                             // TODO: Resource strings
-                            await Device.InvokeOnMainThreadAsync(() => this.cmdSelectSkid.Text = "Select Skid");
+                            await Device.InvokeOnMainThreadAsync(() => this.CmdSelectSkidText = "Select Skid");
                         }
                     }
 
@@ -3334,20 +2988,20 @@
                     {
                         Device.BeginInvokeOnMainThread(() =>
                         {
-                            this.cmdAddSkid.IsEnabled = true;
+                            this.CmdAddSkidIsEnabled = true;
 
                             // TODO: Resource strings
-                            this.cmdSelectSkid.Text = "Skid# " + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode;
+                            this.CmdSelectSkidText = "Skid# " + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode;
                         });
                     }
                     else
                     {
                         Device.BeginInvokeOnMainThread(() =>
                         {
-                            this.cmdAddSkid.IsEnabled = false;
+                            this.CmdAddSkidIsEnabled = false;
 
                             // TODO: Resource strings
-                            this.cmdSelectSkid.Text = "Select Skid";
+                            this.CmdSelectSkidText = "Select Skid";
                         });
                     }
 
@@ -3380,20 +3034,20 @@
                     {
                         Device.BeginInvokeOnMainThread(() =>
                         {
-                            this.cmdAddSkid.IsEnabled = true;
+                            this.CmdAddSkidIsEnabled = true;
 
                             // TODO: Resource strings
-                            this.cmdSelectSkid.Text = "Skid# " + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode;
+                            this.CmdSelectSkidText = "Skid# " + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode;
                         });
                     }
                     else
                     {
                         Device.BeginInvokeOnMainThread(() =>
                         {
-                            this.cmdAddSkid.IsEnabled = false;
+                            this.CmdAddSkidIsEnabled = false;
 
                             // TODO: Resource strings
-                            this.cmdSelectSkid.Text = "Select Skid";
+                            this.CmdSelectSkidText = "Select Skid";
                         });
                     }
 
@@ -3435,20 +3089,20 @@
                     {
                         Device.BeginInvokeOnMainThread(() =>
                         {
-                            this.cmdAddSkid.IsEnabled = true;
+                            this.CmdAddSkidIsEnabled = true;
 
                             // TODO: Resource strings
-                            this.cmdSelectSkid.Text = "Skid# " + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode;
+                            this.CmdSelectSkidText = "Skid# " + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode;
                         });
                     }
                     else
                     {
                         Device.BeginInvokeOnMainThread(() =>
                         {
-                            this.cmdAddSkid.IsEnabled = false;
+                            this.CmdAddSkidIsEnabled = false;
 
                             // TODO: Resource strings
-                            this.cmdSelectSkid.Text = "Select Skid";
+                            this.CmdSelectSkidText = "Select Skid";
                         });
                     }
 
@@ -3490,20 +3144,20 @@
                     {
                         Device.BeginInvokeOnMainThread(() =>
                         {
-                            this.cmdAddSkid.IsEnabled = true;
+                            this.CmdAddSkidIsEnabled = true;
 
                             // TODO: Resource strings
-                            this.cmdSelectSkid.Text = "Skid# " + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode;
+                            this.CmdSelectSkidText = "Skid# " + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode;
                         });
                     }
                     else
                     {
                         Device.BeginInvokeOnMainThread(() =>
                         {
-                            this.cmdAddSkid.IsEnabled = false;
+                            this.CmdAddSkidIsEnabled = false;
 
                             // TODO: Resource strings
-                            this.cmdSelectSkid.Text = "Select Skid";
+                            this.CmdSelectSkidText = "Select Skid";
                         });
                     }
 
@@ -3592,7 +3246,8 @@
 
                 await Device.InvokeOnMainThreadAsync(() =>
                 {
-                    this.DesignGrid();
+                    this.DataGridMainActivityItemsList = this.ActItem.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity, ref this.dataGridWidth);
+                    this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
 
                     if (this.ActItem.DataViewItems.Count > 0 && this.DataGridMainActivityItemsList.Count > 0)
                     {
@@ -3609,7 +3264,7 @@
             }
             catch (Exception ex)
             {
-                Device.BeginInvokeOnMainThread(async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex, this.GetControlDescription(), "Refresh");
                     await errRpt.ShowDialog();
@@ -3640,29 +3295,29 @@
 
             if (0 < this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno)
             {
-                this.cmdAddSkid.IsEnabled = true;
+                this.CmdAddSkidIsEnabled = true;
 
                 // TODO: Resource strings
-                this.cmdSelectSkid.Text = "Skid# " + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode;
-                this.cmdLocation.IsEnabled = false;
+                this.CmdSelectSkidText = "Skid# " + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode;
+                this.CmdLocationIsEnabled = false;
             }
             else
             {
-                this.cmdAddSkid.IsEnabled = false;
-                this.cmdLocation.IsEnabled = true;
+                this.CmdAddSkidIsEnabled = false;
+                this.CmdLocationIsEnabled = true;
 
                 // TODO: Resource strings
-                this.cmdSelectSkid.Text = "Select Skid";
+                this.CmdSelectSkidText = "Select Skid";
             }
 
             if (0 < this.LocMap.CurrLocMap.WhsLocMapRefno)
             {
-                this.cmdLocation.Text = LocationMapTasks.GetCurrentReadableLocation();
+                this.CmdLocationText = "Location: " + Environment.NewLine + LocationMapTasks.GetCurrentReadableLocation();
             }
             else
             {
                 // TODO: Resource strings
-                this.cmdLocation.Text = "Set Location";
+                this.CmdLocationText = "Set Location";
             }
 
             switch (this.ActItem.ActSubType)
@@ -4087,8 +3742,8 @@
         private void TxtSearchItem_TextChanged(object sender, TextChangedEventArgs e)
         {
             this.IsChangesMade = true;
-            this.ActItem.Search(this.txtSearchItem.Text);
-            this.ApplySearch();
+            this.DataGridMainActivityItemsList = this.ActItem.Search(this.txtSearchItem.Text);
+            this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
         }
 
         private void TxtSearchItem_Focused(object sender, FocusEventArgs e)
@@ -4114,210 +3769,36 @@
         {
         }
 
-        private void ApplySearch()
+        private async void OptionsMenu_Clicked(object sender, EventArgs e)
         {
-            switch (this.ActItem.ActSubType)
+            if (this.Loading)
             {
-                case SysCommon.ActSubTypes.Adjustment:
-                    break;
-
-                case SysCommon.ActSubTypes.AssignDefaultLocation:
-                    break;
-
-                case SysCommon.ActSubTypes.BarCodeAssociation:
-                    break;
-
-                case SysCommon.ActSubTypes.BreakSkid:
-                    break;
-
-                case SysCommon.ActSubTypes.ConvertUnit:
-                    break;
-
-                case SysCommon.ActSubTypes.CycleCounts:
-                    break;
-
-                case SysCommon.ActSubTypes.DataStatus:
-                    break;
-
-                case SysCommon.ActSubTypes.InventoryInquiry:
-                    break;
-
-                case SysCommon.ActSubTypes.InventoryReplenishment:
-                    break;
-
-                case SysCommon.ActSubTypes.MoveInventory:
-                    break;
-
-                case SysCommon.ActSubTypes.MoveSkid:
-                    break;
-
-                case SysCommon.ActSubTypes.NotApplicable:
-                    break;
-
-                case SysCommon.ActSubTypes.PhysicalCounts:
-                    this.DataGridMainActivityItemsList.Clear();
-
-                    // Add all items in dataview to observable collection for display
-                    foreach (DataRow row in this.ActItem.DataViewItems.ToTable().Rows)
-                    {
-                        CountItem countItem = new CountItem
-                        {
-                            ActivityItemRefno = Convert.ToInt32(row["ActivityItemRefno"]),
-                            ActivityItemCountFKRefno = Convert.ToInt32(row["ActivityItemCountFKRefno"]),
-                            ActivityItemCountStringFKRefno = Convert.ToString(row["ActivityItemCountStringFKRefno"]),
-                            ActivityItemCountQuantityOnHand = Convert.ToDecimal(row["ActivityItemCountQuantityOnHand"]),
-                            ActivityItemCountBaseQuantityOnHand = Convert.ToDecimal(row["ActivityItemCountBaseQuantityOnHand"]),
-                            ActivityItemCountWeightQuantityOnHand = Convert.ToDecimal(row["ActivityItemCountWeightQuantityOnHand"]),
-                            ActivityItemCountQuantity = Convert.ToDecimal(row["ActivityItemCountQuantity"]),
-                            ActivityItemCountBaseQuantity = Convert.ToDecimal(row["ActivityItemCountBaseQuantity"]),
-                            ActivityItemCountWeightQuantity = Convert.ToDecimal(row["ActivityItemCountWeightQuantity"]),
-                            ProductUnitRefno = Convert.ToInt32(row["ProductUnitRefno"]),
-                            ProductRefno = Convert.ToInt32(row["ProductRefno"]),
-                            ProductCode = Convert.ToString(row["ProductCode"]),
-                            ProductDescription = Convert.ToString(row["ProductDescription"]),
-                            UnitCode = Convert.ToString(row["UnitCode"]),
-                            ProductUnitBC = Convert.ToString(row["ProductUnitBC"]),
-                            ProductUnitSizeDescription = Convert.ToString(row["ProductUnitSizeDescription"]),
-                            LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"]),
-                            LocationCode = Convert.ToString(row["LocationCode"]),
-                            LocationName = Convert.ToString(row["LocationName"]),
-                            ActivityItemStatus = Convert.ToInt32(row["ActivityItemStatus"])
-                        };
-
-                        this.DataGridMainActivityItemsList.Add(countItem);
-                    }
-
-                    break;
-
-                case SysCommon.ActSubTypes.Picking:
-                    this.DataGridMainActivityItemsList.Clear();
-                    
-                    foreach (DataRow row in this.ActItem.DataViewItems.ToTable().Rows)
-                    {
-                        PickingItem pickingItem = new PickingItem
-                        {
-                            ActivityItemRefno = Convert.ToInt32(row["ActivityItemRefno"] != DBNull.Value ? row["ActivityItemRefno"] : null),
-                            ActivityItemPickingFKRefno = Convert.ToInt32(row["ActivityItemPickingFKRefno"] != DBNull.Value ? row["ActivityItemPickingFKRefno"] : null),
-                            ActivityItemPickingStringFKRefno = Convert.ToString(row["ActivityItemPickingStringFKRefno"] != DBNull.Value ? row["ActivityItemPickingStringFKRefno"] : null),
-                            ProductUnitRefno = Convert.ToInt32(row["ProductUnitRefno"] != DBNull.Value ? row["ProductUnitRefno"] : null),
-                            ProductCode = Convert.ToString(row["ProductCode"] != DBNull.Value ? row["ProductCode"] : null),
-                            ProductDescription = Convert.ToString(row["ProductDescription"] != DBNull.Value ? row["ProductDescription"] : null),
-                            ProductBrandDescription = Convert.ToString(row["ProductBrandDescription"] != DBNull.Value ? row["ProductBrandDescription"] : null),
-                            UnitCode = Convert.ToString(row["UnitCode"] != DBNull.Value ? row["UnitCode"] : null),
-                            ProductUnitBC = Convert.ToString(row["ProductUnitBC"] != DBNull.Value ? row["ProductUnitBC"] : null),
-                            ProductUnitSizeDescription = Convert.ToString(row["ProductUnitSizeDescription"] != DBNull.Value ? row["ProductUnitSizeDescription"] : null),
-                            ActivityItemPickingQuantityOrdered = Convert.ToDecimal(row["ActivityItemPickingQuantityOrdered"] != DBNull.Value ? row["ActivityItemPickingQuantityOrdered"] : null),
-                            ActivityItemPickingBaseQuantityOrdered = Convert.ToDecimal(row["ActivityItemPickingBaseQuantityOrdered"] != DBNull.Value ? row["ActivityItemPickingBaseQuantityOrdered"] : null),
-                            ActivityItemPickingWeightQuantityOrdered = Convert.ToDecimal(row["ActivityItemPickingWeightQuantityOrdered"] != DBNull.Value ? row["ActivityItemPickingWeightQuantityOrdered"] : null),
-                            ActivityItemPickingQuantityShipped = Convert.ToDecimal(row["ActivityItemPickingQuantityShipped"] != DBNull.Value ? row["ActivityItemPickingQuantityShipped"] : null),
-                            ActivityItemPickingBaseQuantityShipped = Convert.ToDecimal(row["ActivityItemPickingBaseQuantityShipped"] != DBNull.Value ? row["ActivityItemPickingBaseQuantityShipped"] : null),
-                            ActivityItemPickingWeightQuantityShipped = Convert.ToDecimal(row["ActivityItemPickingWeightQuantityShipped"] != DBNull.Value ? row["ActivityItemPickingWeightQuantityShipped"] : null),
-                            ActivityItemPickingCustomerProductUnitCode = Convert.ToString(row["ActivityItemPickingCustomerProductUnitCode"] != DBNull.Value ? row["ActivityItemPickingCustomerProductUnitCode"] : null),
-                            LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
-                            LocationCode = Convert.ToInt32(row["LocationCode"] != DBNull.Value ? row["LocationCode"] : null),
-                            LocationName = Convert.ToString(row["LocationName"] != DBNull.Value ? row["LocationName"] : null),
-                            ActivityItemPickingQuantityAvailable = Convert.ToDecimal(row["ActivityItemPickingQuantityAvailable"] != DBNull.Value ? row["ActivityItemPickingQuantityAvailable"] : null),
-                            ActivityItemPickingWeightQuantityAvailable = Convert.ToDecimal(row["ActivityItemPickingWeightQuantityAvailable"] != DBNull.Value ? row["ActivityItemPickingWeightQuantityAvailable"] : null),
-                            IsActivityItemPickingComment = !string.IsNullOrWhiteSpace(Convert.ToString(row["IsActivityItemPickingComment"] != DBNull.Value ? row["IsActivityItemPickingComment"] : null)) ? "X" : "",
-                            ActivityItemStatus = Convert.ToInt32(row["ActivityItemStatus"] != DBNull.Value ? row["ActivityItemStatus"] : null) 
-                        };
-
-                        this.DataGridMainActivityItemsList.Add(pickingItem);
-                    }
-                    break;
-
-                case SysCommon.ActSubTypes.PickingSingle:
-                    break;
-
-                case SysCommon.ActSubTypes.TicketAddProduct:
-                    break;
-
-                case SysCommon.ActSubTypes.TicketFinished:
-                    break;
-
-                case SysCommon.ActSubTypes.TicketMaterial:
-                    break;
-
-                case SysCommon.ActSubTypes.PurchaseOrderWorkSheet:
-                    break;
-
-                case SysCommon.ActSubTypes.PurgeActivityData:
-                    break;
-
-                case SysCommon.ActSubTypes.PutAwaySkid:
-                    break;
-
-                case SysCommon.ActSubTypes.Receiving:
-                    this.DataGridMainActivityItemsList.Clear();
-
-                    foreach (DataRow row in this.ActItem.DataViewItems.ToTable().Rows)
-                    {
-                        ReceiveItem receiveItem = new ReceiveItem
-                        {
-                            ActivityItemRefno = Convert.ToInt32(row["ActivityItemRefno"]),
-                            ActivityItemReceivingFKRefno = Convert.ToInt32(row["ActivityItemReceivingFKRefno"]),
-                            ActivityItemReceivingStringFKRefno = Convert.ToString(row["ActivityItemReceivingStringFKRefno"]),
-                            ProductUnitRefno = Convert.ToInt32(row["ProductUnitRefno"]),
-                            ProductRefno = Convert.ToInt32(row["ProductRefno"]),
-                            ProductCode = Convert.ToString(row["ProductCode"]),
-                            ProductDescription = Convert.ToString(row["ProductDescription"]),
-                            UnitCode = Convert.ToString(row["UnitCode"]),
-                            ProductUnitBC = Convert.ToString(row["ProductUnitBC"]),
-                            ProductUnitSizeDescription = Convert.ToString(row["ProductUnitSizeDescription"]),
-                            ActivityItemReceivingQuantityOrdered = Convert.ToDecimal(row["ActivityItemReceivingQuantityOrdered"]),
-                            ActivityItemReceivingBaseQuantityOrdered = Convert.ToDecimal(row["ActivityItemReceivingBaseQuantityOrdered"]),
-                            ActivityItemReceivingWeightQuantityOrdered = Convert.ToDecimal(row["ActivityItemReceivingWeightQuantityOrdered"]),
-                            ActivityItemReceivingQuantityReceived = Convert.ToDecimal(row["ActivityItemReceivingQuantityReceived"]),
-                            ActivityItemReceivingBaseQuantityReceived = Convert.ToDecimal(row["ActivityItemReceivingBaseQuantityReceived"]),
-                            ActivityItemReceivingWeightQuantityReceived = Convert.ToDecimal(row["ActivityItemReceivingWeightQuantityReceived"]),
-                            ActivityItemReceivingVendorProductUnitCode = Convert.ToString(row["ActivityItemReceivingVendorProductUnitCode"]),
-                            ActivityItemReceivingDescription = Convert.ToString(row["ActivityItemReceivingDescription"]),
-                            LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"]),
-                            LocationCode = Convert.ToInt32(row["LocationCode"]),
-                            LocationName = Convert.ToString(row["LocationName"]),
-                            ActivityItemReceivingQuantityReceivedToDate = Convert.ToDecimal(row["ActivityItemReceivingQuantityReceivedToDate"]),
-                            ActivityItemReceivingWeightQuantityReceivedToDate = Convert.ToDecimal(row["ActivityItemReceivingWeightQuantityReceivedToDate"]),
-                            IsActivityItemReceivingCommentString = !string.IsNullOrWhiteSpace(Convert.ToString(row["IsActivityItemReceivingComment"])) ? "X" : "",
-                        };
-
-                        this.DataGridMainActivityItemsList.Add(receiveItem);
-                    }
-
-                    break;
-
-                case SysCommon.ActSubTypes.RefreshData:
-                    break;
-
-                case SysCommon.ActSubTypes.ReleaseByItemSection:
-                    break;
-
-                case SysCommon.ActSubTypes.ReleaseByOrder:
-                    break;
-
-                case SysCommon.ActSubTypes.Returns:
-                    break;
-
-                case SysCommon.ActSubTypes.SelectLocation:
-                    break;
-
-                case SysCommon.ActSubTypes.SelectProduct:
-                    break;
-
-                case SysCommon.ActSubTypes.SkidInfo:
-                    break;
-
-                case SysCommon.ActSubTypes.TransferFrom:
-                    break;
-
-                case SysCommon.ActSubTypes.TransferTo:
-                    break;
+                return;
             }
-        }
+            
+            // TODO: Resource strings
+            string result = await DisplayActionSheet("ActivityItem Options", "Close", null, this.OptionsMenuItems.ToArray());
 
-        private void ActionItemsMenu_Clicked(object sender, EventArgs e)
-        {
-            this.ActionsVisible = !this.ActionsVisible;
-            this.SysEnv.SysSettings.ActivityItemActionsVisible = this.ActionsVisible;
+            if (result == this.CmdLocationText && this.CmdLocationIsEnabled)
+            {
+                this.cmdLocation_Click(sender, e);
+            }
+            else if (result == this.CmdFilterText && this.CmdFilterIsEnabled)
+            {
+                this.CmdFilter_Clicked(sender, e);
+            }            
+            else if (result == this.CmdSelectSkidText && this.CmdSelectSkidIsEnabled)
+            {
+                this.cmdSelectSkid_Click(sender, e);
+            }
+            else if (result == this.CmdAddProductText && this.CmdAddProductIsEnabled)
+            {
+                this.cmdAddProduct_Click(sender, e);
+            }
+            else if (result == this.CmdAddSkidText && this.CmdAddSkidIsEnabled)
+            {
+                this.cmdAddSkid_Click(sender, e);
+            }
         }
     }
 }

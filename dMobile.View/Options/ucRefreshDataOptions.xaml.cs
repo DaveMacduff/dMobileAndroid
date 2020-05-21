@@ -73,24 +73,24 @@
         {
             base.OnAppearing();
 
-            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), (keyPressed) =>
+            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
             {
                 // TODO: Verify keycodes
                 Enum.TryParse(keyPressed, out Keycode keycode);
 
                 if (keycode == Keycode.F1)
                 {
-                    if (this.SaveChanges())
+                    if (await this.SaveChanges())
                     {
                         this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     }
                 }
                 else if (keycode == Keycode.Escape)
                 {
-                    if (this.CancelChanges())
+                    if (await this.CancelChanges())
                     {
                         this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-                        Device.BeginInvokeOnMainThread(async () => await this.Close());
+                        await this.Close();
                     }
                 }
             });
@@ -332,7 +332,7 @@
         /// Registers the bar code scan event handler and enables the scanner.
         /// </summary>
         /// <remarks></remarks>
-        public void ScannerEnable()
+        public void ScannerEnable() 
         {
         }
 
@@ -341,7 +341,7 @@
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool IsReadyToSave()
+        public async Task<bool> IsReadyToSave()
         {
             bool isReadyToSave = true;
 
@@ -386,8 +386,12 @@
             catch (Exception ex)
             {
                 isReadyToSave = false;
-                FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.RefreshData, ex);
-                errRpt.ShowDialog().ContinueWith(result => { });
+
+                await Device.InvokeOnMainThreadAsync(async () =>
+                {
+                    FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.RefreshData, ex);
+                    await errRpt.ShowDialog();
+                });
             }
 
             return isReadyToSave;
@@ -398,7 +402,7 @@
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool IsReadyToClose()
+        public async Task<bool> IsReadyToClose()
         {
             bool isReadyToClose = true;
 
@@ -426,8 +430,11 @@
                 // We do not want to get caught not being able to 'escape' the control.
                 isReadyToClose = true;
 
-                FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.RefreshData, ex);
-                errRpt.ShowDialog().ContinueWith(result => { });
+                await Device.InvokeOnMainThreadAsync(async () =>
+                {
+                    FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.RefreshData, ex);
+                    await errRpt.ShowDialog();
+                });
             }
 
             return isReadyToClose;
@@ -445,9 +452,6 @@
                 if (this.IsDisplayShutDownMsg)
                 {
                     this.IsDisplayShutDownMsg = false;
-
-                    // TODO: Resource strings
-                    await DisplayAlert(this.GetControlDescription(), "Please log back in for changes to be made in effect.", "OK");
 
                     // Attempt to record logout
                     if (!this.SysEnv.SysSettings.IsDisconnectedMode && (this.SysEnv.CommSetup.iHostIPAddressComponent1 + this.SysEnv.CommSetup.iHostIPAddressComponent2 + this.SysEnv.CommSetup.iHostIPAddressComponent3) != 0)
@@ -474,6 +478,8 @@
                             finally
                             {
                                 Application.Current.MainPage = new NavigationPage(new SplashStartup());
+                                // TODO: Resource strings
+                                await DisplayAlert(this.GetControlDescription(), "Please log back in for changes to be made in effect.", "OK");
                             }
                         }
                     }
@@ -497,13 +503,13 @@
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool SaveChanges()
+        public async Task<bool> SaveChanges()
         {
             bool saveComplete = false;
 
             try
             {
-                if (this.IsReadyToSave())
+                if (await this.IsReadyToSave())
                 {
                     this.SysEnv.RefreshOpt.RefreshDataChangesOnly = this.chkRefreshDataChangesOnly.IsToggled;
                     this.SysEnv.RefreshOpt.SystemData = this.chkSystemData.IsToggled;
@@ -523,7 +529,7 @@
                 }
                 else
                 {
-                    Device.BeginInvokeOnMainThread(async () => await DisplayAlert(this.GetControlDescription(), Resource.DataFailedValidationCheckYourData, Resource.OK));
+                    await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), Resource.DataFailedValidationCheckYourData, Resource.OK));
                 }
             }
             catch (Exceptions.MessageOnlyException ex)
@@ -534,8 +540,12 @@
             catch (Exception ex)
             {
                 saveComplete = false;
-                FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.RefreshData, ex);
-                errRpt.ShowDialog().ContinueWith(result => { });
+
+                await Device.InvokeOnMainThreadAsync(async () =>
+                {
+                    FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.RefreshData, ex);
+                    await errRpt.ShowDialog();
+                });
             }
 
             return saveComplete;
@@ -546,14 +556,14 @@
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool CancelChanges()
+        public async Task<bool> CancelChanges()
         {
             bool cancelChanges = true;
 
             try
             {
                 // IsReadyToClose checks if any changes where made.
-                if (this.IsReadyToClose())
+                if (await this.IsReadyToClose())
                 {
                     // Expect the control to close.
                 }
@@ -578,8 +588,12 @@
             catch (Exception ex)
             {
                 cancelChanges = true;
-                FormErrorReport errorReport = new FormErrorReport(SysCommon.ActSubTypes.RefreshData, ex);
-                errorReport.ShowDialog().ContinueWith(result => { });
+
+                await Device.InvokeOnMainThreadAsync(async () =>
+                {
+                    FormErrorReport errorReport = new FormErrorReport(SysCommon.ActSubTypes.RefreshData, ex);
+                    await errorReport.ShowDialog();
+                });
             }
 
             return cancelChanges;
@@ -739,7 +753,7 @@
 
             if (isContinueRefresh)
             {
-                if (this.SaveChanges())
+                if (await this.SaveChanges())
                 {
                     this.ReqCancelDisableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     this.ReqSaveDisableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
@@ -748,11 +762,8 @@
                     {
                         FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucRefreshDataStatus, SysCommon.ActSubTypes.RefreshData);
 
-                        await form.DisplayControl.ShowDialog().ContinueWith(result => 
-                        {
-                            form.SaveChanges(this, new EventArgs());
-                        });
-
+                        await form.DisplayControl.ShowDialog();
+                        await form.SaveChanges(this, new EventArgs());
                         XDocument xmlDoc = form.DisplayControlData;
                         this.IsRefreshComplete = bool.Parse(xmlDoc.Root.Element("IsRefreshComplete").Value);
                         await this.RefreshCompelete();
@@ -770,9 +781,9 @@
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        private void cmdDataStatus_Click(object sender, EventArgs e)
+        private async void cmdDataStatus_Click(object sender, EventArgs e)
         {
-            if (this.SaveChanges())
+            if (await this.SaveChanges())
             {
                 this.ReqCancelDisableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                 this.ReqSaveDisableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());

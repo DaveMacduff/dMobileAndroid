@@ -73,11 +73,6 @@ namespace dMobile.View.Activity
             this.lblLotNo.Text = "Lot No";
             this.lblBestBeforeDate.Text = "Best Before";
             this.lblVariantCode.Text = "Variant";
-            this.lbl1.Text = "Extra 1";
-            this.lbl2.Text = "Extra 2";
-            this.lbl3.Text = "Extra 3";
-            this.lbl4.Text = "Extra 4";
-            this.lbl5.Text = "Extra 5";
 
             if (!DesignMode.IsDesignModeEnabled)
             {
@@ -102,7 +97,7 @@ namespace dMobile.View.Activity
                 this.ActDetailEdit.ActExtra.Text2 = this.ActDetail.ActExtra.Text2;
                 this.ActDetailEdit.ActExtra.Text3 = this.ActDetail.ActExtra.Text3;
                 this.ActDetailEdit.ActExtra.Text4 = this.ActDetail.ActExtra.Text4;
-                this.ActDetailEdit.ActExtra.Text5 = this.ActDetail.ActExtra.Text5;
+                this.ActDetailEdit.ActExtra.DateTime5 = this.ActDetail.ActExtra.DateTime5;
 
                 if (!this.ActDetail.ActItem.ProdInfo.Scheme.IsBestBeforeDateTrackedDefault)
                 {
@@ -115,6 +110,11 @@ namespace dMobile.View.Activity
                 }
 
                 this.Title = this.GetControlDescription();
+                this.lbl1.Text = this.ActDetail.ActItem.ProdInfo.Scheme.Extra1Caption;
+                this.lbl2.Text = this.ActDetail.ActItem.ProdInfo.Scheme.Extra2Caption;
+                this.lbl3.Text = this.ActDetail.ActItem.ProdInfo.Scheme.Extra3Caption;
+                this.lbl4.Text = this.ActDetail.ActItem.ProdInfo.Scheme.Extra4Caption;
+                this.lbl5.Text = this.ActDetail.ActItem.ProdInfo.Scheme.Extra5Caption;
             }
         }
 
@@ -123,7 +123,7 @@ namespace dMobile.View.Activity
         /// <summary>
         /// The OnAppearing
         /// </summary>
-        protected override void OnAppearing()
+        protected override async void OnAppearing()
         {
             base.OnAppearing();
 
@@ -137,14 +137,14 @@ namespace dMobile.View.Activity
                 // TODO: Remove Keycode.Grave, just for testing
                 if (keycode == Keycode.Escape)
                 {
-                    if (this.CancelChanges())
+                    if (await this.CancelChanges())
                     {
                         this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     }
                 }
                 else if (keycode == Keycode.Grave)
                 {
-                    if (this.SaveChanges())
+                    if (await this.SaveChanges())
                     {
                         if (this.printLabels)
                         {
@@ -166,7 +166,7 @@ namespace dMobile.View.Activity
                                     {
                                         // Even though an error was raised, during label printing allow the control to close.
 
-                                        Device.BeginInvokeOnMainThread(async () =>
+                                        await Device.InvokeOnMainThreadAsync(async () =>
                                         {
                                             FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
                                             await errRpt.ShowDialog();
@@ -183,7 +183,7 @@ namespace dMobile.View.Activity
                 }
                 else if (keycode == Keycode.F1)
                 {
-                    if (this.SaveChanges())
+                    if (await this.SaveChanges())
                     {
                         if (this.printLabels)
                         {
@@ -205,7 +205,7 @@ namespace dMobile.View.Activity
                                     {
                                         // Even though an error was raised, during label printing allow the control to close.
 
-                                        Device.BeginInvokeOnMainThread(async () =>
+                                        await Device.InvokeOnMainThreadAsync(async () =>
                                         {
                                             FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
                                             await errRpt.ShowDialog();
@@ -222,12 +222,12 @@ namespace dMobile.View.Activity
 
             try
             {
-                this.ucActivityDetailEdit_GotFocus(this, new EventArgs());
+                await this.ucActivityDetailEdit_GotFocus(this, new EventArgs());
             }
             catch (Exception ex)
             {
                 // TODO: Resource strings
-                DisplayAlert("Error", "this.ucActivityDetailEdit_GotFocus threw an error " + ex, "OK");
+                await DisplayAlert("Error", "this.ucActivityDetailEdit_GotFocus threw an error " + ex, "OK");
             }
         }
 
@@ -612,7 +612,7 @@ namespace dMobile.View.Activity
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool IsReadyToSave()
+        public async Task<bool> IsReadyToSave()
         {
             bool isReadyToSave = true;
 
@@ -634,7 +634,7 @@ namespace dMobile.View.Activity
                 {
                     isReadyToSave = false;
 
-                    Device.BeginInvokeOnMainThread(async () =>
+                    await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
                         await errRpt.ShowDialog();
@@ -645,13 +645,13 @@ namespace dMobile.View.Activity
             {
                 isReadyToSave = false;
                 //ex.Show(this.ActSubType);
-                Device.BeginInvokeOnMainThread(async () => await DisplayAlert(this.ActSubType.ToString(), ex.Message, "OK"));
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.ActSubType.ToString(), ex.Message, "OK"));
             }
             catch (Exception ex)
             {
                 isReadyToSave = false;
 
-                Device.BeginInvokeOnMainThread(async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
                     await errRpt.ShowDialog();
@@ -666,7 +666,7 @@ namespace dMobile.View.Activity
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool IsReadyToClose()
+        public async Task<bool> IsReadyToClose()
         {
             bool isReadyToClose = true;
 
@@ -692,7 +692,7 @@ namespace dMobile.View.Activity
                 // We do not want to get caught not being able to 'escape' the control.
                 isReadyToClose = true;
 
-                Device.BeginInvokeOnMainThread(async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
                     await errRpt.ShowDialog();
@@ -728,13 +728,13 @@ namespace dMobile.View.Activity
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool SaveChanges()
+        public async Task<bool> SaveChanges()
         {
             bool saveComplete = true;
 
             try
             {
-                if (this.IsReadyToSave())
+                if (await this.IsReadyToSave())
                 {
                     this.printLabels = false;
 
@@ -759,13 +759,13 @@ namespace dMobile.View.Activity
                 saveComplete = false;
                 //ex.Show(this.ActSubType);
                 // TODO: Resource strings
-                Device.BeginInvokeOnMainThread(async () => await DisplayAlert(this.ActSubType.ToString(), ex.Message, "OK"));
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.ActSubType.ToString(), ex.Message, "OK"));
             }
             catch (Exception ex)
             {
                 saveComplete = false;
 
-                Device.BeginInvokeOnMainThread(async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
                     await errRpt.ShowDialog();
@@ -780,13 +780,13 @@ namespace dMobile.View.Activity
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool CancelChanges()
+        public async Task<bool> CancelChanges()
         {
             bool cancelChanges = true;
 
             try
             {
-                if (this.IsReadyToClose())
+                if (await this.IsReadyToClose())
                 {
                     this.ActDetailEdit.SchemeData = this.ActDetail.SchemeData;
                     this.ActDetailEdit.Quantity = this.ActDetail.Quantity;
@@ -796,7 +796,7 @@ namespace dMobile.View.Activity
                     this.ActDetailEdit.ActExtra.Text2 = this.ActDetail.ActExtra.Text2;
                     this.ActDetailEdit.ActExtra.Text3 = this.ActDetail.ActExtra.Text3;
                     this.ActDetailEdit.ActExtra.Text4 = this.ActDetail.ActExtra.Text4;
-                    this.ActDetailEdit.ActExtra.Text5 = this.ActDetail.ActExtra.Text5;
+                    this.ActDetailEdit.ActExtra.DateTime5 = this.ActDetail.ActExtra.DateTime5;
                 }
                 else
                 {
@@ -811,7 +811,7 @@ namespace dMobile.View.Activity
             }
             catch (Exception ex)
             {
-                Device.BeginInvokeOnMainThread(async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
                     await errRpt.ShowDialog();
@@ -1192,9 +1192,9 @@ namespace dMobile.View.Activity
                 this.txtExtraDetail4.Text = this.ActDetail.ActExtra.Text4;
             }
 
-            if (!string.IsNullOrEmpty(this.ActDetail.ActExtra.Text5))
+            if (!SysCommon.IsEmptyDate(this.ActDetail.ActExtra.DateTime5))
             {
-                this.txtExtraDetail5.Text = this.ActDetail.ActExtra.Text5;
+                this.dtExtraDetail5.Date = this.ActDetail.ActExtra.DateTime5;
             }
         }
 
@@ -1259,7 +1259,15 @@ namespace dMobile.View.Activity
         private void GetSerialNumberList(int prodRefno)
         {
             this.DataViewSerialNumbers = this.ActDetailEdit.GetSerialNumberDataView(prodRefno);
-            ObservableCollection<object> serialNumberList = new ObservableCollection<object>();
+            ObservableCollection<SerialNumber> serialNumberList = new ObservableCollection<SerialNumber>();
+            object selectedSerialNumberItem = this.cboSerialNo.SelectedItem;
+            SerialNumber selectedSerialNumber = new SerialNumber();
+
+            if (selectedSerialNumberItem != null)
+            {
+                selectedSerialNumber.ActivityDetailSingleTradeItemSerialNumber = Convert.ToString(selectedSerialNumberItem); 
+                serialNumberList.Add(selectedSerialNumber);
+            }
 
             foreach (DataRow row in this.DataViewSerialNumbers.ToTable().Rows)
             {
@@ -1273,6 +1281,11 @@ namespace dMobile.View.Activity
 
             this.cboSerialNo.ItemDisplayBinding = new Binding("ActivityDetailSingleTradeItemSerialNumber");
             this.cboSerialNo.ItemsSource = serialNumberList;
+
+            if (selectedSerialNumber.ActivityDetailSingleTradeItemSerialNumber != null)
+            {
+                this.cboSerialNo.SelectedItem = selectedSerialNumber;
+            }
 
             //this.cboSerialNo.ValueMember = "ActivityDetailSingleTradeItemSerialNumber";
             //this.cboSerialNo.DisplayMember = "ActivityDetailSingleTradeItemSerialNumber";
@@ -1306,7 +1319,7 @@ namespace dMobile.View.Activity
             this.ActDetailEdit.ActExtra.Text2 = this.txtExtraDetail2.Text ?? string.Empty;
             this.ActDetailEdit.ActExtra.Text3 = this.txtExtraDetail3.Text ?? string.Empty;
             this.ActDetailEdit.ActExtra.Text4 = this.txtExtraDetail4.Text ?? string.Empty;
-            this.ActDetailEdit.ActExtra.Text5 = this.txtExtraDetail5.Text ?? string.Empty;
+            this.ActDetailEdit.ActExtra.DateTime5 = this.dtExtraDetail5.Date;
 
             // Keyboard is numeric only
             //if (!Information.IsNumeric(txtAltQty.Text))
@@ -1434,7 +1447,7 @@ namespace dMobile.View.Activity
                 throw new Exceptions.MessageOnlyException(this.ActDetail.ActItem.ProdInfo.Scheme.Extra4Caption.TrimEnd() + " is required.");
             }
 
-            if (this.ActDetail.ActItem.ProdInfo.Scheme.Extra5Type != (int)SysCommon.SchemeExtraTypes.Disabled && this.ActDetail.ActItem.ProdInfo.Scheme.Extra5IsRequired && string.IsNullOrEmpty(this.ActDetailEdit.ActExtra.Text5))
+            if (this.ActDetail.ActItem.ProdInfo.Scheme.Extra5Type != (int)SysCommon.SchemeExtraTypes.Disabled && this.ActDetail.ActItem.ProdInfo.Scheme.Extra5IsRequired && SysCommon.IsEmptyDate(this.ActDetailEdit.ActExtra.DateTime5))
             {
                 // TODO: Resource strings
                 throw new Exceptions.MessageOnlyException(this.ActDetail.ActItem.ProdInfo.Scheme.Extra5Caption.TrimEnd() + " is required.");
@@ -1484,7 +1497,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         private async Task ucActivityDetailEdit_GotFocus(object sender, EventArgs e)
         {
-            await Task.Run(() =>
+            await Task.Run(async () =>
             {
                 this.Loading = true;
 
@@ -1495,7 +1508,7 @@ namespace dMobile.View.Activity
                         ProductInfo prodInfo = this.ActDetail.ActItem.ProdInfo;
                         ProdScheme scheme = prodInfo.Scheme;
 
-                        Device.BeginInvokeOnMainThread(() =>
+                        await Device.InvokeOnMainThreadAsync(() =>
                         {
                             this.lblUnit.Text = prodInfo.UnitCode;
                             this.lblWtUnit.Text = prodInfo.WeightUnitCode;
@@ -1503,67 +1516,67 @@ namespace dMobile.View.Activity
 
                         if (!scheme.IsBestBeforeDateTracked)
                         {
-                            Device.BeginInvokeOnMainThread(() => this.dtBestBeforeDate.IsEnabled = false);
+                            await Device.InvokeOnMainThreadAsync(() => this.dtBestBeforeDate.IsEnabled = false);
                         }
 
                         if (!scheme.IsProductionDateTracked)
                         {
-                            Device.BeginInvokeOnMainThread(() => this.dtProductionDate.IsEnabled = false);
+                            await Device.InvokeOnMainThreadAsync(() => this.dtProductionDate.IsEnabled = false);
                         }
 
                         if (!scheme.IsLotTracked)
                         {
-                            Device.BeginInvokeOnMainThread(() => this.cboLotNo.IsEnabled = false);
+                            await Device.InvokeOnMainThreadAsync(() => this.cboLotNo.IsEnabled = false);
                         }
 
                         if (!scheme.IsSerialTracked)
                         {
-                            Device.BeginInvokeOnMainThread(() => this.cboSerialNo.IsEnabled = false);
+                            await Device.InvokeOnMainThreadAsync(() => this.cboSerialNo.IsEnabled = false);
                         }
 
                         if (!scheme.IsVariantTracked)
                         {
-                            Device.BeginInvokeOnMainThread(() => this.cboVariantCode.IsEnabled = false);
+                            await Device.InvokeOnMainThreadAsync(() => this.cboVariantCode.IsEnabled = false);
                         }
 
                         if (!prodInfo.IsCatchWeight || (prodInfo.UnitCode == "LB" || prodInfo.UnitCode == "KG"))
                         {
-                            Device.BeginInvokeOnMainThread(() => this.txtWtQty.IsEnabled = false);
+                            await Device.InvokeOnMainThreadAsync(() => this.txtWtQty.IsEnabled = false);
                         }
 
                         if (scheme.Extra1Type == (int)SysCommon.SchemeExtraTypes.Disabled)
                         {
-                            Device.BeginInvokeOnMainThread(() => this.txtExtraDetail1.IsEnabled = false);
+                            await Device.InvokeOnMainThreadAsync(() => this.txtExtraDetail1.IsEnabled = false);
                         }
 
                         if (scheme.Extra2Type == (int)SysCommon.SchemeExtraTypes.Disabled)
                         {
-                            Device.BeginInvokeOnMainThread(() => this.txtExtraDetail2.IsEnabled = false);
+                            await Device.InvokeOnMainThreadAsync(() => this.txtExtraDetail2.IsEnabled = false);
                         }
 
                         if (scheme.Extra3Type == (int)SysCommon.SchemeExtraTypes.Disabled)
                         {
-                            Device.BeginInvokeOnMainThread(() => this.txtExtraDetail3.IsEnabled = false);
+                            await Device.InvokeOnMainThreadAsync(() => this.txtExtraDetail3.IsEnabled = false);
                         }
 
                         if (scheme.Extra4Type == (int)SysCommon.SchemeExtraTypes.Disabled)
                         {
-                            Device.BeginInvokeOnMainThread(() => this.txtExtraDetail4.IsEnabled = false);
+                            await Device.InvokeOnMainThreadAsync(() => this.txtExtraDetail4.IsEnabled = false);
                         }
 
                         if (scheme.Extra5Type == (int)SysCommon.SchemeExtraTypes.Disabled)
                         {
-                            Device.BeginInvokeOnMainThread(() => this.txtExtraDetail5.IsEnabled = false);
+                            await Device.InvokeOnMainThreadAsync(() => this.dtExtraDetail5.IsEnabled = false);
                         }
 
-                        Device.BeginInvokeOnMainThread(() =>
+                        await Device.InvokeOnMainThreadAsync(() =>
                         {
+                            this.LoadData();
+                            this.ShowProductInfo();
+                            
                             this.GetProductVariantList(prodInfo.Refno);
                             this.GetSerialNumberList(prodInfo.Refno);
                             this.GetLotNumberList(prodInfo.Refno);
-
-                            this.LoadData();
-                            this.ShowProductInfo();
                         });
 
                         if (this.SysEnv.SysSettings.IsDetailEditScreenSetFocus2CatchWeight)
@@ -1681,7 +1694,7 @@ namespace dMobile.View.Activity
 
         private async void BtnSave_Clicked(object sender, EventArgs e)
         {
-            if (this.SaveChanges())
+            if (await this.SaveChanges())
             {
                 if (this.printLabels)
                 {
@@ -1703,7 +1716,7 @@ namespace dMobile.View.Activity
                             {
                                 // Even though an error was raised, during label printing allow the control to close.
 
-                                Device.BeginInvokeOnMainThread(async () =>
+                                await Device.InvokeOnMainThreadAsync(async () =>
                                 {
                                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
                                     await errRpt.ShowDialog();

@@ -240,16 +240,7 @@ namespace dMobile.GroundWork
                                 cmndID.CommandType = CommandType.Text;
 
                                 actRefno = Convert.ToInt32(cmndID.ExecuteScalar());
-
-                                cmndWhs.CommandText = "SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = @locationMapWarehouseFKRefno";
-                                cmndWhs.CommandType = CommandType.Text;
-                                //cmndWhs.IndexName = "UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno";
-                                cmndWhs.Parameters.Add(new SQLiteParameter("@locationMapWarehouseFKRefno", Convert.ToInt32(drow["LocationMapWarehouseFKRefno"])));
-
-                                using (SQLiteDataReader drWhs = cmndWhs.ExecuteReader())
-                                {
-                                    whsLocMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, ref errMsg, drWhs);
-                                }
+                                whsLocMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, ref errMsg, cmndWhs);
 
                                 // To remove time - convert twice
                                 string productionDateTime = Convert.ToDateTime(drow["ActivityProductionDateTime"]).ToShortDateString();

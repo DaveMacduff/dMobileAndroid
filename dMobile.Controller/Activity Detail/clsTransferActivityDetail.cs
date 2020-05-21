@@ -1,13 +1,17 @@
 namespace dMobile.Controller
 {
     using System;
+    using System.Collections.ObjectModel;
     using System.Data;
     using System.Data.SQLite;
+    using System.IO;
     using System.Text;
     using System.Xml;
     using System.Xml.Linq;
     using dMobile.Bedrock;
     using dMobile.GroundWork;
+    using dMobile.Resources.Types;
+    using Xamarin.Forms;
 
     public class TransferActDetail : ActDetail
     {
@@ -147,12 +151,12 @@ namespace dMobile.Controller
 
                 using (SQLiteCommand cmndDetailTransfer = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
                 {
-                    cmndDetailTransfer.CommandText = "INSERT INTO tActivityDetailTransfer (ActivityDetailRefno, ActivityDetailTransferFKRefno, ActivityDetailTransferIsConfirmed) VALUES (@activityDetailRefno, @activityDetailTransferFKRefno, @activityDetailTransferIsConfirmed)";
+                    cmndDetailTransfer.CommandText = "INSERT INTO tActivityDetailTransfer (ActivityDetailRefno, ActivityDetailTransferFKRefno) VALUES (@activityDetailRefno, @activityDetailTransferFKRefno)";
                     cmndDetailTransfer.CommandType = CommandType.Text;
                     //cmndDetailTransfer.IndexName = "UQ_ActivityDetailTransferOnActivityDetailTransferFKRefno";
                     cmndDetailTransfer.Parameters.Add(new SQLiteParameter("@activityDetailRefno", Convert.ToInt32(actDetailRefno)));
                     cmndDetailTransfer.Parameters.Add(new SQLiteParameter("@activityDetailTransferFKRefno", Convert.ToInt32(this.FKRefno)));
-                    cmndDetailTransfer.Parameters.Add(new SQLiteParameter("@activityDetailTransferIsConfirmed", Convert.ToBoolean(true)));
+                    //cmndDetailTransfer.Parameters.Add(new SQLiteParameter("@activityDetailTransferIsConfirmed", Convert.ToBoolean(true)));
 
                     cmndDetailTransfer.ExecuteNonQuery();
 
@@ -160,7 +164,7 @@ namespace dMobile.Controller
 
                     //recActDetailTransfer.SetInt32((int)SysCommon.ActDetailTransferFields.ActDetailRefno, actDetailRefno);
                     //recActDetailTransfer.SetInt32((int)SysCommon.ActDetailTransferFields.FKRefno, this.FKRefno);
-                    //recActDetailTransfer.SetBoolean((int)SysCommon.ActDetailTransferFields.IsConfirmed, true);
+                    ////recActDetailTransfer.SetBoolean((int)SysCommon.ActDetailTransferFields.IsConfirmed, true);
                     //rsActDetailTransfer.Insert(recActDetailTransfer);
                 }
             }
@@ -207,7 +211,6 @@ namespace dMobile.Controller
             if (!this.SysEnv.SysSettings.IsDisconnectedMode)
             {
                 string xmlDelete = CreateDeleteXML(XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"));
-
                 string reqData = SysCommon.SubmitComm(xmlDelete);
 
                 if (reqData.Length > 0)
@@ -323,8 +326,8 @@ namespace dMobile.Controller
 
             if (!isAdd)
             {
-                this.FKRefno = (int)DataViewDetails[idx]["ActivityDetailTransferFKRefno"];
-                this.LocMap.CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno((int)DataViewDetails[idx]["LocationMapRefno"]);
+                this.FKRefno = Convert.ToInt32(DataViewDetails[idx]["ActivityDetailTransferFKRefno"]);
+                this.LocMap.CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(DataViewDetails[idx]["LocationMapRefno"]));
             }
 
             return this;
@@ -375,7 +378,7 @@ namespace dMobile.Controller
         /// <returns></returns>
         public override int GetRefno(int idx)
         {
-            return (int)DataViewDetails[idx]["ActivityDetailRefno"];
+            return Convert.ToInt32(DataViewDetails[idx]["ActivityDetailRefno"]);
         }
 
         /// <summary>
@@ -385,7 +388,7 @@ namespace dMobile.Controller
         /// <returns></returns>
         public override int GetFKRefno(int idx)
         {
-            return (int)DataViewDetails[idx]["ActivityDetailTransferFKRefno"];
+            return Convert.ToInt32(DataViewDetails[idx]["ActivityDetailTransferFKRefno"]);
         }
 
         /// <summary>
@@ -406,44 +409,44 @@ namespace dMobile.Controller
 
             if (isSubmitBatch)
             {
-                sql.Append("SELECT tActivityDetail.ActivityDetailRefno,");
-                sql.Append("tActivityDetail.LocationMapRefno,");
-                sql.Append("tActivityDetailTransfer.ActivityDetailTransferFKRefno,");
-                sql.Append("tUnit.UnitCode,");
+                sql.Append("SELECT tActivityDetail.ActivityDetailRefno AS ActivityDetailRefno,");
+                sql.Append("tActivityDetail.LocationMapRefno AS LocationMapRefno,");
+                sql.Append("tActivityDetailTransfer.ActivityDetailTransferFKRefno AS ActivityDetailTransferFKRefno,");
+                sql.Append("tUnit.UnitCode AS UnitCode,");
                 sql.Append("aUnitWeight.UnitCode AS WtUnitCode,");
                 sql.Append("aUnitBase.UnitCode AS BaseUnitCode,");
-                sql.Append("tProduct.ProductCode,");
-                sql.Append("tProduct.ProductRefno,");
-                sql.Append("tProduct.ProductDescription,");
-                sql.Append("tProductUnit.ProductUnitBC,");
-                sql.Append("tProductUnit.ProductUnitIsBC,");
-                sql.Append("tProductUnit.ProductUnitSizeDescription,");
-                sql.Append("tActivityDetail.ActivityDetailQuantity,");
-                sql.Append("tActivityDetail.ActivityDetailBaseQuantity,");
-                sql.Append("tActivityDetail.ActivityDetailWeightQuantity,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitBestBeforeSellByDate,");
-                sql.Append("tActivityDetail.ActivityDetailSchemeID,");
-                sql.Append("tActivityDetail.ActivityDetailUniqueSchemeID,");
-                sql.Append("tActivityDetail.ActivityDetailSingleTradeItemSerialNumber,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitBatchLotNumber,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitExpiryUseByDate,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitProductionDate,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitSkidNumber,");
+                sql.Append("tProduct.ProductCode AS ProductCode,");
+                sql.Append("tProduct.ProductRefno AS ProductRefno,");
+                sql.Append("tProduct.ProductDescription AS ProductDescription,");
+                sql.Append("tProductUnit.ProductUnitBC AS ProductUnitBC,");
+                sql.Append("tProductUnit.ProductUnitIsBC AS ProductUnitIsBC,");
+                sql.Append("tProductUnit.ProductUnitSizeDescription AS ProductUnitSizeDescription,");
+                sql.Append("tActivityDetail.ActivityDetailQuantity AS ActivityDetailQuantity,");
+                sql.Append("tActivityDetail.ActivityDetailBaseQuantity AS ActivityDetailBaseQuantity,");
+                sql.Append("tActivityDetail.ActivityDetailWeightQuantity AS ActivityDetailWeightQuantity,");
+                sql.Append("tActivityDetail.ActivityDetailLogisticUnitBestBeforeSellByDate AS ActivityDetailLogisticUnitBestBeforeSellByDate,");
+                sql.Append("tActivityDetail.ActivityDetailSchemeID AS ActivityDetailSchemeID,");
+                sql.Append("tActivityDetail.ActivityDetailUniqueSchemeID AS ActivityDetailUniqueSchemeID,");
+                sql.Append("tActivityDetail.ActivityDetailSingleTradeItemSerialNumber AS ActivityDetailSingleTradeItemSerialNumber,");
+                sql.Append("tActivityDetail.ActivityDetailLogisticUnitBatchLotNumber AS ActivityDetailLogisticUnitBatchLotNumber,");
+                sql.Append("tActivityDetail.ActivityDetailLogisticUnitExpiryUseByDate AS ActivityDetailLogisticUnitExpiryUseByDate,");
+                sql.Append("tActivityDetail.ActivityDetailLogisticUnitProductionDate AS ActivityDetailLogisticUnitProductionDate,");
+                sql.Append("tActivityDetail.ActivityDetailLogisticUnitSkidNumber AS ActivityDetailLogisticUnitSkidNumber,");
                 sql.Append("tLocationMapSlot.LocationMapSlotCode AS LocationCode,");
                 sql.Append("CAST(tLocationMapSlot.LocationMapSlotName AS NVARCHAR(22)) AS LocationName,");
                 sql.Append("\'Slot\' AS Location,");
-                sql.Append("tProductSchemeVariant.ProductSchemeVariantCode,");
-                sql.Append("tProductSchemeVariant.ProductSchemeVariantNo,");
-                sql.Append("tProductSchemeVariant.ProductSchemeVariantDescription,");
-                sql.Append("tActivityDetail.ActivityDetailStatus,");
+                sql.Append("tProductSchemeVariant.ProductSchemeVariantCode AS ProductSchemeVariantCode,");
+                sql.Append("tProductSchemeVariant.ProductSchemeVariantNo AS ProductSchemeVariantNo,");
+                sql.Append("tProductSchemeVariant.ProductSchemeVariantDescription AS ProductSchemeVariantDescription,");
+                sql.Append("tActivityDetail.ActivityDetailStatus AS ActivityDetailStatus,");
                 sql.Append("tActivityDetailTransfer.ActivityDetailTransferIsConfirmed AS ActivityDetailIsConfirmed,");
                 sql.Append("CASE tActivityDetailTransfer.ActivityDetailTransferIsConfirmed WHEN 1 THEN \'C\' ELSE \' \' END ");
                 sql.Append("AS ActivityDetailIsConfirmedString,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra1Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra2Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra3Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra4Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra5Text ");
+                sql.Append("tActivityDetailExtra.ActivityDetailExtra1Text AS ActivityDetailExtra1Text,");
+                sql.Append("tActivityDetailExtra.ActivityDetailExtra2Text AS ActivityDetailExtra2Text,");
+                sql.Append("tActivityDetailExtra.ActivityDetailExtra3Text AS ActivityDetailExtra3Text,");
+                sql.Append("tActivityDetailExtra.ActivityDetailExtra4Text AS ActivityDetailExtra4Text,");
+                sql.Append("tActivityDetailExtra.ActivityDetailExtra5Date AS ActivityDetailExtra5Date ");
                 sql.Append("FROM tActivityDetailTransfer ");
                 sql.Append("INNER JOIN tActivityDetail ON tActivityDetail.ActivityDetailRefno ");
                 sql.Append("= tActivityDetailTransfer.ActivityDetailRefno ");
@@ -501,7 +504,7 @@ namespace dMobile.Controller
                 sql.Append("tActivityDetailExtra.ActivityDetailExtra2Text,");
                 sql.Append("tActivityDetailExtra.ActivityDetailExtra3Text,");
                 sql.Append("tActivityDetailExtra.ActivityDetailExtra4Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra5Text ");
+                sql.Append("tActivityDetailExtra.ActivityDetailExtra5Date ");
                 sql.Append("FROM tActivityDetailTransfer ");
                 sql.Append("INNER JOIN tActivityDetail ON tActivityDetail.ActivityDetailRefno ");
                 sql.Append("= tActivityDetailTransfer.ActivityDetailRefno ");
@@ -559,7 +562,7 @@ namespace dMobile.Controller
                 sql.Append("tActivityDetailExtra.ActivityDetailExtra2Text,");
                 sql.Append("tActivityDetailExtra.ActivityDetailExtra3Text,");
                 sql.Append("tActivityDetailExtra.ActivityDetailExtra4Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra5Text ");
+                sql.Append("tActivityDetailExtra.ActivityDetailExtra5Date ");
                 sql.Append("FROM tActivityDetailTransfer ");
                 sql.Append("INNER JOIN tActivityDetail ON tActivityDetail.ActivityDetailRefno ");
                 sql.Append("= tActivityDetailTransfer.ActivityDetailRefno ");
@@ -584,44 +587,44 @@ namespace dMobile.Controller
             }
             else
             {
-                sql.Append("SELECT tActivityDetail.ActivityDetailRefno,");
-                sql.Append("tActivityDetail.LocationMapRefno,");
-                sql.Append("tActivityDetailTransfer.ActivityDetailTransferFKRefno,");
-                sql.Append("tUnit.UnitCode,");
+                sql.Append("SELECT tActivityDetail.ActivityDetailRefno AS ActivityDetailRefno,");
+                sql.Append("tActivityDetail.LocationMapRefno AS LocationMapRefno,");
+                sql.Append("tActivityDetailTransfer.ActivityDetailTransferFKRefno AS ActivityDetailTransferFKRefno,");
+                sql.Append("tUnit.UnitCode AS UnitCode,");
                 sql.Append("aUnitWeight.UnitCode AS WtUnitCode,");
                 sql.Append("aUnitBase.UnitCode AS BaseUnitCode,");
-                sql.Append("tProduct.ProductCode,");
-                sql.Append("tProduct.ProductRefno,");
-                sql.Append("tProduct.ProductDescription,");
-                sql.Append("tProductUnit.ProductUnitBC,");
-                sql.Append("tProductUnit.ProductUnitIsBC,");
-                sql.Append("tProductUnit.ProductUnitSizeDescription,");
-                sql.Append("tActivityDetail.ActivityDetailQuantity,");
-                sql.Append("tActivityDetail.ActivityDetailBaseQuantity,");
-                sql.Append("tActivityDetail.ActivityDetailWeightQuantity,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitBestBeforeSellByDate,");
-                sql.Append("tActivityDetail.ActivityDetailSchemeID,");
-                sql.Append("tActivityDetail.ActivityDetailUniqueSchemeID,");
-                sql.Append("tActivityDetail.ActivityDetailSingleTradeItemSerialNumber,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitBatchLotNumber,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitExpiryUseByDate,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitProductionDate,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitSkidNumber,");
+                sql.Append("tProduct.ProductCode AS ProductCode,");
+                sql.Append("tProduct.ProductRefno AS ProductRefno,");
+                sql.Append("tProduct.ProductDescription AS ProductDescription,");
+                sql.Append("tProductUnit.ProductUnitBC AS ProductUnitBC,");
+                sql.Append("tProductUnit.ProductUnitIsBC AS ProductUnitIsBC,");
+                sql.Append("tProductUnit.ProductUnitSizeDescription AS ProductUnitSizeDescription,");
+                sql.Append("tActivityDetail.ActivityDetailQuantity AS ActivityDetailQuantity,");
+                sql.Append("tActivityDetail.ActivityDetailBaseQuantity AS ActivityDetailBaseQuantity,");
+                sql.Append("tActivityDetail.ActivityDetailWeightQuantity AS ActivityDetailWeightQuantity,");
+                sql.Append("tActivityDetail.ActivityDetailLogisticUnitBestBeforeSellByDate AS ActivityDetailLogisticUnitBestBeforeSellByDate,");
+                sql.Append("tActivityDetail.ActivityDetailSchemeID AS ActivityDetailSchemeID,");
+                sql.Append("tActivityDetail.ActivityDetailUniqueSchemeID AS ActivityDetailUniqueSchemeID,");
+                sql.Append("tActivityDetail.ActivityDetailSingleTradeItemSerialNumber AS ActivityDetailSingleTradeItemSerialNumber,");
+                sql.Append("tActivityDetail.ActivityDetailLogisticUnitBatchLotNumber AS ActivityDetailLogisticUnitBatchLotNumber,");
+                sql.Append("tActivityDetail.ActivityDetailLogisticUnitExpiryUseByDate AS ActivityDetailLogisticUnitExpiryUseByDate,");
+                sql.Append("tActivityDetail.ActivityDetailLogisticUnitProductionDate AS ActivityDetailLogisticUnitProductionDate,");
+                sql.Append("tActivityDetail.ActivityDetailLogisticUnitSkidNumber AS ActivityDetailLogisticUnitSkidNumber,");
                 sql.Append("tLocationMapSlot.LocationMapSlotCode AS LocationCode,");
                 sql.Append("CAST(tLocationMapSlot.LocationMapSlotName AS NVARCHAR(22)) AS LocationName,");
                 sql.Append("\'Slot\' AS Location,");
-                sql.Append("tProductSchemeVariant.ProductSchemeVariantCode,");
-                sql.Append("tProductSchemeVariant.ProductSchemeVariantNo,");
-                sql.Append("tProductSchemeVariant.ProductSchemeVariantDescription,");
-                sql.Append("tActivityDetail.ActivityDetailStatus,");
+                sql.Append("tProductSchemeVariant.ProductSchemeVariantCode AS ProductSchemeVariantCode,");
+                sql.Append("tProductSchemeVariant.ProductSchemeVariantNo AS ProductSchemeVariantNo,");
+                sql.Append("tProductSchemeVariant.ProductSchemeVariantDescription AS ProductSchemeVariantDescription,");
+                sql.Append("tActivityDetail.ActivityDetailStatus AS ActivityDetailStatus,");
                 sql.Append("tActivityDetailTransfer.ActivityDetailTransferIsConfirmed AS ActivityDetailIsConfirmed,");
                 sql.Append("CASE tActivityDetailTransfer.ActivityDetailTransferIsConfirmed WHEN 1 THEN \'C\' ELSE \' \' END ");
                 sql.Append("AS ActivityDetailIsConfirmedString,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra1Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra2Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra3Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra4Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra5Text ");
+                sql.Append("tActivityDetailExtra.ActivityDetailExtra1Text AS ActivityDetailExtra1Text,");
+                sql.Append("tActivityDetailExtra.ActivityDetailExtra2Text AS ActivityDetailExtra2Text,");
+                sql.Append("tActivityDetailExtra.ActivityDetailExtra3Text AS ActivityDetailExtra3Text,");
+                sql.Append("tActivityDetailExtra.ActivityDetailExtra4Text AS ActivityDetailExtra4Text,");
+                sql.Append("tActivityDetailExtra.ActivityDetailExtra5Date AS ActivityDetailExtra5Date ");
                 sql.Append("FROM tActivityDetailTransfer ");
                 sql.Append("INNER JOIN tActivityDetail ON tActivityDetail.ActivityDetailRefno ");
                 sql.Append("= tActivityDetailTransfer.ActivityDetailRefno ");
@@ -678,7 +681,7 @@ namespace dMobile.Controller
                 sql.Append("tActivityDetailExtra.ActivityDetailExtra2Text,");
                 sql.Append("tActivityDetailExtra.ActivityDetailExtra3Text,");
                 sql.Append("tActivityDetailExtra.ActivityDetailExtra4Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra5Text ");
+                sql.Append("tActivityDetailExtra.ActivityDetailExtra5Date ");
                 sql.Append("FROM tActivityDetailTransfer ");
                 sql.Append("INNER JOIN tActivityDetail ON tActivityDetail.ActivityDetailRefno ");
                 sql.Append("= tActivityDetailTransfer.ActivityDetailRefno ");
@@ -735,7 +738,7 @@ namespace dMobile.Controller
                 sql.Append("tActivityDetailExtra.ActivityDetailExtra2Text,");
                 sql.Append("tActivityDetailExtra.ActivityDetailExtra3Text,");
                 sql.Append("tActivityDetailExtra.ActivityDetailExtra4Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra5Text ");
+                sql.Append("tActivityDetailExtra.ActivityDetailExtra5Date ");
                 sql.Append("FROM tActivityDetailTransfer ");
                 sql.Append("INNER JOIN tActivityDetail ON tActivityDetail.ActivityDetailRefno ");
                 sql.Append("= tActivityDetailTransfer.ActivityDetailRefno ");
@@ -783,116 +786,278 @@ namespace dMobile.Controller
             {
                 for (int i = 0; i <= this.DataViewDetails.Count - 1; i++)
                 {
-                    if (this.SysEnv.SysSettings.IsTransConfirmFromDet)
-                    {
-                        if (Convert.ToBoolean(this.DataViewDetails[i]["ActivityDetailIsConfirmed"]) == true)
-                        {
-                            fillQty.Quantity = fillQty.Quantity + Convert.ToDecimal(this.DataViewDetails[i]["ActivityDetailQuantity"]);
-                            fillQty.BaseQuantity = fillQty.BaseQuantity + Convert.ToDecimal(this.DataViewDetails[i]["ActivityDetailBaseQuantity"]);
-                            fillQty.WeightQuantity = fillQty.WeightQuantity + Convert.ToDecimal(this.DataViewDetails[i]["ActivityDetailWeightQuantity"]);
-                        }
-                    }
-                    else
-                    {
-                        fillQty.Quantity = fillQty.Quantity + Convert.ToDecimal(this.DataViewDetails[i]["ActivityDetailQuantity"]);
-                        fillQty.BaseQuantity = fillQty.BaseQuantity + Convert.ToDecimal(this.DataViewDetails[i]["ActivityDetailBaseQuantity"]);
-                        fillQty.WeightQuantity = fillQty.WeightQuantity + Convert.ToDecimal(this.DataViewDetails[i]["ActivityDetailWeightQuantity"]);
-                    }
+                    //if (this.SysEnv.SysSettings.IsTransConfirmFromDet)
+                    //{
+                    //    if (Convert.ToBoolean(this.DataViewDetails[i]["ActivityDetailIsConfirmed"]) == true)
+                    //    {
+                    //        fillQty.Quantity = fillQty.Quantity + Convert.ToDecimal(this.DataViewDetails[i]["ActivityDetailQuantity"]);
+                    //        fillQty.BaseQuantity = fillQty.BaseQuantity + Convert.ToDecimal(this.DataViewDetails[i]["ActivityDetailBaseQuantity"]);
+                    //        fillQty.WeightQuantity = fillQty.WeightQuantity + Convert.ToDecimal(this.DataViewDetails[i]["ActivityDetailWeightQuantity"]);
+                    //    }
+                    //}
+                    //else
+                    //{
+                    fillQty.Quantity += Convert.ToDecimal(this.DataViewDetails[i]["ActivityDetailQuantity"]);
+                    fillQty.BaseQuantity += Convert.ToDecimal(this.DataViewDetails[i]["ActivityDetailBaseQuantity"]);
+                    fillQty.WeightQuantity += Convert.ToDecimal(this.DataViewDetails[i]["ActivityDetailWeightQuantity"]);
+                    //}
                 }
             }
 
             return fillQty;
         }
 
-//        /// <summary>
-//        /// 
-//        /// </summary>
-//        /// <param name="dataGridMain"></param>
-//        public override void DesignDataGrid(DataGrid dataGridMain)
-//        {
-//            int colWidthFactor = 1;
+        public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity, ref ColumnDefinition dataGridWidth)
+        {
+            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
-//            if (this.SysEnv.IsWindowsMobile6Device)
-//            {
-//                colWidthFactor = 2;
-//            }
+            // Header grid
+            Grid gridHeader = new Grid
+            {
+                Padding = new Thickness(5),
+                ColumnSpacing = 15,
+                ColumnDefinitions =
+                {
+                    new ColumnDefinition { Width = new GridLength(10, GridUnitType.Star) },
+                    new ColumnDefinition { Width = new GridLength(10, GridUnitType.Star) },
+                    new ColumnDefinition { Width = new GridLength(5, GridUnitType.Star) },
+                    new ColumnDefinition { Width = new GridLength(75, GridUnitType.Star) }
+                }
+            };
 
-//            if (dataGridMain.TableStyles.Count > 0)
-//            {
-//                dataGridMain.TableStyles.Clear();
-//            }
+            gridHeader.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
 
-//            DataGridTableStyle dataGridStyle = new DataGridTableStyle();
-//            dataGridStyle.MappingName = this.MainGridMappingName;
+            // TODO: Resource strings
+            Label labelQtyHeader = new Label { Text = "Qty", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
+            Label labelWeightHeader = new Label { Text = "Weight", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
+            Label labelUnitCodeHeader = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
+            Label labelSchemeIDHeader = new Label { Text = "Scheme ID", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
 
-//            if (this.SysEnv.SysSettings.IsTransConfirmFromDet
-//                || this.SysEnv.SysSettings.IsTransConfirmFromDet)
-//            {
-//                CustomColumnStyle colStyle = null;
-//                colStyle = new CustomColumnStyle(0);
-//                colStyle.MappingName = "ActivityDetailIsConfirmedString";
-//#if MULTILANGUAGE
-//        colStyle.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.C);
-//#else
-//                colStyle.HeaderText = "C";
-//#endif
-//                colStyle.Width = Convert.ToInt32(12 * colWidthFactor);
-//                dataGridStyle.GridColumnStyles.Add(colStyle);
-//            }
+            gridHeader.Children.Add(labelQtyHeader);
+            gridHeader.Children.Add(labelWeightHeader);
+            gridHeader.Children.Add(labelUnitCodeHeader);
+            gridHeader.Children.Add(labelSchemeIDHeader);
 
-//            DataGridTextBoxColumn dataGridCol = new DataGridTextBoxColumn();
-//            dataGridCol.MappingName = "ActivityDetailQuantity";
-//#if MULTILANGUAGE
-//      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Qtyzzz);
-//#else
-//            dataGridCol.HeaderText = "Qty";
-//#endif
-//            dataGridCol.Width = 50 * colWidthFactor;
-//            dataGridCol.Format = "0.000";
-//            dataGridStyle.GridColumnStyles.Add(dataGridCol);
+            Grid.SetColumn(labelQtyHeader, 0);
+            Grid.SetColumn(labelWeightHeader, 1);
+            Grid.SetColumn(labelUnitCodeHeader, 2);
+            Grid.SetColumn(labelSchemeIDHeader, 3);
 
-//            dataGridCol = new DataGridTextBoxColumn();
-//            dataGridCol.MappingName = "ActivityDetailWeightQuantity";
-//#if MULTILANGUAGE
-//      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Weight);
-//#else
-//            dataGridCol.HeaderText = "Weight";
-//#endif
-//            dataGridCol.Width = 55 * colWidthFactor;
-//            dataGridCol.Format = "0.000";
-//            dataGridStyle.GridColumnStyles.Add(dataGridCol);
+            Grid.SetRow(gridHeader, 0);
 
-//            dataGridCol = new DataGridTextBoxColumn();
-//            dataGridCol.MappingName = "UnitCode";
-//            dataGridCol.HeaderText = string.Empty;
-//            dataGridCol.Width = 30 * colWidthFactor;
-//            dataGridStyle.GridColumnStyles.Add(dataGridCol);
+            dataGridMainActivityHeader.Children.Add(gridHeader);
 
-//            dataGridCol = new DataGridTextBoxColumn();
-//            dataGridCol.MappingName = "ActivityDetailSchemeID";
-//#if MULTILANGUAGE
-//      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.SchemeId);
-//#else
-//            dataGridCol.HeaderText = "Scheme ID";
-//#endif
-//            dataGridCol.Width = 500 * colWidthFactor;
-//            dataGridStyle.GridColumnStyles.Add(dataGridCol);
+            // Data grid
+            DataTemplate dataTemplate = new DataTemplate(() =>
+            {
+                Grid gridData = new Grid
+                {
+                    Padding = new Thickness(5),
+                    ColumnSpacing = 15,
+                    ColumnDefinitions =
+                    {
+                        new ColumnDefinition { Width = new GridLength(10, GridUnitType.Star) },
+                        new ColumnDefinition { Width = new GridLength(10, GridUnitType.Star) },
+                        new ColumnDefinition { Width = new GridLength(5, GridUnitType.Star) },
+                        new ColumnDefinition { Width = new GridLength(75, GridUnitType.Star) }
+                    }
+                };
 
-//            dataGridMain.TableStyles.Add(dataGridStyle);
-//            dataGridMain.RowHeadersVisible = false;
-//            dataGridMain.ColumnHeadersVisible = true;
-//        }
+                Label labelQty = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                Label labelWeight = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                Label labelUnitCode = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                Label labelSchemeID = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+
+                labelQty.SetBinding(Label.TextProperty, new Binding("ActivityDetailQuantity", BindingMode.Default, null, null, "{0:F3}"));
+                labelWeight.SetBinding(Label.TextProperty, new Binding("ActivityDetailWeightQuantity", BindingMode.Default, null, null, "{0:F3}"));
+                labelUnitCode.SetBinding(Label.TextProperty, new Binding("UnitCode"));
+                labelSchemeID.SetBinding(Label.TextProperty, new Binding("ActivityDetailSchemeID"));
+
+                gridData.Children.Add(labelQty);
+                gridData.Children.Add(labelWeight);
+                gridData.Children.Add(labelUnitCode);
+                gridData.Children.Add(labelSchemeID);
+
+                Grid.SetColumn(labelQty, 0);
+                Grid.SetColumn(labelWeight, 1);
+                Grid.SetColumn(labelUnitCode, 2);
+                Grid.SetColumn(labelSchemeID, 3);
+
+                return new ViewCell { View = gridData };
+            });
+
+            dataGridMainActivity.ItemTemplate = dataTemplate;
+
+            foreach (DataRow row in this.DataViewDetails.ToTable().Rows)
+            {
+                TransferDetail transferDetail = new TransferDetail
+                {
+                    ActivityDetailRefno = Convert.ToInt32(row["ActivityDetailRefno"] != DBNull.Value ? row["ActivityDetailRefno"] : null),
+                    ActivityDetailIsConfirmed = Convert.ToBoolean(row["ActivityDetailIsConfirmed"] != DBNull.Value ? row["ActivityDetailIsConfirmed"] : null),
+                    ActivityDetailIsConfirmedString = Convert.ToString(row["ActivityDetailIsConfirmedString"] != DBNull.Value ? row["ActivityDetailIsConfirmedString"] : null),
+                    ActivityDetailLogisticUnitExpiryUseByDate = Convert.ToDateTime(row["ActivityDetailLogisticUnitExpiryUseByDate"] != DBNull.Value ? row["ActivityDetailLogisticUnitExpiryUseByDate"] : null),
+                    ActivityDetailStatus = Convert.ToInt32(row["ActivityDetailStatus"] != DBNull.Value ? row["ActivityDetailStatus"] : null),
+                    ActivityDetailTransferFKRefno = Convert.ToInt32(row["ActivityDetailTransferFKRefno"] != DBNull.Value ? row["ActivityDetailTransferFKRefno"] : null),
+                    BaseUnitCode = Convert.ToString(row["BaseUnitCode"] != DBNull.Value ? row["BaseUnitCode"] : null),
+                    Location = Convert.ToString(row["Location"] != DBNull.Value ? row["Location"] : null),
+                    ProductSchemeVariantDescription = Convert.ToString(row["ProductSchemeVariantDescription"] != DBNull.Value ? row["ProductSchemeVariantDescription"] : null),
+                    ProductUnitIsBC = Convert.ToBoolean(row["ProductUnitIsBC"] != DBNull.Value ? row["ProductUnitIsBC"] : null),
+                    WtUnitCode = Convert.ToString(row["WtUnitCode"] != DBNull.Value ? row["WtUnitCode"] : null), 
+                    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
+                    UnitCode = Convert.ToString(row["UnitCode"] != DBNull.Value ? row["UnitCode"] : null),
+                    ProductCode = Convert.ToString(row["ProductCode"] != DBNull.Value ? row["ProductCode"] : null),
+                    ProductRefno = Convert.ToInt32(row["ProductRefno"] != DBNull.Value ? row["ProductRefno"] : null),
+                    ProductDescription = Convert.ToString(row["ProductDescription"] != DBNull.Value ? row["ProductDescription"] : null),
+                    ProductUnitBC = Convert.ToString(row["ProductUnitBC"] != DBNull.Value ? row["ProductUnitBC"] : null),
+                    ProductUnitSizeDescription = Convert.ToString(row["ProductUnitSizeDescription"] != DBNull.Value ? row["ProductUnitSizeDescription"] : null),
+                    ActivityDetailQuantity = Convert.ToDecimal(row["ActivityDetailQuantity"] != DBNull.Value ? row["ActivityDetailQuantity"] : null),
+                    ActivityDetailBaseQuantity = Convert.ToDecimal(row["ActivityDetailBaseQuantity"] != DBNull.Value ? row["ActivityDetailBaseQuantity"] : null),
+                    ActivityDetailWeightQuantity = Convert.ToDecimal(row["ActivityDetailWeightQuantity"] != DBNull.Value ? row["ActivityDetailWeightQuantity"] : null),
+                    ActivityDetailLogisticUnitBestBeforeSellByDate = Convert.ToDateTime(row["ActivityDetailLogisticUnitBestBeforeSellByDate"] != DBNull.Value ? row["ActivityDetailLogisticUnitBestBeforeSellByDate"] : null),
+                    ActivityDetailSchemeID = Convert.ToString(row["ActivityDetailSchemeID"] != DBNull.Value ? row["ActivityDetailSchemeID"] : null),
+                    ActivityDetailUniqueSchemeID = Convert.ToString(row["ActivityDetailUniqueSchemeID"] != DBNull.Value ? row["ActivityDetailUniqueSchemeID"] : null),
+                    ActivityDetailSingleTradeItemSerialNumber = Convert.ToString(row["ActivityDetailSingleTradeItemSerialNumber"] != DBNull.Value ? row["ActivityDetailSingleTradeItemSerialNumber"] : null),
+                    ActivityDetailLogisticUnitBatchLotNumber = Convert.ToString(row["ActivityDetailLogisticUnitBatchLotNumber"] != DBNull.Value ? row["ActivityDetailLogisticUnitBatchLotNumber"] : null),
+                    ActivityDetailLogisticUnitProductionDate = Convert.ToDateTime(row["ActivityDetailLogisticUnitProductionDate"] != DBNull.Value ? row["ActivityDetailLogisticUnitProductionDate"] : null),
+                    ActivityDetailLogisticUnitSkidNumber = Convert.ToString(row["ActivityDetailLogisticUnitSkidNumber"] != DBNull.Value ? row["ActivityDetailLogisticUnitSkidNumber"] : null),
+                    LocationCode = Convert.ToInt32(row["LocationCode"] != DBNull.Value ? row["LocationCode"] : null),
+                    LocationName = Convert.ToString(row["LocationName"] != DBNull.Value ? row["LocationName"] : null),
+                    ProductSchemeVariantCode = Convert.ToString(row["LocationCode"] != DBNull.Value ? row["LocationCode"] : null),
+                    ProductSchemeVariantNo = Convert.ToInt32(row["ProductSchemeVariantNo"] != DBNull.Value ? row["ProductSchemeVariantNo"] : null),
+                    ActivityDetailExtra1Text = Convert.ToString(row["ActivityDetailExtra1Text"] != DBNull.Value ? row["ActivityDetailExtra1Text"] : null),
+                    ActivityDetailExtra2Text = Convert.ToString(row["ActivityDetailExtra2Text"] != DBNull.Value ? row["ActivityDetailExtra2Text"] : null),
+                    ActivityDetailExtra3Text = Convert.ToString(row["ActivityDetailExtra3Text"] != DBNull.Value ? row["ActivityDetailExtra3Text"] : null),
+                    ActivityDetailExtra4Text = Convert.ToString(row["ActivityDetailExtra4Text"] != DBNull.Value ? row["ActivityDetailExtra4Text"] : null),
+                    ActivityDetailExtra5Date = Convert.ToDateTime(row["ActivityDetailExtra5Date"] != DBNull.Value ? row["ActivityDetailExtra5Date"] : null)
+                };
+
+                observableCollection.Add(transferDetail);
+            }
+
+            return observableCollection;
+        }
+
+        //        /// <summary>
+        //        /// 
+        //        /// </summary>
+        //        /// <param name="dataGridMain"></param>
+        //        public override void DesignDataGrid(DataGrid dataGridMain)
+        //        {
+        //           int colWidthFactor = 1;
+
+        //            if (this.SysEnv.IsWindowsMobile6Device)
+        //            {
+        //                colWidthFactor = 2;
+        //            }
+
+        //            if (dataGridMain.TableStyles.Count > 0)
+        //            {
+        //                dataGridMain.TableStyles.Clear();
+        //            }
+
+        //            DataGridTableStyle dataGridStyle = new DataGridTableStyle();
+        //            dataGridStyle.MappingName = this.MainGridMappingName;
+
+        //            DataGridTextBoxColumn dataGridCol = new DataGridTextBoxColumn();
+        //            dataGridCol.MappingName = "ActivityDetailQuantity";
+        //#if MULTILANGUAGE
+        //      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Qtyzzz);
+        //#else
+        //            dataGridCol.HeaderText = "Qty";
+        //#endif
+        //            dataGridCol.Width = 50 * colWidthFactor;
+        //            dataGridCol.Format = "0.000";
+        //            dataGridStyle.GridColumnStyles.Add(dataGridCol);
+
+        //            dataGridCol = new DataGridTextBoxColumn();
+        //            dataGridCol.MappingName = "ActivityDetailWeightQuantity";
+        //#if MULTILANGUAGE
+        //      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Weight);
+        //#else
+        //            dataGridCol.HeaderText = "Weight";
+        //#endif
+        //            dataGridCol.Width = 55 * colWidthFactor;
+        //            dataGridCol.Format = "0.000";
+        //            dataGridStyle.GridColumnStyles.Add(dataGridCol);
+
+        //            dataGridCol = new DataGridTextBoxColumn();
+        //            dataGridCol.MappingName = "UnitCode";
+        //            dataGridCol.HeaderText = string.Empty;
+        //            dataGridCol.Width = 30 * colWidthFactor;
+        //            dataGridStyle.GridColumnStyles.Add(dataGridCol);
+
+        //            dataGridCol = new DataGridTextBoxColumn();
+        //            dataGridCol.MappingName = "ActivityDetailSchemeID";
+        //#if MULTILANGUAGE
+        //      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.SchemeId);
+        //#else
+        //            dataGridCol.HeaderText = "Scheme ID";
+        //#endif
+        //            dataGridCol.Width = 500 * colWidthFactor;
+        //            dataGridStyle.GridColumnStyles.Add(dataGridCol);
+
+        //            dataGridMain.TableStyles.Add(dataGridStyle);
+        //            dataGridMain.RowHeadersVisible = false;
+        //            dataGridMain.ColumnHeadersVisible = true;
+        //        }
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="searchText"></param>
         /// <returns></returns>
-        public override DataView Search(string searchText)
+        public override ObservableCollection<object> Search(string searchText)
         {
-            this.DataViewDetails.RowFilter = "ActivityTransferStringFKRefno LIKE \'" + searchText.Trim() + "%\'";
+            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+            this.DataViewDetails.RowFilter = "Convert(ActivityDetailTransferFKRefno, System.String) LIKE \'%" + searchText.Trim() + "%\'";
 
-            return this.DataViewDetails;
+            foreach (DataRow row in this.DataViewDetails.ToTable().Rows)
+            {
+                TransferDetail transferDetail = new TransferDetail
+                {
+                    ActivityDetailRefno = Convert.ToInt32(row["ActivityDetailRefno"] != DBNull.Value ? row["ActivityDetailRefno"] : null),
+                    ActivityDetailIsConfirmed = Convert.ToBoolean(row["ActivityDetailIsConfirmed"] != DBNull.Value ? row["ActivityDetailIsConfirmed"] : null),
+                    ActivityDetailIsConfirmedString = Convert.ToString(row["ActivityDetailIsConfirmedString"] != DBNull.Value ? row["ActivityDetailIsConfirmedString"] : null),
+                    ActivityDetailLogisticUnitExpiryUseByDate = Convert.ToDateTime(row["ActivityDetailLogisticUnitExpiryUseByDate"] != DBNull.Value ? row["ActivityDetailLogisticUnitExpiryUseByDate"] : null),
+                    ActivityDetailStatus = Convert.ToInt32(row["ActivityDetailStatus"] != DBNull.Value ? row["ActivityDetailStatus"] : null),
+                    ActivityDetailTransferFKRefno = Convert.ToInt32(row["ActivityDetailTransferFKRefno"] != DBNull.Value ? row["ActivityDetailTransferFKRefno"] : null),
+                    BaseUnitCode = Convert.ToString(row["BaseUnitCode"] != DBNull.Value ? row["BaseUnitCode"] : null),
+                    Location = Convert.ToString(row["Location"] != DBNull.Value ? row["Location"] : null),
+                    ProductSchemeVariantDescription = Convert.ToString(row["ProductSchemeVariantDescription"] != DBNull.Value ? row["ProductSchemeVariantDescription"] : null),
+                    ProductUnitIsBC = Convert.ToBoolean(row["ProductUnitIsBC"] != DBNull.Value ? row["ProductUnitIsBC"] : null),
+                    WtUnitCode = Convert.ToString(row["WtUnitCode"] != DBNull.Value ? row["WtUnitCode"] : null),
+                    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
+                    UnitCode = Convert.ToString(row["UnitCode"] != DBNull.Value ? row["UnitCode"] : null),
+                    ProductCode = Convert.ToString(row["ProductCode"] != DBNull.Value ? row["ProductCode"] : null),
+                    ProductRefno = Convert.ToInt32(row["ProductRefno"] != DBNull.Value ? row["ProductRefno"] : null),
+                    ProductDescription = Convert.ToString(row["ProductDescription"] != DBNull.Value ? row["ProductDescription"] : null),
+                    ProductUnitBC = Convert.ToString(row["ProductUnitBC"] != DBNull.Value ? row["ProductUnitBC"] : null),
+                    ProductUnitSizeDescription = Convert.ToString(row["ProductUnitSizeDescription"] != DBNull.Value ? row["ProductUnitSizeDescription"] : null),
+                    ActivityDetailQuantity = Convert.ToDecimal(row["ActivityDetailQuantity"] != DBNull.Value ? row["ActivityDetailQuantity"] : null),
+                    ActivityDetailBaseQuantity = Convert.ToDecimal(row["ActivityDetailBaseQuantity"] != DBNull.Value ? row["ActivityDetailBaseQuantity"] : null),
+                    ActivityDetailWeightQuantity = Convert.ToDecimal(row["ActivityDetailWeightQuantity"] != DBNull.Value ? row["ActivityDetailWeightQuantity"] : null),
+                    ActivityDetailLogisticUnitBestBeforeSellByDate = Convert.ToDateTime(row["ActivityDetailLogisticUnitBestBeforeSellByDate"] != DBNull.Value ? row["ActivityDetailLogisticUnitBestBeforeSellByDate"] : null),
+                    ActivityDetailSchemeID = Convert.ToString(row["ActivityDetailSchemeID"] != DBNull.Value ? row["ActivityDetailSchemeID"] : null),
+                    ActivityDetailUniqueSchemeID = Convert.ToString(row["ActivityDetailUniqueSchemeID"] != DBNull.Value ? row["ActivityDetailUniqueSchemeID"] : null),
+                    ActivityDetailSingleTradeItemSerialNumber = Convert.ToString(row["ActivityDetailSingleTradeItemSerialNumber"] != DBNull.Value ? row["ActivityDetailSingleTradeItemSerialNumber"] : null),
+                    ActivityDetailLogisticUnitBatchLotNumber = Convert.ToString(row["ActivityDetailLogisticUnitBatchLotNumber"] != DBNull.Value ? row["ActivityDetailLogisticUnitBatchLotNumber"] : null),
+                    ActivityDetailLogisticUnitProductionDate = Convert.ToDateTime(row["ActivityDetailLogisticUnitProductionDate"] != DBNull.Value ? row["ActivityDetailLogisticUnitProductionDate"] : null),
+                    ActivityDetailLogisticUnitSkidNumber = Convert.ToString(row["ActivityDetailLogisticUnitSkidNumber"] != DBNull.Value ? row["ActivityDetailLogisticUnitSkidNumber"] : null),
+                    LocationCode = Convert.ToInt32(row["LocationCode"] != DBNull.Value ? row["LocationCode"] : null),
+                    LocationName = Convert.ToString(row["LocationName"] != DBNull.Value ? row["LocationName"] : null),
+                    ProductSchemeVariantCode = Convert.ToString(row["LocationCode"] != DBNull.Value ? row["LocationCode"] : null),
+                    ProductSchemeVariantNo = Convert.ToInt32(row["ProductSchemeVariantNo"] != DBNull.Value ? row["ProductSchemeVariantNo"] : null),
+                    ActivityDetailExtra1Text = Convert.ToString(row["ActivityDetailExtra1Text"] != DBNull.Value ? row["ActivityDetailExtra1Text"] : null),
+                    ActivityDetailExtra2Text = Convert.ToString(row["ActivityDetailExtra2Text"] != DBNull.Value ? row["ActivityDetailExtra2Text"] : null),
+                    ActivityDetailExtra3Text = Convert.ToString(row["ActivityDetailExtra3Text"] != DBNull.Value ? row["ActivityDetailExtra3Text"] : null),
+                    ActivityDetailExtra4Text = Convert.ToString(row["ActivityDetailExtra4Text"] != DBNull.Value ? row["ActivityDetailExtra4Text"] : null),
+                    ActivityDetailExtra5Date = Convert.ToDateTime(row["ActivityDetailExtra5Date"] != DBNull.Value ? row["ActivityDetailExtra5Date"] : null)
+                };
+
+                observableCollection.Add(transferDetail);
+            }
+
+            return observableCollection;
         }
 
         /// <summary>
@@ -903,17 +1068,17 @@ namespace dMobile.Controller
         {
             if (idx >= 0)
             {
-                this.SelectedLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno((int)this.DataViewDetails[idx]["LocationMapRefno"]);
-                this.FKRefno = (int)DataViewDetails[idx]["ActivityDetailTransferFKRefno"];
-                this.Refno = (int)DataViewDetails[idx]["ActivityDetailRefno"];
-                this.SchemeID = (string)DataViewDetails[idx]["ActivityDetailSchemeID"];
-                this.UniqueSchemeID = (string)DataViewDetails[idx]["ActivityDetailUniqueSchemeID"];
+                this.SelectedLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(this.DataViewDetails[idx]["LocationMapRefno"]));
+                this.FKRefno = Convert.ToInt32(DataViewDetails[idx]["ActivityDetailTransferFKRefno"]);
+                this.Refno = Convert.ToInt32(DataViewDetails[idx]["ActivityDetailRefno"]);
+                this.SchemeID = Convert.ToString(DataViewDetails[idx]["ActivityDetailSchemeID"]);
+                this.UniqueSchemeID = Convert.ToString(DataViewDetails[idx]["ActivityDetailUniqueSchemeID"]);
 
-                this.ActExtra.Text1 = (string)DataViewDetails[idx]["ActivityDetailExtra1Text"];
-                this.ActExtra.Text2 = (string)DataViewDetails[idx]["ActivityDetailExtra2Text"];
-                this.ActExtra.Text3 = (string)DataViewDetails[idx]["ActivityDetailExtra3Text"];
-                this.ActExtra.Text4 = (string)DataViewDetails[idx]["ActivityDetailExtra4Text"];
-                this.ActExtra.Text5 = (string)DataViewDetails[idx]["ActivityDetailExtra5Text"];
+                this.ActExtra.Text1 = Convert.ToString(DataViewDetails[idx]["ActivityDetailExtra1Text"]);
+                this.ActExtra.Text2 = Convert.ToString(DataViewDetails[idx]["ActivityDetailExtra2Text"]);
+                this.ActExtra.Text3 = Convert.ToString(DataViewDetails[idx]["ActivityDetailExtra3Text"]);
+                this.ActExtra.Text4 = Convert.ToString(DataViewDetails[idx]["ActivityDetailExtra4Text"]);
+                this.ActExtra.DateTime5 = Convert.ToDateTime(DataViewDetails[idx]["ActivityDetailExtra5Date"]);
             }
             else
             {
@@ -1060,7 +1225,7 @@ namespace dMobile.Controller
                         + ("<extra2>" + this.ActExtra.Text2 + "</extra2>")
                         + ("<extra3>" + this.ActExtra.Text3 + "</extra3>")
                         + ("<extra4>" + this.ActExtra.Text4 + "</extra4>")
-                        + ("<extra5>" + this.ActExtra.Text5 + "</extra5>")
+                        + ("<extra5>" + this.ActExtra.DateTime5 + "</extra5>")
                         + "</imclient>");
                 }
                 else
@@ -1083,7 +1248,7 @@ namespace dMobile.Controller
                         + ("<extra2>" + this.ActExtra.Text2 + "</extra2>")
                         + ("<extra3>" + this.ActExtra.Text3 + "</extra3>")
                         + ("<extra4>" + this.ActExtra.Text4 + "</extra4>")
-                        + ("<extra5>" + this.ActExtra.Text5 + "</extra5>")
+                        + ("<extra5>" + this.ActExtra.DateTime5 + "</extra5>")
                         + "</imclient>");
                 }
             }
@@ -1155,7 +1320,7 @@ namespace dMobile.Controller
                     + ("<extra2>" + this.ActExtra.Text2 + "</extra2>")
                     + ("<extra3>" + this.ActExtra.Text3 + "</extra3>")
                     + ("<extra4>" + this.ActExtra.Text4 + "</extra4>")
-                    + ("<extra5>" + this.ActExtra.Text5 + "</extra5>")
+                    + ("<extra5>" + this.ActExtra.DateTime5 + "</extra5>")
                     + "</imclient>");
             }
 

@@ -4,26 +4,40 @@
              x:Class="dMobile.View.TestPage">
     <ContentPage.Content>
         <AbsoluteLayout VerticalOptions="Center">
-                <!--<Grid.RowDefinitions>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>-->
-            <Grid AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0,0,1,1">
-                <ScrollView Orientation="Horizontal">
-                    <Grid>
-                        <Label Text="Test0000000000000000000000000" VerticalTextAlignment="Center" Grid.Row="0" Grid.Column="0"/>
-                        <Label Text="Test1111111111111111111111111" VerticalTextAlignment="Center" Grid.Row="0" Grid.Column="1"/>
-                        <Label Text="Test2222222222222222222222222" VerticalTextAlignment="Center" Grid.Row="0" Grid.Column="2"/>
-                        <Label Text="Test3333333333333333333333333" VerticalTextAlignment="Center" Grid.Row="0" Grid.Column="3"/>
-                        <Label Text="Test4444444444444444444444444" VerticalTextAlignment="Center" Grid.Row="0" Grid.Column="4"/>
-                        <Label Text="Test5555555555555555555555555" VerticalTextAlignment="Center" Grid.Row="0" Grid.Column="5"/>
-                    </Grid>
-                </ScrollView>
+            <Grid x:Name="gridContainer" Padding="10" AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0,0,1,1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="65*"/>
+                    <RowDefinition Height="20*"/>
+                    <RowDefinition Height="15*"/>
+                </Grid.RowDefinitions>
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Frame VerticalOptions="Start" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" OutlineColor="{DynamicResource BorderColor}">
+                    <ScrollView Orientation="Horizontal">
+                        <Grid x:Name="dataGridMainActivityHeader">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition x:Name="dataGridWidth" Width="1000*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackLayout Grid.Row="1" HorizontalOptions="FillAndExpand">
+                                <ListView x:Name="dataGridMainActivity" HasUnevenRows="false"/>
+                            </StackLayout>
+                        </Grid>
+                    </ScrollView>
+                </Frame>
             </Grid>
 
             <ActivityIndicator IsVisible="{Binding Loading}" 
-                                   IsRunning="{Binding Loading}"
-                                   AbsoluteLayout.LayoutFlags="All" 
-                                   AbsoluteLayout.LayoutBounds="0.5,0.5,0.3,0.3"/>
+                               IsRunning="{Binding Loading}"
+                               AbsoluteLayout.LayoutFlags="All" 
+                               AbsoluteLayout.LayoutBounds="0.5,0.5,0.3,0.3"/>
         </AbsoluteLayout>
     </ContentPage.Content>
 </ContentPage>

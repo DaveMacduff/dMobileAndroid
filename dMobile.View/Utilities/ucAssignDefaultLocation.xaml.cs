@@ -108,18 +108,18 @@
         /// <summary>
         /// The OnAppearing
         /// </summary>
-        protected override void OnAppearing()
+        protected override async void OnAppearing()
         {
             base.OnAppearing();
 
-            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), (keyPressed) =>
+            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
             {
                 // TODO: Verify keycodes
                 Enum.TryParse(keyPressed, out Keycode keycode);
 
                 if (keycode == Keycode.Enter)
                 {
-                    if (this.SaveChanges())
+                    if (await this.SaveChanges())
                     {
                         this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     }
@@ -127,7 +127,7 @@
                 else if (keycode == Keycode.Escape || keycode == Keycode.F1)
                 {
 
-                    if (this.CancelChanges())
+                    if (await this.CancelChanges())
                     {
                         this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     }
@@ -136,7 +136,7 @@
 
             try
             {
-                this.AssignDefaultLocation_GotFocus(this, new EventArgs());
+                await this.AssignDefaultLocation_GotFocus(this, new EventArgs());
             }
             catch (Exception ex)
             {
@@ -150,9 +150,9 @@
         /// </summary>
         protected override void OnDisappearing()
         {
+            MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
             this.AssignDefaultLocation_LostFocus(this, new EventArgs());
             base.OnDisappearing();
-            MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
         }
 
 
@@ -552,7 +552,7 @@
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool IsReadyToSave()
+        public async Task<bool> IsReadyToSave()
         {
             bool isReadyToSave = true;
 
@@ -601,7 +601,7 @@
                     //    isReadyToSave = false;
                     //}
 
-                    Device.BeginInvokeOnMainThread(async () =>
+                    await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         bool result = await DisplayAlert("Ready To Save", msg, "Yes", "No");
 
@@ -610,7 +610,6 @@
                             isReadyToSave = false;
                         }
                     });
-
                 }
 
                 if (isReadyToSave && this.chkDefaultReceiving.IsToggled && this.CurrLocMapDefRecvRefno == this.NewLocMapDefRecvRefno)
@@ -623,7 +622,7 @@
                     //    isReadyToSave = false;
                     //}
 
-                    Device.BeginInvokeOnMainThread(async () =>
+                    await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         bool result = await DisplayAlert("Ready To Save", msg, "Yes", "No");
 
@@ -643,7 +642,7 @@
             {
                 isReadyToSave = false;
 
-                Device.BeginInvokeOnMainThread(async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
                     await errRpt.ShowDialog();
@@ -659,7 +658,7 @@
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool IsReadyToClose()
+        public async Task<bool> IsReadyToClose()
         {
             // NOTE: This code is needed to clean up the scanner driver.
             // Symbol had threading issues without this call when dMobile was terminating.
@@ -697,13 +696,13 @@
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool CancelChanges()
+        public async Task<bool> CancelChanges()
         {
             bool cancelChanges = true;
 
             try
             {
-                if (!this.IsReadyToClose())
+                if (!await this.IsReadyToClose())
                 {
                     this.LoadData();
                     cancelChanges = false;
@@ -719,7 +718,7 @@
             {
                 cancelChanges = false;
 
-                Device.BeginInvokeOnMainThread(async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
                     await errRpt.ShowDialog();
@@ -749,13 +748,13 @@
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool SaveChanges()
+        public async Task<bool> SaveChanges()
         {
             bool saveComplete = false;
 
             try
             {
-                if (this.IsReadyToSave())
+                if (await this.IsReadyToSave())
                 {
                     this.ChangesMade = false;
 
@@ -824,6 +823,7 @@
                             docError.LoadXml(data);
 
                             string errorDetail = docError.DocumentElement["detail"].InnerText;
+                            
                             if (errorDetail.Contains("MSGBOX-"))
                             {
                                 throw new Exceptions.MessageOnlyException(errorDetail);
@@ -884,7 +884,7 @@
                             //MessageBox.Show("Product default location(s) saved.", "Assign Default Location", MessageBoxButtons.OK, MessageBoxIcon.Hand, MessageBoxDefaultButton.Button1);
 
                             // TODO: Resource strings
-                            Device.BeginInvokeOnMainThread(async () => await DisplayAlert("Assign Default Location", "Product default location(s) saved.", "OK"));
+                            await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Assign Default Location", "Product default location(s) saved.", "OK"));
                         }
                     }
                     else
@@ -905,7 +905,7 @@
             {
                 saveComplete = false;
 
-                Device.BeginInvokeOnMainThread(async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
                     await errRpt.ShowDialog();
@@ -1012,7 +1012,7 @@
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        private void AssignDefaultLocation_GotFocus(object sender, EventArgs e)
+        private async Task AssignDefaultLocation_GotFocus(object sender, EventArgs e)
         {
             if (!SysEnvironment.GetInstance().IsApplicationExitInvoked)
             {
@@ -1346,9 +1346,9 @@
             }
         }
 
-        private void CmdSave_Clicked(object sender, EventArgs e)
+        private async void CmdSave_Clicked(object sender, EventArgs e)
         {
-            if (this.SaveChanges())
+            if (await this.SaveChanges())
             {
                 this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
             }

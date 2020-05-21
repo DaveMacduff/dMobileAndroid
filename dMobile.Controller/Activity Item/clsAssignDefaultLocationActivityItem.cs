@@ -1,12 +1,14 @@
 namespace dMobile.Controller
 {
     using System;
+    using System.Collections.ObjectModel;
     using System.Data;
     using System.Data.SQLite;
     using System.Text;
     using System.Threading.Tasks;
     using System.Xml.Linq;
     using dMobile.Bedrock;
+    using Xamarin.Forms;
 
     public class AssignDefaultLocActItem : ActItem
     {
@@ -95,6 +97,11 @@ namespace dMobile.Controller
         //{
         //    throw new NotImplementedException();
         //}
+            
+        public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity, ref ColumnDefinition dataGridWidth)
+        {
+            throw new NotImplementedException();
+        }
 
         /// <summary>
         /// 
@@ -111,7 +118,7 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="searchText"></param>
         /// <returns></returns>
-        public override DataView Search(string searchText)
+        public override ObservableCollection<object> Search(string searchText)
         {
             throw new NotImplementedException();
         }

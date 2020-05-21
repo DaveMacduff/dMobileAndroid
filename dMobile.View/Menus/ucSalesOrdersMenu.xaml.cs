@@ -330,7 +330,7 @@
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool IsReadyToSave()
+        public async Task<bool> IsReadyToSave()
         {
             return true;
         }
@@ -340,7 +340,7 @@
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool IsReadyToClose()
+        public async Task<bool> IsReadyToClose()
         {
             return true;
         }
@@ -371,7 +371,7 @@
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool SaveChanges()
+        public async Task<bool> SaveChanges()
         {
             return true;
         }
@@ -381,7 +381,7 @@
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool CancelChanges()
+        public async Task<bool> CancelChanges()
         {
             return true;
         }
@@ -748,14 +748,14 @@
             if (this.SysEnv.SysSettings.IsPickSingleProd)
             {
                 //this.CallingControl = new ucActivityHdrReleaseByOrder(SysCommon.ActSubTypes.PickingSingle);
-                //ucActivityHdrReleaseByOrder releaseByOrder = new ucActivityHdrReleaseByOrder(SysCommon.ActSubTypes.PickingSingle);
-                //await releaseByOrder.Show();
+                ucActivityHdrReleaseByOrder releaseByOrder = new ucActivityHdrReleaseByOrder(SysCommon.ActSubTypes.PickingSingle);
+                await releaseByOrder.Show();
             }
             else
             {
                 //this.CallingControl = new ucActivityHdrReleaseByOrder(SysCommon.ActSubTypes.Picking);
-                //ucActivityHdrReleaseByOrder releaseByOrder = new ucActivityHdrReleaseByOrder(SysCommon.ActSubTypes.Picking);
-                //await releaseByOrder.Show();
+                ucActivityHdrReleaseByOrder releaseByOrder = new ucActivityHdrReleaseByOrder(SysCommon.ActSubTypes.Picking);
+                await releaseByOrder.Show();
             }
 
             this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());

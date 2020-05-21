@@ -462,7 +462,7 @@ namespace dMobile.Bedrock
             Text2 = 3,
             Text3 = 4,
             Text4 = 5,
-            Text5 = 6
+            DateTime5 = 6
         }
 
         /// <summary>

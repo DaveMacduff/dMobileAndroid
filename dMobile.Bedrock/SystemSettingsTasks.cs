@@ -348,8 +348,7 @@ namespace dMobile.Bedrock
 
             settings.IsPhysicalModule = Convert.ToBoolean(drow["IsPhysicalModule"]);
             settings.AllowAddProduct2Physical = Convert.ToBoolean(drow["AllowAddProduct2PhysicalCounts"]);
-            settings.IsPhysicalExtraDetailEnabled = Convert.ToBoolean(
-                drow["IsPhysicalCountModuleExtraDetailEnabled"]);
+            settings.IsPhysicalExtraDetailEnabled = Convert.ToBoolean(drow["IsPhysicalCountModuleExtraDetailEnabled"]);
             settings.IsPhysicalCatchAskEnabled = Convert.ToBoolean(drow["IsPhysicalCountModuleCatchAskEnabled"]);
             settings.IsPhysicalCreateNewItemNoAsk = Convert.ToBoolean(drow["IsPhysicalCreateNewItemNoAsk"]);
             settings.IsPhysicalDoNotDefaultProductLocation = Convert.ToBoolean(drow["IsPhysicalDoNotDefaultProductLocation"]);
@@ -367,12 +366,10 @@ namespace dMobile.Bedrock
             settings.IsTransExtraDetEnabled = Convert.ToBoolean(drow["IsTransfersModuleExtraDetailEnabled"]);
             settings.IsTransCatchAskEnabled = Convert.ToBoolean(drow["IsTransferModuleCatchAskEnabled"]);
             settings.IsTransCreateNewItemNoAsk = Convert.ToBoolean(drow["IsTransferCreateNewItemNoAsk"]);
-            settings.IsTransConfirmFromDet = Convert.ToBoolean(drow["IsTransferModuleConfirmFromDetailMode"]);
+            //settings.IsTransConfirmFromDet = Convert.ToBoolean(drow["IsTransferModuleConfirmFromDetailMode"]);
             ////settings.IsTransConfirmToDet = Convert.ToBoolean(drow["IsTransferModuleConfirmToDetailMode"]);
-            settings.TransQtyOverWarn = (SysCommon.ActTransfersQtyOverValLevels)Convert.ToInt32(
-                drow["IsTransferModuleQuantityOverWarning"]);
-            settings.TransQtyUnderWarn = (SysCommon.ActTransfersQtyUnderValLevels)Convert.ToInt32(
-                drow["IsTransferModuleQuantityUnderWarning"]);
+            settings.TransQtyOverWarn = (SysCommon.ActTransfersQtyOverValLevels)Convert.ToInt32(drow["IsTransferModuleQuantityOverWarning"]);
+            settings.TransQtyUnderWarn = (SysCommon.ActTransfersQtyUnderValLevels)Convert.ToInt32(drow["IsTransferModuleQuantityUnderWarning"]);
         }
 
         /// <summary>
@@ -395,8 +392,7 @@ namespace dMobile.Bedrock
         /// <param name="drow"></param>
         public static void AssignPropertiesFromDataRowConvertUnits(DataRow drow, ref SystemSettings settings)
         {
-            settings.IsConvertUnitModuleNoCatchAskZeroEnabled = Convert.ToBoolean(
-                drow["IsConvertUnitModuleNoCatchAskZeroEnabled"]);
+            settings.IsConvertUnitModuleNoCatchAskZeroEnabled = Convert.ToBoolean(drow["IsConvertUnitModuleNoCatchAskZeroEnabled"]);
             settings.IsConvertUnitsModule = Convert.ToBoolean(drow["IsConvertUnitsModule"]);
             settings.CanPrintProductLabelConvertUnits = Convert.ToBoolean(drow["CanPrintProductLabelConvertUnits"]);
             settings.IsConvertUnitCatchAskEnabled = Convert.ToBoolean(drow["IsConvertUnitModuleCatchAskEnabled"]);
@@ -408,8 +404,7 @@ namespace dMobile.Bedrock
         /// <param name="drow"></param>
         public static void AssignPropertiesFromDataRowMoves(DataRow drow, ref SystemSettings settings)
         {
-            settings.IsMoveInventoryModuleNoCatchAskZeroEnabled = Convert.ToBoolean(
-                drow["IsMoveInventoryModuleNoCatchAskZeroEnabled"]);
+            settings.IsMoveInventoryModuleNoCatchAskZeroEnabled = Convert.ToBoolean(drow["IsMoveInventoryModuleNoCatchAskZeroEnabled"]);
             settings.IsMovesModule = Convert.ToBoolean(drow["IsMovesModule"]);
             settings.IsMoveInventoryCatchAskEnabled = Convert.ToBoolean(drow["IsMoveInventoryModuleCatchAskEnabled"]);
             settings.IsPutAwayModule = Convert.ToBoolean(drow["IsPutAwayModule"]);
@@ -650,8 +645,7 @@ namespace dMobile.Bedrock
                                 SystemSettingsTasks.AssignPropertiesFromDataRow(drow, ref settings);
 
                                 // Set agregate flags that are dependant upon a set of other flags
-                                settings.IsMoveSkidModule = settings.IsAddToSkidModule | settings.IsBreakSkidModule 
-                                    | settings.IsCreateSkidModule | settings.IsRemoveFromSkidModule;
+                                settings.IsMoveSkidModule = settings.IsAddToSkidModule | settings.IsBreakSkidModule | settings.IsCreateSkidModule | settings.IsRemoveFromSkidModule;
                             }
                             else if (sysSettingsNumber == 2)
                             {

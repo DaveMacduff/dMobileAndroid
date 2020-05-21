@@ -52,9 +52,12 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="Types\ConvertUnitDetail.cs" />
     <Compile Include="Types\Count.cs" />
+    <Compile Include="Types\CountDetail.cs" />
     <Compile Include="Types\CountItem.cs" />
     <Compile Include="Types\LotNumber.cs" />
+    <Compile Include="Types\MoveInventoryDetail.cs" />
     <Compile Include="Types\Picking.cs" />
     <Compile Include="Types\PickingDetail.cs" />
     <Compile Include="Types\PickingItem.cs" />
@@ -66,9 +69,16 @@
     <Compile Include="Types\ReceiveDetail.cs" />
     <Compile Include="Types\ReceiveItem.cs" />
     <Compile Include="Types\Return.cs" />
+    <Compile Include="Types\ReturnDetail.cs" />
+    <Compile Include="Types\ReturnItem.cs" />
     <Compile Include="Types\Section.cs" />
     <Compile Include="Types\SerialNumber.cs" />
+    <Compile Include="Types\SkidInfoDetail.cs" />
+    <Compile Include="Types\SkidPutAwayDetail.cs" />
     <Compile Include="Types\Slot.cs" />
+    <Compile Include="Types\Transfer.cs" />
+    <Compile Include="Types\TransferDetail.cs" />
+    <Compile Include="Types\TransferItem.cs" />
     <Compile Include="Types\Warehouse.cs" />
   </ItemGroup>
   <ItemGroup>

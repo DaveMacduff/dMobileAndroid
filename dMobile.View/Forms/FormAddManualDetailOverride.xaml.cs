@@ -1,4 +1,5 @@
-﻿using System;
+﻿using dMobile.View.CustomPages.Modal;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,7 +11,7 @@ using Xamarin.Forms.Xaml;
 namespace dMobile.View.Forms
 {
     [XamlCompilation(XamlCompilationOptions.Compile)]
-    public partial class FormAddManualDetailOverride : ContentView
+    public partial class FormAddManualDetailOverride : DMobileModal
     {
         public FormAddManualDetailOverride()
         {

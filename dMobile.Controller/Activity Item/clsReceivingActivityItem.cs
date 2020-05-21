@@ -1,6 +1,7 @@
 namespace dMobile.Controller
 {
     using System;
+    using System.Collections.ObjectModel;
     using System.Data;
     using System.Data.SQLite;
     using System.Text;
@@ -9,6 +10,8 @@ namespace dMobile.Controller
     using System.Xml.Linq;
     using dMobile.Bedrock;
     using dMobile.GroundWork;
+    using dMobile.Resources.Types;
+    using Xamarin.Forms;
 
     public class RecvActItem : ActItem
     {
@@ -250,6 +253,139 @@ namespace dMobile.Controller
                 tableActRecvItem.Request(this.ActHdr.Refno);
                 tableActRecvItem.UnregisterDataAccessListenerProgressOut((RecvActItem)this);
             }
+        }
+
+        public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity, ref ColumnDefinition dataGridWidth)
+        {
+            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+
+            // Header grid
+            Grid gridHeaderReceiving = new Grid
+            {
+                Padding = new Thickness(5),
+                ColumnDefinitions =
+                {
+                    new ColumnDefinition { Width = GridLength.Star },
+                    new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) },
+                    new ColumnDefinition { Width = GridLength.Star },
+                    new ColumnDefinition { Width = GridLength.Star },
+                    new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) },
+                    new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) }
+                }
+            };
+
+            gridHeaderReceiving.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
+
+            Label labelIsActivityItemReceivingCommentReceiving = new Label { Text = "C", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
+            Label labelProductCodeReceiving = new Label { Text = "Product ID", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
+            Label labelProductUnitBCReceiving = new Label { Text = " ", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
+            Label labelUnitCodeReceiving = new Label { Text = " ", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
+            Label labelActivityItemReceivingQuantityOrderedReceiving = new Label { Text = "Ordered", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
+            Label labelActivityItemReceivingQuantityReceivedReceiving = new Label { Text = "Received", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
+
+            gridHeaderReceiving.Children.Add(labelIsActivityItemReceivingCommentReceiving);
+            gridHeaderReceiving.Children.Add(labelProductCodeReceiving);
+            gridHeaderReceiving.Children.Add(labelProductUnitBCReceiving);
+            gridHeaderReceiving.Children.Add(labelUnitCodeReceiving);
+            gridHeaderReceiving.Children.Add(labelActivityItemReceivingQuantityOrderedReceiving);
+            gridHeaderReceiving.Children.Add(labelActivityItemReceivingQuantityReceivedReceiving);
+
+            Grid.SetColumn(labelIsActivityItemReceivingCommentReceiving, 0);
+            Grid.SetColumn(labelProductCodeReceiving, 1);
+            Grid.SetColumn(labelProductUnitBCReceiving, 2);
+            Grid.SetColumn(labelUnitCodeReceiving, 3);
+            Grid.SetColumn(labelActivityItemReceivingQuantityOrderedReceiving, 4);
+            Grid.SetColumn(labelActivityItemReceivingQuantityReceivedReceiving, 5);
+
+            Grid.SetRow(gridHeaderReceiving, 0);
+
+            dataGridMainActivityHeader.Children.Add(gridHeaderReceiving);
+
+            // Data grid
+            DataTemplate dataTemplateReceiving = new DataTemplate(() =>
+            {
+                Grid gridData = new Grid
+                {
+                    Padding = new Thickness(5),
+                    ColumnDefinitions =
+                    {
+                        new ColumnDefinition { Width = GridLength.Star },
+                        new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) },
+                        new ColumnDefinition { Width = GridLength.Star },
+                        new ColumnDefinition { Width = GridLength.Star },
+                        new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) },
+                        new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) }
+                    }
+                };
+
+                Label labelIsActivityItemReceivingCommentItem = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                Label labelProductCodeItem = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                Label labelProductUnitBCItem = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                Label labelUnitCodeItem = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                Label labelActivityItemReceivingQuantityOrderedItem = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                Label labelActivityItemReceivingQuantityReceivedItem = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+
+                labelIsActivityItemReceivingCommentItem.SetBinding(Label.TextProperty, new Binding("IsActivityItemReceivingCommentString"));
+                labelProductCodeItem.SetBinding(Label.TextProperty, new Binding("ProductCode"));
+                labelProductUnitBCItem.SetBinding(Label.TextProperty, new Binding("ProductUnitBC"));
+                labelUnitCodeItem.SetBinding(Label.TextProperty, new Binding("UnitCode"));
+                labelActivityItemReceivingQuantityOrderedItem.SetBinding(Label.TextProperty, new Binding("ActivityItemReceivingQuantityOrdered", BindingMode.Default, null, null, "{0:F3}"));
+                labelActivityItemReceivingQuantityReceivedItem.SetBinding(Label.TextProperty, new Binding("ActivityItemReceivingQuantityReceived", BindingMode.Default, null, null, "{0:F3}"));
+
+                gridData.Children.Add(labelIsActivityItemReceivingCommentItem);
+                gridData.Children.Add(labelProductCodeItem);
+                gridData.Children.Add(labelProductUnitBCItem);
+                gridData.Children.Add(labelUnitCodeItem);
+                gridData.Children.Add(labelActivityItemReceivingQuantityOrderedItem);
+                gridData.Children.Add(labelActivityItemReceivingQuantityReceivedItem);
+
+                Grid.SetColumn(labelIsActivityItemReceivingCommentItem, 0);
+                Grid.SetColumn(labelProductCodeItem, 1);
+                Grid.SetColumn(labelProductUnitBCItem, 2);
+                Grid.SetColumn(labelUnitCodeItem, 3);
+                Grid.SetColumn(labelActivityItemReceivingQuantityOrderedItem, 4);
+                Grid.SetColumn(labelActivityItemReceivingQuantityReceivedItem, 5);
+
+                return new ViewCell { View = gridData };
+            });
+
+            dataGridMainActivity.ItemTemplate = dataTemplateReceiving;
+            observableCollection.Clear();
+
+            foreach (DataRow row in this.DataViewItems.ToTable().Rows)
+            {
+                ReceiveItem receiveItem = new ReceiveItem
+                {
+                    ActivityItemRefno = Convert.ToInt32(row["ActivityItemRefno"]),
+                    ActivityItemReceivingFKRefno = Convert.ToInt32(row["ActivityItemReceivingFKRefno"]),
+                    ActivityItemReceivingStringFKRefno = Convert.ToString(row["ActivityItemReceivingStringFKRefno"]),
+                    ProductUnitRefno = Convert.ToInt32(row["ProductUnitRefno"]),
+                    ProductRefno = Convert.ToInt32(row["ProductRefno"]),
+                    ProductCode = Convert.ToString(row["ProductCode"]),
+                    ProductDescription = Convert.ToString(row["ProductDescription"]),
+                    UnitCode = Convert.ToString(row["UnitCode"]),
+                    ProductUnitBC = Convert.ToString(row["ProductUnitBC"]),
+                    ProductUnitSizeDescription = Convert.ToString(row["ProductUnitSizeDescription"]),
+                    ActivityItemReceivingQuantityOrdered = Convert.ToDecimal(row["ActivityItemReceivingQuantityOrdered"]),
+                    ActivityItemReceivingBaseQuantityOrdered = Convert.ToDecimal(row["ActivityItemReceivingBaseQuantityOrdered"]),
+                    ActivityItemReceivingWeightQuantityOrdered = Convert.ToDecimal(row["ActivityItemReceivingWeightQuantityOrdered"]),
+                    ActivityItemReceivingQuantityReceived = Convert.ToDecimal(row["ActivityItemReceivingQuantityReceived"]),
+                    ActivityItemReceivingBaseQuantityReceived = Convert.ToDecimal(row["ActivityItemReceivingBaseQuantityReceived"]),
+                    ActivityItemReceivingWeightQuantityReceived = Convert.ToDecimal(row["ActivityItemReceivingWeightQuantityReceived"]),
+                    ActivityItemReceivingVendorProductUnitCode = Convert.ToString(row["ActivityItemReceivingVendorProductUnitCode"]),
+                    ActivityItemReceivingDescription = Convert.ToString(row["ActivityItemReceivingDescription"]),
+                    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"]),
+                    LocationCode = Convert.ToInt32(row["LocationCode"]),
+                    LocationName = Convert.ToString(row["LocationName"]),
+                    ActivityItemReceivingQuantityReceivedToDate = Convert.ToDecimal(row["ActivityItemReceivingQuantityReceivedToDate"]),
+                    ActivityItemReceivingWeightQuantityReceivedToDate = Convert.ToDecimal(row["ActivityItemReceivingWeightQuantityReceivedToDate"]),
+                    IsActivityItemReceivingCommentString = !string.IsNullOrWhiteSpace(Convert.ToString(row["IsActivityItemReceivingComment"])) ? "X" : "",
+                };
+
+                observableCollection.Add(receiveItem);
+            }
+
+            return observableCollection;
         }
 
         //    /// <summary>
@@ -520,8 +656,10 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="searchText"></param>
         /// <returns></returns>
-        public override DataView Search(string searchText)
+        public override ObservableCollection<object> Search(string searchText)
         {
+            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+
             if (string.IsNullOrEmpty(this.ActItemFilter))
             {
                 this.DataViewItems.RowFilter = "ProductCode LIKE \'%" + searchText.Trim() + "%\'";
@@ -531,7 +669,40 @@ namespace dMobile.Controller
                 this.DataViewItems.RowFilter = this.ActItemFilter + " AND ProductCode LIKE \'%" + searchText.Trim() + "%\'";
             }
 
-            return this.DataViewItems;
+            foreach (DataRow row in this.DataViewItems.ToTable().Rows)
+            {
+                ReceiveItem receiveItem = new ReceiveItem
+                {
+                    ActivityItemRefno = Convert.ToInt32(row["ActivityItemRefno"]),
+                    ActivityItemReceivingFKRefno = Convert.ToInt32(row["ActivityItemReceivingFKRefno"]),
+                    ActivityItemReceivingStringFKRefno = Convert.ToString(row["ActivityItemReceivingStringFKRefno"]),
+                    ProductUnitRefno = Convert.ToInt32(row["ProductUnitRefno"]),
+                    ProductRefno = Convert.ToInt32(row["ProductRefno"]),
+                    ProductCode = Convert.ToString(row["ProductCode"]),
+                    ProductDescription = Convert.ToString(row["ProductDescription"]),
+                    UnitCode = Convert.ToString(row["UnitCode"]),
+                    ProductUnitBC = Convert.ToString(row["ProductUnitBC"]),
+                    ProductUnitSizeDescription = Convert.ToString(row["ProductUnitSizeDescription"]),
+                    ActivityItemReceivingQuantityOrdered = Convert.ToDecimal(row["ActivityItemReceivingQuantityOrdered"]),
+                    ActivityItemReceivingBaseQuantityOrdered = Convert.ToDecimal(row["ActivityItemReceivingBaseQuantityOrdered"]),
+                    ActivityItemReceivingWeightQuantityOrdered = Convert.ToDecimal(row["ActivityItemReceivingWeightQuantityOrdered"]),
+                    ActivityItemReceivingQuantityReceived = Convert.ToDecimal(row["ActivityItemReceivingQuantityReceived"]),
+                    ActivityItemReceivingBaseQuantityReceived = Convert.ToDecimal(row["ActivityItemReceivingBaseQuantityReceived"]),
+                    ActivityItemReceivingWeightQuantityReceived = Convert.ToDecimal(row["ActivityItemReceivingWeightQuantityReceived"]),
+                    ActivityItemReceivingVendorProductUnitCode = Convert.ToString(row["ActivityItemReceivingVendorProductUnitCode"]),
+                    ActivityItemReceivingDescription = Convert.ToString(row["ActivityItemReceivingDescription"]),
+                    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"]),
+                    LocationCode = Convert.ToInt32(row["LocationCode"]),
+                    LocationName = Convert.ToString(row["LocationName"]),
+                    ActivityItemReceivingQuantityReceivedToDate = Convert.ToDecimal(row["ActivityItemReceivingQuantityReceivedToDate"]),
+                    ActivityItemReceivingWeightQuantityReceivedToDate = Convert.ToDecimal(row["ActivityItemReceivingWeightQuantityReceivedToDate"]),
+                    IsActivityItemReceivingCommentString = !string.IsNullOrWhiteSpace(Convert.ToString(row["IsActivityItemReceivingComment"])) ? "X" : "",
+                };
+
+                observableCollection.Add(receiveItem);
+            }
+
+            return observableCollection;
         }
 
         /// <summary>

@@ -545,6 +545,8 @@ namespace dMobile.GroundWork
         int actDetailRefno,
         bool useFNo)
         {
+            string emptyDate = "01-01-1900";
+
             cmndExtra.CommandText = "INSERT INTO tActivityDetailExtra (" +
             "ActivityDetailRefno, " +
             "ActivityDetailSubType, " +
@@ -552,7 +554,7 @@ namespace dMobile.GroundWork
             "ActivityDetailExtra2Text, " +
             "ActivityDetailExtra3Text, " +
             "ActivityDetailExtra4Text, " +
-            "ActivityDetailExtra5Text" +
+            "ActivityDetailExtra5Date" +
             ") VALUES (" +
             "@activityDetailRefno, " +
             "@activityDetailSubType, " +
@@ -560,7 +562,7 @@ namespace dMobile.GroundWork
             "@activityDetailExtra2Text, " +
             "@activityDetailExtra3Text, " +
             "@activityDetailExtra4Text, " +
-            "@activityDetailExtra5Text" +
+            "@activityDetailExtra5Date" +
             ")";
             cmndExtra.CommandType = CommandType.Text;
             cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailRefno", actDetailRefno));
@@ -575,7 +577,16 @@ namespace dMobile.GroundWork
                 cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra2Text", drow["f20"].ToString()));
                 cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra3Text", drow["f21"].ToString()));
                 cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra4Text", drow["f22"].ToString()));
-                cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra5Text", drow["f23"].ToString()));
+                
+                if (string.IsNullOrEmpty(drow["f23"].ToString()))
+                {
+                    cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra5Date", DateTime.Parse(emptyDate)));
+                }
+                else
+                {
+                    //recExtra.SetDateTime((int)SysCommon.ActDetailExtraFields.DateTime5, Convert.ToDateTime(drow["f23"]));
+                    cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra5Date", Convert.ToDateTime(drow["f23"])));
+                }
 
                 //cmndExtra.SetString((int)SysCommon.ActDetailExtraFields.Text1, drow["f19"].ToString());
                 //cmndExtra.SetString((int)SysCommon.ActDetailExtraFields.Text2, drow["f20"].ToString());
@@ -589,7 +600,15 @@ namespace dMobile.GroundWork
                 cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra2Text", drow["ActivityDetailExtra2"].ToString()));
                 cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra3Text", drow["ActivityDetailExtra3"].ToString()));
                 cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra4Text", drow["ActivityDetailExtra4"].ToString()));
-                cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra5Text", drow["ActivityDetailExtra5"].ToString()));
+                
+                if (string.IsNullOrEmpty(drow["ActivityDetailExtra5"].ToString()))
+                {
+                    cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra5Date", DateTime.Parse(emptyDate)));
+                }
+                else
+                {
+                    cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra5Date", Convert.ToDateTime(drow["ActivityDetailExtra5"])));
+                }
 
                 //cmndExtra.SetString((int)SysCommon.ActDetailExtraFields.Text1, drow["ActivityDetailExtra1"].ToString());
                 //cmndExtra.SetString((int)SysCommon.ActDetailExtraFields.Text2, drow["ActivityDetailExtra2"].ToString());
@@ -881,30 +900,37 @@ namespace dMobile.GroundWork
         /// <param name="errMsg"></param>
         /// <param name="drWhs"></param>
         /// <returns></returns>
-        protected virtual int GetWhsLocMapRefnoFromDataRow(DataRow drow, ref string errMsg, SQLiteDataReader drWhs)
+        protected virtual int GetWhsLocMapRefnoFromDataRow(DataRow drow, ref string errMsg, SQLiteCommand cmndLocMapWhs)
         {
             int locMapRefno = 0;
-
             int locMapWhsFKRefno = Convert.ToInt32(drow["LocationMapWarehouseFKRefno"]);
             errMsg += Environment.NewLine + "Whs " + locMapWhsFKRefno;
 
-            //if (drWhs.Seek(DbSeekOptions.FirstEqual, new object[] { locMapWhsFKRefno }))
-            //{
-            if (drWhs.Read())
-            {
-                locMapRefno = drWhs.GetInt32(Convert.ToInt32(SysCommon.LocMapWhsFields.LocMapRefno));
-            }
-            else
-            {
-                // TODO: Resource String
-                throw new Exception("drWhs.Read() failed." + Environment.NewLine + errMsg);
-            }
-            //}
+            cmndLocMapWhs.CommandText = "SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = @locationMapWarehouseFKRefno";
+            cmndLocMapWhs.CommandType = CommandType.Text;
+            //cmndLocMapWhs.IndexName = "UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno";
+            cmndLocMapWhs.Parameters.Add(new SQLiteParameter("@locationMapWarehouseFKRefno", Convert.ToInt32(locMapWhsFKRefno)));
 
-            if (locMapRefno == 0)
+            using (SQLiteDataReader drLocMapWhs = cmndLocMapWhs.ExecuteReader())
             {
-                // TODO: Resource String
-                throw new Exception("Unable to locate the location map refno." + Environment.NewLine + errMsg);
+                //if (drWhs.Seek(DbSeekOptions.FirstEqual, new object[] { locMapWhsFKRefno }))
+                //{
+                if (drLocMapWhs.Read())
+                {
+                    locMapRefno = drLocMapWhs.GetInt32(Convert.ToInt32(SysCommon.LocMapWhsFields.LocMapRefno));
+                }
+                else
+                {
+                    // TODO: Resource String
+                    throw new Exception("drWhs.Read() failed." + Environment.NewLine + errMsg);
+                }
+                //}
+
+                if (locMapRefno == 0)
+                {
+                    // TODO: Resource String
+                    throw new Exception("Unable to locate the location map refno." + Environment.NewLine + errMsg);
+                }
             }
 
             return locMapRefno;

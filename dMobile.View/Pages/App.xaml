@@ -9,9 +9,8 @@
                         Android="0,0,0,0"
                         />
 
-            <x:String x:Key="ShowLessIcon">unfold_less_white.png</x:String>
-            <x:String x:Key="ShowMoreIcon">unfold_more_white.png</x:String>
-            
+            <x:String x:Key="OptionsIcon">options_icon.png</x:String>
+
             <!--Entry-->
             <Style TargetType="Entry">
                 <Setter Property="TextColor" Value="{DynamicResource PrimaryTextColor}"/>
@@ -48,7 +47,7 @@
             <!--Picker-->
             <Style TargetType="Picker" ApplyToDerivedTypes="True">
                 <Setter Property="TextColor" Value="{DynamicResource PrimaryTextColor}"/>
-                <Setter Property="TitleColor" Value="{DynamicResource SecondaryTextColor}"/>
+                <Setter Property="TitleColor" Value="{DynamicResource TitleTextColor}"/>
             </Style>
 
             <!--Button-->

@@ -55,7 +55,7 @@ namespace dMobile.View
             // TODO: Resource strings
             this.Title = this.GetControlDescription();
             this.lblSearch.Text = "Search";
-            this.lblProductDescription.Text = "Description";
+            this.lblProductDescription.Text = string.Empty;
 
             if (!DesignMode.IsDesignModeEnabled)
             {
@@ -71,7 +71,7 @@ namespace dMobile.View
         /// <summary>
         /// The OnAppearing
         /// </summary>
-        protected override void OnAppearing()
+        protected override async void OnAppearing()
         {
             base.OnAppearing();
 
@@ -82,7 +82,7 @@ namespace dMobile.View
 
                 if (keycode == Keycode.Enter || keycode == Keycode.F1)
                 {
-                    if (this.SaveChanges())
+                    if (await this.SaveChanges())
                     {
                         this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     }
@@ -90,7 +90,7 @@ namespace dMobile.View
                 else if (keycode == Keycode.Escape)
                 {
 
-                    if (this.CancelChanges())
+                    if (await this.CancelChanges())
                     {
                         this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     }
@@ -99,7 +99,7 @@ namespace dMobile.View
 
             try
             {
-                this.ucSelectProduct_GotFocus(this, new EventArgs());
+                await this.ucSelectProduct_GotFocus(this, new EventArgs());
             }
             catch (Exception ex)
             {
@@ -440,7 +440,7 @@ namespace dMobile.View
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool IsReadyToSave()
+        public async Task<bool> IsReadyToSave()
         {
             bool isReadyToSave = false;
 
@@ -457,7 +457,7 @@ namespace dMobile.View
             {
                 isReadyToSave = false;
 
-                Device.BeginInvokeOnMainThread(async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
                     await errRpt.ShowDialog();
@@ -472,7 +472,7 @@ namespace dMobile.View
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool IsReadyToClose()
+        public async Task<bool> IsReadyToClose()
         {
             bool isReadyToClose = true;
 
@@ -499,7 +499,7 @@ namespace dMobile.View
                 // We do not want to get caught not being able to 'escape' the control.
                 isReadyToClose = true;
 
-                Device.BeginInvokeOnMainThread(async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
                     await errRpt.ShowDialog();
@@ -535,13 +535,13 @@ namespace dMobile.View
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool SaveChanges()
+        public async Task<bool> SaveChanges()
         {
             bool saveComplete = false;
 
             try
             {
-                if (this.IsReadyToSave())
+                if (await this.IsReadyToSave())
                 {
                     ResetFilterAllowProductChange();
                     this.IsChangesMade = false;
@@ -563,7 +563,7 @@ namespace dMobile.View
             }
             catch (Exception ex)
             {
-                Device.BeginInvokeOnMainThread(async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
                     await errRpt.ShowDialog();
@@ -578,14 +578,14 @@ namespace dMobile.View
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool CancelChanges()
+        public async Task<bool> CancelChanges()
         {
             bool cancelChanges = true;
 
             try
             {
                 // IsReadyToClose checks if any changes where made.
-                if (this.IsReadyToClose())
+                if (await this.IsReadyToClose())
                 {
                     // If filter on AllowProductChanges, reset that
                     ResetFilterAllowProductChange();
@@ -619,7 +619,7 @@ namespace dMobile.View
             {
                 cancelChanges = true;
 
-                Device.BeginInvokeOnMainThread(async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
                     await errRpt.ShowDialog();
@@ -765,7 +765,7 @@ namespace dMobile.View
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        private void ucSelectProduct_GotFocus(object sender, EventArgs e)
+        private async Task ucSelectProduct_GotFocus(object sender, EventArgs e)
         {
             if (!SysEnvironment.GetInstance().IsApplicationExitInvoked)
             {
@@ -773,9 +773,9 @@ namespace dMobile.View
                 {
                     this.Loading = true;
 
-                    Task.Run(() => this.LoadData()).ContinueWith(res =>
+                    await Task.Run(() => this.LoadData()).ContinueWith(async (_) =>
                     {
-                        Device.BeginInvokeOnMainThread(() =>
+                        await Device.InvokeOnMainThreadAsync(() =>
                         {
                             this.dgProducts.ItemsSource = this.ProductFilteredList;
                             this.Loading = false;

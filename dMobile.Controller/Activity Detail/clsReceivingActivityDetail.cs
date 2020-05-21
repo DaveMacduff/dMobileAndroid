@@ -1,6 +1,7 @@
 namespace dMobile.Controller
 {
     using System;
+    using System.Collections.ObjectModel;
     using System.Data;
     using System.Data.SQLite;
     using System.Text;
@@ -8,6 +9,8 @@ namespace dMobile.Controller
     using System.Xml.Linq;
     using dMobile.Bedrock;
     using dMobile.GroundWork;
+    using dMobile.Resources.Types;
+    using Xamarin.Forms;
 
     public class RecvActDetail : ActDetail
     {
@@ -498,7 +501,7 @@ namespace dMobile.Controller
                 sql.Append("tActivityDetailExtra.ActivityDetailExtra2Text AS ActivityDetailExtra2Text,");
                 sql.Append("tActivityDetailExtra.ActivityDetailExtra3Text AS ActivityDetailExtra3Text,");
                 sql.Append("tActivityDetailExtra.ActivityDetailExtra4Text AS ActivityDetailExtra4Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra5Text AS ActivityDetailExtra5Text");
+                sql.Append("tActivityDetailExtra.ActivityDetailExtra5Date AS ActivityDetailExtra5Date");
                 sql.Append("FROM tActivityDetailReceiving ");
                 sql.Append("INNER JOIN tActivityDetail ON tActivityDetail.ActivityDetailRefno ");
                 sql.Append("= tActivityDetailReceiving.ActivityDetailRefno ");
@@ -555,7 +558,7 @@ namespace dMobile.Controller
                 sql.Append("tActivityDetailExtra.ActivityDetailExtra2Text,");
                 sql.Append("tActivityDetailExtra.ActivityDetailExtra3Text,");
                 sql.Append("tActivityDetailExtra.ActivityDetailExtra4Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra5Text ");
+                sql.Append("tActivityDetailExtra.ActivityDetailExtra5Date ");
                 sql.Append("FROM tActivityDetailReceiving ");
                 sql.Append("INNER JOIN tActivityDetail ON tActivityDetail.ActivityDetailRefno ");
                 sql.Append("= tActivityDetailReceiving.ActivityDetailRefno ");
@@ -612,7 +615,7 @@ namespace dMobile.Controller
                 sql.Append("tActivityDetailExtra.ActivityDetailExtra2Text,");
                 sql.Append("tActivityDetailExtra.ActivityDetailExtra3Text,");
                 sql.Append("tActivityDetailExtra.ActivityDetailExtra4Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra5Text ");
+                sql.Append("tActivityDetailExtra.ActivityDetailExtra5Date ");
                 sql.Append("FROM tActivityDetailReceiving ");
                 sql.Append("INNER JOIN tActivityDetail ON tActivityDetail.ActivityDetailRefno ");
                 sql.Append("= tActivityDetailReceiving.ActivityDetailRefno ");
@@ -672,7 +675,7 @@ namespace dMobile.Controller
                 sql.Append("tActivityDetailExtra.ActivityDetailExtra2Text AS ActivityDetailExtra2Text,");
                 sql.Append("tActivityDetailExtra.ActivityDetailExtra3Text AS ActivityDetailExtra3Text,");
                 sql.Append("tActivityDetailExtra.ActivityDetailExtra4Text AS ActivityDetailExtra4Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra5Text AS ActivityDetailExtra5Text ");
+                sql.Append("tActivityDetailExtra.ActivityDetailExtra5Date AS ActivityDetailExtra5Date ");
                 sql.Append("FROM tActivityDetailReceiving ");
                 sql.Append("INNER JOIN tActivityDetail ON tActivityDetail.ActivityDetailRefno ");
                 sql.Append("= tActivityDetailReceiving.ActivityDetailRefno ");
@@ -728,7 +731,7 @@ namespace dMobile.Controller
                 sql.Append("tActivityDetailExtra.ActivityDetailExtra2Text,");
                 sql.Append("tActivityDetailExtra.ActivityDetailExtra3Text,");
                 sql.Append("tActivityDetailExtra.ActivityDetailExtra4Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra5Text ");
+                sql.Append("tActivityDetailExtra.ActivityDetailExtra5Date ");
                 sql.Append("FROM tActivityDetailReceiving ");
                 sql.Append("INNER JOIN tActivityDetail ON tActivityDetail.ActivityDetailRefno ");
                 sql.Append("= tActivityDetailReceiving.ActivityDetailRefno ");
@@ -784,7 +787,7 @@ namespace dMobile.Controller
                 sql.Append("tActivityDetailExtra.ActivityDetailExtra2Text,");
                 sql.Append("tActivityDetailExtra.ActivityDetailExtra3Text,");
                 sql.Append("tActivityDetailExtra.ActivityDetailExtra4Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra5Text ");
+                sql.Append("tActivityDetailExtra.ActivityDetailExtra5Date ");
                 sql.Append("FROM tActivityDetailReceiving ");
                 sql.Append("INNER JOIN tActivityDetail ON tActivityDetail.ActivityDetailRefno ");
                 sql.Append("= tActivityDetailReceiving.ActivityDetailRefno ");
@@ -818,6 +821,133 @@ namespace dMobile.Controller
             }
 
             return this.DataViewDetails;
+        }
+
+        public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity, ref ColumnDefinition dataGridWidth)
+        {
+            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+
+            // Header grid
+            Grid gridHeaderReceiving = new Grid
+            {
+                Padding = new Thickness(5),
+                ColumnDefinitions =
+                {
+                    new ColumnDefinition { Width = new GridLength(10, GridUnitType.Star) },
+                    new ColumnDefinition { Width = new GridLength(10, GridUnitType.Star) },
+                    new ColumnDefinition { Width = new GridLength(5, GridUnitType.Star) },
+                    new ColumnDefinition { Width = new GridLength(75, GridUnitType.Star) }
+                }
+            };
+
+            gridHeaderReceiving.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
+
+            // TODO: Resource strings
+            Label labelActivityDetailQuantityReceiveDetailHeader = new Label { Text = "Qty", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
+            Label labelActivityDetailWeightQuantityReceiveDetailHeader = new Label { Text = "Weight", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
+            Label labelUnitCodeReceiveDetailHeader = new Label { Text = " ", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
+            Label labelActivityDetailSchemeIDReceiveDetailHeader = new Label { Text = "Scheme ID", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
+
+            gridHeaderReceiving.Children.Add(labelActivityDetailQuantityReceiveDetailHeader);
+            gridHeaderReceiving.Children.Add(labelActivityDetailWeightQuantityReceiveDetailHeader);
+            gridHeaderReceiving.Children.Add(labelUnitCodeReceiveDetailHeader);
+            gridHeaderReceiving.Children.Add(labelActivityDetailSchemeIDReceiveDetailHeader);
+
+            Grid.SetColumn(labelActivityDetailQuantityReceiveDetailHeader, 0);
+            Grid.SetColumn(labelActivityDetailWeightQuantityReceiveDetailHeader, 1);
+            Grid.SetColumn(labelUnitCodeReceiveDetailHeader, 2);
+            Grid.SetColumn(labelActivityDetailSchemeIDReceiveDetailHeader, 3);
+
+            Grid.SetRow(gridHeaderReceiving, 0);
+
+            dataGridMainActivityHeader.Children.Add(gridHeaderReceiving);
+
+            // Data grid
+            DataTemplate dataTemplateReceiving = new DataTemplate(() =>
+            {
+                Grid gridData = new Grid
+                {
+                    Padding = new Thickness(5),
+                    ColumnDefinitions =
+                    {
+                        new ColumnDefinition { Width = new GridLength(10, GridUnitType.Star) },
+                        new ColumnDefinition { Width = new GridLength(10, GridUnitType.Star) },
+                        new ColumnDefinition { Width = new GridLength(5, GridUnitType.Star) },
+                        new ColumnDefinition { Width = new GridLength(75, GridUnitType.Star) }
+                    }
+                };
+
+                Label labelActivityDetailQuantityReceiveDetail = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                Label labelActivityDetailWeightQuantityReceiveDetail = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                Label labelUnitCodeReceiveDetail = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                Label labelActivityDetailSchemeIDReceiveDetail = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+
+                labelActivityDetailQuantityReceiveDetail.SetBinding(Label.TextProperty, new Binding("ActivityDetailQuantity", BindingMode.Default, null, null, "{0:F3}"));
+                labelActivityDetailWeightQuantityReceiveDetail.SetBinding(Label.TextProperty, new Binding("ActivityDetailWeightQuantity", BindingMode.Default, null, null, "{0:F3}"));
+                labelUnitCodeReceiveDetail.SetBinding(Label.TextProperty, new Binding("UnitCode"));
+                labelActivityDetailSchemeIDReceiveDetail.SetBinding(Label.TextProperty, new Binding("ActivityDetailSchemeID"));
+
+                gridData.Children.Add(labelActivityDetailQuantityReceiveDetail);
+                gridData.Children.Add(labelActivityDetailWeightQuantityReceiveDetail);
+                gridData.Children.Add(labelUnitCodeReceiveDetail);
+                gridData.Children.Add(labelActivityDetailSchemeIDReceiveDetail);
+
+                Grid.SetColumn(labelActivityDetailQuantityReceiveDetail, 0);
+                Grid.SetColumn(labelActivityDetailWeightQuantityReceiveDetail, 1);
+                Grid.SetColumn(labelUnitCodeReceiveDetail, 2);
+                Grid.SetColumn(labelActivityDetailSchemeIDReceiveDetail, 3);
+
+                return new ViewCell { View = gridData };
+            });
+
+            dataGridMainActivity.ItemTemplate = dataTemplateReceiving;
+
+            foreach (DataRow row in this.DataViewDetails.ToTable().Rows)
+            {
+                ReceiveDetail receiveDetail = new ReceiveDetail
+                {
+                    ActivityDetailRefno = Convert.ToInt32(row["ActivityDetailRefno"] != DBNull.Value ? row["ActivityDetailRefno"] : null),
+                    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
+                    ActivityDetailReceivingFKRefno = Convert.ToInt32(row["ActivityDetailReceivingFKRefno"] != DBNull.Value ? row["ActivityDetailReceivingFKRefno"] : null),
+                    UnitCode = Convert.ToString(row["UnitCode"] != DBNull.Value ? row["UnitCode"] : null),
+                    WtUnitCode = Convert.ToString(row["WtUnitCode"] != DBNull.Value ? row["WtUnitCode"] : null),
+                    BaseUnitCode = Convert.ToString(row["BaseUnitCode"] != DBNull.Value ? row["BaseUnitCode"] : null),
+                    ProductCode = Convert.ToString(row["ProductCode"] != DBNull.Value ? row["ProductCode"] : null),
+                    ProductRefno = Convert.ToInt32(row["ProductRefno"] != DBNull.Value ? row["ProductRefno"] : null),
+                    ProductDescription = Convert.ToString(row["ProductDescription"] != DBNull.Value ? row["ProductDescription"] : null),
+                    ProductUnitBC = Convert.ToString(row["ProductUnitBC"] != DBNull.Value ? row["ProductUnitBC"] : null),
+                    ProductUnitIsBC = Convert.ToBoolean(row["ProductUnitIsBC"] != DBNull.Value ? row["ProductUnitIsBC"] : null),
+                    ProductUnitSizeDescription = Convert.ToString(row["ProductUnitSizeDescription"] != DBNull.Value ? row["ProductUnitSizeDescription"] : null),
+                    ActivityDetailQuantity = Convert.ToDecimal(row["ActivityDetailQuantity"] != DBNull.Value ? row["ActivityDetailQuantity"] : null),
+                    ActivityDetailBaseQuantity = Convert.ToDecimal(row["ActivityDetailBaseQuantity"] != DBNull.Value ? row["ActivityDetailBaseQuantity"] : null),
+                    ActivityDetailWeightQuantity = Convert.ToDecimal(row["ActivityDetailWeightQuantity"] != DBNull.Value ? row["ActivityDetailWeightQuantity"] : null),
+                    ActivityDetailLogisticUnitBestBeforeSellByDate = Convert.ToDateTime(row["ActivityDetailLogisticUnitBestBeforeSellByDate"] != DBNull.Value ? row["ActivityDetailLogisticUnitBestBeforeSellByDate"] : null),
+                    ActivityDetailSchemeID = Convert.ToString(row["ActivityDetailSchemeID"] != DBNull.Value ? row["ActivityDetailSchemeID"] : null),
+                    ActivityDetailUniqueSchemeID = Convert.ToString(row["ActivityDetailUniqueSchemeID"] != DBNull.Value ? row["ActivityDetailUniqueSchemeID"] : null),
+                    ActivityDetailSingleTradeItemSerialNumber = Convert.ToString(row["ActivityDetailSingleTradeItemSerialNumber"] != DBNull.Value ? row["ActivityDetailSingleTradeItemSerialNumber"] : null),
+                    ActivityDetailLogisticUnitBatchLotNumber = Convert.ToString(row["ActivityDetailLogisticUnitBatchLotNumber"] != DBNull.Value ? row["ActivityDetailLogisticUnitBatchLotNumber"] : null),
+                    ActivityDetailLogisticUnitExpiryUseByDate = Convert.ToDateTime(row["ActivityDetailLogisticUnitExpiryUseByDate"] != DBNull.Value ? row["ActivityDetailLogisticUnitExpiryUseByDate"] : null),
+                    ActivityDetailLogisticUnitProductionDate = Convert.ToDateTime(row["ActivityDetailLogisticUnitProductionDate"] != DBNull.Value ? row["ActivityDetailLogisticUnitProductionDate"] : null),
+                    ActivityDetailLogisticUnitSkidNumber = Convert.ToString(row["ActivityDetailLogisticUnitSkidNumber"] != DBNull.Value ? row["ActivityDetailLogisticUnitSkidNumber"] : null),
+                    LocationCode = Convert.ToInt32(row["LocationCode"] != DBNull.Value ? row["LocationCode"] : null),
+                    LocationName = Convert.ToString(row["LocationName"] != DBNull.Value ? row["LocationName"] : null),
+                    Location = Convert.ToString(row["Location"] != DBNull.Value ? row["Location"] : null),
+                    ProductSchemeVariantCode = Convert.ToString(row["ProductSchemeVariantCode"] != DBNull.Value ? row["ProductSchemeVariantCode"] : null),
+                    ProductSchemeVariantNo = Convert.ToInt32(row["ProductSchemeVariantNo"] != DBNull.Value ? row["ProductSchemeVariantNo"] : null),
+                    ProductSchemeVariantDescription = Convert.ToString(row["ProductSchemeVariantDescription"] != DBNull.Value ? row["ProductSchemeVariantDescription"] : null),
+                    ActivityDetailStatus = Convert.ToInt32(row["ActivityDetailStatus"] != DBNull.Value ? row["ActivityDetailStatus"] : null),
+                    IsBatchProductLabel = Convert.ToBoolean(row["IsBatchProductLabel"] != DBNull.Value ? row["IsBatchProductLabel"] : null),
+                    ActivityDetailExtra1Text = Convert.ToString(row["ActivityDetailExtra1Text"] != DBNull.Value ? row["ActivityDetailExtra1Text"] : null),
+                    ActivityDetailExtra2Text = Convert.ToString(row["ActivityDetailExtra2Text"] != DBNull.Value ? row["ActivityDetailExtra2Text"] : null),
+                    ActivityDetailExtra3Text = Convert.ToString(row["ActivityDetailExtra3Text"] != DBNull.Value ? row["ActivityDetailExtra3Text"] : null),
+                    ActivityDetailExtra4Text = Convert.ToString(row["ActivityDetailExtra4Text"] != DBNull.Value ? row["ActivityDetailExtra4Text"] : null),
+                    ActivityDetailExtra5Date = Convert.ToDateTime(row["ActivityDetailExtra5Date"] != DBNull.Value ? row["ActivityDetailExtra5Date"] : null)
+                };
+
+                observableCollection.Add(receiveDetail);
+            }
+
+            return observableCollection;
         }
 
         //        /// <summary>
@@ -889,11 +1019,23 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="searchText"></param>
         /// <returns></returns>
-        public override DataView Search(string searchText)
+        public override ObservableCollection<object> Search(string searchText)
         {
+            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+
             this.DataViewDetails.RowFilter = "ActivityReceivingStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
 
-            return this.DataViewDetails;
+            // TODO: search
+            //foreach (DataRow row in this.DataViewHdrs.ToTable().Rows)
+            //{
+            //    ObjectType objectType = new ObjectType
+            //    {
+            //    };
+
+            //    observableCollection.Add(objectType);
+            //}
+
+            return observableCollection;
         }
 
         /// <summary>
@@ -914,7 +1056,7 @@ namespace dMobile.Controller
                 this.ActExtra.Text2 = Convert.ToString(this.DataViewDetails[idx]["ActivityDetailExtra2Text"]);
                 this.ActExtra.Text3 = Convert.ToString(this.DataViewDetails[idx]["ActivityDetailExtra3Text"]);
                 this.ActExtra.Text4 = Convert.ToString(this.DataViewDetails[idx]["ActivityDetailExtra4Text"]);
-                this.ActExtra.Text5 = Convert.ToString(this.DataViewDetails[idx]["ActivityDetailExtra5Text"]);
+                this.ActExtra.DateTime5 = Convert.ToDateTime(this.DataViewDetails[idx]["ActivityDetailExtra5Date"]);
             }
             else
             {
@@ -972,7 +1114,7 @@ namespace dMobile.Controller
                     + ("<extra2>" + this.ActExtra.Text2 + "</extra2>")
                     + ("<extra3>" + this.ActExtra.Text3 + "</extra3>")
                     + ("<extra4>" + this.ActExtra.Text4 + "</extra4>")
-                    + ("<extra5>" + this.ActExtra.Text5 + "</extra5>")
+                    + ("<extra5>" + this.ActExtra.DateTime5 + "</extra5>")
                     + "</imclient>");
             }
 

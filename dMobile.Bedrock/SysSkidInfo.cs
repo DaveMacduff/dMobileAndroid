@@ -319,12 +319,14 @@
             writer.Close();
 
             recvData = SysCommon.SubmitComm(xmlString.ToString());
+            
             if (recvData.Length > 0)
             {
                 if (recvData.Contains("<message>ERROR</message>"))
                 {
                     XmlDocument xmlResult = new XmlDocument();
                     xmlResult.LoadXml(recvData);
+                    
                     if (recvData.Contains("MSGBOX-"))
                     {
                         throw new MessageOnlyException(xmlResult.DocumentElement["detail"].InnerText);

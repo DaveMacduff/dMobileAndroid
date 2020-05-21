@@ -258,7 +258,7 @@ namespace dMobile.View
                                                 + ("<BarCodeSymbologyPrefix>" + barCodeParse.SymbologyPrefix + "</BarCodeSymbologyPrefix>")
                                                 + "</params>");
 
-                                            actItemBarCode.Insert(xmlDoc, false);
+                                            await actItemBarCode.Insert(xmlDoc, false);
 
                                             tcs.SetResult(prodUnitRefno);
                                         }
@@ -338,7 +338,7 @@ namespace dMobile.View
             bool isStopForDetail = IsStopForDetail(actDetail, isForceStopForEdit);
             bool isStopForLabelDetail = false;
 
-            if (actDetail.ActSubType == SysCommon.ActSubTypes.Receiving)
+            if (actDetail.ActSubType == SysCommon.ActSubTypes.Receiving && actDetail.ActItem.LocMap.CurrLocMap.IsWhsWMS)
             {
                 if (!actDetail.IsLabelSchemeComplete())
                 {
@@ -354,29 +354,26 @@ namespace dMobile.View
                 // Check for quantity over occurrs in form
                 FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucActivityDetailEdit, actDetail, actSubType);
 
-                await form.DisplayControl.ShowDialog().ContinueWith(result =>
-                 {
-                     if (form.DisplayControl.DialogResult == DialogResult.OK)
-                     {
-                         continueIsStopForDetail = true;
-                     }
+                if (await Device.InvokeOnMainThreadAsync(async () => await form.DisplayControl.ShowDialog() == DialogResult.OK))
+                {
+                    continueIsStopForDetail = true;
+                }
 
-                     if (continueIsStopForDetail)
-                     {
-                         XDocument xmlDoc = null;
-                         //xmlDoc = form.DisplayControlData;
-                         xmlDoc = ((IAppArea)form.DisplayControl).GetXML();
-                         UpdateActDetailFromXML(ref actDetail, xmlDoc);
+                if (continueIsStopForDetail)
+                {
+                    XDocument xmlDoc = null;
+                    //xmlDoc = form.DisplayControlData;
+                    xmlDoc = ((IAppArea)form.DisplayControl).GetXML();
+                    UpdateActDetailFromXML(ref actDetail, xmlDoc);
 
-                         //No need to call actItem.IsReadyToApply(xmlParam) the form will call it.
-                         isInsertDetailReady = true;
-                     }
-                     else
-                     {
-                         //TODO: Resource strings
-                         throw new GatherProductDataException("Cancelled from detail edit.", true);
-                     }
-                 });
+                    //No need to call actItem.IsReadyToApply(xmlParam) the form will call it.
+                    isInsertDetailReady = true;
+                }
+                else
+                {
+                    //TODO: Resource strings
+                    throw new GatherProductDataException("Cancelled from detail edit.", true);
+                }
             }
             else if (isStopForLabelDetail)
             {
@@ -386,41 +383,31 @@ namespace dMobile.View
                 // No quantity over check needed for label printing
                 FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucActivityProductLabel, actDetail, actSubType);
 
-                await form.ShowDialog().ContinueWith(result =>
+                if (await Device.InvokeOnMainThreadAsync(async () => await form.DisplayControl.ShowDialog() == DialogResult.OK))
                 {
-                    if (form.DialogResult == DialogResult.OK)
-                    {
-                        continueIsStopForLabelDetail = true;
-                    }
+                    continueIsStopForLabelDetail = true;
+                }
 
-                    if (continueIsStopForLabelDetail)
-                    {
-                        XDocument xmlDoc = null;
-                        xmlDoc = form.DisplayControlData;
-                        UpdateActDetailFromXML(ref actDetail, xmlDoc);
-                    }
-                    ////else
-                    ////{
-                    ////  throw new GatherProductDataException("Cancelled from detail edit.", true);
-                    ////}
+                if (continueIsStopForLabelDetail)
+                {
+                    XDocument xmlDoc = null;
+                    xmlDoc = ((IAppArea)form.DisplayControl).GetXML();
+                    UpdateActDetailFromXML(ref actDetail, xmlDoc);
+                }
+                ////else
+                ////{
+                ////  throw new GatherProductDataException("Cancelled from detail edit.", true);
+                ////}
 
-                    //    // No need to call actItem.IsReadyToApply(xmlParam) the form will call it.
-                    //    // Insert the activity detail even if the print product label was cancelled.
-                    //    // All inventory tracked scheme components where complete before even call the print product labels control.
-                    isInsertDetailReady = true;
-                });
+                //    // No need to call actItem.IsReadyToApply(xmlParam) the form will call it.
+                //    // Insert the activity detail even if the print product label was cancelled.
+                //    // All inventory tracked scheme components where complete before even call the print product labels control.
+                isInsertDetailReady = true;
             }
             else
             {
-                actDetail.SchemeID = ProductInfoTasks.GetActSchemeIDFromSProdSchemeData(
-                    actItem.ProdInfo.Code,
-                    actItem.ProdInfo.Scheme,
-                    actDetail.SchemeData);
-
-                actDetail.UniqueSchemeID = ProductInfoTasks.GetActUniqueSchemeIDFromSProdSchemeData(
-                    actItem.ProdInfo.Code,
-                    actItem.ProdInfo.Scheme,
-                    actDetail.SchemeData);
+                actDetail.SchemeID = ProductInfoTasks.GetActSchemeIDFromSProdSchemeData(actItem.ProdInfo.Code, actItem.ProdInfo.Scheme, actDetail.SchemeData);
+                actDetail.UniqueSchemeID = ProductInfoTasks.GetActUniqueSchemeIDFromSProdSchemeData(actItem.ProdInfo.Code, actItem.ProdInfo.Scheme, actDetail.SchemeData);
 
                 // IsReadyToApply will perform any validations, such as duplicate checks and quantity validations.
                 XDocument xmlParam = XDocument.Parse(
@@ -465,7 +452,7 @@ namespace dMobile.View
             actDetail.ActExtra.Text2 = xmlDoc.Root.Element("extra2").Value;
             actDetail.ActExtra.Text3 = xmlDoc.Root.Element("extra3").Value;
             actDetail.ActExtra.Text4 = xmlDoc.Root.Element("extra4").Value;
-            actDetail.ActExtra.Text5 = xmlDoc.Root.Element("extra5").Value;
+            actDetail.ActExtra.DateTime5 = DateTime.Parse(xmlDoc.Root.Element("extra5").Value);
 
             actDetail.SchemeID = ProductInfoTasks.GetActSchemeIDFromSProdSchemeData(
                 actDetail.ActItem.ProdInfo.Code,
@@ -503,7 +490,7 @@ namespace dMobile.View
             actDetailEditLabel.ActExtra.Text2 = xmlDoc.Root.Element("extra2").Value;
             actDetailEditLabel.ActExtra.Text3 = xmlDoc.Root.Element("extra3").Value;
             actDetailEditLabel.ActExtra.Text4 = xmlDoc.Root.Element("extra4").Value;
-            actDetailEditLabel.ActExtra.Text5 = xmlDoc.Root.Element("extra5").Value;
+            actDetailEditLabel.ActExtra.DateTime5 = DateTime.Parse(xmlDoc.Root.Element("extra5").Value);
 
             // Do not fill in scheme id because the tracking scheme will not match the 'label scheme'
         }

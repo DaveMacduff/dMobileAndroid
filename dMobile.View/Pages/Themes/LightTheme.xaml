@@ -11,6 +11,7 @@
     <Color x:Key="BorderColor">White</Color>
     <Color x:Key="PrimaryColor">Default</Color>
     <Color x:Key="SecondaryColor">Default</Color>
+    <Color x:Key="TitleTextColor">Black</Color>
     <Color x:Key="PrimaryTextColor">Default</Color>
     <Color x:Key="SecondaryTextColor">Default</Color>
     <Color x:Key="TertiaryTextColor">Default</Color>

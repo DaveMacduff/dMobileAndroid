@@ -45,7 +45,7 @@
         /// <summary>
         /// The OnAppearing
         /// </summary>
-        protected override void OnAppearing()
+        protected override async void OnAppearing()
         {
             base.OnAppearing();
 
@@ -81,7 +81,7 @@
                 }
             });
 
-            Task.Run(async () => await this.LoadData(this, new EventArgs()));
+            await Task.Run(async () => await this.LoadData(this, new EventArgs()));
         }
 
         /// <summary>
@@ -316,7 +316,7 @@
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool IsReadyToSave()
+        public async Task<bool> IsReadyToSave()
         {
             bool isReadyToSave = true;
             return isReadyToSave;
@@ -327,7 +327,7 @@
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool IsReadyToClose()
+        public async Task<bool> IsReadyToClose()
         {
             return true;
         }
@@ -364,7 +364,7 @@
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool SaveChanges()
+        public async Task<bool> SaveChanges()
         {
             return true;
         }
@@ -374,7 +374,7 @@
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool CancelChanges()
+        public async Task<bool> CancelChanges()
         {
             return true;
         }
@@ -526,10 +526,8 @@
                 Device.BeginInvokeOnMainThread(async () =>
                 {
                     // TODO: Resource Strings
-                    await DisplayAlert(this.GetControlDescription(), "The last data refresh did not complete. You must refresh the data again.", "OK", "Cancel");
+                    await DisplayAlert(this.GetControlDescription(), "The last data refresh did not complete. You must refresh the data again.", "OK");
                 });
-
-
             }
         }
 
@@ -716,7 +714,7 @@
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        private void InitializeDatabase(object sender, EventArgs e)
+        private async Task InitializeDatabase(object sender, EventArgs e)
         {
             DatabaseNub db = new DatabaseNub();
 
@@ -763,7 +761,7 @@
                     //                        MessageBoxIcon.Exclamation,
                     //                        MessageBoxDefaultButton.Button1);
 
-                    Device.BeginInvokeOnMainThread(async () =>
+                    await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         //TODO: Resource Strings
                         await DisplayAlert(this.GetControlDescription(), "Database creation failed.", "OK");
@@ -857,7 +855,7 @@
         {
             this.Loading = true;
 
-            await Task.Run(() =>
+            await Task.Run(async () =>
             {                
                 //this.TotalTicks = this.TotalTicks + this.timerStatus.Interval;
 
@@ -881,10 +879,9 @@
                         //this.SyncDateTime(sender, e);
                     }
 
-                    // TODO: Fix retreiving scanner with new honeywell SDK
-                    //this.InitializeScanner(sender, e);
+                    this.InitializeScanner(sender, e);
 
-                    this.InitializeDatabase(sender, e);
+                    await this.InitializeDatabase(sender, e);
 
                     if (!this.IsErrorRaised)
                     {

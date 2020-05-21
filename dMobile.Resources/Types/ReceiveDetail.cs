@@ -39,7 +39,7 @@ namespace dMobile.Resources.Types
         private string activityDetailExtra2Text;
         private string activityDetailExtra3Text;
         private string activityDetailExtra4Text;
-        private string activityDetailExtra5Text;
+        private DateTime activityDetailExtra5Date;
 
         public int ActivityDetailRefno { get => activityDetailRefno; set => activityDetailRefno = value; }
         public int LocationMapRefno { get => locationMapRefno; set => locationMapRefno = value; }
@@ -76,6 +76,6 @@ namespace dMobile.Resources.Types
         public string ActivityDetailExtra2Text { get => activityDetailExtra2Text; set => activityDetailExtra2Text = value; }
         public string ActivityDetailExtra3Text { get => activityDetailExtra3Text; set => activityDetailExtra3Text = value; }
         public string ActivityDetailExtra4Text { get => activityDetailExtra4Text; set => activityDetailExtra4Text = value; }
-        public string ActivityDetailExtra5Text { get => activityDetailExtra5Text; set => activityDetailExtra5Text = value; }
+        public DateTime ActivityDetailExtra5Date { get => activityDetailExtra5Date; set => activityDetailExtra5Date = value; }
     }
 }

@@ -1,5 +1,6 @@
 namespace dMobile.Bedrock
 {
+    using System.Threading.Tasks;
     using System.Xml.Linq;
 
     public interface IAppArea
@@ -22,7 +23,7 @@ namespace dMobile.Bedrock
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        bool IsReadyToClose();
+        Task<bool> IsReadyToClose();
 
         /// <summary>
         /// Get the control to gain focus when this control is closed. Returns nothing if not 
@@ -44,21 +45,21 @@ namespace dMobile.Bedrock
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        bool SaveChanges();
+        Task<bool> SaveChanges();
 
         /// <summary>
         /// Used to cancel data changes.
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        bool CancelChanges();
+        Task<bool> CancelChanges();
 
         /// <summary>
         /// Determine if data is ready to be saved with validation code.
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        bool IsReadyToSave();
+        Task<bool> IsReadyToSave();
 
         /// <summary>
         /// The method should return the complex structure that needs to be passed between areas 

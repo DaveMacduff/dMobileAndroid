@@ -1,12 +1,15 @@
 namespace dMobile.Controller
 {
     using System;
+    using System.Collections.ObjectModel;
     using System.Data;
     using System.Data.SQLite;
     using System.Text;
     using System.Xml.Linq;
     using dMobile.Bedrock;
     using dMobile.GroundWork;
+    using dMobile.Resources.Types;
+    using Xamarin.Forms;
 
     public class TransferActivity : Activity
     {
@@ -26,6 +29,13 @@ namespace dMobile.Controller
 
         #endregion
 
+        #region Public Members
+        
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns></returns>
+        /// <remarks></remarks>
         public TransferSettings TransSettings
         {
             get
@@ -38,8 +48,6 @@ namespace dMobile.Controller
                 this.transSettings = value;
             }
         }
-
-        #region Public Members
 
         /// <summary>
         ///
@@ -60,6 +68,109 @@ namespace dMobile.Controller
         {
             // TODO: Resource strings
             return "Transfers";
+        }
+
+        public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity, ref ColumnDefinition dataGridWidth)
+        {
+            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+
+            // Create header data template
+            Grid gridHeader = new Grid
+            {
+                Padding = new Thickness(5),
+                ColumnSpacing = 15,
+                ColumnDefinitions =
+                {
+                    new ColumnDefinition { Width = new GridLength(25, GridUnitType.Star) },
+                    new ColumnDefinition { Width = new GridLength(15, GridUnitType.Star) },
+                    new ColumnDefinition { Width = new GridLength(30, GridUnitType.Star) },
+                    new ColumnDefinition { Width = new GridLength(30, GridUnitType.Star) },
+                }
+            };
+
+            gridHeader.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
+
+            Label labelTransferNumberHeader = new Label { Text = "Transfer #", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            Label labelWhsHeader = new Label { Text = "Whs", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            Label labelDateHeader = new Label { Text = "Date", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            Label labelArrivedHeader = new Label { Text = "Arrived", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+
+            gridHeader.Children.Add(labelTransferNumberHeader);
+            gridHeader.Children.Add(labelWhsHeader);
+            gridHeader.Children.Add(labelDateHeader);
+            gridHeader.Children.Add(labelArrivedHeader);
+
+            Grid.SetColumn(labelTransferNumberHeader, 0);
+            Grid.SetColumn(labelWhsHeader, 1);
+            Grid.SetColumn(labelDateHeader, 2);
+            Grid.SetColumn(labelArrivedHeader, 3);
+
+            Grid.SetRow(gridHeader, 0);
+
+            dataGridMainActivityHeader.Children.Add(gridHeader);
+
+            // Data grid
+            DataTemplate dataTemplate = new DataTemplate(() =>
+            {
+                Grid gridData = new Grid
+                {
+                    Padding = new Thickness(5),
+                    ColumnSpacing = 15,
+                    ColumnDefinitions =
+                    {
+                        new ColumnDefinition { Width = new GridLength(25, GridUnitType.Star) },
+                        new ColumnDefinition { Width = new GridLength(15, GridUnitType.Star) },
+                        new ColumnDefinition { Width = new GridLength(30, GridUnitType.Star) },
+                        new ColumnDefinition { Width = new GridLength(30, GridUnitType.Star) },
+                    }
+                };
+
+                Label labelTransferNumber = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelWhs = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelDate = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelArrived = new Label { VerticalOptions = LayoutOptions.Center };
+
+                labelTransferNumber.SetBinding(Label.TextProperty, new Binding("ActivityTransferStringFKRefno"));
+                labelWhs.SetBinding(Label.TextProperty, new Binding("LocationMapWarehouseFKRefno"));
+                labelDate.SetBinding(Label.TextProperty, new Binding("ActivityTransferDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
+                labelArrived.SetBinding(Label.TextProperty, new Binding("ActivityTransferArrivalDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
+
+                gridData.Children.Add(labelTransferNumber);
+                gridData.Children.Add(labelWhs);
+                gridData.Children.Add(labelDate);
+                gridData.Children.Add(labelArrived);
+
+                Grid.SetColumn(labelTransferNumber, 0);
+                Grid.SetColumn(labelWhs, 1);
+                Grid.SetColumn(labelDate, 2);
+                Grid.SetColumn(labelArrived, 3);
+
+                return new ViewCell { View = gridData };
+            });
+
+            dataGridMainActivity.ItemTemplate = dataTemplate;
+            observableCollection.Clear();
+
+            foreach (DataRow row in this.DataViewHdrs.ToTable().Rows)
+            {
+                Transfer transfer = new Transfer
+                {
+                    ActivityRefno = Convert.ToInt32(row["ActivityRefno"] != DBNull.Value ? row["ActivityRefno"] : null),
+                    ActivityStatus = Convert.ToInt32(row["ActivityStatus"] != DBNull.Value ? row["ActivityStatus"] : null),
+                    ActivityTransferArrivalDateTime = Convert.ToDateTime(row["ActivityTransferArrivalDateTime"] != DBNull.Value ? row["ActivityTransferArrivalDateTime"] : null),
+                    ActivityTransferDateTime = Convert.ToDateTime(row["ActivityTransferDateTime"] != DBNull.Value ? row["ActivityTransferDateTime"] : null),
+                    ActivityTransferDescription = Convert.ToString(row["ActivityTransferDescription"] != DBNull.Value ? row["ActivityTransferDescription"] : null),
+                    ActivityTransferFKRefno = Convert.ToInt32(row["ActivityTransferFKRefno"] != DBNull.Value ? row["ActivityTransferFKRefno"] : null),
+                    ActivityTransferStringFKRefno = Convert.ToString(row["ActivityTransferStringFKRefno"] != DBNull.Value ? row["ActivityTransferStringFKRefno"] : null),
+                    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
+                    LocationMapWarehouseFKRefno = Convert.ToInt32(row["LocationMapWarehouseFKRefno"] != DBNull.Value ? row["LocationMapWarehouseFKRefno"] : null),
+                    LocationMapWarehouseName = Convert.ToString(row["LocationMapWarehouseName"] != DBNull.Value ? row["LocationMapWarehouseName"] : null)
+                };
+
+                observableCollection.Add(transfer);
+            }
+
+            return observableCollection;
         }
 
         ///// <summary>
@@ -143,16 +254,16 @@ namespace dMobile.Controller
 
             if (isSubmitBatch)
             {
-                sql.Append("SELECT tActivityTransfer.ActivityRefno,");
-                sql.Append("tActivityTransfer.ActivityTransferFKRefno,");
-                sql.Append("tActivityTransfer.ActivityTransferStringFKRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseName,");
-                sql.Append("tActivityTransfer.ActivityTransferArrivalDateTime,");
-                sql.Append("tActivityTransfer.ActivityTransferDateTime,");
-                sql.Append("tActivityTransfer.ActivityTransferDescription,");
-                sql.Append("tActivity.ActivityStatus ");
+                sql.Append("SELECT tActivityTransfer.ActivityRefno AS ActivityRefno,");
+                sql.Append("tActivityTransfer.ActivityTransferFKRefno AS ActivityTransferFKRefno,");
+                sql.Append("tActivityTransfer.ActivityTransferStringFKRefno AS ActivityTransferStringFKRefno,");
+                sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
+                sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno AS LocationMapWarehouseFKRefno,");
+                sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationMapWarehouseName,");
+                sql.Append("tActivityTransfer.ActivityTransferArrivalDateTime AS ActivityTransferArrivalDateTime,");
+                sql.Append("tActivityTransfer.ActivityTransferDateTime AS ActivityTransferDateTime,");
+                sql.Append("tActivityTransfer.ActivityTransferDescription AS ActivityTransferDescription,");
+                sql.Append("tActivity.ActivityStatus AS ActivityStatus ");
                 sql.Append("FROM tActivityTransfer ");
                 sql.Append("INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityTransfer.ActivityRefno ");
                 sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
@@ -198,16 +309,16 @@ namespace dMobile.Controller
             }
             else
             {
-                sql.Append("SELECT tActivityTransfer.ActivityRefno,");
-                sql.Append("tActivityTransfer.ActivityTransferFKRefno,");
-                sql.Append("tActivityTransfer.ActivityTransferStringFKRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseName,");
-                sql.Append("tActivityTransfer.ActivityTransferArrivalDateTime,");
-                sql.Append("tActivityTransfer.ActivityTransferDateTime,");
-                sql.Append("tActivityTransfer.ActivityTransferDescription,");
-                sql.Append("tActivity.ActivityStatus ");
+                sql.Append("SELECT tActivityTransfer.ActivityRefno AS ActivityRefno,");
+                sql.Append("tActivityTransfer.ActivityTransferFKRefno AS ActivityTransferFKRefno,");
+                sql.Append("tActivityTransfer.ActivityTransferStringFKRefno AS ActivityTransferStringFKRefno,");
+                sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
+                sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno AS LocationMapWarehouseFKRefno,");
+                sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationMapWarehouseName,");
+                sql.Append("tActivityTransfer.ActivityTransferArrivalDateTime AS ActivityTransferArrivalDateTime,");
+                sql.Append("tActivityTransfer.ActivityTransferDateTime AS ActivityTransferDateTime,");
+                sql.Append("tActivityTransfer.ActivityTransferDescription AS ActivityTransferDescription,");
+                sql.Append("tActivity.ActivityStatus AS ActivityStatus ");
                 sql.Append("FROM tActivityTransfer ");
                 sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
                 sql.Append("= tActivityTransfer.TransferToWarehouseLocationMapRefno ");
@@ -236,19 +347,39 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="searchText"></param>
         /// <returns></returns>
-        public override DataView Search(string searchText)
+        public override ObservableCollection<object> Search( string searchText)
         {
+            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+
             if (string.IsNullOrEmpty(this.ActFilter))
             {
-                this.DataViewHdrs.RowFilter = "ActivityTransferStringFKRefno LIKE \'" + searchText.Trim() + "%\'";
+                this.DataViewHdrs.RowFilter = "ActivityTransferStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
             }
             else
             {
-                this.DataViewHdrs.RowFilter = this.ActFilter + " AND ActivityTransferStringFKRefno LIKE \'" + searchText.Trim()
-                    + "%\'";
+                this.DataViewHdrs.RowFilter = this.ActFilter + " AND ActivityTransferStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
+            }
+            
+            foreach (DataRow row in this.DataViewHdrs.ToTable().Rows)
+            {
+                Transfer transfer = new Transfer
+                {
+                    ActivityRefno = Convert.ToInt32(row["ActivityRefno"] != DBNull.Value ? row["ActivityRefno"] : null),
+                    ActivityStatus = Convert.ToInt32(row["ActivityStatus"] != DBNull.Value ? row["ActivityStatus"] : null),
+                    ActivityTransferArrivalDateTime = Convert.ToDateTime(row["ActivityTransferArrivalDateTime"] != DBNull.Value ? row["ActivityTransferArrivalDateTime"] : null),
+                    ActivityTransferDateTime = Convert.ToDateTime(row["ActivityTransferDateTime"] != DBNull.Value ? row["ActivityTransferDateTime"] : null),
+                    ActivityTransferDescription = Convert.ToString(row["ActivityTransferDescription"] != DBNull.Value ? row["ActivityTransferDescription"] : null),
+                    ActivityTransferFKRefno = Convert.ToInt32(row["ActivityTransferFKRefno"] != DBNull.Value ? row["ActivityTransferFKRefno"] : null),
+                    ActivityTransferStringFKRefno = Convert.ToString(row["ActivityTransferStringFKRefno"] != DBNull.Value ? row["ActivityTransferStringFKRefno"] : null),
+                    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
+                    LocationMapWarehouseFKRefno = Convert.ToInt32(row["LocationMapWarehouseFKRefno"] != DBNull.Value ? row["LocationMapWarehouseFKRefno"] : null),
+                    LocationMapWarehouseName = Convert.ToString(row["LocationMapWarehouseName"] != DBNull.Value ? row["LocationMapWarehouseName"] : null)
+                };
+
+                observableCollection.Add(transfer);
             }
 
-            return this.DataViewHdrs;
+            return observableCollection;
         }
 
         /// <summary>
@@ -257,15 +388,14 @@ namespace dMobile.Controller
         /// <param name="idx"></param>
         public override void SelectHdr(int idx)
         {
-            this.FKRefno = (int)DataViewHdrs[idx]["ActivityTransferFKRefno"];
-            this.Refno = (int)DataViewHdrs[idx]["ActivityRefno"];
+            this.FKRefno = Convert.ToInt32(this.DataViewHdrs[idx]["ActivityTransferFKRefno"]);
+            this.Refno = Convert.ToInt32(this.DataViewHdrs[idx]["ActivityRefno"]);
             this.SelectedIndex = idx;
 
             // Set the selected warehouse to the activity header warehouse.
-            if (LocationMap.GetInstance().CurrLocMap.WhsLocMapRefno != (int)this.DataViewHdrs[idx]["LocationMapRefno"])
+            if (LocationMap.GetInstance().CurrLocMap.WhsLocMapRefno != Convert.ToInt32(this.DataViewHdrs[idx]["LocationMapRefno"]))
             {
-                LocationMap.GetInstance().CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(
-                    (int)this.DataViewHdrs[idx]["LocationMapRefno"]);
+                LocationMap.GetInstance().CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(this.DataViewHdrs[idx]["LocationMapRefno"]));
             }
         }
 
@@ -276,8 +406,8 @@ namespace dMobile.Controller
         /// <returns></returns>
         public override int GetRefnoFromRowIdx(int idx)
         {
-            this.FKRefno = (int)DataViewHdrs[idx]["ActivityTransferFKRefno"];
-            this.Refno = (int)DataViewHdrs[idx]["ActivityRefno"];
+            this.FKRefno = Convert.ToInt32(DataViewHdrs[idx]["ActivityTransferFKRefno"]);
+            this.Refno = Convert.ToInt32(DataViewHdrs[idx]["ActivityRefno"]);
 
             return this.Refno;
         }

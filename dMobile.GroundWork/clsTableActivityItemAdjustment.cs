@@ -335,206 +335,69 @@ namespace dMobile.GroundWork
                                 cmndID.CommandType = CommandType.Text;
 
                                 actItemRefno = Convert.ToInt32(cmndID.ExecuteScalar());
+                                prodUnitRefno = this.GetProductUnitRefnoFromDataRow(drow, ref conn, ref errMsg, false);
+                                locMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, ref errMsg, cmndLocMapWhs);
+                                actItemAdjFKRefno = Convert.ToInt32(drow["ActivityItemAdjustmentFKRefno"]);
 
-                                //prodUnitRefno = this.GetProductUnitRefnoFromDataRow(drow, ref errMsg, drProd, drUnit, drProdUnit, false);
+                                cmndAdjItem.CommandText = "INSERT INTO tActivityItemAdjustment " +
+                                    "(ActivityItemRefno, " +
+                                    "ActivityItemSubType, " +
+                                    "ActivityItemAdjustmentFKRefno, " +
+                                    "ActivityItemAdjustmentStringFKRefno, " +
+                                    "ProductUnitRefno, " +
+                                    "WarehouseLocationMapRefno, " +
+                                    "ActivityItemAdjustmentQuantity, " +
+                                    "ActivityItemAdjustmentBaseQuantity, " +
+                                    "ActivityItemAdjustmentWeightQuantity, " +
+                                    "ActivityItemAdjustmentDescription) " +
+                                    "VALUES " +
+                                    "(@activityItemRefno, " +
+                                    "@activityItemSubType, " +
+                                    "@activityItemAdjustmentFKRefno, " +
+                                    "@activityItemAdjustmentStringFKRefno, " +
+                                    "@productUnitRefno, " +
+                                    "@warehouseLocationMapRefno, " +
+                                    "@activityItemAdjustmentQuantity, " +
+                                    "@activityItemAdjustmentBaseQuantity, " +
+                                    "@activityItemAdjustmentWeightQuantity, " +
+                                    "@activityItemAdjustmentDescription)";
+                                cmndAdjItem.CommandType = CommandType.Text;
+                                //cmndAdjItem.IndexName = "UQ_ActivityItemAdjustmentOnActivityItemAdjustmentFKRefno";
+                                cmndAdjItem.Parameters.Add(new SQLiteParameter("@activityItemRefno", actItemRefno));
+                                cmndAdjItem.Parameters.Add(new SQLiteParameter("@activityItemSubType", Convert.ToInt32(SysCommon.ActSubTypes.Adjustment)));
+                                cmndAdjItem.Parameters.Add(new SQLiteParameter("@productUnitRefno", prodUnitRefno));
+                                cmndAdjItem.Parameters.Add(new SQLiteParameter("@warehouseLocationMapRefno", locMapRefno));
 
-                                bool useFNo = false;
-                                int prodRefno = 0;
-                                int prodFKRefno = 0;
-
-                                if (useFNo)
-                                {
-                                    prodFKRefno = Convert.ToInt32(drow["f03"]);
-                                }
-                                else
-                                {
-                                    prodFKRefno = Convert.ToInt32(drow["ProductFKRefno"]);
-                                }
-
-                                // TODO: Resource strings
-                                errMsg += Environment.NewLine + "Prod fk refno " + prodFKRefno;
-
-                                cmndProd.CommandText = "SELECT * FROM tProduct WHERE ProductFKRefno = @productFKRefno";
-                                cmndProd.CommandType = CommandType.Text;
-                                //cmndProd.IndexName = "UQ_ProductOnProductFKRefno";
-                                cmndProd.Parameters.Add(new SQLiteParameter("@productFKRefno", prodFKRefno));
-
-                                using (SQLiteDataReader drProd = cmndProd.ExecuteReader())
-                                {
-                                    //if (drProd.Seek(DbSeekOptions.FirstEqual, new object[] { prodFKRefno }))
-                                    //{
-                                    if (drProd.Read())
-                                    {
-                                        prodRefno = drProd.GetInt32((int)SysCommon.ProductFields.Refno);
-                                    }
-                                    else
-                                    {
-                                        // TODO: Resource strings
-                                        throw new Exception("drProduct.Read() failed." + Environment.NewLine + errMsg);
-                                    }
-                                    //}
-                                    //else
-                                    //{
-                                    //    // TODO: Resource strings
-                                    //    throw new Exception("Unable to locate the product refno from the product fk refno in tProduct." + Environment.NewLine + errMsg);
-                                    //}
-
-                                }
-
-                                string unitCode = string.Empty;
-                                int unitRefno = 0;
-
-                                if (useFNo)
-                                {
-                                    unitCode = drow["f05"].ToString();
-                                }
-                                else
-                                {
-                                    unitCode = drow["UnitCode"].ToString();
-                                }
+                                //rec.SetInt32((int)SysCommon.ActItemAdjFields.ProdUnitRefno, prodUnitRefno);
+                                //rec.SetInt32((int)SysCommon.ActItemAdjFields.WhsLocMapRefno, locMapRefno);
+                                //rec.SetInt32((int)SysCommon.ActItemAdjFields.ActItemRefno, actItemRefno);
+                                //rec.SetInt32((int)SysCommon.ActItemAdjFields.ActItemSubType, Convert.ToInt32(SysCommon.ActSubTypes.Adjustment));
 
                                 // TODO: Resource strings
-                                errMsg += Environment.NewLine + "Unit \'" + unitCode + "\'";
+                                errMsg += Environment.NewLine + "Item fk refno " + actItemAdjFKRefno;
 
-                                cmndUnit.CommandText = "SELECT * FROM tUnit WHERE UnitCode = @unitCode";
-                                cmndUnit.CommandType = CommandType.Text;
-                                //cmndUnit.IndexName = "UQ_UnitOnUnitCode";
-                                cmndUnit.Parameters.Add(new SQLiteParameter("@unitCode", unitCode));
+                                cmndAdjItem.Parameters.Add(new SQLiteParameter("@activityItemAdjustmentFKRefno", actItemAdjFKRefno));
+                                cmndAdjItem.Parameters.Add(new SQLiteParameter("@activityItemAdjustmentStringFKRefno", Convert.ToString(actItemAdjFKRefno)));
+                                cmndAdjItem.Parameters.Add(new SQLiteParameter("@activityItemAdjustmentQuantity", Convert.ToDecimal(drow["ActivityItemAdjustmentQuantity"])));
+                                cmndAdjItem.Parameters.Add(new SQLiteParameter("@activityItemAdjustmentBaseQuantity", Convert.ToDecimal(drow["ActivityItemAdjustmentBaseQuantity"])));
+                                cmndAdjItem.Parameters.Add(new SQLiteParameter("@activityItemAdjustmentWeightQuantity", Convert.ToDecimal(drow["ActivityItemAdjustmentWeightQuantity"])));
+                                cmndAdjItem.Parameters.Add(new SQLiteParameter("@activityItemAdjustmentDescription", drow["ActivityItemAdjustmentDescription"].ToString()));
 
-                                using (SQLiteDataReader drUnit = cmndUnit.ExecuteReader())
+                                cmndAdjItem.ExecuteNonQuery();
+
+                                //rec.SetInt32((int)SysCommon.ActItemAdjFields.FKRefno, actItemAdjFKRefno);
+                                //rec.SetString((int)SysCommon.ActItemAdjFields.StringFKRefno, Convert.ToString(actItemAdjFKRefno));
+                                //rec.SetDecimal((int)SysCommon.ActItemAdjFields.Quantity, Convert.ToDecimal(drow["ActivityItemAdjustmentQuantity"]));
+                                //rec.SetDecimal((int)SysCommon.ActItemAdjFields.BaseQuantity, Convert.ToDecimal(drow["ActivityItemAdjustmentBaseQuantity"]));
+                                //rec.SetDecimal((int)SysCommon.ActItemAdjFields.WeightQuantity, Convert.ToDecimal(drow["ActivityItemAdjustmentWeightQuantity"]));
+                                //rec.SetString((int)SysCommon.ActItemAdjFields.Description, drow["ActivityItemAdjustmentDescription"].ToString());
+
+                                //rs.Insert(rec);
+
+                                progValue++;
+                                if (progValue % 100 == 0)
                                 {
-                                    //if (drUnit.Seek(DbSeekOptions.FirstEqual, new object[] { unitCode }))
-                                    //{
-                                    if (drUnit.Read())
-                                    {
-                                        unitRefno = drUnit.GetInt32((int)SysCommon.UnitFields.UnitRefno);
-                                    }
-                                    else
-                                    {
-                                        // TODO: Resource strings
-                                        throw new Exception("drUnit.Read() failed." + Environment.NewLine + errMsg);
-                                    }
-                                    //}
-                                    //else
-                                    //{
-                                    //    // TODO: Resource strings
-                                    //    throw new Exception("Unable to locate the unit refno from the unit code in  tUnit." + Environment.NewLine + errMsg);
-                                    //}
-                                }
-
-                                prodUnitRefno = 0;
-                                bool prodUnitIsBC = false;
-
-                                if (useFNo)
-                                {
-                                    prodUnitIsBC = Convert.ToBoolean(drow["f04"]);
-                                }
-                                else
-                                {
-                                    prodUnitIsBC = Convert.ToBoolean(drow["ProductUnitIsBC"]);
-                                }
-
-                                // TODO: Resource strings
-                                errMsg += Environment.NewLine + "Is bc " + prodUnitIsBC;
-
-                                cmndProdUnit.CommandText = "SELECT * FROM tProductUnit WHERE ProductRefno = @productRefno AND UnitRefno = @unitRefno AND ProductUnitIsBC = @productUnitIsBC";
-                                cmndProdUnit.CommandType = CommandType.Text;
-                                //cmndProdUnit.IndexName = "UQ_ProductUnitOnProductRefnoAndUnitRefnoAndProductUnitIsBC";
-                                cmndProdUnit.Parameters.Add(new SQLiteParameter("@productRefno", prodRefno));
-                                cmndProdUnit.Parameters.Add(new SQLiteParameter("@unitRefno", unitRefno));
-                                cmndProdUnit.Parameters.Add(new SQLiteParameter("@productUnitIsBC", prodUnitIsBC));
-
-                                using (SQLiteDataReader drProdUnit = cmndProdUnit.ExecuteReader())
-                                {
-                                    //if (drProdUnit.Seek(DbSeekOptions.FirstEqual, new object[] { prodRefno, unitRefno, prodUnitIsBC }))
-                                    //{
-                                    if (drProdUnit.Read())
-                                    {
-                                        prodUnitRefno = drProdUnit.GetInt32((int)SysCommon.ProdUnitFields.Refno);
-                                    }
-                                    else
-                                    {
-                                        // TODO: Resource strings
-                                        throw new Exception("drProdUnit.Read() failed." + Environment.NewLine + errMsg);
-                                    }
-                                    //}
-                                    //else
-                                    //{
-                                    //    // TODO: Resource strings
-                                    //    throw new Exception("Unable to locate the product unit refno from the product fk refno, bc and unit code in tProductUnit." + Environment.NewLine + errMsg);
-                                    //}
-                                }
-
-                                cmndLocMapWhs.CommandText = "SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = @locationMapWarehouseFKRefno";
-                                cmndLocMapWhs.CommandType = CommandType.Text;
-                                //cmndLocMapWhs.IndexName = "UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno";
-                                cmndLocMapWhs.Parameters.Add(new SQLiteParameter("@locationMapWarehouseFKRefno", Convert.ToInt32(drow["LocationMapWarehouseFKRefno"])));
-
-                                using (SQLiteDataReader drLocMapWhs = cmndLocMapWhs.ExecuteReader())
-                                {
-                                    locMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, ref errMsg, drLocMapWhs);
-                                    actItemAdjFKRefno = Convert.ToInt32(drow["ActivityItemAdjustmentFKRefno"]);
-
-                                    cmndAdjItem.CommandText = "INSERT INTO tActivityItemAdjustment " +
-                                        "(ActivityItemRefno, " +
-                                        "ActivityItemSubType, " +
-                                        "ActivityItemAdjustmentFKRefno, " +
-                                        "ActivityItemAdjustmentStringFKRefno, " +
-                                        "ProductUnitRefno, " +
-                                        "WarehouseLocationMapRefno, " +
-                                        "ActivityItemAdjustmentQuantity, " +
-                                        "ActivityItemAdjustmentBaseQuantity, " +
-                                        "ActivityItemAdjustmentWeightQuantity, " +
-                                        "ActivityItemAdjustmentDescription) " +
-                                        "VALUES " +
-                                        "(@activityItemRefno, " +
-                                        "@activityItemSubType, " +
-                                        "@activityItemAdjustmentFKRefno, " +
-                                        "@activityItemAdjustmentStringFKRefno, " +
-                                        "@productUnitRefno, " +
-                                        "@warehouseLocationMapRefno, " +
-                                        "@activityItemAdjustmentQuantity, " +
-                                        "@activityItemAdjustmentBaseQuantity, " +
-                                        "@activityItemAdjustmentWeightQuantity, " +
-                                        "@activityItemAdjustmentDescription)";
-                                    cmndAdjItem.CommandType = CommandType.Text;
-                                    //cmndAdjItem.IndexName = "UQ_ActivityItemAdjustmentOnActivityItemAdjustmentFKRefno";
-                                    cmndAdjItem.Parameters.Add(new SQLiteParameter("@activityItemRefno", actItemRefno));
-                                    cmndAdjItem.Parameters.Add(new SQLiteParameter("@activityItemSubType", Convert.ToInt32(SysCommon.ActSubTypes.Adjustment)));
-                                    cmndAdjItem.Parameters.Add(new SQLiteParameter("@productUnitRefno", prodUnitRefno));
-                                    cmndAdjItem.Parameters.Add(new SQLiteParameter("@warehouseLocationMapRefno", locMapRefno));
-
-                                    //rec.SetInt32((int)SysCommon.ActItemAdjFields.ProdUnitRefno, prodUnitRefno);
-                                    //rec.SetInt32((int)SysCommon.ActItemAdjFields.WhsLocMapRefno, locMapRefno);
-                                    //rec.SetInt32((int)SysCommon.ActItemAdjFields.ActItemRefno, actItemRefno);
-                                    //rec.SetInt32((int)SysCommon.ActItemAdjFields.ActItemSubType, Convert.ToInt32(SysCommon.ActSubTypes.Adjustment));
-
-                                    // TODO: Resource strings
-                                    errMsg += Environment.NewLine + "Item fk refno " + actItemAdjFKRefno;
-
-                                    cmndAdjItem.Parameters.Add(new SQLiteParameter("@activityItemAdjustmentFKRefno", actItemAdjFKRefno));
-                                    cmndAdjItem.Parameters.Add(new SQLiteParameter("@activityItemAdjustmentStringFKRefno", Convert.ToString(actItemAdjFKRefno)));
-                                    cmndAdjItem.Parameters.Add(new SQLiteParameter("@activityItemAdjustmentQuantity", Convert.ToDecimal(drow["ActivityItemAdjustmentQuantity"])));
-                                    cmndAdjItem.Parameters.Add(new SQLiteParameter("@activityItemAdjustmentBaseQuantity", Convert.ToDecimal(drow["ActivityItemAdjustmentBaseQuantity"])));
-                                    cmndAdjItem.Parameters.Add(new SQLiteParameter("@activityItemAdjustmentWeightQuantity", Convert.ToDecimal(drow["ActivityItemAdjustmentWeightQuantity"])));
-                                    cmndAdjItem.Parameters.Add(new SQLiteParameter("@activityItemAdjustmentDescription", drow["ActivityItemAdjustmentDescription"].ToString()));
-
-                                    cmndAdjItem.ExecuteNonQuery();
-
-                                    //rec.SetInt32((int)SysCommon.ActItemAdjFields.FKRefno, actItemAdjFKRefno);
-                                    //rec.SetString((int)SysCommon.ActItemAdjFields.StringFKRefno, Convert.ToString(actItemAdjFKRefno));
-                                    //rec.SetDecimal((int)SysCommon.ActItemAdjFields.Quantity, Convert.ToDecimal(drow["ActivityItemAdjustmentQuantity"]));
-                                    //rec.SetDecimal((int)SysCommon.ActItemAdjFields.BaseQuantity, Convert.ToDecimal(drow["ActivityItemAdjustmentBaseQuantity"]));
-                                    //rec.SetDecimal((int)SysCommon.ActItemAdjFields.WeightQuantity, Convert.ToDecimal(drow["ActivityItemAdjustmentWeightQuantity"]));
-                                    //rec.SetString((int)SysCommon.ActItemAdjFields.Description, drow["ActivityItemAdjustmentDescription"].ToString());
-
-                                    //rs.Insert(rec);
-
-                                    progValue++;
-                                    if (progValue % 100 == 0)
-                                    {
-                                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
-                                    }
+                                    this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
                                 }
 
                                 this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);

@@ -46,13 +46,13 @@ namespace dMobile.View
         {
             InitializeComponent();
 
-            // TODO: login title
+            // TODO: Resource strings
             this.Title = "dMobile Login";
-
             this.cmdLogin.Text = Resource.Login;
             this.lblLoginID.Text = Resource.LoginID;
             this.lblLoginPassword.Text = Resource.Password;
             this.lblWarehouse.Text = Resource.Warehouse;
+            this.lstWarehouse.Title = "Select Warehouse";
 
             if (!DesignMode.IsDesignModeEnabled)
             {
@@ -331,7 +331,7 @@ namespace dMobile.View
                 Console.WriteLine("LoginStartup_GotFocus error: " + ex.Message);
             }
 
-            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), (keyPressed) =>
+            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
             {
                 try
                 {
@@ -339,14 +339,14 @@ namespace dMobile.View
 
                     if (keycode == Keycode.Enter)
                     {
-                        if (this.IsReadyToClose())
+                        if (await this.IsReadyToClose())
                         {
                             this.cmdLogin_Click(this, new EventArgs());
                         }
                     }
                     else if (keycode == Keycode.Escape || keycode == Keycode.F1)
                     {
-                        if (this.IsReadyToClose())
+                        if (await this.IsReadyToClose())
                         {
                             //this.CallingControl = new ucMainMenu();
                             this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
@@ -392,7 +392,7 @@ namespace dMobile.View
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool IsReadyToSave()
+        public async Task<bool> IsReadyToSave()
         {
             bool isReadyToSave = true;
             string password = string.Empty;
@@ -460,14 +460,14 @@ namespace dMobile.View
             catch (SQLiteException ex)
             {
                 FormErrorReport errReport = new FormErrorReport(SysCommon.ActSubTypes.LoginStartup, ex);
-                Device.BeginInvokeOnMainThread(async () => await errReport.ShowDialog());
+                await Device.InvokeOnMainThreadAsync(async () => await errReport.ShowDialog());
                 isReadyToSave = false;
 
             }
             catch (Exception ex)
             {
                 FormErrorReport errReport = new FormErrorReport(SysCommon.ActSubTypes.LoginStartup, ex);
-                Device.BeginInvokeOnMainThread(async () => await errReport.ShowDialog());
+                await Device.InvokeOnMainThreadAsync(async () => await errReport.ShowDialog());
                 isReadyToSave = false;
             }
 
@@ -479,7 +479,7 @@ namespace dMobile.View
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool IsReadyToClose()
+        public async Task<bool> IsReadyToClose()
         {
             if (!this.LogInPressed)
             {
@@ -508,7 +508,7 @@ namespace dMobile.View
                         catch (Exception ex)
                         {
                             FormErrorReport errReport = new FormErrorReport(SysCommon.ActSubTypes.LoginStartup, ex);
-                            Device.BeginInvokeOnMainThread(async () => await errReport.ShowDialog());
+                            await Device.InvokeOnMainThreadAsync(async () => await errReport.ShowDialog());
                         }
                     }
                 }
@@ -546,14 +546,14 @@ namespace dMobile.View
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool SaveChanges()
+        public async Task<bool> SaveChanges()
         {
             bool saveComplete = false;
             LocationMap locMap = LocationMap.GetInstance();
 
             try
             {
-                if (this.IsReadyToSave())
+                if (await this.IsReadyToSave())
                 {
                     this.SysEnv.ContactLog.LoginID = int.Parse(this.txtLoginID.Text);
 
@@ -591,7 +591,7 @@ namespace dMobile.View
                         catch (Exception ex)
                         {
                             FormErrorReport errReport = new FormErrorReport(SysCommon.ActSubTypes.LoginStartup, ex);
-                            Device.BeginInvokeOnMainThread(async () => await errReport.ShowDialog());
+                            await Device.InvokeOnMainThreadAsync(async () => await errReport.ShowDialog());
                         }
                     }
 
@@ -617,7 +617,7 @@ namespace dMobile.View
             catch (Exception ex)
             {
                 FormErrorReport errReport = new FormErrorReport(SysCommon.ActSubTypes.LoginStartup, ex);
-                Device.BeginInvokeOnMainThread(async () => await errReport.ShowDialog().ContinueWith(result =>
+                await Device.InvokeOnMainThreadAsync(async () => await errReport.ShowDialog().ContinueWith(result =>
                 {
                         Android.OS.Process.KillProcess(Android.OS.Process.MyPid());
                 }));
@@ -633,13 +633,13 @@ namespace dMobile.View
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool CancelChanges()
+        public async Task<bool> CancelChanges()
         {
             bool cancelChanges = true;
 
             try
             {
-                if (!this.IsReadyToClose())
+                if (!await this.IsReadyToClose())
                 {
                     this.LoadData();
                     cancelChanges = false;
@@ -649,7 +649,7 @@ namespace dMobile.View
             catch (Exception ex)
             {
                 FormErrorReport errReport = new FormErrorReport(SysCommon.ActSubTypes.LoginStartup, ex);
-                errReport.ShowDialog().ContinueWith(result =>
+                await errReport.ShowDialog().ContinueWith(result =>
                 {
                     Android.OS.Process.KillProcess(Android.OS.Process.MyPid());
                 });
@@ -990,11 +990,11 @@ namespace dMobile.View
 
             try
             {
-                await Task.Run(() =>
+                await Task.Run(async () =>
                 {
                     this.ValidateEntry(sender, new CancelEventArgs());
 
-                    if (this.SaveChanges())
+                    if (await this.SaveChanges())
                     {
                         // <WO ID="14734" Comment="Show message after login when data is older than 48 hours" />
                         if (SysEnv == null ||
@@ -1002,7 +1002,7 @@ namespace dMobile.View
                             SysEnv.RefreshOpt.RefreshedDataLast == null ||
                             (DateTime.Now - this.SysEnv.RefreshOpt.RefreshedDataLast).TotalHours > 48)
                         {
-                            Device.BeginInvokeOnMainThread(async () => await DisplayAlert(Resource.RefreshRequired, Resource.DataIsOutOfDatePleaseRefreshImmediately, Resource.OK));
+                            await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(Resource.RefreshRequired, Resource.DataIsOutOfDatePleaseRefreshImmediately, Resource.OK));
                         }
 
                         //this.CallingControl = new ucMainMenu();

@@ -1,12 +1,14 @@
 namespace dMobile.Controller
 {
     using System;
+    using System.Collections.ObjectModel;
     using System.Data;
     using System.Text;
     using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
     using dMobile.Bedrock;
+    using Xamarin.Forms;
 
     public class ConvertUnitActItem : ActItem
     {
@@ -138,32 +140,23 @@ namespace dMobile.Controller
                 rowView["ActivityDetailQuantity"] = schemeData.ActDetailQuantity;
                 rowView["ActivityDetailBaseQuantity"] = schemeData.ActDetailBaseQuantity;
                 rowView["ActivityDetailWeightQuantity"] = schemeData.ActDetailWeightQuantity;
-
-                rowView["ActivityDetailLogisticUnitBestBeforeSellByDate"] =
-                    schemeData.ProdSchemeData.LogisticUnitBestBeforeSellByDate;
-                rowView["ActivityDetailLogisticUnitProductionDate"] =
-                    schemeData.ProdSchemeData.LogisticUnitProductionDate;
-                rowView["ActivityDetailSingleTradeItemSerialNumber"] =
-                    schemeData.ProdSchemeData.SingleTradeItemSerialNumber;
-                rowView["ActivityDetailLogisticUnitBatchLotNumber"] =
-                    schemeData.ProdSchemeData.LogisticUnitBatchLotNumber;
+                rowView["ActivityDetailLogisticUnitBestBeforeSellByDate"] = schemeData.ProdSchemeData.LogisticUnitBestBeforeSellByDate;
+                rowView["ActivityDetailLogisticUnitProductionDate"] = schemeData.ProdSchemeData.LogisticUnitProductionDate;
+                rowView["ActivityDetailSingleTradeItemSerialNumber"] = schemeData.ProdSchemeData.SingleTradeItemSerialNumber;
+                rowView["ActivityDetailLogisticUnitBatchLotNumber"] = schemeData.ProdSchemeData.LogisticUnitBatchLotNumber;
                 rowView["ProductSchemeVariantCode"] = schemeData.ProdSchemeData.VariantCode;
                 rowView["ProductSchemeVariantNumber"] = schemeData.ProdSchemeData.VariantNumber;
-
-                rowView["ActivityDetailSchemeID"] = ProductInfoTasks.GetActSchemeIDFromSProdSchemeData(
-                    this.ProdInfo.Code,
-                    this.ProdInfo.Scheme,
-                    schemeData.ProdSchemeData);
-
-                rowView["ActivityDetailUniqueSchemeID"] = ProductInfoTasks.GetActUniqueSchemeIDFromSProdSchemeData(
-                    this.ProdInfo.Code,
-                    this.ProdInfo.Scheme,
-                    schemeData.ProdSchemeData);
-
+                rowView["ActivityDetailSchemeID"] = ProductInfoTasks.GetActSchemeIDFromSProdSchemeData(this.ProdInfo.Code, this.ProdInfo.Scheme, schemeData.ProdSchemeData);
+                rowView["ActivityDetailUniqueSchemeID"] = ProductInfoTasks.GetActUniqueSchemeIDFromSProdSchemeData(this.ProdInfo.Code, this.ProdInfo.Scheme, schemeData.ProdSchemeData);
                 rowView["ActivityDetailFKRefno"] = this.FKRefno;
                 rowView["ActivityDetailRefno"] = this.Refno;
                 rowView.EndEdit();
             }
+        }
+        
+        public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity, ref ColumnDefinition dataGridWidth)
+        {
+            throw new NotImplementedException();
         }
 
         ///// <summary>
@@ -217,7 +210,7 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="searchText"></param>
         /// <returns></returns>
-        public override DataView Search(string searchText)
+        public override ObservableCollection<object> Search(string searchText)
         {
             throw new NotImplementedException();
         }

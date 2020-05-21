@@ -56,7 +56,7 @@ namespace dMobile.View.Menus
         {
             base.OnAppearing();
 
-            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), (keyPressed) =>
+            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
             {
                 // TODO: Verify keycodes
                 Enum.TryParse(keyPressed, out Keycode keycode);
@@ -64,12 +64,12 @@ namespace dMobile.View.Menus
                 if (keycode == Keycode.Enter)
                 {
                     //this.CallingControl = new ucActivityHdr(SysCommon.ActSubTypes.PhysicalCounts);
-                    ucActivityHdr physicalCountHdr = new ucActivityHdr(SysCommon.ActSubTypes.PhysicalCounts);
-                    Device.BeginInvokeOnMainThread(async () => await physicalCountHdr.Show());
                     this.DisableControls();
                     this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-
                     this.IsControlLoaded = false;
+                    
+                    ucActivityHdr physicalCountHdr = new ucActivityHdr(SysCommon.ActSubTypes.PhysicalCounts);
+                    await physicalCountHdr.Show();
                 }
                 else if (keycode == Keycode.Escape)
                 {
@@ -81,22 +81,22 @@ namespace dMobile.View.Menus
                 else if (keycode == Keycode.Num1)
                 {
                     //this.CallingControl = new ucActivityHdr(SysCommon.ActSubTypes.PhysicalCounts);
-                    ucActivityHdr physicalCountHdr = new ucActivityHdr(SysCommon.ActSubTypes.PhysicalCounts);
-                    Device.BeginInvokeOnMainThread(async () => await physicalCountHdr.Show());
                     this.DisableControls();
                     this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-
                     this.IsControlLoaded = false;
+                    
+                    ucActivityHdr physicalCountHdr = new ucActivityHdr(SysCommon.ActSubTypes.PhysicalCounts);
+                    await physicalCountHdr.Show();
                 }
                 else if (keycode == Keycode.Num2)
                 {
                     //this.CallingControl = new ucActivityHdr(SysCommon.ActSubTypes.CycleCounts);
-                    ucActivityHdr cycleCountHdr = new ucActivityHdr(SysCommon.ActSubTypes.CycleCounts);
-                    Device.BeginInvokeOnMainThread(async () => await cycleCountHdr.Show());
                     this.DisableControls();
                     this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-
                     this.IsControlLoaded = false;
+                    
+                    ucActivityHdr cycleCountHdr = new ucActivityHdr(SysCommon.ActSubTypes.CycleCounts);
+                    await cycleCountHdr.Show();
                 }
             });
 
@@ -331,7 +331,7 @@ namespace dMobile.View.Menus
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool IsReadyToSave()
+        public async Task<bool> IsReadyToSave()
         {
             return true;
         }
@@ -341,7 +341,7 @@ namespace dMobile.View.Menus
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool IsReadyToClose()
+        public async Task<bool> IsReadyToClose()
         {
             return true;
         }
@@ -372,7 +372,7 @@ namespace dMobile.View.Menus
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool SaveChanges()
+        public async Task<bool> SaveChanges()
         {
             return true;
         }
@@ -382,7 +382,7 @@ namespace dMobile.View.Menus
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool CancelChanges()
+        public async Task<bool> CancelChanges()
         {
             return true;
         }
@@ -506,15 +506,15 @@ namespace dMobile.View.Menus
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        private void cmdPhysicalCount_Click(object sender, EventArgs e)
+        private async void cmdPhysicalCount_Click(object sender, EventArgs e)
         {
             //this.CallingControl = new ucActivityHdr(SysCommon.ActSubTypes.PhysicalCounts);
-            ucActivityHdr physicalCountActivityHdr = new ucActivityHdr(SysCommon.ActSubTypes.PhysicalCounts);
-            Device.BeginInvokeOnMainThread(async () => await physicalCountActivityHdr.Show());
             this.DisableControls();
             this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-
             this.IsControlLoaded = false;
+            
+            ucActivityHdr physicalCountActivityHdr = new ucActivityHdr(SysCommon.ActSubTypes.PhysicalCounts);
+            await physicalCountActivityHdr.Show();
         }
 
         /// <summary>
@@ -523,15 +523,15 @@ namespace dMobile.View.Menus
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        private void cmdCycleCount_Click(object sender, EventArgs e)
+        private async void cmdCycleCount_Click(object sender, EventArgs e)
         {
             //this.CallingControl = new ucActivityHdr(SysCommon.ActSubTypes.CycleCounts);
-            ucActivityHdr cycleCountActivityHdr = new ucActivityHdr(SysCommon.ActSubTypes.CycleCounts);
-            Device.BeginInvokeOnMainThread(async () => await cycleCountActivityHdr.Show());
             this.DisableControls();
             this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-
             this.IsControlLoaded = false;
+            
+            ucActivityHdr cycleCountActivityHdr = new ucActivityHdr(SysCommon.ActSubTypes.CycleCounts);
+            await cycleCountActivityHdr.Show();
         }
 
         /// <summary>

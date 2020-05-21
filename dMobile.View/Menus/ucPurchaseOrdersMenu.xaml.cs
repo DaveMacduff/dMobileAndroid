@@ -56,7 +56,7 @@ namespace dMobile.View.Menus
         {
             base.OnAppearing();
 
-            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), (keyPressed) =>
+            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
             {
                 // TODO: Verify keycodes
                 Enum.TryParse(keyPressed, out Keycode keycode);
@@ -65,7 +65,7 @@ namespace dMobile.View.Menus
                 {
                     //this.CallingControl = new ucActivityHdr(SysCommon.ActSubTypes.PurchaseOrderWorkSheet);                            
                     ucActivityHdr worksheet = new ucActivityHdr(SysCommon.ActSubTypes.PurchaseOrderWorkSheet);
-                    Device.BeginInvokeOnMainThread(async () => await worksheet.Show());
+                    await worksheet.Show();
                     this.DisableControls();
                     this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     this.IsControlLoaded = false;
@@ -80,14 +80,16 @@ namespace dMobile.View.Menus
                 else if (keycode == Keycode.Num1)
                 {
                     ucActivityHdr receiving = new ucActivityHdr(SysCommon.ActSubTypes.Receiving);
-                    Device.BeginInvokeOnMainThread(async () => await receiving.Show());
+                    await receiving.Show();
                     this.DisableControls();
                     this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     this.IsControlLoaded = false;
                 }
                 else if (keycode == Keycode.Num2)
                 {
-                    //this.CallingControl = new ucActivitySkidPutAway();
+                    //this.CallingControl = new ucActivitySkidPutAway()
+                    ucActivitySkidPutAway putAway = new ucActivitySkidPutAway();
+                    await putAway.Show();
                     this.DisableControls();
                     this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     this.IsControlLoaded = false;
@@ -96,7 +98,7 @@ namespace dMobile.View.Menus
                 {
                     //this.CallingControl = new ucActivityHdr(SysCommon.ActSubTypes.PurchaseOrderWorkSheet);                    
                     ucActivityHdr worksheet = new ucActivityHdr(SysCommon.ActSubTypes.PurchaseOrderWorkSheet);
-                    Device.BeginInvokeOnMainThread(async () => await worksheet.Show());
+                    await worksheet.Show();
                     this.DisableControls();
                     this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     this.IsControlLoaded = false;
@@ -336,7 +338,7 @@ namespace dMobile.View.Menus
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool IsReadyToSave()
+        public async Task<bool> IsReadyToSave()
         {
             return true;
         }
@@ -346,7 +348,7 @@ namespace dMobile.View.Menus
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool IsReadyToClose()
+        public async Task<bool> IsReadyToClose()
         {
             return true;
         }
@@ -377,7 +379,7 @@ namespace dMobile.View.Menus
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool SaveChanges()
+        public async Task<bool> SaveChanges()
         {
             return true;
         }
@@ -387,7 +389,7 @@ namespace dMobile.View.Menus
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool CancelChanges()
+        public async Task<bool> CancelChanges()
         {
             return true;
         }
@@ -589,14 +591,14 @@ namespace dMobile.View.Menus
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        private void cmdReceiving_Click(object sender, EventArgs e)
+        private async void cmdReceiving_Click(object sender, EventArgs e)
         {
             //this.CallingControl = new ucActivityHdr(SysCommon.ActSubTypes.Receiving);
-            ucActivityHdr receiving = new ucActivityHdr(SysCommon.ActSubTypes.Receiving);
-            Device.BeginInvokeOnMainThread(async () => await receiving.Show());
             this.DisableControls();
             this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
             this.IsControlLoaded = false;
+            ucActivityHdr receiving = new ucActivityHdr(SysCommon.ActSubTypes.Receiving);
+            await receiving.Show();
         }
 
         /// <summary>
@@ -605,12 +607,14 @@ namespace dMobile.View.Menus
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        private void cmdPutAway_Click(object sender, EventArgs e)
+        private async void cmdPutAway_Click(object sender, EventArgs e)
         {
             //this.CallingControl = new ucActivitySkidPutAway();
             this.DisableControls();
             this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
             this.IsControlLoaded = false;
+            ucActivitySkidPutAway putAway = new ucActivitySkidPutAway();
+            await putAway.Show();
         }
 
         /// <summary>
@@ -619,14 +623,14 @@ namespace dMobile.View.Menus
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        private void cmdWorkSheet_Click(object sender, EventArgs e)
+        private async void cmdWorkSheet_Click(object sender, EventArgs e)
         {
             //this.CallingControl = new ucActivityPurchaseOrderWorkSheet(SysCommon.ActSubTypes.PurchaseOrderWorkSheet);                    
-            ucActivityPurchaseOrderWorkSheet worksheet = new ucActivityPurchaseOrderWorkSheet(SysCommon.ActSubTypes.PurchaseOrderWorkSheet);        
-            Device.BeginInvokeOnMainThread(async () => await worksheet.Show());
             this.DisableControls();
             this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
             this.IsControlLoaded = false;
+            ucActivityPurchaseOrderWorkSheet worksheet = new ucActivityPurchaseOrderWorkSheet(SysCommon.ActSubTypes.PurchaseOrderWorkSheet);        
+            await worksheet.Show();
         }
 
         #endregion

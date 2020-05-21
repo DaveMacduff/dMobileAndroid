@@ -258,7 +258,6 @@
         /// <param name="dataTableSlotList">The dataTableSlotList<see cref="DataTable"/></param>
         public static void GetSlotCoordList(int coordinateEnum, ref DataTable dataTableSlotList)
         {
-
             using (SQLiteCommand cmd = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
             {
                 cmd.CommandType = CommandType.Text;

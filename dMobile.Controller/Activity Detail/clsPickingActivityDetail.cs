@@ -1,6 +1,7 @@
 namespace dMobile.Controller
 {
     using System;
+    using System.Collections.ObjectModel;
     using System.Data;
     using System.Data.SQLite;
     using System.Text;
@@ -8,6 +9,8 @@ namespace dMobile.Controller
     using System.Xml.Linq;
     using dMobile.Bedrock;
     using dMobile.GroundWork;
+    using dMobile.Resources.Types;
+    using Xamarin.Forms;
 
     public class PickingActDetail : ActDetail
     {
@@ -445,7 +448,7 @@ namespace dMobile.Controller
                 sql.Append("tActivityDetailExtra.ActivityDetailExtra2Text AS ActivityDetailExtra2Text,");
                 sql.Append("tActivityDetailExtra.ActivityDetailExtra3Text AS ActivityDetailExtra3Text,");
                 sql.Append("tActivityDetailExtra.ActivityDetailExtra4Text AS ActivityDetailExtra4Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra5Text AS ActivityDetailExtra5Text ");
+                sql.Append("tActivityDetailExtra.ActivityDetailExtra5Date AS ActivityDetailExtra5Date ");
                 sql.Append("FROM tActivityDetailPicking ");
                 sql.Append("INNER JOIN tActivityDetail ON tActivityDetail.ActivityDetailRefno ");
                 sql.Append("= tActivityDetailPicking.ActivityDetailRefno ");
@@ -504,7 +507,7 @@ namespace dMobile.Controller
                 sql.Append("tActivityDetailExtra.ActivityDetailExtra2Text,");
                 sql.Append("tActivityDetailExtra.ActivityDetailExtra3Text,");
                 sql.Append("tActivityDetailExtra.ActivityDetailExtra4Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra5Text ");
+                sql.Append("tActivityDetailExtra.ActivityDetailExtra5Date ");
                 sql.Append("FROM tActivityDetailPicking ");
                 sql.Append("INNER JOIN tActivityDetail ON tActivityDetail.ActivityDetailRefno ");
                 sql.Append("= tActivityDetailPicking.ActivityDetailRefno ");
@@ -563,7 +566,7 @@ namespace dMobile.Controller
                 sql.Append("tActivityDetailExtra.ActivityDetailExtra2Text,");
                 sql.Append("tActivityDetailExtra.ActivityDetailExtra3Text,");
                 sql.Append("tActivityDetailExtra.ActivityDetailExtra4Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra5Text ");
+                sql.Append("tActivityDetailExtra.ActivityDetailExtra5Date ");
                 sql.Append("FROM tActivityDetailPicking ");
                 sql.Append("INNER JOIN tActivityDetail ON tActivityDetail.ActivityDetailRefno ");
                 sql.Append("= tActivityDetailPicking.ActivityDetailRefno ");
@@ -625,7 +628,7 @@ namespace dMobile.Controller
                 sql.Append("tActivityDetailExtra.ActivityDetailExtra2Text AS ActivityDetailExtra2Text,");
                 sql.Append("tActivityDetailExtra.ActivityDetailExtra3Text AS ActivityDetailExtra3Text,");
                 sql.Append("tActivityDetailExtra.ActivityDetailExtra4Text AS ActivityDetailExtra4Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra5Text AS ActivityDetailExtra5Text ");
+                sql.Append("tActivityDetailExtra.ActivityDetailExtra5Date AS ActivityDetailExtra5Date ");
                 sql.Append("FROM tActivityDetailPicking ");
                 sql.Append("INNER JOIN tActivityDetail ON tActivityDetail.ActivityDetailRefno ");
                 sql.Append("= tActivityDetailPicking.ActivityDetailRefno ");
@@ -683,7 +686,7 @@ namespace dMobile.Controller
                 sql.Append("tActivityDetailExtra.ActivityDetailExtra2Text,");
                 sql.Append("tActivityDetailExtra.ActivityDetailExtra3Text,");
                 sql.Append("tActivityDetailExtra.ActivityDetailExtra4Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra5Text ");
+                sql.Append("tActivityDetailExtra.ActivityDetailExtra5Date ");
                 sql.Append("FROM tActivityDetailPicking ");
                 sql.Append("INNER JOIN tActivityDetail ON tActivityDetail.ActivityDetailRefno ");
                 sql.Append("= tActivityDetailPicking.ActivityDetailRefno ");
@@ -741,7 +744,7 @@ namespace dMobile.Controller
                 sql.Append("tActivityDetailExtra.ActivityDetailExtra2Text,");
                 sql.Append("tActivityDetailExtra.ActivityDetailExtra3Text,");
                 sql.Append("tActivityDetailExtra.ActivityDetailExtra4Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra5Text ");
+                sql.Append("tActivityDetailExtra.ActivityDetailExtra5Date ");
                 sql.Append("FROM tActivityDetailPicking ");
                 sql.Append("INNER JOIN tActivityDetail ON tActivityDetail.ActivityDetailRefno ");
                 sql.Append("= tActivityDetailPicking.ActivityDetailRefno ");
@@ -776,140 +779,282 @@ namespace dMobile.Controller
             return this.DataViewDetails;
         }
 
-//        /// <summary>
-//        ///
-//        /// </summary>
-//        /// <param name="dataGridMain"></param>
-//        /// <remarks></remarks>
-//        public override void DesignDataGrid(DataGrid dataGridMain)
-//        {
-//            int colWidthFactor = 1;
+        public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity, ref ColumnDefinition dataGridWidth)
+        {
+            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
-//            if (SysEnv.IsWindowsMobile6Device)
-//            {
-//                colWidthFactor = 2;
-//            }
+            // Header grid
+            Grid gridHeaderPicking = new Grid
+            {
+                Padding = new Thickness(5),
+                ColumnDefinitions =
+                {
+                    new ColumnDefinition { Width = GridLength.Star },
+                    new ColumnDefinition { Width = GridLength.Star },
+                    new ColumnDefinition { Width = GridLength.Star },
+                    new ColumnDefinition { Width = new GridLength(4, GridUnitType.Star) },
+                }
+            };
 
-//            if (dataGridMain.TableStyles.Count > 0)
-//            {
-//                dataGridMain.TableStyles.Clear();
-//            }
+            gridHeaderPicking.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
 
-//            DataGridTableStyle dataGridStyle = new DataGridTableStyle();
-//            dataGridStyle.MappingName = this.MainGridMappingName;
-//            DataGridTextBoxColumn dataGridCol = null;
+            // TODO: Resource strings
+            Label labelPickingQuantityHeader = new Label { Text = "Qty", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
+            Label labelPickingWeightQuantityHeader = new Label { Text = "Weight", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
+            Label labelPickingUnitCodeHeader = new Label { Text = " ", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
+            Label labelPickingSchemeIDHeader = new Label { Text = "Scheme ID", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
 
-//            if (this.SysEnv.SysSettings.IsPickConfirmDet)
-//            {
-//                CustomColumnStyle colStyle = null;
-//                colStyle = new CustomColumnStyle(0);
-//                colStyle.MappingName = "ActivityDetailIsConfirmedString";
-//                colStyle.HeaderText = "C";
-//                colStyle.Width = Convert.ToInt32(12 * colWidthFactor);
-//                dataGridStyle.GridColumnStyles.Add(colStyle);
-//            }
+            gridHeaderPicking.Children.Add(labelPickingQuantityHeader);
+            gridHeaderPicking.Children.Add(labelPickingWeightQuantityHeader);
+            gridHeaderPicking.Children.Add(labelPickingUnitCodeHeader);
+            gridHeaderPicking.Children.Add(labelPickingSchemeIDHeader);
 
-//            // WO# 11681 Heritage Foods Grid Layout
-//            if (this.SysEnv.SysSettings.PickDetGridDesignLayout == 1)
-//            {
-//                dataGridCol = new DataGridTextBoxColumn();
-//                dataGridCol.MappingName = "ActivityDetailQuantity";
-//#if MULTILANGUAGE
-//        dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Qtyzzz);
-//#else
-//                dataGridCol.HeaderText = "Qty";
-//#endif
-//                dataGridCol.Width = (int)(50 * colWidthFactor);
-//                dataGridCol.Format = "0.000";
-//                dataGridStyle.GridColumnStyles.Add(dataGridCol);
+            Grid.SetColumn(labelPickingQuantityHeader, 0);
+            Grid.SetColumn(labelPickingWeightQuantityHeader, 1);
+            Grid.SetColumn(labelPickingUnitCodeHeader, 2);
+            Grid.SetColumn(labelPickingSchemeIDHeader, 3);
 
-//                dataGridCol = new DataGridTextBoxColumn();
-//                dataGridCol.MappingName = "ActivityDetailLogisticUnitSkidNumber";
-//#if MULTILANGUAGE
-//        dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Skidzz);
-//#else
-//                dataGridCol.HeaderText = "Skid";
-//#endif
-//                dataGridCol.Width = (int)(50 * colWidthFactor);
-//                dataGridStyle.GridColumnStyles.Add(dataGridCol);
+            Grid.SetRow(gridHeaderPicking, 0);
 
-//                dataGridCol = new DataGridTextBoxColumn();
-//                dataGridCol.MappingName = "LocationName";
-//#if MULTILANGUAGE
-//        dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Slot);
-//#else
-//                dataGridCol.HeaderText = "Slot";
-//#endif
-//                dataGridCol.Width = (int)(50 * colWidthFactor);
-//                dataGridStyle.GridColumnStyles.Add(dataGridCol);
+            dataGridMainActivityHeader.Children.Add(gridHeaderPicking);
 
-//                dataGridCol = new DataGridTextBoxColumn();
-//                dataGridCol.MappingName = "ActivityDetailLogisticUnitBestBeforeSellByDate";
-//#if MULTILANGUAGE
-//        dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.BestBefore);
-//#else
-//                dataGridCol.HeaderText = "Best Before";
-//#endif
-//                dataGridCol.Width = (int)(60 * colWidthFactor);
-//                dataGridStyle.GridColumnStyles.Add(dataGridCol);
-//            }
-//            else
-//            {
-//                dataGridCol = new DataGridTextBoxColumn();
-//                dataGridCol.MappingName = "ActivityDetailQuantity";
-//#if MULTILANGUAGE
-//        dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Qtyzzz);
-//#else
-//                dataGridCol.HeaderText = "Qty";
-//#endif
-//                dataGridCol.Width = (int)(50 * colWidthFactor);
-//                dataGridCol.Format = "0.000";
-//                dataGridStyle.GridColumnStyles.Add(dataGridCol);
+            // Data grid
+            DataTemplate dataTemplatePicking = new DataTemplate(() =>
+            {
+                Grid gridData = new Grid
+                {
+                    Padding = new Thickness(5),
+                    ColumnDefinitions =
+                    {
+                        new ColumnDefinition { Width = GridLength.Star },
+                        new ColumnDefinition { Width = GridLength.Star },
+                        new ColumnDefinition { Width = GridLength.Star },
+                        new ColumnDefinition { Width = new GridLength(4, GridUnitType.Star) },
+                    }
+                };
 
-//                dataGridCol = new DataGridTextBoxColumn();
-//                dataGridCol.MappingName = "ActivityDetailWeightQuantity";
-//#if MULTILANGUAGE
-//        dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Weight);
-//#else
-//                dataGridCol.HeaderText = "Weight";
-//#endif
-//                dataGridCol.Width = (int)(55 * colWidthFactor);
-//                dataGridCol.Format = "0.000";
-//                dataGridStyle.GridColumnStyles.Add(dataGridCol);
+                Label labelPickingQuantity = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                Label labelPickingWeightQuantity = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                Label labelPickingUnitCode = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                Label labelPickingSchemeID = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
 
-//                dataGridCol = new DataGridTextBoxColumn();
-//                dataGridCol.MappingName = "UnitCode";
-//                dataGridCol.HeaderText = string.Empty;
-//                dataGridCol.Width = (int)(30 * colWidthFactor);
-//                dataGridStyle.GridColumnStyles.Add(dataGridCol);
+                labelPickingQuantity.SetBinding(Label.TextProperty, new Binding("ActivityDetailQuantity", BindingMode.Default, null, null, "{0:F3}"));
+                labelPickingWeightQuantity.SetBinding(Label.TextProperty, new Binding("ActivityDetailWeightQuantity", BindingMode.Default, null, null, "{0:F3}"));
+                labelPickingUnitCode.SetBinding(Label.TextProperty, new Binding("UnitCode"));
+                labelPickingSchemeID.SetBinding(Label.TextProperty, new Binding("ActivityDetailSchemeID"));
 
-//                dataGridCol = new DataGridTextBoxColumn();
-//                dataGridCol.MappingName = "ActivityDetailSchemeID";
-//#if MULTILANGUAGE
-//        dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.SchemeId);
-//#else
-//                dataGridCol.HeaderText = "Scheme ID";
-//#endif
-//                dataGridCol.Width = (int)(500 * colWidthFactor);
-//                dataGridStyle.GridColumnStyles.Add(dataGridCol);
-//            }
+                gridData.Children.Add(labelPickingQuantity);
+                gridData.Children.Add(labelPickingWeightQuantity);
+                gridData.Children.Add(labelPickingUnitCode);
+                gridData.Children.Add(labelPickingSchemeID);
 
-//            dataGridMain.TableStyles.Add(dataGridStyle);
-//            dataGridMain.RowHeadersVisible = false;
-//            dataGridMain.ColumnHeadersVisible = true;
-//        }
+                Grid.SetColumn(labelPickingQuantity, 0);
+                Grid.SetColumn(labelPickingWeightQuantity, 1);
+                Grid.SetColumn(labelPickingUnitCode, 2);
+                Grid.SetColumn(labelPickingSchemeID, 3);
+
+                return new ViewCell { View = gridData };
+            });
+
+            dataGridMainActivity.ItemTemplate = dataTemplatePicking;
+            observableCollection.Clear();
+
+            foreach (DataRow row in this.DataViewDetails.ToTable().Rows)
+            {
+                PickingDetail pickingDetail = new PickingDetail
+                {
+                    ActivityDetailRefno = Convert.ToInt32(row["ActivityDetailRefno"] != DBNull.Value ? row["ActivityDetailRefno"] : null),
+                    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
+                    ActivityDetailPickingFKRefno = Convert.ToInt32(row["ActivityDetailPickingFKRefno"] != DBNull.Value ? row["ActivityDetailPickingFKRefno"] : null),
+                    UnitCode = Convert.ToString(row["UnitCode"] != DBNull.Value ? row["UnitCode"] : null),
+                    WtUnitCode = Convert.ToString(row["WtUnitCode"] != DBNull.Value ? row["WtUnitCode"] : null),
+                    BaseUnitCode = Convert.ToString(row["BaseUnitCode"] != DBNull.Value ? row["BaseUnitCode"] : null),
+                    ProductCode = Convert.ToString(row["ProductCode"] != DBNull.Value ? row["ProductCode"] : null),
+                    ProductRefno = Convert.ToInt32(row["ProductRefno"] != DBNull.Value ? row["ProductRefno"] : null),
+                    ProductDescription = Convert.ToString(row["ProductDescription"] != DBNull.Value ? row["ProductDescription"] : null),
+                    ProductBrandDescription = Convert.ToString(row["ProductBrandDescription"] != DBNull.Value ? row["ProductBrandDescription"] : null),
+                    ProductUnitBC = Convert.ToString(row["ProductUnitBC"] != DBNull.Value ? row["ProductUnitBC"] : null),
+                    ProductUnitIsBC = Convert.ToBoolean(row["ProductUnitIsBC"] != DBNull.Value ? row["ProductUnitIsBC"] : null),
+                    ProductUnitSizeDescription = Convert.ToString(row["ProductUnitSizeDescription"] != DBNull.Value ? row["ProductUnitSizeDescription"] : null),
+                    ActivityDetailQuantity = Convert.ToDecimal(row["ActivityDetailQuantity"] != DBNull.Value ? row["ActivityDetailQuantity"] : null),
+                    ActivityDetailBaseQuantity = Convert.ToDecimal(row["ActivityDetailBaseQuantity"] != DBNull.Value ? row["ActivityDetailBaseQuantity"] : null),
+                    ActivityDetailWeightQuantity = Convert.ToDecimal(row["ActivityDetailWeightQuantity"] != DBNull.Value ? row["ActivityDetailWeightQuantity"] : null),
+                    ActivityDetailLogisticUnitBestBeforeSellByDate = Convert.ToDateTime(row["ActivityDetailLogisticUnitBestBeforeSellByDate"] != DBNull.Value ? row["ActivityDetailLogisticUnitBestBeforeSellByDate"] : null),
+                    ActivityDetailSchemeID = Convert.ToString(row["ActivityDetailSchemeID"] != DBNull.Value ? row["ActivityDetailSchemeID"] : null),
+                    ActivityDetailUniqueSchemeID = Convert.ToString(row["ActivityDetailUniqueSchemeID"] != DBNull.Value ? row["ActivityDetailUniqueSchemeID"] : null),
+                    ActivityDetailSingleTradeItemSerialNumber = Convert.ToString(row["ActivityDetailSingleTradeItemSerialNumber"] != DBNull.Value ? row["ActivityDetailSingleTradeItemSerialNumber"] : null),
+                    ActivityDetailLogisticUnitBatchLotNumber = Convert.ToString(row["ActivityDetailLogisticUnitBatchLotNumber"] != DBNull.Value ? row["ActivityDetailLogisticUnitBatchLotNumber"] : null),
+                    ActivityDetailLogisticUnitExpiryUseByDate = Convert.ToDateTime(row["ActivityDetailLogisticUnitExpiryUseByDate"] != DBNull.Value ? row["ActivityDetailLogisticUnitExpiryUseByDate"] : null),
+                    ActivityDetailLogisticUnitProductionDate = Convert.ToDateTime(row["ActivityDetailLogisticUnitProductionDate"] != DBNull.Value ? row["ActivityDetailLogisticUnitProductionDate"] : null),
+                    ActivityDetailLogisticUnitSkidNumber = Convert.ToString(row["ActivityDetailLogisticUnitSkidNumber"] != DBNull.Value ? row["ActivityDetailLogisticUnitSkidNumber"] : null),
+                    LocationCode = Convert.ToInt32(row["LocationCode"] != DBNull.Value ? row["LocationCode"] : null),
+                    LocationName = Convert.ToString(row["LocationName"] != DBNull.Value ? row["LocationName"] : null),
+                    Location = Convert.ToString(row["Location"] != DBNull.Value ? row["Location"] : null),
+                    ProductSchemeVariantCode = Convert.ToString(row["ProductSchemeVariantCode"] != DBNull.Value ? row["ProductSchemeVariantCode"] : null),
+                    ProductSchemeVariantNo = Convert.ToInt32(row["ProductSchemeVariantNo"] != DBNull.Value ? row["ProductSchemeVariantNo"] : null),
+                    ProductSchemeVariantDescription = Convert.ToString(row["ProductSchemeVariantDescription"] != DBNull.Value ? row["ProductSchemeVariantDescription"] : null),
+                    ActivityDetailStatus = Convert.ToInt32(row["ActivityDetailStatus"] != DBNull.Value ? row["ActivityDetailStatus"] : null),
+                    ActivityDetailIsConfirmed = Convert.ToBoolean(row["ActivityDetailIsConfirmed"] != DBNull.Value ? row["ActivityDetailIsConfirmed"] : null),
+                    ActivityDetailIsConfirmedString = Convert.ToString(row["ActivityDetailIsConfirmedString"] != DBNull.Value ? row["ActivityDetailIsConfirmedString"] : null),
+                    ActivityDetailExtra1Text = Convert.ToString(row["ActivityDetailExtra1Text"] != DBNull.Value ? row["ActivityDetailExtra1Text"] : null),
+                    ActivityDetailExtra2Text = Convert.ToString(row["ActivityDetailExtra2Text"] != DBNull.Value ? row["ActivityDetailExtra2Text"] : null),
+                    ActivityDetailExtra3Text = Convert.ToString(row["ActivityDetailExtra3Text"] != DBNull.Value ? row["ActivityDetailExtra3Text"] : null),
+                    ActivityDetailExtra4Text = Convert.ToString(row["ActivityDetailExtra4Text"] != DBNull.Value ? row["ActivityDetailExtra4Text"] : null),
+                    ActivityDetailExtra5Date = Convert.ToDateTime(row["ActivityDetailExtra5Date"] != DBNull.Value ? row["ActivityDetailExtra5Date"] : null)
+                };
+
+                observableCollection.Add(pickingDetail);
+            }
+
+            return observableCollection;
+        }
+
+        //        /// <summary>
+        //        ///
+        //        /// </summary>
+        //        /// <param name="dataGridMain"></param>
+        //        /// <remarks></remarks>
+        //        public override void DesignDataGrid(DataGrid dataGridMain)
+        //        {
+        //            int colWidthFactor = 1;
+
+        //            if (SysEnv.IsWindowsMobile6Device)
+        //            {
+        //                colWidthFactor = 2;
+        //            }
+
+        //            if (dataGridMain.TableStyles.Count > 0)
+        //            {
+        //                dataGridMain.TableStyles.Clear();
+        //            }
+
+        //            DataGridTableStyle dataGridStyle = new DataGridTableStyle();
+        //            dataGridStyle.MappingName = this.MainGridMappingName;
+        //            DataGridTextBoxColumn dataGridCol = null;
+
+        //            if (this.SysEnv.SysSettings.IsPickConfirmDet)
+        //            {
+        //                CustomColumnStyle colStyle = null;
+        //                colStyle = new CustomColumnStyle(0);
+        //                colStyle.MappingName = "ActivityDetailIsConfirmedString";
+        //                colStyle.HeaderText = "C";
+        //                colStyle.Width = Convert.ToInt32(12 * colWidthFactor);
+        //                dataGridStyle.GridColumnStyles.Add(colStyle);
+        //            }
+
+        //            // WO# 11681 Heritage Foods Grid Layout
+        //            if (this.SysEnv.SysSettings.PickDetGridDesignLayout == 1)
+        //            {
+        //                dataGridCol = new DataGridTextBoxColumn();
+        //                dataGridCol.MappingName = "ActivityDetailQuantity";
+        //#if MULTILANGUAGE
+        //        dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Qtyzzz);
+        //#else
+        //                dataGridCol.HeaderText = "Qty";
+        //#endif
+        //                dataGridCol.Width = (int)(50 * colWidthFactor);
+        //                dataGridCol.Format = "0.000";
+        //                dataGridStyle.GridColumnStyles.Add(dataGridCol);
+
+        //                dataGridCol = new DataGridTextBoxColumn();
+        //                dataGridCol.MappingName = "ActivityDetailLogisticUnitSkidNumber";
+        //#if MULTILANGUAGE
+        //        dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Skidzz);
+        //#else
+        //                dataGridCol.HeaderText = "Skid";
+        //#endif
+        //                dataGridCol.Width = (int)(50 * colWidthFactor);
+        //                dataGridStyle.GridColumnStyles.Add(dataGridCol);
+
+        //                dataGridCol = new DataGridTextBoxColumn();
+        //                dataGridCol.MappingName = "LocationName";
+        //#if MULTILANGUAGE
+        //        dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Slot);
+        //#else
+        //                dataGridCol.HeaderText = "Slot";
+        //#endif
+        //                dataGridCol.Width = (int)(50 * colWidthFactor);
+        //                dataGridStyle.GridColumnStyles.Add(dataGridCol);
+
+        //                dataGridCol = new DataGridTextBoxColumn();
+        //                dataGridCol.MappingName = "ActivityDetailLogisticUnitBestBeforeSellByDate";
+        //#if MULTILANGUAGE
+        //        dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.BestBefore);
+        //#else
+        //                dataGridCol.HeaderText = "Best Before";
+        //#endif
+        //                dataGridCol.Width = (int)(60 * colWidthFactor);
+        //                dataGridStyle.GridColumnStyles.Add(dataGridCol);
+        //            }
+        //            else
+        //            {
+        //                dataGridCol = new DataGridTextBoxColumn();
+        //                dataGridCol.MappingName = "ActivityDetailQuantity";
+        //#if MULTILANGUAGE
+        //        dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Qtyzzz);
+        //#else
+        //                dataGridCol.HeaderText = "Qty";
+        //#endif
+        //                dataGridCol.Width = (int)(50 * colWidthFactor);
+        //                dataGridCol.Format = "0.000";
+        //                dataGridStyle.GridColumnStyles.Add(dataGridCol);
+
+        //                dataGridCol = new DataGridTextBoxColumn();
+        //                dataGridCol.MappingName = "ActivityDetailWeightQuantity";
+        //#if MULTILANGUAGE
+        //        dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Weight);
+        //#else
+        //                dataGridCol.HeaderText = "Weight";
+        //#endif
+        //                dataGridCol.Width = (int)(55 * colWidthFactor);
+        //                dataGridCol.Format = "0.000";
+        //                dataGridStyle.GridColumnStyles.Add(dataGridCol);
+
+        //                dataGridCol = new DataGridTextBoxColumn();
+        //                dataGridCol.MappingName = "UnitCode";
+        //                dataGridCol.HeaderText = string.Empty;
+        //                dataGridCol.Width = (int)(30 * colWidthFactor);
+        //                dataGridStyle.GridColumnStyles.Add(dataGridCol);
+
+        //                dataGridCol = new DataGridTextBoxColumn();
+        //                dataGridCol.MappingName = "ActivityDetailSchemeID";
+        //#if MULTILANGUAGE
+        //        dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.SchemeId);
+        //#else
+        //                dataGridCol.HeaderText = "Scheme ID";
+        //#endif
+        //                dataGridCol.Width = (int)(500 * colWidthFactor);
+        //                dataGridStyle.GridColumnStyles.Add(dataGridCol);
+        //            }
+
+        //            dataGridMain.TableStyles.Add(dataGridStyle);
+        //            dataGridMain.RowHeadersVisible = false;
+        //            dataGridMain.ColumnHeadersVisible = true;
+        //        }
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="searchText"></param>
         /// <returns></returns>
-        public override DataView Search(string searchText)
+        public override ObservableCollection<object> Search(string searchText)
         {
+            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+
             string fieldName = "ActivityPickingStringFKRefno";
             this.DataViewDetails.RowFilter = fieldName + " LIKE \'%" + searchText.Trim() + "%\'";
 
-            return this.DataViewDetails;
+            // TODO: search
+            //foreach (DataRow row in this.DataViewHdrs.ToTable().Rows)
+            //{
+            //    ObjectType objectType = new ObjectType
+            //    {
+            //    };
+
+            //    observableCollection.Add(objectType);
+            //}
+
+            return observableCollection;
         }
 
         /// <summary>
@@ -930,7 +1075,7 @@ namespace dMobile.Controller
                 this.ActExtra.Text2 = Convert.ToString(this.DataViewDetails[idx]["ActivityDetailExtra2Text"]);
                 this.ActExtra.Text3 = Convert.ToString(this.DataViewDetails[idx]["ActivityDetailExtra3Text"]);
                 this.ActExtra.Text4 = Convert.ToString(this.DataViewDetails[idx]["ActivityDetailExtra4Text"]);
-                this.ActExtra.Text5 = Convert.ToString(this.DataViewDetails[idx]["ActivityDetailExtra5Text"]);
+                this.ActExtra.DateTime5 = Convert.ToDateTime(this.DataViewDetails[idx]["ActivityDetailExtra5Date"]);
             }
             else
             {
@@ -1005,7 +1150,7 @@ namespace dMobile.Controller
                         + ("<extra2>" + this.ActExtra.Text2 + "</extra2>")
                         + ("<extra3>" + this.ActExtra.Text3 + "</extra3>")
                         + ("<extra4>" + this.ActExtra.Text4 + "</extra4>")
-                        + ("<extra5>" + this.ActExtra.Text5 + "</extra5>")
+                        + ("<extra5>" + this.ActExtra.DateTime5 + "</extra5>")
                         + "</imclient>");
                 }
             }
@@ -1067,7 +1212,7 @@ namespace dMobile.Controller
                         + ("<extra2>" + this.ActExtra.Text2 + "</extra2>")
                         + ("<extra3>" + this.ActExtra.Text3 + "</extra3>")
                         + ("<extra4>" + this.ActExtra.Text4 + "</extra4>")
-                        + ("<extra5>" + this.ActExtra.Text5 + "</extra5>")
+                        + ("<extra5>" + this.ActExtra.DateTime5 + "</extra5>")
                         + "</imclient>");
                 }
             }

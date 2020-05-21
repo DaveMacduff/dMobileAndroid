@@ -1,6 +1,7 @@
 namespace dMobile.Controller
 {
     using System;
+    using System.Collections.ObjectModel;
     using System.Data;
     using System.Data.SQLite;
     using System.Text;
@@ -10,6 +11,7 @@ namespace dMobile.Controller
     using dMobile.Bedrock;
     using dMobile.GroundWork;
     using dMobile.Resources.Enums;
+    using dMobile.Resources.Types;
     using Xamarin.Forms;
 
     public class PhysicalActItem : ActItem
@@ -316,6 +318,147 @@ namespace dMobile.Controller
                 tableItem.Request(this.ActHdr.Refno);
                 tableItem.UnregisterDataAccessListenerProgressOut((PhysicalActItem)this);
             }
+        }
+
+        public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity, ref ColumnDefinition dataGridWidth)
+        {
+            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+
+            Grid gridHeaderPhysicalCount = new Grid
+            {
+                Padding = new Thickness(5),
+                VerticalOptions = LayoutOptions.FillAndExpand,
+                HorizontalOptions = LayoutOptions.FillAndExpand,
+                ColumnSpacing = 15,
+                ColumnDefinitions =
+                {
+                    new ColumnDefinition { Width = new GridLength(15, GridUnitType.Star) },
+                    new ColumnDefinition { Width = new GridLength(5, GridUnitType.Star) },
+                    new ColumnDefinition { Width = new GridLength(5, GridUnitType.Star) },
+                    new ColumnDefinition { Width = new GridLength(20, GridUnitType.Star) },
+                    new ColumnDefinition { Width = new GridLength(20, GridUnitType.Star) },
+                    new ColumnDefinition { Width = new GridLength(20, GridUnitType.Star) }
+                }
+            };
+
+            gridHeaderPhysicalCount.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
+
+            // TODO: Resource strings
+            Label labelPhysicalCountCode = new Label { Text = "Code", VerticalOptions = LayoutOptions.CenterAndExpand, HorizontalOptions = LayoutOptions.FillAndExpand, FontAttributes = FontAttributes.Bold };
+            Label labelPhysicalCountBC = new Label { Text = "BC", VerticalOptions = LayoutOptions.CenterAndExpand, HorizontalOptions = LayoutOptions.FillAndExpand, FontAttributes = FontAttributes.Bold };
+            Label labelPhysicalCountUnit = new Label { Text = "", VerticalOptions = LayoutOptions.CenterAndExpand, HorizontalOptions = LayoutOptions.FillAndExpand, FontAttributes = FontAttributes.Bold };
+            Label labelPhysicalCountOnHand = new Label { Text = "On Hand", VerticalOptions = LayoutOptions.CenterAndExpand, HorizontalOptions = LayoutOptions.FillAndExpand, FontAttributes = FontAttributes.Bold };
+            Label labelPhysicalCountCounted = new Label { Text = "Counted", VerticalOptions = LayoutOptions.CenterAndExpand, HorizontalOptions = LayoutOptions.FillAndExpand, FontAttributes = FontAttributes.Bold };
+            Label labelPhysicalCountWtOn = new Label { Text = "Wt On", VerticalOptions = LayoutOptions.CenterAndExpand, HorizontalOptions = LayoutOptions.FillAndExpand, FontAttributes = FontAttributes.Bold };
+
+            // Add labels to grid
+            gridHeaderPhysicalCount.Children.Add(labelPhysicalCountCode);
+            gridHeaderPhysicalCount.Children.Add(labelPhysicalCountBC);
+            gridHeaderPhysicalCount.Children.Add(labelPhysicalCountUnit);
+            gridHeaderPhysicalCount.Children.Add(labelPhysicalCountOnHand);
+            gridHeaderPhysicalCount.Children.Add(labelPhysicalCountCounted);
+            gridHeaderPhysicalCount.Children.Add(labelPhysicalCountWtOn);
+
+            // Set label columns
+            Grid.SetColumn(labelPhysicalCountCode, 0);
+            Grid.SetColumn(labelPhysicalCountBC, 1);
+            Grid.SetColumn(labelPhysicalCountUnit, 2);
+            Grid.SetColumn(labelPhysicalCountOnHand, 3);
+            Grid.SetColumn(labelPhysicalCountCounted, 4);
+            Grid.SetColumn(labelPhysicalCountWtOn, 5);
+
+            Grid.SetRow(gridHeaderPhysicalCount, 0);
+
+            dataGridMainActivityHeader.Children.Add(gridHeaderPhysicalCount);
+
+            // Create item template
+            DataTemplate dataTemplatePhysicalCount = new DataTemplate(() =>
+            {
+                Grid gridData = new Grid
+                {
+                    VerticalOptions = LayoutOptions.FillAndExpand,
+                    HorizontalOptions = LayoutOptions.FillAndExpand,
+                    Padding = new Thickness(5),
+                    ColumnSpacing = 15,
+                    ColumnDefinitions =
+                    {
+                        new ColumnDefinition { Width = new GridLength(15, GridUnitType.Star) },
+                        new ColumnDefinition { Width = new GridLength(5, GridUnitType.Star) },
+                        new ColumnDefinition { Width = new GridLength(5, GridUnitType.Star) },
+                        new ColumnDefinition { Width = new GridLength(20, GridUnitType.Star) },
+                        new ColumnDefinition { Width = new GridLength(20, GridUnitType.Star) },
+                        new ColumnDefinition { Width = new GridLength(20, GridUnitType.Star) }
+                    }
+                };
+
+                Label labelProductCode = new Label { VerticalOptions = LayoutOptions.CenterAndExpand, HorizontalOptions = LayoutOptions.FillAndExpand };
+                Label labelProductUnitBC = new Label { VerticalOptions = LayoutOptions.CenterAndExpand, HorizontalOptions = LayoutOptions.FillAndExpand };
+                Label labelUnitCode = new Label { VerticalOptions = LayoutOptions.CenterAndExpand, HorizontalOptions = LayoutOptions.FillAndExpand };
+                Label labelActivityItemCountQuantityOnHand = new Label { VerticalOptions = LayoutOptions.CenterAndExpand, HorizontalOptions = LayoutOptions.FillAndExpand };
+                Label labelActivityItemCountQuantity = new Label { VerticalOptions = LayoutOptions.CenterAndExpand, HorizontalOptions = LayoutOptions.FillAndExpand };
+                Label labelActivityItemCountWeightQuantityOnHand = new Label { VerticalOptions = LayoutOptions.CenterAndExpand, HorizontalOptions = LayoutOptions.FillAndExpand };
+
+                // Set label bindings
+                labelProductCode.SetBinding(Label.TextProperty, new Binding("ProductCode"));
+                labelProductUnitBC.SetBinding(Label.TextProperty, new Binding("ProductUnitBC"));
+                labelUnitCode.SetBinding(Label.TextProperty, new Binding("UnitCode"));
+                labelActivityItemCountQuantityOnHand.SetBinding(Label.TextProperty, new Binding("ActivityItemCountQuantityOnHand", BindingMode.Default, null, null, "{0:F3}"));
+                labelActivityItemCountQuantity.SetBinding(Label.TextProperty, new Binding("ActivityItemCountQuantity", BindingMode.Default, null, null, "{0:F3}"));
+                labelActivityItemCountWeightQuantityOnHand.SetBinding(Label.TextProperty, new Binding("ActivityItemCountWeightQuantityOnHand", BindingMode.Default, null, null, "{0:F3}"));
+
+                // Add labels to grid
+                gridData.Children.Add(labelProductCode);
+                gridData.Children.Add(labelProductUnitBC);
+                gridData.Children.Add(labelUnitCode);
+                gridData.Children.Add(labelActivityItemCountQuantityOnHand);
+                gridData.Children.Add(labelActivityItemCountQuantity);
+                gridData.Children.Add(labelActivityItemCountWeightQuantityOnHand);
+
+                // Set label columns
+                Grid.SetColumn(labelProductCode, 0);
+                Grid.SetColumn(labelProductUnitBC, 1);
+                Grid.SetColumn(labelUnitCode, 2);
+                Grid.SetColumn(labelActivityItemCountQuantityOnHand, 3);
+                Grid.SetColumn(labelActivityItemCountQuantity, 4);
+                Grid.SetColumn(labelActivityItemCountWeightQuantityOnHand, 5);
+
+                return new ViewCell { View = gridData };
+            });
+
+            dataGridMainActivity.ItemTemplate = dataTemplatePhysicalCount;
+            observableCollection.Clear();
+
+            // Add all items in dataview to observable collection for display
+            foreach (DataRow row in this.DataViewItems.ToTable().Rows)
+            {
+                CountItem countItem = new CountItem
+                {
+                    ActivityItemRefno = Convert.ToInt32(row["ActivityItemRefno"]),
+                    ActivityItemCountFKRefno = Convert.ToInt32(row["ActivityItemCountFKRefno"]),
+                    ActivityItemCountStringFKRefno = Convert.ToString(row["ActivityItemCountStringFKRefno"]),
+                    ActivityItemCountQuantityOnHand = Convert.ToDecimal(row["ActivityItemCountQuantityOnHand"]),
+                    ActivityItemCountBaseQuantityOnHand = Convert.ToDecimal(row["ActivityItemCountBaseQuantityOnHand"]),
+                    ActivityItemCountWeightQuantityOnHand = Convert.ToDecimal(row["ActivityItemCountWeightQuantityOnHand"]),
+                    ActivityItemCountQuantity = Convert.ToDecimal(row["ActivityItemCountQuantity"]),
+                    ActivityItemCountBaseQuantity = Convert.ToDecimal(row["ActivityItemCountBaseQuantity"]),
+                    ActivityItemCountWeightQuantity = Convert.ToDecimal(row["ActivityItemCountWeightQuantity"]),
+                    ProductUnitRefno = Convert.ToInt32(row["ProductUnitRefno"]),
+                    ProductRefno = Convert.ToInt32(row["ProductRefno"]),
+                    ProductCode = Convert.ToString(row["ProductCode"]),
+                    ProductDescription = Convert.ToString(row["ProductDescription"]),
+                    UnitCode = Convert.ToString(row["UnitCode"]),
+                    ProductUnitBC = Convert.ToString(row["ProductUnitBC"]),
+                    ProductUnitSizeDescription = Convert.ToString(row["ProductUnitSizeDescription"]),
+                    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"]),
+                    LocationCode = Convert.ToString(row["LocationCode"]),
+                    LocationName = Convert.ToString(row["LocationName"]),
+                    ActivityItemStatus = Convert.ToInt32(row["ActivityItemStatus"])
+                };
+
+                observableCollection.Add(countItem);
+            }
+
+            return observableCollection;
         }
 
         //    /// <summary>
@@ -748,8 +891,10 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="searchText"></param>
         /// <returns></returns>
-        public override DataView Search(string searchText)
+        public override ObservableCollection<object> Search(string searchText)
         {
+            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+
             if (string.IsNullOrEmpty(this.ActItemFilter))
             {
                 this.DataViewItems.RowFilter = "ProductCode LIKE \'%" + searchText.Trim() + "%\'";
@@ -759,7 +904,37 @@ namespace dMobile.Controller
                 this.DataViewItems.RowFilter = this.ActItemFilter + " AND ProductCode LIKE \'%" + searchText.Trim() + "%\'";
             }
 
-            return this.DataViewItems;
+            // Add all items in dataview to observable collection for display
+            foreach (DataRow row in this.DataViewItems.ToTable().Rows)
+            {
+                CountItem countItem = new CountItem
+                {
+                    ActivityItemRefno = Convert.ToInt32(row["ActivityItemRefno"]),
+                    ActivityItemCountFKRefno = Convert.ToInt32(row["ActivityItemCountFKRefno"]),
+                    ActivityItemCountStringFKRefno = Convert.ToString(row["ActivityItemCountStringFKRefno"]),
+                    ActivityItemCountQuantityOnHand = Convert.ToDecimal(row["ActivityItemCountQuantityOnHand"]),
+                    ActivityItemCountBaseQuantityOnHand = Convert.ToDecimal(row["ActivityItemCountBaseQuantityOnHand"]),
+                    ActivityItemCountWeightQuantityOnHand = Convert.ToDecimal(row["ActivityItemCountWeightQuantityOnHand"]),
+                    ActivityItemCountQuantity = Convert.ToDecimal(row["ActivityItemCountQuantity"]),
+                    ActivityItemCountBaseQuantity = Convert.ToDecimal(row["ActivityItemCountBaseQuantity"]),
+                    ActivityItemCountWeightQuantity = Convert.ToDecimal(row["ActivityItemCountWeightQuantity"]),
+                    ProductUnitRefno = Convert.ToInt32(row["ProductUnitRefno"]),
+                    ProductRefno = Convert.ToInt32(row["ProductRefno"]),
+                    ProductCode = Convert.ToString(row["ProductCode"]),
+                    ProductDescription = Convert.ToString(row["ProductDescription"]),
+                    UnitCode = Convert.ToString(row["UnitCode"]),
+                    ProductUnitBC = Convert.ToString(row["ProductUnitBC"]),
+                    ProductUnitSizeDescription = Convert.ToString(row["ProductUnitSizeDescription"]),
+                    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"]),
+                    LocationCode = Convert.ToString(row["LocationCode"]),
+                    LocationName = Convert.ToString(row["LocationName"]),
+                    ActivityItemStatus = Convert.ToInt32(row["ActivityItemStatus"])
+                };
+
+                observableCollection.Add(countItem);
+            }
+
+            return observableCollection;
         }
 
         /// <summary>

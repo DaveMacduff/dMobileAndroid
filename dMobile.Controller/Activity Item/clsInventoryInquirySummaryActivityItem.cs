@@ -8,6 +8,8 @@ namespace dMobile.Controller
     using dMobile.Bedrock;
     using System.Collections.Generic;
     using System.Threading.Tasks;
+    using System.Collections.ObjectModel;
+    using Xamarin.Forms;
 
     public class InvInquirySummaryActItem : ActItem
     {
@@ -85,6 +87,11 @@ namespace dMobile.Controller
                 this.ProdInfo = ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
                 this.ProdInfo.Scheme = ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
             }
+        }
+
+        public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity, ref ColumnDefinition dataGridWidth)
+        {
+            throw new NotImplementedException();
         }
 
 //        /// <summary>
@@ -272,7 +279,7 @@ namespace dMobile.Controller
         /// <param name="searchText"></param>
         /// <returns></returns>
         /// <remarks></remarks>
-        public override DataView Search(string searchText)
+        public override ObservableCollection<object> Search(string searchText)
         {
             throw new NotImplementedException();
         }

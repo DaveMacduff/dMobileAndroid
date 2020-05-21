@@ -16,7 +16,7 @@ namespace dMobile.View.Activity
 {
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ucActivityHdrReceivingFilter : DMobileModal, IAppArea, IAppPublisher
-    {        
+    {
         #region Fields
 
         private ReceivingSettings recvSettings = new ReceivingSettings();
@@ -55,9 +55,9 @@ namespace dMobile.View.Activity
 
             if (!DesignMode.IsDesignModeEnabled)
             {
+                // TODO: Resource strings
                 //At least one sort option must be selected
                 aSortBy1.Clear();
-
                 aSortBy1.Add(new ComboBoxMembers("Purchase Order # Ascending", "ActivityReceivingPONumber ASC"));
                 aSortBy1.Add(new ComboBoxMembers("Purchase Order # Descending", "ActivityReceivingPONumber DESC"));
                 aSortBy1.Add(new ComboBoxMembers("Issued Date Ascending", "ActivityReceivingIssuedDateTime ASC"));
@@ -72,7 +72,6 @@ namespace dMobile.View.Activity
 
                 aSortBy2.Clear();
                 aSortBy2.Add(new ComboBoxMembers("", ""));
-
                 aSortBy2.Add(new ComboBoxMembers("Purchase Order # Ascending", "ActivityReceivingPONumber ASC"));
                 aSortBy2.Add(new ComboBoxMembers("Purchase Order # Descending", "ActivityReceivingPONumber DESC"));
                 aSortBy2.Add(new ComboBoxMembers("Issued Date Ascending", "ActivityReceivingIssuedDateTime ASC"));
@@ -87,7 +86,6 @@ namespace dMobile.View.Activity
 
                 aSortBy3.Clear();
                 aSortBy3.Add(new ComboBoxMembers("", ""));
-
                 aSortBy3.Add(new ComboBoxMembers("Purchase Order # Ascending", "ActivityReceivingPONumber ASC"));
                 aSortBy3.Add(new ComboBoxMembers("Purchase Order # Descending", "ActivityReceivingPONumber DESC"));
                 aSortBy3.Add(new ComboBoxMembers("Issued Date Ascending", "ActivityReceivingIssuedDateTime ASC"));
@@ -111,7 +109,7 @@ namespace dMobile.View.Activity
         }
 
         #endregion
- 
+
         /// <summary>
         /// The OnAppearing
         /// </summary>
@@ -128,24 +126,24 @@ namespace dMobile.View.Activity
                 {
                     if (keycode == Keycode.Escape)
                     {
-                        if (SaveChanges())
+                        if (await SaveChanges())
                         {
                             this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs()); ;
                         }
                         else
                         {
-                            CancelChanges();
+                            await CancelChanges();
                         }
                     }
                     else if (keycode == Keycode.Grave)
                     {
-                        if (SaveChanges())
+                        if (await SaveChanges())
                         {
                             this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs()); ;
                         }
                         else
                         {
-                            CancelChanges();
+                            await CancelChanges();
                         }
 
                         await this.Close();
@@ -379,7 +377,7 @@ namespace dMobile.View.Activity
         /// </summary>
         /// <remarks></remarks>
         private void MakeSQLSortBy()
-        {    
+        {
             //((ComboBoxMembers)cboSortBy1.Items[cboSortBy1.SelectedIndex]).ValueMember.Trim();
             strSQLSortBy = this.filters[cboSortBy1.Items[cboSortBy1.SelectedIndex]].Trim();
             RecvSettings.strSortBy1Value = this.filters[cboSortBy1.Items[cboSortBy1.SelectedIndex]].Trim();
@@ -486,7 +484,7 @@ namespace dMobile.View.Activity
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool IsReadyToSave()
+        public async Task<bool> IsReadyToSave()
         {
             bool IsReadyToSave = true;
 
@@ -512,7 +510,7 @@ namespace dMobile.View.Activity
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool IsReadyToClose()
+        public async Task<bool> IsReadyToClose()
         {
             return !bChangesMade;
         }
@@ -543,12 +541,12 @@ namespace dMobile.View.Activity
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool SaveChanges()
+        public async Task<bool> SaveChanges()
         {
             bool bSaveComplete = false;
             try
             {
-                if (IsReadyToSave())
+                if (await IsReadyToSave())
                 {
                     if (chkApplyArrivalDate.IsToggled)
                     {
@@ -579,7 +577,7 @@ namespace dMobile.View.Activity
                 else
                 {
                     // TODO: Resource strings
-                    DisplayAlert("Validation Failed", "Data Failed Validation. Check Your Data.", "OK");
+                    await DisplayAlert("Validation Failed", "Data Failed Validation. Check Your Data.", "OK");
                 }
             }
             catch (Exception)
@@ -600,13 +598,13 @@ namespace dMobile.View.Activity
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool CancelChanges()
+        public async Task<bool> CancelChanges()
         {
             bool bCancelChanges = true;
 
             try
             {
-                if (!IsReadyToClose())
+                if (!await IsReadyToClose())
                 {
                     LoadData();
 
