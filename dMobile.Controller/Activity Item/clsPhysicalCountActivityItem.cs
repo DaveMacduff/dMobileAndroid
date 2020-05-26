@@ -327,8 +327,8 @@ namespace dMobile.Controller
             Grid gridHeaderPhysicalCount = new Grid
             {
                 Padding = new Thickness(5),
-                VerticalOptions = LayoutOptions.FillAndExpand,
-                HorizontalOptions = LayoutOptions.FillAndExpand,
+                //VerticalOptions = LayoutOptions.FillAndExpand,
+                //HorizontalOptions = LayoutOptions.FillAndExpand,
                 ColumnSpacing = 15,
                 ColumnDefinitions =
                 {
@@ -344,12 +344,12 @@ namespace dMobile.Controller
             gridHeaderPhysicalCount.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
 
             // TODO: Resource strings
-            Label labelPhysicalCountCode = new Label { Text = "Code", VerticalOptions = LayoutOptions.CenterAndExpand, HorizontalOptions = LayoutOptions.FillAndExpand, FontAttributes = FontAttributes.Bold };
-            Label labelPhysicalCountBC = new Label { Text = "BC", VerticalOptions = LayoutOptions.CenterAndExpand, HorizontalOptions = LayoutOptions.FillAndExpand, FontAttributes = FontAttributes.Bold };
-            Label labelPhysicalCountUnit = new Label { Text = "", VerticalOptions = LayoutOptions.CenterAndExpand, HorizontalOptions = LayoutOptions.FillAndExpand, FontAttributes = FontAttributes.Bold };
-            Label labelPhysicalCountOnHand = new Label { Text = "On Hand", VerticalOptions = LayoutOptions.CenterAndExpand, HorizontalOptions = LayoutOptions.FillAndExpand, FontAttributes = FontAttributes.Bold };
-            Label labelPhysicalCountCounted = new Label { Text = "Counted", VerticalOptions = LayoutOptions.CenterAndExpand, HorizontalOptions = LayoutOptions.FillAndExpand, FontAttributes = FontAttributes.Bold };
-            Label labelPhysicalCountWtOn = new Label { Text = "Wt On", VerticalOptions = LayoutOptions.CenterAndExpand, HorizontalOptions = LayoutOptions.FillAndExpand, FontAttributes = FontAttributes.Bold };
+            Label labelPhysicalCountCode = new Label { Text = "Code", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            Label labelPhysicalCountBC = new Label { Text = "BC", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            Label labelPhysicalCountUnit = new Label { Text = "", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            Label labelPhysicalCountOnHand = new Label { Text = "On Hand", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            Label labelPhysicalCountCounted = new Label { Text = "Counted", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            Label labelPhysicalCountWtOn = new Label { Text = "Wt On", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
 
             // Add labels to grid
             gridHeaderPhysicalCount.Children.Add(labelPhysicalCountCode);
@@ -376,8 +376,8 @@ namespace dMobile.Controller
             {
                 Grid gridData = new Grid
                 {
-                    VerticalOptions = LayoutOptions.FillAndExpand,
-                    HorizontalOptions = LayoutOptions.FillAndExpand,
+                    //VerticalOptions = LayoutOptions.FillAndExpand,
+                    //HorizontalOptions = LayoutOptions.FillAndExpand,
                     Padding = new Thickness(5),
                     ColumnSpacing = 15,
                     ColumnDefinitions =
@@ -391,12 +391,12 @@ namespace dMobile.Controller
                     }
                 };
 
-                Label labelProductCode = new Label { VerticalOptions = LayoutOptions.CenterAndExpand, HorizontalOptions = LayoutOptions.FillAndExpand };
-                Label labelProductUnitBC = new Label { VerticalOptions = LayoutOptions.CenterAndExpand, HorizontalOptions = LayoutOptions.FillAndExpand };
-                Label labelUnitCode = new Label { VerticalOptions = LayoutOptions.CenterAndExpand, HorizontalOptions = LayoutOptions.FillAndExpand };
-                Label labelActivityItemCountQuantityOnHand = new Label { VerticalOptions = LayoutOptions.CenterAndExpand, HorizontalOptions = LayoutOptions.FillAndExpand };
-                Label labelActivityItemCountQuantity = new Label { VerticalOptions = LayoutOptions.CenterAndExpand, HorizontalOptions = LayoutOptions.FillAndExpand };
-                Label labelActivityItemCountWeightQuantityOnHand = new Label { VerticalOptions = LayoutOptions.CenterAndExpand, HorizontalOptions = LayoutOptions.FillAndExpand };
+                Label labelProductCode = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelProductUnitBC = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelUnitCode = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelActivityItemCountQuantityOnHand = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelActivityItemCountQuantity = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelActivityItemCountWeightQuantityOnHand = new Label { VerticalOptions = LayoutOptions.Center };
 
                 // Set label bindings
                 labelProductCode.SetBinding(Label.TextProperty, new Binding("ProductCode"));

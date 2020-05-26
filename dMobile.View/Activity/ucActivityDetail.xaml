@@ -18,7 +18,7 @@
                 </Grid.RowDefinitions>
 
                 <Frame VerticalOptions="Start" Grid.Row="0" Grid.Column="0" OutlineColor="{DynamicResource BorderColor}">
-                    <ScrollView Orientation="Horizontal" >
+                    <ScrollView Orientation="Horizontal">
                         <Grid x:Name="dataGridMainActivityHeader">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>

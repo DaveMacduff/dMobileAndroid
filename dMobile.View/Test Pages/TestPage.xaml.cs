@@ -11,20 +11,79 @@
     using System.Data;
     using dMobile.Resources.Types;
     using dMobile.Controller;
+    using Java.Util;
+    using System.Runtime.CompilerServices;
+    using System.Runtime.InteropServices;
+    using System.Collections;
 
     /// <summary>
     /// Defines the <see cref="TestPage" />
     /// </summary>
     public partial class TestPage : ContentPage
     {
+        private ObservableCollection<object> itemList = new ObservableCollection<object>();
+        private DataTemplate itemTemplate = new DataTemplate();
+
+        public ObservableCollection<object> ItemList { get => itemList; set { itemList = value; OnPropertyChanged(); } }
+        public DataTemplate ItemTemplate { get => itemTemplate; set { itemTemplate = value; OnPropertyChanged(); } }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="TestPage"/> class.
         /// </summary>
         public TestPage()
         {
             InitializeComponent();
+            this.BindingContext = this;
+        }
 
-            this.dataGridMainActivity.ItemsSource = this.DesignGrid();
+        protected override void OnAppearing()
+        {
+            base.OnAppearing();
+
+            this.ItemList = this.DesignGrid();
+            this.ItemTemplate = new DataTemplate(() =>
+            {
+                var tapGestureRecognizer = new TapGestureRecognizer();
+
+                Grid grid = new Grid
+                {
+                    ColumnDefinitions =
+                    {
+                        new ColumnDefinition { Width = GridLength.Auto },
+                        new ColumnDefinition { Width = GridLength.Auto },
+                        new ColumnDefinition { Width = GridLength.Auto },
+                        new ColumnDefinition { Width = GridLength.Auto }
+                    }
+                };
+                
+                tapGestureRecognizer.Tapped += (s, e) => 
+                {
+                };
+                
+                grid.GestureRecognizers.Add(tapGestureRecognizer);
+
+                Label labelQty = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelWeight = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelUnitCode = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelSchemeID = new Label { VerticalOptions = LayoutOptions.Center };
+
+                labelQty.SetBinding(Label.TextProperty, new Binding("ActivityDetailQuantity", BindingMode.Default, null, null, "{0:F3}"));
+                labelWeight.SetBinding(Label.TextProperty, new Binding("ActivityDetailWeightQuantity", BindingMode.Default, null, null, "{0:F3}"));
+                labelUnitCode.SetBinding(Label.TextProperty, new Binding("UnitCode"));
+                labelSchemeID.SetBinding(Label.TextProperty, new Binding("ActivityDetailSchemeID"));
+
+                grid.Children.Add(labelQty);
+                grid.Children.Add(labelWeight);
+                grid.Children.Add(labelUnitCode);
+                grid.Children.Add(labelSchemeID);
+
+                Grid.SetColumn(labelQty, 0);
+                Grid.SetColumn(labelWeight, 1);
+                Grid.SetColumn(labelUnitCode, 2);
+                Grid.SetColumn(labelSchemeID, 3);
+
+                return grid;
+            });
         }
 
         public ObservableCollection<object> DesignGrid()
@@ -44,78 +103,17 @@
                 observableCollection.Add(countDetail);
             }
 
-            // Header grid
-            Grid gridHeader = new Grid
-            {
-                Padding = new Thickness(5),
-                //ColumnSpacing = 15,
-                ColumnDefinitions =
-                {
-                    new ColumnDefinition { Width = new GridLength(1, GridUnitType.Auto) },
-                    new ColumnDefinition { Width = new GridLength(1, GridUnitType.Auto) },
-                    new ColumnDefinition { Width = new GridLength(1, GridUnitType.Auto) },
-                    new ColumnDefinition { Width = new GridLength(1, GridUnitType.Auto) }
-                }
-            };
-
-            gridHeader.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
-
-            // TODO: Resource strings
-            Label labelQtyHeader = new Label { Text = "Qty", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
-            Label labelWeightHeader = new Label { Text = "Weight", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
-            Label labelUnitCodeHeader = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
-            Label labelSchemeIDHeader = new Label { Text = "Scheme ID", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
-
-            gridHeader.Children.Add(labelQtyHeader);
-            gridHeader.Children.Add(labelWeightHeader);
-            gridHeader.Children.Add(labelUnitCodeHeader);
-            gridHeader.Children.Add(labelSchemeIDHeader);
-
-            Grid.SetColumn(labelQtyHeader, 0);
-            Grid.SetColumn(labelWeightHeader, 1);
-            Grid.SetColumn(labelUnitCodeHeader, 2);
-            Grid.SetColumn(labelSchemeIDHeader, 3);
-
-            Grid.SetRow(gridHeader, 0);
-
-            //dataGridMainActivityHeader.Children.Add(gridHeader);
-
-            // Data grid
-            DataTemplate dataTemplate = new DataTemplate(() =>
-            {
-                FlexLayout flexLayout = new FlexLayout { AlignContent = FlexAlignContent.SpaceAround };
-
-                Label labelQty = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-                Label labelWeight = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-                Label labelUnitCode = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-                Label labelSchemeID = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-
-                labelQty.SetBinding(Label.TextProperty, new Binding("ActivityDetailQuantity", BindingMode.Default, null, null, "{0:F3}"));
-                labelWeight.SetBinding(Label.TextProperty, new Binding("ActivityDetailWeightQuantity", BindingMode.Default, null, null, "{0:F3}"));
-                labelUnitCode.SetBinding(Label.TextProperty, new Binding("UnitCode"));
-                labelSchemeID.SetBinding(Label.TextProperty, new Binding("ActivityDetailSchemeID"));
-
-                flexLayout.Children.Add(labelQty);
-                flexLayout.Children.Add(labelWeight);
-                flexLayout.Children.Add(labelUnitCode);
-                flexLayout.Children.Add(labelSchemeID);
-
-                FlexLayout.SetGrow(labelQty, 1);
-                FlexLayout.SetGrow(labelWeight, 1);
-                FlexLayout.SetGrow(labelUnitCode, 1);
-                FlexLayout.SetGrow(labelSchemeID, 10);
-
-                FlexLayout.SetShrink(labelQty, 0);
-                FlexLayout.SetShrink(labelWeight, 0);
-                FlexLayout.SetShrink(labelUnitCode, 0);
-                FlexLayout.SetShrink(labelSchemeID, 0);
-
-                return new ViewCell { View = flexLayout };
-            });
-
-            dataGridMainActivity.ItemTemplate = dataTemplate;
-
             return observableCollection;
         }
+
+        private void TapGestureRecognizer_Tapped(object sender, EventArgs e)
+        {
+
+        }
+
+        //private async void Button_Clicked(object sender, EventArgs e)
+        //{
+        //    await DisplayAlert("", "dataGridMainActivity width: " + this.dataGridMainActivity.Width + Environment.NewLine + "dataGridMainActivityHeader width: " + this.dataGridMainActivityHeader.Width + Environment.NewLine + "scrollViewTest width: " + this.scrollViewTest.Width + Environment.NewLine, "OK");
+        //}
     }
 }

@@ -121,12 +121,12 @@ namespace dMobile.View.Activity
             base.OnPropertyChanged(propertyName);
 
             if (
-                propertyName == "CmdLocationText" || 
-                propertyName == "CmdLocationIsEnabled" || 
-                propertyName == "CmdSelectSkidText" ||
-                propertyName == "CmdSelectSkidIsEnabled" ||
-                propertyName == "CmdAddSkidText" ||
-                propertyName == "CmdAddSkidIsEnabled"
+                propertyName == nameof(this.CmdLocationText) || 
+                propertyName == nameof(this.CmdLocationIsEnabled) || 
+                propertyName == nameof(this.CmdSelectSkidText) ||
+                propertyName == nameof(this.CmdSelectSkidIsEnabled) ||
+                propertyName == nameof(this.CmdAddSkidText) ||
+                propertyName == nameof(this.CmdAddSkidIsEnabled)
                )
             {
                 this.PopulateOptionsMenu();

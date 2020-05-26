@@ -1,16 +1,16 @@
 namespace dMobile.Controller
 {
     using System;
-    using System.Collections;
+    using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Data;
     using System.Data.SQLite;
-    using System.IO;
     using System.Text;
     using System.Xml;
     using System.Xml.Linq;
     using dMobile.Bedrock;
     using dMobile.GroundWork;
+    using dMobile.Resources.Services;
     using dMobile.Resources.Types;
     using Xamarin.Forms;
 
@@ -368,7 +368,7 @@ namespace dMobile.Controller
         /// <returns></returns>
         public override int GetRefno(int idx)
         {
-            return (int)this.DataViewDetails[idx]["ActivityDetailRefno"];
+            return Convert.ToInt32(this.DataViewDetails[idx]["ActivityDetailRefno"]);
         }
 
         /// <summary>
@@ -378,7 +378,7 @@ namespace dMobile.Controller
         /// <returns></returns>
         public override int GetFKRefno(int selectedIndex)
         {
-            return (int)DataViewDetails[selectedIndex]["ActivityDetailCountFKRefno"];
+            return Convert.ToInt32(DataViewDetails[selectedIndex]["ActivityDetailCountFKRefno"]);
         }
 
         /// <summary>
@@ -787,13 +787,28 @@ namespace dMobile.Controller
                     ActivityDetailExtra4Text = Convert.ToString(row["ActivityDetailExtra4Text"] != DBNull.Value ? row["ActivityDetailExtra4Text"] : null)
                 };
 
-                if (!string.IsNullOrEmpty(Convert.ToString(row["ActivityDetailExtra5Date"])))
+                if (DateTime.TryParse(Convert.ToString(row["ActivityDetailExtra5Date"]), out DateTime result))
                 {
                     countDetail.ActivityDetailExtra5Date = Convert.ToDateTime(row["ActivityDetailExtra5Date"] != DBNull.Value ? row["ActivityDetailExtra5Date"] : null);
+                }
+                else
+                {
+                    countDetail.ActivityDetailExtra5Date = new DateTime(1900, 1, 1);
                 }
 
                 observableCollection.Add(countDetail);
             }
+
+            // TODO: Resource strings
+            Label labelQtyHeader = new Label { Text = "Qty", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            Label labelWeightHeader = new Label { Text = "Weight", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            Label labelUnitCodeHeader = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            Label labelSchemeIDHeader = new Label { Text = "Scheme ID", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+                        
+            double columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelSchemeIDHeader.Text);
+            double columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelWeightHeader.Text);
+            double columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelUnitCodeHeader.Text);
+            double columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelSchemeIDHeader.Text);
 
             // Header grid
             Grid gridHeader = new Grid
@@ -802,20 +817,14 @@ namespace dMobile.Controller
                 ColumnSpacing = 15,
                 ColumnDefinitions =
                 {
-                    new ColumnDefinition { Width = new GridLength(20, GridUnitType.Star) },
-                    new ColumnDefinition { Width = new GridLength(20, GridUnitType.Star) },
-                    new ColumnDefinition { Width = new GridLength(10, GridUnitType.Star) },
-                    new ColumnDefinition { Width = new GridLength(50, GridUnitType.Star) }
+                    new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth3, GridUnitType.Absolute) }
                 }
             };
 
             gridHeader.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
-
-            // TODO: Resource strings
-            Label labelQtyHeader = new Label { Text = "Qty", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelWeightHeader = new Label { Text = "Weight", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelUnitCodeHeader = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelSchemeIDHeader = new Label { Text = "Scheme ID", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
 
             gridHeader.Children.Add(labelQtyHeader);
             gridHeader.Children.Add(labelWeightHeader);
@@ -831,20 +840,52 @@ namespace dMobile.Controller
 
             dataGridMainActivityHeader.Children.Add(gridHeader);
 
+            foreach (CountDetail countDetail in observableCollection)
+            {
+                double detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", countDetail.ActivityDetailWeightQuantity));
+                double detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", countDetail.ActivityDetailWeightQuantity));
+                double detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(countDetail.UnitCode);
+                double detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(countDetail.ActivityDetailSchemeID);
+
+                if (detailWidth0 > columnWidth0)
+                {
+                    columnWidth0 = detailWidth0;
+                    gridHeader.ColumnDefinitions[0].Width = columnWidth0;
+                }
+
+                if (detailWidth1 > columnWidth1)
+                {
+                    columnWidth1 = detailWidth1;
+                    gridHeader.ColumnDefinitions[1].Width = columnWidth1;
+                }
+
+                if (detailWidth2 > columnWidth2)
+                {
+                    columnWidth2 = detailWidth2;
+                    gridHeader.ColumnDefinitions[2].Width = columnWidth2;
+                }
+
+                if (detailWidth3 > columnWidth3)
+                {
+                    columnWidth3 = detailWidth3;
+                    gridHeader.ColumnDefinitions[3].Width = columnWidth3;
+                }
+            }
+
             // Data grid
             DataTemplate dataTemplate = new DataTemplate(() =>
             {
                 // Header grid
-                Grid gridData = new Grid
+                Grid gridData = new Grid()
                 {
                     Padding = new Thickness(5),
                     ColumnSpacing = 15,
                     ColumnDefinitions =
                     {
-                        new ColumnDefinition { Width = new GridLength(20, GridUnitType.Star) },
-                        new ColumnDefinition { Width = new GridLength(20, GridUnitType.Star) },
-                        new ColumnDefinition { Width = new GridLength(10, GridUnitType.Star) },
-                        new ColumnDefinition { Width = new GridLength(50, GridUnitType.Star) }
+                        new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth3, GridUnitType.Absolute) }
                     }
                 };
 
@@ -872,8 +913,6 @@ namespace dMobile.Controller
             });
 
             dataGridMainActivity.ItemTemplate = dataTemplate;
-
-            //dataGridWidth.Width = dataGridMainActivity.Width * 2;
 
             return observableCollection;
         }
@@ -953,7 +992,7 @@ namespace dMobile.Controller
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
             this.DataViewDetails.RowFilter = "ActivityCountStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
-            
+
             foreach (DataRow row in this.DataViewDetails.ToTable().Rows)
             {
                 CountDetail countDetail = new CountDetail
@@ -994,9 +1033,13 @@ namespace dMobile.Controller
                     ActivityDetailExtra4Text = Convert.ToString(row["ActivityDetailExtra4Text"] != DBNull.Value ? row["ActivityDetailExtra4Text"] : null)
                 };
 
-                if (!string.IsNullOrEmpty(Convert.ToString(row["ActivityDetailExtra5Date"])))
+                if (!string.IsNullOrEmpty(Convert.ToString(row["ActivityDetailExtra5Date"] != DBNull.Value ? row["ActivityDetailExtra5Date"] : null)))
                 {
-                    countDetail.ActivityDetailExtra5Date = Convert.ToDateTime(row["ActivityDetailExtra5Date"] != DBNull.Value ? row["ActivityDetailExtra5Date"] : null);
+                    this.ActExtra.DateTime5 = Convert.ToDateTime(row["ActivityDetailExtra5Date"]);
+                }
+                else
+                {
+                    this.ActExtra.DateTime5 = Convert.ToDateTime(new DateTime(1900, 1, 1));
                 }
 
                 observableCollection.Add(countDetail);
@@ -1023,7 +1066,15 @@ namespace dMobile.Controller
                 this.ActExtra.Text2 = Convert.ToString(this.DataViewDetails[idx]["ActivityDetailExtra2Text"]);
                 this.ActExtra.Text3 = Convert.ToString(this.DataViewDetails[idx]["ActivityDetailExtra3Text"]);
                 this.ActExtra.Text4 = Convert.ToString(this.DataViewDetails[idx]["ActivityDetailExtra4Text"]);
-                this.ActExtra.DateTime5 = Convert.ToDateTime(this.DataViewDetails[idx]["ActivityDetailExtra5Date"]);
+                
+                if (!string.IsNullOrEmpty(Convert.ToString(this.DataViewDetails[idx]["ActivityDetailExtra5Date"])))
+                {
+                    this.ActExtra.DateTime5 = Convert.ToDateTime(this.DataViewDetails[idx]["ActivityDetailExtra5Date"]);
+                }
+                else
+                {
+                    this.ActExtra.DateTime5 = Convert.ToDateTime(new DateTime(1900, 1, 1));
+                }
             }
             else
             {

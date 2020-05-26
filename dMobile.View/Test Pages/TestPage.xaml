@@ -1,43 +1,25 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" 
              x:Class="dMobile.View.TestPage">
     <ContentPage.Content>
-        <AbsoluteLayout VerticalOptions="Center">
-            <Grid x:Name="gridContainer" Padding="10" AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0,0,1,1">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="65*"/>
-                    <RowDefinition Height="20*"/>
-                    <RowDefinition Height="15*"/>
-                </Grid.RowDefinitions>
-
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-
-                <Frame VerticalOptions="Start" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" OutlineColor="{DynamicResource BorderColor}">
-                    <ScrollView Orientation="Horizontal">
-                        <Grid x:Name="dataGridMainActivityHeader">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
+        <!--<TableView Intent="Data">
+            <TableRoot>
+                <TableSection Title="Getting Started" BindableLayout.ItemTemplate="">
+                    <ViewCell>
+                        <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition x:Name="dataGridWidth" Width="1000*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-
-                            <StackLayout Grid.Row="1" HorizontalOptions="FillAndExpand">
-                                <ListView x:Name="dataGridMainActivity" HasUnevenRows="false"/>
-                            </StackLayout>
                         </Grid>
-                    </ScrollView>
-                </Frame>
-            </Grid>
+                    </ViewCell>
+                </TableSection>
+            </TableRoot>
+        </TableView-->
 
-            <ActivityIndicator IsVisible="{Binding Loading}" 
-                               IsRunning="{Binding Loading}"
-                               AbsoluteLayout.LayoutFlags="All" 
-                               AbsoluteLayout.LayoutBounds="0.5,0.5,0.3,0.3"/>
-        </AbsoluteLayout>
+        <StackLayout x:Name="dataGrid" BindableLayout.ItemTemplate="{Binding ItemTemplate }" BindableLayout.ItemsSource="{ Binding ItemList }" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand"/>
     </ContentPage.Content>
 </ContentPage>
