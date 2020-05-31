@@ -474,20 +474,20 @@ namespace dMobile.View.Options
                 {
                     if (this.IsChangesMade && !(this.chkDisconnectMode.IsToggled == this.SysEnv.SysSettings.IsDisconnectedMode && this.chkDisconnectedModeLoadDetail.IsToggled == this.SysEnv.SysSettings.IsDisconnectedModeLoadDetail))
                     {
-                        await DisplayAlert(this.GetControlDescription(), "Confirm disconnected mode changes?" + Environment.NewLine + "This will purge any unsubmitted data.", "Yes", "No").ContinueWith((result) =>
+                        await DisplayAlert(this.GetControlDescription(), "Confirm disconnected mode changes?" + Environment.NewLine + "This will purge any unsubmitted data.", "Yes", "No").ContinueWith(async (result) =>
                         {
                             if (result.Result)
                             {
                                 FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucRefreshDataStatus, SysCommon.ActSubTypes.PurgeActivityData);
-                                Device.BeginInvokeOnMainThread(async () => await form.DisplayControl.ShowDialog().ContinueWith(_ =>
+                                await Device.InvokeOnMainThreadAsync(async () => await form.DisplayControl.ShowDialog().ContinueWith(async (_) =>
                                 {
-                                    form.SaveChanges(this, new EventArgs());
+                                    await form.SaveChanges(this, new EventArgs());
                                     XDocument xmlDoc = form.DisplayControlData;
                                 }));
                             }
                             else
                             {
-                                Device.BeginInvokeOnMainThread(() =>
+                                await Device.InvokeOnMainThreadAsync(() =>
                                 {
                                     this.chkDisconnectMode.IsToggled = this.SysEnv.SysSettings.IsDisconnectedMode;
                                     this.chkDisconnectedModeLoadDetail.IsToggled = this.SysEnv.SysSettings.IsDisconnectedModeLoadDetail;

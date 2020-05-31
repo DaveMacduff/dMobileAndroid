@@ -1395,7 +1395,7 @@ namespace dMobile.View.Activity
             //this.pbarStatus.Visible = false;
 
             this.ActDetail.GetDataView(false);
-            this.DataGridMainActivityItemsList = this.ActDetail.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity, ref dataGridWidth);
+            this.DataGridMainActivityItemsList = this.ActDetail.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
             this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
 
             if (this.ActDetail.DataViewDetails.Count > 0 && this.DataGridMainActivityItemsList.Count > 0)

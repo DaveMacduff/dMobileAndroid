@@ -951,7 +951,7 @@ namespace dMobile.View.Activity
                     this.ItemsList.Clear();
 
                     this.Activity.DataViewHdrs = this.Activity.GetDataView(false);
-                    this.DataGridMainActivityItemsList = this.Activity.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity, ref dataGridWidth);
+                    this.DataGridMainActivityItemsList = this.Activity.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
 
                     if (!string.IsNullOrEmpty(this.txtSearchHdr.Text))
                     {

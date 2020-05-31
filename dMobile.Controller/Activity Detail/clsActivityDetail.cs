@@ -368,7 +368,7 @@ namespace dMobile.Controller
 
         public abstract DataView GetDataView(bool isSubmitBatch);
 
-        public abstract ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity, ref ColumnDefinition dataGridWidth);
+        public abstract ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity);
 
         public abstract void SelectDetail(int selectedIndex);
 
@@ -392,9 +392,9 @@ namespace dMobile.Controller
             {
                 for (int i = 0; i <= this.DataViewDetails.Count - 1; i++)
                 {
-                    fillQty.Quantity = fillQty.Quantity + Convert.ToDecimal(this.DataViewDetails[i]["ActivityDetailQuantity"]);
-                    fillQty.BaseQuantity = fillQty.BaseQuantity + Convert.ToDecimal(this.DataViewDetails[i]["ActivityDetailBaseQuantity"]);
-                    fillQty.WeightQuantity = fillQty.WeightQuantity + Convert.ToDecimal(this.DataViewDetails[i]["ActivityDetailWeightQuantity"]);
+                    fillQty.Quantity += Convert.ToDecimal(this.DataViewDetails[i]["ActivityDetailQuantity"]);
+                    fillQty.BaseQuantity += Convert.ToDecimal(this.DataViewDetails[i]["ActivityDetailBaseQuantity"]);
+                    fillQty.WeightQuantity += Convert.ToDecimal(this.DataViewDetails[i]["ActivityDetailWeightQuantity"]);
                 }
             }
 
@@ -1039,7 +1039,6 @@ namespace dMobile.Controller
                 this.NewItemFKRefno = int.Parse(xmlData.DocumentElement["itm_refno"].InnerText);
                 this.FKRefno = int.Parse(xmlData.DocumentElement["ser_refno"].InnerText);
 
-
                 if (this.NewItemFKRefno != this.ActItem.FKRefno)
                 {
                     this.ActItem.FKRefno = NewItemFKRefno;
@@ -1232,29 +1231,29 @@ namespace dMobile.Controller
                         cmndExtra.CommandText = "INSERT INTO tActivityDetailExtra (" +
                             "ActivityDetailRefno, " +
                             "ActivityDetailSubType, " +
-                            "ActivityDetailExtra1, " +
-                            "ActivityDetailExtra2, " +
-                            "ActivityDetailExtra3, " +
-                            "ActivityDetailExtra4, " +
-                            "ActivityDetailExtra5," +
+                            "ActivityDetailExtra1Text, " +
+                            "ActivityDetailExtra2Text, " +
+                            "ActivityDetailExtra3Text, " +
+                            "ActivityDetailExtra4Text, " +
+                            "ActivityDetailExtra5Date," +
                             ") VALUES (" +                         
                             "@activityDetailRefno, " +
                             "@activityDetailSubType, " +
-                            "@activityDetailExtra1, " +
-                            "@activityDetailExtra2, " +
-                            "@activityDetailExtra3, " +
-                            "@activityDetailExtra4, " +
-                            "@activityDetailExtra5," +
+                            "@activityDetailExtra1Text, " +
+                            "@activityDetailExtra2Text, " +
+                            "@activityDetailExtra3Text, " +
+                            "@activityDetailExtra4Text, " +
+                            "@activityDetailExtra5Date," +
                             ")";
                         cmndExtra.CommandType = CommandType.Text;
                         //cmndExtra.IndexName = "PK_ActivityDetailExtraOnActivityDetailRefno";
                         cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailRefno", Convert.ToInt32(actDetailRefno)));
                         cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailSubType", Convert.ToInt32(this.ActSubType)));
-                        cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra1", Convert.ToString(this.ActExtra.Text1)));
-                        cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra2", Convert.ToString(this.ActExtra.Text2)));
-                        cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra3", Convert.ToString(this.ActExtra.Text3)));
-                        cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra4", Convert.ToString(this.ActExtra.Text4)));
-                        cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra5", Convert.ToDateTime(this.ActExtra.DateTime5)));
+                        cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra1Text", Convert.ToString(this.ActExtra.Text1)));
+                        cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra2Text", Convert.ToString(this.ActExtra.Text2)));
+                        cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra3Text", Convert.ToString(this.ActExtra.Text3)));
+                        cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra4Text", Convert.ToString(this.ActExtra.Text4)));
+                        cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra5Date", Convert.ToDateTime(this.ActExtra.DateTime5)));
 
                         cmndExtra.ExecuteNonQuery();
 

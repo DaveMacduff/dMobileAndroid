@@ -100,7 +100,7 @@
         //    throw new NotImplementedException();
         //}
                 
-        public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity, ref ColumnDefinition dataGridWidth)
+        public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity)
         {
             throw new NotImplementedException();
         }

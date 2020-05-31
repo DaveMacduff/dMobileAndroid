@@ -82,7 +82,6 @@
     <Compile Include="CustomRenderers\CustomNavigationPageRenderer.cs" />
     <Compile Include="CustomRenderers\CustomPickerRenderer.cs" />
     <Compile Include="CustomRenderers\CustomSwitchRenderer.cs" />
-    <Compile Include="CustomRenderers\DataListViewRenderer.cs" />
     <Compile Include="MainActivity.cs" />
     <Compile Include="Resources\Resource.designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -175,7 +175,7 @@ namespace dMobile.View.Activity
                 {
                     if (keycode == Keycode.Del || keycode == Keycode.Clear)
                     {
-                        if (this.dataGridMainActivity.SelectedItem != null)
+                        if (this.dataGridMainActivity.SelectedItem != null && this.dataGridMainActivity.IsFocused)
                         {
                             await this.dataGridMainActivity_KeyUpDelete(this, new EventArgs());
                         }
@@ -1272,7 +1272,7 @@ namespace dMobile.View.Activity
                             this.ActDetail.ActItem.IsReadyToApply(xmlParam);
 
                             this.ActDetail.InsertSkid(this.ActDetail.ActItem.ActHdr.SkidInfo);
-                            this.RefreshData();
+                            await this.RefreshData();
                             SysCommon.SFillQuantity fillQty = this.ActDetail.GetDataViewTotalQuantity();
                             this.ActDetail.ActItem.UpdateDataViewQuantity(this.ActDetail.ActItem.CurrRowIdx, fillQty.Quantity, fillQty.BaseQuantity, fillQty.WeightQuantity);
 
@@ -1307,8 +1307,8 @@ namespace dMobile.View.Activity
                 {
                     this.Loading = true;
 
-                    // This prevents UI lag when pushing modal into view
-                    await Task.Delay(500);
+                    //// This prevents UI lag when pushing modal into view
+                    //await Task.Delay(500);
 
                     this.ScannerEnable();
 
@@ -1317,30 +1317,30 @@ namespace dMobile.View.Activity
                         if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
                         {
                             string getReadableLocation = LocationMapTasks.GetCurrentReadableLocation();
-                            Device.BeginInvokeOnMainThread(() => this.CmdLocationText = "Location: " + Environment.NewLine + getReadableLocation);
+                            await Device.InvokeOnMainThreadAsync(() => this.CmdLocationText = "Location: " + Environment.NewLine + getReadableLocation);
                         }
                         else
                         {
                             // TODO: Resource strings
-                            Device.BeginInvokeOnMainThread(() => this.CmdLocationText = "Set Location");
+                            await Device.InvokeOnMainThreadAsync(() => this.CmdLocationText = "Set Location");
                         }
 
                         if (this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
                         {
                             // TODO: Resource strings
-                            Device.BeginInvokeOnMainThread(() => this.CmdSelectSkidText = "Skid# " + this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode);
+                            await Device.InvokeOnMainThreadAsync(() => this.CmdSelectSkidText = "Skid# " + this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode);
                         }
                         else
                         {
                             // TODO: Resource strings
-                            Device.BeginInvokeOnMainThread(() => this.CmdSelectSkidText = "Select Skid");
+                            await Device.InvokeOnMainThreadAsync(() => this.CmdSelectSkidText = "Select Skid");
                         }
                     }
                 }
 
-                this.RefreshData();
+                await this.RefreshData();
 
-                Device.BeginInvokeOnMainThread(() =>
+                await Device.InvokeOnMainThreadAsync(() =>
                 {
                     if (this.actDetail.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno == 0)
                     {
@@ -1444,7 +1444,7 @@ namespace dMobile.View.Activity
                         if (await DisplayAlert(this.GetControlDescription(), string.Format("Do you wish to delete this entire skid \'{0}\'?", skidInfo.CurrSkid.SkidCode), "Yes", "No"))
                         {
                             this.ActDetail.DeleteSkid(skidInfo);
-                            this.RefreshData();
+                            await this.RefreshData();
                             SysCommon.SFillQuantity fillQty = this.ActDetail.GetDataViewTotalQuantity();
                             this.ActDetail.ActItem.UpdateDataViewQuantity(this.ActDetail.ActItem.CurrRowIdx, fillQty.Quantity, fillQty.BaseQuantity, fillQty.WeightQuantity);
                         }
@@ -1457,7 +1457,7 @@ namespace dMobile.View.Activity
             }
             catch (Exception ex)
             {
-                Device.BeginInvokeOnMainThread(async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
                     await errRpt.ShowDialog();
@@ -1955,7 +1955,7 @@ namespace dMobile.View.Activity
                                 this.CmdSelectSkidText = "Select Skid";
                             }
 
-                            this.RefreshData();
+                            await this.RefreshData();
                             SysCommon.SFillQuantity fillQty = this.ActDetail.GetDataViewTotalQuantity();
                             this.ActDetail.ActItem.UpdateDataViewQuantity(this.ActDetail.ActItem.CurrRowIdx, fillQty.Quantity, fillQty.BaseQuantity, fillQty.WeightQuantity);
                         }
@@ -2084,7 +2084,7 @@ namespace dMobile.View.Activity
                 this.ItemsList.Clear();
                 this.ActDetail.DataViewDetails = this.ActDetail.GetDataView(false);
 
-                this.DataGridMainActivityItemsList = this.ActDetail.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity, ref this.dataGridWidth);
+                this.DataGridMainActivityItemsList = this.ActDetail.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
                 this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
 
                 if (this.ActDetail.DataViewDetails.Count > 0 && this.DataGridMainActivityItemsList.Count > 0)

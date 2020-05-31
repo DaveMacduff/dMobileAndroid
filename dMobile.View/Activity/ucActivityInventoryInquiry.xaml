@@ -1,12 +1,58 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="dMobile.View.Activity.ucActivityInventoryInquiry">
+<custompages:DMobileContentPage 
+    xmlns:custompages="clr-namespace:dMobile.View.CustomPages" 
+    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:Helpers="clr-namespace:dMobile.View.Helpers" 
+    xmlns:customcontrols="clr-namespace:dMobile.View.CustomControls"
+    x:Class="dMobile.View.Activity.ucActivityInventoryInquiry">
+    <!--<ContentPage.ToolbarItems>
+        <ToolbarItem x:Name="optionsMenu" IconImageSource="{Binding OptionsIconSource}" Clicked="OptionsMenu_Clicked" />
+    </ContentPage.ToolbarItems>-->
     <ContentPage.Content>
-        <StackLayout>
-            <Label Text="Welcome to Xamarin.Forms!"
-                VerticalOptions="CenterAndExpand" 
-                HorizontalOptions="CenterAndExpand" />
-        </StackLayout>
+        <AbsoluteLayout VerticalOptions="Center">
+            <Grid x:Name="gridContainer" Padding="10" AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0,0,1,1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="50*"/>
+                    <RowDefinition Height="50*"/>
+                </Grid.RowDefinitions>
+
+                <Frame VerticalOptions="Start" Grid.Row="0" OutlineColor="{DynamicResource BorderColor}">
+                    <ScrollView Orientation="Horizontal">
+                        <Grid x:Name="dataGridMainHeader">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <ListView x:Name="dataGridMain" HasUnevenRows="true" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" Grid.Row="1"/>
+                        </Grid>
+                    </ScrollView>
+                </Frame>
+
+                <Grid Grid.Row="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="70*"/>
+                        <ColumnDefinition Width="30*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Button x:Name="cmdLocation" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Clicked="cmdLocation_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+
+                    <Button x:Name="cmdSelectProduct" Grid.Row="1" Grid.Column="0" Clicked="cmdSelectProduct_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                    <customcontrols:CustomPicker x:Name="updnBarCodeModifier1" Grid.Row="1" Grid.Column="1" Image="arrow_drop_down" SelectedIndexChanged="updnBarCodeModifier1_SelectedIndexChanged" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+
+                    <Button x:Name="cmdDisplayDefault" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Clicked="cmdDisplayDefault_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                </Grid>
+            </Grid>
+
+            <ActivityIndicator IsVisible="{Binding Loading}" 
+                               IsRunning="{Binding Loading}"
+                               AbsoluteLayout.LayoutFlags="All" 
+                               AbsoluteLayout.LayoutBounds="0.5,0.5,0.3,0.3"/>
+        </AbsoluteLayout>
     </ContentPage.Content>
-</ContentPage>
+</custompages:DMobileContentPage>

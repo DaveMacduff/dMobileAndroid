@@ -223,15 +223,10 @@ namespace dMobile.Controller
 
                 if (weight < weightLower || weight > weightUpper)
                 {
-                    // TODO: Figure out why raising a MessageOnlyException is not being caught as such, but rather
-                    // as a System.Exception.
                     ////throw new MessageOnlyException("Item is outside of expected weight.");
-#if MULTILANGUAGE
-          string msg = Translator.GetInstance().Translate(TranslatorVocabulary.ItemIsOutsideOfExpectedWeight);
-#else
+
+                    // TODO: Resource strings
                     string msg = "Item is outside of expected weight.";
-#endif
-                    // TODO: DisplayAlert
                     //          MessageBox.Show(
                     //              msg,
                     //#if MULTILANGUAGE
@@ -243,13 +238,13 @@ namespace dMobile.Controller
                     //              MessageBoxIcon.Exclamation,
                     //              MessageBoxDefaultButton.Button2);
                     ////throw new IsReadyToApplyException(msg, true, false);
+                    ///
+                    Application.Current.MainPage.DisplayAlert("Weight Range Check", msg, "OK");
                 }
             }
 
             // New items are identified with 0 < this.FKRefno, do not validate.
-            if (this.SysEnv.SysSettings.PickQtyOverWarn
-                != SysCommon.ActPickingQtyOverValLevels.NoValidationOrWarning
-                && 0 < this.FKRefno)
+            if (this.SysEnv.SysSettings.PickQtyOverWarn != SysCommon.ActPickingQtyOverValLevels.NoValidationOrWarning && 0 < this.FKRefno)
             {
                 try
                 {
@@ -511,7 +506,7 @@ namespace dMobile.Controller
             }
         }
 
-        public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity, ref ColumnDefinition dataGridWidth)
+        public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity)
         {
             throw new NotImplementedException();
         }

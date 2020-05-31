@@ -52,7 +52,7 @@ namespace dMobile.Controller
             return "Physical Counts";
         }
 
-        public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity, ref ColumnDefinition dataGridWidth)
+        public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity)
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
@@ -105,7 +105,7 @@ namespace dMobile.Controller
                 Label labelActivityCountDateTime = new Label { VerticalOptions = LayoutOptions.Center };
                 Label labelActivityCountTypeDescription = new Label { VerticalOptions = LayoutOptions.Center };
 
-                labelActivityRefno.SetBinding(Label.TextProperty, new Binding("ActivityRefno"));
+                labelActivityRefno.SetBinding(Label.TextProperty, new Binding("ActivityCountStringFKRefno"));
                 labelActivityCountDateTime.SetBinding(Label.TextProperty, new Binding("ActivityCountDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
                 labelActivityCountTypeDescription.SetBinding(Label.TextProperty, new Binding("ActivityCountTypeDescription"));
 
@@ -135,7 +135,7 @@ namespace dMobile.Controller
 
                 Count count = new Count
                 {
-                    ActivityRefno = Convert.ToInt32(row["ActivityCountStringFKRefno"]),
+                    ActivityCountStringFKRefno = Convert.ToString(row["ActivityCountStringFKRefno"]),
                     ActivityCountDateTime = Convert.ToDateTime(row["ActivityCountDateTime"]),
                     ActivityCountTypeDescription = description,
                 };

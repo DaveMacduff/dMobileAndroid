@@ -119,7 +119,7 @@ namespace dMobile.View.Activity
         private void DesignObservableCollection()
         {
             this.ActDetail.GetDataView(false);
-            this.DataGridMainActivityItemsList = this.ActDetail.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dgUnitWeight, ref dataGridWidth);
+            this.DataGridMainActivityItemsList = this.ActDetail.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dgUnitWeight);
             this.dgUnitWeight.ItemsSource = this.DataGridMainActivityItemsList;
         }
 

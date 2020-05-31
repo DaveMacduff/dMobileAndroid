@@ -558,7 +558,7 @@
                                 ActItem.FKRefno = 0;
 
                                 XDocument request = XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" + "<params>" + ("<ProductUnitRefno>" + ActItem.ProdInfo.UnitRefno + "</ProductUnitRefno>") + ("<ProductCode>" + ActItem.ProdInfo.Code + "</ProductCode>") + ("<ProductUnitIsBC>" + ActItem.ProdInfo.UnitIsBC + "</ProductUnitIsBC>") + ("<UnitCode>" + ActItem.ProdInfo.UnitCode + "</UnitCode>") + ("<ProductUnitBarCodeCode>" + BarParse.ProductIdentifier + "</ProductUnitBarCodeCode>") + ("<ProductUnitBarCodeSymbologyPrefix>" + BarParse.SymbologyPrefix + "</ProductUnitBarCodeSymbologyPrefix>") + ("<alt_qty>" + 0 + "</alt_qty>") + ("<base_qty>" + 0 + "</base_qty>") + ("<wt_qty>" + 0 + "</wt_qty>") + ("<whs_id>" + LocMap.LoginWhsLocMapRefno + "</whs_id>") + ("<refno>" + Activity.FKRefno + "</refno>") + ("<itm_refno>" + ActItem.FKRefno + "</itm_refno>") + ("<alt_unit>" + ActItem.ProdInfo.UnitCode + "</alt_unit>") + ("<base_unit>" + ActItem.ProdInfo.BaseUnitCode + "</base_unit>") + ("<wt_unit>" + ActItem.ProdInfo.WeightUnitCode + "</wt_unit>") + "</params>");
-                                ActItem.Insert(request, false);
+                                await ActItem.Insert(request, false);
                                 actItemFoundRefno = ActItem.Refno;
                             }
                             else
@@ -599,7 +599,7 @@
                             FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucActivityPurchaseOrderWorkSheetEdit, ActDetail, SysCommon.ActSubTypes.NotApplicable);
 
                             dialogResult = await Device.InvokeOnMainThreadAsync(async () => await form.DisplayControl.ShowDialog());
-                            form.SaveChanges(this, new EventArgs());
+                            await form.SaveChanges(this, new EventArgs());
 
                             if (dialogResult == DialogResult.OK)
                             {
@@ -641,7 +641,7 @@
                             FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucActivityPurchaseOrderWorkSheetEdit, ActDetail, SysCommon.ActSubTypes.NotApplicable);
 
                             dialogResult = await Device.InvokeOnMainThreadAsync(async () => await form.DisplayControl.ShowDialog());
-                            form.SaveChanges(this, new EventArgs());
+                            await form.SaveChanges(this, new EventArgs());
 
                             if (dialogResult == DialogResult.OK)
                             {
@@ -651,7 +651,7 @@
                             if (dialogResult == DialogResult.OK)
                             {
                                 XDocument request = XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" + "<params>" + ("<ProductUnitRefno>" + ActItem.ProdInfo.UnitRefno + "</ProductUnitRefno>") + ("<ProductCode>" + ActItem.ProdInfo.Code + "</ProductCode>") + ("<ProductUnitIsBC>" + ActItem.ProdInfo.UnitIsBC + "</ProductUnitIsBC>") + ("<UnitCode>" + ActItem.ProdInfo.UnitCode + "</UnitCode>") + ("<ProductUnitBarCodeCode>" + BarParse.ProductIdentifier + "</ProductUnitBarCodeCode>") + ("<ProductUnitBarCodeSymbologyPrefix>" + BarParse.SymbologyPrefix + "</ProductUnitBarCodeSymbologyPrefix>") + ("<alt_qty>" + xmlDocEdit.Root.Element("alt_qty").Value + "</alt_qty>") + ("<base_qty>" + xmlDocEdit.Root.Element("base_qty").Value + "</base_qty>") + ("<wt_qty>" + xmlDocEdit.Root.Element("wt_qty").Value + "</wt_qty>") + ("<whs_id>" + LocMap.LoginWhsLocMapRefno + "</whs_id>") + ("<refno>" + ActItem.FKRefno + "</refno>") + ("<itm_refno>" + ActItem.FKRefno + "</itm_refno>") + ("<alt_unit>" + ActItem.ProdInfo.UnitCode + "</alt_unit>") + ("<base_unit>" + ActItem.ProdInfo.BaseUnitCode + "</base_unit>") + ("<wt_unit>" + ActItem.ProdInfo.WeightUnitCode + "</wt_unit>") + "</params>");
-                                ActItem.Insert(request, false);
+                                await ActItem.Insert(request, false);
                             }
                         }
 
@@ -752,7 +752,7 @@
 
                         if (await Device.InvokeOnMainThreadAsync(async () => await form.DisplayControl.ShowDialog() == DialogResult.OK))
                         {
-                            form.SaveChanges(this, new EventArgs());
+                            await form.SaveChanges(this, new EventArgs());
                             xmlDocProduct = form.DisplayControlData;
                             this.prodUnitRefno = int.Parse(xmlDocProduct.Root.Element("ProductUnitRefno").Value);
 
@@ -762,7 +762,7 @@
                                 XDocument xmlDoc = XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" + "<params>" + ("<ProductUnitRefno>" + prodUnitRefno.ToString() + "</ProductUnitRefno>") + ("<ProductUnitBarCodeRefno>" + iProductUnitBarCodeRefno.ToString() + "</ProductUnitBarCodeRefno>") + ("<ProductIdentifier>" + oBarCodeParse.ProductIdentifier + "</ProductIdentifier>") + ("<RawData>" + oBarCodeParse.Raw + "</RawData>") + ("<enumBarCodeSymbology>" + (Convert.ToInt32(oBarCodeParse.Symbology)) + "</enumBarCodeSymbology>") + ("<BarCodeSymbologyPrefix>" + oBarCodeParse.SymbologyPrefix + "</BarCodeSymbologyPrefix>") + ("<ProductUnitBarCodeModifier1>" + SysEnv.CurrentBarCodeModifier1 + "</ProductUnitBarCodeModifier1>") + "</params>");
 
                                 //INSERT A NEW 'BAR CODE ASSOCIATION' ACTIVITY
-                                actItemBarCode.Insert(xmlDoc, false);
+                                await actItemBarCode.Insert(xmlDoc, false);
 
                                 IsProductIdentified = true;
                             }
@@ -1087,7 +1087,7 @@
                     FormDialogContainer formSelectProd = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucSelectProductUnit, SysCommon.ActSubTypes.PurchaseOrderWorkSheet);
 
                     dialogResult = await formSelectProd.DisplayControl.ShowDialog();
-                    formSelectProd.SaveChanges(this, new EventArgs());
+                    await formSelectProd.SaveChanges(this, new EventArgs());
 
                     if (dialogResult == DialogResult.OK)
                     {
@@ -1102,7 +1102,7 @@
                             FormDialogContainer formPurchaseOrderWorkSheetEdit = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucActivityPurchaseOrderWorkSheetEdit, ActDetail, SysCommon.ActSubTypes.NotApplicable);
 
                             dialogResult = await formPurchaseOrderWorkSheetEdit.DisplayControl.ShowDialog();
-                            formPurchaseOrderWorkSheetEdit.SaveChanges(this, new EventArgs());
+                            await formPurchaseOrderWorkSheetEdit.SaveChanges(this, new EventArgs());
 
                             if (dialogResult == DialogResult.OK)
                             {
@@ -1128,7 +1128,7 @@
 
                             if (dialogResult == DialogResult.OK)
                             {
-                                form.SaveChanges(this, new EventArgs());
+                                await form.SaveChanges(this, new EventArgs());
                                 xmlDocEdit = form.DisplayControlData;
                                 XDocument request = XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" + "<params>" + ("<ProductUnitRefno>" + ActItem.ProdInfo.UnitRefno + "</ProductUnitRefno>") + ("<ProductCode>" + ActItem.ProdInfo.Code + "</ProductCode>") + ("<ProductUnitIsBC>" + ActItem.ProdInfo.UnitIsBC + "</ProductUnitIsBC>") + ("<UnitCode>" + ActItem.ProdInfo.UnitCode + "</UnitCode>") + ("<ProductUnitBarCodeCode>" + strProductUnitBarCodeCode + "</ProductUnitBarCodeCode>") + ("<ProductUnitBarCodeSymbologyPrefix>" + strBarCodeSymbologyPrefix + "</ProductUnitBarCodeSymbologyPrefix>") + ("<alt_qty>" + xmlDocEdit.Root.Element("alt_qty").Value + "</alt_qty>") + ("<base_qty>" + xmlDocEdit.Root.Element("base_qty").Value + "</base_qty>") + ("<wt_qty>" + xmlDocEdit.Root.Element("wt_qty").Value + "</wt_qty>") + ("<whs_id>" + LocMap.LoginWhsLocMapRefno + "</whs_id>") + ("<refno>" + ActItem.FKRefno + "</refno>") + ("<itm_refno>" + ActItem.FKRefno + "</itm_refno>") + ("<alt_unit>" + ActItem.ProdInfo.UnitCode + "</alt_unit>") + ("<base_unit>" + ActItem.ProdInfo.BaseUnitCode + "</base_unit>") + ("<wt_unit>" + ActItem.ProdInfo.WeightUnitCode + "</wt_unit>") + "</params>");
 
@@ -1137,7 +1137,7 @@
                                 //    dataGridMainActivity.UnSelect(dataGridMainActivity.CurrentRowIndex);
                                 //}
 
-                                ActItem.Insert(request, false);
+                                await ActItem.Insert(request, false);
 
                                 if (ActItem.DataViewItems.Count > 0)
                                 {

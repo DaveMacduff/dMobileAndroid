@@ -320,15 +320,14 @@ namespace dMobile.Controller
             }
         }
 
-        public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity, ref ColumnDefinition dataGridWidth)
+        public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity)
         {
+            // TODO: Calculate column widths
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
             Grid gridHeaderPhysicalCount = new Grid
             {
                 Padding = new Thickness(5),
-                //VerticalOptions = LayoutOptions.FillAndExpand,
-                //HorizontalOptions = LayoutOptions.FillAndExpand,
                 ColumnSpacing = 15,
                 ColumnDefinitions =
                 {
@@ -376,8 +375,6 @@ namespace dMobile.Controller
             {
                 Grid gridData = new Grid
                 {
-                    //VerticalOptions = LayoutOptions.FillAndExpand,
-                    //HorizontalOptions = LayoutOptions.FillAndExpand,
                     Padding = new Thickness(5),
                     ColumnSpacing = 15,
                     ColumnDefinitions =
@@ -1109,12 +1106,9 @@ namespace dMobile.Controller
         public override int UpdateDataViewQuantity(int idx, decimal quantity, decimal baseQuantity, decimal weightQuantity)
         {
             this.DataViewItems[idx].BeginEdit();
-            this.DataViewItems[idx]["ActivityItemCountQuantity"]
-                = (decimal)this.DataViewItems[idx]["ActivityItemCountQuantity"] + quantity;
-            this.DataViewItems[idx]["ActivityItemCountBaseQuantity"]
-                = (decimal)DataViewItems[idx]["ActivityItemCountBaseQuantity"] + baseQuantity;
-            this.DataViewItems[idx]["ActivityItemCountWeightQuantity"]
-                = (decimal)DataViewItems[idx]["ActivityItemCountWeightQuantity"] + weightQuantity;
+            this.DataViewItems[idx]["ActivityItemCountQuantity"] = Convert.ToDecimal(this.DataViewItems[idx]["ActivityItemCountQuantity"]) + quantity;
+            this.DataViewItems[idx]["ActivityItemCountBaseQuantity"] = Convert.ToDecimal(DataViewItems[idx]["ActivityItemCountBaseQuantity"]) + baseQuantity;
+            this.DataViewItems[idx]["ActivityItemCountWeightQuantity"] = Convert.ToDecimal(DataViewItems[idx]["ActivityItemCountWeightQuantity"]) + weightQuantity;
             this.DataViewItems[idx].EndEdit();
 
             return idx;

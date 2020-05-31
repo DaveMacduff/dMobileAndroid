@@ -235,7 +235,7 @@ namespace dMobile.View
 
                                     if (continueAssocBarCode)
                                     {
-                                        frmSelectProduct.SaveChanges(frmSelectProduct, new EventArgs());
+                                        await frmSelectProduct.SaveChanges(frmSelectProduct, new EventArgs());
                                         XDocument xmlDoc = frmSelectProduct.DisplayControlData;
                                         prodUnitRefno = int.Parse(xmlDoc.Root.Element("ProductUnitRefno").Value);
 

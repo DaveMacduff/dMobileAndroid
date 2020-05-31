@@ -1646,11 +1646,11 @@ namespace dMobile.View.Activity
 
             FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucSelectProductUnit, this.ActSubType);
 
-            await form.DisplayControl.ShowDialog().ContinueWith(result =>
+            await form.DisplayControl.ShowDialog().ContinueWith(async (result) =>
             {
                 if (form.DisplayControl.DialogResult == DialogResult.OK)
                 {
-                    form.SaveChanges(this, new EventArgs());
+                    await form.SaveChanges(this, new EventArgs());
                     XDocument xmlDoc = form.DisplayControlData;
                     this.UnitRefno = int.Parse(xmlDoc.Root.Element("ProductUnitRefno").Value);
 
@@ -1671,10 +1671,10 @@ namespace dMobile.View.Activity
 
                         try
                         {
-                            this.ActItemBarCode.Insert(xmlDoc, true);
+                            await this.ActItemBarCode.Insert(xmlDoc, true);
 
                             //this.AddScanMsg(sender, null, "Product associated to bar code.");
-                            Device.BeginInvokeOnMainThread(() => this.ItemsList[0] = "Product Associated To Bar Code");
+                            await Device.InvokeOnMainThreadAsync(() => this.ItemsList[0] = "Product Associated To Bar Code");
 
                             using (SQLiteCommand cmndProdBCUnit = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
                             {
@@ -1700,7 +1700,7 @@ namespace dMobile.View.Activity
 
                             if (!string.IsNullOrEmpty(productDataText))
                             {
-                                Device.BeginInvokeOnMainThread(() =>
+                                await Device.InvokeOnMainThreadAsync(() =>
                                 {
                                     this.lblProductData.TextColor = Color.Black;
                                     this.lblProductData.Text = productDataText;
@@ -1713,7 +1713,7 @@ namespace dMobile.View.Activity
                         }
                         catch (SQLiteException ex)
                         {
-                            Device.BeginInvokeOnMainThread(async () =>
+                            await Device.InvokeOnMainThreadAsync(async () =>
                              {
                                  FormErrorReport errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex);
                                  await errRpt.ShowDialog();
@@ -1721,7 +1721,7 @@ namespace dMobile.View.Activity
                         }
                         catch (Exception ex)
                         {
-                            Device.BeginInvokeOnMainThread(async () =>
+                            await Device.InvokeOnMainThreadAsync(async () =>
                              {
                                  FormErrorReport errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex);
                                  await errRpt.ShowDialog();
@@ -1729,7 +1729,7 @@ namespace dMobile.View.Activity
                         }
                         finally
                         {
-                            Device.BeginInvokeOnMainThread(() =>
+                            await Device.InvokeOnMainThreadAsync(() =>
                             {
                                 this.Parse.ClearResetBarCodeProperties();
                                 this.HasData = false;

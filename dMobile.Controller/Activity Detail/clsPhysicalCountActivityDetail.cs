@@ -332,7 +332,7 @@ namespace dMobile.Controller
             if (!isAdd)
             {
                 this.FKRefno = Convert.ToInt32(this.DataViewDetails[idx]["ActivityDetailCountFKRefno"]);
-                this.LocMap.CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno((int)this.DataViewDetails[idx]["LocationMapRefno"]);
+                this.LocMap.CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(this.DataViewDetails[idx]["LocationMapRefno"]));
             }
 
             return this;
@@ -743,7 +743,7 @@ namespace dMobile.Controller
             return this.DataViewDetails;
         }
 
-        public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity, ref ColumnDefinition dataGridWidth)
+        public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity)
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
@@ -787,7 +787,7 @@ namespace dMobile.Controller
                     ActivityDetailExtra4Text = Convert.ToString(row["ActivityDetailExtra4Text"] != DBNull.Value ? row["ActivityDetailExtra4Text"] : null)
                 };
 
-                if (DateTime.TryParse(Convert.ToString(row["ActivityDetailExtra5Date"]), out DateTime result))
+                if (DateTime.TryParse(Convert.ToString(row["ActivityDetailExtra5Date"]), out _))
                 {
                     countDetail.ActivityDetailExtra5Date = Convert.ToDateTime(row["ActivityDetailExtra5Date"] != DBNull.Value ? row["ActivityDetailExtra5Date"] : null);
                 }
@@ -805,7 +805,7 @@ namespace dMobile.Controller
             Label labelUnitCodeHeader = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             Label labelSchemeIDHeader = new Label { Text = "Scheme ID", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
                         
-            double columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelSchemeIDHeader.Text);
+            double columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelQtyHeader.Text);
             double columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelWeightHeader.Text);
             double columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelUnitCodeHeader.Text);
             double columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelSchemeIDHeader.Text);
@@ -814,7 +814,7 @@ namespace dMobile.Controller
             Grid gridHeader = new Grid
             {
                 Padding = new Thickness(5),
-                ColumnSpacing = 15,
+                //ColumnSpacing = 15,
                 ColumnDefinitions =
                 {
                     new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
@@ -842,7 +842,7 @@ namespace dMobile.Controller
 
             foreach (CountDetail countDetail in observableCollection)
             {
-                double detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", countDetail.ActivityDetailWeightQuantity));
+                double detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", countDetail.ActivityDetailQuantity));
                 double detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", countDetail.ActivityDetailWeightQuantity));
                 double detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(countDetail.UnitCode);
                 double detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(countDetail.ActivityDetailSchemeID);
@@ -879,7 +879,7 @@ namespace dMobile.Controller
                 Grid gridData = new Grid()
                 {
                     Padding = new Thickness(5),
-                    ColumnSpacing = 15,
+                    //ColumnSpacing = 15,
                     ColumnDefinitions =
                     {
                         new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
@@ -991,7 +991,7 @@ namespace dMobile.Controller
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
-            this.DataViewDetails.RowFilter = "ActivityCountStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
+            this.DataViewDetails.RowFilter = "CONVERT(ActivityDetailCountFKRefno, System.String) LIKE \'%" + searchText.Trim() + "%\'";
 
             foreach (DataRow row in this.DataViewDetails.ToTable().Rows)
             {
@@ -1033,7 +1033,7 @@ namespace dMobile.Controller
                     ActivityDetailExtra4Text = Convert.ToString(row["ActivityDetailExtra4Text"] != DBNull.Value ? row["ActivityDetailExtra4Text"] : null)
                 };
 
-                if (!string.IsNullOrEmpty(Convert.ToString(row["ActivityDetailExtra5Date"] != DBNull.Value ? row["ActivityDetailExtra5Date"] : null)))
+                if (DateTime.TryParse(Convert.ToString(row["ActivityDetailExtra5Date"]), out _))
                 {
                     this.ActExtra.DateTime5 = Convert.ToDateTime(row["ActivityDetailExtra5Date"]);
                 }
@@ -1067,7 +1067,7 @@ namespace dMobile.Controller
                 this.ActExtra.Text3 = Convert.ToString(this.DataViewDetails[idx]["ActivityDetailExtra3Text"]);
                 this.ActExtra.Text4 = Convert.ToString(this.DataViewDetails[idx]["ActivityDetailExtra4Text"]);
                 
-                if (!string.IsNullOrEmpty(Convert.ToString(this.DataViewDetails[idx]["ActivityDetailExtra5Date"])))
+                if (DateTime.TryParse(Convert.ToString(DataViewDetails[idx]["ActivityDetailExtra5Date"]), out _))
                 {
                     this.ActExtra.DateTime5 = Convert.ToDateTime(this.DataViewDetails[idx]["ActivityDetailExtra5Date"]);
                 }

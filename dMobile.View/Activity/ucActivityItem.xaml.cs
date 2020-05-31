@@ -3246,7 +3246,7 @@
 
                 await Device.InvokeOnMainThreadAsync(() =>
                 {
-                    this.DataGridMainActivityItemsList = this.ActItem.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity, ref this.dataGridWidth);
+                    this.DataGridMainActivityItemsList = this.ActItem.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
                     this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
 
                     if (this.ActItem.DataViewItems.Count > 0 && this.DataGridMainActivityItemsList.Count > 0)

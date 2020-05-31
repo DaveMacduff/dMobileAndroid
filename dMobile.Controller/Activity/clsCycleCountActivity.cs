@@ -8,6 +8,8 @@ namespace dMobile.Controller
     using System.Xml.Linq;
     using dMobile.Bedrock;
     using dMobile.GroundWork;
+    using dMobile.Resources.Services;
+    using dMobile.Resources.Types;
     using Xamarin.Forms;
 
     public class CycleActivity : Activity
@@ -45,9 +47,127 @@ namespace dMobile.Controller
             return "Cycle Counts";
         }
 
-        public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity, ref ColumnDefinition dataGridWidth)
+        public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity)
         {
-            throw new NotImplementedException();
+            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+                        
+            foreach (DataRow row in this.DataViewHdrs.ToTable().Rows)
+            {
+                string description = string.Empty;
+                string[] descriptionSubstring = Convert.ToString(row["ActivityCountTypeDescription"]).Split();
+
+                if (descriptionSubstring != null && descriptionSubstring.Length > 1)
+                {
+                    description = descriptionSubstring[0] + " " + descriptionSubstring[1];
+                }
+
+                Count count = new Count
+                {
+                    ActivityCountStringFKRefno = Convert.ToString(row["ActivityCountStringFKRefno"] != DBNull.Value ? row["ActivityCountStringFKRefno"] : null),
+                    ActivityCountDateTime = Convert.ToDateTime(row["ActivityCountDateTime"] != DBNull.Value ? row["ActivityCountDateTime"] : null),
+                    ActivityCountTypeDescription = description,
+                };
+
+                observableCollection.Add(count);
+            }
+
+            Label labelCountNumber = new Label { Text = "Count #", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            Label labelCountDate = new Label { Text = "Date", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            Label labelCountType = new Label { Text = "Count Type", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+
+            // Calculate text size
+            double columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelCountNumber.Text);
+            double columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelCountDate.Text);
+            double columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelCountType.Text);
+
+            Grid gridHeader = new Grid
+            {
+                Padding = new Thickness(5),
+                //ColumnSpacing = 15,
+                ColumnDefinitions =
+                {
+                    new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) }
+                }
+            };
+
+            gridHeader.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
+
+            gridHeader.Children.Add(labelCountNumber);
+            gridHeader.Children.Add(labelCountDate);
+            gridHeader.Children.Add(labelCountType);
+
+            Grid.SetColumn(labelCountNumber, 0);
+            Grid.SetColumn(labelCountDate, 1);
+            Grid.SetColumn(labelCountType, 2);
+
+            Grid.SetRow(gridHeader, 0);
+
+            dataGridMainActivityHeader.Children.Add(gridHeader);
+
+            foreach (Count count in observableCollection)
+            {
+                double dataColumnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(count.ActivityCountStringFKRefno);
+                double dataColumnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(count.ActivityCountDateTime.ToString("MM/dd/yyyy")));
+                double dataColumnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(count.ActivityCountTypeDescription);
+
+                if (dataColumnWidth0 > columnWidth0)
+                {
+                    columnWidth0 = dataColumnWidth0;
+                    gridHeader.ColumnDefinitions[0].Width = columnWidth0;
+                }
+
+                if (dataColumnWidth1 > columnWidth1)
+                {
+                    columnWidth1 = dataColumnWidth1;
+                    gridHeader.ColumnDefinitions[1].Width = columnWidth1;
+                }
+
+                if (dataColumnWidth2 > columnWidth2)
+                {
+                    columnWidth2 = dataColumnWidth2;
+                    gridHeader.ColumnDefinitions[2].Width = columnWidth2;
+                }
+            }
+
+            // Data grid
+            DataTemplate dataTemplateCount = new DataTemplate(() =>
+            {
+                Grid gridData = new Grid
+                {
+                    Padding = new Thickness(5),
+                    //ColumnSpacing = 15,
+                    ColumnDefinitions =
+                    {
+                        new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) }
+                    }
+                };
+
+                Label labelActivityRefno = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelActivityCountDateTime = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelActivityCountTypeDescription = new Label { VerticalOptions = LayoutOptions.Center };
+
+                labelActivityRefno.SetBinding(Label.TextProperty, new Binding("ActivityCountStringFKRefno"));
+                labelActivityCountDateTime.SetBinding(Label.TextProperty, new Binding("ActivityCountDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
+                labelActivityCountTypeDescription.SetBinding(Label.TextProperty, new Binding("ActivityCountTypeDescription"));
+
+                gridData.Children.Add(labelActivityRefno, 0, 0);
+                gridData.Children.Add(labelActivityCountDateTime, 0, 0);
+                gridData.Children.Add(labelActivityCountTypeDescription, 0, 0);
+
+                Grid.SetColumn(labelActivityRefno, 0);
+                Grid.SetColumn(labelActivityCountDateTime, 1);
+                Grid.SetColumn(labelActivityCountTypeDescription, 2);
+
+                return new ViewCell { View = gridData };
+            });
+
+            dataGridMainActivity.ItemTemplate = dataTemplateCount;
+
+            return observableCollection;
         }
 
 //        /// <summary>
@@ -251,15 +371,14 @@ namespace dMobile.Controller
         /// <param name="idx"></param>
         public override void SelectHdr(int idx)
         {
-            this.FKRefno = (int)this.DataViewHdrs[idx]["ActivityCountFKRefno"];
-            this.Refno = (int)this.DataViewHdrs[idx]["ActivityRefno"];
+            this.FKRefno = Convert.ToInt32(this.DataViewHdrs[idx]["ActivityCountFKRefno"]);
+            this.Refno = Convert.ToInt32(this.DataViewHdrs[idx]["ActivityRefno"]);
             this.SelectedIndex = idx;
 
             // Set the selected warehouse to the activity header warehouse.
-            if (LocationMap.GetInstance().CurrLocMap.WhsLocMapRefno != (int)this.DataViewHdrs[idx]["LocationMapRefno"])
+            if (LocationMap.GetInstance().CurrLocMap.WhsLocMapRefno != Convert.ToInt32(this.DataViewHdrs[idx]["LocationMapRefno"]))
             {
-                LocationMap.GetInstance().CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(
-                    (int)this.DataViewHdrs[idx]["LocationMapRefno"]);
+                LocationMap.GetInstance().CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(this.DataViewHdrs[idx]["LocationMapRefno"]));
             }
         }
 
@@ -270,8 +389,8 @@ namespace dMobile.Controller
         /// <returns></returns>
         public override int GetRefnoFromRowIdx(int idx)
         {
-            this.FKRefno = (int)this.DataViewHdrs[idx]["ActivityCountFKRefno"];
-            this.Refno = (int)this.DataViewHdrs[idx]["ActivityRefno"];
+            this.FKRefno = Convert.ToInt32(this.DataViewHdrs[idx]["ActivityCountFKRefno"]);
+            this.Refno = Convert.ToInt32(this.DataViewHdrs[idx]["ActivityRefno"]);
 
             return this.Refno;
         }

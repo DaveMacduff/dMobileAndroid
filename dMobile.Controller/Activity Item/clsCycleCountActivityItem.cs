@@ -10,6 +10,9 @@ namespace dMobile.Controller
     using System.Xml.Linq;
     using dMobile.Bedrock;
     using dMobile.GroundWork;
+    using dMobile.Resources.Enums;
+    using dMobile.Resources.Services;
+    using dMobile.Resources.Types;
     using Xamarin.Forms;
 
     public class CycleActItem : ActItem
@@ -102,121 +105,170 @@ namespace dMobile.Controller
         /// <param name="askToInsertAsNewItem"></param>
         public override async Task Insert(XDocument data, bool askToInsertAsNewItem)
         {
-            // TODO: SQL
-//            int foundActItemRefno = 0;
-//            var result = DialogResult.None;
-//            int prodUnitRefno = int.Parse(data.Root.Element("ProductUnitRefno").Value);
-//            int locMapRefno = this.LocMap.CurrLocMap.WhsLocMapRefno;
-//            if (this.SysEnv.SysSettings.IsPhysicalDoNotDefaultProductLocation)
-//                locMapRefno = this.LocMap.CurrLocMapRefno;
+            int foundActItemRefno = 0;
+            bool result = false;
+            int prodUnitRefno = int.Parse(data.Root.Element("ProductUnitRefno").Value);
+            int locMapRefno = this.LocMap.CurrLocMap.WhsLocMapRefno;
 
-//            if (prodUnitRefno != 0)
-//            {
-//                foundActItemRefno = this.GetRefnoFromProdUnitRefno(prodUnitRefno);
+            if (this.SysEnv.SysSettings.IsPhysicalDoNotDefaultProductLocation)
+            {
+                locMapRefno = this.LocMap.CurrLocMapRefno;
+            }
 
-//                if (foundActItemRefno > 0)
-//                {
-//                    result = MessageBox.Show(
-//#if MULTILANGUAGE
-//              Translator.GetInstance().Translate(TranslatorVocabulary.ALineItemAlreadyExistsForThisLocationAndProduct) + Environment.NewLine 
-//              + Translator.GetInstance().Translate(TranslatorVocabulary.DoYouWishToCreateOne), 
-//              Translator.GetInstance().Translate(TranslatorVocabulary.NewItem), 
-//#else
-//"A line item already exists for this location and product." + Environment.NewLine
-//                        + "Do you wish to create one?",
-//                        "New Item",
-//#endif
-// MessageBoxButtons.YesNoCancel,
-//                        MessageBoxIcon.Question,
-//                        MessageBoxDefaultButton.Button3);
-//                }
-//                else
-//                {
-//                    // If the selected product to insert was not found, force the dialog result to insert it.
-//                    result = DialogResult.Yes;
-//                }
+            if (prodUnitRefno != 0)
+            {
+                foundActItemRefno = this.GetRefnoFromProdUnitRefno(prodUnitRefno);
 
-//                if (result == DialogResult.Yes)
-//                {
-//                    using (SQLiteCommand cmndActCountItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-//                    using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-//                    using (SQLiteCommand cmndID = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-//                    {
-//                        cmndActCountItem.CommandText = "tActivityItemCount";
-//                        cmndActCountItem.CommandType = CommandType.TableDirect;
-//                        cmndActCountItem.IndexName = "UQ_ActivityItemCountOnActivityItemCountFKRefno";
+                if (foundActItemRefno > 0)
+                {
+                    //result = MessageBox.Show("A line item already exists for this location and product." + Environment.NewLine + "Do you wish to create one?", "New Item", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button3);
+                    // TODO: Resource strings
+                    result = await Application.Current.MainPage.DisplayAlert("New Item", "A line item already exists for this location and product.", "Yes", "No");
+                }
+                else
+                {
+                    // If the selected product to insert was not found, force the dialog result to insert it.
+                    result = true;
+                }
 
-//                        cmndItem.CommandText = "tActivityItem";
-//                        cmndItem.CommandType = CommandType.TableDirect;
+                if (result)
+                {
+                    SQLiteConnection conn = DatabaseConnection.GetInstance().SQLConn;
 
-//                        cmndID.CommandText = "SELECT @@IDENTITY";
-//                        cmndID.CommandType = CommandType.Text;
+                    using (SQLiteCommand cmndActCountItem = conn.CreateCommand())
+                    using (SQLiteCommand cmndItem = conn.CreateCommand())
+                    using (SQLiteCommand cmndID = conn.CreateCommand())
+                    using (SQLiteTransaction transaction = conn.BeginTransaction())
+                    {
+                        try
+                        {
+                            //using (SqlCeResultSet rs = cmndActCountItem.ExecuteResultSet(ResultSetOptions.Updatable))
+                            //using (SqlCeResultSet rsActItem = cmndItem.ExecuteResultSet(ResultSetOptions.Updatable))
+                            //{
+                            //SqlCeUpdatableRecord rec = rs.CreateRecord();
+                            //SqlCeUpdatableRecord recActItem = rsActItem.CreateRecord();
 
-//                        using (SqlCeResultSet rs = cmndActCountItem.ExecuteResultSet(ResultSetOptions.Updatable))
-//                        using (SqlCeResultSet rsActItem = cmndItem.ExecuteResultSet(ResultSetOptions.Updatable))
-//                        {
-//                            SqlCeUpdatableRecord rec = rs.CreateRecord();
-//                            SqlCeUpdatableRecord recActItem = rsActItem.CreateRecord();
+                            cmndItem.CommandText = "INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (@activityItemSubType, @activityItemStatus, @activityRefno)";
+                            cmndItem.CommandType = CommandType.Text;
+                            cmndItem.Parameters.Add(new SQLiteParameter("@activityItemSubType", (int)SysCommon.ActSubTypes.CycleCounts));
+                            cmndItem.Parameters.Add(new SQLiteParameter("@activityItemStatus", (int)SysCommon.ActStatus.NoChange));
+                            cmndItem.Parameters.Add(new SQLiteParameter("@activityRefno", Convert.ToInt32(this.ActHdr.Refno)));
 
-//                            recActItem.SetInt32((int)SysCommon.ActItemFields.SubType, (int)SysCommon.ActSubTypes.CycleCounts);
-//                            recActItem.SetInt32((int)SysCommon.ActItemFields.Status, (int)SysCommon.ActStatus.NoChange);
-//                            recActItem.SetInt32((int)SysCommon.ActItemFields.ActRefno, this.ActHdr.Refno);
-//                            rsActItem.Insert(recActItem);
+                            cmndItem.ExecuteNonQuery();
 
-//                            this.Refno = Convert.ToInt32(cmndID.ExecuteScalar());
+                            //recActItem.SetInt32((int)SysCommon.ActItemFields.SubType, (int)SysCommon.ActSubTypes.CycleCounts);
+                            //recActItem.SetInt32((int)SysCommon.ActItemFields.Status, (int)SysCommon.ActStatus.NoChange);
+                            //recActItem.SetInt32((int)SysCommon.ActItemFields.ActRefno, this.ActHdr.Refno);
+                            //rsActItem.Insert(recActItem);
 
-//                            this.FKRefno = this.Refno * -1;
+                            cmndID.CommandText = "SELECT last_insert_rowid()";
+                            cmndID.CommandType = CommandType.Text;
 
-//                            rec.SetInt32((int)SysCommon.ActItemCountFields.ActItemRefno, this.Refno);
-//                            rec.SetInt32(
-//                                (int)SysCommon.ActItemCountFields.ActItemSubType,
-//                                (int)SysCommon.ActSubTypes.CycleCounts);
-//                            rec.SetInt32((int)SysCommon.ActItemCountFields.FKRefno, this.FKRefno);
-//                            rec.SetString((int)SysCommon.ActItemCountFields.StringFKRefno, this.FKRefno.ToString());
-//                            rec.SetInt32((int)SysCommon.ActItemCountFields.ProdUnitRefno, prodUnitRefno);
-//                            rec.SetInt32((int)SysCommon.ActItemCountFields.LocMapRefno, locMapRefno);
-//                            rec.SetDecimal((int)SysCommon.ActItemCountFields.QuantityOnHand, 0);
-//                            rec.SetDecimal((int)SysCommon.ActItemCountFields.BaseQuantityOnHand, 0);
-//                            rec.SetDecimal((int)SysCommon.ActItemCountFields.WeightQuantityOnHand, 0);
-//                            rec.SetDecimal((int)SysCommon.ActItemCountFields.Quantity, 0);
-//                            rec.SetDecimal((int)SysCommon.ActItemCountFields.BaseQuantity, 0);
-//                            rec.SetDecimal((int)SysCommon.ActItemCountFields.WeightQuantity, 0);
-//                            rs.Insert(rec);
+                            this.Refno = Convert.ToInt32(cmndID.ExecuteScalar());
+                            this.FKRefno = this.Refno * -1;
 
-//                            this.LocMap.CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
+                            cmndActCountItem.CommandText = "INSERT INTO tActivityItemCount (" +
+                                    "ActivityItemRefno, " +
+                                    "ActivityItemSubType, " +
+                                    "ActivityItemCountFKRefno, " +
+                                    "ActivityItemCountStringFKRefno, " +
+                                    "ProductUnitRefno, " +
+                                    "LocationMapRefno, " +
+                                    "ActivityItemCountQuantityOnHand, " +
+                                    "ActivityItemCountBaseQuantityOnHand, " +
+                                    "ActivityItemCountWeightQuantityOnHand, " +
+                                    "ActivityItemCountQuantity, " +
+                                    "ActivityItemCountBaseQuantity, " +
+                                    "ActivityItemCountWeightQuantity" +
+                                    ") VALUES (" +
+                                    "@activityItemRefno, " +
+                                    "@activityItemSubType, " +
+                                    "@activityItemCountFKRefno, " +
+                                    "@activityItemCountStringFKRefno, " +
+                                    "@productUnitRefno, " +
+                                    "@locationMapRefno, " +
+                                    "@activityItemCountQuantityOnHand, " +
+                                    "@activityItemCountBaseQuantityOnHand, " +
+                                    "@activityItemCountWeightQuantityOnHand, " +
+                                    "@activityItemCountQuantity, " +
+                                    "@activityItemCountBaseQuantity, " +
+                                    "@activityItemCountWeightQuantity" +
+                                    ")";
+                            cmndActCountItem.CommandType = CommandType.Text;
+                            //cmndActCountItem.IndexName = "UQ_ActivityItemCountOnActivityItemCountFKRefno";
+                            cmndActCountItem.Parameters.Add(new SQLiteParameter("@activityItemRefno", Convert.ToInt32(this.Refno)));
+                            cmndActCountItem.Parameters.Add(new SQLiteParameter("@activityItemSubType", Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts)));
+                            cmndActCountItem.Parameters.Add(new SQLiteParameter("@activityItemCountFKRefno", Convert.ToInt32(this.FKRefno)));
+                            cmndActCountItem.Parameters.Add(new SQLiteParameter("@activityItemCountStringFKRefno", Convert.ToString(this.FKRefno)));
+                            cmndActCountItem.Parameters.Add(new SQLiteParameter("@productUnitRefno", Convert.ToInt32(prodUnitRefno)));
+                            cmndActCountItem.Parameters.Add(new SQLiteParameter("@locationMapRefno", Convert.ToInt32(locMapRefno)));
 
-//                            this.ProdInfo = ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
-//                            this.ProdInfo.Scheme = ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
+                            cmndActCountItem.Parameters.Add(new SQLiteParameter("@activityItemCountQuantityOnHand", Convert.ToDecimal(0)));
+                            cmndActCountItem.Parameters.Add(new SQLiteParameter("@activityItemCountBaseQuantityOnHand", Convert.ToDecimal(0)));
+                            cmndActCountItem.Parameters.Add(new SQLiteParameter("@activityItemCountWeightQuantityOnHand", Convert.ToDecimal(0)));
+                            cmndActCountItem.Parameters.Add(new SQLiteParameter("@activityItemCountQuantity", Convert.ToDecimal(0)));
+                            cmndActCountItem.Parameters.Add(new SQLiteParameter("@activityItemCountBaseQuantity", Convert.ToDecimal(0)));
+                            cmndActCountItem.Parameters.Add(new SQLiteParameter("@activityItemCountWeightQuantity", Convert.ToDecimal(0)));
 
-//                            if (this.DataViewItems != null)
-//                            {
-//                                DataRowView rowView = this.DataViewItems.AddNew();
-//                                rowView["ActivityItemRefno"] = this.Refno;
-//                                rowView["ActivityItemCountFKRefno"] = this.FKRefno;
-//                                rowView["ActivityItemCountStringFKRefno"] = this.FKRefno.ToString();
-//                                rowView["ProductUnitRefno"] = prodUnitRefno;
-//                                rowView["ProductRefno"] = int.Parse(data.Root.Element("ProductRefno").Value);
-//                                rowView["ProductCode"] = data.Root.Element("ProductCode").Value;
-//                                rowView["ProductDescription"] = data.Root.Element("ProductDescription").Value;
-//                                rowView["UnitCode"] = data.Root.Element("UnitCode").Value;
-//                                rowView["ProductUnitBC"] = data.Root.Element("ProductUnitBC").Value;
-//                                rowView["ProductUnitSizeDescription"] = data.Root.Element("ProductUnitSizeDescription").Value;
-//                                rowView["LocationMapRefno"] = locMapRefno;
-//                                rowView["LocationCode"] = this.LocMap.CurrLocMap.WhsCode;
-//                                rowView["LocationName"] = this.LocMap.CurrLocMap.WhsName;
-//                                rowView["ActivityItemStatus"] = SysCommon.ActStatus.Inserted;
-//                                rowView["ActivityItemCountQuantityOnHand"] = 0;
-//                                rowView["ActivityItemCountBaseQuantityOnHand"] = 0;
-//                                rowView["ActivityItemCountWeightQuantityOnHand"] = 0;
-//                                rowView["ActivityItemCountQuantity"] = 0;
-//                                rowView["ActivityItemCountBaseQuantity"] = 0;
-//                                rowView["ActivityItemCountWeightQuantity"] = 0;
-//                                rowView.EndEdit();
-//                            }
-//                        }
-//                    }
-//                }
-//            }
+                            cmndActCountItem.ExecuteNonQuery();
+
+                            transaction.Commit();
+                        }
+                        catch (SQLiteException ex)
+                        {
+                            transaction.Rollback();
+                            
+                            // TOOD: Logging
+                            Console.WriteLine(ex);
+                        }
+
+                        //rec.SetInt32((int)SysCommon.ActItemCountFields.ActItemRefno, this.Refno);
+                        //rec.SetInt32((int)SysCommon.ActItemCountFields.ActItemSubType, (int)SysCommon.ActSubTypes.CycleCounts);
+                        //rec.SetInt32((int)SysCommon.ActItemCountFields.FKRefno, this.FKRefno);
+                        //rec.SetString((int)SysCommon.ActItemCountFields.StringFKRefno, this.FKRefno.ToString());
+                        //rec.SetInt32((int)SysCommon.ActItemCountFields.ProdUnitRefno, prodUnitRefno);
+                        //rec.SetInt32((int)SysCommon.ActItemCountFields.LocMapRefno, locMapRefno);
+                        //rec.SetDecimal((int)SysCommon.ActItemCountFields.QuantityOnHand, 0);
+                        //rec.SetDecimal((int)SysCommon.ActItemCountFields.BaseQuantityOnHand, 0);
+                        //rec.SetDecimal((int)SysCommon.ActItemCountFields.WeightQuantityOnHand, 0);
+                        //rec.SetDecimal((int)SysCommon.ActItemCountFields.Quantity, 0);
+                        //rec.SetDecimal((int)SysCommon.ActItemCountFields.BaseQuantity, 0);
+                        //rec.SetDecimal((int)SysCommon.ActItemCountFields.WeightQuantity, 0);
+                        //rs.Insert(rec);
+
+                        this.LocMap.CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
+
+                        this.ProdInfo = ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
+                        this.ProdInfo.Scheme = ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
+
+                        if (this.DataViewItems != null)
+                        {
+                            DataRowView rowView = this.DataViewItems.AddNew();
+                            rowView["ActivityItemRefno"] = this.Refno;
+                            rowView["ActivityItemCountFKRefno"] = this.FKRefno;
+                            rowView["ActivityItemCountStringFKRefno"] = this.FKRefno.ToString();
+                            rowView["ProductUnitRefno"] = prodUnitRefno;
+                            rowView["ProductRefno"] = int.Parse(data.Root.Element("ProductRefno").Value);
+                            rowView["ProductCode"] = data.Root.Element("ProductCode").Value;
+                            rowView["ProductDescription"] = data.Root.Element("ProductDescription").Value;
+                            rowView["UnitCode"] = data.Root.Element("UnitCode").Value;
+                            rowView["ProductUnitBC"] = data.Root.Element("ProductUnitBC").Value;
+                            rowView["ProductUnitSizeDescription"] = data.Root.Element("ProductUnitSizeDescription").Value;
+                            rowView["LocationMapRefno"] = locMapRefno;
+                            rowView["LocationCode"] = this.LocMap.CurrLocMap.WhsCode;
+                            rowView["LocationName"] = this.LocMap.CurrLocMap.WhsName;
+                            rowView["ActivityItemStatus"] = SysCommon.ActStatus.Inserted;
+                            rowView["ActivityItemCountQuantityOnHand"] = 0;
+                            rowView["ActivityItemCountBaseQuantityOnHand"] = 0;
+                            rowView["ActivityItemCountWeightQuantityOnHand"] = 0;
+                            rowView["ActivityItemCountQuantity"] = 0;
+                            rowView["ActivityItemCountBaseQuantity"] = 0;
+                            rowView["ActivityItemCountWeightQuantity"] = 0;
+                            rowView.EndEdit();
+                        }
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -246,9 +298,192 @@ namespace dMobile.Controller
             }
         }
 
-        public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity, ref ColumnDefinition dataGridWidth)
+        public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity)
         {
-            throw new NotImplementedException();
+            // TODO: Calculate column widths
+            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+
+            // Add all items in dataview to observable collection for display
+            foreach (DataRow row in this.DataViewItems.ToTable().Rows)
+            {
+                CountItem countItem = new CountItem
+                {
+                    ActivityItemRefno = Convert.ToInt32(row["ActivityItemRefno"] != DBNull.Value ? row["ActivityItemRefno"] : null),
+                    ActivityItemCountFKRefno = Convert.ToInt32(row["ActivityItemCountFKRefno"] != DBNull.Value ? row["ActivityItemCountFKRefno"] : null),
+                    ActivityItemCountStringFKRefno = Convert.ToString(row["ActivityItemCountStringFKRefno"] != DBNull.Value ? row["ActivityItemCountStringFKRefno"] : null),
+                    ActivityItemCountQuantityOnHand = Convert.ToDecimal(row["ActivityItemCountQuantityOnHand"] != DBNull.Value ? row["ActivityItemCountQuantityOnHand"] : null),
+                    ActivityItemCountBaseQuantityOnHand = Convert.ToDecimal(row["ActivityItemCountBaseQuantityOnHand"] != DBNull.Value ? row["ActivityItemCountBaseQuantityOnHand"] : null),
+                    ActivityItemCountWeightQuantityOnHand = Convert.ToDecimal(row["ActivityItemCountWeightQuantityOnHand"] != DBNull.Value ? row["ActivityItemCountWeightQuantityOnHand"] : null),
+                    ActivityItemCountQuantity = Convert.ToDecimal(row["ActivityItemCountQuantity"] != DBNull.Value ? row["ActivityItemCountQuantity"] : null),
+                    ActivityItemCountBaseQuantity = Convert.ToDecimal(row["ActivityItemCountBaseQuantity"] != DBNull.Value ? row["ActivityItemCountBaseQuantity"] : null),
+                    ActivityItemCountWeightQuantity = Convert.ToDecimal(row["ActivityItemCountWeightQuantity"] != DBNull.Value ? row["ActivityItemCountWeightQuantity"] : null),
+                    ProductUnitRefno = Convert.ToInt32(row["ProductUnitRefno"] != DBNull.Value ? row["ProductUnitRefno"] : null),
+                    ProductRefno = Convert.ToInt32(row["ProductRefno"] != DBNull.Value ? row["ProductRefno"] : null),
+                    ProductCode = Convert.ToString(row["ProductCode"] != DBNull.Value ? row["ProductCode"] : null),
+                    ProductDescription = Convert.ToString(row["ProductDescription"] != DBNull.Value ? row["ProductDescription"] : null),
+                    UnitCode = Convert.ToString(row["UnitCode"] != DBNull.Value ? row["UnitCode"] : null),
+                    ProductUnitBC = Convert.ToString(row["ProductUnitBC"] != DBNull.Value ? row["ProductUnitBC"] : null),
+                    ProductUnitSizeDescription = Convert.ToString(row["ProductUnitSizeDescription"] != DBNull.Value ? row["ProductUnitSizeDescription"] : null),
+                    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
+                    LocationCode = Convert.ToString(row["LocationCode"] != DBNull.Value ? row["LocationCode"] : null),
+                    LocationName = Convert.ToString(row["LocationName"] != DBNull.Value ? row["LocationName"] : null),
+                    ActivityItemStatus = Convert.ToInt32(row["ActivityItemStatus"] != DBNull.Value ? row["ActivityItemStatus"] : null)
+                };
+
+                observableCollection.Add(countItem);
+            }
+
+            // TODO: Resource strings
+            Label labelCountCode = new Label { Text = "Code", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            Label labelCountBC = new Label { Text = "BC", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            Label labelCountUnit = new Label { Text = "", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            Label labelCountOnHand = new Label { Text = "On Hand", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            Label labelCountCounted = new Label { Text = "Counted", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            Label labelCountWtOn = new Label { Text = "Wt On", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+
+            double columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelCountCode.Text);
+            double columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelCountBC.Text);
+            double columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelCountUnit.Text);
+            double columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelCountOnHand.Text);
+            double columnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelCountCounted.Text);
+            double columnWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(labelCountWtOn.Text);
+
+            Grid gridHeader = new Grid
+            {
+                Padding = new Thickness(5),
+                ColumnDefinitions =
+                {
+                    new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth3, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth4, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth5, GridUnitType.Absolute) }
+                }
+            };
+
+            gridHeader.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
+
+            // Add labels to grid
+            gridHeader.Children.Add(labelCountCode);
+            gridHeader.Children.Add(labelCountBC);
+            gridHeader.Children.Add(labelCountUnit);
+            gridHeader.Children.Add(labelCountOnHand);
+            gridHeader.Children.Add(labelCountCounted);
+            gridHeader.Children.Add(labelCountWtOn);
+
+            // Set label columns
+            Grid.SetColumn(labelCountCode, 0);
+            Grid.SetColumn(labelCountBC, 1);
+            Grid.SetColumn(labelCountUnit, 2);
+            Grid.SetColumn(labelCountOnHand, 3);
+            Grid.SetColumn(labelCountCounted, 4);
+            Grid.SetColumn(labelCountWtOn, 5);
+
+            Grid.SetRow(gridHeader, 0);
+
+            dataGridMainActivityHeader.Children.Add(gridHeader);
+
+             foreach (CountItem countItem in observableCollection)
+            {
+                double detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(countItem.ProductCode);
+                double detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(countItem.ProductUnitBC);
+                double detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(countItem.UnitCode);
+                double detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", countItem.ActivityItemCountQuantityOnHand));
+                double detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", countItem.ActivityItemCountQuantity));
+                double detailWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", countItem.ActivityItemCountWeightQuantityOnHand));
+
+                if (detailWidth0 > columnWidth0)
+                {
+                    columnWidth0 = detailWidth0;
+                    gridHeader.ColumnDefinitions[0].Width = columnWidth0;
+                }
+
+                if (detailWidth1 > columnWidth1)
+                {
+                    columnWidth1 = detailWidth1;
+                    gridHeader.ColumnDefinitions[1].Width = columnWidth1;
+                }
+
+                if (detailWidth2 > columnWidth2)
+                {
+                    columnWidth2 = detailWidth2;
+                    gridHeader.ColumnDefinitions[2].Width = columnWidth2;
+                }
+
+                if (detailWidth3 > columnWidth3)
+                {
+                    columnWidth3 = detailWidth3;
+                    gridHeader.ColumnDefinitions[3].Width = columnWidth3;
+                }
+
+                if (detailWidth4 > columnWidth4)
+                {
+                    columnWidth4 = detailWidth4;
+                    gridHeader.ColumnDefinitions[4].Width = columnWidth4;
+                }
+
+                if (detailWidth5 > columnWidth5)
+                {
+                    columnWidth5 = detailWidth5;
+                    gridHeader.ColumnDefinitions[5].Width = columnWidth5;
+                }
+            }
+
+            // Create item template
+            DataTemplate dataTemplateCount = new DataTemplate(() =>
+            {
+                Grid gridData = new Grid
+                {
+                    Padding = new Thickness(5),
+                    ColumnDefinitions =
+                    {
+                        new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth3, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth4, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth5, GridUnitType.Absolute) }
+                    }
+                };
+
+                Label labelProductCode = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelProductUnitBC = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelUnitCode = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelActivityItemCountQuantityOnHand = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelActivityItemCountQuantity = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelActivityItemCountWeightQuantityOnHand = new Label { VerticalOptions = LayoutOptions.Center };
+
+                // Set label bindings
+                labelProductCode.SetBinding(Label.TextProperty, new Binding("ProductCode"));
+                labelProductUnitBC.SetBinding(Label.TextProperty, new Binding("ProductUnitBC"));
+                labelUnitCode.SetBinding(Label.TextProperty, new Binding("UnitCode"));
+                labelActivityItemCountQuantityOnHand.SetBinding(Label.TextProperty, new Binding("ActivityItemCountQuantityOnHand", BindingMode.Default, null, null, "{0:F3}"));
+                labelActivityItemCountQuantity.SetBinding(Label.TextProperty, new Binding("ActivityItemCountQuantity", BindingMode.Default, null, null, "{0:F3}"));
+                labelActivityItemCountWeightQuantityOnHand.SetBinding(Label.TextProperty, new Binding("ActivityItemCountWeightQuantityOnHand", BindingMode.Default, null, null, "{0:F3}"));
+
+                // Add labels to grid
+                gridData.Children.Add(labelProductCode);
+                gridData.Children.Add(labelProductUnitBC);
+                gridData.Children.Add(labelUnitCode);
+                gridData.Children.Add(labelActivityItemCountQuantityOnHand);
+                gridData.Children.Add(labelActivityItemCountQuantity);
+                gridData.Children.Add(labelActivityItemCountWeightQuantityOnHand);
+
+                // Set label columns
+                Grid.SetColumn(labelProductCode, 0);
+                Grid.SetColumn(labelProductUnitBC, 1);
+                Grid.SetColumn(labelUnitCode, 2);
+                Grid.SetColumn(labelActivityItemCountQuantityOnHand, 3);
+                Grid.SetColumn(labelActivityItemCountQuantity, 4);
+                Grid.SetColumn(labelActivityItemCountWeightQuantityOnHand, 5);
+
+                return new ViewCell { View = gridData };
+            });
+
+            dataGridMainActivity.ItemTemplate = dataTemplateCount;
+
+            return observableCollection;
         }
 
 //        /// <summary>
@@ -343,27 +578,27 @@ namespace dMobile.Controller
 
             if (isSubmitBatch)
             {
-                sql.Append("SELECT tActivityItemCount.ActivityItemRefno,");
-                sql.Append("tActivityItemCount.ActivityItemCountFKRefno,");
-                sql.Append("tActivityItemCount.ActivityItemCountStringFKRefno,");
-                sql.Append("tProductUnit.ProductUnitRefno,");
-                sql.Append("tProduct.ProductRefno,");
-                sql.Append("tProduct.ProductCode,");
-                sql.Append("tProduct.ProductDescription,");
-                sql.Append("tUnit.UnitCode,");
-                sql.Append("tProductUnit.ProductUnitBC,");
-                sql.Append("tProductUnit.ProductUnitSizeDescription,");
-                sql.Append("tActivityItemCount.ActivityItemCountQuantityOnHand,");
-                sql.Append("tActivityItemCount.ActivityItemCountBaseQuantityOnHand,");
-                sql.Append("tActivityItemCount.ActivityItemCountWeightQuantityOnHand,");
-                sql.Append("tActivityItemCount.ActivityItemCountQuantity,");
-                sql.Append("tActivityItemCount.ActivityItemCountBaseQuantity,");
-                sql.Append("tActivityItemCount.ActivityItemCountWeightQuantity,");
-                sql.Append("tLocationMapSlot.LocationMapRefno,");
+                sql.Append("SELECT tActivityItemCount.ActivityItemRefno AS ActivityItemRefno,");
+                sql.Append("tActivityItemCount.ActivityItemCountFKRefno AS ActivityItemCountFKRefno,");
+                sql.Append("tActivityItemCount.ActivityItemCountStringFKRefno AS ActivityItemCountStringFKRefno,");
+                sql.Append("tProductUnit.ProductUnitRefno AS ProductUnitRefno,");
+                sql.Append("tProduct.ProductRefno AS ProductRefno,");
+                sql.Append("tProduct.ProductCode AS ProductCode,");
+                sql.Append("tProduct.ProductDescription AS ProductDescription,");
+                sql.Append("tUnit.UnitCode AS UnitCode,");
+                sql.Append("tProductUnit.ProductUnitBC AS ProductUnitBC,");
+                sql.Append("tProductUnit.ProductUnitSizeDescription AS ProductUnitSizeDescription,");
+                sql.Append("tActivityItemCount.ActivityItemCountQuantityOnHand AS ActivityItemCountQuantityOnHand,");
+                sql.Append("tActivityItemCount.ActivityItemCountBaseQuantityOnHand AS ActivityItemCountBaseQuantityOnHand,");
+                sql.Append("tActivityItemCount.ActivityItemCountWeightQuantityOnHand AS ActivityItemCountWeightQuantityOnHand,");
+                sql.Append("tActivityItemCount.ActivityItemCountQuantity AS ActivityItemCountQuantity,");
+                sql.Append("tActivityItemCount.ActivityItemCountBaseQuantity AS ActivityItemCountBaseQuantity,");
+                sql.Append("tActivityItemCount.ActivityItemCountWeightQuantity AS ActivityItemCountWeightQuantity,");
+                sql.Append("tLocationMapSlot.LocationMapRefno AS LocationMapRefno,");
                 sql.Append("CAST(tLocationMapSection.LocationMapSectionName + \' \' + tLocationMapSlot.LocationMapSlotName ");
                 sql.Append("AS NVARCHAR(20)) AS LocationCode,");
                 sql.Append("\' \' AS LocationName,");
-                sql.Append("tActivityItem.ActivityItemStatus ");
+                sql.Append("tActivityItem.ActivityItemStatus AS ActivityItemStatus ");
                 sql.Append("FROM tActivityItemCount ");
                 sql.Append("INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno = ");
                 sql.Append("tActivityItemCount.ActivityItemRefno ");
@@ -553,27 +788,27 @@ namespace dMobile.Controller
             }
             else
             {
-                sql.Append("SELECT tActivityItemCount.ActivityItemRefno,");
-                sql.Append("tActivityItemCount.ActivityItemCountFKRefno,");
-                sql.Append("tActivityItemCount.ActivityItemCountStringFKRefno,");
-                sql.Append("tProductUnit.ProductUnitRefno,");
-                sql.Append("tProduct.ProductRefno,");
-                sql.Append("tProduct.ProductCode,");
-                sql.Append("tProduct.ProductDescription,");
-                sql.Append("tUnit.UnitCode,");
-                sql.Append("tProductUnit.ProductUnitBC,");
-                sql.Append("tProductUnit.ProductUnitSizeDescription,");
-                sql.Append("tActivityItemCount.ActivityItemCountQuantityOnHand,");
-                sql.Append("tActivityItemCount.ActivityItemCountBaseQuantityOnHand,");
-                sql.Append("tActivityItemCount.ActivityItemCountWeightQuantityOnHand,");
-                sql.Append("tActivityItemCount.ActivityItemCountQuantity,");
-                sql.Append("tActivityItemCount.ActivityItemCountBaseQuantity,");
-                sql.Append("tActivityItemCount.ActivityItemCountWeightQuantity,");
-                sql.Append("tLocationMapSlot.LocationMapRefno,");
+                sql.Append("SELECT tActivityItemCount.ActivityItemRefno AS ActivityItemRefno,");
+                sql.Append("tActivityItemCount.ActivityItemCountFKRefno AS ActivityItemCountFKRefno,");
+                sql.Append("tActivityItemCount.ActivityItemCountStringFKRefno AS ActivityItemCountStringFKRefno,");
+                sql.Append("tProductUnit.ProductUnitRefno AS ProductUnitRefno,");
+                sql.Append("tProduct.ProductRefno AS ProductRefno,");
+                sql.Append("tProduct.ProductCode AS ProductCode,");
+                sql.Append("tProduct.ProductDescription AS ProductDescription,");
+                sql.Append("tUnit.UnitCode AS UnitCode,");
+                sql.Append("tProductUnit.ProductUnitBC AS ProductUnitBC,");
+                sql.Append("tProductUnit.ProductUnitSizeDescription AS ProductUnitSizeDescription,");
+                sql.Append("tActivityItemCount.ActivityItemCountQuantityOnHand AS ActivityItemCountQuantityOnHand,");
+                sql.Append("tActivityItemCount.ActivityItemCountBaseQuantityOnHand AS ActivityItemCountBaseQuantityOnHand,");
+                sql.Append("tActivityItemCount.ActivityItemCountWeightQuantityOnHand AS ActivityItemCountWeightQuantityOnHand,");
+                sql.Append("tActivityItemCount.ActivityItemCountQuantity AS ActivityItemCountQuantity,");
+                sql.Append("tActivityItemCount.ActivityItemCountBaseQuantity AS ActivityItemCountBaseQuantity,");
+                sql.Append("tActivityItemCount.ActivityItemCountWeightQuantity AS ActivityItemCountWeightQuantity,");
+                sql.Append("tLocationMapSlot.LocationMapRefno AS LocationMapRefno,");
                 sql.Append("CAST(tLocationMapSection.LocationMapSectionName + \' \' + tLocationMapSlot.LocationMapSlotName ");
                 sql.Append("AS NVARCHAR(20)) AS LocationCode,");
                 sql.Append("\' \' AS LocationName,");
-                sql.Append("tActivityItem.ActivityItemStatus ");
+                sql.Append("tActivityItem.ActivityItemStatus AS ActivityItemStatus ");
                 sql.Append("FROM tActivityItemCount ");
                 sql.Append("INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno ");
                 sql.Append("= tActivityItemCount.ActivityItemRefno ");
@@ -684,15 +919,34 @@ namespace dMobile.Controller
                 this.DataViewItems.RowFilter = this.ActItemFilter + " AND ProductCode LIKE \'%" + searchText.Trim() + "%\'";
             }
 
-            // TODO: search
-            //foreach (DataRow row in this.DataViewHdrs.ToTable().Rows)
-            //{
-            //    ObjectType objectType = new ObjectType
-            //    {
-            //    };
+            foreach (DataRow row in this.DataViewItems.ToTable().Rows)
+            {
+                CountItem countItem = new CountItem
+                {
+                    ActivityItemRefno = Convert.ToInt32(row["ActivityItemRefno"] != DBNull.Value ? row["ActivityItemRefno"] : null),
+                    ActivityItemCountFKRefno = Convert.ToInt32(row["ActivityItemCountFKRefno"] != DBNull.Value ? row["ActivityItemCountFKRefno"] : null),
+                    ActivityItemCountStringFKRefno = Convert.ToString(row["ActivityItemCountStringFKRefno"] != DBNull.Value ? row["ActivityItemCountStringFKRefno"] : null),
+                    ActivityItemCountQuantityOnHand = Convert.ToDecimal(row["ActivityItemCountQuantityOnHand"] != DBNull.Value ? row["ActivityItemCountQuantityOnHand"] : null),
+                    ActivityItemCountBaseQuantityOnHand = Convert.ToDecimal(row["ActivityItemCountBaseQuantityOnHand"] != DBNull.Value ? row["ActivityItemCountBaseQuantityOnHand"] : null),
+                    ActivityItemCountWeightQuantityOnHand = Convert.ToDecimal(row["ActivityItemCountWeightQuantityOnHand"] != DBNull.Value ? row["ActivityItemCountWeightQuantityOnHand"] : null),
+                    ActivityItemCountQuantity = Convert.ToDecimal(row["ActivityItemCountQuantity"] != DBNull.Value ? row["ActivityItemCountQuantity"] : null),
+                    ActivityItemCountBaseQuantity = Convert.ToDecimal(row["ActivityItemCountBaseQuantity"] != DBNull.Value ? row["ActivityItemCountBaseQuantity"] : null),
+                    ActivityItemCountWeightQuantity = Convert.ToDecimal(row["ActivityItemCountWeightQuantity"] != DBNull.Value ? row["ActivityItemCountWeightQuantity"] : null),
+                    ProductUnitRefno = Convert.ToInt32(row["ProductUnitRefno"] != DBNull.Value ? row["ProductUnitRefno"] : null),
+                    ProductRefno = Convert.ToInt32(row["ProductRefno"] != DBNull.Value ? row["ProductRefno"] : null),
+                    ProductCode = Convert.ToString(row["ProductCode"] != DBNull.Value ? row["ProductCode"] : null),
+                    ProductDescription = Convert.ToString(row["ProductDescription"] != DBNull.Value ? row["ProductDescription"] : null),
+                    UnitCode = Convert.ToString(row["UnitCode"] != DBNull.Value ? row["UnitCode"] : null),
+                    ProductUnitBC = Convert.ToString(row["ProductUnitBC"] != DBNull.Value ? row["ProductUnitBC"] : null),
+                    ProductUnitSizeDescription = Convert.ToString(row["ProductUnitSizeDescription"] != DBNull.Value ? row["ProductUnitSizeDescription"] : null),
+                    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
+                    LocationCode = Convert.ToString(row["LocationCode"] != DBNull.Value ? row["LocationCode"] : null),
+                    LocationName = Convert.ToString(row["LocationName"] != DBNull.Value ? row["LocationName"] : null),
+                    ActivityItemStatus = Convert.ToInt32(row["ActivityItemStatus"] != DBNull.Value ? row["ActivityItemStatus"] : null)
+                };
 
-            //    observableCollection.Add(objectType);
-            //}
+                observableCollection.Add(countItem);
+            }
 
             return observableCollection;
         }
@@ -706,8 +960,8 @@ namespace dMobile.Controller
             if (this.SysEnv.SysSettings.IsCycleDoNotDefaultProductLocation)
             {
                 this.CurrRowIdx = idx;
-                this.Refno = (int)this.DataViewItems[idx]["ActivityItemRefno"];
-                this.ProdInfo = ProductInfoTasks.GetInfoFromUnitRefno((int)this.DataViewItems[idx]["ProductUnitRefno"]);
+                this.Refno = Convert.ToInt32(this.DataViewItems[idx]["ActivityItemRefno"]);
+                this.ProdInfo = ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(this.DataViewItems[idx]["ProductUnitRefno"]));
                 this.ProdInfo.Scheme = ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
 
                 // Do not change the location to the skid location leave it alone for IsCycleDoNotDefaultProductLocation.
@@ -725,7 +979,7 @@ namespace dMobile.Controller
                 base.SelectItem(idx);
             }
 
-            this.FKRefno = (int)this.DataViewItems[idx]["ActivityItemCountFKRefno"];
+            this.FKRefno = Convert.ToInt32(this.DataViewItems[idx]["ActivityItemCountFKRefno"]);
         }
 
         /// <summary>
@@ -790,9 +1044,9 @@ namespace dMobile.Controller
                     if (drItem.Read())
                     {
                         ////this.LocMap.CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno((int)drItem["LocationMapRefno"]);
-                        this.Refno = (int)drItem["ActivityItemRefno"];
-                        this.FKRefno = (int)drItem["ActivityItemCountFKRefno"];
-                        this.ProdInfo = ProductInfoTasks.GetInfoFromUnitRefno((int)drItem["ProductUnitRefno"]);
+                        this.Refno = Convert.ToInt32(drItem["ActivityItemRefno"]);
+                        this.FKRefno = Convert.ToInt32(drItem["ActivityItemCountFKRefno"]);
+                        this.ProdInfo = ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(drItem["ProductUnitRefno"]));
                         this.ProdInfo.Scheme = ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
                         foundActItemRefno = this.Refno;
                     }
@@ -869,12 +1123,9 @@ namespace dMobile.Controller
         public override int UpdateDataViewQuantity(int idx, decimal quantity, decimal baseQuantity, decimal weightQuantity)
         {
             this.DataViewItems[idx].BeginEdit();
-            this.DataViewItems[idx]["ActivityItemCountQuantity"]
-                = (decimal)this.DataViewItems[idx]["ActivityItemCountQuantity"] + quantity;
-            this.DataViewItems[idx]["ActivityItemCountBaseQuantity"]
-                = (decimal)this.DataViewItems[idx]["ActivityItemCountBaseQuantity"] + baseQuantity;
-            this.DataViewItems[idx]["ActivityItemCountWeightQuantity"]
-                = (decimal)this.DataViewItems[idx]["ActivityItemCountWeightQuantity"] + weightQuantity;
+            this.DataViewItems[idx]["ActivityItemCountQuantity"] = Convert.ToDecimal(this.DataViewItems[idx]["ActivityItemCountQuantity"]) + quantity;
+            this.DataViewItems[idx]["ActivityItemCountBaseQuantity"] = Convert.ToDecimal(this.DataViewItems[idx]["ActivityItemCountBaseQuantity"]) + baseQuantity;
+            this.DataViewItems[idx]["ActivityItemCountWeightQuantity"] = Convert.ToDecimal(this.DataViewItems[idx]["ActivityItemCountWeightQuantity"]) + weightQuantity;
             this.DataViewItems[idx].EndEdit();
 
             return idx;

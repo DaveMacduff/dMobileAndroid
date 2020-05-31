@@ -143,7 +143,7 @@ namespace dMobile.View.Activity
                             // Delete needs to rebind the the grid to the proper dataview depending on the record count
                             if (this.ActDetail.DataViewDetails.Count == 0)
                             {
-                                this.DataGridMainActivityItemsList = this.ActDetailOnSkid.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity, ref this.dataGridWidth);
+                                this.DataGridMainActivityItemsList = this.ActDetailOnSkid.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
                                 this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
                                 //this.dataGridMainActivity.ForeColor = Color.Orange;
                                 //this.dataGridMainActivity.Refresh();
@@ -662,7 +662,7 @@ namespace dMobile.View.Activity
                 {
                     FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucSelectProductUnitFilterToProduct, this.ActItem, this.ActSubType);
                     await form.DisplayControl.ShowDialog();
-                    form.SaveChanges(this, new EventArgs());
+                    await form.SaveChanges(this, new EventArgs());
                     XDocument xmlDoc = form.DisplayControlData;
                     int prodUnitRefno = int.Parse(xmlDoc.Root.Element("ProductUnitRefno").Value);
                     
@@ -1057,7 +1057,7 @@ namespace dMobile.View.Activity
             this.ActDetail.DataViewDetails = this.ActDetail.GetDataView(false);
             this.ActDetail.ActItem = this.ActItem;
 
-            this.DataGridMainActivityItemsList = this.ActDetailOnSkid.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity, ref this.dataGridWidth);
+            this.DataGridMainActivityItemsList = this.ActDetailOnSkid.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
             this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
             //this.dataGridMainActivity.ForeColor = Color.Orange;
             //this.dataGridMainActivity.Refresh();
@@ -1404,7 +1404,7 @@ namespace dMobile.View.Activity
 
             if (form.DialogResult == DialogResult.OK)
             {
-                form.SaveChanges(this, new EventArgs());
+                await form.SaveChanges(this, new EventArgs());
                 xmlDoc = form.DisplayControlData;
                 actDetail.Quantity = decimal.Parse(xmlDoc.Root.Element("alt_qty").Value);
                 actDetail.BaseQuantity = decimal.Parse(xmlDoc.Root.Element("base_qty").Value);
@@ -1435,7 +1435,7 @@ namespace dMobile.View.Activity
                 {
                     if (actDetail.DataViewDetails.Count == 0)
                     {
-                        this.DataGridMainActivityItemsList = actDetail.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity, ref this.dataGridWidth);
+                        this.DataGridMainActivityItemsList = actDetail.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
                         this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
                         //this.dataGridMainActivity.ForeColor = Color.Black;
                         //this.dataGridMainActivity.Refresh();
@@ -1456,7 +1456,7 @@ namespace dMobile.View.Activity
                     }
                     else
                     {
-                        this.DataGridMainActivityItemsList = this.ActDetailOnSkid.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity, ref this.dataGridWidth);
+                        this.DataGridMainActivityItemsList = this.ActDetailOnSkid.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
                         this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
                         //this.dataGridMainActivity.ForeColor = Color.Orange;
                         //this.dataGridMainActivity.Refresh();
@@ -1721,7 +1721,7 @@ namespace dMobile.View.Activity
 
                 if (this.ActDetail.DataViewDetails.Count == 0)
                 {
-                    this.DataGridMainActivityItemsList = this.ActDetail.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity, ref this.dataGridWidth);
+                    this.DataGridMainActivityItemsList = this.ActDetail.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
                     this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
                     //this.dataGridMainActivity.ForeColor = Color.Black;
                     //this.dataGridMainActivity.Refresh();
@@ -1757,7 +1757,7 @@ namespace dMobile.View.Activity
                 }
                 else
                 {
-                    this.DataGridMainActivityItemsList = this.ActDetail.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity, ref this.dataGridWidth);
+                    this.DataGridMainActivityItemsList = this.ActDetail.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
                     this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
                     //this.dataGridMainActivity.ForeColor = Color.Orange;
                     //this.dataGridMainActivity.Refresh();

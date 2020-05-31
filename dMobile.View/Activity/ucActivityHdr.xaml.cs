@@ -90,7 +90,7 @@
         {
             base.OnPropertyChanged(propertyName);
 
-            if (propertyName == "AddIsEnabled" || propertyName == "FilterIsEnabled" || propertyName == "AddText" || propertyName == "FilterText")
+            if (propertyName == nameof(AddIsEnabled) || propertyName == nameof(FilterIsEnabled) || propertyName == nameof(AddText) || propertyName == nameof(FilterText))
             {
                 this.PopulateOptionsMenu();
             }
@@ -1036,7 +1036,7 @@
 
                 await Device.InvokeOnMainThreadAsync(() =>
                 {
-                    this.DataGridMainActivityItemsList = this.ActHdr.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity, ref this.dataGridWidth);
+                    this.DataGridMainActivityItemsList = this.ActHdr.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
 
                     if (!string.IsNullOrEmpty(this.txtSearchHdr.Text))
                     {

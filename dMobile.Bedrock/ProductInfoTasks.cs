@@ -435,7 +435,7 @@
                 "INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno " +
                 "WHERE tProduct.ProductRefno = @productRefno " +
                 "AND tProductUnit.ProductUnitIsDefault = 1";       // true
-                cmndProdInfo.Parameters.Add(new SQLiteParameter("@productRefno", productRefno));
+                cmndProdInfo.Parameters.Add(new SQLiteParameter("@productRefno", Convert.ToInt32(productRefno)));
 
                 using (SQLiteDataReader drProdInfo = cmndProdInfo.ExecuteReader())
                 {
@@ -520,8 +520,8 @@
                 "AND tLocationMapWarehouseProductScheme.WarehouseLocationMapRefno = @whsLocMapRefno " +
                 "INNER JOIN tProductScheme ON tProductScheme.ProductSchemeRefno = tLocationMapWarehouseProductScheme.ProductSchemeRefno " +
                 "WHERE tProduct.ProductRefno = @productRefno";
-                cmndProductSchemeComponents.Parameters.Add(new SQLiteParameter("@whsLocMapRefno", LocationMap.GetInstance().CurrLocMap.WhsLocMapRefno));
-                cmndProductSchemeComponents.Parameters.Add(new SQLiteParameter("@productRefno", productRefno));
+                cmndProductSchemeComponents.Parameters.Add(new SQLiteParameter("@whsLocMapRefno", Convert.ToInt32(LocationMap.GetInstance().CurrLocMap.WhsLocMapRefno)));
+                cmndProductSchemeComponents.Parameters.Add(new SQLiteParameter("@productRefno", Convert.ToInt32(productRefno)));
 
                 using (SQLiteDataReader dr = cmndProductSchemeComponents.ExecuteReader())
                 {

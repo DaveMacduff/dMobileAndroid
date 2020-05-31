@@ -23,9 +23,6 @@
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition x:Name="dataGridWidth" Width="Auto"/>
-                            </Grid.ColumnDefinitions>
 
                             <ListView x:Name="dataGridMainActivity" ItemSelected="DataGridMainActivity_ItemSelected" HasUnevenRows="True" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" Grid.Row="1"/>
                         </Grid>

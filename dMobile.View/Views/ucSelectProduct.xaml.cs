@@ -89,7 +89,6 @@ namespace dMobile.View
                 }
                 else if (keycode == Keycode.Escape)
                 {
-
                     if (await this.CancelChanges())
                     {
                         this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
@@ -978,22 +977,24 @@ namespace dMobile.View
         }
 
 
-        private void CmdSelect_Clicked(object sender, EventArgs e)
+        private async void CmdSelect_Clicked(object sender, EventArgs e)
         {
-            Device.BeginInvokeOnMainThread(async () =>
+            if (await this.SaveChanges())
             {
+                this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                 this.DialogResult = DialogResult.OK;
                 await this.Close();
-            });
+            }
         }
 
-        private void CmdClose_Clicked(object sender, EventArgs e)
+        private async void CmdClose_Clicked(object sender, EventArgs e)
         {
-            Device.BeginInvokeOnMainThread(async () =>
+            if (await this.CancelChanges())
             {
+                this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                 this.DialogResult = DialogResult.None;
                 await this.Close();
-            });
+            }
         }
 
         ///// <summary>

@@ -11,6 +11,8 @@ namespace dMobile.Controller
     using System.Threading.Tasks;
     using System.Collections.ObjectModel;
     using Xamarin.Forms;
+    using dMobile.Resources.Types;
+    using dMobile.Resources.Services;
 
     /// <summary>
     /// 
@@ -89,9 +91,125 @@ namespace dMobile.Controller
             return "Adjustments";
         }
 
-        public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity, ref ColumnDefinition dataGridWidth)
+        public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity)
         {
-            throw new NotImplementedException();
+            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+
+            foreach (DataRow row in this.DataViewHdrs.ToTable().Rows)
+            {
+                Adjustment adjustment = new Adjustment
+                {
+                    ActivityRefno = Convert.ToInt32(row["ActivityRefno"] != DBNull.Value ? row["ActivityRefno"] : null),
+                    ActivityAdjustmentFKRefno = Convert.ToInt32(row["ActivityAdjustmentFKRefno"] != DBNull.Value ? row["ActivityAdjustmentFKRefno"] : null),
+                    ActivityAdjustmentType = Convert.ToInt32(row["ActivityAdjustmentType"] != DBNull.Value ? row["ActivityAdjustmentType"] : null),
+                    LocationMapWarehouseFKRefno = Convert.ToInt32(row["LocationMapWarehouseFKRefno"] != DBNull.Value ? row["LocationMapWarehouseFKRefno"] : null),
+                    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
+                    ActivityStatus = Convert.ToInt32(row["ActivityStatus"] != DBNull.Value ? row["ActivityStatus"] : null),
+                    ActivityAdjustmentStringFKRefno = Convert.ToString(row["ActivityAdjustmentStringFKRefno"] != DBNull.Value ? row["ActivityAdjustmentStringFKRefno"] : null),
+                    ActivityAdjustmentDescription = Convert.ToString(row["ActivityAdjustmentDescription"] != DBNull.Value ? row["ActivityAdjustmentDescription"] : null),
+                    ActivityAdjustmentTypeDescription = Convert.ToString(row["ActivityAdjustmentTypeDescription"] != DBNull.Value ? row["ActivityAdjustmentTypeDescription"] : null),
+                    LocationMapWarehouseName = Convert.ToString(row["LocationMapWarehouseName"] != DBNull.Value ? row["LocationMapWarehouseName"] : null),
+                    ActivityAdjustmentDateTime = Convert.ToDateTime(row["ActivityAdjustmentDateTime"] != DBNull.Value ? row["ActivityAdjustmentDateTime"] : null)
+                };
+
+                observableCollection.Add(adjustment);
+            }
+
+            Label labelAdjustmentNumber = new Label { Text = "Adj #", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            Label labelAdjustmentDate = new Label { Text = "Date", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            Label labelAdjustmentDescription = new Label { Text = "Description", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+
+            // Calculate text size
+            double columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelAdjustmentNumber.Text);
+            double columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelAdjustmentDate.Text);
+            double columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelAdjustmentDescription.Text);
+
+            Grid gridHeader = new Grid
+            {
+                Padding = new Thickness(5),                
+                ColumnDefinitions =
+                {
+                    new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) }
+                }
+            };
+
+            gridHeader.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
+
+            gridHeader.Children.Add(labelAdjustmentNumber);
+            gridHeader.Children.Add(labelAdjustmentDate);
+            gridHeader.Children.Add(labelAdjustmentDescription);
+
+            Grid.SetColumn(labelAdjustmentNumber, 0);
+            Grid.SetColumn(labelAdjustmentDate, 1);
+            Grid.SetColumn(labelAdjustmentDescription, 2);
+
+            Grid.SetRow(gridHeader, 0);
+
+            dataGridMainActivityHeader.Children.Add(gridHeader);
+
+            foreach (Adjustment adjustment in observableCollection)
+            {
+                double dataColumnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(adjustment.ActivityAdjustmentStringFKRefno);
+                double dataColumnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(adjustment.ActivityAdjustmentDateTime.ToString("MM/dd/yyyy")));
+                double dataColumnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(adjustment.ActivityAdjustmentDescription);
+
+                if (dataColumnWidth0 > columnWidth0)
+                {
+                    columnWidth0 = dataColumnWidth0;
+                    gridHeader.ColumnDefinitions[0].Width = columnWidth0;
+                }
+
+                if (dataColumnWidth1 > columnWidth1)
+                {
+                    columnWidth1 = dataColumnWidth1;
+                    gridHeader.ColumnDefinitions[1].Width = columnWidth1;
+                }
+
+                if (dataColumnWidth2 > columnWidth2)
+                {
+                    columnWidth2 = dataColumnWidth2;
+                    gridHeader.ColumnDefinitions[2].Width = columnWidth2;
+                }
+            }
+
+            // Data grid
+            DataTemplate dataTemplate = new DataTemplate(() =>
+            {
+                Grid gridData = new Grid
+                {
+                    Padding = new Thickness(5),
+                    ColumnDefinitions =
+                    {
+                        new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) }
+                    }
+                };
+
+                Label labelActivityAdjustmentStringFKRefno = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelActivityAdjustmentDateTime = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelActivityAdjustmentDescription = new Label { VerticalOptions = LayoutOptions.Center };
+
+                labelActivityAdjustmentStringFKRefno.SetBinding(Label.TextProperty, new Binding("ActivityAdjustmentStringFKRefno"));
+                labelActivityAdjustmentDateTime.SetBinding(Label.TextProperty, new Binding("ActivityAdjustmentDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
+                labelActivityAdjustmentDescription.SetBinding(Label.TextProperty, new Binding("ActivityAdjustmentDescription"));
+
+                gridData.Children.Add(labelActivityAdjustmentStringFKRefno, 0, 0);
+                gridData.Children.Add(labelActivityAdjustmentDateTime, 0, 0);
+                gridData.Children.Add(labelActivityAdjustmentDescription, 0, 0);
+
+                Grid.SetColumn(labelActivityAdjustmentStringFKRefno, 0);
+                Grid.SetColumn(labelActivityAdjustmentDateTime, 1);
+                Grid.SetColumn(labelActivityAdjustmentDescription, 2);
+
+                return new ViewCell { View = gridData };
+            });
+
+            dataGridMainActivity.ItemTemplate = dataTemplate;
+
+            return observableCollection;
         }
 
         //    /// <summary>
@@ -163,17 +281,17 @@ namespace dMobile.Controller
 
             if (isSubmitBatch)
             {
-                sql.Append("SELECT tActivityAdjustment.ActivityRefno,");
-                sql.Append("tActivityAdjustment.ActivityAdjustmentFKRefno,");
-                sql.Append("tActivityAdjustment.ActivityAdjustmentStringFKRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseName,");
-                sql.Append("tActivityAdjustment.ActivityAdjustmentDateTime,");
-                sql.Append("tActivityAdjustment.ActivityAdjustmentDescription,");
-                sql.Append("tActivityAdjustment.ActivityAdjustmentType,");
-                sql.Append("tActivityAdjustment.ActivityAdjustmentTypeDescription,");
-                sql.Append("tActivity.ActivityStatus");
+                sql.Append("SELECT tActivityAdjustment.ActivityRefno AS ActivityRefno,");
+                sql.Append("tActivityAdjustment.ActivityAdjustmentFKRefno AS ActivityAdjustmentFKRefno,");
+                sql.Append("tActivityAdjustment.ActivityAdjustmentStringFKRefno AS ActivityAdjustmentStringFKRefno,");
+                sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno AS LocationMapWarehouseFKRefno,");
+                sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
+                sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationMapWarehouseName,");
+                sql.Append("tActivityAdjustment.ActivityAdjustmentDateTime AS ActivityAdjustmentDateTime,");
+                sql.Append("tActivityAdjustment.ActivityAdjustmentDescription AS ActivityAdjustmentDescription,");
+                sql.Append("tActivityAdjustment.ActivityAdjustmentType AS ActivityAdjustmentType,");
+                sql.Append("tActivityAdjustment.ActivityAdjustmentTypeDescription AS ActivityAdjustmentTypeDescription,");
+                sql.Append("tActivity.ActivityStatus AS ActivityStatus");
                 sql.Append(" FROM tActivityAdjustment");
                 sql.Append(" INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityAdjustment.ActivityRefno");
                 sql.Append(" INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = ");
@@ -219,26 +337,24 @@ namespace dMobile.Controller
             }
             else
             {
-                sql.Append("SELECT tActivityAdjustment.ActivityRefno,");
-                sql.Append("tActivityAdjustment.ActivityAdjustmentFKRefno,");
-                sql.Append("tActivityAdjustment.ActivityAdjustmentStringFKRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseName,");
-                sql.Append("tActivityAdjustment.ActivityAdjustmentDateTime,");
-                sql.Append("tActivityAdjustment.ActivityAdjustmentDescription,");
-                sql.Append("tActivityAdjustment.ActivityAdjustmentType,");
-                sql.Append("tActivityAdjustment.ActivityAdjustmentTypeDescription,");
-                sql.Append("tActivity.ActivityStatus");
+                sql.Append("SELECT tActivityAdjustment.ActivityRefno AS ActivityRefno,");
+                sql.Append("tActivityAdjustment.ActivityAdjustmentFKRefno AS ActivityAdjustmentFKRefno,");
+                sql.Append("tActivityAdjustment.ActivityAdjustmentStringFKRefno AS ActivityAdjustmentStringFKRefno,");
+                sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno AS LocationMapWarehouseFKRefno,");
+                sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
+                sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationMapWarehouseName,");
+                sql.Append("tActivityAdjustment.ActivityAdjustmentDateTime AS ActivityAdjustmentDateTime,");
+                sql.Append("tActivityAdjustment.ActivityAdjustmentDescription AS ActivityAdjustmentDescription,");
+                sql.Append("tActivityAdjustment.ActivityAdjustmentType AS ActivityAdjustmentType,");
+                sql.Append("tActivityAdjustment.ActivityAdjustmentTypeDescription AS ActivityAdjustmentTypeDescription,");
+                sql.Append("tActivity.ActivityStatus AS ActivityStatus");
                 sql.Append(" FROM tActivityAdjustment");
                 sql.Append(" INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = ");
                 sql.Append("tActivityAdjustment.WarehouseLocationMapRefno");
                 sql.Append(" INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityAdjustment.ActivityRefno");
             }
 
-            using (SQLiteDataAdapter dataAdapterAdj = new SQLiteDataAdapter(
-                sql.ToString(),
-                DatabaseConnection.GetInstance().SQLConn))
+            using (SQLiteDataAdapter dataAdapterAdj = new SQLiteDataAdapter(sql.ToString(), DatabaseConnection.GetInstance().SQLConn))
             {
                 using (DataSet dataSetAdj = new DataSet())
                 {
@@ -270,19 +386,28 @@ namespace dMobile.Controller
             }
             else
             {
-                this.DataViewHdrs.RowFilter = this.ActFilter + " AND ActivityAdjustmentStringFKRefno LIKE \'%"
-                    + searchText.Trim() + "%\'";
+                this.DataViewHdrs.RowFilter = this.ActFilter + " AND ActivityAdjustmentStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
             }
 
-            // TODO: search
-            //foreach (DataRow row in this.DataViewHdrs.ToTable().Rows)
-            //{
-            //    ObjectType objectType = new ObjectType
-            //    {
-            //    };
+            foreach (DataRow row in this.DataViewHdrs.ToTable().Rows)
+            {
+                Adjustment adjustment = new Adjustment
+                {
+                    ActivityRefno = Convert.ToInt32(row["ActivityRefno"] != DBNull.Value ? row["ActivityRefno"] : null),
+                    ActivityAdjustmentFKRefno = Convert.ToInt32(row["ActivityAdjustmentFKRefno"] != DBNull.Value ? row["ActivityAdjustmentFKRefno"] : null),
+                    ActivityAdjustmentType = Convert.ToInt32(row["ActivityAdjustmentType"] != DBNull.Value ? row["ActivityAdjustmentType"] : null),
+                    LocationMapWarehouseFKRefno = Convert.ToInt32(row["LocationMapWarehouseFKRefno"] != DBNull.Value ? row["LocationMapWarehouseFKRefno"] : null),
+                    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
+                    ActivityStatus = Convert.ToInt32(row["ActivityStatus"] != DBNull.Value ? row["ActivityStatus"] : null),
+                    ActivityAdjustmentStringFKRefno = Convert.ToString(row["ActivityAdjustmentStringFKRefno"] != DBNull.Value ? row["ActivityAdjustmentStringFKRefno"] : null),
+                    ActivityAdjustmentDescription = Convert.ToString(row["ActivityAdjustmentDescription"] != DBNull.Value ? row["ActivityAdjustmentDescription"] : null),
+                    ActivityAdjustmentTypeDescription = Convert.ToString(row["ActivityAdjustmentTypeDescription"] != DBNull.Value ? row["ActivityAdjustmentTypeDescription"] : null),
+                    LocationMapWarehouseName = Convert.ToString(row["LocationMapWarehouseName"] != DBNull.Value ? row["LocationMapWarehouseName"] : null),
+                    ActivityAdjustmentDateTime = Convert.ToDateTime(row["ActivityAdjustmentDateTime"] != DBNull.Value ? row["ActivityAdjustmentDateTime"] : null)
+                };
 
-            //    observableCollection.Add(objectType);
-            //}
+                observableCollection.Add(adjustment);
+            }
 
             return observableCollection;
         }
@@ -295,15 +420,14 @@ namespace dMobile.Controller
         /// <remarks></remarks>
         public override void SelectHdr(int idx)
         {
-            this.FKRefno = (int)this.DataViewHdrs[idx]["ActivityAdjustmentFKRefno"];
-            this.Refno = (int)this.DataViewHdrs[idx]["ActivityRefno"];
+            this.FKRefno = Convert.ToInt32(this.DataViewHdrs[idx]["ActivityAdjustmentFKRefno"]);
+            this.Refno = Convert.ToInt32(this.DataViewHdrs[idx]["ActivityRefno"]);
             this.SelectedIndex = idx;
 
             // Set the selected warehouse to the activity header warehouse.
-            if (LocationMap.GetInstance().CurrLocMap.WhsLocMapRefno != (int)this.DataViewHdrs[idx]["LocationMapRefno"])
+            if (LocationMap.GetInstance().CurrLocMap.WhsLocMapRefno != Convert.ToInt32(this.DataViewHdrs[idx]["LocationMapRefno"]))
             {
-                LocationMap.GetInstance().CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(
-                    (int)this.DataViewHdrs[idx]["LocationMapRefno"]);
+                LocationMap.GetInstance().CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(this.DataViewHdrs[idx]["LocationMapRefno"]));
             }
 
             this.AdjSettings = this.AdjSettings.LoadData();
@@ -311,8 +435,7 @@ namespace dMobile.Controller
 
             if (!SysCommon.IsAllowedChangeNegateQuantityFromAdjType(this.AdjSettings.AdjustmentType))
             {
-                this.AdjSettings.NegateScanQuantity = SysCommon.DefaultNegateQuantityFromAdjType(
-                    this.AdjSettings.AdjustmentType);
+                this.AdjSettings.NegateScanQuantity = SysCommon.DefaultNegateQuantityFromAdjType(this.AdjSettings.AdjustmentType);
                 AdjustmentSettings tempAdjSettings = this.AdjSettings;
                 this.AdjSettings.SaveData(ref tempAdjSettings);
                 this.AdjSettings = tempAdjSettings;
@@ -327,8 +450,8 @@ namespace dMobile.Controller
         /// <remarks></remarks>
         public override int GetRefnoFromRowIdx(int idx)
         {
-            this.FKRefno = (int)this.DataViewHdrs[idx]["ActivityAdjustmentFKRefno"];
-            this.Refno = (int)this.DataViewHdrs[idx]["ActivityRefno"];
+            this.FKRefno = Convert.ToInt32(this.DataViewHdrs[idx]["ActivityAdjustmentFKRefno"]);
+            this.Refno = Convert.ToInt32(this.DataViewHdrs[idx]["ActivityRefno"]);
 
             return this.Refno;
         }
@@ -371,11 +494,11 @@ namespace dMobile.Controller
             {
                 if (string.IsNullOrEmpty(filter))
                 {
-                    filter = filter + string.Format("ActivityAdjustmentType = {0}", (int)adjSettings.AdjustmentType);
+                    filter += string.Format("ActivityAdjustmentType = {0}", (int)adjSettings.AdjustmentType);
                 }
                 else
                 {
-                    filter = filter + string.Format(" AND ActivityAdjustmentType = {0}", (int)adjSettings.AdjustmentType);
+                    filter += string.Format(" AND ActivityAdjustmentType = {0}", (int)adjSettings.AdjustmentType);
                 }
             }
 
@@ -397,7 +520,7 @@ namespace dMobile.Controller
                     }
                     else
                     {
-                        filter = filter + string.Format(
+                        filter += string.Format(
                             " AND ActivityAdjustmentDateTime >= '{0}-{1}-{2} 00:00:00.000' "
                             + "AND ActivityAdjustmentDateTime <= '{0}-{1}-{2} 23:59:59.997'",
                             dt.Year,
@@ -429,11 +552,11 @@ namespace dMobile.Controller
                 {
                     if (string.IsNullOrEmpty(filter))
                     {
-                        filter = (string)("ActivityAdjustmentType = " + xmlDoc.Root.Element("adjustment_type").Value);
+                        filter = Convert.ToString(("ActivityAdjustmentType = " + xmlDoc.Root.Element("adjustment_type").Value));
                     }
                     else
                     {
-                        filter = filter + " AND ActivityAdjustmentType = " + xmlDoc.Root.Element("adjustment_type").Value;
+                        filter += " AND ActivityAdjustmentType = " + xmlDoc.Root.Element("adjustment_type").Value;
                     }
                 }
             }
@@ -473,8 +596,7 @@ namespace dMobile.Controller
 
         public override void PrintLabel(XDocument data)
         {
-            if (AdjSettings.AdjustmentType == SysCommon.AdjTypes.Debox &&
-                !SysEnv.SysSettings.IsDisconnectedMode)
+            if (AdjSettings.AdjustmentType == SysCommon.AdjTypes.Debox && !SysEnv.SysSettings.IsDisconnectedMode)
             {
                 int locMapRefno = 0;
                 SLocMap locMap = LocationMapTasks.GetSLocMapFromLocMapFKRefno(
@@ -506,8 +628,8 @@ namespace dMobile.Controller
                     + "</mobile_printer_name>")
                     + "</imclient>";
 
-
                     reqData = SysCommon.SubmitComm(request);
+     
                     if (reqData.Length > 0)
                     {
                         // check if result is an error message
@@ -515,24 +637,13 @@ namespace dMobile.Controller
                         {
                             XmlDocument docError = new XmlDocument();
                             docError.LoadXml(reqData);
-                            throw new MessageOnlyException(
-                                string.Format(
-#if MULTILANGUAGE
-                Translator.GetInstance().Translate(TranslatorVocabulary.OrderPrintShippingLabelsFailed) + Environment.NewLine + "{1}",
-#else
-"Order# {0} print shipping label(s) failed." + Environment.NewLine + "{1}",
-#endif
- this.FKRefno,
-                                docError.DocumentElement["detail"].InnerText));
+                            throw new MessageOnlyException(string.Format("Order# {0} print shipping label(s) failed." + Environment.NewLine + "{1}", this.FKRefno, docError.DocumentElement["detail"].InnerText));
                         }
                     }
                     else
                     {
-#if MULTILANGUAGE
-          throw new Exception(string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.OrderPrintShippingLabelsFailedz), this.FKRefno));
-#else
+                        // TODO: Resource strings
                         throw new Exception(string.Format("Order# {0} Print shipping label(s) failed.", this.FKRefno));
-#endif
                     }
                 }
             }
@@ -555,6 +666,7 @@ namespace dMobile.Controller
                       + "</imclient>";
 
                 string reqData = SysCommon.SubmitComm(xml);
+                
                 if (reqData.Length > 0)
                 {
                     if (reqData.Contains("<message>ERROR</message>"))

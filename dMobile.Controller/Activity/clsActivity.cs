@@ -292,7 +292,7 @@ namespace dMobile.Controller
         /// 
         /// </summary>
         /// <param name="dg"></param>
-        public abstract ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity, ref ColumnDefinition dataGridWidth);
+        public abstract ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity);
 
         /// <summary>
         /// 

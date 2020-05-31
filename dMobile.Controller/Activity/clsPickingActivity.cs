@@ -617,8 +617,9 @@ namespace dMobile.Controller
             return "dMobile Picking";
         }
 
-        public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity, ref ColumnDefinition dataGridWidth)
+        public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity)
         {
+            // TODO: Calculate column widths
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
             // Create header data template
@@ -729,8 +730,6 @@ namespace dMobile.Controller
 
                 observableCollection.Add(picking);
             }
-
-            dataGridWidth.Width = 750;
 
             return observableCollection;
         }

@@ -1075,7 +1075,7 @@
 
             if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
             {
-                form.SaveChanges(this, new EventArgs());
+                await form.SaveChanges(this, new EventArgs());
 
                 if (this.LocMap.CurrLocMap.WhsLocMapRefno == 0)
                 {
@@ -1124,7 +1124,7 @@
 
             if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
             {
-                form.SaveChanges(this, new EventArgs());
+                await form.SaveChanges(this, new EventArgs());
                 XDocument xmlDoc = form.DisplayControlData;
                 int prodRefno = Convert.ToInt32(xmlDoc.Root.Element("ProductRefno").Value);
 

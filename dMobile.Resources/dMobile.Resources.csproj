@@ -67,6 +67,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="Services\IGridService.cs" />
+    <Compile Include="Types\Adjustment.cs" />
     <Compile Include="Types\ConvertUnitDetail.cs" />
     <Compile Include="Types\Count.cs" />
     <Compile Include="Types\CountDetail.cs" />
@@ -77,6 +78,7 @@
     <Compile Include="Types\PickingDetail.cs" />
     <Compile Include="Types\PickingItem.cs" />
     <Compile Include="Types\Product.cs" />
+    <Compile Include="Types\ProductLocationMapType.cs" />
     <Compile Include="Types\ProductUnit.cs" />
     <Compile Include="Types\ProductVariant.cs" />
     <Compile Include="Types\PurchaseOrderWorkSheetItem.cs" />

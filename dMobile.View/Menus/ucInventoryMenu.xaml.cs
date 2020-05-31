@@ -11,6 +11,7 @@ using dMobile.Bedrock;
 using dMobile.Resources.Enums;
 using Android.Views;
 using dMobile.View.Activity;
+using Android.Media;
 
 namespace dMobile.View.Menus
 {
@@ -128,16 +129,20 @@ namespace dMobile.View.Menus
                     //this.CallingControl = new ucActivityInventoryInquiry();
                     this.DisableControls();
                     this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-
                     this.IsControlLoaded = false;
+
+                    ucActivityInventoryInquiry inquiry = new ucActivityInventoryInquiry();
+                    await inquiry.Show();
                 }
                 else if (keycode == Keycode.Num6)
                 {
                     //this.CallingControl = new ucInventoryAdjustmentsMenu();
                     this.DisableControls();
                     this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-
                     this.IsControlLoaded = false;
+
+                    ucInventoryAdjustmentsMenu adjustmentsMenu = new ucInventoryAdjustmentsMenu();
+                    await adjustmentsMenu.Show();
                 }
             });
 
@@ -618,13 +623,15 @@ namespace dMobile.View.Menus
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        public void cmdInquiry_Click(object sender, EventArgs e)
+        public async void cmdInquiry_Click(object sender, EventArgs e)
         {
             //this.CallingControl = new ucActivityInventoryInquiry();
             this.DisableControls();
             this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-
             this.IsControlLoaded = false;
+
+            ucActivityInventoryInquiry inquiry = new ucActivityInventoryInquiry();
+            await inquiry.Show();
         }
 
         /// <summary>
@@ -633,13 +640,15 @@ namespace dMobile.View.Menus
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        public void cmdAdjustments_Click(object sender, EventArgs e)
+        public async void cmdAdjustments_Click(object sender, EventArgs e)
         {
             //this.CallingControl = new ucInventoryAdjustmentsMenu();
             this.DisableControls();
             this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-
             this.IsControlLoaded = false;
+
+            ucInventoryAdjustmentsMenu adjustmentsMenu = new ucInventoryAdjustmentsMenu();
+            await adjustmentsMenu.Show();
         }
 
         #endregion
