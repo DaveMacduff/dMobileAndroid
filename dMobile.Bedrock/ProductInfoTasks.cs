@@ -593,9 +593,9 @@
                     "WHERE tProductUnit.ProductRefno = @refno " +
                     "AND tUnit.UnitCode = @unitCode " +
                     "AND tBaseUnit.UnitCode = @baseUnitCode";
-                    cmndProdUnitRelation.Parameters.Add(new SQLiteParameter("@refno", productInfo.Refno));
-                    cmndProdUnitRelation.Parameters.Add(new SQLiteParameter("@unitCode", productInfo.UnitCode));
-                    cmndProdUnitRelation.Parameters.Add(new SQLiteParameter("@baseUnitCode", productInfo.BaseUnitCode));
+                    cmndProdUnitRelation.Parameters.Add(new SQLiteParameter("@refno", Convert.ToInt32(productInfo.Refno)));
+                    cmndProdUnitRelation.Parameters.Add(new SQLiteParameter("@unitCode", Convert.ToString(productInfo.UnitCode)));
+                    cmndProdUnitRelation.Parameters.Add(new SQLiteParameter("@baseUnitCode", Convert.ToString(productInfo.BaseUnitCode)));
 
                     //var test = cmndProdUnitRelation.ExecuteScalar();
                     prodUnitFactor = Convert.ToDecimal(cmndProdUnitRelation.ExecuteScalar());

@@ -853,12 +853,9 @@ namespace dMobile.Controller
                 cmndItem.CommandText = "tActivityItemTransfer";
                 cmndItem.CommandType = CommandType.Text;
                 cmndItem.CommandText = "UPDATE tActivityItemTransfer "
-                    + "SET ActivityItemTransferQuantity = "
-                    + this.DataViewItems[idx]["ActivityItemTransferQuantity"] + ","
-                    + "ActivityItemTransferBaseQuantity = "
-                    + this.DataViewItems[idx]["ActivityItemTransferBaseQuantity"] + ","
-                    + "ActivityItemTransferWeightQuantity = "
-                    + this.DataViewItems[idx]["ActivityItemTransferWeightQuantity"] +
+                    + "SET ActivityItemTransferQuantity = " + this.DataViewItems[idx]["ActivityItemTransferQuantity"] + ","
+                    + "ActivityItemTransferBaseQuantity = " + this.DataViewItems[idx]["ActivityItemTransferBaseQuantity"] + ","
+                    + "ActivityItemTransferWeightQuantity = " + this.DataViewItems[idx]["ActivityItemTransferWeightQuantity"] +
                     " WHERE tActivityItemTransfer.ActivityItemRefno = " + actItemRefno;
                 cmndItem.ExecuteNonQuery();
             }

@@ -29,7 +29,7 @@
 
                 <Label x:Name="lblProductDescription" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" VerticalOptions="Center"/>
 
-                <Grid Grid.Row="2" Grid.ColumnSpan="3" BackgroundColor="{DynamicResource HeaderColor}">
+                <Grid Grid.Row="2" Grid.ColumnSpan="3" BackgroundColor="{DynamicResource HeaderColor}" Padding="5,1,5,1">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="2*"/>
@@ -40,11 +40,11 @@
                 </Grid>
 
                 <Frame VerticalOptions="Start" Grid.Row="3" Grid.ColumnSpan="3" OutlineColor="{DynamicResource BorderColor}">
-                    <ListView x:Name="dgProducts" ItemSelected="DgProducts_ItemSelected">
+                    <ListView x:Name="dgProducts" ItemSelected="DgProducts_ItemSelected" HasUnevenRows="True">
                         <ListView.ItemTemplate>
                             <DataTemplate>
                                 <ViewCell>
-                                    <Grid>
+                                    <Grid Padding="5,1,5,1">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="2*"/>

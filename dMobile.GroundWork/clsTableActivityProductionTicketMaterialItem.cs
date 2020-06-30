@@ -346,11 +346,11 @@ namespace dMobile.GroundWork
                             {
                                 errMsg = "Arguments:";
 
-                                cmndItem.CommandText = "INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityItemRefno) VALUES (@activityItemSubType, @activityItemStatus, @activityItemRefno)";
+                                cmndItem.CommandText = "INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (@activityItemSubType, @activityItemStatus, @activityRefno)";
                                 cmndItem.CommandType = CommandType.Text;
                                 cmndItem.Parameters.Add(new SQLiteParameter("@activityItemSubType", Convert.ToInt32(SysCommon.ActSubTypes.TicketMaterial)));
                                 cmndItem.Parameters.Add(new SQLiteParameter("@activityItemStatus", Convert.ToInt32(SysCommon.ActStatus.NoChange)));
-                                cmndItem.Parameters.Add(new SQLiteParameter("@activityItemRefno", actRefno));
+                                cmndItem.Parameters.Add(new SQLiteParameter("@activityRefno", actRefno));
 
                                 cmndItem.ExecuteNonQuery();
 
@@ -378,7 +378,7 @@ namespace dMobile.GroundWork
                                 "ActivityItemProductionDescription, " +
                                 "ActivityItemProductionQuantityExpected, " +
                                 "ActivityItemProductionBaseQuantityExpected, " +
-                                "ActivityItemProductionWeigthtQuantityExpected" +
+                                "ActivityItemProductionWeightQuantityExpected" +
                                 ") VALUES (" +
                                 "@activityItemRefno, " +
                                 "@activityItemSubType, " +
@@ -390,7 +390,7 @@ namespace dMobile.GroundWork
                                 "@activityItemProductionDescription, " +
                                 "@activityItemProductionQuantityExpected, " +
                                 "@activityItemProductionBaseQuantityExpected, " +
-                                "@activityItemProductionWeigthtQuantityExpected" +
+                                "@activityItemProductionWeightQuantityExpected" +
                                 ")";
                                 cmndItemProduction.CommandType = CommandType.Text;
                                 //cmndItemProduction.IndexName = "PK_ActivityItemProductionOnActivityItemRefno";
@@ -404,7 +404,7 @@ namespace dMobile.GroundWork
                                 cmndItemProduction.Parameters.Add(new SQLiteParameter("@activityItemProductionDescription", drow["ActivityItemProductionDescription"].ToString()));
                                 cmndItemProduction.Parameters.Add(new SQLiteParameter("@activityItemProductionQuantityExpected", Convert.ToDecimal(drow["ActivityItemProductionQuantityExpected"])));
                                 cmndItemProduction.Parameters.Add(new SQLiteParameter("@activityItemProductionBaseQuantityExpected", Convert.ToDecimal(drow["ActivityItemProductionBaseQuantityExpected"])));
-                                cmndItemProduction.Parameters.Add(new SQLiteParameter("@activityItemProductionWeigthtQuantityExpected", Convert.ToDecimal(drow["ActivityItemProductionWeightQuantityExpected"])));
+                                cmndItemProduction.Parameters.Add(new SQLiteParameter("@activityItemProductionWeightQuantityExpected", Convert.ToDecimal(drow["ActivityItemProductionWeightQuantityExpected"])));
 
                                 cmndItemProduction.ExecuteNonQuery();
 

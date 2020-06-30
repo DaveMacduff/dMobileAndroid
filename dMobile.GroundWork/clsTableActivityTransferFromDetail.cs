@@ -369,7 +369,6 @@
 
                                     actDetailRefno = Convert.ToInt32(cmndID.ExecuteScalar());
 
-                                    // TODO: double check that changes work
                                     cmndDetailTransfer.CommandText = "INSERT INTO tActivityDetailTransfer (ActivityDetailRefno, " +
                                         "ActivityDetailTransferFKRefno, " +
                                         "ActivityDetailTransferIsConfirmed, " +

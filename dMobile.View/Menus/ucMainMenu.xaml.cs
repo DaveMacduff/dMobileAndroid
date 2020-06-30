@@ -113,6 +113,9 @@
                     //this.CallingControl = new ucProductionTicketMenu();
                     this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     this.IsControlLoaded = false;
+
+                    ucProductionTicketMenu production = new ucProductionTicketMenu();
+                    await production.Show();
                 }
                 else if (keycode == Keycode.Num5)
                 {
@@ -141,9 +144,9 @@
         /// </summary>
         protected override void OnDisappearing()
         {
-            base.OnDisappearing();
-
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
+            
+            base.OnDisappearing();
         }
 
         public event ReqCloseHandler ReqClose
@@ -672,12 +675,15 @@
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        private void cmdProduction_Click(object sender, EventArgs e)
+        private async void cmdProduction_Click(object sender, EventArgs e)
         {
             this.DisableControls();
             //this.CallingControl = new ucProductionTicketMenu();
             this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
             this.IsControlLoaded = false;
+
+            ucProductionTicketMenu production = new ucProductionTicketMenu();
+            await production.Show();
         }
 
         /// <summary>

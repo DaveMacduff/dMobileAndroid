@@ -817,7 +817,7 @@ namespace dMobile.Controller
         public override void SelectItem(int idx)
         {
             base.SelectItem(idx);
-            this.FKRefno = (int)this.DataViewItems[idx]["ActivityItemPickingFKRefno"];
+            this.FKRefno = Convert.ToInt32(this.DataViewItems[idx]["ActivityItemPickingFKRefno"]);
         }
 
         /// <summary>
@@ -828,45 +828,7 @@ namespace dMobile.Controller
         /// <remarks></remarks>
         public override int GetRefnoFromProdUnitRefno(int prodUnitRefno)
         {
-            int foundActItemRefno = 0;
-
-            // TODO: SQL
-            ////using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-            ////{
-            ////  StringBuilder sql = new StringBuilder();
-            ////  sql.Append("SELECT tActivityItem.ActivityItemRefno,");
-            ////  sql.Append("tActivityItemPicking.ActivityItemPickingFKRefno,");
-            ////  sql.Append("tActivityItemPicking.ProductUnitRefno,");
-            ////  sql.Append("tLocationMapWarehouse.LocationMapRefno");
-            ////  sql.Append(" FROM tActivityItemPicking");
-            ////  sql.Append(" INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno ");
-            ////  sql.Append("= tActivityItemPicking.ActivityItemRefno");
-            ////  sql.Append(" INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
-            ////  sql.Append("= tActivityItemPicking.WarehouseLocationMapRefno");
-            ////  sql.AppendFormat(" WHERE tActivityItem.ActivityRefno = {0}", ActHdr.Refno);
-            ////  sql.AppendFormat(" AND tActivityItemPicking.WarehouseLocationMapRefno = {0}", LocMap.CurrLocMap.WhsLocMapRefno);
-            ////  sql.AppendFormat(" AND tActivityItemPicking.ProductUnitRefno = {0}", prodUnitRefno);
-
-            ////  cmndItem.CommandType = CommandType.Text;
-            ////  cmndItem.CommandText = sql.ToString();
-
-            ////  using (SQLiteDataReader drItem = cmndItem.ExecuteReader())
-            ////  {
-            ////    if (drItem.Read())
-            ////    {
-            ////      this.SelectedLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(drItem["LocationMapRefno"]));
-            ////      this.FKRefno = Convert.ToInt32(drItem["ActivityItemPickingFKRefno"]);
-            ////      this.ProdInfo = ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(drItem["ProductUnitRefno"]));
-            ////      this.ProdInfo.Scheme = ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
-            ////      this.Refno = Convert.ToInt32(drItem["ActivityItemRefno"]);
-            ////      foundActItemRefno = this.Refno;
-            ////    }
-
-            ////    drItem.Close();
-            ////  }
-            ////}
-
-            foundActItemRefno = this.Refno;
+            int foundActItemRefno = this.Refno;
 
             return foundActItemRefno;
         }
@@ -936,12 +898,9 @@ namespace dMobile.Controller
         public override int UpdateDataViewQuantity(int idx, decimal quantity, decimal baseQuantity, decimal weightQuantity)
         {
             this.DataViewItems[idx].BeginEdit();
-            this.DataViewItems[idx]["ActivityItemPickingQuantityShipped"] =
-                (decimal)this.DataViewItems[idx]["ActivityItemPickingQuantityShipped"] + quantity;
-            this.DataViewItems[idx]["ActivityItemPickingBaseQuantityShipped"] =
-                (decimal)this.DataViewItems[idx]["ActivityItemPickingBaseQuantityShipped"] + baseQuantity;
-            this.DataViewItems[idx]["ActivityItemPickingWeightQuantityShipped"] =
-                (decimal)this.DataViewItems[idx]["ActivityItemPickingWeightQuantityShipped"] + weightQuantity;
+            this.DataViewItems[idx]["ActivityItemPickingQuantityShipped"] = Convert.ToDecimal(this.DataViewItems[idx]["ActivityItemPickingQuantityShipped"]) + quantity;
+            this.DataViewItems[idx]["ActivityItemPickingBaseQuantityShipped"] = Convert.ToDecimal(this.DataViewItems[idx]["ActivityItemPickingBaseQuantityShipped"]) + baseQuantity;
+            this.DataViewItems[idx]["ActivityItemPickingWeightQuantityShipped"] = Convert.ToDecimal(this.DataViewItems[idx]["ActivityItemPickingWeightQuantityShipped"]) + weightQuantity;
             this.DataViewItems[idx].EndEdit();
 
             return idx;

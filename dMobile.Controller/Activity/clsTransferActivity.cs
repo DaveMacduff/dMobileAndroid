@@ -72,6 +72,7 @@ namespace dMobile.Controller
 
         public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity)
         {
+            // TODO: Calculate Column Widths
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
             // Create header data template
@@ -501,7 +502,7 @@ namespace dMobile.Controller
                     }
                     else
                     {
-                        filter = filter + string.Format(
+                        filter += string.Format(
                             " AND ActivityTransferDateTime >= '{0}-{1}-{2} 00:00:00.000' "
                             + "AND ActivityTransferDateTime <= '{0}-{1}-{2} 23:59:59.997'",
                             dt.Year,
@@ -544,7 +545,7 @@ namespace dMobile.Controller
                     }
                     else
                     {
-                        filter = filter + string.Format(
+                        filter += string.Format(
                             " AND ActivityTransferDateTime >= '{0}-{1}-{2} 00:00:00.000' "
                             + "AND ActivityTransferDateTime <= '{0}-{1}-{2} 23:59:59.997'",
                             dt.Year,

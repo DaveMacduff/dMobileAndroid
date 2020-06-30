@@ -232,11 +232,10 @@ namespace dMobile.View.Activity
         /// </summary>
         protected override void OnDisappearing()
         {
-            base.OnDisappearing();
-
-            this.Loading = true;
-            this.ScannerDisable();
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
+            this.ScannerDisable();
+            
+            base.OnDisappearing();
         }
 
         #region Delegates

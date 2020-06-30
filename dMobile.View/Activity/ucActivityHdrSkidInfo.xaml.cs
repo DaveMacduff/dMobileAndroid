@@ -1683,7 +1683,7 @@ namespace dMobile.View.Activity
                 actItem.ProdInfo.Unit2BaseUnitFactor = ProductInfoTasks.GetUnitRelationFactor(actItem.ProdInfo);
 
                 FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucActivityDetailSkid, actItem, SysCommon.ActSubTypes.SkidInfo);
-                await form.ShowDialog();
+                await form.DisplayControl.ShowDialog();
                 await form.SaveChanges(sender, e);
                 XDocument xmlDoc = form.DisplayControlData;
 

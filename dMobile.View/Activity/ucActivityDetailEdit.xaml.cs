@@ -155,7 +155,7 @@ namespace dMobile.View.Activity
                                 {
                                     try
                                     {
-                                        this.PrintProductLabels();
+                                        await this.PrintProductLabels();
                                     }
                                     catch (Exceptions.MessageOnlyException ex)
                                     {
@@ -194,7 +194,7 @@ namespace dMobile.View.Activity
                                 {
                                     try
                                     {
-                                        this.PrintProductLabels();
+                                        await this.PrintProductLabels();
                                     }
                                     catch (Exceptions.MessageOnlyException ex)
                                     {
@@ -936,7 +936,7 @@ namespace dMobile.View.Activity
         /// <summary>
         /// 
         /// </summary>
-        private void PrintProductLabels()
+        private async Task PrintProductLabels()
         {
             string sendReq = string.Empty;
             string reqData = string.Empty;
@@ -963,7 +963,7 @@ namespace dMobile.View.Activity
                     actDetailLabel.ActExtra = this.ActDetailEdit.ActExtra;
 
                     FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucActivityProductLabel, actDetailLabel, this.ActSubType);
-                    form.DisplayControl.ShowDialog().ContinueWith(result => { });
+                    await form.DisplayControl.ShowDialog();
                     // Printing of product labels will be handled in ucActivityProductLabel
                 }
                 else
@@ -1306,8 +1306,9 @@ namespace dMobile.View.Activity
             s.LogisticUnitBatchLotNumber = lotNumber != null ? lotNumber.ActivityDetailLogisticUnitBatchLotNumber : string.Empty;
 
             if (this.ActDetail.ActItem.ProdInfo.Scheme.IsVariantTracked)
-            {
-                s.VariantNumber = Convert.ToInt32(this.cboVariantCode.SelectedItem);
+            {                
+                ProductVariant variant = this.cboVariantCode != null ? this.cboVariantCode.SelectedItem as ProductVariant : null;
+                s.VariantNumber = Convert.ToInt32(variant != null ? variant.ProductSchemeVariantNo : -1);
                 s = this.ActDetail.FillSchemeDataVarInfoFromSchemeDataVarNo(s);
             }
 
@@ -1705,7 +1706,7 @@ namespace dMobile.View.Activity
                         {
                             try
                             {
-                                this.PrintProductLabels();
+                                await this.PrintProductLabels();
                             }
                             catch (Exceptions.MessageOnlyException ex)
                             {

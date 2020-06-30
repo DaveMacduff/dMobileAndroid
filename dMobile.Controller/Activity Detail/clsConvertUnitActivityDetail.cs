@@ -171,6 +171,7 @@ namespace dMobile.Controller
 
         public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity)
         {
+            // TODO: calculate grid column width
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
             // Header grid

@@ -199,24 +199,23 @@ namespace dMobile.GroundWork
 
                                 isSlotCoordFound = false;
 
-                                // TODO: Uncomment SysEnv.RefreshOpt.RefreshDataChangesOnly
-                                //if (SysEnv.RefreshOpt.RefreshDataChangesOnly)
-                                //{
-                                //cmndSlotCoord.CommandText = "tLocationMapSlotCoordinate";
-                                //cmndSlotCoord.CommandType = CommandType.Text;
-                                //cmndSlotCoord.IndexName = "UQ_LocationMapSlotCoordOnLocationMapSlotCoordEnumAndLocationMapSlotCoordCode";
-                                cmndSlotCoord.Parameters.Add(new SQLiteParameter("@locationMapSlotCoordinateEnum", slotCoordType));
-                                cmndSlotCoord.Parameters.Add(new SQLiteParameter("@locationMapSlotCoordinateCode", slotCoordCode));
-
-                                using (SQLiteDataReader drSlotCoord = cmndSlotCoord.ExecuteReader())
+                                if (SysEnv.RefreshOpt.RefreshDataChangesOnly)
                                 {
-                                    //if (drSlotCoord.Seek(DbSeekOptions.FirstEqual, new object[] { slotCoordType, slotCoordCode }))
-                                    if (drSlotCoord.Read())
+                                    //cmndSlotCoord.CommandText = "tLocationMapSlotCoordinate";
+                                    //cmndSlotCoord.CommandType = CommandType.Text;
+                                    //cmndSlotCoord.IndexName = "UQ_LocationMapSlotCoordOnLocationMapSlotCoordEnumAndLocationMapSlotCoordCode";
+                                    cmndSlotCoord.Parameters.Add(new SQLiteParameter("@locationMapSlotCoordinateEnum", slotCoordType));
+                                    cmndSlotCoord.Parameters.Add(new SQLiteParameter("@locationMapSlotCoordinateCode", slotCoordCode));
+
+                                    using (SQLiteDataReader drSlotCoord = cmndSlotCoord.ExecuteReader())
                                     {
-                                        isSlotCoordFound = true;
+                                        //if (drSlotCoord.Seek(DbSeekOptions.FirstEqual, new object[] { slotCoordType, slotCoordCode }))
+                                        if (drSlotCoord.Read())
+                                        {
+                                            isSlotCoordFound = true;
+                                        }
                                     }
                                 }
-                                //}
 
                                 if (!isSlotCoordFound)
                                 {

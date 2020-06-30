@@ -50,6 +50,7 @@ namespace dMobile.Controller
 
         public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity)
         {
+            // TODO: Design Grid
             throw new NotImplementedException();
         }
 

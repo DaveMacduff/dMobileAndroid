@@ -1,10 +1,10 @@
 namespace dMobile.Controller
 {
-  public class PutAwaySkidActivityFactory : ActivityFactory
-  {
-    public override Activity GetActivity()
+    public class PutAwaySkidActivityFactory : ActivityFactory
     {
-      return new PutAwaySkidActivity();
+        public override Activity GetActivity()
+        {
+            return new PutAwaySkidActivity();
+        }
     }
-  }
 }

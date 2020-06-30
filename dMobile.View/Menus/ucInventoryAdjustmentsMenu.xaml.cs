@@ -61,7 +61,7 @@ namespace dMobile.View.Menus
 
         #region OnAppearing/OnDisappearing
 
-                /// <summary>
+        /// <summary>
         /// The OnAppearing
         /// </summary>
         protected override void OnAppearing()
@@ -115,6 +115,17 @@ namespace dMobile.View.Menus
                 // TODO: Resource strings
                 DisplayAlert("Error", "this.ucInventoryAdjustmentsMenu_GotFocus threw an error " + ex, "OK");
             }
+        }
+
+        /// <summary>
+        /// The OnDisappearing
+        /// </summary>
+        protected override void OnDisappearing()
+        {
+            MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
+            this.ScannerDisable();
+            
+            base.OnDisappearing();
         }
 
         #endregion
@@ -728,7 +739,7 @@ namespace dMobile.View.Menus
             this.IsControlLoaded = false;
 
             ucActivityConvertProduct convertProduct = new ucActivityConvertProduct();
-            await convertProduct.ShowDialog();
+            await convertProduct.Show();
         }
 
         ///// <summary>

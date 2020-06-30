@@ -403,13 +403,11 @@ namespace dMobile.GroundWork
                                 this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
 
                             }
-
                         }
 
                         transaction.Commit();
 
                         DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving adjustment items complete.", false);
-
                     }
                 }
                 catch (SQLiteException ex)

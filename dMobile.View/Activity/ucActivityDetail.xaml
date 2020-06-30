@@ -6,7 +6,7 @@
     xmlns:Helpers="clr-namespace:dMobile.View.Helpers" xmlns:input="http://schemas.microsoft.com/netfx/2009/xaml/presentation"
     x:Class="dMobile.View.Activity.ucActivityDetail">
     <ContentPage.ToolbarItems>
-        <ToolbarItem x:Name="optionsMenu" IconImageSource="{Binding OptionsIconSource}" Clicked="OptionsMenu_Clicked" />
+        <ToolbarItem x:Name="optionsMenu" IconImageSource="{Binding OptionsIconSource}" Clicked="OptionsMenu_Clicked" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
     </ContentPage.ToolbarItems>
     <ContentPage.Content>
         <AbsoluteLayout VerticalOptions="Center">

@@ -316,7 +316,7 @@ namespace dMobile.View
         /// <summary>
         /// The OnAppearing
         /// </summary>
-        protected override void OnAppearing()
+        protected override async void OnAppearing()
         {
             base.OnAppearing();
 
@@ -350,7 +350,7 @@ namespace dMobile.View
                         {
                             //this.CallingControl = new ucMainMenu();
                             this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-                            Device.BeginInvokeOnMainThread(async () => await this.Close());
+                            await Device.InvokeOnMainThreadAsync(async () => await this.Close());
                         }
                     }
                 }
@@ -366,9 +366,8 @@ namespace dMobile.View
         /// </summary>
         protected override void OnDisappearing()
         {
-            base.OnDisappearing();
-
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
+            base.OnDisappearing();
         }
 
         /// <summary>

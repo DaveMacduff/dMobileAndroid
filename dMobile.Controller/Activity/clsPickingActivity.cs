@@ -40,11 +40,7 @@ namespace dMobile.Controller
         public override void PrintLabel(XDocument data)
         {
             int locMapRefno = 0;
-            SLocMap locMap = LocationMapTasks.GetSLocMapFromLocMapFKRefno(
-                int.Parse(this.XMLDataCriteria.Root.Element("whs_id").Value),
-                int.Parse(this.XMLDataCriteria.Root.Element("sect_refno").Value),
-                0,
-                ref locMapRefno);
+            SLocMap locMap = LocationMapTasks.GetSLocMapFromLocMapFKRefno(int.Parse(this.XMLDataCriteria.Root.Element("whs_id").Value), int.Parse(this.XMLDataCriteria.Root.Element("sect_refno").Value), 0, ref locMapRefno);
             string reqData = string.Empty;
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);
@@ -209,17 +205,9 @@ namespace dMobile.Controller
             {
                 // TODO: Logging
                 Console.WriteLine(ex);
-                // TODO: DisplayAlert
-                //        MessageBox.Show(
-                //#if MULTILANGUAGE
-                //            string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.GetFullUnitLabelQuantityFailed) + Environment.NewLine + " {0}", ex.Message, null), 
-                //#else
-                //            string.Format("Get full unit label quantity failed." + Environment.NewLine + " {0}", ex.Message, null), 
-                //#endif
-                //            this.GetControlDescription(), 
-                //            MessageBoxButtons.OK, 
-                //            MessageBoxIcon.Exclamation, 
-                //            MessageBoxDefaultButton.Button1);
+
+                // TODO: Resource strings
+                Application.Current.MainPage.DisplayAlert(this.GetControlDescription(), "Get full unit label quantity failed." + Environment.NewLine + ex.Message, "OK");
             }
 
             return labelQty;
@@ -270,13 +258,8 @@ namespace dMobile.Controller
                 {
                     isBeingPicked = true;
                     string errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
+                    
                     // TODO: Resource strings
-                    //MessageBox.Show(
-                    //    errorDetail, 
-                    //    this.GetControlDescription(), 
-                    //    MessageBoxButtons.OK, 
-                    //    MessageBoxIcon.Hand, 
-                    //    MessageBoxDefaultButton.Button1);
                     await Application.Current.MainPage.DisplayAlert(this.GetControlDescription(), errorDetail, "OK");
                 }
             }
@@ -334,13 +317,8 @@ namespace dMobile.Controller
                     if (reqData.Contains("<message>ERROR</message>"))
                     {
                         string errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
+                        
                         // TODO: Resource strings
-                        //MessageBox.Show(
-                        //    errorDetail, 
-                        //    this.GetControlDescription(), 
-                        //    MessageBoxButtons.OK, 
-                        //    MessageBoxIcon.Hand, 
-                        //    MessageBoxDefaultButton.Button1);
                         await Application.Current.MainPage.DisplayAlert(this.GetControlDescription(), errorDetail, "OK");
                     }
                     else
@@ -540,20 +518,6 @@ namespace dMobile.Controller
                         {
                             case SysCommon.ActPickingQtyUnderValLevels.ValidateWarnAndContinue:
                                 // TODO: Resource strings
-                                //                if (MessageBox.Show(
-                                //#if MULTILANGUAGE
-                                //                    ex.Message + Environment.NewLine + Translator.GetInstance().Translate(TranslatorVocabulary.Continue),
-                                //#else
-                                //                    ex.Message + Environment.NewLine + "Continue?",
-                                //#endif
-                                //                    this.GetControlDescription(),
-                                //                    MessageBoxButtons.YesNo,
-                                //                    MessageBoxIcon.Question,
-                                //                    MessageBoxDefaultButton.Button2) == DialogResult.No)
-                                //                {
-                                //                  isResult = false;
-                                //                }
-
                                 if (await Application.Current.MainPage.DisplayAlert(this.GetControlDescription(), string.Format("Release order# {0} ?", this.FKRefno), "Yes", "No"))
                                 {
                                     isResult = false;
@@ -564,12 +528,6 @@ namespace dMobile.Controller
                             case SysCommon.ActPickingQtyUnderValLevels.ValidateWarnAndStop:
                                 // TODO: Resource strings
                                 await Application.Current.MainPage.DisplayAlert(this.GetControlDescription(), ex.Message, "OK");
-                                //MessageBox.Show(
-                                //    ex.Message,
-                                //    this.GetControlDescription(),
-                                //    MessageBoxButtons.OK,
-                                //    MessageBoxIcon.Hand,
-                                //    MessageBoxDefaultButton.Button1);
                                 isResult = false;
                                 break;
                         }
@@ -829,22 +787,22 @@ namespace dMobile.Controller
 
             if (isSubmitBatch)
             {
-                sql.Append("SELECT tActivityPicking.ActivityRefno,");
-                sql.Append("tActivityPicking.ActivityPickingFKRefno,");
-                sql.Append("tActivityPicking.ActivityPickingStringFKRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseName,");
-                sql.Append("tActivityPicking.ActivityPickingOrderedDateTime,");
-                sql.Append("tActivityPicking.ActivityPickingDeliveryDateTime,");
-                sql.Append("tActivityPicking.ActivityPickingCustomerContactName,");
-                sql.Append("tActivityPicking.ActivityPickingCustomerShipToInfo,");
-                sql.Append("tRoute.RouteCode,");
-                sql.Append("tRoute.RouteDescription,");
-                sql.Append("tRoute.RouteDayOfWeek,");
-                sql.Append("tActivityPickingRoute.RouteStop,");
-                sql.Append("tActivity.ActivityStatus,");
-                sql.Append("tActivityPicking.ActivityPickingIsReviewed ");
+                sql.Append("SELECT tActivityPicking.ActivityRefno AS ActivityRefno,");
+                sql.Append("tActivityPicking.ActivityPickingFKRefno AS ActivityPickingFKRefno,");
+                sql.Append("tActivityPicking.ActivityPickingStringFKRefno AS ActivityPickingStringFKRefno,");
+                sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
+                sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno AS LocationMapWarehouseFKRefno,");
+                sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationMapWarehouseName,");
+                sql.Append("tActivityPicking.ActivityPickingOrderedDateTime AS ActivityPickingOrderedDateTime,");
+                sql.Append("tActivityPicking.ActivityPickingDeliveryDateTime AS ActivityPickingDeliveryDateTime,");
+                sql.Append("tActivityPicking.ActivityPickingCustomerContactName AS ActivityPickingCustomerContactName,");
+                sql.Append("tActivityPicking.ActivityPickingCustomerShipToInfo AS ActivityPickingCustomerShipToInfo,");
+                sql.Append("tRoute.RouteCode AS RouteCode,");
+                sql.Append("tRoute.RouteDescription AS RouteDescription,");
+                sql.Append("tRoute.RouteDayOfWeek AS RouteDayOfWeek,");
+                sql.Append("tActivityPickingRoute.RouteStop AS RouteStop,");
+                sql.Append("tActivity.ActivityStatus AS ActivityStatus,");
+                sql.Append("tActivityPicking.ActivityPickingIsReviewed AS ActivityPickingIsReviewed ");
                 sql.Append("FROM tActivityPicking ");
                 sql.Append("INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityPicking.ActivityRefno ");
                 sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno "
@@ -910,22 +868,22 @@ namespace dMobile.Controller
             }
             else
             {
-                sql.Append("SELECT tActivityPicking.ActivityRefno,");
-                sql.Append("tActivityPicking.ActivityPickingFKRefno,");
-                sql.Append("tActivityPicking.ActivityPickingStringFKRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseName,");
-                sql.Append("tActivityPicking.ActivityPickingOrderedDateTime,");
-                sql.Append("tActivityPicking.ActivityPickingDeliveryDateTime,");
-                sql.Append("tActivityPicking.ActivityPickingCustomerContactName,");
-                sql.Append("tActivityPicking.ActivityPickingCustomerShipToInfo,");
-                sql.Append("tRoute.RouteCode,");
-                sql.Append("tRoute.RouteDescription,");
-                sql.Append("tRoute.RouteDayOfWeek,");
-                sql.Append("tActivityPickingRoute.RouteStop,");
-                sql.Append("tActivity.ActivityStatus,");
-                sql.Append("tActivityPicking.ActivityPickingIsReviewed ");
+                sql.Append("SELECT tActivityPicking.ActivityRefno AS ActivityRefno,");
+                sql.Append("tActivityPicking.ActivityPickingFKRefno AS ActivityPickingFKRefno,");
+                sql.Append("tActivityPicking.ActivityPickingStringFKRefno AS ActivityPickingStringFKRefno,");
+                sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
+                sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno AS LocationMapWarehouseFKRefno,");
+                sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationMapWarehouseName,");
+                sql.Append("tActivityPicking.ActivityPickingOrderedDateTime AS ActivityPickingOrderedDateTime,");
+                sql.Append("tActivityPicking.ActivityPickingDeliveryDateTime AS ActivityPickingDeliveryDateTime,");
+                sql.Append("tActivityPicking.ActivityPickingCustomerContactName AS ActivityPickingCustomerContactName,");
+                sql.Append("tActivityPicking.ActivityPickingCustomerShipToInfo AS ActivityPickingCustomerShipToInfo,");
+                sql.Append("tRoute.RouteCode AS RouteCode,");
+                sql.Append("tRoute.RouteDescription AS RouteDescription,");
+                sql.Append("tRoute.RouteDayOfWeek AS RouteDayOfWeek,");
+                sql.Append("tActivityPickingRoute.RouteStop AS RouteStop,");
+                sql.Append("tActivity.ActivityStatus AS ActivityStatus,");
+                sql.Append("tActivityPicking.ActivityPickingIsReviewed AS ActivityPickingIsReviewed ");
                 sql.Append("FROM tActivityPicking ");
                 sql.Append("INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityPicking.ActivityRefno ");
                 sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno "
@@ -1096,11 +1054,11 @@ namespace dMobile.Controller
                 {
                     if (string.IsNullOrEmpty(filter))
                     {
-                        filter = filter + string.Format("RouteCode = \'{0}\'", pickingSettings.strRouteCodeSelectedValue);
+                        filter += string.Format("RouteCode = \'{0}\'", pickingSettings.strRouteCodeSelectedValue);
                     }
                     else
                     {
-                        filter = filter + string.Format(" AND RouteCode = \'{0}\'", pickingSettings.strRouteCodeSelectedValue);
+                        filter += string.Format(" AND RouteCode = \'{0}\'", pickingSettings.strRouteCodeSelectedValue);
                     }
                 }
             }

@@ -1,12 +1,78 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="dMobile.View.Activity.ucActivityShippingLabelEdit">
+<modal:DMobileModal  
+    xmlns:modal="clr-namespace:dMobile.View.CustomPages.Modal"
+    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="dMobile.View.Activity.ucActivityShippingLabelEdit">
     <ContentPage.Content>
-        <StackLayout>
-            <Label Text="Welcome to Xamarin.Forms!"
-                VerticalOptions="CenterAndExpand" 
-                HorizontalOptions="CenterAndExpand" />
-        </StackLayout>
+        <AbsoluteLayout VerticalOptions="Center">
+            <Grid x:Name="gridContainer" Padding="10" AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0,0,1,1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="15*"/>
+                    <RowDefinition Height="70*"/>
+                    <RowDefinition Height="15*"/>
+                </Grid.RowDefinitions>
+
+                <Label x:Name="lblOrderNumber" Grid.Row="0"/>
+
+                <Grid Grid.Row="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!--Row 0-->
+                    <Label x:Name="lblFullUnitQuantity" Grid.Row="0" Grid.Column="1"/>
+                    <Label x:Name="lblRepackQuantity" Grid.Row="0" Grid.Column="2"/>
+
+                    <!--Row 1-->
+                    <Label x:Name="lblTotal" Grid.Row="1" Grid.Column="0"/>
+                    <Entry x:Name="txtFullCaseAltQty" Grid.Row="1" Grid.Column="1" Keyboard="Numeric"/>
+                    <Entry x:Name="txtRepackAltQty" Grid.Row="1" Grid.Column="2" Keyboard="Numeric"/>
+
+                    <!--Row 2-->
+                    <Label x:Name="lblFreshAltQty" Grid.Row="2" Grid.Column="0"/>
+                    <Entry x:Name="txtFreshAltQty" Grid.Row="2" Grid.Column="1" Keyboard="Numeric"/>
+                    <Entry x:Name="txtRepackFreshAltQty" Grid.Row="2" Grid.Column="2" Keyboard="Numeric"/>
+
+                    <!--Row 3-->
+                    <Label x:Name="lblFrozenAltQty" Grid.Row="3" Grid.Column="0"/>
+                    <Entry x:Name="txtFrozenAltQty" Grid.Row="3" Grid.Column="1" Keyboard="Numeric"/>
+                    <Entry x:Name="txtRepackFrozenAltQty" Grid.Row="3" Grid.Column="2" Keyboard="Numeric"/>
+
+                    <!--Row 4-->
+                    <Label x:Name="lblDryAltQty" Grid.Row="4" Grid.Column="0"/>
+                    <Entry x:Name="txtDryAltQty" Grid.Row="4" Grid.Column="1" Keyboard="Numeric"/>
+                    <Entry x:Name="txtRepackDryAltQty" Grid.Row="4" Grid.Column="2" Keyboard="Numeric"/>
+
+                    <!--Row 5-->
+                    <Label x:Name="lblLiveAltQty" Grid.Row="5" Grid.Column="0"/>
+                    <Entry x:Name="txtLiveAltQty" Grid.Row="5" Grid.Column="1" Keyboard="Numeric"/>
+                    <Entry x:Name="txtRepackLiveAltQty" Grid.Row="5" Grid.Column="2" Keyboard="Numeric"/>
+
+                    <!--Row 6-->
+                    <Label x:Name="lblPalletAltQty" Grid.Row="6" Grid.Column="0"/>
+                    <Entry x:Name="txtPalletAltQty" Grid.Row="6" Grid.Column="1" Keyboard="Numeric"/>
+                </Grid>
+
+                <Button x:Name="cmdLocation" Clicked="cmdLocation_Click"/>
+
+            </Grid>
+
+            <ActivityIndicator IsVisible="{Binding Loading}" 
+                               IsRunning="{Binding Loading}"
+                               AbsoluteLayout.LayoutFlags="All" 
+                               AbsoluteLayout.LayoutBounds="0.5,0.5,0.3,0.3"/>
+        </AbsoluteLayout>
     </ContentPage.Content>
-</ContentPage>
+</modal:DMobileModal>

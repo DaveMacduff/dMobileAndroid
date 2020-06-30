@@ -393,7 +393,7 @@ namespace dMobile.Controller
                     }
                     else
                     {
-                        filter = filter + string.Format(
+                        filter += string.Format(
                             " AND ActivityCountDateTime >= '{0}-{1}-{2} 00:00:00.000' "
                             + " AND ActivityCountDateTime <= '{0}-{1}-{2} 23:59:59.997'",
                             dt.Year,
@@ -437,7 +437,7 @@ namespace dMobile.Controller
                     }
                     else
                     {
-                        filter = filter + string.Format(
+                        filter += string.Format(
                             " AND ActivityCountDateTime >= '{0}-{1}-{2} 00:00:00.000' "
                             + "AND ActivityCountDateTime <= '{0}-{1}-{2} 23:59:59.997'",
                             dt.Year,

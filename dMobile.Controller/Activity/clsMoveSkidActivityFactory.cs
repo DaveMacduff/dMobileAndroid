@@ -1,15 +1,15 @@
 namespace dMobile.Controller
 {
-  public class clsMoveSkidActivityFactory : ActivityFactory
-  {
-    /// <summary>
-    ///
-    /// </summary>
-    /// <returns></returns>
-    /// <remarks></remarks>
-    public override Activity GetActivity()
+    public class clsMoveSkidActivityFactory : ActivityFactory
     {
-      return new MoveSkidActivity();
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns></returns>
+        /// <remarks></remarks>
+        public override Activity GetActivity()
+        {
+            return new MoveSkidActivity();
+        }
     }
-  }
 }

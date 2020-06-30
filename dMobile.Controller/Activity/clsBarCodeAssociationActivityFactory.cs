@@ -1,15 +1,15 @@
 namespace dMobile.Controller
 {
-  public class BarCodeAssocActivityFactory : ActivityFactory
-  {
-    /// <summary>
-    ///
-    /// </summary>
-    /// <returns></returns>
-    /// <remarks></remarks>
-    public override Activity GetActivity()
+    public class BarCodeAssocActivityFactory : ActivityFactory
     {
-      return new BarCodeAssocActivity();
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns></returns>
+        /// <remarks></remarks>
+        public override Activity GetActivity()
+        {
+            return new BarCodeAssocActivity();
+        }
     }
-  }
 }

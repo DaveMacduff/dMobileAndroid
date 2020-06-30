@@ -41,11 +41,8 @@
         /// <remarks></remarks>
         public override string GetControlDescription()
         {
-#if MULTILANGUAGE
-      return Translator.GetInstance().Translate(TranslatorVocabulary.ConvertUnitsz);
-#else
+            // TODO: Resource strings
             return "Convert Products";
-#endif
         }
 
         /// <summary>

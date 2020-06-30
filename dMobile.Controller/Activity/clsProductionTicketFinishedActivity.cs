@@ -8,6 +8,8 @@ namespace dMobile.Controller
     using System.Xml.Linq;
     using dMobile.Bedrock;
     using dMobile.GroundWork;
+    using dMobile.Resources.Services;
+    using dMobile.Resources.Types;
     using Xamarin.Forms;
 
     public class TicketFinishedActivity : Activity
@@ -50,7 +52,122 @@ namespace dMobile.Controller
 
         public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity)
         {
-            throw new NotImplementedException();
+            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+
+            foreach (DataRow row in this.DataViewHdrs.ToTable().Rows)
+            {
+                ProductionTicketFinished productionTicket = new ProductionTicketFinished
+                {
+                    ActivityProductionDateTime = Convert.ToDateTime(row["ActivityProductionDateTime"] != DBNull.Value ? row["ActivityProductionDateTime"] : null),
+                    ActivityProductionDescription = Convert.ToString(row["ActivityProductionDescription"] != DBNull.Value ? row["ActivityProductionDescription"] : null),
+                    ActivityProductionFKRefno = Convert.ToInt32(row["ActivityProductionFKRefno"] != DBNull.Value ? row["ActivityProductionFKRefno"] : null),
+                    ActivityProductionStringFKRefno = Convert.ToString(row["ActivityProductionStringFKRefno"] != DBNull.Value ? row["ActivityProductionStringFKRefno"] : null),
+                    ActivityRefno = Convert.ToInt32(row["ActivityRefno"] != DBNull.Value ? row["ActivityRefno"] : null),
+                    ActivityStatus = Convert.ToInt32(row["ActivityStatus"] != DBNull.Value ? row["ActivityStatus"] : null),
+                    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
+                    LocationMapWarehouseFKRefno = Convert.ToInt32(row["LocationMapWarehouseFKRefno"] != DBNull.Value ? row["LocationMapWarehouseFKRefno"] : null),
+                    LocationMapWarehouseName = Convert.ToString(row["LocationMapWarehouseName"] != DBNull.Value ? row["LocationMapWarehouseName"] : null),
+                };
+
+                observableCollection.Add(productionTicket);
+            }
+
+            Label labelTicketNumber = new Label { Text = "Ticket #", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            Label labelTicketDate = new Label { Text = "Date", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            Label labelTicketDescription = new Label { Text = "Description", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+
+            // Calculate text size
+            double columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelTicketNumber.Text);
+            double columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelTicketDate.Text);
+            double columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelTicketDescription.Text);
+
+            Grid gridHeader = new Grid
+            {
+                Padding = new Thickness(5),
+                //ColumnSpacing = 15,
+                ColumnDefinitions =
+                {
+                    new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) }
+                }
+            };
+
+            gridHeader.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
+
+            gridHeader.Children.Add(labelTicketNumber);
+            gridHeader.Children.Add(labelTicketDate);
+            gridHeader.Children.Add(labelTicketDescription);
+
+            Grid.SetColumn(labelTicketNumber, 0);
+            Grid.SetColumn(labelTicketDate, 1);
+            Grid.SetColumn(labelTicketDescription, 2);
+
+            Grid.SetRow(gridHeader, 0);
+
+            dataGridMainActivityHeader.Children.Add(gridHeader);
+
+            foreach (ProductionTicketFinished productionTicket in observableCollection)
+            {
+                double dataColumnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(productionTicket.ActivityProductionStringFKRefno);
+                double dataColumnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(productionTicket.ActivityProductionDateTime.ToString("MM/dd/yyyy")));
+                double dataColumnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(productionTicket.ActivityProductionDescription);
+
+                if (dataColumnWidth0 > columnWidth0)
+                {
+                    columnWidth0 = dataColumnWidth0;
+                    gridHeader.ColumnDefinitions[0].Width = columnWidth0;
+                }
+
+                if (dataColumnWidth1 > columnWidth1)
+                {
+                    columnWidth1 = dataColumnWidth1;
+                    gridHeader.ColumnDefinitions[1].Width = columnWidth1;
+                }
+
+                if (dataColumnWidth2 > columnWidth2)
+                {
+                    columnWidth2 = dataColumnWidth2;
+                    gridHeader.ColumnDefinitions[2].Width = columnWidth2;
+                }
+            }
+
+            // Data grid
+            DataTemplate dataTemplateCount = new DataTemplate(() =>
+            {
+                Grid gridData = new Grid
+                {
+                    Padding = new Thickness(5),
+                    ColumnDefinitions =
+                    {
+                        new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) }
+                    }
+                };
+
+                Label labelActivityRefno = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelActivityDateTime = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelActivityDescription = new Label { VerticalOptions = LayoutOptions.Center };
+
+                labelActivityRefno.SetBinding(Label.TextProperty, new Binding("ActivityProductionStringFKRefno"));
+                labelActivityDateTime.SetBinding(Label.TextProperty, new Binding("ActivityProductionDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
+                labelActivityDescription.SetBinding(Label.TextProperty, new Binding("ActivityProductionDescription"));
+
+                gridData.Children.Add(labelActivityRefno, 0, 0);
+                gridData.Children.Add(labelActivityDateTime, 0, 0);
+                gridData.Children.Add(labelActivityDescription, 0, 0);
+
+                Grid.SetColumn(labelActivityRefno, 0);
+                Grid.SetColumn(labelActivityDateTime, 1);
+                Grid.SetColumn(labelActivityDescription, 2);
+
+                return new ViewCell { View = gridData };
+            });
+
+            dataGridMainActivity.ItemTemplate = dataTemplateCount;
+
+            return observableCollection;
         }
 
         //    /// <summary>
@@ -122,15 +239,15 @@ namespace dMobile.Controller
 
             if (isSubmitBatch)
             {
-                sql.Append("SELECT tActivityProduction.ActivityRefno,");
-                sql.Append("tActivityProductionFinished.ActivityProductionFKRefno,");
-                sql.Append("tActivityProductionFinished.ActivityProductionStringFKRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseName,");
-                sql.Append("tActivityProduction.ActivityProductionDateTime,");
-                sql.Append("tActivityProduction.ActivityProductionDescription,");
-                sql.Append("tActivity.ActivityStatus ");
+                sql.Append("SELECT tActivityProduction.ActivityRefno AS ActivityRefno,");
+                sql.Append("tActivityProductionFinished.ActivityProductionFKRefno AS ActivityProductionFKRefno,");
+                sql.Append("tActivityProductionFinished.ActivityProductionStringFKRefno AS ActivityProductionStringFKRefno,");
+                sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
+                sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno AS LocationMapWarehouseFKRefno,");
+                sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationMapWarehouseName,");
+                sql.Append("tActivityProduction.ActivityProductionDateTime AS ActivityProductionDateTime,");
+                sql.Append("tActivityProduction.ActivityProductionDescription AS ActivityProductionDescription,");
+                sql.Append("tActivity.ActivityStatus AS ActivityStatus ");
                 sql.Append("FROM tActivityProduction ");
                 sql.Append("INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityProduction.ActivityRefno ");
                 sql.Append("INNER JOIN tActivityProductionFinished ON tActivityProductionFinished.ActivityRefno ");
@@ -182,15 +299,15 @@ namespace dMobile.Controller
             }
             else
             {
-                sql.Append("SELECT tActivityProduction.ActivityRefno,");
-                sql.Append("tActivityProductionFinished.ActivityProductionFKRefno,");
-                sql.Append("tActivityProductionFinished.ActivityProductionStringFKRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseName,");
-                sql.Append("tActivityProduction.ActivityProductionDateTime,");
-                sql.Append("tActivityProduction.ActivityProductionDescription,");
-                sql.Append("tActivity.ActivityStatus ");
+                sql.Append("SELECT tActivityProduction.ActivityRefno AS ActivityRefno,");
+                sql.Append("tActivityProductionFinished.ActivityProductionFKRefno AS ActivityProductionFKRefno,");
+                sql.Append("tActivityProductionFinished.ActivityProductionStringFKRefno AS ActivityProductionStringFKRefno,");
+                sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
+                sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno AS LocationMapWarehouseFKRefno,");
+                sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationMapWarehouseName,");
+                sql.Append("tActivityProduction.ActivityProductionDateTime AS ActivityProductionDateTime,");
+                sql.Append("tActivityProduction.ActivityProductionDescription AS ActivityProductionDescription,");
+                sql.Append("tActivity.ActivityStatus AS ActivityStatus ");
                 sql.Append("FROM tActivityProduction ");
                 sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
                 sql.Append("= tActivityProduction.WarehouseLocationMapRefno ");
@@ -231,19 +348,26 @@ namespace dMobile.Controller
             }
             else
             {
-                this.DataViewHdrs.RowFilter = this.ActFilter + " AND ActivityProductionStringFKRefno LIKE \'%"
-                    + searchText.Trim() + "%\'";
+                this.DataViewHdrs.RowFilter = this.ActFilter + " AND ActivityProductionStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
             }
 
-            // TODO: search
-            //foreach (DataRow row in this.DataViewHdrs.ToTable().Rows)
-            //{
-            //    ObjectType objectType = new ObjectType
-            //    {
-            //    };
+            foreach (DataRow row in this.DataViewHdrs.ToTable().Rows)
+            {
+                ProductionTicketFinished productionTicket = new ProductionTicketFinished
+                {
+                    ActivityProductionDateTime = Convert.ToDateTime(row["ActivityProductionDateTime"] != DBNull.Value ? row["ActivityProductionDateTime"] : null),
+                    ActivityProductionDescription = Convert.ToString(row["ActivityProductionDescription"] != DBNull.Value ? row["ActivityProductionDescription"] : null),
+                    ActivityProductionFKRefno = Convert.ToInt32(row["ActivityProductionFKRefno"] != DBNull.Value ? row["ActivityProductionFKRefno"] : null),
+                    ActivityProductionStringFKRefno = Convert.ToString(row["ActivityProductionStringFKRefno"] != DBNull.Value ? row["ActivityProductionStringFKRefno"] : null),
+                    ActivityRefno = Convert.ToInt32(row["ActivityRefno"] != DBNull.Value ? row["ActivityRefno"] : null),
+                    ActivityStatus = Convert.ToInt32(row["ActivityStatus"] != DBNull.Value ? row["ActivityStatus"] : null),
+                    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
+                    LocationMapWarehouseFKRefno = Convert.ToInt32(row["LocationMapWarehouseFKRefno"] != DBNull.Value ? row["LocationMapWarehouseFKRefno"] : null),
+                    LocationMapWarehouseName = Convert.ToString(row["LocationMapWarehouseName"] != DBNull.Value ? row["LocationMapWarehouseName"] : null),
+                };
 
-            //    observableCollection.Add(objectType);
-            //}
+                observableCollection.Add(productionTicket);
+            }
 
             return observableCollection;
         }
@@ -256,15 +380,14 @@ namespace dMobile.Controller
         /// <remarks></remarks>
         public override void SelectHdr(int idx)
         {
-            this.FKRefno = (int)this.DataViewHdrs[idx]["ActivityProductionFKRefno"];
-            this.Refno = (int)this.DataViewHdrs[idx]["ActivityRefno"];
+            this.FKRefno = Convert.ToInt32(this.DataViewHdrs[idx]["ActivityProductionFKRefno"]);
+            this.Refno = Convert.ToInt32(this.DataViewHdrs[idx]["ActivityRefno"]);
             this.SelectedIndex = idx;
 
             // Set the selected warehouse to the activity header warehouse.
-            if (LocationMap.GetInstance().CurrLocMap.WhsLocMapRefno != (int)this.DataViewHdrs[idx]["LocationMapRefno"])
+            if (LocationMap.GetInstance().CurrLocMap.WhsLocMapRefno != Convert.ToInt32(this.DataViewHdrs[idx]["LocationMapRefno"]))
             {
-                LocationMap.GetInstance().CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(
-                    (int)this.DataViewHdrs[idx]["LocationMapRefno"]);
+                LocationMap.GetInstance().CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(this.DataViewHdrs[idx]["LocationMapRefno"]));
             }
         }
 
@@ -276,8 +399,8 @@ namespace dMobile.Controller
         /// <remarks></remarks>
         public override int GetRefnoFromRowIdx(int idx)
         {
-            this.FKRefno = (int)this.DataViewHdrs[idx]["ActivityProductionFKRefno"];
-            this.Refno = (int)this.DataViewHdrs[idx]["ActivityRefno"];
+            this.FKRefno = Convert.ToInt32(this.DataViewHdrs[idx]["ActivityProductionFKRefno"]);
+            this.Refno = Convert.ToInt32(this.DataViewHdrs[idx]["ActivityRefno"]);
 
             return this.Refno;
         }
@@ -315,8 +438,7 @@ namespace dMobile.Controller
         {
             TableActivityProductionTicketFinished tableFinished = new TableActivityProductionTicketFinished();
             TableActivityProductionTicketFinishedItem tableFinishedItem = new TableActivityProductionTicketFinishedItem();
-            TableActivityProductionTicketFinishedDetail tableFinishedDetail
-                = new TableActivityProductionTicketFinishedDetail();
+            TableActivityProductionTicketFinishedDetail tableFinishedDetail = new TableActivityProductionTicketFinishedDetail();
 
             tableFinishedDetail.Purge();
             tableFinishedItem.Purge();
@@ -351,7 +473,7 @@ namespace dMobile.Controller
                     }
                     else
                     {
-                        filter = filter + string.Format(
+                        filter += string.Format(
                             " AND ActivityProductionDateTime >= '{0}-{1}-{2} 00:00:00.000' "
                             + "AND ActivityProductionDateTime <= '{0}-{1}-{2} 23:59:59.997'",
                             dt.Year,
@@ -395,7 +517,7 @@ namespace dMobile.Controller
                     }
                     else
                     {
-                        filter = filter + string.Format(
+                        filter += string.Format(
                             " AND ActivityProductionDateTime >= '{0}-{1}-{2} 00:00:00.000' "
                             + "AND ActivityProductionDateTime <= '{0}-{1}-{2} 23:59:59.997'",
                             dt.Year,

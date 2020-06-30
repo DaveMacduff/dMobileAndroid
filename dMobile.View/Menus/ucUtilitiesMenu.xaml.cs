@@ -96,7 +96,6 @@
                 {
                     this.DisableControls();
 
-                    // TODO: Add form
                     //this.CallingControl = new AssignDefaultLocation();
 
                     ucAssignDefaultLocation assignDefaultLocation = new ucAssignDefaultLocation();

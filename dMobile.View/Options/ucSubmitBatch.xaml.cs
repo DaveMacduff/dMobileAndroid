@@ -13,6 +13,7 @@ using System.Data.SQLite;
 using dMobile.View.Forms;
 using dMobile.Resources.Enums;
 using Android.Views;
+using System.Collections.ObjectModel;
 
 namespace dMobile.View.Options
 {
@@ -34,6 +35,8 @@ namespace dMobile.View.Options
         private ReqSaveDisableHandler reqSaveDisableEvent;
         private ReqCancelEnableHandler reqCancelEnableEvent;
         private ReqCancelDisableHandler reqCancelDisableEvent;
+        private ObservableCollection<string> itemsList = new ObservableCollection<string>();
+        private ObservableCollection<object> dataGridMainActivityItemsList = new ObservableCollection<object>();
 
         #endregion
 
@@ -43,62 +46,16 @@ namespace dMobile.View.Options
         {
             this.InitializeComponent();
 
+            // TODO: Resource strings
             this.Title = this.GetControlDescription();
+            this.cmdSubmit.Text = "Submit Selected";
+            this.cmdFilter.Text = "Filter";
 
             if (!DesignMode.IsDesignModeEnabled)
             {
-                // TODO: Resource strings
-                this.cmdSubmit.Text = "Submit Selected";
-                this.cmdFilter.Text = "Filter";
-
                 this.SysEnv = SysEnvironment.GetInstance();
                 this.SubmitBatchSettings = new SubmitBatchSettings().LoadData();
             }
-        }
-
-        /// <summary>
-        /// The OnAppearing
-        /// </summary>
-        protected override async void OnAppearing()
-        {
-            base.OnAppearing();
-
-            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
-            {
-                // TODO: Verify keycodes
-                Enum.TryParse(keyPressed, out Keycode keycode);
-
-                if (keycode == Keycode.Enter)
-                {
-                    this.IsEnterTrapped = true;
-                }
-                else if (keycode == Keycode.Escape || keycode == Keycode.F1)
-                {
-                    if (await this.SaveChanges())
-                    {
-                        //await this.Close();
-                        this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-                    }
-                }
-            });
-
-            try
-            {
-                await this.ucSubmitBatch_GotFocus(this, new EventArgs());
-            }
-            catch (Exception ex)
-            {
-                await DisplayAlert("Error", "ucSubmitBatch_GotFocus exception: " + ex.Message, "OK");
-            }
-        }
-
-        /// <summary>
-        /// The OnDisappearing
-        /// </summary>
-        protected override void OnDisappearing()
-        {
-            base.OnDisappearing();
-            MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
         }
 
         #endregion
@@ -110,6 +67,64 @@ namespace dMobile.View.Options
         public delegate void ReqSaveDisableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
         public delegate void ReqCancelEnableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
         public delegate void ReqSaveEnableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
+
+        #endregion
+
+        #region OnAppearing/OnDisappearing
+
+        /// <summary>
+        /// The OnAppearing
+        /// </summary>
+        protected override async void OnAppearing()
+        {
+            base.OnAppearing();
+
+            this.lstDisplay.ItemsSource = this.ItemsList;
+            this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
+
+            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
+            {
+                // TODO: Verify keycodes
+                Enum.TryParse(keyPressed, out Keycode keycode);
+
+                if (!this.Loading)
+                {
+                    if (keycode == Keycode.Escape || keycode == Keycode.F1)
+                    {
+                        if (await this.SaveChanges())
+                        {
+                            //this.CallingControl = new ucOptionsMenu();
+                            this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                        }
+                        else
+                        {
+                            await this.CancelChanges();
+                        }
+                    }
+                }
+            });
+
+            try
+            {
+                this.ucSubmitBatch_GotFocus(this, new EventArgs());
+            }
+            catch (Exception ex)
+            {
+                // TODO: Resource strings
+                await DisplayAlert("Error", "this.ucSubmitBatch_GotFocus threw an error " + ex, "OK");
+            }
+        }
+
+        /// <summary>
+        /// The OnDisappearing
+        /// </summary>
+        protected override void OnDisappearing()
+        {
+            MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
+            this.ScannerDisable();
+
+            base.OnDisappearing();
+        }
 
         #endregion
 
@@ -353,6 +368,9 @@ namespace dMobile.View.Options
             }
         }
 
+        public ObservableCollection<string> ItemsList { get => itemsList; set => itemsList = value; }
+        public ObservableCollection<object> DataGridMainActivityItemsList { get => dataGridMainActivityItemsList; set => dataGridMainActivityItemsList = value; }
+
         #endregion
 
         #region Public Members
@@ -437,7 +455,7 @@ namespace dMobile.View.Options
             catch (Exceptions.MessageOnlyException ex)
             {
                 isReadyToClose = false;
-                ex.Show(/*this,*/ SysCommon.ActSubTypes.SubmitBatch);
+                ex.Show(SysCommon.ActSubTypes.SubmitBatch);
             }
             catch (Exception ex)
             {
@@ -445,26 +463,21 @@ namespace dMobile.View.Options
                 // We do not want to get caught not being able to 'escape' the control.
                 isReadyToClose = true;
 
-                //using (FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.SubmitBatch, this, ex))
-                //{
-                //    errRpt.ShowDialog();
-                //}
-
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errorReport = new FormErrorReport(SysCommon.ActSubTypes.SubmitBatch, /*this,*/ ex);
-                    await errorReport.ShowDialog();
+                    FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.SubmitBatch, ex);
+                    await errRpt.ShowDialog();
                 });
             }
 
             return isReadyToClose;
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        ///// <summary>
+        /////
+        ///// </summary>
+        ///// <returns></returns>
+        ///// <remarks></remarks>
         //public UserControl GetCallingControl()
         //{
         //    return this.CallingControl;
@@ -513,17 +526,11 @@ namespace dMobile.View.Options
             }
             catch (Exception ex)
             {
-                //using (FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.SubmitBatch, this, ex))
-                //{
-                //    errRpt.ShowDialog();
-                //}
-
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errorReport = new FormErrorReport(SysCommon.ActSubTypes.SubmitBatch, /*this,*/ ex);
-                    await errorReport.ShowDialog();
+                    FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.SubmitBatch, ex);
+                    await errRpt.ShowDialog();
                 });
-
             }
 
             return saveComplete;
@@ -569,8 +576,8 @@ namespace dMobile.View.Options
 
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    FormErrorReport errorReport = new FormErrorReport(SysCommon.ActSubTypes.SubmitBatch, ex);
-                    await errorReport.ShowDialog();
+                    FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.SubmitBatch, ex);
+                    await errRpt.ShowDialog();
                 });
             }
 
@@ -754,44 +761,32 @@ namespace dMobile.View.Options
                     throw new NotSupportedException("Unhandled activity sub type.");
             }
 
-            //TODO: Fix
-            //this.Activity.DesignDataGrid(this.dataGridMainActivity);
-
             try
             {
                 this.Activity.Refresh(null);
             }
             catch (SQLiteException ex)
             {
-                //for (int curExNdx = 0; curExNdx <= ex.Errors.Count; curExNdx++)
-                //{
-                //MessageBox.Show((string)("Error " + ex.Errors[curExNdx].ToString() + '\r'));
-                //}
-
-                // TODO: Resource strings
-                Device.BeginInvokeOnMainThread(async () => await DisplayAlert("Error", ex.ToString(), "OK"));
+                for (int curExNdx = 0; curExNdx <= ex.Data.Count; curExNdx++)
+                {
+                    // TODO: Resource strings
+                    DisplayAlert("Submit Batch", Convert.ToString("Error " + ex.Data[curExNdx].ToString() + '\r'), "OK");
+                }
             }
             catch (Exception ex)
             {
-                //MessageBox.Show(ex.Message, "Submit Batch", MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
-
-                // TODO: Resource strings
-                Device.BeginInvokeOnMainThread(async () => await DisplayAlert("Submit Batch", ex.Message, "OK"));
+                DisplayAlert("Error", "Submit Batch", ex.Message, "OK");
             }
 
-            //TODO: Fix
-            //this.Activity.DesignDataGrid(this.dataGridMainActivity);
             this.Activity.DataViewHdrs = this.Activity.GetDataView(true);
 
-            //TODO: Fix
-            dataGridMainActivity.ItemsSource = Activity.DataViewHdrs;
+            this.DataGridMainActivityItemsList = this.Activity.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
+            this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
 
             if (Activity.DataViewHdrs.Count > 0)
             {
-                //TODO: Fix
                 //dataGridMainActivity.Select(0);
-                //Activity.SelectHdr(dataGridMainActivity.CurrentRowIndex);
-                dataGridMainActivity.Focus();
+                Activity.SelectHdr(0);
             }
 
             this.IsControlLoaded = true;
@@ -808,21 +803,16 @@ namespace dMobile.View.Options
             this.ReqCancelDisableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
             this.ReqSaveDisableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
 
-            //using (FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucSubmitBatchFilter, SysCommon.ActSubTypes.NotApplicable, this))
-            //{
             FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucSubmitBatchFilter, SysCommon.ActSubTypes.NotApplicable);
 
-            DialogResult dialogResult = await form.ShowDialog();
-            if (dialogResult == DialogResult.OK)
+            if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
             {
+                await form.SaveChanges(sender, e);
                 XDocument xmlDoc = form.DisplayControlData;
                 this.SubmitBatchSettings = this.SubmitBatchSettings.LoadData();
-
-                //TODO: Fix
-                //this.lstDisplay.Items.Clear();
+                this.ItemsList.Clear();
                 this.LoadData();
             }
-            //}
 
             this.ReqCancelEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
             this.ReqSaveEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
@@ -834,40 +824,7 @@ namespace dMobile.View.Options
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        //private void KeyPressHandler(object sender, KeyPressEventArgs e)
-        //{
-        //    if (this.IsEnterTrapped)
-        //    {
-        //        e.Handled = true;
-        //        this.SelectNextControl((Control)sender, true, false, false, true);
-        //        this.IsEnterTrapped = false;
-        //    }
-        //}
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <remarks></remarks>
-        //private void tmrActivityLoaded_Tick(object sender, EventArgs e)
-        //{
-        //this.TotalTicks = this.TotalTicks + this.tmrActivityLoaded.Interval;
-
-        //if (this.Enabled && this.TotalTicks >= 1000)
-        //{
-        //this.tmrActivityLoaded.Enabled = false;
-        //this.LoadData();
-        //}
-        //}
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <remarks></remarks>
-        private void cmdSubmit_Click(object sender, EventArgs e)
+        private async void cmdSubmit_Click(object sender, EventArgs e)
         {
             int actRefno = 0;
             int actItemRefno = 0;
@@ -972,8 +929,8 @@ namespace dMobile.View.Options
                                             break;
 
                                         case SysCommon.ActSubTypes.TransferFrom:
-                                          actDetail = ActDetailFacade.GetActDetail(actItem, SysCommon.ActSubTypes.TransferFrom);
-                                          break;
+                                            actDetail = ActDetailFacade.GetActDetail(actItem, SysCommon.ActSubTypes.TransferFrom);
+                                            break;
 
                                         case SysCommon.ActSubTypes.CycleCounts:
                                             actDetail = ActDetailFacade.GetActDetail(actItem, SysCommon.ActSubTypes.CycleCounts);
@@ -1100,10 +1057,8 @@ namespace dMobile.View.Options
                     }
                 }
 
-                //MessageBox.Show("Submission Complete.", "Submit Batch", MessageBoxButtons.OK, MessageBoxIcon.None, MessageBoxDefaultButton.Button1);
-
                 // TODO: Resource strings
-                Device.BeginInvokeOnMainThread(async () => await DisplayAlert("Submit Batch", "Submission Complete.", "OK"));
+                await DisplayAlert("Submit Batch", "Submission Complete.", "OK");
             }
             catch (Exceptions.MessageOnlyException ex)
             {
@@ -1111,18 +1066,14 @@ namespace dMobile.View.Options
             }
             catch (Exception ex)
             {
-                //MessageBox.Show(ex.Message, "Submit Batch", MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
-
                 // TODO: Resource strings
-                Device.BeginInvokeOnMainThread(async () => await DisplayAlert("Submit Batch", ex.Message, "OK"));
+                await DisplayAlert("Submit Batch", ex.Message, "OK");
             }
             finally
             {
                 //this.pbarStatus.Maximum = 100;
                 //this.pbarStatus.Visible = false;
-
-                //TODO: Fix
-                //this.lstDisplay.Items.Clear();
+                this.ItemsList.Clear();
                 this.LoadData();
                 this.cmdSubmit.IsEnabled = true;
 
@@ -1137,7 +1088,7 @@ namespace dMobile.View.Options
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        private async Task ucSubmitBatch_GotFocus(object sender, EventArgs e)
+        private void ucSubmitBatch_GotFocus(object sender, EventArgs e)
         {
             if (!SysEnvironment.GetInstance().IsApplicationExitInvoked)
             {

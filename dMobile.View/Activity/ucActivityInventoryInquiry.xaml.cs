@@ -17,12 +17,12 @@ using System.Data.SQLite;
 using System.Collections.ObjectModel;
 using dMobile.Resources.Services;
 using dMobile.Resources.Types;
-using dMobile.View.CustomPages;
+using dMobile.View.CustomPages.Modal;
 
 namespace dMobile.View.Activity
 {
     [XamlCompilation(XamlCompilationOptions.Compile)]
-    public partial class ucActivityInventoryInquiry : DMobileContentPage, IAppArea, IAppPublisher
+    public partial class ucActivityInventoryInquiry : DMobileModal, IAppArea, IAppPublisher
     {
         #region Fields
 

@@ -246,14 +246,13 @@ namespace dMobile.GroundWork
 
                                     using (SQLiteDataReader drFamily = cmndFamily.ExecuteReader())
                                     {
-                                        // TODO: Uncomment SysEnv.RefreshOpt.RefreshDataChangesOnly
-                                        //if (SysEnv.RefreshOpt.RefreshDataChangesOnly)
-                                        //{
-                                        if (drFamily.Read())
+                                        if (SysEnv.RefreshOpt.RefreshDataChangesOnly)
                                         {
-                                            isFamilyFound = true;
+                                            if (drFamily.Read())
+                                            {
+                                                isFamilyFound = true;
+                                            }
                                         }
-                                        //}
 
                                         if (!isFamilyFound)
                                         {

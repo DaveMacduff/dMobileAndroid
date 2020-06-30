@@ -7,6 +7,8 @@ namespace dMobile.Controller
     using System.Xml;
     using System.Xml.Linq;
     using dMobile.Bedrock;
+    using dMobile.Resources.Services;
+    using dMobile.Resources.Types;
     using Xamarin.Forms;
 
     public class InventoryInquiryActDetail : ActDetail
@@ -68,7 +70,7 @@ namespace dMobile.Controller
 
             if (!isAdd)
             {
-                this.FKRefno = (int)this.DataViewDetails[idx]["ActivityDetailFKRefno"];
+                this.FKRefno = Convert.ToInt32(this.DataViewDetails[idx]["ActivityDetailFKRefno"]);
             }
 
             return this;
@@ -99,6 +101,7 @@ namespace dMobile.Controller
                 string reqData = SysCommon.SubmitComm(this.CreateSubmitXML(xmldocParams));
 
                 this.DataViewDetails = this.GetDataView(false);
+                
                 if (reqData.Length > 0)
                 {
                     if (reqData.Contains("<message>ERROR</message>"))
@@ -106,6 +109,7 @@ namespace dMobile.Controller
                         XmlDocument xmlDoc = new XmlDocument();
                         xmlDoc.LoadXml(reqData);
                         string errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
+                        
                         if (errorDetail.Contains("MSGBOX-"))
                         {
                             throw new MessageOnlyException(errorDetail);
@@ -120,6 +124,7 @@ namespace dMobile.Controller
                         using (DataSet ds = new DataSet())
                         {
                             ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
+                            
                             if (ds.Tables.Count != 0)
                             {
                                 this.DataViewDetails = ds.Tables["tActivityDetail"].DefaultView;
@@ -130,11 +135,8 @@ namespace dMobile.Controller
             }
             catch (Exception ex)
             {
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.RefreshInventoryInquiryDetailsFailed), ex);
-#else
+                // TODO: Resource strings
                 throw new Exception("Refresh inventory inquiry details failed.", ex);
-#endif
             }
         }
 
@@ -145,7 +147,7 @@ namespace dMobile.Controller
         /// <returns></returns>
         public override int GetRefno(int idx)
         {
-            return (int)this.DataViewDetails[idx]["ActivityDetailRefno"];
+            return Convert.ToInt32(this.DataViewDetails[idx]["ActivityDetailRefno"]);
         }
 
         /// <summary>
@@ -167,13 +169,13 @@ namespace dMobile.Controller
         {
             DataTable dataTableDetails = new DataTable("tActivityDetail");
 
-            dataTableDetails.Columns.Add("productcode", Type.GetType("System.String"));
-            dataTableDetails.Columns.Add("productunitbc", Type.GetType("System.String"));
-            dataTableDetails.Columns.Add("unitcode", Type.GetType("System.String"));
-            dataTableDetails.Columns.Add("weightunitcode", Type.GetType("System.String"));
-            dataTableDetails.Columns.Add("activitydetailquantity", Type.GetType("System.Decimal"));
-            dataTableDetails.Columns.Add("activitydetailweightquantity", Type.GetType("System.Decimal"));
-            dataTableDetails.Columns.Add("activitydetailschemeid", Type.GetType("System.String"));
+            dataTableDetails.Columns.Add("ProductCode", Type.GetType("System.String"));
+            dataTableDetails.Columns.Add("ProductUnitBC", Type.GetType("System.String"));
+            dataTableDetails.Columns.Add("UnitCode", Type.GetType("System.String"));
+            dataTableDetails.Columns.Add("WeightUnitCode", Type.GetType("System.String"));
+            dataTableDetails.Columns.Add("ActivityDetailQuantity", Type.GetType("System.Decimal"));
+            dataTableDetails.Columns.Add("ActivityDetailWeightQuantity", Type.GetType("System.Decimal"));
+            dataTableDetails.Columns.Add("ActivityDetailSchemeID", Type.GetType("System.String"));
 
             this.DataViewDetails = dataTableDetails.DefaultView;
             this.DataViewDetails.Table.TableName = this.MainGridMappingName;
@@ -182,7 +184,139 @@ namespace dMobile.Controller
         }
         public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity)
         {
-            throw new NotImplementedException();
+            // TODO: Check this grid in current dMobile
+            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+
+            foreach (DataRow row in this.DataViewDetails.ToTable().Rows)
+            {
+                InventoryInquiryDetail inquiryDetail = new InventoryInquiryDetail
+                {
+                    ProductCode = Convert.ToString(row["ProductCode"] != DBNull.Value ? row["ProductCode"] : null),
+                    ProductUnitBC = Convert.ToString(row["ProductUnitBC"] != DBNull.Value ? row["ProductUnitBC"] : null),
+                    UnitCode = Convert.ToString(row["UnitCode"] != DBNull.Value ? row["UnitCode"] : null),
+                    WeightUnitCode = Convert.ToString(row["WeightUnitCode"] != DBNull.Value ? row["WeightUnitCode"] : null),
+                    ActivityDetailQuantity = Convert.ToDecimal(row["ActivityDetailQuantity"] != DBNull.Value ? row["ActivityDetailQuantity"] : null),
+                    ActivityDetailWeightQuantity = Convert.ToDecimal(row["ActivityDetailWeightQuantity"] != DBNull.Value ? row["ActivityDetailWeightQuantity"] : null),
+                    ActivityDetailSchemeID = Convert.ToString(row["ActivityDetailSchemeID"] != DBNull.Value ? row["ActivityDetailSchemeID"] : null),
+                };
+
+                observableCollection.Add(inquiryDetail);
+            }
+
+            // TODO: Resource strings
+            Label labelQtyHeader = new Label { Text = "Qty", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            Label labelWeightHeader = new Label { Text = "Weight", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            Label labelUnitCodeHeader = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            Label labelSchemeIDHeader = new Label { Text = "Scheme ID", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+
+            double columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelQtyHeader.Text);
+            double columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelWeightHeader.Text);
+            double columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelUnitCodeHeader.Text);
+            double columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelSchemeIDHeader.Text);
+
+            // Header grid
+            Grid gridHeader = new Grid
+            {
+                Padding = new Thickness(5),
+                ColumnDefinitions =
+                {
+                    new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth3, GridUnitType.Absolute) }
+                }
+            };
+
+            gridHeader.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
+
+            gridHeader.Children.Add(labelQtyHeader);
+            gridHeader.Children.Add(labelWeightHeader);
+            gridHeader.Children.Add(labelUnitCodeHeader);
+            gridHeader.Children.Add(labelSchemeIDHeader);
+
+            Grid.SetColumn(labelQtyHeader, 0);
+            Grid.SetColumn(labelWeightHeader, 1);
+            Grid.SetColumn(labelUnitCodeHeader, 2);
+            Grid.SetColumn(labelSchemeIDHeader, 3);
+
+            Grid.SetRow(gridHeader, 0);
+
+            dataGridMainActivityHeader.Children.Add(gridHeader);
+
+            foreach (InventoryInquiryDetail inquiryDetail in observableCollection)
+            {
+                double detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", inquiryDetail.ActivityDetailQuantity));
+                double detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", inquiryDetail.ActivityDetailWeightQuantity));
+                double detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(inquiryDetail.UnitCode);
+                double detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(inquiryDetail.ActivityDetailSchemeID);
+
+                if (detailWidth0 > columnWidth0)
+                {
+                    columnWidth0 = detailWidth0;
+                    gridHeader.ColumnDefinitions[0].Width = columnWidth0;
+                }
+
+                if (detailWidth1 > columnWidth1)
+                {
+                    columnWidth1 = detailWidth1;
+                    gridHeader.ColumnDefinitions[1].Width = columnWidth1;
+                }
+
+                if (detailWidth2 > columnWidth2)
+                {
+                    columnWidth2 = detailWidth2;
+                    gridHeader.ColumnDefinitions[2].Width = columnWidth2;
+                }
+
+                if (detailWidth3 > columnWidth3)
+                {
+                    columnWidth3 = detailWidth3;
+                    gridHeader.ColumnDefinitions[3].Width = columnWidth3;
+                }
+            }
+
+            // Data grid
+            DataTemplate dataTemplate = new DataTemplate(() =>
+            {
+                // Header grid
+                Grid gridData = new Grid()
+                {
+                    Padding = new Thickness(5),
+                    ColumnDefinitions =
+                    {
+                        new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth3, GridUnitType.Absolute) }
+                    }
+                };
+
+                Label labelQty = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelWeight = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelUnitCode = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelSchemeID = new Label { VerticalOptions = LayoutOptions.Center };
+
+                labelQty.SetBinding(Label.TextProperty, new Binding("ActivityDetailQuantity", BindingMode.Default, null, null, "{0:F3}"));
+                labelWeight.SetBinding(Label.TextProperty, new Binding("ActivityDetailWeightQuantity", BindingMode.Default, null, null, "{0:F3}"));
+                labelUnitCode.SetBinding(Label.TextProperty, new Binding("UnitCode"));
+                labelSchemeID.SetBinding(Label.TextProperty, new Binding("ActivityDetailSchemeID"));
+
+                gridData.Children.Add(labelQty);
+                gridData.Children.Add(labelWeight);
+                gridData.Children.Add(labelUnitCode);
+                gridData.Children.Add(labelSchemeID);
+
+                Grid.SetColumn(labelQty, 0);
+                Grid.SetColumn(labelWeight, 1);
+                Grid.SetColumn(labelUnitCode, 2);
+                Grid.SetColumn(labelSchemeID, 3);
+
+                return new ViewCell { View = gridData };
+            });
+
+            dataGridMainActivity.ItemTemplate = dataTemplate;
+
+            return observableCollection;
         }
 
         //    /// <summary>

@@ -43,8 +43,6 @@
         private ReqCancelEnableHandler reqCancelEnableEvent;
         private ReqCancelDisableHandler reqCancelDisableEvent;
 
-
-
         public ucAssignDefaultLocation()
         {
             this.InitializeComponent();

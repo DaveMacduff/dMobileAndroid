@@ -50,11 +50,8 @@ namespace dMobile.Controller
         /// <remarks></remarks>
         public override string GetControlDescription()
         {
-#if MULTILANGUAGE
-      return Translator.GetInstance().Translate(TranslatorVocabulary.AssignDefaultLocationz);
-#else
+            // TODO: Resource strings
             return "Assign Default Location";
-#endif
         }
 
         /// <summary>
@@ -63,8 +60,8 @@ namespace dMobile.Controller
         /// <param name="idx"></param>
         public override void SelectHdr(int idx)
         {
-            this.FKRefno = (int)this.DataViewHdrs[idx]["ActivityRefno"];
-            this.Refno = (int)this.DataViewHdrs[idx]["ActivityRefno"];
+            this.FKRefno = Convert.ToInt32(this.DataViewHdrs[idx]["ActivityRefno"]);
+            this.Refno = Convert.ToInt32(this.DataViewHdrs[idx]["ActivityRefno"]);
         }
 
         /// <summary>
@@ -75,8 +72,8 @@ namespace dMobile.Controller
         /// <remarks></remarks>
         public override int GetRefnoFromRowIdx(int idx)
         {
-            this.FKRefno = (int)this.DataViewHdrs[idx]["ActivityRefno"];
-            this.Refno = (int)this.DataViewHdrs[idx]["ActivityRefno"];
+            this.FKRefno = Convert.ToInt32(this.DataViewHdrs[idx]["ActivityRefno"]);
+            this.Refno = Convert.ToInt32(this.DataViewHdrs[idx]["ActivityRefno"]);
 
             return this.Refno;
         }

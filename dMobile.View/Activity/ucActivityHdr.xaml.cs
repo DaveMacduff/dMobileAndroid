@@ -39,8 +39,6 @@
         private ObservableCollection<string> itemsList = new ObservableCollection<string>();
         private ObservableCollection<object> dataGridMainActivityItemsList = new ObservableCollection<object>();
         private List<string> optionsMenuItems = new List<string>();
-        private string addText;
-        private bool addIsEnabled;
         private string filterText;
         private bool filterIsEnabled;
 
@@ -59,10 +57,10 @@
             this.InitializeComponent();
 
             // TODO: Resource strings
-            this.AddText = "Add";
+            this.cmdAdd.Text = "Add";
             this.FilterText = "Filter";
             
-            this.AddIsEnabled = false;
+            this.cmdAdd.IsEnabled = false;
             this.FilterIsEnabled = true;
 
             if (!DesignMode.IsDesignModeEnabled)
@@ -90,7 +88,7 @@
         {
             base.OnPropertyChanged(propertyName);
 
-            if (propertyName == nameof(AddIsEnabled) || propertyName == nameof(FilterIsEnabled) || propertyName == nameof(AddText) || propertyName == nameof(FilterText))
+            if (propertyName == nameof(FilterIsEnabled) || propertyName == nameof(FilterText))
             {
                 this.PopulateOptionsMenu();
             }
@@ -115,7 +113,7 @@
                 {
                     if (keycode == Keycode.Enter)
                     {
-                        if (this.dataGridMainActivity.SelectedItem != null)
+                        if (this.dataGridMainActivity.SelectedItem != null && (Convert.ToInt32(this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem)) > -1))
                         {
                             await this.DataGridMainActivity_KeyUpEnter(this, null);
                         }
@@ -413,8 +411,6 @@
         public ObservableCollection<string> ItemsList { get => itemsList; set => itemsList = value; }
         public ObservableCollection<object> DataGridMainActivityItemsList { get => dataGridMainActivityItemsList; set => dataGridMainActivityItemsList = value; }
         public List<string> OptionsMenuItems { get => optionsMenuItems; set => optionsMenuItems = value; }
-        public string AddText { get => addText; set { addText = value; this.OnPropertyChanged(); } }
-        public bool AddIsEnabled { get => addIsEnabled; set { addIsEnabled = value; this.OnPropertyChanged(); } }
         public string FilterText { get => filterText; set { filterText = value; this.OnPropertyChanged(); } }
         public bool FilterIsEnabled { get => filterIsEnabled; set { filterIsEnabled = value; this.OnPropertyChanged(); } }
 
@@ -440,7 +436,6 @@
         {
             if (!this.IsBarCodeHandlerRegistered)
             {
-                Console.WriteLine("Subscribing to scanner enabled in hdr");
                 this.IsBarCodeHandlerRegistered = true;
                 this.BarScanner.Start();
                 this.BarScanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
@@ -994,11 +989,6 @@
         {
             this.OptionsMenuItems.Clear();
             
-            if (this.AddIsEnabled)
-            {
-                this.OptionsMenuItems.Add(this.AddText);
-            }
-
             if (this.FilterIsEnabled)
             {
                 this.OptionsMenuItems.Add(this.FilterText);
@@ -1518,7 +1508,7 @@
 
                     if (dialogResult == DialogResult.OK)
                     {
-                        await form.SaveChanges(null, new EventArgs());
+                        await form.SaveChanges(this, new EventArgs());
                         XDocument xmlDoc = form.DisplayControlData;
                         this.ActHdr.DataViewHdrs.RowFilter = this.ActHdr.GetFilter(xmlDoc);
 
@@ -1761,6 +1751,7 @@
 
                                     if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
                                     {
+                                        await form.SaveChanges(sender, e);
                                         XDocument doc = form.GetXML();
                                         actHdr.PrintLabel(doc);
                                     }
@@ -1937,11 +1928,7 @@
             // TODO: Resource strings
             string result = await DisplayActionSheet("Activity Options", "Close", null, this.OptionsMenuItems.ToArray());
 
-            if (result == this.AddText && this.AddIsEnabled)
-            {
-                this.cmdAdd_Click(sender, e);
-            }
-            else if (result == this.FilterText && this.FilterIsEnabled)
+            if (result == this.FilterText && this.FilterIsEnabled)
             {
                 this.cmdFilter_Click(sender, e);
             }

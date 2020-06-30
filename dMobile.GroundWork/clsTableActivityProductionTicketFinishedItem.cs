@@ -205,7 +205,7 @@ namespace dMobile.GroundWork
                 cmndFinished.CommandText = "SELECT * FROM tActivityProductionFinished WHERE ActivityRefno = @activityRefno";
                 cmndFinished.CommandType = CommandType.Text;
                 //cmndFinished.IndexName = "PK_ActivityProductionFinishedOnActivityRefno";
-                cmndFinished.Parameters.Add(new SQLiteParameter("@activityRefno", actRefno));
+                cmndFinished.Parameters.Add(new SQLiteParameter("@activityRefno", Convert.ToInt32(actRefno)));
 
                 using (SQLiteDataReader drFinished = cmndFinished.ExecuteReader())
                 {
@@ -349,11 +349,11 @@ namespace dMobile.GroundWork
                             {
                                 errMsg = "Arguments:";
 
-                                cmndItem.CommandText = "INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityItemRefno) VALUES (@activityItemSubType, @activityItemStatus, @activityItemRefno)";
+                                cmndItem.CommandText = "INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (@activityItemSubType, @activityItemStatus, @activityRefno)";
                                 cmndItem.CommandType = CommandType.Text;
                                 cmndItem.Parameters.Add(new SQLiteParameter("@activityItemSubType", Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished)));
                                 cmndItem.Parameters.Add(new SQLiteParameter("@activityItemStatus", Convert.ToInt32(SysCommon.ActStatus.NoChange)));
-                                cmndItem.Parameters.Add(new SQLiteParameter("@activityItemRefno", actRefno));
+                                cmndItem.Parameters.Add(new SQLiteParameter("@activityRefno", Convert.ToInt32(actRefno)));
 
                                 cmndItem.ExecuteNonQuery();
 
@@ -504,7 +504,7 @@ namespace dMobile.GroundWork
                                     "ActivityItemProductionDescription, " +
                                     "ActivityItemProductionQuantityExpected, " +
                                     "ActivityItemProductionBaseQuantityExpected, " +
-                                    "ActivityItemProductionWeigthtQuantityExpected" +
+                                    "ActivityItemProductionWeightQuantityExpected" +
                                     ") VALUES (" +
                                     "@activityItemRefno, " +
                                     "@activityItemSubType, " +
@@ -516,7 +516,7 @@ namespace dMobile.GroundWork
                                     "@activityItemProductionDescription, " +
                                     "@activityItemProductionQuantityExpected, " +
                                     "@activityItemProductionBaseQuantityExpected, " +
-                                    "@activityItemProductionWeigthtQuantityExpected" +
+                                    "@activityItemProductionWeightQuantityExpected" +
                                     ")";
                                 cmndItemProd.CommandType = CommandType.Text;
                                 //cmndItemProd.IndexName = "PK_ActivityItemProductionOnActivityItemRefno";
@@ -537,7 +537,7 @@ namespace dMobile.GroundWork
                                 cmndItemProd.Parameters.Add(new SQLiteParameter("@activityItemProductionDescription", drow["ActivityItemProductionDescription"].ToString()));
                                 cmndItemProd.Parameters.Add(new SQLiteParameter("@activityItemProductionQuantityExpected", Convert.ToDecimal(drow["ActivityItemProductionQuantityExpected"])));
                                 cmndItemProd.Parameters.Add(new SQLiteParameter("@activityItemProductionBaseQuantityExpected", Convert.ToDecimal(drow["ActivityItemProductionBaseQuantityExpected"])));
-                                cmndItemProd.Parameters.Add(new SQLiteParameter("@activityItemProductionWeigthtQuantityExpected", Convert.ToDecimal(drow["ActivityItemProductionWeightQuantityExpected"])));
+                                cmndItemProd.Parameters.Add(new SQLiteParameter("@activityItemProductionWeightQuantityExpected", Convert.ToDecimal(drow["ActivityItemProductionWeightQuantityExpected"])));
 
                                 cmndItemProd.ExecuteNonQuery();
 

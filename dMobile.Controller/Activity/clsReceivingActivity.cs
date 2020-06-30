@@ -51,6 +51,7 @@ namespace dMobile.Controller
 
         public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity)
         {
+            // TODO: Calculate column widths
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
             Grid gridHeaderReceiving = new Grid
@@ -454,7 +455,7 @@ namespace dMobile.Controller
                     }
                     else
                     {
-                        filter = filter + string.Format(
+                        filter += string.Format(
                             " AND ActivityReceivingIssuedDateTime >= '{0}-{1}-{2} 00:00:00.000' "
                             + "AND ActivityReceivingIssuedDateTime <= '{0}-{1}-{2} 23:59:59.997'",
                             dt.Year,
@@ -482,7 +483,7 @@ namespace dMobile.Controller
                     }
                     else
                     {
-                        filter = filter + string.Format(
+                        filter += string.Format(
                             " AND ActivityReceivingArrivalDateTime >= '{0}-{1}-{2} 00:00:00.000' "
                             + "AND ActivityReceivingArrivalDateTime <= '{0}-{1}-{2} 23:59:59.997'",
                             dt.Year,
@@ -526,7 +527,7 @@ namespace dMobile.Controller
                     }
                     else
                     {
-                        filter = filter + string.Format(
+                        filter += string.Format(
                             " AND ActivityReceivingIssuedDateTime >= '{0}-{1}-{2} 00:00:00.000' "
                             + "AND ActivityReceivingIssuedDateTime <= '{0}-{1}-{2} 23:59:59.997'",
                             dt.Year,
@@ -554,7 +555,7 @@ namespace dMobile.Controller
                     }
                     else
                     {
-                        filter = filter + string.Format(
+                        filter += string.Format(
                             " AND ActivityReceivingArrivalDateTime >= '{0}-{1}-{2} 00:00:00.000' "
                             + "AND ActivityReceivingArrivalDateTime <= '{0}-{1}-{2} 23:59:59.997'",
                             dt.Year,

@@ -203,10 +203,10 @@ namespace dMobile.GroundWork
 
             using (SQLiteCommand cmndActItemMaterial = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
             {
-                cmndActItemMaterial.CommandText = "SELECT * FROM tActivityItemProductionMaterial WHERE ActivityRefno = @activityRefno";
+                cmndActItemMaterial.CommandText = "SELECT * FROM tActivityItemProductionMaterial WHERE ActivityItemRefno = @activityItemRefno";
                 cmndActItemMaterial.CommandType = CommandType.Text;
                 //cmndActItemMaterial.IndexName = "PK_ActivityItemProductionMaterialOnActivityItemRefno";
-                cmndActItemMaterial.Parameters.Add(new SQLiteParameter("@activityRefno", actItemRefno));
+                cmndActItemMaterial.Parameters.Add(new SQLiteParameter("@activityItemRefno", actItemRefno));
 
                 using (SQLiteDataReader drActItemMaterial = cmndActItemMaterial.ExecuteReader())
                 {
@@ -548,6 +548,8 @@ namespace dMobile.GroundWork
 
                                     //this.SaveDetail(drow, ref recDetail, false);
 
+                                    cmndDetail.Parameters.Add(new SQLiteParameter("@locationMapRefno", Convert.ToInt32(locMapRefno)));
+
                                     string emptyDate = "01-01-1900";
 
                                     if (useFNo)
@@ -627,7 +629,7 @@ namespace dMobile.GroundWork
                                     }
                                     else
                                     {
-                                        cmndDetail.Parameters.Add(new SQLiteParameter("@activityDetailStatus", Convert.ToInt32(0)));
+                                        //cmndDetail.Parameters.Add(new SQLiteParameter("@activityDetailStatus", Convert.ToInt32(0)));
                                         cmndDetail.Parameters.Add(new SQLiteParameter("@activityDetailUniqueSchemeID", drow["ActivityDetailUniqueSchemeID"].ToString()));
                                         cmndDetail.Parameters.Add(new SQLiteParameter("@activityDetailSchemeID", drow["ActivityDetailSchemeID"].ToString()));
                                         cmndDetail.Parameters.Add(new SQLiteParameter("@activityDetailQuantity", Convert.ToDecimal(drow["ActivityDetailQuantity"])));
@@ -810,7 +812,16 @@ namespace dMobile.GroundWork
                                         cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra2Text", drow["f20"].ToString()));
                                         cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra3Text", drow["f21"].ToString()));
                                         cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra4Text", drow["f22"].ToString()));
-                                        cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra5Date", drow["f23"].ToString()));
+
+                                        if (string.IsNullOrEmpty(drow["f23"].ToString()))
+                                        {
+                                            cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra5Date", DateTime.Parse(emptyDate)));
+                                        }
+                                        else
+                                        {
+                                            //recExtra.SetDateTime((int)SysCommon.ActDetailExtraFields.DateTime5, Convert.ToDateTime(drow["f23"]));
+                                            cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra5Date", Convert.ToDateTime(drow["f23"])));
+                                        }
 
                                         //recExtra.SetString((int)SysCommon.ActDetailExtraFields.Text1, drow["f19"].ToString());
                                         //recExtra.SetString((int)SysCommon.ActDetailExtraFields.Text2, drow["f20"].ToString());
@@ -825,6 +836,16 @@ namespace dMobile.GroundWork
                                         cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra3Text", drow["ActivityDetailExtra3"].ToString()));
                                         cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra4Text", drow["ActivityDetailExtra4"].ToString()));
                                         cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra5Date", drow["ActivityDetailExtra5"].ToString()));
+
+                                        if (string.IsNullOrEmpty(drow["ActivityDetailExtra5"].ToString()))
+                                        {
+                                            cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra5Date", DateTime.Parse(emptyDate)));
+                                        }
+                                        else
+                                        {
+                                            //recExtra.SetDateTime((int)SysCommon.ActDetailExtraFields.DateTime5, Convert.ToDateTime(drow["f23"]));
+                                            cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra5Date", Convert.ToDateTime(drow["f23"])));
+                                        }
 
                                         //recExtra.SetString((int)SysCommon.ActDetailExtraFields.Text1, drow["ActivityDetailExtra1"].ToString());
                                         //recExtra.SetString((int)SysCommon.ActDetailExtraFields.Text2, drow["ActivityDetailExtra2"].ToString());

@@ -482,7 +482,6 @@ namespace dMobile.GroundWork
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving warehouses failed.", false);
 
-                    // TODO: SQLite native error codes?
                     //                // Duplicate key violations
                     //                if (ex.NativeError == 25016)
                     //                {

@@ -1,10 +1,10 @@
 namespace dMobile.Controller
 {
-  public class TransferActivityFactory : ActivityFactory
-  {
-    public override Activity GetActivity()
+    public class TransferActivityFactory : ActivityFactory
     {
-      return new TransferActivity();
+        public override Activity GetActivity()
+        {
+            return new TransferActivity();
+        }
     }
-  }
 }

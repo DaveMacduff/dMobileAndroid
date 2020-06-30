@@ -237,16 +237,16 @@ namespace dMobile.Controller
 
             if (isSubmitBatch)
             {
-                sql.Append("SELECT tActivityCount.ActivityRefno,");
-                sql.Append("tActivityCount.ActivityCountFKRefno,");
-                sql.Append("tActivityCount.ActivityCountStringFKRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseName,");
-                sql.Append("tActivityCount.ActivityCountTypeDescription,");
-                sql.Append("tActivityCount.ActivityCountDescription,");
-                sql.Append("tActivityCount.ActivityCountDateTime,");
-                sql.Append("tActivity.ActivityStatus ");
+                sql.Append("SELECT tActivityCount.ActivityRefno AS ActivityRefno,");
+                sql.Append("tActivityCount.ActivityCountFKRefno AS ActivityCountFKRefno,");
+                sql.Append("tActivityCount.ActivityCountStringFKRefno AS ActivityCountStringFKRefno,");
+                sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
+                sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno AS LocationMapWarehouseFKRefno,");
+                sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationMapWarehouseName,");
+                sql.Append("tActivityCount.ActivityCountTypeDescription AS ActivityCountTypeDescription,");
+                sql.Append("tActivityCount.ActivityCountDescription AS ActivityCountDescription,");
+                sql.Append("tActivityCount.ActivityCountDateTime AS ActivityCountDateTime,");
+                sql.Append("tActivity.ActivityStatus AS ActivityStatus ");
                 sql.Append("FROM tActivityCount ");
                 sql.Append("INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityCount.ActivityRefno ");
                 sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = ");
@@ -296,16 +296,16 @@ namespace dMobile.Controller
             }
             else
             {
-                sql.Append("SELECT tActivityCount.ActivityRefno,");
-                sql.Append("tActivityCount.ActivityCountFKRefno,");
-                sql.Append("tActivityCount.ActivityCountStringFKRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseName,");
-                sql.Append("tActivityCount.ActivityCountTypeDescription,");
-                sql.Append("tActivityCount.ActivityCountDescription,");
-                sql.Append("tActivityCount.ActivityCountDateTime,");
-                sql.Append("tActivity.ActivityStatus ");
+                sql.Append("SELECT tActivityCount.ActivityRefno AS ActivityRefno,");
+                sql.Append("tActivityCount.ActivityCountFKRefno AS ActivityCountFKRefno,");
+                sql.Append("tActivityCount.ActivityCountStringFKRefno AS ActivityCountStringFKRefno,");
+                sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
+                sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno AS LocationMapWarehouseFKRefno,");
+                sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationMapWarehouseName,");
+                sql.Append("tActivityCount.ActivityCountTypeDescription AS ActivityCountTypeDescription,");
+                sql.Append("tActivityCount.ActivityCountDescription AS ActivityCountDescription,");
+                sql.Append("tActivityCount.ActivityCountDateTime AS ActivityCountDateTime,");
+                sql.Append("tActivity.ActivityStatus AS ActivityStatus ");
                 sql.Append("FROM tActivityCount ");
                 sql.Append("INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityCount.ActivityRefno ");
                 sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = ");
@@ -313,9 +313,7 @@ namespace dMobile.Controller
                 sql.AppendFormat("WHERE tActivityCount.ActivitySubType = {0}", (int)SysCommon.ActSubTypes.CycleCounts);
             }
 
-            using (SQLiteDataAdapter dataAdapterCycle = new SQLiteDataAdapter(
-                sql.ToString(),
-                DatabaseConnection.GetInstance().SQLConn))
+            using (SQLiteDataAdapter dataAdapterCycle = new SQLiteDataAdapter(sql.ToString(), DatabaseConnection.GetInstance().SQLConn))
             {
                 using (DataSet dataSetCycle = new DataSet())
                 {
@@ -351,16 +349,26 @@ namespace dMobile.Controller
                 this.DataViewHdrs.RowFilter = this.ActFilter + " AND ActivityCountStringFKRefno LIKE \'%"
                     + searchText.Trim() + "%\'";
             }
+            foreach (DataRow row in this.DataViewHdrs.ToTable().Rows)
+            {
 
-            // TODO: search
-            //foreach (DataRow row in this.DataViewHdrs.ToTable().Rows)
-            //{
-            //    ObjectType objectType = new ObjectType
-            //    {
-            //    };
+                string description = string.Empty;
+                string[] descriptionSubstring = Convert.ToString(row["ActivityCountTypeDescription"]).Split();
 
-            //    observableCollection.Add(objectType);
-            //}
+                if (descriptionSubstring != null && descriptionSubstring.Length > 1)
+                {
+                    description = descriptionSubstring[0] + " " + descriptionSubstring[1];
+                }
+
+                Count count = new Count
+                {
+                    ActivityCountStringFKRefno = Convert.ToString(row["ActivityCountStringFKRefno"] != DBNull.Value ? row["ActivityCountStringFKRefno"] : null),
+                    ActivityCountDateTime = Convert.ToDateTime(row["ActivityCountDateTime"] != DBNull.Value ? row["ActivityCountDateTime"] : null),
+                    ActivityCountTypeDescription = description,
+                };
+
+                observableCollection.Add(count);
+            }
 
             return observableCollection;
         }
@@ -462,7 +470,7 @@ namespace dMobile.Controller
                     }
                     else
                     {
-                        filter = filter + string.Format(
+                        filter += string.Format(
                             " AND ActivityCountDateTime >= '{0}-{1}-{2} 00:00:00.000' "
                             + " AND ActivityCountDateTime <= '{0}-{1}-{2} 23:59:59.997'",
                             dt.Year,
@@ -491,7 +499,7 @@ namespace dMobile.Controller
             {
                 if (string.Compare(filterData.Root.Element("count_date").Value, string.Empty) > 0)
                 {
-                    DateTime dt = DateTime.Parse(filterData.Root.Element("adjustment_date").Value);
+                    DateTime dt = DateTime.Parse(filterData.Root.Element("count_date").Value);
 
                     // BETWEEN '2009-07-26 00:00:00.000' AND '2010-07-26 23:59:59.997'
                     if (string.IsNullOrEmpty(filter))
@@ -505,7 +513,7 @@ namespace dMobile.Controller
                     }
                     else
                     {
-                        filter = filter + string.Format(
+                        filter += string.Format(
                             " AND ActivityCountDateTime >= '{0}-{1}-{2} 00:00:00.000' AND ActivityCountDateTime "
                              + "<= '{0}-{1}-{2} 23:59:59.997'",
                             dt.Year,

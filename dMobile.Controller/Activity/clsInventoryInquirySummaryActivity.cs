@@ -50,11 +50,8 @@
         /// <remarks></remarks>
         public override string GetControlDescription()
         {
-#if MULTILANGUAGE
-      return Translator.GetInstance().Translate(TranslatorVocabulary.InventoryInquiry);
-#else
+            // TODO: Resource strings
             return "Inventory Inquiry Summary";
-#endif
         }
 
         /// <summary>
@@ -63,8 +60,8 @@
         /// <param name="idx"></param>
         public override void SelectHdr(int idx)
         {
-            this.FKRefno = (int)this.DataViewHdrs[idx]["ActivityRefno"];
-            this.Refno = (int)this.DataViewHdrs[idx]["ActivityRefno"];
+            this.FKRefno = Convert.ToInt32(this.DataViewHdrs[idx]["ActivityRefno"]);
+            this.Refno = Convert.ToInt32(this.DataViewHdrs[idx]["ActivityRefno"]);
         }
 
         /// <summary>
@@ -75,8 +72,8 @@
         /// <remarks></remarks>
         public override int GetRefnoFromRowIdx(int idx)
         {
-            this.FKRefno = (int)this.DataViewHdrs[idx]["ActivityRefno"];
-            this.Refno = (int)this.DataViewHdrs[idx]["ActivityRefno"];
+            this.FKRefno = Convert.ToInt32(this.DataViewHdrs[idx]["ActivityRefno"]);
+            this.Refno = Convert.ToInt32(this.DataViewHdrs[idx]["ActivityRefno"]);
 
             return this.Refno;
         }

@@ -142,6 +142,8 @@
                 ////'cmdFilter.Enabled = True
                 ////cmdAddProduct.Enabled = actItem.IsAllowAddItem
                 ///
+
+                this.ActItem.Refresh(this.ActItem.ActHdr.XMLDataCriteria);
             }
         }
 
@@ -154,16 +156,16 @@
             base.OnPropertyChanged(propertyName);
 
             if (
-                propertyName == "CmdLocationText" || 
-                propertyName == "CmdLocationIsEnabled" || 
-                propertyName == "CmdFilterText" || 
-                propertyName == "CmdFilterIsEnabled" ||
-                propertyName == "CmdSelectSkidText" ||
-                propertyName == "CmdSelectSkidIsEnabled" ||
-                propertyName == "CmdAddProductText" ||
-                propertyName == "CmdAddProductIsEnabled" ||
-                propertyName == "CmdAddSkidText" ||
-                propertyName == "CmdAddSkidIsEnabled"
+                propertyName == nameof(CmdLocationText)|| 
+                propertyName == nameof(CmdLocationIsEnabled)|| 
+                propertyName == nameof(CmdFilterText)|| 
+                propertyName == nameof(CmdFilterIsEnabled)||
+                propertyName == nameof(CmdSelectSkidText)||
+                propertyName == nameof(CmdSelectSkidIsEnabled)||
+                propertyName == nameof(CmdAddProductText)||
+                propertyName == nameof(CmdAddProductIsEnabled)||
+                propertyName == nameof(CmdAddSkidText)||
+                propertyName == nameof(CmdAddSkidIsEnabled)
                )
             {
                 this.PopulateOptionsMenu();
@@ -189,7 +191,7 @@
                 {
                     if (keycode == Keycode.Enter)
                     {
-                        if (this.dataGridMainActivity.SelectedItem != null)
+                        if (this.dataGridMainActivity.SelectedItem != null && (Convert.ToInt32(this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem)) > -1))
                         {
                             await this.DataGridMainActivity_KeyUpEnter();
                         }
@@ -1339,7 +1341,7 @@
             {
                 if (0 <= this.ActItem.CurrRowIdx && this.ActItem.DataViewItems.Count > this.ActItem.CurrRowIdx)
                 {
-                    isReviewed = (bool)this.ActItem.DataViewItems[this.ActItem.CurrRowIdx]["ActivityItemPickingIsReviewed"];
+                    isReviewed = Convert.ToBoolean(this.ActItem.DataViewItems[this.ActItem.CurrRowIdx]["ActivityItemPickingIsReviewed"]);
                 }
 
                 if (!isReviewed)
@@ -1361,7 +1363,7 @@
             {
                 for (int idx = 0; idx <= this.ActItem.DataViewItems.Count - 1; idx++)
                 {
-                    isReviewed = isReviewed && (bool)this.ActItem.DataViewItems[idx]["ActivityItemPickingIsReviewed"];
+                    isReviewed = isReviewed && Convert.ToBoolean(this.ActItem.DataViewItems[idx]["ActivityItemPickingIsReviewed"]);
                 }
 
                 if (!isReviewed)
@@ -1482,8 +1484,8 @@
                 {
                     this.Loading = true;
 
-                    // This prevents UI lag when pushing modal into view
-                    await Task.Delay(500);
+                    //This prevents UI lag when pushing modal into view
+                    //await Task.Delay(500);
 
                     this.ScannerEnable();
 
@@ -1586,7 +1588,7 @@
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        private async void cmdLocation_Click(object sender, EventArgs e)
+        private async Task cmdLocation_Click(object sender, EventArgs e)
         {
             if (this.IsControlLoaded)
             {
@@ -1638,7 +1640,7 @@
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        private async void cmdSelectSkid_Click(object sender, EventArgs e)
+        private async Task cmdSelectSkid_Click(object sender, EventArgs e)
         {
             if (this.IsControlLoaded)
             {
@@ -1692,7 +1694,7 @@
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        private async void cmdAddProduct_Click(object sender, EventArgs e)
+        private async Task cmdAddProduct_Click(object sender, EventArgs e)
         {
             if (this.IsControlLoaded)
             {
@@ -1931,7 +1933,7 @@
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        private async void cmdAddSkid_Click(object sender, EventArgs e)
+        private async Task cmdAddSkid_Click(object sender, EventArgs e)
         {
             if (this.IsControlLoaded)
             {
@@ -2824,7 +2826,7 @@
                         else
                         {
                             this.ActItem.SelectItem(foundRowIdx);
-                            Device.BeginInvokeOnMainThread(() => this.DisplayData());
+                            await Device.InvokeOnMainThreadAsync(() => this.DisplayData());
                         }
 
                         if (!LocationMapTasks.IsCompleteLocMapRefno(this.LocMap.CurrLocMapRefno))
@@ -3239,7 +3241,7 @@
                 //this.pbarStatus.Minimum = 0;
                 //this.pbarStatus.Maximum = new GridLength.Star;
                 //this.pbarStatus.Value = 0;
-                this.ActItem.Refresh(this.ActItem.ActHdr.XMLDataCriteria);
+                //this.ActItem.Refresh(this.ActItem.ActHdr.XMLDataCriteria);
 
                 //this.pbarStatus.Visible = false;
                 this.ActItem.DataViewItems = this.ActItem.GetDataView(false);
@@ -3765,7 +3767,7 @@
             Device.BeginInvokeOnMainThread(() => this.DisplayData());
         }
 
-        private void CmdFilter_Clicked(object sender, EventArgs e)
+        private async Task CmdFilter_Clicked(object sender, EventArgs e)
         {
         }
 
@@ -3781,23 +3783,23 @@
 
             if (result == this.CmdLocationText && this.CmdLocationIsEnabled)
             {
-                this.cmdLocation_Click(sender, e);
+                await this.cmdLocation_Click(sender, e);
             }
             else if (result == this.CmdFilterText && this.CmdFilterIsEnabled)
             {
-                this.CmdFilter_Clicked(sender, e);
+                await this.CmdFilter_Clicked(sender, e);
             }            
             else if (result == this.CmdSelectSkidText && this.CmdSelectSkidIsEnabled)
             {
-                this.cmdSelectSkid_Click(sender, e);
+                await this.cmdSelectSkid_Click(sender, e);
             }
             else if (result == this.CmdAddProductText && this.CmdAddProductIsEnabled)
             {
-                this.cmdAddProduct_Click(sender, e);
+                await this.cmdAddProduct_Click(sender, e);
             }
             else if (result == this.CmdAddSkidText && this.CmdAddSkidIsEnabled)
             {
-                this.cmdAddSkid_Click(sender, e);
+                await this.cmdAddSkid_Click(sender, e);
             }
         }
     }

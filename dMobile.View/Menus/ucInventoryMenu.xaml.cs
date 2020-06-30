@@ -132,7 +132,7 @@ namespace dMobile.View.Menus
                     this.IsControlLoaded = false;
 
                     ucActivityInventoryInquiry inquiry = new ucActivityInventoryInquiry();
-                    await inquiry.Show();
+                    await inquiry.ShowDialog();
                 }
                 else if (keycode == Keycode.Num6)
                 {
@@ -631,7 +631,7 @@ namespace dMobile.View.Menus
             this.IsControlLoaded = false;
 
             ucActivityInventoryInquiry inquiry = new ucActivityInventoryInquiry();
-            await inquiry.Show();
+            await inquiry.ShowDialog();
         }
 
         /// <summary>

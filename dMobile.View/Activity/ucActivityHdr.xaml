@@ -45,10 +45,11 @@
 
                 <!--
                 <Button x:Name="cmdFilter" Grid.Row="2" Grid.Column="1" Text="Filter" Clicked="cmdFilter_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
-                <Button x:Name="cmdAdd" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Text="Add" Clicked="cmdAdd_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
                 -->
-                <Entry x:Name="txtSearchHdr" Grid.Row="2" TextChanged="TxtSearchHdr_TextChanged" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
-                
+                <Grid Grid.Row="2">
+                    <Entry x:Name="txtSearchHdr" Grid.Row="0" Grid.Column="0" TextChanged="TxtSearchHdr_TextChanged" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                    <Button x:Name="cmdAdd" Grid.Row="0" Grid.Column="1" Text="Add" Clicked="cmdAdd_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                </Grid>
             </Grid>
 
             <ActivityIndicator IsVisible="{Binding Loading}" 

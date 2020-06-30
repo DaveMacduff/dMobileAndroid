@@ -1,15 +1,15 @@
 namespace dMobile.Controller
 {
-  public class PhysicalActivityFactory : ActivityFactory
-  {
-    /// <summary>
-    ///
-    /// </summary>
-    /// <returns></returns>
-    /// <remarks></remarks>
-    public override Activity GetActivity()
+    public class PhysicalActivityFactory : ActivityFactory
     {
-      return new PhysicalActivity();
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns></returns>
+        /// <remarks></remarks>
+        public override Activity GetActivity()
+        {
+            return new PhysicalActivity();
+        }
     }
-  }
 }

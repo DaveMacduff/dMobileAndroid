@@ -1,10 +1,10 @@
 namespace dMobile.Controller
 {
-  public class RecvFactory : ActivityFactory
-  {
-    public override Activity GetActivity()
+    public class RecvFactory : ActivityFactory
     {
-      return new RecvActivity();
+        public override Activity GetActivity()
+        {
+            return new RecvActivity();
+        }
     }
-  }
 }

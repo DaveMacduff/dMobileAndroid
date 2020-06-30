@@ -431,7 +431,7 @@ namespace dMobile.Controller
             }
 
             this.AdjSettings = this.AdjSettings.LoadData();
-            this.AdjSettings.AdjustmentType = (SysCommon.AdjTypes)this.DataViewHdrs[idx]["ActivityAdjustmentType"];
+            this.AdjSettings.AdjustmentType = (SysCommon.AdjTypes)Convert.ToInt32(this.DataViewHdrs[idx]["ActivityAdjustmentType"]);
 
             if (!SysCommon.IsAllowedChangeNegateQuantityFromAdjType(this.AdjSettings.AdjustmentType))
             {

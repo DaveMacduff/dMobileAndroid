@@ -1,11 +1,10 @@
 namespace dMobile.Controller
 {
-  public class CycleActivityFactory : ActivityFactory
-  {
-    public override Activity GetActivity()
+    public class CycleActivityFactory : ActivityFactory
     {
-      return new CycleActivity();
+        public override Activity GetActivity()
+        {
+            return new CycleActivity();
+        }
     }
-  }
-
 }

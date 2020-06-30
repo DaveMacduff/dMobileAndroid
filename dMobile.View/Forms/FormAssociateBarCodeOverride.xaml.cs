@@ -72,8 +72,6 @@
         protected override void OnAppearing()
         {
             base.OnAppearing();
-
-            this.txtLoginID.Focus();
         }
 
         /// <summary>

@@ -76,11 +76,8 @@ namespace dMobile.Controller
         /// <remarks></remarks>
         public override string GetControlDescription()
         {
-#if MULTILANGUAGE
-      return Translator.GetInstance().Translate(TranslatorVocabulary.SkidInfo);
-#else
+            // TODO: Resource strings
             return "Skid Info";
-#endif
         }
 
         /// <summary>
@@ -112,22 +109,22 @@ namespace dMobile.Controller
                 ////this.SkidInfo = SysSkidInfo.GetSkidInfoFromBarCodeOrCode((string)this.DataViewHdrs[idx]["SkidCode"]);
 
                 SSkidInfo info = new SSkidInfo();
-                info.SkidCode = (string)this.DataViewHdrs[idx]["SkidCode"];
-                info.SkidFKRefno = (int)this.DataViewHdrs[idx]["SkidFKRefno"];
-                info.LocMapRefno = (int)this.DataViewHdrs[idx]["LocationMapRefno"];
+                info.SkidCode = Convert.ToString(this.DataViewHdrs[idx]["SkidCode"]);
+                info.SkidFKRefno = Convert.ToInt32(this.DataViewHdrs[idx]["SkidFKRefno"]);
+                info.LocMapRefno = Convert.ToInt32(this.DataViewHdrs[idx]["LocationMapRefno"]);
                 info.LocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(info.LocMapRefno);
-                info.ProdInfo = ProductInfoTasks.GetInfoFromRefno((int)this.DataViewHdrs[idx]["ProductRefno"]);
-                info.Quantity = (decimal)this.DataViewHdrs[idx]["Quantity"];
-                info.BaseQuantity = (decimal)this.DataViewHdrs[idx]["BaseQuantity"];
-                info.WeightQuantity = (decimal)this.DataViewHdrs[idx]["WeightQuantity"];
-                info.Cube = (decimal)this.DataViewHdrs[idx]["SkidCube"];
-                info.CubeUnit = (string)this.DataViewHdrs[idx]["SkidCubeUnit"];
-                info.Height = (decimal)this.DataViewHdrs[idx]["SkidHeight"];
-                info.HeightUnit = (string)this.DataViewHdrs[idx]["SkidHeightUnit"];
-                info.Hi = (int)this.DataViewHdrs[idx]["SkidHi"];
-                info.Ti = (int)this.DataViewHdrs[idx]["SkidTi"];
-                info.IsCHEP = (bool)this.DataViewHdrs[idx]["SkidIsChep"];
-                info.IsHold = (bool)this.DataViewHdrs[idx]["SkidIsOnHold"];
+                info.ProdInfo = ProductInfoTasks.GetInfoFromRefno(Convert.ToInt32(this.DataViewHdrs[idx]["ProductRefno"]));
+                info.Quantity = Convert.ToDecimal(this.DataViewHdrs[idx]["Quantity"]);
+                info.BaseQuantity = Convert.ToDecimal(this.DataViewHdrs[idx]["BaseQuantity"]);
+                info.WeightQuantity = Convert.ToDecimal(this.DataViewHdrs[idx]["WeightQuantity"]);
+                info.Cube = Convert.ToDecimal(this.DataViewHdrs[idx]["SkidCube"]);
+                info.CubeUnit = Convert.ToString(this.DataViewHdrs[idx]["SkidCubeUnit"]);
+                info.Height = Convert.ToDecimal(this.DataViewHdrs[idx]["SkidHeight"]);
+                info.HeightUnit = Convert.ToString(this.DataViewHdrs[idx]["SkidHeightUnit"]);
+                info.Hi = Convert.ToInt32(this.DataViewHdrs[idx]["SkidHi"]);
+                info.Ti = Convert.ToInt32(this.DataViewHdrs[idx]["SkidTi"]);
+                info.IsCHEP = Convert.ToBoolean(this.DataViewHdrs[idx]["SkidIsChep"]);
+                info.IsHold = Convert.ToBoolean(this.DataViewHdrs[idx]["SkidIsOnHold"]);
                 info.IsPutAway = false;
                 info.IsCompleted = !SysCommon.IsEmptyDateTime((DateTime)this.DataViewHdrs[idx]["SkidCompleted"]);
                 info.IsConsumed = false;
@@ -207,11 +204,13 @@ namespace dMobile.Controller
         /// <remarks></remarks>
         public override ObservableCollection<object> Search( string searchText)
         {
+            // TODO: Search
             throw new NotImplementedException();
         }
 
         public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity)
         {
+            // TODO: Design Grid
             throw new NotImplementedException();
         }
 

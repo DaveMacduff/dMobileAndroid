@@ -1,12 +1,43 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="dMobile.View.Options.ucSubmitBatchFilter">
+<modal:DMobileModal  xmlns:modal="clr-namespace:dMobile.View.CustomPages.Modal"
+                     xmlns="http://xamarin.com/schemas/2014/forms"
+                     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" xmlns:customcontrols="clr-namespace:dMobile.View.CustomControls" xmlns:Helpers="clr-namespace:dMobile.View.Helpers"
+                     x:Class="dMobile.View.Options.ucSubmitBatchFilter">
     <ContentPage.Content>
-        <StackLayout>
-            <Label Text="Welcome to Xamarin.Forms!"
-                VerticalOptions="CenterAndExpand" 
-                HorizontalOptions="CenterAndExpand" />
-        </StackLayout>
+        <AbsoluteLayout>
+            <Grid Padding="10" AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0,0,1,1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Label x:Name="lblStatus" Grid.Row="0" Grid.Column="0" FontAttributes="Bold" VerticalOptions="CenterAndExpand" HorizontalOptions="CenterAndExpand"/>
+                    <customcontrols:CustomPicker x:Name="cboActivityStatus" Grid.Row="0" Grid.Column="1" Image="arrow_drop_down" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+
+                    <Label x:Name="lblFilterActivity" Grid.Row="1" Grid.Column="0" FontAttributes="Bold" VerticalOptions="CenterAndExpand" HorizontalOptions="CenterAndExpand"/>
+                    <customcontrols:CustomPicker x:Name="cboActivitySubType" Grid.Row="1" Grid.Column="1" Image="arrow_drop_down" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                </Grid>
+
+                <Grid Grid.Row="1">
+                    <Button x:Name="btnSave" Grid.Row="0" Grid.Column="0" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" Clicked="btnSave_Clicked"/>
+                    <Button x:Name="btnClose" Grid.Row="0" Grid.Column="1" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" Clicked="btnClose_Clicked"/>
+                </Grid>
+            </Grid>
+
+            <ActivityIndicator IsVisible="{Binding Loading}" 
+                               IsRunning="{Binding Loading}"
+                               AbsoluteLayout.LayoutFlags="All" 
+                               AbsoluteLayout.LayoutBounds="0.5,0.5,0.3,0.3"/>
+        </AbsoluteLayout>
     </ContentPage.Content>
-</ContentPage>
+</modal:DMobileModal>

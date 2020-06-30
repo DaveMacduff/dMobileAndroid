@@ -1024,7 +1024,7 @@
 
             if (locMap.CurrLocMap.WhsFKRefno != 0)
             {
-                location = location + locMap.CurrLocMap.WhsCode.ToString().TrimEnd().PadLeft(locMap.CurrLocMap.WhsCodeMask.Length, Convert.ToChar("0"));
+                location += locMap.CurrLocMap.WhsCode.ToString().TrimEnd().PadLeft(locMap.CurrLocMap.WhsCodeMask.Length, Convert.ToChar("0"));
             }
 
             return location;
@@ -1225,7 +1225,7 @@
                         cmd.CommandText = "SELECT tLocationMapSection.WarehouseLocationMapRefno "
                             + "FROM tLocationMapSection "
                             + "WHERE tLocationMapSection.LocationMapRefno = @locationSubType";
-                        cmd.Parameters.Add(new SQLiteParameter("@locationSubType", locationSubType));
+                        cmd.Parameters.Add(new SQLiteParameter("@locationSubType", Convert.ToInt32(locationSubType)));
 
                         return Convert.ToInt32(cmd.ExecuteScalar());
                     }
@@ -1238,7 +1238,7 @@
                         cmd.CommandText = "SELECT tLocationMapSlot.WarehouseLocationMapRefno "
                             + "FROM tLocationMapSlot "
                             + "WHERE tLocationMapSlot.LocationMapRefno = @locationSubType";
-                        cmd.Parameters.Add(new SQLiteParameter("@locationSubType", locationSubType));
+                        cmd.Parameters.Add(new SQLiteParameter("@locationSubType", Convert.ToInt32(locationSubType)));
 
                         return Convert.ToInt32(cmd.ExecuteScalar());
                     }

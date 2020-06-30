@@ -301,12 +301,12 @@ namespace dMobile.Controller
                     //{
                     if (drItemPickingComment.Read())
                     {
-                        comment = drItemPickingComment["ActivityItemPickingCommentComment"].ToString();
+                        comment = Convert.ToString(drItemPickingComment["ActivityItemPickingCommentComment"]);
                     }
-                    else
-                    {
-                        throw new Exception("drItemPickingComment.Read() failed.");
-                    }
+                    //else
+                    //{
+                    //    throw new Exception("drItemPickingComment.Read() failed.");
+                    //}
                     //}
                 }
             }
@@ -831,33 +831,33 @@ namespace dMobile.Controller
             {
                 // Gather any newly added line items.
                 // Also perform union into tActivityDetail to check of detail exists.
-                sql.Append("SELECT tActivityItemPicking.ActivityItemRefno,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingFKRefno,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingStringFKRefno,");
-                sql.Append("tProductUnit.ProductUnitRefno,");
-                sql.Append("tProduct.ProductRefno,");
-                sql.Append("tProduct.ProductCode,");
-                sql.Append("tProduct.ProductDescription,");
-                sql.Append("tProduct.ProductBrandDescription,");
-                sql.Append("tUnit.UnitCode,");
-                sql.Append("tProductUnit.ProductUnitBC,");
-                sql.Append("tProductUnit.ProductUnitSizeDescription,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingQuantityOrdered,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingBaseQuantityOrdered,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingWeightQuantityOrdered,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingQuantityShipped,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingBaseQuantityShipped,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingWeightQuantityShipped,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingCustomerProductUnitCode,");
-                sql.Append("tLocationMapWarehouse.LocationMapRefno,");
+                sql.Append("SELECT tActivityItemPicking.ActivityItemRefno AS ActivityItemRefno,");
+                sql.Append("tActivityItemPicking.ActivityItemPickingFKRefno AS ActivityItemPickingFKRefno,");
+                sql.Append("tActivityItemPicking.ActivityItemPickingStringFKRefno AS ActivityItemPickingStringFKRefno,");
+                sql.Append("tProductUnit.ProductUnitRefno AS ProductUnitRefno,");
+                sql.Append("tProduct.ProductRefno AS ProductRefno,");
+                sql.Append("tProduct.ProductCode AS ProductCode,");
+                sql.Append("tProduct.ProductDescription AS ProductDescription,");
+                sql.Append("tProduct.ProductBrandDescription AS ProductBrandDescription,");
+                sql.Append("tUnit.UnitCode AS UnitCode,");
+                sql.Append("tProductUnit.ProductUnitBC AS ProductUnitBC,");
+                sql.Append("tProductUnit.ProductUnitSizeDescription AS ProductUnitSizeDescription,");
+                sql.Append("tActivityItemPicking.ActivityItemPickingQuantityOrdered AS ActivityItemPickingQuantityOrdered,");
+                sql.Append("tActivityItemPicking.ActivityItemPickingBaseQuantityOrdered AS ActivityItemPickingBaseQuantityOrdered,");
+                sql.Append("tActivityItemPicking.ActivityItemPickingWeightQuantityOrdered AS ActivityItemPickingWeightQuantityOrdered,");
+                sql.Append("tActivityItemPicking.ActivityItemPickingQuantityShipped AS ActivityItemPickingQuantityShipped,");
+                sql.Append("tActivityItemPicking.ActivityItemPickingBaseQuantityShipped AS ActivityItemPickingBaseQuantityShipped,");
+                sql.Append("tActivityItemPicking.ActivityItemPickingWeightQuantityShipped AS ActivityItemPickingWeightQuantityShipped,");
+                sql.Append("tActivityItemPicking.ActivityItemPickingCustomerProductUnitCode AS ActivityItemPickingCustomerProductUnitCode,");
+                sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapWarehouseCode AS LocationCode,");
                 sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationName,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingQuantityAvailable,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingBaseQuantityAvailable,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingWeightQuantityAvailable,");
+                sql.Append("tActivityItemPicking.ActivityItemPickingQuantityAvailable AS ActivityItemPickingQuantityAvailable,");
+                sql.Append("tActivityItemPicking.ActivityItemPickingBaseQuantityAvailable AS ActivityItemPickingBaseQuantityAvailable,");
+                sql.Append("tActivityItemPicking.ActivityItemPickingWeightQuantityAvailable AS ActivityItemPickingWeightQuantityAvailable,");
                 sql.Append("CASE WHEN tActivityItemPickingComment.ActivityItemPickingCommentComment IS NULL ");
                 sql.Append("THEN \' \' ELSE \'*\' END AS IsActivityItemPickingComment,");
-                sql.Append("tActivityItem.ActivityItemStatus ");
+                sql.Append("tActivityItem.ActivityItemStatus AS ActivityItemStatus ");
                 sql.Append("FROM tActivityItemPicking ");
                 sql.Append("INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno ");
                 sql.Append("= tActivityItemPicking.ActivityItemRefno ");
@@ -915,33 +915,33 @@ namespace dMobile.Controller
             }
             else
             {
-                sql.Append("SELECT tActivityItemPicking.ActivityItemRefno,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingFKRefno,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingStringFKRefno,");
-                sql.Append("tProductUnit.ProductUnitRefno,");
-                sql.Append("tProduct.ProductRefno,");
-                sql.Append("tProduct.ProductCode,");
-                sql.Append("tProduct.ProductDescription,");
-                sql.Append("tProduct.ProductBrandDescription,");
-                sql.Append("tUnit.UnitCode,");
-                sql.Append("tProductUnit.ProductUnitBC,");
-                sql.Append("tProductUnit.ProductUnitSizeDescription,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingQuantityOrdered,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingBaseQuantityOrdered,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingWeightQuantityOrdered,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingQuantityShipped,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingBaseQuantityShipped,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingWeightQuantityShipped,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingCustomerProductUnitCode,");
-                sql.Append("tLocationMapWarehouse.LocationMapRefno,");
+                sql.Append("SELECT tActivityItemPicking.ActivityItemRefno AS ActivityItemRefno,");
+                sql.Append("tActivityItemPicking.ActivityItemPickingFKRefno AS ActivityItemPickingFKRefno,");
+                sql.Append("tActivityItemPicking.ActivityItemPickingStringFKRefno AS ActivityItemPickingStringFKRefno,");
+                sql.Append("tProductUnit.ProductUnitRefno AS ProductUnitRefno,");
+                sql.Append("tProduct.ProductRefno AS ProductRefno,");
+                sql.Append("tProduct.ProductCode AS ProductCode,");
+                sql.Append("tProduct.ProductDescription AS ProductDescription,");
+                sql.Append("tProduct.ProductBrandDescription AS ProductBrandDescription,");
+                sql.Append("tUnit.UnitCode AS UnitCode,");
+                sql.Append("tProductUnit.ProductUnitBC AS ProductUnitBC,");
+                sql.Append("tProductUnit.ProductUnitSizeDescription AS ProductUnitSizeDescription,");
+                sql.Append("tActivityItemPicking.ActivityItemPickingQuantityOrdered AS ActivityItemPickingQuantityOrdered,");
+                sql.Append("tActivityItemPicking.ActivityItemPickingBaseQuantityOrdered AS ActivityItemPickingBaseQuantityOrdered,");
+                sql.Append("tActivityItemPicking.ActivityItemPickingWeightQuantityOrdered AS ActivityItemPickingWeightQuantityOrdered,");
+                sql.Append("tActivityItemPicking.ActivityItemPickingQuantityShipped AS ActivityItemPickingQuantityShipped,");
+                sql.Append("tActivityItemPicking.ActivityItemPickingBaseQuantityShipped AS ActivityItemPickingBaseQuantityShipped,");
+                sql.Append("tActivityItemPicking.ActivityItemPickingWeightQuantityShipped AS ActivityItemPickingWeightQuantityShipped,");
+                sql.Append("tActivityItemPicking.ActivityItemPickingCustomerProductUnitCode AS ActivityItemPickingCustomerProductUnitCode,");
+                sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapWarehouseCode AS LocationCode,");
                 sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationName,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingQuantityAvailable,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingBaseQuantityAvailable,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingWeightQuantityAvailable,");
+                sql.Append("tActivityItemPicking.ActivityItemPickingQuantityAvailable AS ActivityItemPickingQuantityAvailable,");
+                sql.Append("tActivityItemPicking.ActivityItemPickingBaseQuantityAvailable AS ActivityItemPickingBaseQuantityAvailable,");
+                sql.Append("tActivityItemPicking.ActivityItemPickingWeightQuantityAvailable AS ActivityItemPickingWeightQuantityAvailable,");
                 sql.Append("CASE WHEN tActivityItemPickingComment.ActivityItemPickingCommentComment IS NULL ");
                 sql.Append("THEN \' \' ELSE \'*\' END AS IsActivityItemPickingComment,");
-                sql.Append("tActivityItem.ActivityItemStatus ");
+                sql.Append("tActivityItem.ActivityItemStatus AS ActivityItemStatus ");
                 sql.Append("FROM tActivityItemPicking ");
                 sql.Append("INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno ");
                 sql.Append("= tActivityItemPicking.ActivityItemRefno ");

@@ -114,6 +114,7 @@ namespace dMobile.Controller
 
         public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity)
         {
+            // TODO: Design Grid
             throw new NotImplementedException();
         }
 
@@ -366,8 +367,8 @@ namespace dMobile.Controller
         /// <param name="idx"></param>
         public override void SelectHdr(int idx)
         {
-            this.FKRefno = (int)DataViewHdrs[idx]["ActivityPickingFKRefno"];
-            this.Refno = (int)DataViewHdrs[idx]["ActivityRefno"];
+            this.FKRefno = Convert.ToInt32(DataViewHdrs[idx]["ActivityPickingFKRefno"]);
+            this.Refno = Convert.ToInt32(DataViewHdrs[idx]["ActivityRefno"]);
             this.SelectedIndex = idx;
         }
 
@@ -379,8 +380,8 @@ namespace dMobile.Controller
         /// <remarks></remarks>
         public override int GetRefnoFromRowIdx(int idx)
         {
-            this.FKRefno = (int)DataViewHdrs[idx]["ActivityPickingFKRefno"];
-            this.Refno = (int)DataViewHdrs[idx]["ActivityRefno"];
+            this.FKRefno = Convert.ToInt32(DataViewHdrs[idx]["ActivityPickingFKRefno"]);
+            this.Refno = Convert.ToInt32(DataViewHdrs[idx]["ActivityRefno"]);
 
             return this.Refno;
         }
@@ -442,11 +443,11 @@ namespace dMobile.Controller
                 {
                     if (string.IsNullOrEmpty(filter))
                     {
-                        filter = filter + string.Format("RouteCode = \'{0}\'", pickingSettings.strRouteCodeSelectedValue);
+                        filter += string.Format("RouteCode = \'{0}\'", pickingSettings.strRouteCodeSelectedValue);
                     }
                     else
                     {
-                        filter = filter + string.Format(" AND RouteCode = \'{0}\'", pickingSettings.strRouteCodeSelectedValue);
+                        filter += string.Format(" AND RouteCode = \'{0}\'", pickingSettings.strRouteCodeSelectedValue);
                     }
                 }
             }
@@ -556,7 +557,7 @@ namespace dMobile.Controller
                     }
                     else
                     {
-                        filter = filter + string.Format(
+                        filter += string.Format(
                             " AND ActivityPickingOrderedDateTime >= '{0}-{1}-{2} 00:00:00.000' "
                             + "AND ActivityPickingOrderedDateTime <= '{0}-{1}-{2} 23:59:59.997'",
                             dt.Year,
@@ -584,7 +585,7 @@ namespace dMobile.Controller
                     }
                     else
                     {
-                        filter = filter + string.Format(
+                        filter += string.Format(
                             " AND ActivityPickingDeliveryDateTime >= '{0}-{1}-{2} 00:00:00.000' "
                             + "AND ActivityPickingDeliveryDateTime <= '{0}-{1}-{2} 23:59:59.997'",
                             dt.Year,

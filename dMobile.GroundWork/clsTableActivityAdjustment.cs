@@ -1,23 +1,23 @@
 namespace dMobile.GroundWork
 {
-  using System;
-  using System.Data;
-  using System.Data.SQLite;
-  using System.Text;
-  using System.Xml;
-  using System.Xml.Linq;
-  using dMobile.Bedrock;
-  using Microsoft.VisualBasic;
+    using System;
+    using System.Data;
+    using System.Data.SQLite;
+    using System.Text;
+    using System.Xml;
+    using System.Xml.Linq;
+    using dMobile.Bedrock;
+    using Microsoft.VisualBasic;
 
-  public class TableActivityAdjustment : TableBase
-  {
-    #region Constructors
-
-    public TableActivityAdjustment()
-      : base()
+    public class TableActivityAdjustment : TableBase
     {
-      this.FullClassName = "dMobile.GroundWork.TableActivityAdjustment";
-    }
+        #region Constructors
+
+        public TableActivityAdjustment()
+          : base()
+        {
+            this.FullClassName = "dMobile.GroundWork.TableActivityAdjustment";
+        }
 
         #endregion
 
@@ -412,32 +412,32 @@ namespace dMobile.GroundWork
             }
         }
 
-    /// <summary>
-    ///
-    /// </summary>
-    /// <returns></returns>
-    /// <remarks></remarks>
-    protected override string Create()
-    {
-      StringBuilder xmlString = new StringBuilder();
-      XmlWriter xml = XmlWriter.Create(xmlString);
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns></returns>
+        /// <remarks></remarks>
+        protected override string Create()
+        {
+            StringBuilder xmlString = new StringBuilder();
+            XmlWriter xml = XmlWriter.Create(xmlString);
 
-      XDocument request = XDocument.Parse(
-          "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>" 
-          + "<imclient>" 
-          + "<command>" 
-          + "<action>REQUEST ADJUSTMENTS</action>"
-          + SysCommon.GetRequestDefaults(false)
-          + "</command>" 
-          + "</imclient>");
+            XDocument request = XDocument.Parse(
+                "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
+                + "<imclient>"
+                + "<command>"
+                + "<action>REQUEST ADJUSTMENTS</action>"
+                + SysCommon.GetRequestDefaults(false)
+                + "</command>"
+                + "</imclient>");
 
-      request.Save(xml);
-      xml.Flush();
-      xml.Close();
+            request.Save(xml);
+            xml.Flush();
+            xml.Close();
 
-      return xmlString.ToString();
+            return xmlString.ToString();
+        }
+
+        #endregion
     }
-
-    #endregion
-  }
 }

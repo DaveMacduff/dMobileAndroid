@@ -1,10 +1,10 @@
 namespace dMobile.Controller
 {
-  public class ReleaseByOrderActivityFactory : ActivityFactory
-  {
-    public override Activity GetActivity()
+    public class ReleaseByOrderActivityFactory : ActivityFactory
     {
-      return new ReleaseByOrderActivity();
+        public override Activity GetActivity()
+        {
+            return new ReleaseByOrderActivity();
+        }
     }
-  }
 }

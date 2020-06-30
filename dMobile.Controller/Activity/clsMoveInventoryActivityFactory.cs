@@ -1,15 +1,15 @@
 namespace dMobile.Controller
 {
-  public class MoveInvActivityFactory : ActivityFactory
-  {
-    /// <summary>
-    ///
-    /// </summary>
-    /// <returns></returns>
-    /// <remarks></remarks>
-    public override Activity GetActivity()
+    public class MoveInvActivityFactory : ActivityFactory
     {
-      return new MoveInvActivity();
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns></returns>
+        /// <remarks></remarks>
+        public override Activity GetActivity()
+        {
+            return new MoveInvActivity();
+        }
     }
-  }
 }

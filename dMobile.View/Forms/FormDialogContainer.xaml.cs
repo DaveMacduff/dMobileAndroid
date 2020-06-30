@@ -51,11 +51,11 @@ namespace dMobile.View.Forms
                     break;
 
                 case EDialogTypes.ucActivityInventoryInquiry:
-                    //control = new ucActivityInventoryInquiry();
+                    control = new ucActivityInventoryInquiry();
                     break;
 
                 case EDialogTypes.ucActivityDeboxLabelCount:
-                    //control = new ucActivityDeboxLabelCount();
+                    control = new ucActivityDeboxLabelCount();
                     break;
 
                 default:
@@ -93,12 +93,7 @@ namespace dMobile.View.Forms
             {
                 case EDialogTypes.ucActivityShippingLabelEdit:
                     // Override the subtype to Picking
-                    //control = new ucActivityShippingLabelEdit(
-                    //    SysCommon.ActSubTypes.Picking,
-                    //    //callingControl,
-                    //    labelQtyEdit,
-                    //    activity,
-                    //    selectMode);
+                    control = new ucActivityShippingLabelEdit(SysCommon.ActSubTypes.Picking, labelQtyEdit, activity, selectMode);
                     break;
             }
 
@@ -124,11 +119,11 @@ namespace dMobile.View.Forms
             switch (typeInnerControl)
             {
                 case EDialogTypes.ucRefreshDataStatus:
-                    //control = new ucRefreshDataStatus(actSubType);
+                    control = new ucRefreshDataStatus(actSubType);
                     break;
 
                 case EDialogTypes.ucActivityInventoryInquiry:
-                    //control = new ucActivityInventoryInquiry();
+                    control = new ucActivityInventoryInquiry();
                     break;
 
                 default:
@@ -158,19 +153,19 @@ namespace dMobile.View.Forms
             switch (typeInnerControl)
             {
                 case EDialogTypes.ucRefreshDataStatus:
-                    //control = new ucRefreshDataStatus(actSubType);
+                    control = new ucRefreshDataStatus(actSubType);
                     break;
 
                 case EDialogTypes.ucActivityInventoryInquiry:
-                    //control = new ucActivityInventoryInquiry(actItem.ProdInfo);
+                    control = new ucActivityInventoryInquiry(actItem.ProdInfo);
                     break;
 
                 case EDialogTypes.ucActivityInventoryInquirySummary:
-                    //control = new ucActivityItemInventoryInquirySummary(actItem);
+                    control = new ucActivityItemInventoryInquirySummary(actItem);
                     break;
 
                 default:
-                    control = this.GetControlObj(typeInnerControl, actItem, actSubType/*, callingControl*/);
+                    control = this.GetControlObj(typeInnerControl, actItem, actSubType);
                     break;
             }
 
@@ -196,15 +191,15 @@ namespace dMobile.View.Forms
             switch (typeInnerControl)
             {
                 case EDialogTypes.ucRefreshDataStatus:
-                    //control = new ucRefreshDataStatus(actSubType);
+                    control = new ucRefreshDataStatus(actSubType);
                     break;
 
                 case EDialogTypes.ucActivityInventoryInquiry:
-                    //control = new ucActivityInventoryInquiry(actDetail.ActItem.ProdInfo);
+                    control = new ucActivityInventoryInquiry(actDetail.ActItem.ProdInfo);
                     break;
 
                 default:
-                    control = this.GetControlObj(typeInnerControl, actDetail, actSubType/*, *//*callingControl*/);
+                    control = this.GetControlObj(typeInnerControl, actDetail, actSubType);
                     break;
             }
 
@@ -551,7 +546,7 @@ namespace dMobile.View.Forms
             switch (typeInnerControl)
             {
                 case EDialogTypes.ucActivityShippingLabelEdit:
-                    //control = new ucActivityShippingLabelEdit(actSubType, /*callingControl,*/ labelQtyEdit, activity, selectMode);
+                    control = new ucActivityShippingLabelEdit(actSubType, labelQtyEdit, activity, selectMode);
                     break;
             }
 
@@ -577,7 +572,7 @@ namespace dMobile.View.Forms
                     break;
 
                 case EDialogTypes.ucActivityItemSingle:
-                    //control = new ucActivityItemSingle(activity, actSubType);
+                    control = new ucActivityItemSingle(activity, actSubType);
                     break;
 
                 case EDialogTypes.ucSkidInfo:
@@ -607,7 +602,7 @@ namespace dMobile.View.Forms
                     break;
 
                 case EDialogTypes.ucActivityProductLabel:
-                    //control = new ucActivityProductLabel(actDetail, actSubType);
+                    control = new ucActivityProductLabel(actDetail, actSubType);
                     break;
 
                 case EDialogTypes.ucActivityPurchaseOrderWorkSheetEdit:
@@ -621,15 +616,15 @@ namespace dMobile.View.Forms
                     break;
 
                 case EDialogTypes.ucActivityInventoryInquiryDetail:
-                    //control = new ucActivityDetailInventoryInquiry(actDetail, actSubType);
+                    control = new ucActivityDetailInventoryInquiry(actDetail, actSubType);
                     break;
 
                 case EDialogTypes.ucActivityConvertProductDetail:
-                    //control = new ucActivityConvertProductDetail(actDetail, actSubType);
+                    control = new ucActivityConvertProductDetail(actDetail, actSubType);
                     break;
 
                 case EDialogTypes.ucActivityRemoveFromSkid:
-                    //control = new ucActivityRemoveFromSkid(actDetail, actSubType);
+                    control = new ucActivityRemoveFromSkid(actDetail, actSubType);
                     break;
             }
 
@@ -663,11 +658,11 @@ namespace dMobile.View.Forms
                     break;
 
                 case EDialogTypes.ucActivityDetailSkid:
-                    //control = new ucActivityDetailSkid(actItem, actSubType);
+                    control = new ucActivityDetailSkid(actItem, actSubType);
                     break;
 
                 case EDialogTypes.ucActivityInventoryInquiryItem:
-                    //control = new ucActItemInventoryInquiry(actItem, actSubType);
+                    control = new ucActivityItemInventoryInquiry(actItem, actSubType);
                     break;
             }
 
@@ -724,43 +719,43 @@ namespace dMobile.View.Forms
                     break;
 
                 case EDialogTypes.ucActivityHdrPhysicalCountFilter:
-                    //control = new ucActivityHdrPhysicalCountFilter(/*callingControl*/);
+                    control = new ucActivityHdrPhysicalCountFilter();
                     break;
 
                 case EDialogTypes.ucActivityHdrCycleCountFilter:
-                    //control = new ucActivityHdrCycleCountFilter(/*callingControl*/);
+                    control = new ucActivityHdrCycleCountFilter();
                     break;
 
                 case EDialogTypes.ucActivityHdrReturnsFilter:
-                    //control = new ucActivityHdrReturnsFilter(/*callingControl*/);
+                    control = new ucActivityHdrReturnsFilter();
                     break;
 
                 case EDialogTypes.ucActivityHdrTransferFilter:
-                    //control = new ucActivityHdrTransferFilter();
+                    control = new ucActivityHdrTransferFilter();
                     break;
 
                 case EDialogTypes.ucSubmitBatchFilter:
-                    //control = new ucSubmitBatchFilter(/*callingControl*/);
+                    control = new ucSubmitBatchFilter();
                     break;
 
                 case EDialogTypes.ucActivityAdjustmentFilter:
-                    //control = new ucActivityHdrAdjustmentFilter(/*callingControl*/);
+                    control = new ucActivityHdrAdjustmentFilter();
                     break;
 
                 case EDialogTypes.ucActivityProductionTicketFinishedFilter:
-                    //control = new ucActivityHdrProductionTicketFilter(/*callingControl*/);
+                    control = new ucActivityHdrProductionTicketFilter();
                     break;
 
                 case EDialogTypes.ucActivityProductionTicketMaterialFilter:
-                    //control = new ucActivityHdrProductionTicketFilter(/*callingControl*/);
+                    control = new ucActivityHdrProductionTicketFilter();
                     break;
 
                 case EDialogTypes.ucActivityProductionTicketByProductFilter:
-                    //control = new ucActivityHdrProductionTicketFilter(/*callingControl*/);
+                    control = new ucActivityHdrProductionTicketFilter();
                     break;
 
                 case EDialogTypes.ucActivityPickingSelectCriteria:
-                    //control = new ucActivityHdrPickingSelectCriteria(/*callingControl*/);
+                    control = new ucActivityHdrPickingSelectCriteria();
                     break;
 
                 case EDialogTypes.ucSkidInfo:

@@ -54,11 +54,8 @@ namespace dMobile.Controller
             }
             catch (SQLiteException ex)
             {
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredPurgingBarCodeAssociationFailed), ex);
-#else
+                // TODO: Resource strings
                 throw new Exception("Database exception occurred. Purging bar code association failed.", ex);
-#endif
             }
         }
 
@@ -79,11 +76,8 @@ namespace dMobile.Controller
         /// <remarks></remarks>
         public override string GetControlDescription()
         {
-#if MULTILANGUAGE
-      return Translator.GetInstance().Translate(TranslatorVocabulary.BarCodeAssociation);
-#else
+            // TODO: Resource strings
             return "Bar Code Association";
-#endif
         }
 
         /// <summary>
@@ -92,8 +86,8 @@ namespace dMobile.Controller
         /// <param name="idx"></param>
         public override void SelectHdr(int idx)
         {
-            this.FKRefno = (int)this.DataViewHdrs[idx]["ActivityRefno"];
-            this.Refno = (int)this.DataViewHdrs[idx]["ActivityRefno"];
+            this.FKRefno = Convert.ToInt32(this.DataViewHdrs[idx]["ActivityRefno"]);
+            this.Refno = Convert.ToInt32(this.DataViewHdrs[idx]["ActivityRefno"]);
         }
 
         /// <summary>
@@ -103,8 +97,8 @@ namespace dMobile.Controller
         /// <returns></returns>
         public override int GetRefnoFromRowIdx(int idx)
         {
-            this.FKRefno = (int)this.DataViewHdrs[idx]["ActivityRefno"];
-            this.Refno = (int)this.DataViewHdrs[idx]["ActivityRefno"];
+            this.FKRefno = Convert.ToInt32(this.DataViewHdrs[idx]["ActivityRefno"]);
+            this.Refno = Convert.ToInt32(this.DataViewHdrs[idx]["ActivityRefno"]);
 
             return this.Refno;
         }
@@ -163,9 +157,7 @@ namespace dMobile.Controller
                 sql.AppendFormat(" AND tActivityItem.ActivityItemSubType = {0}", (int)SysCommon.ActSubTypes.BarCodeAssociation);
             }
 
-            using (SQLiteDataAdapter dataAdapterBarCode = new SQLiteDataAdapter(
-                sql.ToString(),
-                DatabaseConnection.GetInstance().SQLConn))
+            using (SQLiteDataAdapter dataAdapterBarCode = new SQLiteDataAdapter(sql.ToString(), DatabaseConnection.GetInstance().SQLConn))
             {
                 using (DataSet dataSetBarCode = new DataSet())
                 {
@@ -206,6 +198,7 @@ namespace dMobile.Controller
                 
         public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity)
         {
+            // TODO: DesignGrid
             throw new NotImplementedException();
         }
 

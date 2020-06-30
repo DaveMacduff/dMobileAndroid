@@ -1,10 +1,10 @@
 namespace dMobile.Controller
 {
-  public class POWorkSheetActivityFactory : ActivityFactory
-  {
-    public override Activity GetActivity()
+    public class POWorkSheetActivityFactory : ActivityFactory
     {
-      return new POWorkSheetActivity();
+        public override Activity GetActivity()
+        {
+            return new POWorkSheetActivity();
+        }
     }
-  }
 }

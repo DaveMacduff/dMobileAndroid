@@ -206,10 +206,10 @@ namespace dMobile.GroundWork
 
             using (SQLiteCommand cmndItemFinished = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
             {
-                cmndItemFinished.CommandText = "SELECT * FROM tActivityItemProductionFinished WHERE ActivityRefno = @activityRefno";
+                cmndItemFinished.CommandText = "SELECT * FROM tActivityItemProductionFinished WHERE ActivityItemRefno = @activityItemRefno";
                 cmndItemFinished.CommandType = CommandType.Text;
                 //cmndItemFinished.IndexName = "PK_ActivityItemProductionFinishedOnActivityItemRefno";
-                cmndItemFinished.Parameters.Add(new SQLiteParameter("@activityRefno", actItemRefno));
+                cmndItemFinished.Parameters.Add(new SQLiteParameter("@activityItemRefno", actItemRefno));
 
                 using (SQLiteDataReader drItemFinished = cmndItemFinished.ExecuteReader())
                 {
@@ -245,10 +245,10 @@ namespace dMobile.GroundWork
         {
             string errMsg = string.Empty;
             SQLiteConnection conn = DatabaseConnection.GetInstance().SQLConn;
+            SQLiteCommand cmndExtra = conn.CreateCommand();
 
             using (SQLiteCommand cmndDetailFinished = conn.CreateCommand())
             using (SQLiteCommand cmndDetail = conn.CreateCommand())
-            using (SQLiteCommand cmndExtra = conn.CreateCommand())
             using (SQLiteCommand cmndItemProduction = conn.CreateCommand())
             using (SQLiteCommand cmndLocMapSlot = conn.CreateCommand())
             using (SQLiteCommand cmndLocMapSect = conn.CreateCommand())
@@ -786,63 +786,7 @@ namespace dMobile.GroundWork
                                         }
                                     }
 
-                                    //this.SaveDetailExtra(drow, ref recExtra, actDetailRefno, false);
-
-                                    cmndExtra.CommandText = "INSERT INTO tActivityDetailExtra (" +
-                                        "ActivityDetailRefno, " +
-                                        "ActivityDetailSubType, " +
-                                        "ActivityDetailExtra1Text, " +
-                                        "ActivityDetailExtra2Text, " +
-                                        "ActivityDetailExtra3Text, " +
-                                        "ActivityDetailExtra4Text, " +
-                                        "ActivityDetailExtra5Date" +
-                                        ") VALUES (" +
-                                        "@activityDetailRefno, " +
-                                        "@activityDetailSubType, " +
-                                        "@activityDetailExtra1Text, " +
-                                        "@activityDetailExtra2Text, " +
-                                        "@activityDetailExtra3Text, " +
-                                        "@activityDetailExtra4Text, " +
-                                        "@activityDetailExtra5Date" +
-                                        ")";
-                                    cmndExtra.CommandType = CommandType.Text;
-                                    //cmndExtra.IndexName = "PK_ActivityDetailExtraOnActivityDetailRefno";
-                                    cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailRefno", actDetailRefno));
-                                    cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailSubType", Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts)));
-
-                                    //recExtra.SetInt32((int)SysCommon.ActDetailExtraFields.ActDetailRefno, actDetailRefno);
-                                    //recExtra.SetInt32((int)SysCommon.ActDetailExtraFields.ActDetailSubType, (int)SysCommon.ActSubTypes.CycleCounts);
-
-                                    if (useFNo)
-                                    {
-                                        cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra1Text", drow["f19"].ToString()));
-                                        cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra2Text", drow["f20"].ToString()));
-                                        cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra3Text", drow["f21"].ToString()));
-                                        cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra4Text", drow["f22"].ToString()));
-                                        cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra5Date", drow["f23"].ToString()));
-
-                                        //recExtra.SetString((int)SysCommon.ActDetailExtraFields.Text1, drow["f19"].ToString());
-                                        //recExtra.SetString((int)SysCommon.ActDetailExtraFields.Text2, drow["f20"].ToString());
-                                        //recExtra.SetString((int)SysCommon.ActDetailExtraFields.Text3, drow["f21"].ToString());
-                                        //recExtra.SetString((int)SysCommon.ActDetailExtraFields.Text4, drow["f22"].ToString());
-                                        //recExtra.SetString((int)SysCommon.ActDetailExtraFields.Text5, drow["f23"].ToString());
-                                    }
-                                    else
-                                    {
-                                        cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra1Text", drow["ActivityDetailExtra1"].ToString()));
-                                        cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra2Text", drow["ActivityDetailExtra2"].ToString()));
-                                        cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra3Text", drow["ActivityDetailExtra3"].ToString()));
-                                        cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra4Text", drow["ActivityDetailExtra4"].ToString()));
-                                        cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra5Date", drow["ActivityDetailExtra5"].ToString()));
-
-                                        //recExtra.SetString((int)SysCommon.ActDetailExtraFields.Text1, drow["ActivityDetailExtra1"].ToString());
-                                        //recExtra.SetString((int)SysCommon.ActDetailExtraFields.Text2, drow["ActivityDetailExtra2"].ToString());
-                                        //recExtra.SetString((int)SysCommon.ActDetailExtraFields.Text3, drow["ActivityDetailExtra3"].ToString());
-                                        //recExtra.SetString((int)SysCommon.ActDetailExtraFields.Text4, drow["ActivityDetailExtra4"].ToString());
-                                        //recExtra.SetString((int)SysCommon.ActDetailExtraFields.Text5, drow["ActivityDetailExtra5"].ToString());
-                                    }
-
-                                    cmndExtra.ExecuteNonQuery();
+                                    this.SaveDetailExtra(drow, ref cmndExtra, actDetailRefno, false);
                                     //rsExtra.Insert(recExtra);
 
                                     progValue++;
@@ -909,6 +853,10 @@ namespace dMobile.GroundWork
 
                     // TODO: Resource strings
                     throw new Exception("Database exception occurred. Saving finished ticket details failed." + Environment.NewLine + errMsg, ex);
+                }
+                finally
+                {
+                    cmndExtra.Dispose();
                 }
             }
         }
