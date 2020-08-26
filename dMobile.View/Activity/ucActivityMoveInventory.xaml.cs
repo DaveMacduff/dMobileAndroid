@@ -1116,6 +1116,7 @@ namespace dMobile.View.Activity
 
                 if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
                 {
+                    await form.SaveChanges(sender, e);
                     XDocument xmlDoc = form.DisplayControlData;
                     prodUnitRefno = Convert.ToInt32(xmlDoc.Root.Element("ProductUnitRefno").Value);
 
@@ -1177,6 +1178,8 @@ namespace dMobile.View.Activity
             finally
             {
                 this.ScannerEnable();
+                this.DataGridMainActivityItemsList = this.ActDetail.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
+                this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
             }
         }
 

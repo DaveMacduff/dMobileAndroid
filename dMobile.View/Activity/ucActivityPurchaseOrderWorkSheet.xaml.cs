@@ -821,7 +821,7 @@
                 //ActItem.DesignDataGrid(dataGridMainActivity);
 
                 ActItem.DataViewItems = ActItem.GetDataView(false);
-                await this.DesignGrid();
+                this.DataGridMainActivityItemsList = this.ActItem.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
                 //dataGridMainActivity.ItemsSource = ActItem.DataViewItems;
                 dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
 
@@ -1269,103 +1269,6 @@
         {
             //dataGridMainActivity.Select(dataGridMainActivity.CurrentRowIndex);
             ActItem.SelectItem(e.SelectedItemIndex);
-        }
-
-        private async Task DesignGrid()
-        {
-            await Device.InvokeOnMainThreadAsync(() =>
-            {
-                // Header grid
-                Grid gridHeaderPOWorksheet = new Grid
-                {
-                    Padding = new Thickness(5, 5, 5, 5),
-                    ColumnDefinitions =
-                {
-                    new ColumnDefinition { Width = GridLength.Star },
-                    new ColumnDefinition { Width = GridLength.Star },
-                    new ColumnDefinition { Width = GridLength.Star }
-                }
-                };
-
-                gridHeaderPOWorksheet.SetDynamicResource(BackgroundColorProperty, "HeaderColor");
-
-                Label labelProductID = new Label { Text = "Product ID", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
-                Label labelOrdered = new Label { Text = "Ordered", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
-                Label labelWeight = new Label { Text = "Weight", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
-
-                gridHeaderPOWorksheet.Children.Add(labelProductID);
-                gridHeaderPOWorksheet.Children.Add(labelOrdered);
-                gridHeaderPOWorksheet.Children.Add(labelWeight);
-
-                Grid.SetColumn(labelProductID, 0);
-                Grid.SetColumn(labelOrdered, 1);
-                Grid.SetColumn(labelWeight, 2);
-
-                Grid.SetRow(gridHeaderPOWorksheet, 0);
-
-                this.dataGridMainActivityHeader.Children.Add(gridHeaderPOWorksheet);
-
-                // Data grid
-                DataTemplate dataTemplateReceiving = new DataTemplate(() =>
-                {
-                    Grid gridData = new Grid
-                    {
-                        Padding = new Thickness(5, 5, 5, 5),
-                        ColumnDefinitions =
-                        {
-                        new ColumnDefinition { Width = GridLength.Star },
-                        new ColumnDefinition { Width = GridLength.Star },
-                        new ColumnDefinition { Width = GridLength.Star }
-                        }
-                    };
-
-                    Label labelActivityPOProductID = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-                    Label labelActivityPOOrdered = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-                    Label labelActivityPOWeight = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-
-                    labelActivityPOProductID.SetBinding(Label.TextProperty, new Binding("ProductCode"));
-                    labelActivityPOOrdered.SetBinding(Label.TextProperty, new Binding("ActivityItemPurchaseOrderWorkSheetQuantityOrdered"));
-                    labelActivityPOWeight.SetBinding(Label.TextProperty, new Binding("ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered"));
-
-                    gridData.Children.Add(labelActivityPOProductID);
-                    gridData.Children.Add(labelActivityPOOrdered);
-                    gridData.Children.Add(labelActivityPOWeight);
-
-                    Grid.SetColumn(labelActivityPOProductID, 0);
-                    Grid.SetColumn(labelActivityPOOrdered, 1);
-                    Grid.SetColumn(labelActivityPOWeight, 2);
-
-                    return new ViewCell { View = gridData };
-                });
-
-                this.dataGridMainActivity.ItemTemplate = dataTemplateReceiving;
-                this.DataGridMainActivityItemsList.Clear();
-
-                foreach (DataRow row in this.ActItem.DataViewItems.ToTable().Rows)
-                {
-                    PurchaseOrderWorkSheetItem purchaseOrderWorkSheetItem = new PurchaseOrderWorkSheetItem
-                    {
-                        ActivityItemRefno = Convert.ToInt32(row["ActivityItemRefno"] != DBNull.Value ? row["ActivityItemRefno"] : null),
-                        ActivityItemPurchaseOrderWorkSheetFKRefno = Convert.ToInt32(row["ActivityItemPurchaseOrderWorkSheetFKRefno"] != DBNull.Value ? row["ActivityItemPurchaseOrderWorkSheetFKRefno"] : null),
-                        ActivityItemPurchaseOrderWorkSheetStringFKRefno = Convert.ToString(row["ActivityItemPurchaseOrderWorkSheetStringFKRefno"] != DBNull.Value ? row["ActivityItemPurchaseOrderWorkSheetStringFKRefno"] : null),
-                        ProductUnitRefno = Convert.ToInt32(row["ProductUnitRefno"] != DBNull.Value ? row["ProductUnitRefno"] : null),
-                        ProductRefno = Convert.ToInt32(row["ProductRefno"] != DBNull.Value ? row["ProductRefno"] : null),
-                        ProductCode = Convert.ToString(row["ProductCode"] != DBNull.Value ? row["ProductCode"] : null),
-                        ProductDescription = Convert.ToString(row["ProductDescription"] != DBNull.Value ? row["ProductDescription"] : null),
-                        UnitCode = Convert.ToString(row["UnitCode"] != DBNull.Value ? row["UnitCode"] : null),
-                        ProductUnitSizeDescription = Convert.ToString(row["ProductUnitSizeDescription"] != DBNull.Value ? row["ProductUnitSizeDescription"] : null),
-                        ActivityItemPurchaseOrderWorkSheetQuantityOrdered = Convert.ToDecimal(row["ActivityItemPurchaseOrderWorkSheetQuantityOrdered"] != DBNull.Value ? row["ActivityItemPurchaseOrderWorkSheetQuantityOrdered"] : null),
-                        ActivityItemPurchaseOrderWorkSheetBaseQuantityOrdered = Convert.ToDecimal(row["ActivityItemPurchaseOrderWorkSheetBaseQuantityOrdered"] != DBNull.Value ? row["ActivityItemPurchaseOrderWorkSheetBaseQuantityOrdered"] : null),
-                        ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered = Convert.ToDecimal(row["ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered"] != DBNull.Value ? row["ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered"] : null),
-                        LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
-                        LocationCode = Convert.ToInt32(row["LocationCode"] != DBNull.Value ? row["LocationCode"] : null),
-                        LocationName = Convert.ToString(row["LocationName"] != DBNull.Value ? row["LocationName"] : null),
-                        ActivityItemStatus = Convert.ToInt32(row["ActivityItemStatus"] != DBNull.Value ? row["ActivityItemStatus"] : null),
-                    };
-
-                    this.DataGridMainActivityItemsList.Add(purchaseOrderWorkSheetItem);
-                }
-            });
         }
     }
 }

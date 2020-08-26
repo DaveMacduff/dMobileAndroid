@@ -8,6 +8,7 @@ namespace dMobile.Controller
     using System.Xml.Linq;
     using dMobile.Bedrock;
     using dMobile.GroundWork;
+    using dMobile.Resources.Services;
     using dMobile.Resources.Types;
     using Xamarin.Forms;
 
@@ -51,49 +52,96 @@ namespace dMobile.Controller
 
         public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity)
         {
-            // TODO: Calculate column widths
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
-            Grid gridHeaderReturns = new Grid
+            foreach (DataRow row in this.DataViewHdrs.ToTable().Rows)
             {
-                Padding = new Thickness(5, 5, 5, 5),
-                ColumnDefinitions =
+                Return returns = new Return
                 {
-                    new ColumnDefinition { Width = GridLength.Star },
-                    new ColumnDefinition { Width = GridLength.Star },
-                    new ColumnDefinition { Width = GridLength.Star },
-                }
-            };
+                    ActivityReturnsFKRefno = Convert.ToInt32(row["ActivityReturnsFKRefno"] != DBNull.Value ? row["ActivityReturnsFKRefno"] : null),
+                    ActivityReturnsStringFKRefno = Convert.ToString(row["ActivityReturnsStringFKRefno"] != DBNull.Value ? row["ActivityReturnsStringFKRefno"] : null),
+                    ActivityReturnsOrderedDateTime = Convert.ToDateTime(row["ActivityReturnsOrderedDateTime"] != DBNull.Value ? row["ActivityReturnsOrderedDateTime"] : null),
+                    ActivityReturnsDeliveryDateTime = Convert.ToDateTime(row["ActivityReturnsDeliveryDateTime"] != DBNull.Value ? row["ActivityReturnsDeliveryDateTime"] : null),
+                    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
+                    LocationMapWarehouseFKRefno = Convert.ToInt32(row["LocationMapWarehouseFKRefno"] != DBNull.Value ? row["LocationMapWarehouseFKRefno"] : null),
+                    LocationMapWarehouseName = Convert.ToString(row["LocationMapWarehouseName"] != DBNull.Value ? row["LocationMapWarehouseName"] : null),
+                    ActivityReturnsCustomerContactName = Convert.ToString(row["ActivityReturnsCustomerContactName"] != DBNull.Value ? row["ActivityReturnsCustomerContactName"] : null),
+                    ActivityReturnsCustomerShipToInfo = Convert.ToString(row["ActivityReturnsCustomerShipToInfo"] != DBNull.Value ? row["ActivityReturnsCustomerShipToInfo"] : null),
+                    ActivityStatus = Convert.ToInt32(row["ActivityStatus"] != DBNull.Value ? row["ActivityStatus"] : null),
+                };
 
-            gridHeaderReturns.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
-
+                observableCollection.Add(returns);
+            }
+            
             Label labelReturnNumber = new Label { Text = "Return #", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             Label labelReturnEntered = new Label { Text = "Entered", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             Label labelReturnReturned = new Label { Text = "Returned", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            
+            double columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelReturnNumber.Text);
+            double columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelReturnEntered.Text);
+            double columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelReturnReturned.Text);
 
-            gridHeaderReturns.Children.Add(labelReturnNumber);
-            gridHeaderReturns.Children.Add(labelReturnEntered);
-            gridHeaderReturns.Children.Add(labelReturnReturned);
+            Grid gridHeader = new Grid
+            {
+                Padding = new Thickness(5),
+                ColumnDefinitions =
+                {
+                    new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) }
+                }
+            };
+
+            gridHeader.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
+
+            gridHeader.Children.Add(labelReturnNumber);
+            gridHeader.Children.Add(labelReturnEntered);
+            gridHeader.Children.Add(labelReturnReturned);
 
             Grid.SetColumn(labelReturnNumber, 0);
             Grid.SetColumn(labelReturnEntered, 1);
             Grid.SetColumn(labelReturnReturned, 2);
 
-            Grid.SetRow(gridHeaderReturns, 0);
+            Grid.SetRow(gridHeader, 0);
 
-            dataGridMainActivityHeader.Children.Add(gridHeaderReturns);
+            dataGridMainActivityHeader.Children.Add(gridHeader);
+            
+            foreach (Return returns in observableCollection)
+            {
+                double detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(returns.ActivityReturnsStringFKRefno);
+                double detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(returns.ActivityReturnsOrderedDateTime.ToString("MM/dd/yyyy"));
+                double detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(returns.ActivityReturnsDeliveryDateTime.ToString("MM/dd/yyyy"));
+
+                if (detailWidth0 > columnWidth0)
+                {
+                    columnWidth0 = detailWidth0;
+                    gridHeader.ColumnDefinitions[0].Width = columnWidth0;
+                }
+
+                if (detailWidth1 > columnWidth1)
+                {
+                    columnWidth1 = detailWidth1;
+                    gridHeader.ColumnDefinitions[1].Width = columnWidth1;
+                }
+
+                if (detailWidth2 > columnWidth2)
+                {
+                    columnWidth2 = detailWidth2;
+                    gridHeader.ColumnDefinitions[2].Width = columnWidth2;
+                }
+            }
 
             // Data grid
             DataTemplate dataTemplateReturns = new DataTemplate(() =>
             {
                 Grid gridData = new Grid
                 {
-                    Padding = new Thickness(5, 5, 5, 5),
+                    Padding = new Thickness(5),
                     ColumnDefinitions =
                     {
-                        new ColumnDefinition { Width = GridLength.Star },
-                        new ColumnDefinition { Width = GridLength.Star },
-                        new ColumnDefinition { Width = GridLength.Star },
+                        new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) }
                     }
                 };
 
@@ -117,26 +165,6 @@ namespace dMobile.Controller
             });
 
             dataGridMainActivity.ItemTemplate = dataTemplateReturns;
-            observableCollection.Clear();
-
-            foreach (DataRow row in this.DataViewHdrs.ToTable().Rows)
-            {
-                Return returns = new Return
-                {
-                    ActivityReturnsFKRefno = Convert.ToInt32(row["ActivityReturnsFKRefno"] != DBNull.Value ? row["ActivityReturnsFKRefno"] : null),
-                    ActivityReturnsStringFKRefno = Convert.ToString(row["ActivityReturnsStringFKRefno"] != DBNull.Value ? row["ActivityReturnsStringFKRefno"] : null),
-                    ActivityReturnsOrderedDateTime = Convert.ToDateTime(row["ActivityReturnsOrderedDateTime"] != DBNull.Value ? row["ActivityReturnsOrderedDateTime"] : null),
-                    ActivityReturnsDeliveryDateTime = Convert.ToDateTime(row["ActivityReturnsDeliveryDateTime"] != DBNull.Value ? row["ActivityReturnsDeliveryDateTime"] : null),
-                    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
-                    LocationMapWarehouseFKRefno = Convert.ToInt32(row["LocationMapWarehouseFKRefno"] != DBNull.Value ? row["LocationMapWarehouseFKRefno"] : null),
-                    LocationMapWarehouseName = Convert.ToString(row["LocationMapWarehouseName"] != DBNull.Value ? row["LocationMapWarehouseName"] : null),
-                    ActivityReturnsCustomerContactName = Convert.ToString(row["ActivityReturnsCustomerContactName"] != DBNull.Value ? row["ActivityReturnsCustomerContactName"] : null),
-                    ActivityReturnsCustomerShipToInfo = Convert.ToString(row["ActivityReturnsCustomerShipToInfo"] != DBNull.Value ? row["ActivityReturnsCustomerShipToInfo"] : null),
-                    ActivityStatus = Convert.ToInt32(row["ActivityStatus"] != DBNull.Value ? row["ActivityStatus"] : null),
-                };
-
-                observableCollection.Add(returns);
-            }
 
             return observableCollection;
         }

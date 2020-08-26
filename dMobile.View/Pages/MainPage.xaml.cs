@@ -26,11 +26,12 @@
         /// <param name="e">The e<see cref="SelectedItemChangedEventArgs"/></param>
         private void OnItemSelected(object sender, SelectedItemChangedEventArgs e)
         {
+            // TODO: This will have to be updated if more options are added
             if (e.SelectedItem is MasterPageItem item)
             {
-                Detail = new NavigationPage((Page)Activator.CreateInstance(item.TargetType));
                 masterPage.listView.SelectedItem = null;
                 IsPresented = false;
+                Application.Current.MainPage = new NavigationPage(new ucLoginStartup());
             }
         }
     }

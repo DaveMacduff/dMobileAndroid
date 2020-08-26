@@ -2,7 +2,6 @@
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:dMobile.View"
-             xmlns:testPage="clr-namespace:dMobile.View.Test_Pages"
              x:Class="dMobile.View.MasterPage"
              Padding="0,40,0,0"
              Title="MasterPage">
@@ -10,10 +9,7 @@
         <ListView x:Name="listView" x:FieldModifier="public">
             <ListView.ItemsSource>
                 <x:Array Type="{x:Type local:MasterPageItem}">
-                    <local:MasterPageItem Title="Login" TargetType="{x:Type local:ucLoginStartup} "/>
-                    <local:MasterPageItem Title="Database Requests" TargetType="{x:Type testPage:DatabaseRequestPage} "/>
-                    <local:MasterPageItem Title="Modals" TargetType="{x:Type local:TestPage} "/>
-                    <local:MasterPageItem Title="Barcode Scanner" TargetType="{x:Type local:BarcodeScannerSample} "/>
+                    <local:MasterPageItem Title="Logout" x:Name="btnLogout"/>
                 </x:Array>
             </ListView.ItemsSource>
             <ListView.ItemTemplate>
@@ -24,7 +20,7 @@
                                 <ColumnDefinition Width="30"/>
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
-                            <Label Grid.Column="1" Text="{Binding Title}" />
+                            <Label Grid.Column="1" Text="{Binding Title}"/>
                         </Grid>
                     </ViewCell>
                 </DataTemplate>

@@ -183,7 +183,6 @@ namespace dMobile.Controller
             // TODO: search needs to handle non alphanumeric characters such as '[' which blows chunks
             this.DataViewHdrs.RowFilter = "ProductUnitBarCodeCode LIKE \'%" + searchText.Trim() + "%\'";
 
-            // TODO: search
             //foreach (DataRow row in this.DataViewHdrs.ToTable().Rows)
             //{
             //    ObjectType objectType = new ObjectType
@@ -198,7 +197,6 @@ namespace dMobile.Controller
                 
         public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity)
         {
-            // TODO: DesignGrid
             throw new NotImplementedException();
         }
 

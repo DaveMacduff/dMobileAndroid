@@ -89,6 +89,8 @@ namespace dMobile.View.Activity
         {
             base.OnAppearing();
 
+            this.lstSkidStats.ItemsSource = this.ItemsList;
+
             MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
             {
                 // TODO: Verify keycodes
@@ -582,7 +584,7 @@ namespace dMobile.View.Activity
         public string GetControlDescription()
         {
             // TODO: Resource strings
-            return "dMobile Activity Skid Info";
+            return "Skid Info";
         }
 
         /// <summary>

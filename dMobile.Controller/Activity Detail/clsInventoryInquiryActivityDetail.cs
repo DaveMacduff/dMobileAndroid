@@ -184,7 +184,6 @@ namespace dMobile.Controller
         }
         public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity)
         {
-            // TODO: Check this grid in current dMobile
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
             foreach (DataRow row in this.DataViewDetails.ToTable().Rows)

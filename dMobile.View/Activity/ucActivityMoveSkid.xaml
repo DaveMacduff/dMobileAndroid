@@ -22,7 +22,7 @@
                     <Label x:Name="lblSkidCode" Grid.Row="0" Grid.Column="0" FontAttributes="Bold" VerticalOptions="Center"/>
                     <Entry x:Name="txtSkidCode" Grid.Row="0" Grid.Column="1" Completed="txtSkidCode_Completed"/>
 
-                    <Label x:Name="lblProductBCUnit" Grid.Row="1" Grid.Column="0" FontAttributes="Bold" VerticalOptions="Center"/>
+                    <Label x:Name="lblProductBCUnit" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" FontAttributes="Bold" VerticalOptions="Center"/>
 
                 </Grid>
 

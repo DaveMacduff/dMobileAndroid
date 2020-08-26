@@ -8,6 +8,7 @@ namespace dMobile.Controller
     using System.Xml.Linq;
     using dMobile.Bedrock;
     using dMobile.GroundWork;
+    using dMobile.Resources.Services;
     using dMobile.Resources.Types;
     using Xamarin.Forms;
 
@@ -74,27 +75,50 @@ namespace dMobile.Controller
         {
             // TODO: Calculate Column Widths
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+            
+            foreach (DataRow row in this.DataViewHdrs.ToTable().Rows)
+            {
+                Transfer transfer = new Transfer
+                {
+                    ActivityRefno = Convert.ToInt32(row["ActivityRefno"] != DBNull.Value ? row["ActivityRefno"] : null),
+                    ActivityStatus = Convert.ToInt32(row["ActivityStatus"] != DBNull.Value ? row["ActivityStatus"] : null),
+                    ActivityTransferArrivalDateTime = Convert.ToDateTime(row["ActivityTransferArrivalDateTime"] != DBNull.Value ? row["ActivityTransferArrivalDateTime"] : null),
+                    ActivityTransferDateTime = Convert.ToDateTime(row["ActivityTransferDateTime"] != DBNull.Value ? row["ActivityTransferDateTime"] : null),
+                    ActivityTransferDescription = Convert.ToString(row["ActivityTransferDescription"] != DBNull.Value ? row["ActivityTransferDescription"] : null),
+                    ActivityTransferFKRefno = Convert.ToInt32(row["ActivityTransferFKRefno"] != DBNull.Value ? row["ActivityTransferFKRefno"] : null),
+                    ActivityTransferStringFKRefno = Convert.ToString(row["ActivityTransferStringFKRefno"] != DBNull.Value ? row["ActivityTransferStringFKRefno"] : null),
+                    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
+                    LocationMapWarehouseFKRefno = Convert.ToInt32(row["LocationMapWarehouseFKRefno"] != DBNull.Value ? row["LocationMapWarehouseFKRefno"] : null),
+                    LocationMapWarehouseName = Convert.ToString(row["LocationMapWarehouseName"] != DBNull.Value ? row["LocationMapWarehouseName"] : null)
+                };
+
+                observableCollection.Add(transfer);
+            }
+            
+            Label labelTransferNumberHeader = new Label { Text = "Transfer #", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            Label labelWhsHeader = new Label { Text = "Whs", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            Label labelDateHeader = new Label { Text = "Date", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            Label labelArrivedHeader = new Label { Text = "Arrived", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            
+            double columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelTransferNumberHeader.Text);
+            double columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelWhsHeader.Text);
+            double columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelDateHeader.Text);
+            double columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelArrivedHeader.Text);
 
             // Create header data template
             Grid gridHeader = new Grid
             {
                 Padding = new Thickness(5),
-                ColumnSpacing = 15,
                 ColumnDefinitions =
                 {
-                    new ColumnDefinition { Width = new GridLength(25, GridUnitType.Star) },
-                    new ColumnDefinition { Width = new GridLength(15, GridUnitType.Star) },
-                    new ColumnDefinition { Width = new GridLength(30, GridUnitType.Star) },
-                    new ColumnDefinition { Width = new GridLength(30, GridUnitType.Star) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth3, GridUnitType.Absolute) }
                 }
             };
 
             gridHeader.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
-
-            Label labelTransferNumberHeader = new Label { Text = "Transfer #", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelWhsHeader = new Label { Text = "Whs", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelDateHeader = new Label { Text = "Date", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelArrivedHeader = new Label { Text = "Arrived", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
 
             gridHeader.Children.Add(labelTransferNumberHeader);
             gridHeader.Children.Add(labelWhsHeader);
@@ -109,6 +133,38 @@ namespace dMobile.Controller
             Grid.SetRow(gridHeader, 0);
 
             dataGridMainActivityHeader.Children.Add(gridHeader);
+            
+            foreach (Transfer transfer in observableCollection)
+            {
+                double detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(transfer.ActivityTransferStringFKRefno);
+                double detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(transfer.LocationMapWarehouseFKRefno));
+                double detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(transfer.ActivityTransferDateTime.ToString("MM/dd/yyyy"));
+                double detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(transfer.ActivityTransferArrivalDateTime.ToString("MM/dd/yyyy"));
+
+                if (detailWidth0 > columnWidth0)
+                {
+                    columnWidth0 = detailWidth0;
+                    gridHeader.ColumnDefinitions[0].Width = columnWidth0;
+                }
+
+                if (detailWidth1 > columnWidth1)
+                {
+                    columnWidth1 = detailWidth1;
+                    gridHeader.ColumnDefinitions[1].Width = columnWidth1;
+                }
+
+                if (detailWidth2 > columnWidth2)
+                {
+                    columnWidth2 = detailWidth2;
+                    gridHeader.ColumnDefinitions[2].Width = columnWidth2;
+                }
+
+                if (detailWidth3 > columnWidth3)
+                {
+                    columnWidth3 = detailWidth3;
+                    gridHeader.ColumnDefinitions[3].Width = columnWidth3;
+                }
+            }
 
             // Data grid
             DataTemplate dataTemplate = new DataTemplate(() =>
@@ -116,13 +172,12 @@ namespace dMobile.Controller
                 Grid gridData = new Grid
                 {
                     Padding = new Thickness(5),
-                    ColumnSpacing = 15,
                     ColumnDefinitions =
                     {
-                        new ColumnDefinition { Width = new GridLength(25, GridUnitType.Star) },
-                        new ColumnDefinition { Width = new GridLength(15, GridUnitType.Star) },
-                        new ColumnDefinition { Width = new GridLength(30, GridUnitType.Star) },
-                        new ColumnDefinition { Width = new GridLength(30, GridUnitType.Star) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth3, GridUnitType.Absolute) }
                     }
                 };
 
@@ -150,26 +205,6 @@ namespace dMobile.Controller
             });
 
             dataGridMainActivity.ItemTemplate = dataTemplate;
-            observableCollection.Clear();
-
-            foreach (DataRow row in this.DataViewHdrs.ToTable().Rows)
-            {
-                Transfer transfer = new Transfer
-                {
-                    ActivityRefno = Convert.ToInt32(row["ActivityRefno"] != DBNull.Value ? row["ActivityRefno"] : null),
-                    ActivityStatus = Convert.ToInt32(row["ActivityStatus"] != DBNull.Value ? row["ActivityStatus"] : null),
-                    ActivityTransferArrivalDateTime = Convert.ToDateTime(row["ActivityTransferArrivalDateTime"] != DBNull.Value ? row["ActivityTransferArrivalDateTime"] : null),
-                    ActivityTransferDateTime = Convert.ToDateTime(row["ActivityTransferDateTime"] != DBNull.Value ? row["ActivityTransferDateTime"] : null),
-                    ActivityTransferDescription = Convert.ToString(row["ActivityTransferDescription"] != DBNull.Value ? row["ActivityTransferDescription"] : null),
-                    ActivityTransferFKRefno = Convert.ToInt32(row["ActivityTransferFKRefno"] != DBNull.Value ? row["ActivityTransferFKRefno"] : null),
-                    ActivityTransferStringFKRefno = Convert.ToString(row["ActivityTransferStringFKRefno"] != DBNull.Value ? row["ActivityTransferStringFKRefno"] : null),
-                    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
-                    LocationMapWarehouseFKRefno = Convert.ToInt32(row["LocationMapWarehouseFKRefno"] != DBNull.Value ? row["LocationMapWarehouseFKRefno"] : null),
-                    LocationMapWarehouseName = Convert.ToString(row["LocationMapWarehouseName"] != DBNull.Value ? row["LocationMapWarehouseName"] : null)
-                };
-
-                observableCollection.Add(transfer);
-            }
 
             return observableCollection;
         }

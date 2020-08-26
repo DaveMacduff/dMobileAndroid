@@ -1683,18 +1683,21 @@ namespace dMobile.View.Activity
                 actItem.ProdInfo.Unit2BaseUnitFactor = ProductInfoTasks.GetUnitRelationFactor(actItem.ProdInfo);
 
                 FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucActivityDetailSkid, actItem, SysCommon.ActSubTypes.SkidInfo);
-                await form.DisplayControl.ShowDialog();
-                await form.SaveChanges(sender, e);
-                XDocument xmlDoc = form.DisplayControlData;
 
-                if (this.SkidInfo.CurrSkid.IsConsumed)
+                if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
                 {
-                    this.SkidInfo = new SysSkidInfo();
-                    this.ProdUnitRefno = 0;
-                    this.LocMap.CurrLocMap = this.SavedLocMap;
-                    this.IsNewSkid = true;
-                }
+                    await form.SaveChanges(sender, e);
+                    XDocument xmlDoc = form.DisplayControlData;
 
+                    if (this.SkidInfo.CurrSkid.IsConsumed)
+                    {
+                        this.SkidInfo = new SysSkidInfo();
+                        this.ProdUnitRefno = 0;
+                        this.LocMap.CurrLocMap = this.SavedLocMap;
+                        this.IsNewSkid = true;
+                    }
+                }
+         
                 this.ScannerEnable();
                 this.DisplayData();
             }
@@ -1992,7 +1995,9 @@ namespace dMobile.View.Activity
 
                 if (sender == this.txtCube)
                 {
-                    if (true == (decimal.Parse(this.txtCube.Text) < 0))
+                    bool isDecimal = decimal.TryParse(this.txtCube.Text, out decimal result);
+
+                    if (isDecimal && result < 0)
                     {
                         e.Cancel = true;
 

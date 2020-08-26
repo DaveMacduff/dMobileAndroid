@@ -163,6 +163,7 @@ namespace dMobile.GroundWork
             using (SQLiteCommand cmndLocMapWhs = conn.CreateCommand())
             using (SQLiteCommand cmndActivity = conn.CreateCommand())
             using (SQLiteCommand cmndID = conn.CreateCommand())
+            using (SQLiteCommand cmndIDItem = conn.CreateCommand())
             using (SQLiteTransaction transaction = conn.BeginTransaction())
             {
                 try
@@ -245,6 +246,9 @@ namespace dMobile.GroundWork
                             cmndID.CommandText = "SELECT last_insert_rowid() FROM tActivity";
                             cmndID.CommandType = CommandType.Text;
 
+                            cmndIDItem.CommandText = "SELECT last_insert_rowid() FROM tActivityItem";
+                            cmndIDItem.CommandType = CommandType.Text;
+
                             //using (SqlCeResultSet rs = cmndWorkSheetItem.ExecuteResultSet(ResultSetOptions.Updatable))
                             //{
                             //SqlCeUpdatableRecord rec = rs.CreateRecord();
@@ -277,7 +281,7 @@ namespace dMobile.GroundWork
                                 cmndItem.CommandType = CommandType.Text;
                                 cmndItem.Parameters.Add(new SQLiteParameter("@activityItemSubType", Convert.ToInt32(SysCommon.ActSubTypes.PurchaseOrderWorkSheet)));
                                 cmndItem.Parameters.Add(new SQLiteParameter("@activityItemStatus", Convert.ToInt32(0)));
-                                cmndItem.Parameters.Add(new SQLiteParameter("@activityRefno", actRefno));
+                                cmndItem.Parameters.Add(new SQLiteParameter("@activityRefno", Convert.ToInt32(actRefno)));
 
                                 cmndItem.ExecuteNonQuery();
 
@@ -285,6 +289,8 @@ namespace dMobile.GroundWork
                                 //recItem.SetInt32((int)SysCommon.ActItemFields.Status, 0);
                                 //recItem.SetInt32((int)SysCommon.ActItemFields.ActRefno, actRefno);
                                 //rsItem.Insert(recItem);
+
+                                actItemRefno = Convert.ToInt32(cmndIDItem.ExecuteScalar());
 
                                 prodUnitRefno = this.GetProductUnitRefnoFromDataRow(drow, ref conn, ref errMsg, false);
                                 whsLocMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, ref errMsg, cmndLocMapWhs);
@@ -314,12 +320,12 @@ namespace dMobile.GroundWork
                                     ")";
                                 cmndWorkSheetItem.CommandType = CommandType.Text;
                                 //cmndWorkSheetItem.IndexName = "UQ_ActivityItemPurchaseOrderWorkSheetOnActivityItemPurchaseOrderWorkSheetFKRefno";
-                                cmndWorkSheetItem.Parameters.Add(new SQLiteParameter("@activityItemRefno", actItemRefno));
+                                cmndWorkSheetItem.Parameters.Add(new SQLiteParameter("@activityItemRefno", Convert.ToInt32(actItemRefno)));
                                 cmndWorkSheetItem.Parameters.Add(new SQLiteParameter("@activityItemSubType", Convert.ToInt32(SysCommon.ActSubTypes.PurchaseOrderWorkSheet)));
-                                cmndWorkSheetItem.Parameters.Add(new SQLiteParameter("@activityItemPurchaseOrderWorkSheetFKRefno", actItemWorkSheetFKRefno));
-                                cmndWorkSheetItem.Parameters.Add(new SQLiteParameter("@activityItemPurchaseOrderWorkSheetStringFKRefno", actItemWorkSheetFKRefno.ToString()));
-                                cmndWorkSheetItem.Parameters.Add(new SQLiteParameter("@productUnitRefno", prodUnitRefno));
-                                cmndWorkSheetItem.Parameters.Add(new SQLiteParameter("@warehouseLocationMapRefno", whsLocMapRefno));
+                                cmndWorkSheetItem.Parameters.Add(new SQLiteParameter("@activityItemPurchaseOrderWorkSheetFKRefno", Convert.ToInt32(actItemWorkSheetFKRefno)));
+                                cmndWorkSheetItem.Parameters.Add(new SQLiteParameter("@activityItemPurchaseOrderWorkSheetStringFKRefno", Convert.ToString(actItemWorkSheetFKRefno)));
+                                cmndWorkSheetItem.Parameters.Add(new SQLiteParameter("@productUnitRefno", Convert.ToInt32(prodUnitRefno)));
+                                cmndWorkSheetItem.Parameters.Add(new SQLiteParameter("@warehouseLocationMapRefno", Convert.ToInt32(whsLocMapRefno)));
                                 cmndWorkSheetItem.Parameters.Add(new SQLiteParameter("@activityItemPurchaseOrderWorkSheetQuantityOrdered", Convert.ToDecimal(drow["ActivityItemPurchaseOrderWorkSheetQuantityOrdered"])));
                                 cmndWorkSheetItem.Parameters.Add(new SQLiteParameter("@activityItemPurchaseOrderWorkSheetBaseQuantityOrdered", Convert.ToDecimal(drow["ActivityItemPurchaseOrderWorkSheetBaseQuantityOrdered"])));
                                 cmndWorkSheetItem.Parameters.Add(new SQLiteParameter("@activityItemPurchaseOrderWorkSheetWeightQuantityOrdered", Convert.ToDecimal(drow["ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered"])));

@@ -5,6 +5,7 @@ namespace dMobile.Controller
     using System.Data;
     using System.Xml.Linq;
     using dMobile.Bedrock;
+    using dMobile.Resources.Services;
     using dMobile.Resources.Types;
     using Xamarin.Forms;
 
@@ -171,76 +172,7 @@ namespace dMobile.Controller
 
         public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity)
         {
-            // TODO: calculate grid column width
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
-
-            // Header grid
-            Grid gridHeader = new Grid
-            {
-                Padding = new Thickness(5),
-                ColumnSpacing = 15,
-                ColumnDefinitions =
-                {
-                    new ColumnDefinition { Width = new GridLength(20, GridUnitType.Star) },
-                    new ColumnDefinition { Width = new GridLength(40, GridUnitType.Star) },
-                    new ColumnDefinition { Width = new GridLength(40, GridUnitType.Star) }
-                }
-            };
-
-            gridHeader.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
-
-            // TODO: Resource strings
-            Label labelUnitNumberHeader = new Label { Text = "Unit #", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
-            Label labelQtyHeader = new Label { Text = "Quantity", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
-            Label labelWeightHeader = new Label { Text = "Weight", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
-
-            gridHeader.Children.Add(labelUnitNumberHeader);
-            gridHeader.Children.Add(labelQtyHeader);
-            gridHeader.Children.Add(labelWeightHeader);
-
-            Grid.SetColumn(labelUnitNumberHeader, 0);
-            Grid.SetColumn(labelQtyHeader, 1);
-            Grid.SetColumn(labelWeightHeader, 2);
-
-            Grid.SetRow(gridHeader, 0);
-
-            dataGridMainActivityHeader.Children.Add(gridHeader);
-
-            // Data grid
-            DataTemplate dataTemplate = new DataTemplate(() =>
-            {
-                Grid gridData = new Grid
-                {
-                    Padding = new Thickness(5),
-                    ColumnSpacing = 15,
-                    ColumnDefinitions =
-                    {
-                        new ColumnDefinition { Width = new GridLength(20, GridUnitType.Star) },
-                        new ColumnDefinition { Width = new GridLength(40, GridUnitType.Star) },
-                        new ColumnDefinition { Width = new GridLength(40, GridUnitType.Star) }
-                    }
-                };
-
-                Label labelUnitNumber = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-                Label labelQty = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-                Label labelWeight = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-
-                labelUnitNumber.SetBinding(Label.TextProperty, new Binding("CountNumber"));
-                labelQty.SetBinding(Label.TextProperty, new Binding("ActivityDetailQuantity", BindingMode.Default, null, null, "{0:F3}"));
-                labelWeight.SetBinding(Label.TextProperty, new Binding("ActivityDetailWeightQuantity", BindingMode.Default, null, null, "{0:F3}"));
-
-                gridData.Children.Add(labelUnitNumber);
-                gridData.Children.Add(labelQty);
-                gridData.Children.Add(labelWeight);
-
-                Grid.SetColumn(labelUnitNumber, 0);
-                Grid.SetColumn(labelQty, 1);
-                Grid.SetColumn(labelWeight, 2);
-
-                return new ViewCell { View = gridData };
-            });
-
-            dataGridMainActivity.ItemTemplate = dataTemplate;
 
             foreach (DataRow row in this.DataViewDetails.ToTable().Rows)
             {
@@ -271,6 +203,103 @@ namespace dMobile.Controller
 
                 observableCollection.Add(convertUnitDetail);
             }
+
+            // TODO: Resource strings
+            Label labelUnitNumberHeader = new Label { Text = "Unit #", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
+            Label labelQtyHeader = new Label { Text = "Quantity", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
+            Label labelWeightHeader = new Label { Text = "Weight", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
+
+            double columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelUnitNumberHeader.Text);
+            double columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelQtyHeader.Text);
+            double columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelWeightHeader.Text);
+
+            // Header grid
+            Grid gridHeader = new Grid
+            {
+                Padding = new Thickness(5),
+                ColumnSpacing = 15,
+                ColumnDefinitions =
+                {
+                    new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) }
+                }
+            };
+
+            gridHeader.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
+
+            gridHeader.Children.Add(labelUnitNumberHeader);
+            gridHeader.Children.Add(labelQtyHeader);
+            gridHeader.Children.Add(labelWeightHeader);
+
+            Grid.SetColumn(labelUnitNumberHeader, 0);
+            Grid.SetColumn(labelQtyHeader, 1);
+            Grid.SetColumn(labelWeightHeader, 2);
+
+            Grid.SetRow(gridHeader, 0);
+
+            dataGridMainActivityHeader.Children.Add(gridHeader);
+            
+            foreach (ConvertUnitDetail convertUnitDetail in observableCollection)
+            {
+                double detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(convertUnitDetail.CountNumber));
+                double detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", convertUnitDetail.ActivityDetailQuantity));
+                double detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", convertUnitDetail.ActivityDetailWeightQuantity));
+
+                if (detailWidth0 > columnWidth0)
+                {
+                    columnWidth0 = detailWidth0;
+                    gridHeader.ColumnDefinitions[0].Width = columnWidth0;
+                }
+
+                if (detailWidth1 > columnWidth1)
+                {
+                    columnWidth1 = detailWidth1;
+                    gridHeader.ColumnDefinitions[1].Width = columnWidth1;
+                }
+
+                if (detailWidth2 > columnWidth2)
+                {
+                    columnWidth2 = detailWidth2;
+                    gridHeader.ColumnDefinitions[2].Width = columnWidth2;
+                }
+            }
+
+            // Data grid
+            DataTemplate dataTemplate = new DataTemplate(() =>
+            {
+                Grid gridData = new Grid
+                {
+                    Padding = new Thickness(5),
+                    ColumnSpacing = 15,
+                    ColumnDefinitions =
+                    {
+                        new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Star) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Star) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Star) }
+                    }
+                };
+
+                Label labelUnitNumber = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                Label labelQty = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                Label labelWeight = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+
+                labelUnitNumber.SetBinding(Label.TextProperty, new Binding("CountNumber"));
+                labelQty.SetBinding(Label.TextProperty, new Binding("ActivityDetailQuantity", BindingMode.Default, null, null, "{0:F3}"));
+                labelWeight.SetBinding(Label.TextProperty, new Binding("ActivityDetailWeightQuantity", BindingMode.Default, null, null, "{0:F3}"));
+
+                gridData.Children.Add(labelUnitNumber);
+                gridData.Children.Add(labelQty);
+                gridData.Children.Add(labelWeight);
+
+                Grid.SetColumn(labelUnitNumber, 0);
+                Grid.SetColumn(labelQty, 1);
+                Grid.SetColumn(labelWeight, 2);
+
+                return new ViewCell { View = gridData };
+            });
+
+            dataGridMainActivity.ItemTemplate = dataTemplate;
 
             return observableCollection;
         }

@@ -22,7 +22,6 @@ namespace dMobile.View.Activity
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ucActivityDetailSkid : DMobileModal, IAppArea, IAppPublisher
     {
-        // TODO: TEST FORM
         #region Fields
 
         /// <summary>
@@ -61,10 +60,11 @@ namespace dMobile.View.Activity
         /// <param name="_ActivitySubTypes"></param>
         /// <remarks></remarks>
         /// TODO: Confirm callingActSubType is not required
-        public ucActivityDetailSkid(ActItem actItem, SysCommon.ActSubTypes actSubTypes /* SysCommon.ActSubTypes callingActSubType */)
+        public ucActivityDetailSkid(ActItem actItem, SysCommon.ActSubTypes actSubTypes)
         {
             this.InitializeComponent();
-      
+
+            this.Title = this.GetControlDescription();
             this.cmdAdd.Text = "Add";
 
             this.SysEnv = SysEnvironment.GetInstance();
@@ -79,10 +79,9 @@ namespace dMobile.View.Activity
             tempSchemeData.LogisticUnitSkidNumber = this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode;
             this.ActDetail.SchemeData = tempSchemeData;
 
-
-            addModeHeaderColor = Color.FromRgb(192, 255, 192);
-            removeModeHeaderColor = Color.PaleVioletRed;
-            ScannerModeAdd = true;
+            this.addModeHeaderColor = Color.FromRgb(192, 255, 192);
+            this.removeModeHeaderColor = Color.PaleVioletRed;
+            this.ScannerModeAdd = true;
         }
 
         #endregion
@@ -1040,14 +1039,15 @@ namespace dMobile.View.Activity
         {
             if (ScannerModeAdd)
             {
-                this.dataGridMainActivity.BackgroundColor = addModeHeaderColor;
+                // TODO: Grid header background color
+                //this.dataGridMainActivityHeader.BackgroundColor = addModeHeaderColor;
 
                 // TODO: Resource strings
                 this.cmdAdd.Text = "Add";
             }
             else
             {
-                this.dataGridMainActivity.BackgroundColor = removeModeHeaderColor;
+                //this.dataGridMainActivityHeader.BackgroundColor = removeModeHeaderColor;
 
                 // TODO: Resource strings
                 this.cmdAdd.Text = "Remove";

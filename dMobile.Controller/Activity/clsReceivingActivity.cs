@@ -8,6 +8,7 @@ namespace dMobile.Controller
     using System.Xml.Linq;
     using dMobile.Bedrock;
     using dMobile.GroundWork;
+    using dMobile.Resources.Services;
     using dMobile.Resources.Types;
     using Xamarin.Forms;
 
@@ -51,49 +52,89 @@ namespace dMobile.Controller
 
         public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity)
         {
-            // TODO: Calculate column widths
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
-
-            Grid gridHeaderReceiving = new Grid
+            
+            foreach (DataRow row in this.DataViewHdrs.ToTable().Rows)
             {
-                Padding = new Thickness(5, 5, 5, 5),
-                ColumnDefinitions =
+                Receive receive = new Receive
                 {
-                    new ColumnDefinition { Width = GridLength.Star },
-                    new ColumnDefinition { Width = GridLength.Star },
-                    new ColumnDefinition { Width = GridLength.Star }
-                }
-            };
+                    ActivityReceivingPONumber = Convert.ToString(row["ActivityReceivingPONumber"]),
+                    ActivityReceivingIssuedDateTime = Convert.ToDateTime(row["ActivityReceivingIssuedDateTime"]),
+                    ActivityReceivingArrivalDateTime = Convert.ToDateTime(row["ActivityReceivingArrivalDateTime"])
+                };
 
-            gridHeaderReceiving.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
-
+                observableCollection.Add(receive);
+            }
+            
             Label labelPOReceiving = new Label { Text = "PO #", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
             Label labelIssuedReceiving = new Label { Text = "Issued", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
             Label labelArrivedReceiving = new Label { Text = "Arrived", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
 
-            gridHeaderReceiving.Children.Add(labelPOReceiving);
-            gridHeaderReceiving.Children.Add(labelIssuedReceiving);
-            gridHeaderReceiving.Children.Add(labelArrivedReceiving);
+            double columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPOReceiving.Text);
+            double columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelIssuedReceiving.Text);
+            double columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelArrivedReceiving.Text);
+
+            Grid gridHeader = new Grid
+            {
+                Padding = new Thickness(5),
+                ColumnDefinitions =
+                {
+                    new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) }
+                }
+            };
+
+            gridHeader.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
+
+            gridHeader.Children.Add(labelPOReceiving);
+            gridHeader.Children.Add(labelIssuedReceiving);
+            gridHeader.Children.Add(labelArrivedReceiving);
 
             Grid.SetColumn(labelPOReceiving, 0);
             Grid.SetColumn(labelIssuedReceiving, 1);
             Grid.SetColumn(labelArrivedReceiving, 2);
 
-            Grid.SetRow(gridHeaderReceiving, 0);
+            Grid.SetRow(gridHeader, 0);
 
-            dataGridMainActivityHeader.Children.Add(gridHeaderReceiving);
+            dataGridMainActivityHeader.Children.Add(gridHeader);
+            
+            foreach (Receive receive in observableCollection)
+            {
+                double detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(receive.ActivityReceivingPONumber);
+                double detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(receive.ActivityReceivingIssuedDateTime.ToString("MM/dd/yyyy"));
+                double detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(receive.ActivityReceivingArrivalDateTime.ToString("MM/dd/yyyy"));
+
+                if (detailWidth0 > columnWidth0)
+                {
+                    columnWidth0 = detailWidth0;
+                    gridHeader.ColumnDefinitions[0].Width = columnWidth0;
+                }
+
+                if (detailWidth1 > columnWidth1)
+                {
+                    columnWidth1 = detailWidth1;
+                    gridHeader.ColumnDefinitions[1].Width = columnWidth1;
+                }
+
+                if (detailWidth2 > columnWidth2)
+                {
+                    columnWidth2 = detailWidth2;
+                    gridHeader.ColumnDefinitions[2].Width = columnWidth2;
+                }
+            }
 
             // Data grid
             DataTemplate dataTemplateReceiving = new DataTemplate(() =>
             {
                 Grid gridData = new Grid
                 {
-                    Padding = new Thickness(5, 5, 5, 5),
+                    Padding = new Thickness(5),
                     ColumnDefinitions = 
                     {
-                        new ColumnDefinition { Width = GridLength.Star },
-                        new ColumnDefinition { Width = GridLength.Star },
-                        new ColumnDefinition { Width = GridLength.Star }
+                        new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) }
                     }
                 };
 
@@ -117,19 +158,6 @@ namespace dMobile.Controller
             });
 
             dataGridMainActivity.ItemTemplate = dataTemplateReceiving;
-            observableCollection.Clear();
-
-            foreach (DataRow row in this.DataViewHdrs.ToTable().Rows)
-            {
-                Receive receive = new Receive
-                {
-                    ActivityReceivingPONumber = Convert.ToString(row["ActivityReceivingPONumber"]),
-                    ActivityReceivingIssuedDateTime = Convert.ToDateTime(row["ActivityReceivingIssuedDateTime"]),
-                    ActivityReceivingArrivalDateTime = Convert.ToDateTime(row["ActivityReceivingArrivalDateTime"])
-                };
-
-                observableCollection.Add(receive);
-            }
 
             return observableCollection;
         }

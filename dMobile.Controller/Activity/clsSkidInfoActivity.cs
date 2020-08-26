@@ -204,13 +204,11 @@ namespace dMobile.Controller
         /// <remarks></remarks>
         public override ObservableCollection<object> Search( string searchText)
         {
-            // TODO: Search
             throw new NotImplementedException();
         }
 
         public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity)
         {
-            // TODO: Design Grid
             throw new NotImplementedException();
         }
 
