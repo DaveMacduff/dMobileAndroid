@@ -170,7 +170,6 @@
 //            }
 //            catch (RuleViolationException ex)
 //            {
-//                // TODO: Add pop up
 ////#if MULTILANGUAGE
 ////        MessageBox.Show(Translator.GetInstance().Translate(TranslatorVocabulary.BarCodeRuleViolation) + Environment.NewLine + ex.Message, 
 ////            Translator.GetInstance().Translate(TranslatorVocabulary.ScanEngine), 
@@ -184,7 +183,6 @@
 //            }
 //            catch (BarCodeParseException ex)
 //            {
-//                // TODO: Add pop up and log
 //                //                MessageBox.Show(
 //                //#if MULTILANGUAGE
 //                //                Translator.GetInstance().Translate(TranslatorVocabulary.BarCodeParseException) + Environment.NewLine + ex.Message,
@@ -205,7 +203,6 @@
 //                this.Terminate();
 //                this.Initialize();
                 
-//                // TODO: Add pop up and log
 //                //                MessageBox.Show(msg,
 //                //#if MULTILANGUAGE
 //                //            Translator.GetInstance().Translate(TranslatorVocabulary.ScanEngine),

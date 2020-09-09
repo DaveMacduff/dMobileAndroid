@@ -81,19 +81,16 @@
 
                 if (keycode == Keycode.Enter)
                 {
-                    // TODO: Add control
                     //this.CallingControl = new ucSetupDefaults();
-
-                    ucSetupDefaults setupDefaults = new ucSetupDefaults();
-                    await setupDefaults.Show();
-
                     this.DisableControls();
                     this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     this.IsControlLoaded = false;
+
+                    ucSetupDefaults setupDefaults = new ucSetupDefaults();
+                    await setupDefaults.Show();
                 }
                 else if (keycode == Keycode.Escape || keycode == Keycode.F1)
                 {
-                    // TODO: Add control
                     //this.CallingControl = new ucMainMenu();
                     this.DisableControls();
                     this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
@@ -101,75 +98,64 @@
                 }
                 else if (keycode == Keycode.Num1)
                 {
-                    // TODO: Add control
                     //this.CallingControl = new ucSetupDefaults();
-
-                    ucSetupDefaults setupDefaults = new ucSetupDefaults();
-                    await setupDefaults.Show();
-
                     this.DisableControls();
                     this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     this.IsControlLoaded = false;
+                    
+                    ucSetupDefaults setupDefaults = new ucSetupDefaults();
+                    await setupDefaults.Show();
                 }
                 else if (keycode == Keycode.Num2)
                 {
-                    // TODO: Add control
                     //this.CallingControl = new ucCommunicationSetup();
+                    this.DisableControls();
+                    this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                    this.IsControlLoaded = false;
 
                     ucCommunicationSetup commSetup = new ucCommunicationSetup();
                     await commSetup.Show();
 
-                    this.DisableControls();
-                    this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-                    this.IsControlLoaded = false;
                 }
                 else if (keycode == Keycode.Num3)
                 {
-                    // TODO: Add control
                     //this.CallingControl = new ucRefreshDataOptions();
+                    this.DisableControls();
+                    this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                    this.IsControlLoaded = false;
 
                     ucRefreshDataOptions refreshDataOption = new ucRefreshDataOptions();
                     await refreshDataOption.Show();
-
+                }
+                else if (keycode == Keycode.Num4)
+                {                    
+                    //this.CallingControl = new ucSubmitBatch();
                     this.DisableControls();
                     this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     this.IsControlLoaded = false;
-                }
-                else if (keycode == Keycode.Num4)
-                {
-                    // TODO: Add control
-                    //this.CallingControl = new ucSubmitBatch();
 
                     ucSubmitBatch submitBatch = new ucSubmitBatch();
                     await submitBatch.Show();
-
-                    this.DisableControls();
-                    this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-                    this.IsControlLoaded = false;
                 }
                 else if (keycode == Keycode.Num5)
                 {
-                    // TODO: Add control
                     //this.CallingControl = new ucUtilitiesMenu();
+                    this.DisableControls();
+                    this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                    this.IsControlLoaded = false;
 
                     ucUtilitiesMenu utilities = new ucUtilitiesMenu();
                     await utilities.Show();
-
-                    this.DisableControls();
-                    this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-                    this.IsControlLoaded = false;
                 }
                 else if (keycode == Keycode.Num6)
                 {
-                    // TODO: Add control
                     //this.CallingControl = new ucAbout();
-
-                    ucAbout about = new ucAbout();
-                    await about.Show();
-
                     this.DisableControls();
                     this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     this.IsControlLoaded = false;
+
+                    ucAbout about = new ucAbout();
+                    await about.Show();
                 }
             });
         }
@@ -470,15 +456,13 @@
         /// <remarks></remarks>
         public async void cmdCommunicationSetup_Click(object sender, EventArgs e)
         {
-            // TODO: Add control
             //this.CallingControl = new ucCommunicationSetup();
-
-            ucCommunicationSetup commSetup = new ucCommunicationSetup();
-            await commSetup.Show();
-
             this.DisableControls();
             this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
             this.IsControlLoaded = false;
+
+            ucCommunicationSetup commSetup = new ucCommunicationSetup();
+            await commSetup.Show();
         }
 
         /// <summary>
@@ -489,15 +473,13 @@
         /// <remarks></remarks>
         public async void cmdRefreshData_Click(object sender, EventArgs e)
         {
-            // TODO: Add control
             //this.CallingControl = new ucRefreshDataOptions();
-
-            ucRefreshDataOptions refreshDataOption = new ucRefreshDataOptions();
-            await refreshDataOption.Show();
-
             this.DisableControls();
             this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
             this.IsControlLoaded = false;
+
+            ucRefreshDataOptions refreshDataOption = new ucRefreshDataOptions();
+            await refreshDataOption.Show();
         }
 
         /// <summary>
@@ -508,15 +490,13 @@
         /// <remarks></remarks>
         public async void cmdSubmitBatch_Click(object sender, EventArgs e)
         {
-            // TODO: Add control
             //this.CallingControl = new ucSubmitBatch();
-
-            ucSubmitBatch submitBatch = new ucSubmitBatch();
-            await submitBatch.Show();
-
             this.DisableControls();
             this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
             this.IsControlLoaded = false;
+
+            ucSubmitBatch submitBatch = new ucSubmitBatch();
+            await submitBatch.Show();
         }
 
         /// <summary>
@@ -527,15 +507,13 @@
         /// <remarks></remarks>
         public async void cmdAbout_Click(object sender, EventArgs e)
         {
-            // TODO: Add control
             //this.CallingControl = new ucAbout();
-
-            ucAbout about = new ucAbout();
-            await about.Show();
-
             this.DisableControls();
             this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
             this.IsControlLoaded = false;
+
+            ucAbout about = new ucAbout();
+            await about.Show();
         }
 
         /// <summary>
@@ -546,15 +524,13 @@
         /// <remarks></remarks>
         public async void cmdUtilities_Click(object sender, EventArgs e)
         {
-            // TODO: Add control
             //this.CallingControl = new ucUtilitiesMenu();
-
-            ucUtilitiesMenu utilities = new ucUtilitiesMenu();
-            await utilities.Show();
-
             this.DisableControls();
             this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
             this.IsControlLoaded = false;
+
+            ucUtilitiesMenu utilities = new ucUtilitiesMenu();
+            await utilities.Show();
         }
 
         /// <summary>

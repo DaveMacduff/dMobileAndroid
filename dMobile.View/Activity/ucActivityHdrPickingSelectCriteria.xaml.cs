@@ -25,7 +25,6 @@ namespace dMobile.View.Activity
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ucActivityHdrPickingSelectCriteria : DMobileModal, IAppArea, IAppPublisher
     {
-        // TODO: Form
         #region Fields
 
         //private UserControl callingControl = null;
@@ -61,6 +60,7 @@ namespace dMobile.View.Activity
         {
             this.InitializeComponent();
 
+            // TODO: Resource strings
             this.lblSectionData.Text = "";
             this.lblWarehouseData.Text = "";
             this.lblSearch.Text = "";
@@ -76,6 +76,7 @@ namespace dMobile.View.Activity
                 this.ActSubType = SysCommon.ActSubTypes.PickingSelectCriteria;
                 this.SysEnv = SysEnvironment.GetInstance();
                 this.LocMapInfo = new SLocMap();
+                this.Title = this.GetControlDescription();
             }
         }
 

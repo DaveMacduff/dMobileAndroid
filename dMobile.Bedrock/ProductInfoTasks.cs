@@ -92,7 +92,7 @@
 
                     using (SQLiteDataReader drProdInfo = cmndProdInfo.ExecuteReader())
                     {
-                        if (drProdInfo.Read())
+                        if (drProdInfo.Read())  
                         {
                             prodInfo.Refno = Convert.ToInt32(drProdInfo["ProductRefno"]);
                             prodInfo.FKRefno = Convert.ToInt32(drProdInfo["ProductFKRefno"]);

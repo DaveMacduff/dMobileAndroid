@@ -55,54 +55,52 @@
 
                 if (keycode == Keycode.Enter)
                 {
-                    this.DisableControls();
-
-                    // TODO: Add form
+                    this.DisableControls();                    
                     //this.CallingControl = new ucActivityProductLabel();
-
                     this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     this.IsControlLoaded = false;
+
+                    ucActivityProductLabel productLabel = new ucActivityProductLabel();
+                    await productLabel.ShowDialog();
                 }
-                else if (keycode == Keycode.Escape || keycode == Keycode.F1)
+                else if (keycode == Keycode.F1)
                 {
                     this.DisableControls();
                     //this.CallingControl = new ucOptionsMenu();
-
                     this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     this.IsControlLoaded = false;
+
+                    await this.Close();
                 }
                 else if (keycode == Keycode.Num1)
                 {
                     this.DisableControls();
                     //this.CallingControl = new ucActivityScanBarCodes();
-
-                    ucActivityScanBarCodes scanBarcodes = new ucActivityScanBarCodes();
-                    await scanBarcodes.Show();
-
                     this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     this.IsControlLoaded = false;
+                    
+                    ucActivityScanBarCodes scanBarcodes = new ucActivityScanBarCodes();
+                    await scanBarcodes.Show();
                 }
                 else if (keycode == Keycode.Num2)
                 {
                     this.DisableControls();
-
-                    // TODO: Add form
                     //this.CallingControl = new ucActivityProductLabel();
-
                     this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     this.IsControlLoaded = false;
+                    
+                    ucActivityProductLabel productLabel = new ucActivityProductLabel();
+                    await productLabel.ShowDialog();
                 }
                 else if (keycode == Keycode.Num3)
                 {
                     this.DisableControls();
-
                     //this.CallingControl = new AssignDefaultLocation();
+                    this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                    this.IsControlLoaded = false;
 
                     ucAssignDefaultLocation assignDefaultLocation = new ucAssignDefaultLocation();
                     await assignDefaultLocation.Show();
-
-                    this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-                    this.IsControlLoaded = false;
                 }
             });
 
@@ -196,8 +194,6 @@
                 this.ReqCancelDisableEvent = (ReqCancelDisableHandler)Delegate.Remove(this.ReqCancelDisableEvent, value);
             }
         }
-
-
 
         private ReqCloseHandler ReqCloseEvent
         {
@@ -303,9 +299,6 @@
             }
         }
 
-
-
-
         /// <summary>
         /// Unregister the bar code scan event handler and disable the scanner.
         /// </summary>
@@ -397,8 +390,6 @@
 
             return xmldocParams;
         }
-
-
 
         /// <summary>
         /// 
@@ -514,12 +505,11 @@
         {
             this.DisableControls();
             //this.CallingControl = new ucActivityScanBarCodes();
-
-            ucActivityScanBarCodes scanBarcodes = new ucActivityScanBarCodes();
-            await scanBarcodes.Show();
-
             this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
             this.IsControlLoaded = false;
+            
+            ucActivityScanBarCodes scanBarcodes = new ucActivityScanBarCodes();
+            await scanBarcodes.Show();
         }
 
         /// <summary>
@@ -528,15 +518,15 @@
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        private void cmdProductLabels_Click(object sender, EventArgs e)
+        private async void cmdProductLabels_Click(object sender, EventArgs e)
         {
             this.DisableControls();
-
-            // TODO: Add form
             //this.CallingControl = new ucActivityProductLabel();
-
             this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
             this.IsControlLoaded = false;
+
+            ucActivityProductLabel productLabel = new ucActivityProductLabel();
+            await productLabel.ShowDialog();
         }
 
         /// <summary>
@@ -548,15 +538,12 @@
         private async void cmdAssignDefaultLocation_Click(object sender, EventArgs e)
         {
             this.DisableControls();
-
-            // TODO: Add form
             //this.CallingControl = new AssignDefaultLocation();
+            this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+            this.IsControlLoaded = false;
 
             ucAssignDefaultLocation assignDefaultLocation = new ucAssignDefaultLocation();
             await assignDefaultLocation.Show();
-
-            this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-            this.IsControlLoaded = false;
         }
 
         /// <summary>

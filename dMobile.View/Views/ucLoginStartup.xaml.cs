@@ -320,17 +320,6 @@ namespace dMobile.View
         {
             base.OnAppearing();
 
-            try
-            {
-                this.LoginStartup_GotFocus(this, new EventArgs());
-            }
-            catch (Exception ex)
-            {
-                // TODO: Alert commented out for testing
-                //DisplayAlert(Resource.Error, "LoginStartup_GotFocus threw an error: " + ex.Message, Resource.OK);
-                Console.WriteLine("LoginStartup_GotFocus error: " + ex.Message);
-            }
-
             MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
             {
                 try
@@ -359,6 +348,15 @@ namespace dMobile.View
                     Console.WriteLine(ex);
                 }
             });
+            
+            try
+            {
+                this.LoginStartup_GotFocus(this, new EventArgs());
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert(Resource.Error, "LoginStartup_GotFocus threw an error: " + ex.Message, Resource.OK);
+            }
         }
 
         /// <summary>

@@ -177,11 +177,8 @@ namespace dMobile.GroundWork
             {
                 if (this.OnNubStatOut != null)
                 {
-#if MULTILANGUAGE
-          this.MsgEventArgs.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.DeletingDatabase) + dbASCIIZ;
-#else
+                    // TODO: Resource strings
                     this.MsgEventArgs.StatusOutMsg = "Deleting database " + dbASCIIZ;
-#endif
                     this.OnNubStatOut(this, this.MsgEventArgs);
                 }
 
@@ -190,18 +187,15 @@ namespace dMobile.GroundWork
 
             if (this.OnNubStatOut != null)
             {
-#if MULTILANGUAGE
-          this.MsgEventArgs.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.CreatingDatabase) + dbASCIIZ;
-#else
+                // TODO: Resource strings
                 this.MsgEventArgs.StatusOutMsg = "Creating database " + dbASCIIZ;
-#endif
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
             File.Create(dbASCIIZ);
 
             DatabaseConnection.GetInstance();
-            DatabaseConnection.OpenDataBaseConnection();
+            //DatabaseConnection.OpenDataBaseConnection();
         }
 
         /// <summary>

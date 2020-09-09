@@ -2006,7 +2006,7 @@
                         // Upon a save of completed data update the data view to to show new item and quantity change
                         this.ActItem.CurrRowIdx = this.ActItem.UpdateDataViewQuantity(foundRowIdx, actDetail.Quantity, actDetail.BaseQuantity, actDetail.WeightQuantity);
 
-                        // TODO: Fix this
+                        // TODO: Fix block
                         //if (Convert.ToInt32(this.dataGridMainActivity[this.dataGridMainActivity.CurrentRowIndex, 0]) == actItemFoundRefno)
                         //{
                         //    //this.dataGridMainActivity.Select(this.dataGridMainActivity.CurrentRowIndex);

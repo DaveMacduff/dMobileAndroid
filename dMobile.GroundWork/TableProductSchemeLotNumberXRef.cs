@@ -260,26 +260,25 @@ namespace dMobile.GroundWork
 
                                 isSchemeLotXRef = false;
 
-                                // TODO: Uncomment SysEnv.RefreshOpt.RefreshDataChangesOnly
-                                //if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly)
-                                //{
-                                cmndSchemeLotXRef.CommandText = "SELECT ProductSchemeRefno, ProductSchemeLotNumberRefno FROM tProductSchemeLotNumberXRef WHERE ProductSchemeRefno = @productSchemeRefno AND ProductSchemeLotNumberRefno = @productSchemeLotNumberRefno";
-                                cmndSchemeLotXRef.CommandType = CommandType.Text;
-                                //cmndSchemeLotXRef.IndexName = "PK_ProductSchemeLotNumberXRefOnProductSchemeRefnoAndProductSchemeLotNumberRefno";
-                                cmndSchemeLotXRef.Parameters.Add(new SQLiteParameter("@productSchemeRefno", schemeRefno));
-                                cmndSchemeLotXRef.Parameters.Add(new SQLiteParameter("@productSchemeLotNumberRefno", schemeLotRefno));
-
-                                using (SQLiteDataReader drSchemeLotXRef = cmndSchemeLotXRef.ExecuteReader())
+                                if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly)
                                 {
-                                    //if (drSchemeLotXRef.Seek(DbSeekOptions.FirstEqual, new object[] { schemeRefno, schemeLotRefno }))
-                                    if (drSchemeLotXRef.Read())
-                                    {
-                                        isSchemeLotXRef = true;
-                                    }
+                                    cmndSchemeLotXRef.CommandText = "SELECT ProductSchemeRefno, ProductSchemeLotNumberRefno FROM tProductSchemeLotNumberXRef WHERE ProductSchemeRefno = @productSchemeRefno AND ProductSchemeLotNumberRefno = @productSchemeLotNumberRefno";
+                                    cmndSchemeLotXRef.CommandType = CommandType.Text;
+                                    //cmndSchemeLotXRef.IndexName = "PK_ProductSchemeLotNumberXRefOnProductSchemeRefnoAndProductSchemeLotNumberRefno";
+                                    cmndSchemeLotXRef.Parameters.Add(new SQLiteParameter("@productSchemeRefno", schemeRefno));
+                                    cmndSchemeLotXRef.Parameters.Add(new SQLiteParameter("@productSchemeLotNumberRefno", schemeLotRefno));
 
-                                    drSchemeLotXRef.Close();
+                                    using (SQLiteDataReader drSchemeLotXRef = cmndSchemeLotXRef.ExecuteReader())
+                                    {
+                                        //if (drSchemeLotXRef.Seek(DbSeekOptions.FirstEqual, new object[] { schemeRefno, schemeLotRefno }))
+                                        if (drSchemeLotXRef.Read())
+                                        {
+                                            isSchemeLotXRef = true;
+                                        }
+
+                                        drSchemeLotXRef.Close();
+                                    }
                                 }
-                                //}
 
                                 if (!isSchemeLotXRef)
                                 {

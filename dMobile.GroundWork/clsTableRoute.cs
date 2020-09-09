@@ -243,17 +243,16 @@ namespace dMobile.GroundWork
                                     {
                                         isRouteFound = true;
 
-                                        // TODO: Uncomment SysEnv.RefreshOpt.RefreshDataChangesOnly
-                                        //if (SysEnv.RefreshOpt.RefreshDataChangesOnly)
-                                        //{
-                                        drRouteUpdate.CommandText = "UPDATE tRoute SET RouteDescription = @routeDesc, RouteDayOfWeek = @routeDayOfWeek WHERE RouteCode = @routeCode";
+                                        if (SysEnv.RefreshOpt.RefreshDataChangesOnly)
+                                        {
+                                            drRouteUpdate.CommandText = "UPDATE tRoute SET RouteDescription = @routeDesc, RouteDayOfWeek = @routeDayOfWeek WHERE RouteCode = @routeCode";
                                         drRouteUpdate.CommandType = CommandType.Text;
                                         drRouteUpdate.Parameters.Add(new SQLiteParameter("@routeDesc", routeDesc));
                                         drRouteUpdate.Parameters.Add(new SQLiteParameter("@routeDayOfWeek", routeDayOfWeek));
                                         drRouteUpdate.Parameters.Add(new SQLiteParameter("@routeCode", routeCode));
 
                                         drRouteUpdate.ExecuteNonQuery();
-                                        //}
+                                        }
                                     }
 
                                     drRoute.Close();

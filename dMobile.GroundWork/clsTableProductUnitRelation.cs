@@ -507,10 +507,9 @@ namespace dMobile.GroundWork
                                 {
                                     isProdUnitRelationFound = true;
 
-                                    // TODO: Uncomment SysEnv.RefreshOpt.RefreshDataChangesOnly
-                                    //if (refreshOnly)
-                                    //{
-                                    cmndProdUnitRelUpdate.CommandText = "UPDATE tProductUnitRelation " +
+                                    if (refreshOnly)
+                                    {
+                                        cmndProdUnitRelUpdate.CommandText = "UPDATE tProductUnitRelation " +
                                     "SET ProductUnitRelationFactor = @relationFactor " +
                                     "WHERE ProductUnit1Refno = @prodUnit1Refno AND ProductUnit2Refno = @prodUnit2Refno";
 
@@ -521,7 +520,7 @@ namespace dMobile.GroundWork
                                     cmndProdUnitRelUpdate.Parameters.Add(new SQLiteParameter("@prodUnit2Refno", prodUnit2Refno));
 
                                     cmndProdUnitRelUpdate.ExecuteNonQuery();
-                                    //}
+                                    }
                                 }
 
                                 drProdUnitRel.Close();
