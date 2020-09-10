@@ -929,10 +929,20 @@
             {
                 if (isSeparateSlotCoords)
                 {
-                    string coord1 = locMap.CurrLocMap.SlotName.TrimEnd();
-                    string coord2 = locMap.CurrLocMap.SlotName.TrimEnd();
-                    string coord3 = locMap.CurrLocMap.SlotName.TrimEnd();
-                    location = location + "." + coord1 + "." + coord2 + "." + coord3;
+                    if (locMap.CurrLocMap.IsSlotCoord1Tracked)
+                    {
+                        location = location + "." + locMap.CurrLocMap.SlotName.Substring(0, locMap.CurrLocMap.SlotCoord1Mask.Length);
+                    }
+
+                    if (locMap.CurrLocMap.IsSlotCoord2Tracked)
+                    {
+                        location = location + "." + locMap.CurrLocMap.SlotName.Substring(locMap.CurrLocMap.SlotCoord1Mask.Length, locMap.CurrLocMap.SlotCoord2Mask.Length);
+                    }
+
+                    if (locMap.CurrLocMap.IsSlotCoord3Tracked)
+                    {
+                        location = location + "." + locMap.CurrLocMap.SlotName.Substring(locMap.CurrLocMap.SlotCoord1Mask.Length + locMap.CurrLocMap.SlotCoord2Mask.Length);
+                    }
                 }
                 else
                 {
@@ -982,7 +992,6 @@
         public static string GetCurrentReadableLocation(SLocMap locMapInfo, bool isSepSlotCoords)
         {
             string location = string.Empty;
-            LocationMap locMap = LocationMap.GetInstance();
 
             if (locMapInfo.WhsLocMapRefno != 0)
             {
@@ -999,10 +1008,20 @@
             {
                 if (isSepSlotCoords)
                 {
-                    string coord1 = locMap.CurrLocMap.SlotName.TrimEnd();
-                    string coord2 = locMap.CurrLocMap.SlotName.TrimEnd();
-                    string coord3 = locMap.CurrLocMap.SlotName.TrimEnd();
-                    location = location + "." + coord1 + "." + coord2 + "." + coord3;
+                    if (locMapInfo.IsSlotCoord1Tracked)
+                    {
+                        location = location + "." + locMapInfo.SlotName.Substring(0, locMapInfo.SlotCoord1Mask.Length);
+                    }
+
+                    if (locMapInfo.IsSlotCoord2Tracked)
+                    {
+                        location = location + "." + locMapInfo.SlotName.Substring(locMapInfo.SlotCoord1Mask.Length, locMapInfo.SlotCoord2Mask.Length);
+                    }
+
+                    if (locMapInfo.IsSlotCoord3Tracked)
+                    {
+                        location = location + "." + locMapInfo.SlotName.Substring(locMapInfo.SlotCoord1Mask.Length + locMapInfo.SlotCoord2Mask.Length);
+                    }
                 }
                 else
                 {

@@ -651,7 +651,8 @@ namespace dMobile.Controller
                     // Use a tmpLocMap to get the WarehouseLocationMapRefno. 
                     // The count LocationMapRefno could be a warehouse, section or slot location map refno.
                     SLocMap tmpLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(this.DataViewItems[idx]["LocationMapRefno"]));
-                    this.LocMap.CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(this.GetDefaultLocMapRefno(tmpLocMap.WhsLocMapRefno, Convert.ToInt32(this.DataViewItems[idx]["ProductRefno"])));
+                    int tmpDefaultLocMap = this.GetDefaultLocMapRefno(tmpLocMap.WhsLocMapRefno,Convert.ToInt32(this.DataViewItems[idx]["ProductRefno"]));
+                    this.LocMap.CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(tmpDefaultLocMap);
 
                     // clear the skid
                     if (clearSkidFlag)

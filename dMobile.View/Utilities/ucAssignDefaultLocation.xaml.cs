@@ -762,7 +762,7 @@
                     XmlWriter xml = XmlWriter.Create(xmlString);
                     XDocument request = null;
 
-                    if (this.NewLocMapDefRecvRefno == 0)
+                    if (this.NewLocMapDefPickingRefno == 0)
                     {
                         this.LocMapDefPicking = LocationMapTasks.GetSLocMapFromLocMapRefno(this.CurrLocMapDefPickingRefno);
                     }

@@ -755,7 +755,7 @@ namespace dMobile.Controller
                 {
                     if (drItem.Read())
                     {
-                        ////this.LocMap.CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(drItem["LocationMapRefno"]));
+                        this.LocMap.CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(drItem["LocationMapRefno"]));
                         this.Refno = Convert.ToInt32(drItem["ActivityItemRefno"]);
                         this.FKRefno = Convert.ToInt32(drItem["ActivityItemTransferFKRefno"]);
                         this.ProdInfo = ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(drItem["ProductUnitRefno"]));
