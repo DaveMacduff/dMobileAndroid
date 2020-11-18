@@ -89,79 +89,6 @@ namespace dMobile.GroundWork
         #region Public Members
 
         /// <summary>
-        /// Compact database
-        /// -Reorganizes a table's pages to reside in adjacent database pages, which improves performance by reducing 
-        /// table fragmentation
-        /// -Reorders the rows of the table when there is a unique or primary key constraint present, which increases 
-        /// search/insert performance
-        /// -Reclaims used space created by object and record deletions
-        /// -Resets incrementing IDENTITY columns so that the next values with be one more than the highest value in 
-        /// the current table
-        /// -Regenerates the table statistic, which may help improve the query optimization process
-        /// -Attempts to repair errors in the database
-        /// -Might modify database properties
-        /// </summary>
-        public void CompactDatabase()
-        {
-            //string srceDBName = this.DBConn.DBName;
-            //string destDBName = this.DBConn.DBName + ".tmp";
-            //string newPassword = "Password = " + this.DBConn.DBPassword;
-            //SqlCeEngine engine = new SqlCeEngine("Data Source = " + srceDBName);
-
-            //try
-            //{
-            //  this.ErrorRaised = false;
-            //  engine.Compact((string)("Data Source = " + destDBName + ";" + srceDBName));
-            //  engine.Dispose();
-            //  File.Delete(srceDBName);
-            //  File.Move(destDBName, srceDBName);
-            //}
-            //catch (SQLiteException ssce)
-            //{
-            //  this.ErrorRaised = true;
-
-            //  throw ssce;
-            //}
-            //finally
-            //{
-            //  if (engine != null)
-            //  {
-            //    engine.Dispose();
-            //  }
-            //}
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <remarks></remarks>
-        public void RepairDatabase()
-        {
-            //string srceDBName = this.DBConn.DBName;
-            //SqlCeEngine engine = new SqlCeEngine("Data Source = " + srceDBName);
-
-            //try
-            //{
-            //  this.ErrorRaised = false;
-            //  engine.Repair((string)("Data Source = " + srceDBName), RepairOption.RecoverAllPossibleRows);
-            //  engine.Dispose();
-            //}
-            //catch (SQLiteException ssce)
-            //{
-            //  this.ErrorRaised = true;
-
-            //  throw ssce;
-            //}
-            //finally
-            //{
-            //  if (engine != null)
-            //  {
-            //    engine.Dispose();
-            //  }
-            //}
-        }
-
-        /// <summary>
         /// Create a new sql server database called dMobile
         /// Delete the database if it already exists
         /// </summary>
@@ -309,14 +236,6 @@ namespace dMobile.GroundWork
                 this.CreateTableActivityTransfer();
                 this.CreateTableActivityItemTransfer();
                 this.CreateTableActivityDetailTransfer();
-
-                // this.CreateTableActivityConvertUnit()
-                // this.CreateTableActivityItemConvertUnit()
-                // this.CreateTableActivityDetailConvertUnit()
-
-                // this.CreateTableActivityMoveInventory()
-                // this.CreateTableActivityItemMoveInventory()
-                //// this.CreateTableActivityDetailMoveInventory()
 
                 this.CreateTableActivityAdjustment();
                 this.CreateTableActivityItemAdjustment();
@@ -1896,6 +1815,7 @@ namespace dMobile.GroundWork
                 + "("
                 + "LocationMapSlotCoordinateRefno INTEGER NOT NULL CONSTRAINT PK_LocationMapSlotCoordinateRefno PRIMARY KEY,"
                 + "LocationMapSlotCoordinateEnum INTEGER NOT NULL,"
+                + "WarehouseLocationMapRefno int NOT NULL,"
                 + "LocationMapSlotCoordinateCode nvarchar(10) NOT NULL"
                 + ")";
 
@@ -1909,8 +1829,8 @@ namespace dMobile.GroundWork
             this.RunDDLCommand(sqlTable);
 
             string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS "
-                + "UQ_LocationMapSlotCoordOnLocationMapSlotCoordEnumAndLocationMapSlotCoordCode ON "
-                + "tLocationMapSlotCoordinate(LocationMapSlotCoordinateEnum ASC, LocationMapSlotCoordinateCode ASC)";
+                + "UQ_LocationMapSlotCoordOnLocationMapSlotCoordEnumAndWarehouseLocationMapRefnoAndLocationMapSlotCoordCode ON "
+                + "tLocationMapSlotCoordinate(LocationMapSlotCoordinateEnum ASC, WarehouseLocationMapRefno ASC, LocationMapSlotCoordinateCode ASC)";
             this.RunDDLCommand(sqlNdx);
         }
 

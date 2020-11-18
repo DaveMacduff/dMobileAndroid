@@ -136,6 +136,7 @@ namespace dMobile.GroundWork
 
             using (SQLiteCommand cmndSlotCoord = conn.CreateCommand())
             using (SQLiteCommand cmndSlotCoordInsert = conn.CreateCommand())
+            using (SQLiteCommand cmndWhs = conn.CreateCommand())
             using (SQLiteTransaction transaction = conn.BeginTransaction())
             {
                 try
@@ -156,8 +157,8 @@ namespace dMobile.GroundWork
 
                             // TODO: Resource Strings
                             this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
-
-                            cmndSlotCoord.CommandText = "SELECT * FROM tLocationMapSlotCoordinate WHERE LocationMapSlotCoordinateEnum = @locationMapSlotCoordinateEnum AND LocationMapSlotCoordinateCode = @locationMapSlotCoordinateCode";
+                            
+                            cmndSlotCoord.CommandText = "SELECT * FROM tLocationMapSlotCoordinate WHERE LocationMapSlotCoordinateEnum = @locationMapSlotCoordinateEnum AND LocationMapSlotCoordinateCode = @locationMapSlotCoordinateCode AND WarehouseLocationMapRefno = @warehouseLocationMapRefno";
                             cmndSlotCoord.CommandType = CommandType.Text;
                             //cmndSlotCoord.IndexName = "UQ_LocationMapSlotCoordOnLocationMapSlotCoordEnumAndLocationMapSlotCoordCode";
 
@@ -168,6 +169,7 @@ namespace dMobile.GroundWork
                             bool isSlotCoordFound = false;
                             int slotCoordType = (int)SysCommon.LocMapSlotCoordTypes.Coord1;
                             string slotCoordCode = string.Empty;
+                            int whsLocMapRefno = 0;
 
                             this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
 
@@ -197,6 +199,8 @@ namespace dMobile.GroundWork
                                         throw new Exception("Unidentified slot coordinate enum type " + slotCoordType);
                                 }
 
+                                whsLocMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, ref errMsg, cmndWhs);
+
                                 isSlotCoordFound = false;
 
                                 if (SysEnv.RefreshOpt.RefreshDataChangesOnly)
@@ -206,6 +210,7 @@ namespace dMobile.GroundWork
                                     //cmndSlotCoord.IndexName = "UQ_LocationMapSlotCoordOnLocationMapSlotCoordEnumAndLocationMapSlotCoordCode";
                                     cmndSlotCoord.Parameters.Add(new SQLiteParameter("@locationMapSlotCoordinateEnum", slotCoordType));
                                     cmndSlotCoord.Parameters.Add(new SQLiteParameter("@locationMapSlotCoordinateCode", slotCoordCode));
+                                    cmndSlotCoord.Parameters.Add(new SQLiteParameter("@warehouseLocationMapRefno", whsLocMapRefno));
 
                                     using (SQLiteDataReader drSlotCoord = cmndSlotCoord.ExecuteReader())
                                     {
@@ -219,10 +224,11 @@ namespace dMobile.GroundWork
 
                                 if (!isSlotCoordFound)
                                 {
-                                    cmndSlotCoordInsert.CommandText = "INSERT INTO tLocationMapSlotCoordinate (LocationMapSlotCoordinateEnum, LocationMapSlotCoordinateCode) VALUES (@locationMapSlotCoordinateEnum, @locationMapSlotCoordinateCode)";
+                                    cmndSlotCoordInsert.CommandText = "INSERT INTO tLocationMapSlotCoordinate (LocationMapSlotCoordinateEnum, WarehouseLocationMapRefno, LocationMapSlotCoordinateCode) VALUES (@locationMapSlotCoordinateEnum, @warehouseLocationMapRefno, @locationMapSlotCoordinateCode)";
                                     cmndSlotCoordInsert.CommandType = CommandType.Text;
                                     //cmndSlotCoordInsert.IndexName = "UQ_LocationMapSlotCoordOnLocationMapSlotCoordEnumAndLocationMapSlotCoordCode";
                                     cmndSlotCoordInsert.Parameters.Add(new SQLiteParameter("@locationMapSlotCoordinateEnum", Convert.ToInt32(drow["LocationMapSlotCoordinateEnum"])));
+                                    cmndSlotCoord.Parameters.Add(new SQLiteParameter("@warehouseLocationMapRefno", whsLocMapRefno));
                                     cmndSlotCoordInsert.Parameters.Add(new SQLiteParameter("@locationMapSlotCoordinateCode", drow["LocationMapSlotCoordinateCode"].ToString()));
 
                                     cmndSlotCoordInsert.ExecuteNonQuery();

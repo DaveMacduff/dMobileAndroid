@@ -198,6 +198,7 @@ namespace dMobile.GroundWork
         /// <param name="recvData"></param>
         protected override void Save(string recvData)
         {
+            throw new Exception("clsTableLocationMapSlot Save is not implemented");
         }
 
         /// <summary>
@@ -383,12 +384,13 @@ namespace dMobile.GroundWork
 
                             errMsg += Environment.NewLine + "Slot coordinate 1 \'" + slotCoord1 + "\'";
 
-                            if (!slot1Lookup.TryGetValue(slotCoord1, out coord1Refno))
+                            if (!slot1Lookup.TryGetValue(whsLocMapRefno.ToString() + slotCoord1, out coord1Refno))
                             {
-                                cmndCoord.CommandText = "SELECT * FROM tLocationMapSlotCoordinate WHERE LocationMapSlotCoordinateEnum = @locationMapSlotCoordinateEnum AND LocationMapSlotCoordinateCode = @locationMapSlotCoordinateCode ";
+                                cmndCoord.CommandText = "SELECT * FROM tLocationMapSlotCoordinate WHERE LocationMapSlotCoordinateEnum = @locationMapSlotCoordinateEnum AND LocationMapSlotCoordinateCode = @locationMapSlotCoordinateCode AND WarehouseLocationMapRefno = @warehouseLocationMapRefno";
                                 cmndCoord.CommandType = CommandType.Text;
                                 cmndCoord.Parameters.Add(new SQLiteParameter("@locationMapSlotCoordinateEnum", SysCommon.LocMapSlotCoordTypes.Coord1));
                                 cmndCoord.Parameters.Add(new SQLiteParameter("@locationMapSlotCoordinateCode", slotCoord1));
+                                cmndCoord.Parameters.Add(new SQLiteParameter("@warehouseLocationMapRefno", whsLocMapRefno));
 
                                 using (SQLiteDataReader drCoord = cmndCoord.ExecuteReader())
                                 {
@@ -397,7 +399,7 @@ namespace dMobile.GroundWork
                                     if (drCoord.Read())
                                     {
                                         coord1Refno = drCoord.GetInt32((int)SysCommon.LocMapSlotCoordFields.Refno);
-                                        slot1Lookup.Add(slotCoord1, coord1Refno);
+                                        slot1Lookup.Add(whsLocMapRefno.ToString() + slotCoord1, coord1Refno);
                                     }
                                     else
                                     {
@@ -416,13 +418,14 @@ namespace dMobile.GroundWork
 
                             errMsg += Environment.NewLine + "Slot coordinate 2 \'" + slotCoord2 + "\'";
 
-                            if (!slot2Lookup.TryGetValue(slotCoord2, out coord2Refno))
+                            if (!slot2Lookup.TryGetValue(whsLocMapRefno.ToString() + slotCoord2, out coord2Refno))
                             {
                                 cmndCoord.Parameters.Clear();
-                                cmndCoord.CommandText = "SELECT * FROM tLocationMapSlotCoordinate WHERE LocationMapSlotCoordinateEnum = @locationMapSlotCoordinateEnum AND LocationMapSlotCoordinateCode = @locationMapSlotCoordinateCode ";
+                                cmndCoord.CommandText = "SELECT * FROM tLocationMapSlotCoordinate WHERE LocationMapSlotCoordinateEnum = @locationMapSlotCoordinateEnum AND LocationMapSlotCoordinateCode = @locationMapSlotCoordinateCode AND WarehouseLocationMapRefno = @warehouseLocationMapRefno";
                                 cmndCoord.CommandType = CommandType.Text;
                                 cmndCoord.Parameters.Add(new SQLiteParameter("@locationMapSlotCoordinateEnum", SysCommon.LocMapSlotCoordTypes.Coord2));
                                 cmndCoord.Parameters.Add(new SQLiteParameter("@locationMapSlotCoordinateCode", slotCoord2));
+                                cmndCoord.Parameters.Add(new SQLiteParameter("@warehouseLocationMapRefno", whsLocMapRefno));
 
                                 using (SQLiteDataReader drCoord = cmndCoord.ExecuteReader())
                                 {
@@ -431,7 +434,7 @@ namespace dMobile.GroundWork
                                     if (drCoord.Read())
                                     {
                                         coord2Refno = drCoord.GetInt32((int)SysCommon.LocMapSlotCoordFields.Refno);
-                                        slot2Lookup.Add(slotCoord2, coord2Refno);
+                                        slot2Lookup.Add(whsLocMapRefno.ToString() + slotCoord2, coord2Refno);
                                     }
                                     else
                                     {
@@ -450,13 +453,14 @@ namespace dMobile.GroundWork
 
                             errMsg += Environment.NewLine + "Slot coordinate 3 \'" + slotCoord3 + "\'";
 
-                            if (!slot3Lookup.TryGetValue(slotCoord3, out coord3Refno))
+                            if (!slot3Lookup.TryGetValue(whsLocMapRefno.ToString() + slotCoord3, out coord3Refno))
                             {
                                 cmndCoord.Parameters.Clear();
-                                cmndCoord.CommandText = "SELECT * FROM tLocationMapSlotCoordinate WHERE LocationMapSlotCoordinateEnum = @locationMapSlotCoordinateEnum AND LocationMapSlotCoordinateCode = @locationMapSlotCoordinateCode ";
+                                cmndCoord.CommandText = "SELECT * FROM tLocationMapSlotCoordinate WHERE LocationMapSlotCoordinateEnum = @locationMapSlotCoordinateEnum AND LocationMapSlotCoordinateCode = @locationMapSlotCoordinateCode AND WarehouseLocationMapRefno = @warehouseLocationMapRefno";
                                 cmndCoord.CommandType = CommandType.Text;
                                 cmndCoord.Parameters.Add(new SQLiteParameter("@locationMapSlotCoordinateEnum", SysCommon.LocMapSlotCoordTypes.Coord3));
                                 cmndCoord.Parameters.Add(new SQLiteParameter("@locationMapSlotCoordinateCode", slotCoord3));
+                                cmndCoord.Parameters.Add(new SQLiteParameter("@warehouseLocationMapRefno", whsLocMapRefno));
 
                                 using (SQLiteDataReader drCoord = cmndCoord.ExecuteReader())
                                 {
@@ -465,7 +469,7 @@ namespace dMobile.GroundWork
                                     if (drCoord.Read())
                                     {
                                         coord3Refno = drCoord.GetInt32((int)SysCommon.LocMapSlotCoordFields.Refno);
-                                        slot3Lookup.Add(slotCoord3, coord3Refno);
+                                        slot3Lookup.Add(whsLocMapRefno.ToString() + slotCoord3, coord3Refno);
                                     }
                                     else
                                     {

@@ -789,8 +789,12 @@ namespace dMobile.View
                 this.lstWarehouse.ItemsSource = dataViewLocMapWhs;
                 this.lstWarehouse.ItemDisplayBinding = new Binding("DisplayName");
                 Warehouse selectedWarehouse = dataViewLocMapWhs.Where(warehouse => warehouse.LocationMapRefno == this.SysEnv.ContactLog.WarehouseLocationMapRefno).FirstOrDefault();
-                this.lstWarehouse.SelectedIndex = this.lstWarehouse.ItemsSource.IndexOf(selectedWarehouse);
-                this.lstWarehouse.SelectedValue = selectedWarehouse.LocationMapRefno;
+
+                if (selectedWarehouse != null)
+                {
+                    this.lstWarehouse.SelectedIndex = this.lstWarehouse.ItemsSource.IndexOf(selectedWarehouse);
+                    this.lstWarehouse.SelectedValue = selectedWarehouse.LocationMapRefno;
+                }
             }
         }
 

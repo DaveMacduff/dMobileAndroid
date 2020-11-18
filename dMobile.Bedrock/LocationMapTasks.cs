@@ -251,32 +251,32 @@
             return result;
         }
 
-        /// <summary>
-        /// The GetSlotCoordList
-        /// </summary>
-        /// <param name="coordinateEnum">The coordinateEnum<see cref="int"/></param>
-        /// <param name="dataTableSlotList">The dataTableSlotList<see cref="DataTable"/></param>
-        public static void GetSlotCoordList(int coordinateEnum, ref DataTable dataTableSlotList)
-        {
-            using (SQLiteCommand cmd = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-            {
-                cmd.CommandType = CommandType.Text;
-                cmd.CommandText = "SELECT tLocationMapSlotCoordinate.LocationMapSlotCoordinateCode, tLocationMapSlotCoordinate.LocationMapSlotCoordinateRefno " +
-                "FROM tLocationMapSlotCoordinate " +
-                "WHERE tLocationMapSlotCoordinate.LocationMapSlotCoordinateEnum = @coordinateEnum " +
-                "ORDER BY tLocationMapSlotCoordinate.LocationMapSlotCoordinateCode";
-                cmd.Parameters.Add(new SQLiteParameter("@coordinateEnum", Convert.ToInt32(coordinateEnum)));
+        ///// <summary>
+        ///// The GetSlotCoordList
+        ///// </summary>
+        ///// <param name="coordinateEnum">The coordinateEnum<see cref="int"/></param>
+        ///// <param name="dataTableSlotList">The dataTableSlotList<see cref="DataTable"/></param>
+        //public static void GetSlotCoordList(int coordinateEnum, ref DataTable dataTableSlotList)
+        //{
+        //    using (SQLiteCommand cmd = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        //    {
+        //        cmd.CommandType = CommandType.Text;
+        //        cmd.CommandText = "SELECT tLocationMapSlotCoordinate.LocationMapSlotCoordinateCode, tLocationMapSlotCoordinate.LocationMapSlotCoordinateRefno " +
+        //        "FROM tLocationMapSlotCoordinate " +
+        //        "WHERE tLocationMapSlotCoordinate.LocationMapSlotCoordinateEnum = @coordinateEnum " +
+        //        "ORDER BY tLocationMapSlotCoordinate.LocationMapSlotCoordinateCode";
+        //        cmd.Parameters.Add(new SQLiteParameter("@coordinateEnum", Convert.ToInt32(coordinateEnum)));
 
-                using (SQLiteDataAdapter dataAdapterSlot = new SQLiteDataAdapter(cmd))
-                {
-                    using (DataSet dataSetSlot = new DataSet())
-                    {
-                        dataAdapterSlot.Fill(dataSetSlot);
-                        dataTableSlotList = dataSetSlot.Tables[0];
-                    }
-                }
-            }
-        }
+        //        using (SQLiteDataAdapter dataAdapterSlot = new SQLiteDataAdapter(cmd))
+        //        {
+        //            using (DataSet dataSetSlot = new DataSet())
+        //            {
+        //                dataAdapterSlot.Fill(dataSetSlot);
+        //                dataTableSlotList = dataSetSlot.Tables[0];
+        //            }
+        //        }
+        //    }
+        //}
 
         /// <summary>
         /// The GetSlotCoord1List

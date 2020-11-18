@@ -1202,7 +1202,8 @@ namespace dMobile.Bedrock
         {
             Refno = 0,
             EnumType = 1,
-            Code = 2
+            WhsLocMapRefno = 2,
+            Code = 3
         }
 
         /// <summary>
