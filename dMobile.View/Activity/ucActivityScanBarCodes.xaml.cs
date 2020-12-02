@@ -20,6 +20,7 @@ using System.Data.SQLite;
 using Color = Xamarin.Forms.Color;
 using Android.Views;
 using System.Collections.ObjectModel;
+using System.Threading;
 
 namespace dMobile.View.Activity
 {
@@ -833,7 +834,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         private async void BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
-            await Task.Run(() =>
+            await Task.Run(async () =>
             {
                 this.Loading = true;
 
@@ -863,7 +864,7 @@ namespace dMobile.View.Activity
                     }
 
                     //this.lstScannedData.Items.Clear();
-                    Device.BeginInvokeOnMainThread(() => this.ItemsList.Clear());
+                    await Device.InvokeOnMainThreadAsync(() => this.ItemsList.Clear());
 
                     // Lookup product
                     this.UnitRefno = 0;
@@ -914,7 +915,7 @@ namespace dMobile.View.Activity
 
                                     this.AddScanMsg(sender, scanArgs, prodBCUnit);
 
-                                    Device.BeginInvokeOnMainThread(() =>
+                                    await Device.InvokeOnMainThreadAsync(() =>
                                     {
                                         this.lblProductData.TextColor = Color.Black;
                                         this.lblProductData.Text = prodBCUnit;
@@ -957,7 +958,7 @@ namespace dMobile.View.Activity
                                         // TODO: Resource strings
                                         this.AddScanMsg(sender, scanArgs, "Not associated to a product");
 
-                                        Device.BeginInvokeOnMainThread(() =>
+                                        await Device.InvokeOnMainThreadAsync(() =>
                                         {
                                             this.lblProductData.TextColor = Color.Red;
 
@@ -1011,7 +1012,7 @@ namespace dMobile.View.Activity
                                                     }
                                                 }
 
-                                                Device.BeginInvokeOnMainThread(() =>
+                                                await Device.InvokeOnMainThreadAsync(() =>
                                                 {
                                                     this.lblProductData.TextColor = Color.Black;
                                                     this.lblProductData.Text = prodbcuom;
@@ -1022,7 +1023,7 @@ namespace dMobile.View.Activity
                                 }
                                 catch (Exception ex)
                                 {
-                                    Device.BeginInvokeOnMainThread(() =>
+                                    await Device.InvokeOnMainThreadAsync(() =>
                                     {
                                         // TODO: Resource strings
                                         this.AddScanMsg(sender, scanArgs, "Product unidentified");
@@ -1081,14 +1082,14 @@ namespace dMobile.View.Activity
                     // do not allow product bar code reassignment
                     if (this.UnitRefno == 0)
                     {
-                        Device.BeginInvokeOnMainThread(() =>
+                        await Device.InvokeOnMainThreadAsync(() =>
                         {
                             this.cmdAssignProduct.IsEnabled = true;
                         });
                     }
                     else
                     {
-                        Device.BeginInvokeOnMainThread(() =>
+                        await Device.InvokeOnMainThreadAsync(() =>
                         {
                             this.cmdAssignProduct.IsEnabled = false;
                         });
@@ -1469,7 +1470,7 @@ namespace dMobile.View.Activity
                 }
                 catch (Exception ex)
                 {
-                    Device.BeginInvokeOnMainThread(async () =>
+                    await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         FormErrorReport errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex);
                         await errRpt.ShowDialog();
@@ -1646,99 +1647,97 @@ namespace dMobile.View.Activity
 
             FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucSelectProductUnit, this.ActSubType);
 
-            await form.DisplayControl.ShowDialog().ContinueWith(async (result) =>
+            if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
             {
-                if (form.DisplayControl.DialogResult == DialogResult.OK)
+                await form.SaveChanges(this, new EventArgs());
+                XDocument xmlDoc = form.DisplayControlData;
+                this.UnitRefno = int.Parse(xmlDoc.Root.Element("ProductUnitRefno").Value);
+
+                if (this.UnitRefno != 0)
                 {
-                    await form.SaveChanges(this, new EventArgs());
-                    XDocument xmlDoc = form.DisplayControlData;
-                    this.UnitRefno = int.Parse(xmlDoc.Root.Element("ProductUnitRefno").Value);
+                    xmlDoc = XDocument.Parse(
+                         "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
+                         + "<params>"
+                         + ("<ProductUnitRefno>" + this.UnitRefno + "</ProductUnitRefno>")
+                         + ("<ProductUnitBarCodeRefno>" + this.UnitBarCodeRefno + "</ProductUnitBarCodeRefno>")
+                         + ("<ProductIdentifier>" + svdProductIdentifier + "</ProductIdentifier>")
+                         + ("<ProductUnitBarCodeModifier1>" + this.SysEnv.CurrentBarCodeModifier1
+                         + "</ProductUnitBarCodeModifier1>")
+                         + "<RawData></RawData>"
+                         + ("<enumBarCodeSymbology>" + (int)svdSymbology + "</enumBarCodeSymbology>")
+                         + ("<BarCodeSymbologyPrefix>" + svdSymbologyPrefix + "</BarCodeSymbologyPrefix>")
+                         + "</params>");
 
-                    if (this.UnitRefno != 0)
+                    try
                     {
-                        xmlDoc = XDocument.Parse(
-                             "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                             + "<params>"
-                             + ("<ProductUnitRefno>" + this.UnitRefno + "</ProductUnitRefno>")
-                             + ("<ProductUnitBarCodeRefno>" + this.UnitBarCodeRefno + "</ProductUnitBarCodeRefno>")
-                             + ("<ProductIdentifier>" + svdProductIdentifier + "</ProductIdentifier>")
-                             + ("<ProductUnitBarCodeModifier1>" + this.SysEnv.CurrentBarCodeModifier1
-                             + "</ProductUnitBarCodeModifier1>")
-                             + "<RawData></RawData>"
-                             + ("<enumBarCodeSymbology>" + (int)svdSymbology + "</enumBarCodeSymbology>")
-                             + ("<BarCodeSymbologyPrefix>" + svdSymbologyPrefix + "</BarCodeSymbologyPrefix>")
-                             + "</params>");
+                        await this.ActItemBarCode.Insert(xmlDoc, true);
 
-                        try
+                        //this.AddScanMsg(sender, null, "Product associated to bar code.");
+                        await Device.InvokeOnMainThreadAsync(() => this.ItemsList[0] = "Product Associated To Bar Code");
+
+                        using (SQLiteCommand cmndProdBCUnit = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
                         {
-                            await this.ActItemBarCode.Insert(xmlDoc, true);
+                            cmndProdBCUnit.CommandType = CommandType.Text;
+                            cmndProdBCUnit.CommandText = "SELECT tProduct.ProductCode,"
+                                 + "tProductUnit.ProductUnitBC,"
+                                 + "tUnit.UnitCode "
+                                 + "FROM tProductUnit "
+                                 + "INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno "
+                                 + "INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno "
+                                 + "WHERE tProductUnit.ProductUnitRefno = " + this.UnitRefno;
 
-                            //this.AddScanMsg(sender, null, "Product associated to bar code.");
-                            await Device.InvokeOnMainThreadAsync(() => this.ItemsList[0] = "Product Associated To Bar Code");
-
-                            using (SQLiteCommand cmndProdBCUnit = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                            using (SQLiteDataReader drProdBCUnit = cmndProdBCUnit.ExecuteReader())
                             {
-                                cmndProdBCUnit.CommandType = CommandType.Text;
-                                cmndProdBCUnit.CommandText = "SELECT tProduct.ProductCode,"
-                                     + "tProductUnit.ProductUnitBC,"
-                                     + "tUnit.UnitCode "
-                                     + "FROM tProductUnit "
-                                     + "INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno "
-                                     + "INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno "
-                                     + "WHERE tProductUnit.ProductUnitRefno = " + this.UnitRefno;
-
-                                using (SQLiteDataReader drProdBCUnit = cmndProdBCUnit.ExecuteReader())
+                                if (drProdBCUnit.Read())
                                 {
-                                    if (drProdBCUnit.Read())
-                                    {
-                                        productDataText = Convert.ToString(drProdBCUnit["ProductCode"]).TrimEnd()
-                                                     + (" " + Convert.ToString(drProdBCUnit["ProductUnitBC"])).TrimEnd()
-                                                     + " " + Convert.ToString(drProdBCUnit["UnitCode"]);
-                                    }
+                                    productDataText = Convert.ToString(drProdBCUnit["ProductCode"]).TrimEnd()
+                                                 + (" " + Convert.ToString(drProdBCUnit["ProductUnitBC"])).TrimEnd()
+                                                 + " " + Convert.ToString(drProdBCUnit["UnitCode"]);
                                 }
                             }
+                        }
 
-                            if (!string.IsNullOrEmpty(productDataText))
-                            {
-                                await Device.InvokeOnMainThreadAsync(() =>
-                                {
-                                    this.lblProductData.TextColor = Color.Black;
-                                    this.lblProductData.Text = productDataText;
-                                });
-                            }
-                        }
-                        catch (Exceptions.MessageOnlyException ex)
-                        {
-                            ex.Show(this.ActSubType);
-                        }
-                        catch (SQLiteException ex)
-                        {
-                            await Device.InvokeOnMainThreadAsync(async () =>
-                             {
-                                 FormErrorReport errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex);
-                                 await errRpt.ShowDialog();
-                             });
-                        }
-                        catch (Exception ex)
-                        {
-                            await Device.InvokeOnMainThreadAsync(async () =>
-                             {
-                                 FormErrorReport errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex);
-                                 await errRpt.ShowDialog();
-                             });
-                        }
-                        finally
+                        if (!string.IsNullOrEmpty(productDataText))
                         {
                             await Device.InvokeOnMainThreadAsync(() =>
                             {
-                                this.Parse.ClearResetBarCodeProperties();
-                                this.HasData = false;
+                                this.lblProductData.TextColor = Color.Black;
+                                this.lblProductData.Text = productDataText;
                             });
                         }
                     }
+                    catch (Exceptions.MessageOnlyException ex)
+                    {
+                        ex.Show(this.ActSubType);
+                    }
+                    catch (SQLiteException ex)
+                    {
+                        await Device.InvokeOnMainThreadAsync(async () =>
+                         {
+                             FormErrorReport errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex);
+                             await errRpt.ShowDialog();
+                         });
+                    }
+                    catch (Exception ex)
+                    {
+                        await Device.InvokeOnMainThreadAsync(async () =>
+                         {
+                             FormErrorReport errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex);
+                             await errRpt.ShowDialog();
+                         });
+                    }
+                    finally
+                    {
+                        await Device.InvokeOnMainThreadAsync(() =>
+                        {
+                            this.Parse.ClearResetBarCodeProperties();
+                            this.HasData = false;
+                        });
+                    }
                 }
-            });
+            }
         }
+    
 
         /// <summary>
         ///

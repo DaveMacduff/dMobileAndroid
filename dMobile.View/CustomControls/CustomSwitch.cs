@@ -1,5 +1,6 @@
 ﻿using System;
 using Xamarin.Forms;
+using Switch = Xamarin.Forms.Switch;
 
 namespace dMobile.View.CustomControls
 {

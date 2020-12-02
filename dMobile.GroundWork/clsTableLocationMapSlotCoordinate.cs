@@ -228,7 +228,7 @@ namespace dMobile.GroundWork
                                     cmndSlotCoordInsert.CommandType = CommandType.Text;
                                     //cmndSlotCoordInsert.IndexName = "UQ_LocationMapSlotCoordOnLocationMapSlotCoordEnumAndLocationMapSlotCoordCode";
                                     cmndSlotCoordInsert.Parameters.Add(new SQLiteParameter("@locationMapSlotCoordinateEnum", Convert.ToInt32(drow["LocationMapSlotCoordinateEnum"])));
-                                    cmndSlotCoord.Parameters.Add(new SQLiteParameter("@warehouseLocationMapRefno", whsLocMapRefno));
+                                    cmndSlotCoordInsert.Parameters.Add(new SQLiteParameter("@warehouseLocationMapRefno", whsLocMapRefno));
                                     cmndSlotCoordInsert.Parameters.Add(new SQLiteParameter("@locationMapSlotCoordinateCode", drow["LocationMapSlotCoordinateCode"].ToString()));
 
                                     cmndSlotCoordInsert.ExecuteNonQuery();

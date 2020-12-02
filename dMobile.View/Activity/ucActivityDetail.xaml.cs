@@ -1268,7 +1268,7 @@ namespace dMobile.View.Activity
                                 + ("<ActivityDetailUniqueSchemeID>" + this.ActDetail.UniqueSchemeID + "</ActivityDetailUniqueSchemeID>")
                                 + "</imclient>");
 
-                            this.ActDetail.ActItem.IsReadyToApply(xmlParam);
+                            await this.ActDetail.ActItem.IsReadyToApply(xmlParam);
 
                             this.ActDetail.InsertSkid(this.ActDetail.ActItem.ActHdr.SkidInfo);
                             await this.RefreshData();
@@ -1308,6 +1308,7 @@ namespace dMobile.View.Activity
 
                     //// This prevents UI lag when pushing modal into view
                     //await Task.Delay(500);
+                    await this.RefreshData();
 
                     this.ScannerEnable();
 
@@ -1336,8 +1337,6 @@ namespace dMobile.View.Activity
                         }
                     }
                 }
-
-                await this.RefreshData();
 
                 await Device.InvokeOnMainThreadAsync(() =>
                 {
@@ -1935,7 +1934,7 @@ namespace dMobile.View.Activity
                             + ("<ActivityDetailUniqueSchemeID>" + this.ActDetail.UniqueSchemeID + "</ActivityDetailUniqueSchemeID>")
                             + "</imclient>");
 
-                            this.ActDetail.ActItem.IsReadyToApply(xmlParam);
+                            await this.ActDetail.ActItem.IsReadyToApply(xmlParam);
 
                             this.ActDetail.InsertSkid(this.ActDetail.ActItem.ActHdr.SkidInfo);
 

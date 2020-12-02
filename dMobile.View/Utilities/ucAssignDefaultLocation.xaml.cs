@@ -19,7 +19,6 @@
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ucAssignDefaultLocation : DMobileContentPage, IAppArea, IAppPublisher
     {
-
         //private UserControl callingControl = new ucUtilitiesMenu();
         private bool isControlLoaded = false;
         private bool changesMade = false;

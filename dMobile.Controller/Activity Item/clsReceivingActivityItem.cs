@@ -899,9 +899,9 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public override void IsReadyToApply(XDocument data)
+        public override async Task IsReadyToApply(XDocument data)
         {
-            base.IsReadyToApply(data);
+            await base.IsReadyToApply(data);
 
             // New items are identified with 0 < this.FKRefno, do not validate.
             if (this.SysEnv.SysSettings.RecvQtyOverWarn != SysCommon.ActReceivingQtyOverValLevels.NoValidationOrWarning && 0 < this.FKRefno)
@@ -915,28 +915,15 @@ namespace dMobile.Controller
                     switch (this.SysEnv.SysSettings.RecvQtyOverWarn)
                     {
                         case SysCommon.ActReceivingQtyOverValLevels.ValidateWarnAndContinue:
-                            // TODO: DisplayAlert
-                            //              if (MessageBox.Show(
-                            //#if MULTILANGUAGE
-                            //                  ex.Message + Environment.NewLine + Translator.GetInstance().Translate(TranslatorVocabulary.Continue),
-                            //                  Translator.GetInstance().Translate(TranslatorVocabulary.QuantityOver),
-                            //#else
-                            //                  ex.Message + Environment.NewLine + "Continue?",
-                            //                  "Quantity Over",
-                            //#endif
-                            //                  MessageBoxButtons.YesNo,
-                            //                  MessageBoxIcon.Question,
-                            //                  MessageBoxDefaultButton.Button2) == DialogResult.No)
-                            //              {
-                            throw new IsReadyToApplyException(ex.Message, true, false);
-                            //}
-                            //else
-                            //{
-                            //  ////throw new IsReadyToApplyException(ex.Message, true, true);
-                            //}
-
-                            break;
-
+                            // TODO: Resource strings
+                            if (await Application.Current.MainPage.DisplayAlert("Quantity Over", ex.Message + Environment.NewLine + "Continue?", "Yes", "No"))
+                            {
+                                throw new IsReadyToApplyException(ex.Message, true, true);
+                            }
+                            else
+                            {
+                                throw new IsReadyToApplyException(ex.Message, true, false);
+                            }
                         case SysCommon.ActReceivingQtyOverValLevels.ValidateWarnAndStop:
                             throw new IsReadyToApplyException(ex.Message, false, false);
                     }

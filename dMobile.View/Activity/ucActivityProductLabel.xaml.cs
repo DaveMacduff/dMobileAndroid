@@ -529,7 +529,7 @@ namespace dMobile.View.Activity
 
             try
             {
-                isReadyToSave = this.IsValidData();
+                isReadyToSave = await this.IsValidData();
             }
             catch (IsReadyToApplyException ex)
             {
@@ -1253,7 +1253,7 @@ namespace dMobile.View.Activity
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        private bool IsValidData()
+        private async Task<bool> IsValidData()
         {
             bool isRetVal = true;
             ProdScheme scheme = this.ActDetail.ActItem.ProdInfo.Scheme;
@@ -1281,7 +1281,7 @@ namespace dMobile.View.Activity
             if (this.ActDetailEdit.Quantity == 0)
             {
                 // TODO: Resource strings
-                DisplayAlert(this.GetControlDescription(), "Invalid Quantity.", "OK");
+                await DisplayAlert(this.GetControlDescription(), "Invalid Quantity.", "OK");
                 isRetVal = false;
             }
 
@@ -1322,7 +1322,7 @@ namespace dMobile.View.Activity
                 if ((scheme.IsSerialTracked || scheme.LabelInfo.IsSerialTracked) && this.ActDetailEdit.SchemeData.SingleTradeItemSerialNumber == string.Empty)
                 {
                     // TODO: Resource strings
-                    DisplayAlert(this.GetControlDescription(), "Serial number required.", "OK");
+                    await DisplayAlert(this.GetControlDescription(), "Serial number required.", "OK");
                     isRetVal = false;
                 }
             }
@@ -1332,7 +1332,7 @@ namespace dMobile.View.Activity
                 if ((scheme.IsLotTracked || scheme.LabelInfo.IsLotTracked) && this.ActDetailEdit.SchemeData.LogisticUnitBatchLotNumber == string.Empty)
                 {   
                     // TODO: Resource strings
-                    DisplayAlert(this.GetControlDescription(), "Lot number required.", "OK");
+                    await DisplayAlert(this.GetControlDescription(), "Lot number required.", "OK");
                     isRetVal = false;
                 }
             }
@@ -1342,7 +1342,7 @@ namespace dMobile.View.Activity
                 if ((scheme.IsVariantTracked || scheme.LabelInfo.IsVariantTracked) && this.ActDetailEdit.SchemeData.VariantCode == string.Empty)
                 {
                     // TODO: Resource strings
-                    DisplayAlert(this.GetControlDescription(), "Variant code required.", "OK");
+                    await DisplayAlert(this.GetControlDescription(), "Variant code required.", "OK");
                     isRetVal = false;
                 }
             }
@@ -1405,7 +1405,7 @@ namespace dMobile.View.Activity
                     + ("<ActivityDetailUniqueSchemeID>" + this.ActDetail.UniqueSchemeID + "</ActivityDetailUniqueSchemeID>")
                     + "</imclient>");
 
-                this.ActDetail.ActItem.IsReadyToApply(xmlParam);
+                await this.ActDetail.ActItem.IsReadyToApply(xmlParam);
             }
 
             return isRetVal;

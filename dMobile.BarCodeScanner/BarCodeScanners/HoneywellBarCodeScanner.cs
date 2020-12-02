@@ -142,7 +142,13 @@
         /// <param name="e">The e<see cref="BarcodeDataArgs"/></param>
         private void HoneywellReader_BarcodeDataReady(object sender, BarcodeDataArgs e)
         {
-            mUIContext.Post(_ => { this.OnBarCodeScan(new BarCodeScannerEventArgs(e.Data)); }, null);
+            if (this.mUIContext == null)
+            {
+                SynchronizationContext.SetSynchronizationContext(new SynchronizationContext());
+                this.mUIContext = SynchronizationContext.Current;
+            }
+
+            this.mUIContext.Post(_ => { this.OnBarCodeScan(new BarCodeScannerEventArgs(e.Data)); }, null);
         }
 
         /// <summary>

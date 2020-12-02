@@ -135,14 +135,6 @@
                 this.updnBarCodeModifier1.SelectedItem = this.SysEnv.CurrentBarCodeModifier1;
                 this.Scanner = BarCodeSingleton.GetInstance().Scanner;
 
-                //// timer event code follows
-                ////RefreshData()
-                ////cmdLocation.Enabled = True
-                ////cmdSelectSkid.Enabled = oEnvironment.SysSettings.IsSkidTrackingModule
-                ////'cmdFilter.Enabled = True
-                ////cmdAddProduct.Enabled = actItem.IsAllowAddItem
-                ///
-
                 this.ActItem.Refresh(this.ActItem.ActHdr.XMLDataCriteria);
             }
         }
@@ -1999,7 +1991,7 @@
                             + ("<ActivityDetailUniqueSchemeID>" + actDetail.UniqueSchemeID + "</ActivityDetailUniqueSchemeID>")
                             + "</imclient>");
 
-                        this.ActItem.IsReadyToApply(xmlParam);
+                        await this.ActItem.IsReadyToApply(xmlParam);
 
                         actDetail.InsertSkid(this.ActItem.ActHdr.SkidInfo);
 
@@ -2922,7 +2914,7 @@
                                 + ("<ActivityDetailUniqueSchemeID>" + actDetail.UniqueSchemeID + "</ActivityDetailUniqueSchemeID>")
                                 + "</imclient>");
 
-                            this.ActItem.IsReadyToApply(xmlParam);
+                            await this.ActItem.IsReadyToApply(xmlParam);
 
                             actDetail.InsertSkid(this.ActItem.ActHdr.SkidInfo);
 
@@ -3235,7 +3227,6 @@
                 //this.ItemsList.Clear();
 
                 // TODO: Resource strings
-                //this.lstDisplay.Items.Add("Loading items. Please wait...");
 
                 this.ActItem.RegLayerListenerProgOut(this);
                 //this.pbarStatus.Minimum = 0;

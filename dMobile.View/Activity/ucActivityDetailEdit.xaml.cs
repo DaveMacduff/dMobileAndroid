@@ -618,7 +618,7 @@ namespace dMobile.View.Activity
 
             try
             {
-                this.IsValidData();
+                await this.IsValidData();
             }
             catch (IsReadyToApplyException ex)
             {
@@ -1296,7 +1296,7 @@ namespace dMobile.View.Activity
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        private void IsValidData()
+        private async Task IsValidData()
         {
             SProductSchemeData s = this.ActDetailEdit.SchemeData;
             SerialNumber serialNumber = this.cboSerialNo.SelectedItem != null ? this.cboSerialNo.SelectedItem as SerialNumber : null;
@@ -1474,7 +1474,7 @@ namespace dMobile.View.Activity
                 + ("<ActivityDetailUniqueSchemeID>" + this.ActDetail.UniqueSchemeID + "</ActivityDetailUniqueSchemeID>")
                 + "</imclient>");
 
-            this.ActDetail.ActItem.IsReadyToApply(xmlParam);
+            await this.ActDetail.ActItem.IsReadyToApply(xmlParam);
         }
 
         /// <summary>

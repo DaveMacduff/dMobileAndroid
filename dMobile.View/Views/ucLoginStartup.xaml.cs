@@ -1,26 +1,22 @@
-﻿using System;
+﻿using Android.Views;
+using dMobile.Bedrock;
+using dMobile.Resources.Enums;
+using dMobile.Resources.Types;
+using dMobile.View.CustomPages;
+using dMobile.View.Forms;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.ComponentModel;
 using System.Data;
 using System.Data.SQLite;
 using System.Diagnostics;
+using System.Linq;
 using System.Net.Sockets;
+using System.Threading.Tasks;
 using System.Xml.Linq;
-using dMobile.Bedrock;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
-using dMobile.View.Forms;
-using dMobile.View.Exceptions;
 using Resource = dMobile.Resources.Properties.Resources;
-using dMobile.Resources.Enums;
-using Android.Views;
-using dMobile.View.CustomPages;
-using dMobile.View.Menus;
-using Android.Widget;
-using dMobile.Resources.Types;
 
 namespace dMobile.View
 {
@@ -29,6 +25,7 @@ namespace dMobile.View
     {
         //private UserControl callingControl = null;
         private bool changesMade = false;
+
         private bool isControlLoaded = false;
         private SysEnvironment sysEnv;
         private bool isAllowedAssocBarCode = true;
@@ -61,9 +58,13 @@ namespace dMobile.View
         }
 
         public delegate void ReqCloseHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
+
         public delegate void ReqCancelDisableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
+
         public delegate void ReqSaveDisableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
+
         public delegate void ReqCancelEnableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
+
         public delegate void ReqSaveEnableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
 
         public event ReqCloseHandler ReqClose
@@ -348,7 +349,7 @@ namespace dMobile.View
                     Console.WriteLine(ex);
                 }
             });
-            
+
             try
             {
                 this.LoginStartup_GotFocus(this, new EventArgs());
@@ -397,12 +398,18 @@ namespace dMobile.View
 
             try
             {
+                if (string.IsNullOrEmpty(this.txtLoginID.Text) || string.IsNullOrEmpty(this.txtLoginPassword.Text))
+                {
+                    isReadyToSave = false;
+                    return isReadyToSave;
+                }
+
                 using (SQLiteCommand cmndGetContactUser = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
                 {
                     cmndGetContactUser.CommandText = "SELECT * FROM tContactUser WHERE ContactUserCode = @contactUserCode";
                     //cmndGetContactUser.IndexName = "UQ_ContactUserOnContactUserCode";
                     cmndGetContactUser.CommandType = CommandType.Text;
-                    cmndGetContactUser.Parameters.Add(new SQLiteParameter("@contactUserCode", this.txtLoginID.Text));
+                    cmndGetContactUser.Parameters.Add(new SQLiteParameter("@contactUserCode", Convert.ToInt32(this.txtLoginID.Text)));
 
                     using (SQLiteDataReader drContactUser = cmndGetContactUser.ExecuteReader())
                     {
@@ -429,17 +436,7 @@ namespace dMobile.View
                     password = SysCommon.SystemLoginPassword;
                 }
 
-                if (string.IsNullOrEmpty(this.txtLoginID.Text))
-                {
-                    isReadyToSave = false;
-                }
-
                 if (userCode != Convert.ToInt32(this.txtLoginID.Text))
-                {
-                    isReadyToSave = false;
-                }
-
-                if (string.IsNullOrEmpty(this.txtLoginPassword.Text))
                 {
                     isReadyToSave = false;
                 }
@@ -459,7 +456,6 @@ namespace dMobile.View
                 FormErrorReport errReport = new FormErrorReport(SysCommon.ActSubTypes.LoginStartup, ex);
                 await Device.InvokeOnMainThreadAsync(async () => await errReport.ShowDialog());
                 isReadyToSave = false;
-
             }
             catch (Exception ex)
             {
@@ -604,7 +600,7 @@ namespace dMobile.View
                 else
                 {
                     this.SysEnv.ContactLog.IsLoggedIn = false;
-                    throw new Exceptions.MessageOnlyException(Resource.EnteredDataFailedValidation);
+                    //throw new Exceptions.MessageOnlyException(Resource.EnteredDataFailedValidation);
                 }
             }
             catch (Exceptions.MessageOnlyException ex)
@@ -616,7 +612,7 @@ namespace dMobile.View
                 FormErrorReport errReport = new FormErrorReport(SysCommon.ActSubTypes.LoginStartup, ex);
                 await Device.InvokeOnMainThreadAsync(async () => await errReport.ShowDialog().ContinueWith(result =>
                 {
-                        Android.OS.Process.KillProcess(Android.OS.Process.MyPid());
+                    Android.OS.Process.KillProcess(Android.OS.Process.MyPid());
                 }));
 
                 saveComplete = false;
@@ -671,7 +667,7 @@ namespace dMobile.View
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="appEventListener"></param>
         public void RegisterReqClose(IAppListener appEventListener)
@@ -680,7 +676,7 @@ namespace dMobile.View
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="appEventListener"></param>
         public void UnregisterReqClose(IAppListener appEventListener)
@@ -689,7 +685,7 @@ namespace dMobile.View
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="appEventListener"></param>
         public void RegisterReqSaveEnable(IAppListener appEventListener)
@@ -698,7 +694,7 @@ namespace dMobile.View
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="appEventListener"></param>
         public void UnregisterReqSaveEnable(IAppListener appEventListener)
@@ -707,7 +703,7 @@ namespace dMobile.View
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="appEventListener"></param>
         public void RegisterReqSaveDisable(IAppListener appEventListener)
@@ -716,7 +712,7 @@ namespace dMobile.View
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="appEventListener"></param>
         public void UnregisterReqSaveDisable(IAppListener appEventListener)
@@ -725,7 +721,7 @@ namespace dMobile.View
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="appEventListener"></param>
         public void RegisterReqCancelEnable(IAppListener appEventListener)
@@ -734,7 +730,7 @@ namespace dMobile.View
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="appEventListener"></param>
         public void UnregisterReqCancelEnable(IAppListener appEventListener)
@@ -743,7 +739,7 @@ namespace dMobile.View
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="appEventListener"></param>
         public void RegisterReqCancelDisable(IAppListener appEventListener)
@@ -752,7 +748,7 @@ namespace dMobile.View
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="appEventListener"></param>
         public void UnregisterReqCancelDisable(IAppListener appEventListener)
@@ -775,7 +771,7 @@ namespace dMobile.View
             {
                 cmnd.CommandText = "SELECT LocationMapRefno, LocationMapWarehouseCode, LocationMapWarehouseName FROM tLocationMapWarehouse";
 
-                using(SQLiteDataReader reader = cmnd.ExecuteReader())
+                using (SQLiteDataReader reader = cmnd.ExecuteReader())
                 {
                     while (reader.Read())
                     {
@@ -783,7 +779,7 @@ namespace dMobile.View
                     }
                 }
             }
-            
+
             if (dataViewLocMapWhs.Count > 0)
             {
                 this.lstWarehouse.ItemsSource = dataViewLocMapWhs;
@@ -889,66 +885,45 @@ namespace dMobile.View
                         drUser.Close();
                         //}
                     }
-
                 }
 
-                //if (sender == this.txtLoginID)
-                //{
-                    if (true == string.IsNullOrEmpty(txtLoginID.Text))
-                    {
-                        this.txtLoginPassword.Text = string.Empty;
-                        password = string.Empty;
-                    }
-                    else if (true == string.IsNullOrEmpty(txtLoginPassword.Text))
-                    {
-                        password = string.Empty;
-                    }
-                    else if (true == (userCode != Convert.ToInt32(txtLoginID.Text)))
-                    {
-                        throw new Exceptions.MessageOnlyException(Resource.InvalidLoginId + " " + this.txtLoginID.Text);
-                    }
-                //}
-
-                //if (sender == this.txtLoginPassword)
-                //{
-                    // Override the contact login password with the system one if bypass licenses is enabled.
-                    if (this.IsEnableAllModuleBypassLicense)
-                    {
-                        password = SysCommon.SystemLoginPassword;
-                    }
-
-                    if (true == string.IsNullOrEmpty(txtLoginID.Text))
-                    {
-                        txtLoginPassword.Text = string.Empty;
-                        password = string.Empty;
-                    }
-                    else if (true == string.IsNullOrEmpty(txtLoginPassword.Text))
-                    {
-                        password = string.Empty;
-                    }
-                    else if (true == (password != txtLoginPassword.Text))
-                    {
-                        throw new Exceptions.MessageOnlyException(Resource.InvalidLoginPassword);
-                    }
-                //}
+                if (string.IsNullOrEmpty(txtLoginID.Text))
+                {
+                    this.txtLoginPassword.Text = string.Empty;
+                    password = string.Empty;
+                    throw new Exceptions.MessageOnlyException("Please enter a user ID.");
+                }
+                else if (string.IsNullOrEmpty(txtLoginPassword.Text))
+                {
+                    password = string.Empty;
+                    throw new Exceptions.MessageOnlyException("Please enter a password.");
+                }
+                else if (userCode != Convert.ToInt32(txtLoginID.Text))
+                {
+                    throw new Exceptions.MessageOnlyException(Resource.InvalidLoginId + " " + this.txtLoginID.Text);
+                }
+                else if (password != txtLoginPassword.Text)
+                {
+                    throw new Exceptions.MessageOnlyException(Resource.InvalidLoginPassword);
+                }
 
                 //if (sender == this.lstWarehouse)
                 //{
-                    if (this.lstWarehouse.Items.Count > 0)
+                if (this.lstWarehouse.Items.Count > 0)
+                {
+                    this.SysEnv.ContactLog.WarehouseLocationMapRefno = Convert.ToInt32(this.lstWarehouse.SelectedValue);
+                    if (Convert.ToInt32(this.lstWarehouse.SelectedValue) <= 0)
                     {
-                        this.SysEnv.ContactLog.WarehouseLocationMapRefno = Convert.ToInt32(this.lstWarehouse.SelectedValue);
-                        if (Convert.ToInt32(this.lstWarehouse.SelectedValue) <= 0)
-                        {
-                            throw new Exceptions.MessageOnlyException(Resource.SelectedWarehouseRequired);
-                        }
+                        throw new Exceptions.MessageOnlyException(Resource.SelectedWarehouseRequired);
                     }
-                    else
-                    {
-                        this.SysEnv.ContactLog.WarehouseLocationMapRefno = 0;
-                    }
+                }
+                else
+                {
+                    this.SysEnv.ContactLog.WarehouseLocationMapRefno = 0;
+                }
 
-                    LocationMap locMap = LocationMap.GetInstance();
-                    locMap.LoginWhsLocMapRefno = this.SysEnv.ContactLog.WarehouseLocationMapRefno;
+                LocationMap locMap = LocationMap.GetInstance();
+                locMap.LoginWhsLocMapRefno = this.SysEnv.ContactLog.WarehouseLocationMapRefno;
                 //}
 
                 if (e.Cancel == false)
@@ -1052,7 +1027,7 @@ namespace dMobile.View
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>

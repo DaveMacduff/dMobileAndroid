@@ -419,7 +419,7 @@ namespace dMobile.View
                     + ("<ActivityDetailUniqueSchemeID>" + actDetail.UniqueSchemeID + "</ActivityDetailUniqueSchemeID>")
                     + "</imclient>");
 
-                actItem.IsReadyToApply(xmlParam);
+                await actItem.IsReadyToApply(xmlParam);
 
                 isInsertDetailReady = true;
             }

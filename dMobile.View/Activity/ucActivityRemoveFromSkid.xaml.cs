@@ -15,7 +15,6 @@ using System.Collections.ObjectModel;
 using dMobile.Resources.Enums;
 using Android.Views;
 using dMobile.View.CustomPages.Modal;
-using System.Windows.Controls;
 
 namespace dMobile.View.Activity
 {

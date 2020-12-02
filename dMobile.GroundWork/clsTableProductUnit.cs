@@ -554,7 +554,6 @@ namespace dMobile.GroundWork
                                 {
                                     isProdUnitFound = true;
 
-                                    // TODO: Uncomment SysEnv.RefreshOpt.RefreshDataChangesOnly
                                     if (SysEnv.RefreshOpt.RefreshDataChangesOnly)
                                     {
                                         cmndProdUnitUpdate.CommandText = @"UPDATE tProductUnit

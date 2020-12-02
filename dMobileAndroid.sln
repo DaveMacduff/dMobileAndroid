@@ -3,19 +3,19 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29806.167
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dMobile.BarCodeScanner", "dMobile.BarCodeScanner\dMobile.BarCodeScanner.csproj", "{5A612BC6-514C-4D1B-BFC4-0C2106C186F4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "dMobile.BarCodeScanner", "dMobile.BarCodeScanner\dMobile.BarCodeScanner.csproj", "{5A612BC6-514C-4D1B-BFC4-0C2106C186F4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dMobile.Bedrock", "dMobile.Bedrock\dMobile.Bedrock.csproj", "{9A5C51A9-39E9-45F8-9D5E-18D88C91A321}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "dMobile.Bedrock", "dMobile.Bedrock\dMobile.Bedrock.csproj", "{9A5C51A9-39E9-45F8-9D5E-18D88C91A321}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dMobile.Controller", "dMobile.Controller\dMobile.Controller.csproj", "{F6D4C2E7-A009-4A49-8FC5-0793F7166FB0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "dMobile.Controller", "dMobile.Controller\dMobile.Controller.csproj", "{F6D4C2E7-A009-4A49-8FC5-0793F7166FB0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dMobile.GroundWork", "dMobile.GroundWork\dMobile.GroundWork.csproj", "{07468172-3797-4CD2-8E9F-535A7AFD58B3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "dMobile.GroundWork", "dMobile.GroundWork\dMobile.GroundWork.csproj", "{07468172-3797-4CD2-8E9F-535A7AFD58B3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dMobile.Android", "dMobile\dMobile.Android\dMobile.Android.csproj", "{DFCCC3C0-5219-40F9-A52C-AECE73C0A7B8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dMobile.Resources", "dMobile.Resources\dMobile.Resources.csproj", "{40FA21C1-9078-4713-9DA0-66A15F03F5C8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "dMobile.Resources", "dMobile.Resources\dMobile.Resources.csproj", "{40FA21C1-9078-4713-9DA0-66A15F03F5C8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dMobile.View", "dMobile.View\dMobile.View.csproj", "{CCCAE296-5421-4C29-BFBA-8A1A72006E19}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "dMobile.View", "dMobile.View\dMobile.View.csproj", "{CCCAE296-5421-4C29-BFBA-8A1A72006E19}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

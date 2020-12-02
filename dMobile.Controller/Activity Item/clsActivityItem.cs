@@ -741,7 +741,7 @@ namespace dMobile.Controller
         /// <param name="data"></param>
         /// <returns></returns>
         /// <remarks>clsPickingActivityItem for example performs extra quantity validation.</remarks>
-        public virtual void IsReadyToApply(XDocument data)
+        public virtual async Task IsReadyToApply(XDocument data)
         {
             // Check for duplicate
             if (this.SysEnv.SysSettings.IsDisconnectedMode)

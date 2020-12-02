@@ -1,170 +1,24 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\Xamarin.Forms.4.4.0.991640\build\Xamarin.Forms.props" Condition="Exists('..\packages\Xamarin.Forms.4.4.0.991640\build\Xamarin.Forms.props')" />
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{5A612BC6-514C-4D1B-BFC4-0C2106C186F4}</ProjectGuid>
+    <TargetFramework>netstandard2.1</TargetFramework>
     <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>dMobile.BarCodeScanner</RootNamespace>
-    <AssemblyName>dMobile.BarCodeScanner</AssemblyName>
-    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <Deterministic>true</Deterministic>
-    <TargetFrameworkProfile />
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
     <RegisterForComInterop>false</RegisterForComInterop>
     <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Honeywell.AIDC.CrossPlatform.BarcodeReader, Version=1.32.7.10, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Honeywell.BarcodeReader.1.32.7.10\lib\portable-net45+wpa81+MonoAndroid41+Xamarin.iOS\Honeywell.AIDC.CrossPlatform.BarcodeReader.dll</HintPath>
-    </Reference>
     <Reference Include="Mono.Android, Version=0.0.0.0, Culture=neutral, PublicKeyToken=84e04ff9cfb79065, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\Program Files (x86)\Microsoft Visual Studio\2017\Professional\Common7\IDE\ReferenceAssemblies\Microsoft\Framework\MonoAndroid\v8.1\Mono.Android.dll</HintPath>
     </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Xml" />
-    <Reference Include="Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Xamarin.Forms.4.4.0.991640\lib\netstandard2.0\Xamarin.Forms.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="Xamarin.Forms.Platform, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Xamarin.Forms.4.4.0.991640\lib\netstandard2.0\Xamarin.Forms.Platform.dll</HintPath>
-    </Reference>
-    <Reference Include="Xamarin.Forms.Xaml, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Xamarin.Forms.4.4.0.991640\lib\netstandard2.0\Xamarin.Forms.Xaml.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="BarCodeParsing\BarCodeParse.cs" />
-    <Compile Include="BarCodeParsing\BarCodeParseCodabar.cs" />
-    <Compile Include="BarCodeParsing\BarCodeParseCodabarFactory.cs" />
-    <Compile Include="BarCodeParsing\BarCodeParseCodablock.cs" />
-    <Compile Include="BarCodeParsing\BarCodeParseCodablock256.cs" />
-    <Compile Include="BarCodeParsing\BarCodeParseCodablock256Factory.cs" />
-    <Compile Include="BarCodeParsing\BarCodeParseCodablockFactory.cs" />
-    <Compile Include="BarCodeParsing\BarCodeParseCodablock_A.cs" />
-    <Compile Include="BarCodeParsing\BarCodeParseCodablock_AFactory.cs" />
-    <Compile Include="BarCodeParsing\BarCodeParseCodablock_F.cs" />
-    <Compile Include="BarCodeParsing\BarCodeParseCodablock_FFactory.cs" />
-    <Compile Include="BarCodeParsing\BarCodeParseCode_11.cs" />
-    <Compile Include="BarCodeParsing\BarCodeParseCode_11Factory.cs" />
-    <Compile Include="BarCodeParsing\BarCodeParseCode_128.cs" />
-    <Compile Include="BarCodeParsing\BarCodeParseCode_128Factory.cs" />
-    <Compile Include="BarCodeParsing\BarCodeParseCode_128_BrokerMultiNationalFromChili.cs" />
-    <Compile Include="BarCodeParsing\BarCodeParseCode_128_FINICA_as_EAN_UCC_128.cs" />
-    <Compile Include="BarCodeParsing\BarCodeParseCode_128_NorthCoopMeat_Product256912.cs" />
-    <Compile Include="BarCodeParsing\BarCodeParseCode_128_OvationFielding_Lamb.cs" />
-    <Compile Include="BarCodeParsing\BarCodeParseCode_2_of_5.cs" />
-    <Compile Include="BarCodeParsing\BarCodeParseCode_2_of_5Factory.cs" />
-    <Compile Include="BarCodeParsing\BarCodeParseCode_39.cs" />
-    <Compile Include="BarCodeParsing\BarCodeParseCode_39Factory.cs" />
-    <Compile Include="BarCodeParsing\BarCodeParseCode_93.cs" />
-    <Compile Include="BarCodeParsing\BarCodeParseCode_93Factory.cs" />
-    <Compile Include="BarCodeParsing\BarCodeParseDetails.cs" />
-    <Compile Include="BarCodeParsing\BarCodeParseEAN_UCC_13.cs" />
-    <Compile Include="BarCodeParsing\BarCodeParseEAN_UCC_13Factory.cs" />
-    <Compile Include="BarCodeParsing\BarCodeParseEAN_UCC_14.cs" />
-    <Compile Include="BarCodeParsing\BarCodeParseEAN_UCC_14Factory.cs" />
-    <Compile Include="BarCodeParsing\BarCodeParseEAN_UCC_8.cs" />
-    <Compile Include="BarCodeParsing\BarCodeParseEAN_UCC_8Factory.cs" />
-    <Compile Include="BarCodeParsing\BarCodeParseEAN_UPC_Symbol.cs" />
-    <Compile Include="BarCodeParsing\BarCodeParseEAN_UPC_SymbolFactory.cs" />
-    <Compile Include="BarCodeParsing\BarCodeParseErrorDetail.cs" />
-    <Compile Include="BarCodeParsing\BarCodeParseFacade.cs" />
-    <Compile Include="BarCodeParsing\BarCodeParseFactory.cs" />
-    <Compile Include="BarCodeParsing\BarCodeParseITF_14_Symbol.cs" />
-    <Compile Include="BarCodeParsing\BarCodeParseITF_14_SymbolFactory.cs" />
-    <Compile Include="BarCodeParsing\BarCodeParseMatrix_2_of_5.cs" />
-    <Compile Include="BarCodeParsing\BarCodeParseMatrix_2_of_5Factory.cs" />
-    <Compile Include="BarCodeParsing\BarCodeParseMicro_PDF417.cs" />
-    <Compile Include="BarCodeParsing\BarCodeParseMicro_PDF417Factory.cs" />
-    <Compile Include="BarCodeParsing\BarCodeParseMSI.cs" />
-    <Compile Include="BarCodeParsing\BarCodeParseMSIFactory.cs" />
-    <Compile Include="BarCodeParsing\BarCodeParsePDF417.cs" />
-    <Compile Include="BarCodeParsing\BarCodeParsePDF417Factory.cs" />
-    <Compile Include="BarCodeParsing\BarCodeParsePlessey.cs" />
-    <Compile Include="BarCodeParsing\BarCodeParsePlesseyFactory.cs" />
-    <Compile Include="BarCodeParsing\BarCodeParseRSS_14.cs" />
-    <Compile Include="BarCodeParsing\BarCodeParseRSS_14Factory.cs" />
-    <Compile Include="BarCodeParsing\BarCodeParseRSS_Expanded.cs" />
-    <Compile Include="BarCodeParsing\BarCodeParseRSS_ExpandedFactory.cs" />
-    <Compile Include="BarCodeParsing\BarCodeParseRSS_Limited.cs" />
-    <Compile Include="BarCodeParsing\BarCodeParseRSS_LimitedFactory.cs" />
-    <Compile Include="BarCodeParsing\BarCodeParseSSCC_18.cs" />
-    <Compile Include="BarCodeParsing\BarCodeParseSSCC_18Factory.cs" />
-    <Compile Include="BarCodeParsing\BarCodeParseTelepen.cs" />
-    <Compile Include="BarCodeParsing\BarCodeParseTelepenFactory.cs" />
-    <Compile Include="BarCodeParsing\BarCodeParseTLC_39.cs" />
-    <Compile Include="BarCodeParsing\BarCodeParseTLC_39Factory.cs" />
-    <Compile Include="BarCodeParsing\BarCodeParseUCC_12_UPC_E.cs" />
-    <Compile Include="BarCodeParsing\BarCodeParseUCC_12_UPC_EFactory.cs" />
-    <Compile Include="BarCodeParsing\BarCodeParseUCC_EAN_128_GreenleaPremierMeats_Nossack.cs" />
-    <Compile Include="BarCodeParsing\BarCodeParseUCC_EAN_128_KiiNaturalsCrisps_Dovre.cs" />
-    <Compile Include="BarCodeParsing\BarCodeParseUCC_EAN_128_Symbol.cs" />
-    <Compile Include="BarCodeParsing\BarCodeParseUCC_EAN_128_SymbolFactory.cs" />
-    <Compile Include="BarCodeParsing\BarCodeParseUCC_EAN_128_Symbol_NossackProduct94600_ChileanBackRibs.cs" />
-    <Compile Include="BarCodeParsing\BarCodeParseUnDefined.cs" />
-    <Compile Include="BarCodeParsing\BarCodeParseUnDefinedFactory.cs" />
-    <Compile Include="BarCodeScanners\BarCodeScanner.cs" />
-    <Compile Include="BarCodeScanners\BarCodeScannerEventArgs.cs" />
-    <Compile Include="BarCodeScanners\BarCodeScannerFacade.cs" />
-    <Compile Include="BarCodeScanners\BarCodeScannerFactory.cs" />
-    <Compile Include="BarCodeScanners\BarCodeSingleton.cs" />
-    <Compile Include="BarCodeScanners\HoneywellBarCodeScanner.cs" />
-    <Compile Include="BarCodeScanners\HoneywellBarCodeScannerFactory.cs" />
-    <Compile Include="BarCodeScanners\IntermecBarCodeScanner.cs" />
-    <Compile Include="BarCodeScanners\IntermecBarCodeScannerFactory.cs" />
-    <Compile Include="BarCodeScanners\LXEBarCodeScanner.cs" />
-    <Compile Include="BarCodeScanners\LXEBarCodeScannerFactory.cs" />
-    <Compile Include="BarCodeScanners\PsionBarCodeScanner.cs" />
-    <Compile Include="BarCodeScanners\PsionBarCodeScannerFactory.cs" />
-    <Compile Include="BarCodeScanners\SymbolBarCodeScanner.cs" />
-    <Compile Include="BarCodeScanners\SymbolBarCodeScannerFactory.cs" />
-    <Compile Include="clsCommon.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RuleViolationException.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Symbol CAB Files\armv4i\symbol.all.arm.cab" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\dMobile.Bedrock\dMobile.Bedrock.csproj">
-      <Project>{9a5c51a9-39e9-45f8-9d5e-18d88c91a321}</Project>
-      <Name>dMobile.Bedrock</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="app.config" />
-    <None Include="packages.config" />
+    <ProjectReference Include="..\dMobile.Bedrock\dMobile.Bedrock.csproj" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Connected Services\" />
@@ -172,13 +26,11 @@
   <ItemGroup>
     <Folder Include="DLLs\" />
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\packages\Xamarin.Forms.4.4.0.991640\build\Xamarin.Forms.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.Forms.4.4.0.991640\build\Xamarin.Forms.props'))" />
-    <Error Condition="!Exists('..\packages\Xamarin.Forms.4.4.0.991640\build\Xamarin.Forms.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Xamarin.Forms.4.4.0.991640\build\Xamarin.Forms.targets'))" />
-  </Target>
-  <Import Project="..\packages\Xamarin.Forms.4.4.0.991640\build\Xamarin.Forms.targets" Condition="Exists('..\packages\Xamarin.Forms.4.4.0.991640\build\Xamarin.Forms.targets')" />
+  <ItemGroup>
+    <PackageReference Include="Honeywell.BarcodeReader" Version="1.32.7.10" />
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+    <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
+    <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
+    <PackageReference Include="Xamarin.Forms" Version="4.4.0.991640" />
+  </ItemGroup>
 </Project>

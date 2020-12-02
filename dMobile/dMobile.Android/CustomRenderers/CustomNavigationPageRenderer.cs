@@ -19,31 +19,31 @@ namespace dMobile.Droid.CustomRenderers
         /// <param name="context">The context<see cref="Context"/></param>
         public CustomNavigationPageRenderer(Context context) : base(context) { }
 
-        /// <summary>
-        /// The OnLayout
-        /// </summary>
-        /// <param name="changed">The changed<see cref="bool"/></param>
-        /// <param name="l">The l<see cref="int"/></param>
-        /// <param name="t">The t<see cref="int"/></param>
-        /// <param name="r">The r<see cref="int"/></param>
-        /// <param name="b">The b<see cref="int"/></param>
-        protected override void OnLayout(bool changed, int l, int t, int r, int b)
-        {
-            base.OnLayout(changed, l, t, r, b);
+        ///// <summary>
+        ///// The OnLayout
+        ///// </summary>
+        ///// <param name="changed">The changed<see cref="bool"/></param>
+        ///// <param name="l">The l<see cref="int"/></param>
+        ///// <param name="t">The t<see cref="int"/></param>
+        ///// <param name="r">The r<see cref="int"/></param>
+        ///// <param name="b">The b<see cref="int"/></param>
+        //protected override void OnLayout(bool changed, int l, int t, int r, int b)
+        //{
+        //    base.OnLayout(changed, l, t, r, b);
 
-            var toolbar = FindViewById<Support.Toolbar>(Resource.Id.toolbar);
+        //    var toolbar = FindViewById<Support.Toolbar>(Resource.Id.toolbar);
 
-            if (toolbar == null) return;
+        //    if (toolbar == null) return;
 
-            for (var index = 0; index < toolbar.ChildCount; index++)
-            {                
-                if (toolbar.GetChildAt(index) is TextView title)
-                {
-                    float toolbarCenter = toolbar.Width / 2;
-                    float titleCenter = title.Width / 2;
-                    title.SetX(toolbarCenter - titleCenter);
-                }
-            }
-        }
+        //    for (var index = 0; index < toolbar.ChildCount; index++)
+        //    {                
+        //        if (toolbar.GetChildAt(index) is TextView title)
+        //        {
+        //            float toolbarCenter = toolbar.Width / 2;
+        //            float titleCenter = title.Width / 2;
+        //            title.SetX(toolbarCenter - titleCenter);
+        //        }
+        //    }
+        //}
     }
 }

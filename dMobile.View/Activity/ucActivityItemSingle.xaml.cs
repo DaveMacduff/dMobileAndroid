@@ -1713,7 +1713,7 @@ namespace dMobile.View.Activity
                             + ("<ActivityDetailUniqueSchemeID>" + actDetail.UniqueSchemeID + "</ActivityDetailUniqueSchemeID>")
                             + "</imclient>");
 
-                        this.ActItem.IsReadyToApply(xmlParam);
+                        await this.ActItem.IsReadyToApply(xmlParam);
 
                         actDetail.InsertSkid(this.ActHdr.SkidInfo);
 
@@ -2792,7 +2792,7 @@ namespace dMobile.View.Activity
                             + ("<ActivityDetailUniqueSchemeID>" + actDetail.UniqueSchemeID + "</ActivityDetailUniqueSchemeID>")
                             + "</imclient>");
 
-                        this.ActItem.IsReadyToApply(xmlParam);
+                        await this.ActItem.IsReadyToApply(xmlParam);
 
                         actDetail.InsertSkid(this.ActHdr.SkidInfo);
 

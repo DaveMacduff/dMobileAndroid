@@ -119,7 +119,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\dMobile.Bedrock\dMobile.Bedrock.csproj">
-      <Project>{9A5C51A9-39E9-45F8-9D5E-18D88C91A321}</Project>
+      <Project>{9a5c51a9-39e9-45f8-9d5e-18d88c91a321}</Project>
       <Name>dMobile.Bedrock</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\dMobile.Resources\dMobile.Resources.csproj">
@@ -153,4 +153,9 @@
     <AndroidResource Include="Resources\drawable\arrow_drop_down.png" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties TriggeredFromHotReload="False" />
+    </VisualStudio>
+  </ProjectExtensions>
 </Project>

@@ -4,6 +4,7 @@ using Xamarin.Forms.Platform.Android;
 using dMobile.Droid.CustomRenderers;
 using dMobile.View.CustomControls;
 using System;
+using Switch = Xamarin.Forms.Switch;
 
 [assembly: ExportRenderer(typeof(CustomSwitch), typeof(CustomSwitchRenderer))]
 namespace dMobile.Droid.CustomRenderers

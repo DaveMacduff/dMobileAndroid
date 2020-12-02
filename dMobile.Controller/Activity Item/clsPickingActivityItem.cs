@@ -96,9 +96,9 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public override void IsReadyToApply(XDocument data)
+        public override async Task IsReadyToApply(XDocument data)
         {
-            base.IsReadyToApply(data);
+            await base.IsReadyToApply(data);
 
             // Weight tolerance within percentage check.
             if (this.SysEnv.SysSettings.ProdWeightUnitTolerancePercent != 0)
@@ -133,25 +133,15 @@ namespace dMobile.Controller
                     switch (this.SysEnv.SysSettings.PickQtyOverWarn)
                     {
                         case SysCommon.ActPickingQtyOverValLevels.ValidateWarnAndContinue:
-//                            // TODO: DisplayAlert
-//                            if (MessageBox.Show(
-//#if MULTILANGUAGE
-//                                              ex.Message + Environment.NewLine + Translator.GetInstance().Translate(TranslatorVocabulary.Continue),
-//                                              Translator.GetInstance().Translate(TranslatorVocabulary.QuantityOver),
-//#else
-//                                              ex.Message + Environment.NewLine + "Continue?",
-//                                "Quantity Over",
-//#endif
-//                                              MessageBoxButtons.YesNo,
-//                                MessageBoxIcon.Question,
-//                                MessageBoxDefaultButton.Button2) == DialogResult.No)
-//                            {
+                            // TODO: Resource strings
+                            if (await Application.Current.MainPage.DisplayAlert("Quantity Over", ex.Message + Environment.NewLine + "Continue?", "Yes", "No"))
+                            {
+                                throw new IsReadyToApplyException(ex.Message, true, true);
+                            }
+                            else
+                            {
                                 throw new IsReadyToApplyException(ex.Message, true, false);
-                            //}
-                            //else
-                            //{
-                            //    throw new IsReadyToApplyException(ex.Message, true, true);
-                            //}
+                            }
                         case SysCommon.ActPickingQtyOverValLevels.ValidateWarnAndStop:
                             throw new IsReadyToApplyException(ex.Message, false, false);
                     }

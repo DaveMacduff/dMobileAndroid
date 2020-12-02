@@ -72,9 +72,9 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public override async void IsReadyToApply(XDocument data)
+        public override async Task IsReadyToApply(XDocument data)
         {
-            base.IsReadyToApply(data);
+            await base.IsReadyToApply(data);
 
             // New items are identified with 0 < this.FKRefno, do not validate.
             if (this.SysEnv.SysSettings.TransQtyOverWarn != SysCommon.ActTransfersQtyOverValLevels.NoValidationOrWarning && 0 < this.FKRefno)
@@ -755,7 +755,7 @@ namespace dMobile.Controller
                 {
                     if (drItem.Read())
                     {
-                        this.LocMap.CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(drItem["LocationMapRefno"]));
+                        //// this.LocMap.CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(drItem["LocationMapRefno"]));
                         this.Refno = Convert.ToInt32(drItem["ActivityItemRefno"]);
                         this.FKRefno = Convert.ToInt32(drItem["ActivityItemTransferFKRefno"]);
                         this.ProdInfo = ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(drItem["ProductUnitRefno"]));

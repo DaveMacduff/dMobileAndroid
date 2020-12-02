@@ -1391,7 +1391,7 @@ namespace dMobile.View.Options
             }
             else
             {
-                return Resource.DMobileRefreshDataStatus;
+                return "Refresh Data Status";
             }
         }
 

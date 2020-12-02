@@ -73,7 +73,6 @@ namespace dMobile.GroundWork
                     }
                 }
 
-
                 // Require to have product uom relations.
                 if (0 >= this.DataStatus())
                 {
@@ -194,7 +193,6 @@ namespace dMobile.GroundWork
             SQLiteConnection conn = DatabaseConnection.GetInstance().SQLConn;
             string errMsg = string.Empty;
             int recordCount = 0;
-
 
             using (SQLiteCommand cmndProdUnitRel = conn.CreateCommand())
             using (SQLiteCommand cmndProdUnitRelUpdate = conn.CreateCommand())
@@ -480,7 +478,6 @@ namespace dMobile.GroundWork
                                 {
                                     // TODO: Resource Strings
                                     throw new Exception("drProdUnit.Read() failed." + Environment.NewLine + errMsg);
-
                                 }
                                 //}
                                 //else

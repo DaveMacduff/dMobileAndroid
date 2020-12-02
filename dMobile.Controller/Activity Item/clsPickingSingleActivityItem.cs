@@ -208,9 +208,9 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public override void IsReadyToApply(XDocument data)
+        public override async Task IsReadyToApply(XDocument data)
         {
-            base.IsReadyToApply(data);
+            await base.IsReadyToApply(data);
 
             // Weight tolerance within percentage check.
             if (this.SysEnv.SysSettings.ProdWeightUnitTolerancePercent != 0)
@@ -223,23 +223,9 @@ namespace dMobile.Controller
 
                 if (weight < weightLower || weight > weightUpper)
                 {
-                    ////throw new MessageOnlyException("Item is outside of expected weight.");
-
                     // TODO: Resource strings
                     string msg = "Item is outside of expected weight.";
-                    //          MessageBox.Show(
-                    //              msg,
-                    //#if MULTILANGUAGE
-                    //              Translator.GetInstance().Translate(TranslatorVocabulary.WeightRangeCheck),
-                    //#else
-                    //              "Weight Range Check",
-                    //#endif
-                    //              MessageBoxButtons.OK,
-                    //              MessageBoxIcon.Exclamation,
-                    //              MessageBoxDefaultButton.Button2);
-                    ////throw new IsReadyToApplyException(msg, true, false);
-                    ///
-                    Application.Current.MainPage.DisplayAlert("Weight Range Check", msg, "OK");
+                    await Application.Current.MainPage.DisplayAlert("Weight Range Check", msg, "OK");
                 }
             }
 
@@ -248,9 +234,7 @@ namespace dMobile.Controller
             {
                 try
                 {
-                    this.PickingModuleQuantityOverCheck(
-                        int.Parse(data.Root.Element("itm_refno").Value),
-                        decimal.Parse(data.Root.Element("alt_qty").Value));
+                    this.PickingModuleQuantityOverCheck(int.Parse(data.Root.Element("itm_refno").Value), decimal.Parse(data.Root.Element("alt_qty").Value));
                 }
                 catch (Exception ex)
                 {
@@ -258,27 +242,14 @@ namespace dMobile.Controller
                     {
                         case SysCommon.ActPickingQtyOverValLevels.ValidateWarnAndContinue:
                             // TODO: DisplayAlert
-                            //              if (MessageBox.Show(
-                            //#if MULTILANGUAGE
-                            //                  ex.Message + Environment.NewLine + Translator.GetInstance().Translate(TranslatorVocabulary.Continue),
-                            //                  Translator.GetInstance().Translate(TranslatorVocabulary.QuantityOver),
-                            //#else
-                            //                  ex.Message + Environment.NewLine + "Continue?",
-                            //                  "Quantity Over",
-                            //#endif
-                            //                  MessageBoxButtons.YesNo,
-                            //                  MessageBoxIcon.Question,
-                            //                  MessageBoxDefaultButton.Button2) == DialogResult.No)
-                            //              {
-                            //                throw new IsReadyToApplyException(ex.Message, true, false);
-                            //}
-                            //else
-                            //{
-                            throw new IsReadyToApplyException(ex.Message, true, true);
-                            //}
-
-                            break;
-
+                            if (await Application.Current.MainPage.DisplayAlert("Quantity Over", ex.Message + Environment.NewLine + "Continue?", "Yes", "No"))
+                            {
+                                throw new IsReadyToApplyException(ex.Message, true, true);
+                            }
+                            else
+                            {
+                                throw new IsReadyToApplyException(ex.Message, true, false);
+                            }
                         case SysCommon.ActPickingQtyOverValLevels.ValidateWarnAndStop:
                             throw new IsReadyToApplyException(ex.Message, false, false);
                     }
@@ -332,38 +303,25 @@ namespace dMobile.Controller
                 else
                 {
                     SProductSchemeData tempSchemeData = new SProductSchemeData();
-                    itemSchemeData.ActItemFKRefno = int.Parse(
-                        xmlDoc.SelectSingleNode("/VFPData/seg/activityitempickingfkrefno").InnerText);
-                    itemSchemeData.ActDetailQuantity = decimal.Parse(
-                        xmlDoc.SelectSingleNode("/VFPData/seg/activitydetailquantity").InnerText);
+                    itemSchemeData.ActItemFKRefno = int.Parse(xmlDoc.SelectSingleNode("/VFPData/seg/activityitempickingfkrefno").InnerText);
+                    itemSchemeData.ActDetailQuantity = decimal.Parse(xmlDoc.SelectSingleNode("/VFPData/seg/activitydetailquantity").InnerText);
                     itemSchemeData.UnitCode = xmlDoc.SelectSingleNode("/VFPData/seg/unitcode").InnerText;
-                    itemSchemeData.ActDetailBaseQuantity = decimal.Parse(
-                        xmlDoc.SelectSingleNode("/VFPData/seg/activitydetailbasequantity").InnerText);
+                    itemSchemeData.ActDetailBaseQuantity = decimal.Parse(xmlDoc.SelectSingleNode("/VFPData/seg/activitydetailbasequantity").InnerText);
                     itemSchemeData.BaseUnitCode = xmlDoc.SelectSingleNode("/VFPData/seg/baseunitcode").InnerText;
-                    itemSchemeData.ActDetailWeightQuantity = decimal.Parse(
-                        xmlDoc.SelectSingleNode("/VFPData/seg/activitydetailweightquantity").InnerText);
+                    itemSchemeData.ActDetailWeightQuantity = decimal.Parse(xmlDoc.SelectSingleNode("/VFPData/seg/activitydetailweightquantity").InnerText);
                     itemSchemeData.WeightUnitCode = xmlDoc.SelectSingleNode("/VFPData/seg/weightunitcode").InnerText;
-                    itemSchemeData.LocMapWhsFKRefno = int.Parse(
-                        xmlDoc.SelectSingleNode("/VFPData/seg/locationmapwarehousefkrefno").InnerText);
-                    itemSchemeData.LocMapSectFKRefno = int.Parse(
-                        xmlDoc.SelectSingleNode("/VFPData/seg/locationmapsectionfkrefno").InnerText);
-                    itemSchemeData.LocMapSlotFKRefno = int.Parse(
-                        xmlDoc.SelectSingleNode("/VFPData/seg/locationmapslotfkrefno").InnerText);
+                    itemSchemeData.LocMapWhsFKRefno = int.Parse(xmlDoc.SelectSingleNode("/VFPData/seg/locationmapwarehousefkrefno").InnerText);
+                    itemSchemeData.LocMapSectFKRefno = int.Parse(xmlDoc.SelectSingleNode("/VFPData/seg/locationmapsectionfkrefno").InnerText);
+                    itemSchemeData.LocMapSlotFKRefno = int.Parse(xmlDoc.SelectSingleNode("/VFPData/seg/locationmapslotfkrefno").InnerText);
 
-                    tempSchemeData.SingleTradeItemSerialNumber = xmlDoc.SelectSingleNode(
-                        "/VFPData/seg/activitydetailsingletradeitemserialnumber").InnerText;
-                    tempSchemeData.LogisticUnitBatchLotNumber = xmlDoc.SelectSingleNode(
-                        "/VFPData/seg/activitydetaillogisticunitbatchlotnumber").InnerText;
-                    tempSchemeData.LogisticUnitSkidNumber = xmlDoc.SelectSingleNode(
-                        "/VFPData/seg/activitydetaillogisticunitskidcode").InnerText;
+                    tempSchemeData.SingleTradeItemSerialNumber = xmlDoc.SelectSingleNode("/VFPData/seg/activitydetailsingletradeitemserialnumber").InnerText;
+                    tempSchemeData.LogisticUnitBatchLotNumber = xmlDoc.SelectSingleNode("/VFPData/seg/activitydetaillogisticunitbatchlotnumber").InnerText;
+                    tempSchemeData.LogisticUnitSkidNumber = xmlDoc.SelectSingleNode("/VFPData/seg/activitydetaillogisticunitskidcode").InnerText;
                     tempSchemeData.VariantCode = xmlDoc.SelectSingleNode("/VFPData/seg/productschemevariantcode").InnerText;
-                    tempSchemeData.VariantDescription = xmlDoc.SelectSingleNode(
-                        "/VFPData/seg/productschemevariantdescription").InnerText;
-                    tempSchemeData.VariantNumber = int.Parse(
-                        xmlDoc.SelectSingleNode("/VFPData/seg/productschemevariantno").InnerText);
+                    tempSchemeData.VariantDescription = xmlDoc.SelectSingleNode("/VFPData/seg/productschemevariantdescription").InnerText;
+                    tempSchemeData.VariantNumber = int.Parse(xmlDoc.SelectSingleNode("/VFPData/seg/productschemevariantno").InnerText);
 
-                    if (!(xmlDoc.SelectSingleNode("/VFPData/seg/activitydetaillogisticunitbestbeforesellbydate").InnerText
-                        == string.Empty))
+                    if (!(xmlDoc.SelectSingleNode("/VFPData/seg/activitydetaillogisticunitbestbeforesellbydate").InnerText == string.Empty))
                     {
                         tempSchemeData.LogisticUnitBestBeforeSellByDate = DateTime.Parse(
                             xmlDoc.SelectSingleNode("/VFPData/seg/activitydetaillogisticunitbestbeforesellbydate").InnerText);
