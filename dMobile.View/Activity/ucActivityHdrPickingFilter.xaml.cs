@@ -131,12 +131,14 @@ namespace dMobile.View.Activity
                 this.cboSortBy4.SelectedIndex = this.PickSettings.iSortBy4Index;
 
                 Filters.Add("", "");
-                Filters.Add("Purchase Order # Ascending", "ActivityReceivingPONumber ASC");
-                Filters.Add("Purchase Order # Descending", "ActivityReceivingPONumber DESC");
-                Filters.Add("Issued Date Ascending", "ActivityReceivingIssuedDateTime ASC");
-                Filters.Add("Issued Date Descending", "ActivityReceivingIssuedDateTime DESC");
-                Filters.Add("Arrival Ascending", "ActivityReceivingArrivalDateTime ASC");
-                Filters.Add("Arrival Descending", "ActivityReceivingArrivalDateTime DESC");
+                Filters.Add("Order # Ascending", "ActivityPickingFKRefno ASC");
+                Filters.Add("Order # Descending", "ActivityPickingFKRefno DESC");
+                Filters.Add("Route # Ascending", "RouteCode ASC");
+                Filters.Add("Route # Descending", "RouteCode DESC");
+                Filters.Add("Ordered Date Ascending", "ActivityPickingOrderedDateTime ASC");
+                Filters.Add("Ordered Date Descending", "ActivityPickingOrderedDateTime DESC");
+                Filters.Add("Delivery Ascending", "ActivityPickingDeliveryDateTime ASC");
+                Filters.Add("Delivery Descending", "ActivityPickingDeliveryDateTime DESC");
             }
         }
 

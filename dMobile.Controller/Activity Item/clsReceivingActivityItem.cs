@@ -845,11 +845,11 @@ namespace dMobile.Controller
                 cmndItemRecv.CommandType = CommandType.Text;
                 //cmndItemRecv.IndexName = string.Empty;
                 cmndItemRecv.CommandText = "UPDATE tActivityItemReceiving "
-                    + "SET ActivityItemReceivingQuantityReceived = ActivityItemReceivingQuantityReceived + "
+                    + "SET ActivityItemReceivingQuantityReceived = "
                     + this.DataViewItems[idx]["ActivityItemReceivingQuantityReceived"] + ","
-                    + "ActivityItemReceivingBaseQuantityReceived = ActivityItemReceivingBaseQuantityReceived + "
+                    + "ActivityItemReceivingBaseQuantityReceived = "
                     + this.DataViewItems[idx]["ActivityItemReceivingBaseQuantityReceived"] + ","
-                    + "ActivityItemReceivingWeightQuantityReceived = ActivityItemReceivingWeightQuantityReceived + "
+                    + "ActivityItemReceivingWeightQuantityReceived = "
                     + this.DataViewItems[idx]["ActivityItemReceivingWeightQuantityReceived"] +
                     " WHERE ActivityItemRefno = " + actItemRefno;
                 cmndItemRecv.ExecuteNonQuery();

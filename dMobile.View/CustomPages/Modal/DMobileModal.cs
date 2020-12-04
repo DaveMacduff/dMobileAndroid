@@ -75,12 +75,28 @@
         }
 
         /// <summary>
+        /// The OnAppearing
+        /// </summary>
+        protected override void OnAppearing()
+        {
+            base.OnAppearing();
+            Application.Current.ModalPopping += this.Current_ModalPopping;
+        }
+
+        /// <summary>
         /// The OnDisappearing
         /// </summary>
         protected override void OnDisappearing()
         {
             base.OnDisappearing();
+            Application.Current.ModalPopping -= this.Current_ModalPopping;
+        }
 
+        /// <summary>
+        /// The Current_ModalPopped
+        /// </summary>
+        private void Current_ModalPopping(object sender, ModalPoppingEventArgs e)
+        {
             try
             {
                 while (!this.tcs.Task.IsCompleted)
@@ -123,7 +139,7 @@
         }
 
         /// <summary>
-        /// The Close
+        /// The Close   
         /// </summary>
         /// <returns>The <see cref="Task"/></returns>
         public async Task Close()

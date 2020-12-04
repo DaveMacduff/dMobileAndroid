@@ -9,7 +9,6 @@ namespace dMobile.Bedrock
     using System.Xml;
     using System.Xml.Linq;
     using System.Xml.Serialization;
-   
 
     [Serializable]
     public class ContactLogin : IContactLoginEventPublisher, ISysSocketEventListener
@@ -206,7 +205,7 @@ namespace dMobile.Bedrock
             XmlSerializer serializer = new XmlSerializer(typeof(ContactLogin));
             ContactLogin contactLogin = new ContactLogin();
 
-            // use relection to get the current assembly path for the database
+            // use relection to get the current .≥assembly path for the database
             string appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
             string fullPathToMyFile = Path.Combine(appDir, this.fileName);
 

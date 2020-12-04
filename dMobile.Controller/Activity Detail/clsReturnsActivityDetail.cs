@@ -334,7 +334,7 @@ namespace dMobile.Controller
             if (!isAdd)
             {
                 this.FKRefno = Convert.ToInt32(this.DataViewDetails[idx]["ActivityDetailReturnsFKRefno"]);
-                this.LocMap.CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno((int)this.DataViewDetails[idx]["LocationMapRefno"]);
+                this.LocMap.CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(this.DataViewDetails[idx]["LocationMapRefno"]));
             }
 
             return this;

@@ -788,8 +788,6 @@ namespace dMobile.View
                     this.ReqSaveEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
 
                     this.IsControlLoaded = true;
-
-                    this.dgProducts.Focus();
                 }
             }
         }

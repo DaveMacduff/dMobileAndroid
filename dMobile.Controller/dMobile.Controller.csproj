@@ -11,7 +11,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System.Data.SQLite">
-      <HintPath>..\sqlite-netFx-source-1.0.111.0\bin\2017\Debug\bin\System.Data.SQLite.dll</HintPath>
+      <HintPath Condition="Exists('..\sqlite-netFx-source-1.0.111.0\bin\2017\Debug\bin\System.Data.SQLite.dll')">..\sqlite-netFx-source-1.0.111.0\bin\2017\Debug\bin\System.Data.SQLite.dll</HintPath>
+      <HintPath Condition="Exists('..\sqlite-netFx-source-1.0.111.0\2017\Debug\bin\System.Data.SQLite.dll')">..\sqlite-netFx-source-1.0.111.0\2017\Debug\bin\System.Data.SQLite.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

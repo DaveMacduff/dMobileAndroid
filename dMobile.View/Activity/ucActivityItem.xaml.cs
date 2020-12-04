@@ -2068,7 +2068,7 @@
             {
                 try
                 {
-                    Device.BeginInvokeOnMainThread(() => this.dataGridMainActivity.IsEnabled = false);
+                    await Device.InvokeOnMainThreadAsync(() => this.dataGridMainActivity.IsEnabled = false);
 
                     this.ReqCancelDisableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     this.ReqSaveDisableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
@@ -2092,11 +2092,8 @@
 
                         FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucActivityDetail, this.ActItem, this.ActSubType);
 
-                        await Device.InvokeOnMainThreadAsync(async () =>
+                        if (await Device.InvokeOnMainThreadAsync(async () => await form.DisplayControl.ShowDialog() == DialogResult.OK))
                         {
-                            await form.DisplayControl.ShowDialog();
-                            await form.SaveChanges(this, new EventArgs());
-
                             XDocument xmlDoc = form.DisplayControlData;
                             this.ActItem.RefreshQuantity(
                                 this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem),
@@ -2104,7 +2101,7 @@
                                 Math.Round(decimal.Parse(xmlDoc.Root.Element("base_qty").Value), 3),
                                 Math.Round(decimal.Parse(xmlDoc.Root.Element("wt_qty").Value), 3));
                             this.ActItem.UpdateQuantityFromDataView(this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem), this.ActItem.Refno);
-                        });
+                        }
                     }
                 }
                 catch (Exceptions.MessageOnlyException ex)
@@ -2121,7 +2118,7 @@
                 }
                 finally
                 {
-                    Device.BeginInvokeOnMainThread(() =>
+                    await Device.InvokeOnMainThreadAsync(() =>
                     {
                         this.dataGridMainActivity.IsEnabled = true;
                         this.DisplayData();
