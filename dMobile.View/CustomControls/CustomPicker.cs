@@ -11,6 +11,7 @@
         /// Defines the selectedValue
         /// </summary>
         private int selectedValue;
+        private string text = string.Empty;
         public static readonly BindableProperty ImageProperty = BindableProperty.Create(nameof(Image), typeof(string), typeof(CustomPicker), string.Empty);
         
         /// <summary>
@@ -24,5 +25,7 @@
 			get { return (string)GetValue(ImageProperty); }
 			set { SetValue(ImageProperty, value); }
 		}
+
+        public string Text { get => text; set => text = value; }
     }
 }

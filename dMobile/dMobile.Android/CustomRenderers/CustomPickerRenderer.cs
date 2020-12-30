@@ -8,6 +8,7 @@ using Android.Graphics;
 using Android.Views;
 using Android.Graphics.Drawables;
 using Android.Support.V4.Content;
+using Android.Widget;
 
 [assembly: ExportRenderer(typeof(CustomPicker), typeof(CustomPickerRenderer))]
 namespace dMobile.Droid.CustomRenderers
@@ -23,21 +24,27 @@ namespace dMobile.Droid.CustomRenderers
 		/// <param name="context">The context<see cref="Context"/></param>
 		public CustomPickerRenderer(Context context) : base(context) { }
 
-		CustomPicker element;
+        protected override void OnElementChanged(ElementChangedEventArgs<Picker> e)
+        {
+            base.OnElementChanged(e);
 
-		protected override void OnElementChanged(ElementChangedEventArgs<Picker> e)
-		{
-			base.OnElementChanged(e);
+            if (this.Control != null && this.Element != null)
+            {
+                this.Control.TextChanged += Control_TextChanged;
+				this.Control.SetTextIsSelectable(true);
+				this.Control.Focusable = true;
+				this.Control.FocusableInTouchMode = true;
+				this.Control.SetCursorVisible(true);
+				this.Control.Background = AddPickerStyles(!string.IsNullOrEmpty((this.Element as CustomPicker).Image) ? (this.Element as CustomPicker).Image : "arrow_drop_down");
+            }
+        }
 
-			this.element = this.Element as CustomPicker;
+        private void Control_TextChanged(object sender, Android.Text.TextChangedEventArgs e)
+        {
+			(this.Element as CustomPicker).Text = this.Control.Text;
+        }
 
-			if (Control != null && this.Element != null && !string.IsNullOrEmpty(element.Image))
-			{
-				Control.Background = AddPickerStyles(element.Image);
-			}
-		}
-
-		public LayerDrawable AddPickerStyles(string imagePath)
+        public LayerDrawable AddPickerStyles(string imagePath)
 		{
 			Drawable[] layers = { Control.Background, GetDrawable(imagePath) };
 			LayerDrawable layerDrawable = new LayerDrawable(layers);

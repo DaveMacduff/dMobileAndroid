@@ -60,6 +60,8 @@ namespace dMobile.View.Activity
 
             this.ReqCancelEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
             this.ReqSaveEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+
+            this.Title = this.GetControlDescription();
         }
 
         #endregion
@@ -539,6 +541,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public async Task RefreshData()
         {
+            this.Loading = true;
             this.ScannerDisable();            
             this.ItemsList.Clear();
 
@@ -567,6 +570,7 @@ namespace dMobile.View.Activity
             }
 
             this.ScannerEnable();
+            this.Loading = false;
         }
 
         /// <summary>

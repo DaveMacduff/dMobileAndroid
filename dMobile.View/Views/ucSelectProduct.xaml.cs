@@ -63,6 +63,7 @@ namespace dMobile.View
                 this.cboSearch.Items.Add("Description");
                 this.SysEnv = SysEnvironment.GetInstance();
                 this.ProductList = new ObservableCollection<Product>();
+                this.ProductFilteredList = new ObservableCollection<Product>();
             }
         }
 
@@ -92,6 +93,22 @@ namespace dMobile.View
                     if (await this.CancelChanges())
                     {
                         this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                    }
+                }
+                else if (keycode == Keycode.DpadDown)
+                {
+                    if (this.dgProducts.SelectedItem != null && Convert.ToInt32(this.ProductFilteredList.IndexOf(this.dgProducts.SelectedItem as Product)) < this.ProductFilteredList.Count - 1)
+                    {
+                        this.dgProducts.SelectedItem = this.ProductFilteredList[this.ProductFilteredList.IndexOf(this.dgProducts.SelectedItem as Product) + 1];
+                        this.dgProducts.ScrollTo(this.dgProducts.SelectedItem, ScrollToPosition.MakeVisible, true);
+                    }
+                }
+                else if (keycode == Keycode.DpadUp)
+                {
+                    if (this.dgProducts.SelectedItem != null && Convert.ToInt32(this.ProductFilteredList.IndexOf(this.dgProducts.SelectedItem as Product)) > 0)
+                    {
+                        this.dgProducts.SelectedItem = this.ProductFilteredList[this.ProductFilteredList.IndexOf(this.dgProducts.SelectedItem as Product) - 1];
+                        this.dgProducts.ScrollTo(this.dgProducts.SelectedItem, ScrollToPosition.MakeVisible, true);
                     }
                 }
             });
@@ -777,6 +794,12 @@ namespace dMobile.View
                         await Device.InvokeOnMainThreadAsync(() =>
                         {
                             this.dgProducts.ItemsSource = this.ProductFilteredList;
+
+                            if (this.ProductFilteredList.Count > 0)
+                            {
+                                this.dgProducts.SelectedItem = this.ProductFilteredList[0];
+                            }
+
                             this.Loading = false;
                         });
                     });
@@ -868,18 +891,18 @@ namespace dMobile.View
                     this.ProductFilteredList = new ObservableCollection<Product>(this.ProductList.Where((prod) => prod.ProductDescription.ToLower().Contains(this.textBoxSearchProduct.Text.ToLower().Trim())));
                 }
             }
-            //else
-            //{
-            //    //this.DataViewProducts.RowFilter = string.Empty;
-            //    dgProducts.ItemsSource = this.ProductFilteredList;
-            //}
+            else
+            {
+                this.ProductFilteredList = this.ProductList;
+            }
 
             dgProducts.ItemsSource = this.ProductFilteredList;
 
-            //if (this.DataViewProducts.Count > 0)
-            //{
-            //    this.SelectProduct(0);
-            //}
+            if (this.ProductFilteredList.Count > 0)
+            {
+                this.dgProducts.SelectedItem = this.ProductFilteredList[0];
+                this.SelectProduct(this.ProductFilteredList[0]);
+            }
         }
 
         /// <summary>

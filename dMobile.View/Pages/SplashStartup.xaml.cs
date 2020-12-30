@@ -11,6 +11,7 @@
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
+    using System.Data;
     using System.IO;
     using System.Text;
     using System.Threading;
@@ -531,133 +532,120 @@
             }
         }
 
-        //        /// <summary>
-        //        ///
-        //        /// </summary>
-        //        /// <param name="sender"></param>
-        //        /// <param name="e"></param>
-        //        /// <returns></returns>
-        //        /// <remarks></remarks>
-        //        private bool SyncDateTime(object sender, EventArgs e)
-        //        {
-        //            bool isDateTimeChanged = false;
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        /// <returns></returns>
+        /// <remarks></remarks>
+        private bool SyncDateTime(object sender, EventArgs e)
+        {
+            bool isDateTimeChanged = false;
 
-        //            if (!this.SysEnv.SysSettings.IsDisconnectedMode
-        //                && (this.SysEnv.CommSetup.iHostIPAddressComponent1
-        //                + this.SysEnv.CommSetup.iHostIPAddressComponent2
-        //                + this.SysEnv.CommSetup.iHostIPAddressComponent3) != 0)
-        //            {
-        //#if MULTILANGUAGE
-        //                this.StartUpStatusOut(sender, e, Translator.GetInstance().Translate(TranslatorVocabulary.AttemptSyncDateAndTime));
-        //#else
-        //                this.StartUpStatusOut(sender, e, "Attempting to sync date & time.");
-        //#endif
+            if (!this.SysEnv.SysSettings.IsDisconnectedMode
+                && (this.SysEnv.CommSetup.iHostIPAddressComponent1
+                + this.SysEnv.CommSetup.iHostIPAddressComponent2
+                + this.SysEnv.CommSetup.iHostIPAddressComponent3) != 0)
+            {
 
-        //                SysSocket sysSock = new SysSocket();
-        //                sysSock.BasePort = this.SysEnv.CommSetup.iBaseSocketPort;
-        //                sysSock.DefSocketPort = this.SysEnv.CommSetup.iDefaultSocketPort;
-        //                sysSock.MaxPorts = this.SysEnv.CommSetup.iMaxSocketPorts;
-        //                sysSock.ConnTotalRetries = this.SysEnv.CommSetup.iConnectionAttempts;
-        //                sysSock.SendTotalRetries = this.SysEnv.CommSetup.iSendAttempts;
-        //                sysSock.RecvTotalRetries = this.SysEnv.CommSetup.iReceiveAttempts;
-        //                sysSock.SendTimeOutMilliseconds = this.SysEnv.CommSetup.iSendTimeOutSeconds * 1000;
-        //                sysSock.ReceiveTimeOutMilliseconds = this.SysEnv.CommSetup.iReceiveTimeOutSeconds * 1000;
-        //                sysSock.RecvBuffSize = this.SysEnv.CommSetup.iiReceiveBufferSize;
-        //                sysSock.ServerIP = (string)(this.SysEnv.CommSetup.iHostIPAddressComponent1.ToString() + "."
-        //                    + this.SysEnv.CommSetup.iHostIPAddressComponent2.ToString() + "."
-        //                    + this.SysEnv.CommSetup.iHostIPAddressComponent3.ToString() + "."
-        //                    + this.SysEnv.CommSetup.iHostIPAddressComponent4.ToString());
-        //                try
-        //                {
-        //                    System.Net.Sockets.Socket socket;
-        //                    socket = sysSock.Connect();
-        //                    if (socket == null)
-        //                    {
-        //#if MULTILANGUAGE
-        //                        this.StartUpStatusOut(sender, e, Translator.GetInstance().Translate(TranslatorVocabulary.ConnectionFailed));
-        //#else
-        //                        this.StartUpStatusOut(sender, e, "Connection failed.");
-        //#endif
-        //                    }
-        //                    else
-        //                    {
-        //#if MULTILANGUAGE
-        //                        this.StartUpStatusOut(sender, e, Translator.GetInstance().Translate(TranslatorVocabulary.RequestingDateAndTime));
-        //#else
-        //                        this.StartUpStatusOut(sender, e, "Requesting date & time.");
-        //#endif
 
-        //                        string sendRequest = this.CreateXMLSyncDateTime();
-        //                        int bytesSent = sysSock.SendRequest(socket, sendRequest);
-        //                        List<byte> recvData = sysSock.ReceiveResponse(socket);
-        //                        socket.Close();
+                this.StartUpStatusOut(sender, e, "Attempting to sync date & time.");
 
-        //                        string data = Compress.UnZip(recvData.ToArray());
-        //                        if (data.Contains("<message>ERROR</message>"))
-        //                        {
-        //                            XmlDocument docError = new XmlDocument();
-        //                            docError.LoadXml(data);
+                SysSocket sysSock = new SysSocket();
+                sysSock.BasePort = this.SysEnv.CommSetup.iBaseSocketPort;
+                sysSock.DefSocketPort = this.SysEnv.CommSetup.iDefaultSocketPort;
+                sysSock.MaxPorts = this.SysEnv.CommSetup.iMaxSocketPorts;
+                sysSock.ConnTotalRetries = this.SysEnv.CommSetup.iConnectionAttempts;
+                sysSock.SendTotalRetries = this.SysEnv.CommSetup.iSendAttempts;
+                sysSock.RecvTotalRetries = this.SysEnv.CommSetup.iReceiveAttempts;
+                sysSock.SendTimeOutMilliseconds = this.SysEnv.CommSetup.iSendTimeOutSeconds * 1000;
+                sysSock.ReceiveTimeOutMilliseconds = this.SysEnv.CommSetup.iReceiveTimeOutSeconds * 1000;
+                sysSock.RecvBuffSize = this.SysEnv.CommSetup.iiReceiveBufferSize;
+                sysSock.ServerIP = (string)(this.SysEnv.CommSetup.iHostIPAddressComponent1.ToString() + "."
+                    + this.SysEnv.CommSetup.iHostIPAddressComponent2.ToString() + "."
+                    + this.SysEnv.CommSetup.iHostIPAddressComponent3.ToString() + "."
+                    + this.SysEnv.CommSetup.iHostIPAddressComponent4.ToString());
+                try
+                {
+                    System.Net.Sockets.Socket socket;
+                    socket = sysSock.Connect();
 
-        //                            string errorDetail = docError.DocumentElement["detail"].InnerText;
-        //#if MULTILANGUAGE
-        //                            this.StartUpStatusOut(sender, e, Translator.GetInstance().Translate(TranslatorVocabulary.RequestingDateAndTimeError));
-        //#else
-        //                            this.StartUpStatusOut(sender, e, "Request date & time error.");
-        //#endif
-        //                            this.StartUpStatusOut(sender, e, errorDetail);
-        //                        }
-        //                        else
-        //                        {
-        //                            using (DataSet ds = new DataSet())
-        //                            {
-        //                                ds.ReadXml(SysCommon.GetXmlReader(ref data), XmlReadMode.Auto);
-        //                                if (ds.Tables.Count != 0)
-        //                                {
-        //                                    OpenNETCF.Runtime.InteropServices.SYSTEMTIME sysTime = new OpenNETCF.Runtime.InteropServices.SYSTEMTIME();
-        //                                    OpenNETCF.Runtime.InteropServices.SYSTEMTIME sysTimeLocal = new OpenNETCF.Runtime.InteropServices.SYSTEMTIME();
+                    if (socket == null)
+                    {
+                        // TODO: Resource strings
+                        this.StartUpStatusOut(sender, e, "Connection failed.");
+                    }
+                    else
+                    {
+                        // TODO: Resource strings
+                        this.StartUpStatusOut(sender, e, "Requesting date & time.");
 
-        //                                    foreach (DataRow drow in ds.Tables["tDateTime"].Rows)
-        //                                    {
-        //                                        sysTime.wYear = Convert.ToInt16(drow["system_year"]);
-        //                                        sysTime.wMonth = Convert.ToInt16(drow["system_month"]);
-        //                                        sysTime.wDay = Convert.ToInt16(drow["system_day"]);
-        //                                        sysTime.wHour = Convert.ToInt16(drow["system_hour"]);
-        //                                        sysTime.wMinute = Convert.ToInt16(drow["system_minute"]);
-        //                                        sysTime.wSecond = Convert.ToInt16(drow["system_second"]);
-        //                                        sysTime.wDayOfWeek = Convert.ToInt16(drow["system_dayofweek"]);
-        //                                        DateTimeHelper.SystemTime = sysTime.ToDateTime();
+                        string sendRequest = this.CreateXMLSyncDateTime();
+                        int bytesSent = sysSock.SendRequest(socket, sendRequest);
+                        List<byte> recvData = sysSock.ReceiveResponse(socket);
+                        socket.Close();
 
-        //                                        sysTimeLocal.wYear = Convert.ToInt16(drow["local_year"]);
-        //                                        sysTimeLocal.wMonth = Convert.ToInt16(drow["local_month"]);
-        //                                        sysTimeLocal.wDay = Convert.ToInt16(drow["local_day"]);
-        //                                        sysTimeLocal.wHour = Convert.ToInt16(drow["local_hour"]);
-        //                                        sysTimeLocal.wMinute = Convert.ToInt16(drow["local_minute"]);
-        //                                        sysTimeLocal.wSecond = Convert.ToInt16(drow["local_second"]);
-        //                                        sysTime.wDayOfWeek = Convert.ToInt16(drow["local_dayofweek"]);
-        //                                        DateTimeHelper.LocalTime = sysTimeLocal.ToDateTime();
-        //                                    }
+                        string data = Compress.UnZip(recvData.ToArray());
+                        if (data.Contains("<message>ERROR</message>"))
+                        {
+                            XmlDocument docError = new XmlDocument();
+                            docError.LoadXml(data);
 
-        //                                    this.StartUpStatusOut(sender, e, "Date & time synchronized.");
-        //                                    isDateTimeChanged = true;
-        //                                }
-        //                            }
-        //                        }
-        //                    }
-        //                }
-        //                catch (System.Net.Sockets.SocketException)
-        //                {
-        //#if MULTILANGUAGE
-        //                    this.StartUpStatusOut(sender, e, Translator.GetInstance().Translate(TranslatorVocabulary.SocketExceptionOccurred));
-        //                    this.StartUpStatusOut(sender, e, Translator.GetInstance().Translate(TranslatorVocabulary.SyncDateAndTimeFailed));
-        //#else
-        //                    this.StartUpStatusOut(sender, e, "Socket exception occurred.");
-        //                    this.StartUpStatusOut(sender, e, "Sync date & time failed.");
-        //#endif
-        //                }
-        //            }
+                            string errorDetail = docError.DocumentElement["detail"].InnerText;
 
-        //            return isDateTimeChanged;
-        //        }
+                            // TODO: Resource strings
+                            this.StartUpStatusOut(sender, e, "Request date & time error.");
+                            this.StartUpStatusOut(sender, e, errorDetail);
+                        }
+                        else
+                        {
+                            using (DataSet ds = new DataSet())
+                            {
+                                ds.ReadXml(SysCommon.GetXmlReader(ref data), XmlReadMode.Auto);
+                                if (ds.Tables.Count != 0)
+                                {
+                                    //OpenNETCF.Runtime.InteropServices.SYSTEMTIME sysTime = new OpenNETCF.Runtime.InteropServices.SYSTEMTIME();
+                                    //OpenNETCF.Runtime.InteropServices.SYSTEMTIME sysTimeLocal = new OpenNETCF.Runtime.InteropServices.SYSTEMTIME();
+
+                                    foreach (DataRow drow in ds.Tables["tDateTime"].Rows)
+                                    {
+                                        //sysTime.wYear = Convert.ToInt16(drow["system_year"]);
+                                        //sysTime.wMonth = Convert.ToInt16(drow["system_month"]);
+                                        //sysTime.wDay = Convert.ToInt16(drow["system_day"]);
+                                        //sysTime.wHour = Convert.ToInt16(drow["system_hour"]);
+                                        //sysTime.wMinute = Convert.ToInt16(drow["system_minute"]);
+                                        //sysTime.wSecond = Convert.ToInt16(drow["system_second"]);
+                                        //sysTime.wDayOfWeek = Convert.ToInt16(drow["system_dayofweek"]);
+                                        //DateTimeHelper.SystemTime = sysTime.ToDateTime();
+
+                                        //sysTimeLocal.wYear = Convert.ToInt16(drow["local_year"]);
+                                        //sysTimeLocal.wMonth = Convert.ToInt16(drow["local_month"]);
+                                        //sysTimeLocal.wDay = Convert.ToInt16(drow["local_day"]);
+                                        //sysTimeLocal.wHour = Convert.ToInt16(drow["local_hour"]);
+                                        //sysTimeLocal.wMinute = Convert.ToInt16(drow["local_minute"]);
+                                        //sysTimeLocal.wSecond = Convert.ToInt16(drow["local_second"]);
+                                        //sysTime.wDayOfWeek = Convert.ToInt16(drow["local_dayofweek"]);
+                                        //DateTimeHelper.LocalTime = sysTimeLocal.ToDateTime();
+                                    }
+
+                                    this.StartUpStatusOut(sender, e, "Date & time synchronized.");
+                                    isDateTimeChanged = true;
+                                }
+                            }
+                        }
+                    }
+                }
+                catch (System.Net.Sockets.SocketException)
+                {
+                    // TODO: Resource strings
+                    this.StartUpStatusOut(sender, e, "Socket exception occurred.");
+                    this.StartUpStatusOut(sender, e, "Sync date & time failed.");
+                }
+            }
+
+            return isDateTimeChanged;
+        }
 
         /// <summary>
         ///

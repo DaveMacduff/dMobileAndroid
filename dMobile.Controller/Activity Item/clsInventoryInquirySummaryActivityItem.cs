@@ -10,6 +10,8 @@ namespace dMobile.Controller
     using System.Threading.Tasks;
     using System.Collections.ObjectModel;
     using Xamarin.Forms;
+    using dMobile.Resources.Types;
+    using dMobile.Resources.Services;
 
     public class InvInquirySummaryActItem : ActItem
     {
@@ -91,7 +93,318 @@ namespace dMobile.Controller
 
         public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity)
         {
-            throw new NotImplementedException();
+            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+
+            // Add all items in dataview to observable collection for display
+            foreach (DataRow row in this.DataViewItems.ToTable().Rows)
+            {
+                ActivityItem activityItem = new ActivityItem
+                {
+                    ProductCode = Convert.ToString(row["ProductCode"] != DBNull.Value ? row["ProductCode"] : null),
+                    ProductUnitBC = Convert.ToString(row["ProductUnitBC"] != DBNull.Value ? row["ProductUnitBC"] : null),
+                    UnitCode = Convert.ToString(row["UnitCode"] != DBNull.Value ? row["UnitCode"] : null),
+                    WeightUnitCode = Convert.ToString(row["WeightUnitCode"] != DBNull.Value ? row["WeightUnitCode"] : null),
+                    ActivityDetailLogisticUnitProductionDate = Convert.ToString(row["ActivityDetailLogisticUnitProductionDate"] != DBNull.Value ? row["ActivityDetailLogisticUnitProductionDate"] : null),
+                    ActivityDetailLogisticUnitBestbeforesellbydate = Convert.ToString(row["ActivityDetailLogisticUnitBestbeforesellbydate"] != DBNull.Value ? row["ActivityDetailLogisticUnitBestbeforesellbydate"] : null),
+                    LocationMapWarehouseFKRefno = Convert.ToString(row["LocationMapWarehouseFKRefno"] != DBNull.Value ? row["LocationMapWarehouseFKRefno"] : null),
+                    LocationMapSectionFKRefno = Convert.ToString(row["LocationMapSectionFKRefno"] != DBNull.Value ? row["LocationMapSectionFKRefno"] : null),
+                    LocationMapSlotFKRefno = Convert.ToString(row["LocationMapSlotFKRefno"] != DBNull.Value ? row["LocationMapSlotFKRefno"] : null),
+                    SkidCode = Convert.ToString(row["SkidCode"] != DBNull.Value ? row["SkidCode"] : null),
+                    ActivityItemQuantity = Convert.ToDecimal(row["ActivityItemQuantity"] != DBNull.Value ? row["ActivityItemQuantity"] : null),
+                    ActivityItemWeightQuantity = Convert.ToDecimal(row["ActivityItemWeightQuantity"] != DBNull.Value ? row["ActivityItemWeightQuantity"] : null),
+                };
+
+                observableCollection.Add(activityItem);
+            }
+
+            // TODO: Resource strings
+            Label labelProductIDHeader = new Label { Text = "Product ID", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            Label labelBCHeader = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            Label labelQuantityHeader = new Label { Text = "Quantity", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            Label labelUnitCodeHeader = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            Label labelProdDateHeader = new Label { Text = "Prod Date", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            Label labelBBDateHeader = new Label { Text = "BB/SB Date", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            Label labelSectionHeader = new Label { Text = "Section", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            Label labelSlotHeader = new Label { Text = "Slot", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            Label labelSkidHeader = new Label { Text = "Skid", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            Label labelWeightHeader = new Label { Text = "Weight", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            Label labelWeightUnitCodeHeader = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+
+            if (!this.ProdInfo.Scheme.IsProductionDateTracked)
+            {
+                labelProdDateHeader.Text = string.Empty;
+            }
+
+            if (!this.ProdInfo.Scheme.IsBestBeforeDateTracked)
+            {
+                labelBBDateHeader.Text = string.Empty;
+            }
+
+            if (!this.LocMap.CurrLocMap.IsSectionTracked)
+            {
+                labelSectionHeader.Text = string.Empty;
+            }
+
+            if (!(this.LocMap.CurrLocMap.IsSectionTracked && this.LocMap.CurrLocMap.IsSlotTracked))
+            {
+                labelSlotHeader.Text = string.Empty;
+            }
+
+            double columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelProductIDHeader.Text);
+            double columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelBCHeader.Text);
+            double columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelQuantityHeader.Text);
+            double columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelUnitCodeHeader.Text);
+            double columnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelProdDateHeader.Text);
+            double columnWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(labelBBDateHeader.Text);
+            double columnWidth6 = DependencyService.Get<IGridService>().CalculateTextWidth(labelSectionHeader.Text);
+            double columnWidth7 = DependencyService.Get<IGridService>().CalculateTextWidth(labelSlotHeader.Text);
+            double columnWidth8 = DependencyService.Get<IGridService>().CalculateTextWidth(labelSkidHeader.Text);
+            double columnWidth9 = DependencyService.Get<IGridService>().CalculateTextWidth(labelWeightHeader.Text);
+            double columnWidth10 = DependencyService.Get<IGridService>().CalculateTextWidth(labelWeightUnitCodeHeader.Text);
+
+            Grid gridHeader = new Grid
+            {
+                Padding = new Thickness(5),
+                ColumnDefinitions =
+                {
+                    new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth3, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth4, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth5, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth6, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth7, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth8, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth9, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth10, GridUnitType.Absolute) }
+                }
+            };
+
+            gridHeader.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
+
+            // Add labels to grid
+            gridHeader.Children.Add(labelProductIDHeader);
+            gridHeader.Children.Add(labelBCHeader);
+            gridHeader.Children.Add(labelQuantityHeader);
+            gridHeader.Children.Add(labelUnitCodeHeader);
+            gridHeader.Children.Add(labelProdDateHeader);
+            gridHeader.Children.Add(labelBBDateHeader);
+            gridHeader.Children.Add(labelSectionHeader);
+            gridHeader.Children.Add(labelSlotHeader);
+            gridHeader.Children.Add(labelSkidHeader);
+            gridHeader.Children.Add(labelWeightHeader);
+            gridHeader.Children.Add(labelWeightUnitCodeHeader);
+
+            // Set label columns
+            Grid.SetColumn(labelProductIDHeader, 0);
+            Grid.SetColumn(labelBCHeader, 1);
+            Grid.SetColumn(labelQuantityHeader, 2);
+            Grid.SetColumn(labelUnitCodeHeader, 3);
+            Grid.SetColumn(labelProdDateHeader, 4);
+            Grid.SetColumn(labelBBDateHeader, 5);
+            Grid.SetColumn(labelSectionHeader, 6);
+            Grid.SetColumn(labelSlotHeader, 7);
+            Grid.SetColumn(labelSkidHeader, 8);
+            Grid.SetColumn(labelWeightHeader, 9);
+            Grid.SetColumn(labelWeightUnitCodeHeader, 10);
+
+            Grid.SetRow(gridHeader, 0);
+
+            dataGridMainActivityHeader.Children.Add(gridHeader);
+
+            foreach (ActivityItem activityItem in observableCollection)
+            {
+                double detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(activityItem.ProductCode);
+                double detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(activityItem.ProductUnitBC);
+                double detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", activityItem.ActivityItemQuantity));
+                double detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(activityItem.UnitCode);
+                double detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(activityItem.ActivityDetailLogisticUnitProductionDate);
+                double detailWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(activityItem.ActivityDetailLogisticUnitBestbeforesellbydate);
+                double detailWidth6 = DependencyService.Get<IGridService>().CalculateTextWidth(activityItem.LocationMapSectionFKRefno);
+                double detailWidth7 = DependencyService.Get<IGridService>().CalculateTextWidth(activityItem.LocationMapSlotFKRefno);
+                double detailWidth8 = DependencyService.Get<IGridService>().CalculateTextWidth(activityItem.SkidCode);
+                double detailWidth9 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", activityItem.ActivityItemWeightQuantity));
+                double detailWidth10 = DependencyService.Get<IGridService>().CalculateTextWidth(activityItem.WeightUnitCode);
+
+                if (detailWidth0 > columnWidth0)
+                {
+                    columnWidth0 = detailWidth0;
+                    gridHeader.ColumnDefinitions[0].Width = columnWidth0;
+                }
+
+                if (detailWidth1 > columnWidth1)
+                {
+                    columnWidth1 = detailWidth1;
+                    gridHeader.ColumnDefinitions[1].Width = columnWidth1;
+                }
+
+                if (detailWidth2 > columnWidth2)
+                {
+                    columnWidth2 = detailWidth2;
+                    gridHeader.ColumnDefinitions[2].Width = columnWidth2;
+                }
+
+                if (detailWidth3 > columnWidth3)
+                {
+                    columnWidth3 = detailWidth3;
+                    gridHeader.ColumnDefinitions[3].Width = columnWidth3;
+                }
+
+                //if (this.ProdInfo.Scheme.IsProductionDateTracked)
+                //{
+                    if (detailWidth4 > columnWidth4)
+                    {
+                        columnWidth4 = detailWidth4;
+                        gridHeader.ColumnDefinitions[4].Width = columnWidth4;
+                    }
+                //}
+                //else
+                //{
+                //    columnWidth4 = 0;
+                //    gridHeader.ColumnDefinitions[4].Width = 0;
+                //}
+
+                //if (this.ProdInfo.Scheme.IsBestBeforeDateTracked)
+                //{
+                    if (detailWidth5 > columnWidth5)
+                    {
+                        columnWidth5 = detailWidth5;
+                        gridHeader.ColumnDefinitions[5].Width = columnWidth5;
+                    }
+                //}
+                //else
+                //{
+                //    columnWidth5 = 0;
+                //    gridHeader.ColumnDefinitions[5].Width = 0;
+                //}
+
+                //if (this.LocMap.CurrLocMap.IsSectionTracked)
+                //{
+                    if (detailWidth6 > columnWidth6)
+                    {
+                        columnWidth6 = detailWidth6;
+                        gridHeader.ColumnDefinitions[6].Width = columnWidth6;
+                    }
+                //}
+                //else
+                //{
+                //    columnWidth6 = 0;
+                //    gridHeader.ColumnDefinitions[6].Width = 0;
+                //}
+
+                //if (this.LocMap.CurrLocMap.IsSectionTracked && this.LocMap.CurrLocMap.IsSlotTracked)
+                //{
+                    if (detailWidth7 > columnWidth7)
+                    {
+                        columnWidth7 = detailWidth7;
+                        gridHeader.ColumnDefinitions[7].Width = columnWidth7;
+                    }
+                //}
+                //else
+                //{
+                //    columnWidth7 = 0;
+                //    gridHeader.ColumnDefinitions[7].Width = 0;
+                //}
+
+                if (detailWidth8 > columnWidth8)
+                {
+                    columnWidth8 = detailWidth8;
+                    gridHeader.ColumnDefinitions[8].Width = columnWidth8;
+                }
+
+                if (detailWidth9 > columnWidth9)
+                {
+                    columnWidth9 = detailWidth9;
+                    gridHeader.ColumnDefinitions[9].Width = columnWidth9;
+                }
+
+                if (detailWidth10 > columnWidth10)
+                {
+                    columnWidth10 = detailWidth10;
+                    gridHeader.ColumnDefinitions[10].Width = columnWidth10;
+                }
+            }
+
+            // Create item template
+            DataTemplate dataTemplateCount = new DataTemplate(() =>
+            {
+                Grid gridData = new Grid
+                {
+                    Padding = new Thickness(5),
+                    ColumnDefinitions =
+                    {
+                        new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth3, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth4, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth5, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth6, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth7, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth8, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth9, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth10, GridUnitType.Absolute) }
+                    }
+                };
+
+                Label labelProductID = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelBC = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelQuantity = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelUnitCode = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelProdDate = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelBBDate = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelSection = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelSlot = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelSkid = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelWeight = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelWeightUnitCode = new Label { VerticalOptions = LayoutOptions.Center };
+
+                // Set label bindings
+                labelProductID.SetBinding(Label.TextProperty, new Binding("ProductCode"));
+                labelBC.SetBinding(Label.TextProperty, new Binding("ProductUnitBC"));
+                labelQuantity.SetBinding(Label.TextProperty, new Binding("ActivityItemQuantity", BindingMode.Default, null, null, "{0:F3}"));
+                labelUnitCode.SetBinding(Label.TextProperty, new Binding("UnitCode"));
+                labelProdDate.SetBinding(Label.TextProperty, new Binding("ActivityDetailLogisticUnitProductionDate"));
+                labelBBDate.SetBinding(Label.TextProperty, new Binding("ActivityDetailLogisticUnitBestbeforesellbydate"));
+                labelSection.SetBinding(Label.TextProperty, new Binding("LocationMapSectionFKRefno"));
+                labelSlot.SetBinding(Label.TextProperty, new Binding("LocationMapSlotFKRefno"));
+                labelSkid.SetBinding(Label.TextProperty, new Binding("SkidCode"));
+                labelWeight.SetBinding(Label.TextProperty, new Binding("ActivityItemWeightQuantity", BindingMode.Default, null, null, "{0:F3}"));
+                labelWeightUnitCode.SetBinding(Label.TextProperty, new Binding("WeightUnitCode"));
+
+                // Add labels to grid
+                gridData.Children.Add(labelProductID);
+                gridData.Children.Add(labelBC);
+                gridData.Children.Add(labelQuantity);
+                gridData.Children.Add(labelUnitCode);
+                gridData.Children.Add(labelProdDate);
+                gridData.Children.Add(labelBBDate);
+                gridData.Children.Add(labelSection);
+                gridData.Children.Add(labelSlot);
+                gridData.Children.Add(labelSkid);
+                gridData.Children.Add(labelWeight);
+                gridData.Children.Add(labelWeightUnitCode);
+
+                // Set label columns
+                Grid.SetColumn(labelProductID, 0);
+                Grid.SetColumn(labelBC, 1);
+                Grid.SetColumn(labelQuantity, 2);
+                Grid.SetColumn(labelUnitCode, 3);
+                Grid.SetColumn(labelProdDate, 4);
+                Grid.SetColumn(labelBBDate, 5);
+                Grid.SetColumn(labelSection, 6);
+                Grid.SetColumn(labelSlot, 7);
+                Grid.SetColumn(labelSkid, 8);
+                Grid.SetColumn(labelWeight, 9);
+                Grid.SetColumn(labelWeightUnitCode, 10);
+
+                return new ViewCell { View = gridData };
+            });
+
+            dataGridMainActivity.ItemTemplate = dataTemplateCount;
+
+            return observableCollection;
         }
 
 //        /// <summary>
@@ -101,29 +414,10 @@ namespace dMobile.Controller
 //        /// <remarks></remarks>
 //        public override void DesignDataGrid(DataGrid dataGridMain)
 //        {
-//            int columnWidthFactor = 1;
-
-//            if (this.SysEnv.IsWindowsMobile6Device)
-//            {
-//                columnWidthFactor = 2;
-//            }
-
-//            if (dataGridMain.TableStyles.Count > 0)
-//            {
-//                dataGridMain.TableStyles.Clear();
-//            }
-
-//            DataGridTableStyle dataGridStyle = new DataGridTableStyle();
-//            dataGridStyle.MappingName = this.MainGridMappingName;
-
 //            AddGridColumn(
 //                (ProdInfo.Refno > 0) ? -1 : columnWidthFactor * 65,
 //                "productcode",
-//#if MULTILANGUAGE
-//                Translator.GetInstance().Translate(TranslatorVocabulary.ProductId),
-//#else
 //                "Product ID",
-//#endif
 //                dataGridStyle);
 
 //            AddGridColumn(
@@ -135,11 +429,7 @@ namespace dMobile.Controller
 //            AddGridColumn(
 //                columnWidthFactor * 60,
 //                "activityitemquantity",
-//#if MULTILANGUAGE
-//                Translator.GetInstance().Translate(TranslatorVocabulary.Quantity),
-//#else
 //                "Quantity",
-//#endif
 //                dataGridStyle);
 
 //            AddGridColumn(
@@ -154,11 +444,7 @@ namespace dMobile.Controller
 //                AddGridColumn(
 //                    columnWidthFactor * 60,
 //                    "activitydetaillogisticunitproductiondate",
-//#if MULTILANGUAGE
-//                    Translator.GetInstance().Translate(TranslatorVocabulary.ProdDate),
-//#else
 //                    "Prod Date",
-//#endif
 //                    dataGridStyle);
 //            }
 
@@ -167,11 +453,7 @@ namespace dMobile.Controller
 //                AddGridColumn(
 //                    columnWidthFactor * 60,
 //                    "activitydetaillogisticunitbestbeforesellbydate",
-//#if MULTILANGUAGE
-//                    Translator.GetInstance().Translate(TranslatorVocabulary.BbsbDatez),
-//#else
 //                    "BB/SB Date",
-//#endif
 //                    dataGridStyle);
 //            }
 
@@ -180,11 +462,7 @@ namespace dMobile.Controller
 //                AddGridColumn(
 //                    columnWidthFactor * 60,
 //                    "locationmapsectionfkrefno",
-//#if MULTILANGUAGE
-//                    Translator.GetInstance().Translate(TranslatorVocabulary.Section),
-//#else
 //                    "Section",
-//#endif
 //                    dataGridStyle);
 
 //                if (this.LocMap.CurrLocMap.IsSlotTracked)
@@ -192,11 +470,7 @@ namespace dMobile.Controller
 //                    AddGridColumn(
 //                        columnWidthFactor * 60,
 //                        "locationmapslotfkrefno",
-//#if MULTILANGUAGE
-//                        Translator.GetInstance().Translate(TranslatorVocabulary.Slot),
-//#else
 //                        "Slot",
-//#endif
 //                        dataGridStyle);
 //                }
 //            }
@@ -204,21 +478,13 @@ namespace dMobile.Controller
 //            AddGridColumn(
 //                columnWidthFactor * 60,
 //                "skidcode",
-//#if MULTILANGUAGE
-//                Translator.GetInstance().Translate(TranslatorVocabulary.Skidzz),
-//#else
 //                "Skid",
-//#endif
 //                dataGridStyle);
 
 //            AddGridColumn(
 //                columnWidthFactor * 60,
 //                "activityitemweightquantity",
-//#if MULTILANGUAGE
-//                Translator.GetInstance().Translate(TranslatorVocabulary.Weight),
-//#else
 //                "Weight",
-//#endif
 //                dataGridStyle);
 
 //            AddGridColumn(

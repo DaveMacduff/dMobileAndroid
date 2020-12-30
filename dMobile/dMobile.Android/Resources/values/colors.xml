@@ -5,4 +5,5 @@
     <color name="colorPrimaryDark">#9b2f2a</color>
     <color name="colorAccent">#FF4081</color>
     <color name="splash_background">#FFFFFF</color>
+    <color name="listViewSelected">#FF4081</color>
 </resources>

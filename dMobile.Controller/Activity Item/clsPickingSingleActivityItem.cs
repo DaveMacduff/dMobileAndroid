@@ -155,17 +155,7 @@ namespace dMobile.Controller
             }
             catch (Exception ex)
             {
-                // TODO: DisplayAlert
-                //        MessageBox.Show(
-                //#if MULTILANGUAGE
-                //            string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.GetFullUnitLabelQuantityFailed) + Environment.NewLine + " {0}", ex.Message, null),
-                //#else
-                //            string.Format("Get full unit label quantity failed." + Environment.NewLine + " {0}", ex.Message, null),
-                //#endif
-                //            this.ActHdr.GetControlDescription(),
-                //            MessageBoxButtons.OK,
-                //            MessageBoxIcon.Exclamation,
-                //            MessageBoxDefaultButton.Button1);
+                Application.Current.MainPage.DisplayAlert(this.ActHdr.GetControlDescription(), string.Format("Get full unit label quantity failed." + Environment.NewLine + " {0}", ex.Message), "OK");
             }
 
             return labelQty;
@@ -369,23 +359,25 @@ namespace dMobile.Controller
         public override string GetComment(int idx)
         {
             string itemCmnt = base.GetComment(idx);
-            //using (SQLiteCommand cmndItemPickCmnt = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-            //{
-            //  cmndItemPickCmnt.CommandType = CommandType.TableDirect;
-            //  cmndItemPickCmnt.CommandText = "tActivityItemPickingComment";
-            //  cmndItemPickCmnt.IndexName = "PK_ActivityItemPickingCommentOnActivityItemRefno";
 
-            //  using (SQLiteDataReader drItemPickCmnt = cmndItemPickCmnt.ExecuteReader())
-            //  {
-            //    if (drItemPickCmnt.Seek(DbSeekOptions.FirstEqual, new object[] { idx }))
-            //    {
-            //      if (drItemPickCmnt.Read())
-            //      {
-            //        itemCmnt = drItemPickCmnt["ActivityItemPickingCommentComment"].ToString();
-            //      }
-            //    }
-            //  }
-            //}
+            using (SQLiteCommand cmndItemPickCmnt = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+            {
+                cmndItemPickCmnt.CommandType = CommandType.Text;
+                cmndItemPickCmnt.CommandText = "SELECT * FROM tActivityItemPickingComment WHERE ActivityItemRefno = @activityItemRefno";
+                //cmndItemPickCmnt.IndexName = "PK_ActivityItemPickingCommentOnActivityItemRefno";
+                cmndItemPickCmnt.Parameters.Add(new SQLiteParameter("@activityItemRefno", idx));
+
+                using (SQLiteDataReader drItemPickCmnt = cmndItemPickCmnt.ExecuteReader())
+                {
+                    //if (drItemPickCmnt.Seek(DbSeekOptions.FirstEqual, new object[] { idx }))
+                    //{
+                    if (drItemPickCmnt.Read())
+                    {
+                        itemCmnt = drItemPickCmnt["ActivityItemPickingCommentComment"].ToString();
+                    }
+                    //}
+                }
+            }
 
             return itemCmnt;
         }
@@ -466,6 +458,7 @@ namespace dMobile.Controller
 
         public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity)
         {
+            // TODO: Design Grid
             throw new NotImplementedException();
         }
 
@@ -499,21 +492,13 @@ namespace dMobile.Controller
 
         //      dataGridCol = new DataGridTextBoxColumn();
         //      dataGridCol.MappingName = "IsActivityItemPickingComment";
-        //#if MULTILANGUAGE
-        //      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.C);
-        //#else
         //      dataGridCol.HeaderText = "C";
-        //#endif
         //      dataGridCol.Width = 12 * columnWidthFactor;
         //      dataGridTableStyle.GridColumnStyles.Add(dataGridCol);
 
         //      dataGridCol = new DataGridTextBoxColumn();
         //      dataGridCol.MappingName = "ProductCode";
-        //#if MULTILANGUAGE
-        //      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.ProductId);
-        //#else
         //      dataGridCol.HeaderText = "Product ID";
-        //#endif
         //      dataGridCol.Width = 65 * columnWidthFactor;
         //      dataGridTableStyle.GridColumnStyles.Add(dataGridCol);
 
@@ -531,22 +516,14 @@ namespace dMobile.Controller
 
         //      dataGridCol = new DataGridTextBoxColumn();
         //      dataGridCol.MappingName = "ActivityItemPickingQuantityOrdered";
-        //#if MULTILANGUAGE
-        //      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Ordered);
-        //#else
         //      dataGridCol.HeaderText = "Ordered";
-        //#endif
         //      dataGridCol.Width = 52 * columnWidthFactor;
         //      dataGridCol.Format = "0.000";
         //      dataGridTableStyle.GridColumnStyles.Add(dataGridCol);
 
         //      dataGridCol = new DataGridTextBoxColumn();
         //      dataGridCol.MappingName = "ActivityItemPickingQuantityShipped";
-        //#if MULTILANGUAGE
-        //      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Shippedzz);
-        //#else
         //      dataGridCol.HeaderText = "Shipped";
-        //#endif
         //      dataGridCol.Width = 52 * columnWidthFactor;
         //      dataGridCol.Format = "0.000";
         //      dataGridTableStyle.GridColumnStyles.Add(dataGridCol);
@@ -555,11 +532,7 @@ namespace dMobile.Controller
         //      {
         //        dataGridCol = new DataGridTextBoxColumn();
         //        dataGridCol.MappingName = "ActivityItemPickingQuantityAvailable";
-        //#if MULTILANGUAGE
-        //        dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Available);
-        //#else
         //        dataGridCol.HeaderText = "Available";
-        //#endif
         //        dataGridCol.Width = 52 * columnWidthFactor;
         //        dataGridTableStyle.GridColumnStyles.Add(dataGridCol);
         //      }

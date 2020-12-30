@@ -1,5 +1,4 @@
 ﻿using dMobile.Bedrock;
-using dMobile.View.Test_Pages;
 using dMobile.View.Themes;
 using System.Collections.Generic;
 using Xamarin.Forms;
@@ -13,7 +12,6 @@ namespace dMobile.View
             InitializeComponent();
 
             MainPage = new NavigationPage(new SplashStartup());
-            //MainPage = new TestPage();
 
             if (!DesignMode.IsDesignModeEnabled)
             {

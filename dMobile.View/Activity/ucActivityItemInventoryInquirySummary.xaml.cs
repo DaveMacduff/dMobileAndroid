@@ -84,7 +84,7 @@ namespace dMobile.View.Activity
         /// <summary>
         /// The OnAppearing
         /// </summary>
-        protected override void OnAppearing()
+        protected override async void OnAppearing()
         {
             base.OnAppearing();
 
@@ -159,16 +159,17 @@ namespace dMobile.View.Activity
                         }
                     }
                 }
-
-                try
-                {
-                    this.ActItemInventoryInquiry_GotFocus(this, new EventArgs());
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("ActItemInventoryInquiry_GotFocus error: " + ex.Message);
-                }
             });
+
+            try
+            {
+                this.ActItemInventoryInquiry_GotFocus(this, new EventArgs());
+                await this.RefreshData();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("ActItemInventoryInquiry_GotFocus error: " + ex.Message);
+            }
         }
 
         /// <summary>
@@ -648,18 +649,10 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public async Task RefreshData()
         {
+            this.Loading = true;
+
             this.ScannerDisable();
-
-            //this.pbarStatus.Visible = true;
-
             this.ItemsList.Clear();
-            //this.lstDisplay.Items.Add("Loading items. Please wait...");
-            //this.lstDisplay.Invalidate();
-            //this.lstDisplay.Update();
-
-            //this.pbarStatus.Minimum = 0;
-            //this.pbarStatus.Maximum = 100;
-            //this.pbarStatus.Value = 0;
 
             try
             {
@@ -673,8 +666,6 @@ namespace dMobile.View.Activity
 
                 this.DataGridMainActivityItemsList = this.ActItem.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
                 this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
-                //this.dataGridMainActivity.Refresh();
-
             }
             catch (Exception ex)
             {
@@ -689,19 +680,18 @@ namespace dMobile.View.Activity
                 this.ActItem.UnregLayerListenerProgOut(this);
             }
 
-            //this.pbarStatus.Visible = false;
             this.ItemsList.Clear();
 
-            if (this.ActItem.DataViewItems.Count > 0)
+            if (this.DataGridMainActivityItemsList.Count > 0)
             {
-                //this.dataGridMainActivity.Select(0);
+                this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[0];
                 this.ActItem.SelectItem(0);
-                //this.dataGridMainActivity.Focus();
             }
 
-            await this.RefreshData();
             DisplaySummaryData();
             this.ScannerEnable();
+
+            this.Loading = false;
         }
 
         /// <summary>

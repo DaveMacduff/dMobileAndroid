@@ -519,9 +519,9 @@ namespace dMobile.Controller
                         {
                             case SysCommon.ActPickingQtyUnderValLevels.ValidateWarnAndContinue:
                                 // TODO: Resource strings
-                                if (await Application.Current.MainPage.DisplayAlert(this.GetControlDescription(), string.Format("Release order# {0} ?", this.FKRefno), "Yes", "No"))
+                                if (await Application.Current.MainPage.DisplayAlert(this.GetControlDescription(), ex.Message + Environment.NewLine + "Continue?", "Yes", "No"))
                                 {
-                                    isResult = false;
+                                    isResult = true;
                                 }
 
                                 break;
@@ -1281,7 +1281,7 @@ namespace dMobile.Controller
             //    MessageBoxButtons.YesNo,
             //    MessageBoxIcon.Question,
             //    MessageBoxDefaultButton.Button2) == DialogResult.Yes)
-            await Application.Current.MainPage.DisplayAlert(this.GetControlDescription(), msg, "Yes", "No");
+            if (await Application.Current.MainPage.DisplayAlert(this.GetControlDescription(), msg, "Yes", "No"))
             {
                 string reqData = string.Empty;
                 StringBuilder xmlString = new StringBuilder();

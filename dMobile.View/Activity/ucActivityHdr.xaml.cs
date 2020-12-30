@@ -41,6 +41,13 @@
         private List<string> optionsMenuItems = new List<string>();
         private string filterText;
         private bool filterIsEnabled;
+        private bool isRefreshing;
+
+        // For handling double click on listview item
+        private int numTaps = 0;
+        private object previousSender;
+
+        private bool firstOnAppearing = true;
 
         public ucActivityHdr()
         {
@@ -103,6 +110,7 @@
 
             this.lstDisplay.ItemsSource = this.ItemsList;
             this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
+            this.dataGridMainActivity.ItemTapped += this.DataGridMainActivity_ItemTapped;
 
             MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
             {
@@ -142,6 +150,22 @@
                         // Change pick selection.
                         this.DataGridMainActivity_KeyUpF5(this, null);
                     }
+                    else if (keycode == Keycode.DpadDown)
+                    {
+                        if (this.dataGridMainActivity.SelectedItem != null && Convert.ToInt32(this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem)) < this.DataGridMainActivityItemsList.Count - 1)
+                        {
+                            this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem) + 1];
+                            this.dataGridMainActivity.ScrollTo(this.dataGridMainActivity.SelectedItem, ScrollToPosition.MakeVisible, true);
+                        }
+                    }
+                    else if (keycode == Keycode.DpadUp)
+                    {
+                        if (this.dataGridMainActivity.SelectedItem != null && Convert.ToInt32(this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem)) > 0)
+                        {
+                            this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem) - 1];
+                            this.dataGridMainActivity.ScrollTo(this.dataGridMainActivity.SelectedItem, ScrollToPosition.MakeVisible, true);
+                        }
+                    }
                 }
             });
 
@@ -163,9 +187,44 @@
         protected override void OnDisappearing()
         {
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
+            this.dataGridMainActivity.ItemTapped -= this.DataGridMainActivity_ItemTapped;
             this.ScannerDisable();
 
             base.OnDisappearing();
+        }
+
+        /// <summary>
+        /// Handle double click on listview item
+        /// </summary>
+        private async void DataGridMainActivity_ItemTapped(object sender, ItemTappedEventArgs e)
+        {
+            if (this.Loading)
+            {
+                return;
+            }
+
+            this.numTaps++;
+
+            if (this.previousSender == e.Item)
+            {
+                if (this.numTaps == 2)
+                {
+                    this.numTaps = 0;
+
+                    if (this.dataGridMainActivity.SelectedItem != null && (Convert.ToInt32(this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem)) > -1))
+                    {
+                        await this.DataGridMainActivity_KeyUpEnter(this, null);
+                    }
+                }
+            }
+            else
+            {
+                this.previousSender = e.Item;
+                this.numTaps = 1;
+            }
+
+            await Task.Delay(500);
+            this.numTaps = 0;
         }
 
         public delegate void ReqCloseHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
@@ -963,7 +1022,7 @@
                 }
                 catch (Exceptions.MessageOnlyException ex)
                 {
-                    ex.Show(this.ActSubType);
+                    await Device.InvokeOnMainThreadAsync(() => ex.Show(this.ActSubType));
                 }
                 catch (Exception ex)
                 {
@@ -994,66 +1053,92 @@
                 this.OptionsMenuItems.Add(this.FilterText);
             }
         }
-
+        
         /// <summary>
         ///
         /// </summary>
         /// <remarks></remarks>
         private async Task RefreshData()
         {
-            await Task.Run(async () =>
+            try
             {
-                try
+                if (!this.isRefreshing)
                 {
-                    this.ActHdr.RegLayerListenerProgOut(this);
-                    this.ActHdr.Refresh(this.ActHdr.XMLDataCriteria);
-                }
-                catch (Exception ex)
-                {
-                    await Device.InvokeOnMainThreadAsync(async () =>
+                    this.isRefreshing = true;
+
+                    await Task.Run(async () =>
                     {
-                        FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
-                        await errRpt.ShowDialog();
+                        this.Loading = true;
+
+                        try
+                        {
+                            this.ActHdr.RegLayerListenerProgOut(this);
+                            this.ActHdr.Refresh(this.ActHdr.XMLDataCriteria);
+                        }
+                        catch (Exception ex)
+                        {
+                            await Device.InvokeOnMainThreadAsync(async () =>
+                            {
+                                FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                                await errRpt.ShowDialog();
+                            });
+                        }
+                        finally
+                        {
+                            this.ActHdr.UnregLayerListenerProgOut(this);
+                        }
+
+                        await Device.InvokeOnMainThreadAsync(() => this.ItemsList.Clear());
+                        this.ActHdr.DataViewHdrs = this.ActHdr.GetDataView(false);
+
+                        await Device.InvokeOnMainThreadAsync(() =>
+                        {
+                            this.DataGridMainActivityItemsList = this.ActHdr.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
+
+                            if (!string.IsNullOrEmpty(this.txtSearchHdr.Text))
+                            {
+                                this.DataGridMainActivityItemsList = this.ActHdr.Search(this.txtSearchHdr.Text);
+                            }
+
+                            this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
+
+                            if (this.ActHdr.DataViewHdrs.Count > 0 && this.DataGridMainActivityItemsList.Count > 0)
+                            {
+                                if (this.dataGridMainActivity.SelectedItem == null)
+                                {
+                                    this.ActHdr.SelectHdr(0);
+                                    this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[0];
+                                }
+                                else
+                                {
+                                    this.ActHdr.SelectHdr(this.ActHdr.SelectedIndex);
+                                    this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[this.ActHdr.SelectedIndex];
+                                }
+
+                                this.dataGridMainActivity.Focus();
+                            }
+
+                            this.DisplayData();
+                        });
+
+                        this.Loading = false;
                     });
                 }
-                finally
+                else
                 {
-                    this.ActHdr.UnregLayerListenerProgOut(this);
+                    Console.WriteLine("activity is still refreshing...");
                 }
-
-                await Device.InvokeOnMainThreadAsync(() => this.ItemsList.Clear());
-                this.ActHdr.DataViewHdrs = this.ActHdr.GetDataView(false);
-
-                await Device.InvokeOnMainThreadAsync(() =>
-                {
-                    this.DataGridMainActivityItemsList = this.ActHdr.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
-
-                    if (!string.IsNullOrEmpty(this.txtSearchHdr.Text))
-                    {
-                        this.DataGridMainActivityItemsList = this.ActHdr.Search(this.txtSearchHdr.Text);
-                    }
-
-                    this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
-
-                    if (this.ActHdr.DataViewHdrs.Count > 0 && this.DataGridMainActivityItemsList.Count > 0)
-                    {
-                        if (this.dataGridMainActivity.SelectedItem == null)
-                        {
-                            this.ActHdr.SelectHdr(0);
-                            this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[0];
-                        }
-                        else
-                        {
-                            this.ActHdr.SelectHdr(this.ActHdr.SelectedIndex);
-                            this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[this.ActHdr.SelectedIndex];
-                        }
-
-                        this.dataGridMainActivity.Focus();
-                    }
-
-                    this.DisplayData();
-                });
-            });
+            }
+            catch (Exception ex)
+            {
+                // TODO: logging
+                // TODO: Resource strings
+                await DisplayAlert("Error", "An error occurred while refreshing data: " + ex.Message, "OK");
+            }
+            finally
+            {
+                this.isRefreshing = false;
+            }
         }
 
         /// <summary>
@@ -1080,7 +1165,6 @@
         {
             await Task.Run(async () =>
             {
-                this.Loading = true;
                 bool performRefreshData = true;
 
                 try
@@ -1089,8 +1173,9 @@
                                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" +
                                 "<params>" + "<whs_id>0</whs_id>" + "<sect_refno>0</sect_refno>" + "</params>");
 
-                    if ((this.ActSubType == SysCommon.ActSubTypes.Picking || this.ActSubType == SysCommon.ActSubTypes.PickingSingle) && this.SysEnv.SysSettings.IsPrePickCrit)
+                    if ((this.ActSubType == SysCommon.ActSubTypes.Picking || this.ActSubType == SysCommon.ActSubTypes.PickingSingle) && this.SysEnv.SysSettings.IsPrePickCrit && this.firstOnAppearing)
                     {
+                        this.firstOnAppearing = false;
                         this.ScannerDisable();
                         int sectFKRefno = 0;
 
@@ -1100,24 +1185,21 @@
                         // need to preserve it before calling the picking selection form.
                         FormDialogContainer formPickSelect = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucActivityPickingSelectCriteria, this.ActSubType);
 
-                        await Device.InvokeOnMainThreadAsync(async () =>
+                        if (await Device.InvokeOnMainThreadAsync(async () => await formPickSelect.DisplayControl.ShowDialog() == DialogResult.OK))
                         {
-                            if (await formPickSelect.DisplayControl.ShowDialog() == DialogResult.OK)
-                            {
-                                XDocument xmlResult = formPickSelect.GetXML();
-                                LocationMap locMap = LocationMap.GetInstance();
-                                SLocMap tmpLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(int.Parse(xmlResult.Root.Element("LocationMapRefno").Value));
-                                locMap.CurrLocMap = tmpLocMap;
-                                sectFKRefno = tmpLocMap.SectFKRefno;
+                            XDocument xmlResult = formPickSelect.GetXML();
+                            LocationMap locMap = LocationMap.GetInstance();
+                            SLocMap tmpLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(int.Parse(xmlResult.Root.Element("LocationMapRefno").Value));
+                            locMap.CurrLocMap = tmpLocMap;
+                            sectFKRefno = tmpLocMap.SectFKRefno;
 
-                                this.ActHdr.XMLDataCriteria = XDocument.Parse(
-                                            "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                                            + "<params>"
-                                            + ("<whs_id>" + tmpLocMap.WhsFKRefno + "</whs_id>")
-                                            + ("<sect_refno>" + tmpLocMap.SectFKRefno + "</sect_refno>")
-                                            + "</params>");
-                            }
-                        });
+                            this.ActHdr.XMLDataCriteria = XDocument.Parse(
+                                        "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
+                                        + "<params>"
+                                        + ("<whs_id>" + tmpLocMap.WhsFKRefno + "</whs_id>")
+                                        + ("<sect_refno>" + tmpLocMap.SectFKRefno + "</sect_refno>")
+                                        + "</params>");
+                        }
 
                         // See WO#12906 do not load any orders if no section was selected.
                         if (this.SysEnv.SysSettings.IsPickingModuleDisallowLoadingAllOrders && sectFKRefno == 0)
@@ -1158,8 +1240,6 @@
                     {
                         this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     }
-
-                    this.Loading = false;
                 }
             });
         }
@@ -1696,14 +1776,14 @@
                     this.ReqCancelDisableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     this.ReqSaveDisableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
 
-                    if (0 > Convert.ToInt32(this.dataGridMainActivity.SelectedItem))
+                    if (Convert.ToInt32(this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem)) < 0)
                     {
                         // TODO: Resource strings
                         throw new Exceptions.MessageOnlyException("Please select a record to release.");
                     }
 
                     // Important! Need to ask for label quantity before the change status AND set this.ActHdr.Refno
-                    this.ActHdr.Refno = this.ActHdr.GetRefnoFromRowIdx(Convert.ToInt32(this.dataGridMainActivity.SelectedItem));
+                    this.ActHdr.Refno = this.ActHdr.GetRefnoFromRowIdx(Convert.ToInt32(this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem)));
 
                     SysCommon.SLabelQuantity labelQuantity = new SysCommon.SLabelQuantity();
 
@@ -1712,7 +1792,7 @@
                         labelQuantity = this.ActHdr.GetLabelQuantity(this.SysEnv.SysSettings.IsPickSinglePrintShipLabelFullQuantity);
                     }
 
-                    if (await this.ActHdr.ChangeStatus(Convert.ToInt32(this.dataGridMainActivity.SelectedItem)))
+                    if (await Device.InvokeOnMainThreadAsync(async () => await this.ActHdr.ChangeStatus(Convert.ToInt32(this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem)))))
                     {
                         // Print labels after release
                         this.ScannerDisable();
@@ -1733,7 +1813,7 @@
                             }
                             else
                             {
-                                this.ActHdr.DataViewHdrs.Delete(Convert.ToInt32(dataGridMainActivity.SelectedItem));
+                                this.ActHdr.DataViewHdrs.Delete(Convert.ToInt32(this.DataGridMainActivityItemsList.IndexOf(dataGridMainActivity.SelectedItem)));
                             }
                         }
                         else if (this.ActSubType == SysCommon.ActSubTypes.Adjustment)
@@ -1841,7 +1921,7 @@
                         // NOTE: oBarCodeParse is not initialized yet so there is not reason to preserve its values
                         FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucActivityPickingSelectCriteria, this.ActSubType);
 
-                        if (await Device.InvokeOnMainThreadAsync(async () => await form.ShowDialog() == DialogResult.OK))
+                        if (await Device.InvokeOnMainThreadAsync(async () => await form.DisplayControl.ShowDialog() == DialogResult.OK))
                         {
                             LocationMap locMap = LocationMap.GetInstance();
 

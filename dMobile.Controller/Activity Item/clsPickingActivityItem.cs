@@ -12,7 +12,6 @@ namespace dMobile.Controller
     using dMobile.GroundWork;
     using dMobile.Resources.Enums;
     using dMobile.Resources.Types;
-    using Microsoft.VisualBasic;
     using Xamarin.Forms;
 
     public class PickingActItem : ActItem

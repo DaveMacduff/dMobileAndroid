@@ -63,11 +63,13 @@ namespace dMobile.View.Activity
             // TODO: Resource strings
             this.lblSectionData.Text = "";
             this.lblWarehouseData.Text = "";
-            this.lblSearch.Text = "";
-            this.lblWarehouse.Text = "";
-            this.lblSection.Text = "";
-            this.tabWarehouse.Text = "";
-            this.tabSection.Text = "";
+            this.lblSearch.Text = "Search";
+            this.lblWarehouse.Text = "Warehouse";
+            this.lblSection.Text = "Section";
+            this.tabWarehouse.Text = "Warehouse";
+            this.tabSection.Text = "Section";
+            this.btnCancel.Text = "Cancel";
+            this.btnSave.Text = "Save";
 
             if (!DesignMode.IsDesignModeEnabled)
             {
@@ -106,13 +108,8 @@ namespace dMobile.View.Activity
                         if (await this.SaveChanges())
                         {
                             this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-                        }
-                    }
-                    else if (keycode == Keycode.Escape)
-                    {
-                        if (await this.CancelChanges())
-                        {
-                            this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                            this.DialogResult = DialogResult.OK;
+                            await this.Close();
                         }
                     }
                 }
@@ -120,14 +117,39 @@ namespace dMobile.View.Activity
 
             try
             {
-                this.ucSetLocationMap_GotFocus(this, new EventArgs());
+                this.ucActivityHdrPickingSelectCriteria_GotFocus(this, new EventArgs());
+            }
+            catch (Exception ex)
+            {
+                // TODO: Resource strings
+                await DisplayAlert("Error", "this.ucActivityHdrPickingSelectCriteria_GotFocus threw an error " + ex, "OK");
+            }
+
+            try
+            {
                 this.tabLocation_GotFocus(this, new EventArgs());
             }
             catch (Exception ex)
             {
                 // TODO: Resource strings
-                await DisplayAlert("Error", "this.ucSetLocationMap_GotFocus/tabLocation_GotFocus threw an error " + ex, "OK");
+                await DisplayAlert("Error", "this.tabLocation_GotFocus threw an error " + ex, "OK");
             }
+        }
+
+        protected override bool OnBackButtonPressed()
+        {
+            Device.BeginInvokeOnMainThread(async () =>
+            {
+                if (await this.CancelChanges())
+                {
+                    base.OnBackButtonPressed();
+                    this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                    this.DialogResult = DialogResult.None;
+                    await this.Close();
+                }
+            });
+
+            return true;
         }
 
         /// <summary>
@@ -849,7 +871,7 @@ namespace dMobile.View.Activity
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        public void ucSetLocationMap_GotFocus(object sender, EventArgs e)
+        public void ucActivityHdrPickingSelectCriteria_GotFocus(object sender, EventArgs e)
         {
             if (!SysEnvironment.GetInstance().IsApplicationExitInvoked)
             {
@@ -860,14 +882,14 @@ namespace dMobile.View.Activity
                     this.SelectWarehouse();
                     this.UpdateLocationDisplay();
 
-                    // WO 10190 LEKKER wants to default to the section tab, Lekker only has one warehouse so we can assume it.
-                    // Update Oct 9,2014 Lekker now has 2 warehouse this code will not work anymore. 
-                    // John said "do not fix until they complain". We could default the warehouse to the login warehouse.
-                    if (this.DataViewWhs.Count == 1 && this.DataViewSections.Count > 0)
-                    {
-                        //this.tabLocation.SelectedIndex = 1;
-                        this.tabSection.Focus();
-                    }
+                    //// WO 10190 LEKKER wants to default to the section tab, Lekker only has one warehouse so we can assume it.
+                    //// Update Oct 9,2014 Lekker now has 2 warehouse this code will not work anymore. 
+                    //// John said "do not fix until they complain". We could default the warehouse to the login warehouse.
+                    //if (this.DataViewWhs.Count == 1 && this.DataViewSections.Count > 0)
+                    //{
+                    //    //this.tabLocation.SelectedIndex = 1;
+                    //    this.tabSection.Focus();
+                    //}
 
                     this.ReqCancelEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     this.ReqSaveEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
@@ -904,7 +926,7 @@ namespace dMobile.View.Activity
 
                 //this.dgSections.DataSource = this.dataViewSections;
 
-            this.PopulateSectionList();
+                this.PopulateSectionList();
             }
         }
 
@@ -920,7 +942,7 @@ namespace dMobile.View.Activity
             this.DataViewWhs = dataTableWarehouses.DefaultView;
             //this.dgWhs.DataSource = this.DataViewWhs;
 
-            this.PopulateWarehouseList();
+            this.DesignGridWarehouses();
         }
 
         /// <summary>
@@ -929,8 +951,6 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         private void LoadSections()
         {
-            this.DesignGridSections();
-
             DataTable dataTableSections = new DataTable();
             LocationMapTasks.GetSectList(ref dataTableSections);
             dataTableSections.TableName = "Sections";
@@ -938,7 +958,7 @@ namespace dMobile.View.Activity
             this.DataViewSections.RowFilter = "WarehouseLocationMapRefno = " + this.LocMapInfo.WhsLocMapRefno;
             //this.dgSections.DataSource = this.DataViewSections;
 
-            this.PopulateSectionList();
+            this.DesignGridSections();
         }
 
         /// <summary>
@@ -951,7 +971,7 @@ namespace dMobile.View.Activity
 
             // Default to the login warehouse
             tempLocMapInfo.WhsLocMapRefno = this.LocMap.LoginWhsLocMapRefno;
-            
+
             if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
             {
                 tempLocMapInfo.WhsLocMapRefno = this.LocMap.CurrLocMap.WhsLocMapRefno;
@@ -1042,9 +1062,9 @@ namespace dMobile.View.Activity
         private void SelectSection()
         {
             // Attempt to find last selected section in section view
-            if (this.LocMapInfo.SectLocMapRefno != 0)
+            if (this.LocMapInfo.SectLocMapRefno != 0 && this.dgSections.SelectedItem is Section section)
             {
-                if (Convert.ToInt32(this.DataViewSections[this.SectionList.IndexOf(this.dgSections.SelectedItem as Section)]["LocationMapRefno"]) != this.LocMapInfo.SectLocMapRefno)
+                if (Convert.ToInt32(this.DataViewSections[this.SectionList.IndexOf(section)]["LocationMapRefno"]) != this.LocMapInfo.SectLocMapRefno)
                 {
                     for (int rowIdx = 0; rowIdx <= this.DataViewSections.Count - 1; rowIdx++)
                     {
@@ -1107,7 +1127,7 @@ namespace dMobile.View.Activity
                 {
                     int locMapRefno = LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(this.BarParse.LocationIdentifier);
                     this.LocMapInfo = LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
-                    
+
                     this.SelectWarehouse();
                     this.SelectSection();
                 }
@@ -1129,6 +1149,90 @@ namespace dMobile.View.Activity
                     await errRpt.ShowDialog();
                 });
             }
+        }
+
+        private void DesignGridWarehouses()
+        {
+            this.PopulateWarehouseList();
+
+            Label labelCodeHeader = new Label { Text = "Code", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            Label labelNameHeader = new Label { Text = "Name", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+
+            // Calculate text size
+            double columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelCodeHeader.Text);
+            double columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelNameHeader.Text);
+
+            Grid gridHeader = new Grid
+            {
+                Padding = new Thickness(5),
+                ColumnDefinitions =
+                {
+                    new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) }
+                }
+            };
+
+            gridHeader.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
+
+            gridHeader.Children.Add(labelCodeHeader);
+            gridHeader.Children.Add(labelNameHeader);
+
+            Grid.SetColumn(labelCodeHeader, 0);
+            Grid.SetColumn(labelNameHeader, 1);
+
+            Grid.SetRow(gridHeader, 0);
+
+            this.dataGridSectionsHeader.Children.Add(gridHeader);
+
+            foreach (Warehouse warehouse in this.WarehouseList)
+            {
+                double dataColumnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(warehouse.LocationMapWarehouseCode));
+                double dataColumnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(warehouse.LocationMapWarehouseName);
+
+                if (dataColumnWidth0 > columnWidth0)
+                {
+                    columnWidth0 = dataColumnWidth0;
+                    gridHeader.ColumnDefinitions[0].Width = columnWidth0;
+                }
+
+                if (dataColumnWidth1 > columnWidth1)
+                {
+                    columnWidth1 = dataColumnWidth1;
+                    gridHeader.ColumnDefinitions[1].Width = columnWidth1;
+                }
+            }
+
+            // Data grid
+            DataTemplate dataTemplate = new DataTemplate(() =>
+            {
+                Grid gridData = new Grid
+                {
+                    Padding = new Thickness(5),
+                    //ColumnSpacing = 15,
+                    ColumnDefinitions =
+                    {
+                        new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) }
+                    }
+                };
+
+                Label labelCode = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelName = new Label { VerticalOptions = LayoutOptions.Center };
+
+                labelCode.SetBinding(Label.TextProperty, new Binding("LocationMapWarehouseCode"));
+                labelName.SetBinding(Label.TextProperty, new Binding("LocationMapWarehouseName"));
+
+                gridData.Children.Add(labelCode, 0, 0);
+                gridData.Children.Add(labelName, 0, 0);
+
+                Grid.SetColumn(labelCode, 0);
+                Grid.SetColumn(labelName, 1);
+
+                return new ViewCell { View = gridData };
+            });
+
+            this.dgWhs.ItemTemplate = dataTemplate;
+            this.dgWhs.ItemsSource = this.WarehouseList;
         }
 
         /// <summary>
@@ -1187,7 +1291,7 @@ namespace dMobile.View.Activity
             }
 
             // Data grid
-            DataTemplate dataTemplateCount = new DataTemplate(() =>
+            DataTemplate dataTemplate = new DataTemplate(() =>
             {
                 Grid gridData = new Grid
                 {
@@ -1215,7 +1319,8 @@ namespace dMobile.View.Activity
                 return new ViewCell { View = gridData };
             });
 
-            this.dgSections.ItemTemplate = dataTemplateCount;
+            this.dgSections.ItemTemplate = dataTemplate;
+            this.dgSections.ItemsSource = this.SectionList;
 
             //if (this.dgSections.TableStyles.Count > 0)
             //{
@@ -1262,10 +1367,10 @@ namespace dMobile.View.Activity
 
         private void dgSections_ItemSelected(object sender, SelectedItemChangedEventArgs e)
         {
-            if (this.IsControlLoaded && e.SelectedItem is Warehouse warehouse)
+            if (this.IsControlLoaded && e.SelectedItem is Section section)
             {
                 this.IsChangesMade = true;
-                this.LocMapInfo = LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(warehouse.LocationMapRefno));
+                this.LocMapInfo = LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(section.LocationMapRefno));
                 this.UpdateLocationDisplay();
             }
         }
@@ -1285,8 +1390,6 @@ namespace dMobile.View.Activity
 
                 this.WarehouseList.Add(warehouse);
             }
-
-            this.dgWhs.ItemsSource = this.WarehouseList;
         }
 
         private void PopulateSectionList()
@@ -1305,8 +1408,21 @@ namespace dMobile.View.Activity
 
                 this.SectionList.Add(section);
             }
+        }
 
-            this.dgSections.ItemsSource = this.SectionList;
+        private async void btnSave_Clicked(object sender, EventArgs e)
+        {
+            if (await this.SaveChanges())
+            {
+                this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                this.DialogResult = DialogResult.OK;
+                await this.Close();
+            }
+        }
+
+        private void btnCancel_Clicked(object sender, EventArgs e)
+        {
+            this.OnBackButtonPressed();
         }
     }
 }

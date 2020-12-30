@@ -58,13 +58,9 @@ namespace dMobile.View
         }
 
         public delegate void ReqCloseHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
-
         public delegate void ReqCancelDisableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
-
         public delegate void ReqSaveDisableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
-
         public delegate void ReqCancelEnableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
-
         public delegate void ReqSaveEnableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
 
         public event ReqCloseHandler ReqClose

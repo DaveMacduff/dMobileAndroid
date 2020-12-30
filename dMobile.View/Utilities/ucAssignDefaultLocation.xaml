@@ -23,10 +23,10 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <Label x:Name="lblCurrentLocation" Text="Current Default Location(s)" Grid.Row="0" Grid.ColumnSpan="2" VerticalOptions="Center"/>
+                <Label x:Name="lblCurrentLocation" Text="Current Default Location(s)" Grid.Row="0" Grid.ColumnSpan="2" VerticalOptions="Center" FontAttributes="Bold" />
 
                 <Frame VerticalOptions="Start" Grid.Row="1" Grid.ColumnSpan="2" OutlineColor="{DynamicResource BorderColor}">
-                    <Grid>
+                    <Grid Padding="5">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*"/>
@@ -40,10 +40,10 @@
                     </Grid>
                 </Frame>
 
-                <Label x:Name="lblDefaultPicking" Text="Picking" Grid.Row="2" Grid.Column="0" VerticalOptions="Center"/>
+                <Label x:Name="lblDefaultPicking" Text="Picking" Grid.Row="2" Grid.Column="0" VerticalOptions="Center" FontAttributes="Bold"/>
                 <Custom:CustomSwitch x:Name="chkDefaultPicking" Grid.Row="2" Grid.Column="1" Toggled="IdentifyChangesMade"/>
 
-                <Label x:Name="lblDefaultReceiving" Text="Receiving" Grid.Row="3" Grid.Column="0" VerticalOptions="Center"/>
+                <Label x:Name="lblDefaultReceiving" Text="Receiving" Grid.Row="3" Grid.Column="0" VerticalOptions="Center" FontAttributes="Bold"/>
                 <Custom:CustomSwitch x:Name="chkDefaultReceiving" Grid.Row="3" Grid.Column="1" Toggled="IdentifyChangesMade"/>
 
                 <Frame VerticalOptions="Start" Grid.Row="4" Grid.ColumnSpan="2" Grid.RowSpan="2" OutlineColor="{DynamicResource BorderColor}" Padding="5">

@@ -35,7 +35,6 @@ namespace dMobile.GroundWork
 
             try
             {
-
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding sales orders.", true);
 

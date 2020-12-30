@@ -128,6 +128,7 @@ namespace dMobile.View.Activity
                         if (await this.CancelChanges())
                         {
                             this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                            this.DialogResult = DialogResult.None;
                         }
                     }
                     else if (keycode == Keycode.F1)
@@ -135,6 +136,7 @@ namespace dMobile.View.Activity
                         if (await this.SaveChanges())
                         {
                             this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                            this.DialogResult = DialogResult.OK;
                         }
                     }
                 }
@@ -1497,6 +1499,26 @@ namespace dMobile.View.Activity
                     this.LocMap.CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(this.LocMap.LoginWhsLocMapRefno);
                     this.cmdLocation.Text = LocationMapTasks.GetCurrentReadableLocation();
                 }
+            }
+        }
+
+        private async void btnSave_Clicked(System.Object sender, System.EventArgs e)
+        {
+            if (await this.SaveChanges())
+            {
+                this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                this.DialogResult = DialogResult.OK;
+                await this.Close();
+            }
+        }
+
+        private async void btnCancel_Clicked(System.Object sender, System.EventArgs e)
+        {
+            if (await this.CancelChanges())
+            {
+                this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                this.DialogResult = DialogResult.None;
+                await this.Close();
             }
         }
 

@@ -49,7 +49,7 @@ namespace dMobile.GroundWork
                             //GC.Collect();
                             //GC.WaitForPendingFinalizers();
 
-                            family = drFamily["FamilyCode"].ToString();
+                            family = Convert.ToString(drFamily["FamilyCode"]);
 
                             string recvData = SendRequest(family);
 

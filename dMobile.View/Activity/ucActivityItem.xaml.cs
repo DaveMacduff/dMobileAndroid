@@ -46,7 +46,11 @@
         private ObservableCollection<object> dataGridMainActivityItemsList = new ObservableCollection<object>();
         private int selectedIndex;
         private List<string> optionsMenuItems = new List<string>();
-        
+
+        // For handling double click on listview item
+        private int numTaps = 0;
+        private object previousSender;
+
         // cmdLocation
         private string cmdLocationText;
         private bool cmdLocationIsEnabled;
@@ -173,6 +177,7 @@
 
             this.lstDisplay.ItemsSource = this.ItemsList;
             this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
+            this.dataGridMainActivity.ItemTapped += this.DataGridMainActivity_ItemTapped;
 
             MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
             {
@@ -212,7 +217,6 @@
                     }
                     else if (keycode == Keycode.Del)
                     {
-                        // TODO: Confirm this works
                         await this.DataGridMainActivity_KeyUpDelete();
                     }
                     else if (keycode == Keycode.F1)
@@ -234,6 +238,22 @@
                     {
                         await this.DataGridMainActivity_KeyUpF4(this, new EventArgs());
                     }
+                    else if (keycode == Keycode.DpadDown)
+                    {
+                        if (this.dataGridMainActivity.SelectedItem != null && Convert.ToInt32(this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem)) < this.DataGridMainActivityItemsList.Count - 1)
+                        {
+                            this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem) + 1];
+                            this.dataGridMainActivity.ScrollTo(this.dataGridMainActivity.SelectedItem, ScrollToPosition.MakeVisible, true);
+                        }
+                    }
+                    else if (keycode == Keycode.DpadUp)
+                    {
+                        if (this.dataGridMainActivity.SelectedItem != null && Convert.ToInt32(this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem)) > 0)
+                        {
+                            this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem) - 1];
+                            this.dataGridMainActivity.ScrollTo(this.dataGridMainActivity.SelectedItem, ScrollToPosition.MakeVisible, true);
+                        }
+                    }
                 }
             });
 
@@ -253,10 +273,45 @@
         /// </summary>
         protected override void OnDisappearing()
         {
+            this.dataGridMainActivity.ItemTapped -= this.DataGridMainActivity_ItemTapped;
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
             this.ScannerDisable();
 
             base.OnDisappearing();
+        }
+
+        /// <summary>
+        /// Handle double click on listview item
+        /// </summary>
+        private async void DataGridMainActivity_ItemTapped(object sender, ItemTappedEventArgs e)
+        {
+            if (this.Loading)
+            {
+                return;
+            }
+
+            this.numTaps++;
+
+            if (this.previousSender == e.Item)
+            {
+                if (this.numTaps == 2)
+                {
+                    this.numTaps = 0;
+
+                    if (this.dataGridMainActivity.SelectedItem != null && (Convert.ToInt32(this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem)) > -1))
+                    {
+                        await this.DataGridMainActivity_KeyUpEnter();
+                    }
+                }
+            }
+            else
+            {
+                this.previousSender = e.Item;
+                this.numTaps = 1;
+            }
+
+            await Task.Delay(500);
+            this.numTaps = 0;
         }
 
         /// <summary>
@@ -1474,8 +1529,6 @@
             {
                 try
                 {
-                    this.Loading = true;
-
                     //This prevents UI lag when pushing modal into view
                     //await Task.Delay(500);
 
@@ -1523,8 +1576,6 @@
                 }
                 finally
                 {
-                    this.Loading = false;
-
                     if (this.ActItem != null)
                     {
                         this.ActItem.UnregLayerListenerProgOut(this);
@@ -2057,7 +2108,7 @@
         //    //this.dataGridMainActivity.Select(this.dataGridMainActivity.CurrentRowIndex);
         //    this.ActItem.SelectItem(this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem));
         //    this.DisplayData();
-        //}
+        //}.
 
         /// <summary>
         /// 
@@ -2068,6 +2119,7 @@
             {
                 try
                 {
+                    this.Loading = true;
                     await Device.InvokeOnMainThreadAsync(() => this.dataGridMainActivity.IsEnabled = false);
 
                     this.ReqCancelDisableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
@@ -2118,6 +2170,7 @@
                 }
                 finally
                 {
+                    this.Loading = false;
                     await Device.InvokeOnMainThreadAsync(() =>
                     {
                         this.dataGridMainActivity.IsEnabled = true;
@@ -2195,7 +2248,6 @@
         private async Task DataGridMainActivity_KeyUpF2(object sender, EventArgs e)
         {
             await this.KeyUpF2_ShowLineItemComments(sender, e);
-            //this.dataGridMainActivity.Focus();
         }
 
         /// <summary>
@@ -2206,7 +2258,6 @@
         private async Task DataGridMainActivity_KeyUpF3(object sender, EventArgs e)
         {
             await this.KeyUpF3_ShowTotalQuantity(sender, e);
-            //this.dataGridMainActivity.Focus();
         }
 
         /// <summary>
@@ -2217,7 +2268,6 @@
         private async Task DataGridMainActivity_KeyUpF4(object sender, EventArgs e)
         {
             await this.KeyUpF4_LaunchInvInquiry(sender, e);
-            //this.dataGridMainActivity.Focus();
         }
 
         ///// <summary>
@@ -2373,6 +2423,7 @@
         {
             try
             {
+                this.Loading = true;
                 this.dataGridMainActivity.IsEnabled = false;
 
                 this.ReqCancelDisableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
@@ -2394,6 +2445,7 @@
             }
             finally
             {
+                this.Loading = false;
                 this.dataGridMainActivity.IsEnabled = true;
                 this.ScannerEnable();
 
@@ -2413,7 +2465,7 @@
             this.ScannerDisable();
 
             FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucActivityInventoryInquirySummary, this.ActItem, this.ActSubType);
-            await form.DisplayControl.ShowDialog();
+            await Device.InvokeOnMainThreadAsync(async () => await form.DisplayControl.ShowDialog());
 
             this.ScannerEnable();
         }
@@ -2435,10 +2487,10 @@
                 this.ScannerDisable();
 
                 //if (0 > this.dataGridMainActivity.CurrentRowIndex)
-                if (0 > this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem))
+                if (this.dataGridMainActivity.SelectedItem != null && 0 > this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem))
                 {
                     // TODO: Resource strings
-                    throw new Exceptions.MessageOnlyException("Please select and line item to show the comments for.");
+                    throw new Exceptions.MessageOnlyException("Please select a line item to show the comments for.");
                 }
 
                 string comment = this.ActItem.GetComment(Convert.ToInt32(this.ActItem.DataViewItems[this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem)]["ActivityItemRefno"]));
@@ -2448,7 +2500,7 @@
                     //MessageBox.Show(comment, "Item Comment", MessageBoxButtons.OK, MessageBoxIcon.None, MessageBoxDefaultButton.Button1);
 
                     // TODO: Resource strings
-                    await DisplayAlert("Item Comment", comment, "Yes", "No");
+                    await DisplayAlert("Item Comment", comment, "OK");
                 }
             }
             catch (Exceptions.MessageOnlyException ex)
@@ -2494,7 +2546,7 @@
                     //MessageBox.Show(msg, this.GetControlDescription(), MessageBoxButtons.OK, MessageBoxIcon.None, MessageBoxDefaultButton.Button1);
 
                     // TODO: Resource strings
-                    await DisplayAlert(this.GetControlDescription(), msg, "Yes", "No");
+                    await DisplayAlert(this.GetControlDescription(), msg, "OK");
 
                 }
             }
@@ -2921,26 +2973,6 @@
                             this.ActItem.UpdateQuantityFromDataView(currRowIdx, this.ActItem.Refno);
                         }
 
-                        // TODO: Check following block
-                        //if (Convert.ToInt32(this.dataGridMainActivity[dataGridMainActivity.CurrentRowIndex, 0]) == actItemFoundRefno)
-                        //{
-                        //    //this.dataGridMainActivity.Select(this.dataGridMainActivity.CurrentRowIndex);
-                        //}
-                        //else
-                        //{
-                        //    //this.dataGridMainActivity.UnSelect(this.dataGridMainActivity.CurrentRowIndex);
-
-                        //    for (int rowIdx = 0; rowIdx <= this.ActItem.DataViewItems.Count - 1; rowIdx++)
-                        //    {
-                        //        if (Convert.ToInt32(this.dataGridMainActivity[rowIdx, 0]) == actItemFoundRefno)
-                        //        {
-                        //            this.dataGridMainActivity.CurrentRowIndex = rowIdx;
-                        //            this.dataGridMainActivity.Select(this.dataGridMainActivity.CurrentRowIndex);
-                        //            break;
-                        //        }
-                        //    }
-                        //}
-
                         // foundRowIdx = this.dataGridMainActivity.CurrentRowIndex
                         if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
                         {
@@ -3219,6 +3251,8 @@
         {
             try
             {
+                this.Loading = true;
+
                 //this.pbarStatus.Visible = true;
                 //this.lstDisplay.Items.Clear();
                 //this.ItemsList.Clear();
@@ -3262,6 +3296,7 @@
             }
             finally
             {
+                this.Loading = false;
                 this.ActItem.UnregLayerListenerProgOut(this);
 
                 this.ScannerEnable();

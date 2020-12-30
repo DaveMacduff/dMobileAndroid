@@ -182,6 +182,7 @@ namespace dMobile.Controller
 
             return this.DataViewDetails;
         }
+
         public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity)
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();

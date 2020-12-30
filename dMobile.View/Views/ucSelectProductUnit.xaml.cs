@@ -129,6 +129,22 @@
                         this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     }
                 }
+                else if (keycode == Keycode.DpadDown)
+                {
+                    if (this.dgProducts.SelectedItem != null && Convert.ToInt32(this.ProductUnitsList.IndexOf(this.dgProducts.SelectedItem as ProductUnit)) < this.ProductUnitsList.Count - 1)
+                    {
+                        this.dgProducts.SelectedItem = this.ProductUnitsList[this.ProductUnitsList.IndexOf(this.dgProducts.SelectedItem as ProductUnit) + 1];
+                        this.dgProducts.ScrollTo(this.dgProducts.SelectedItem, ScrollToPosition.MakeVisible, true);
+                    }
+                }
+                else if (keycode == Keycode.DpadUp)
+                {
+                    if (this.dgProducts.SelectedItem != null && Convert.ToInt32(this.ProductUnitsList.IndexOf(this.dgProducts.SelectedItem as ProductUnit)) > 0)
+                    {
+                        this.dgProducts.SelectedItem = this.ProductUnitsList[this.ProductUnitsList.IndexOf(this.dgProducts.SelectedItem as ProductUnit) - 1];
+                        this.dgProducts.ScrollTo(this.dgProducts.SelectedItem, ScrollToPosition.MakeVisible, true);
+                    }
+                }
             });
 
             try

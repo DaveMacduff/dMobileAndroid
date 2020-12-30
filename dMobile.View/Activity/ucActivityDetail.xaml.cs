@@ -209,6 +209,22 @@ namespace dMobile.View.Activity
                         await this.KeyUpF4_ConfirmDetail(this, new EventArgs());
                         this.dataGridMainActivity.Focus();
                     }
+                    else if (keycode == Keycode.DpadDown)
+                    {
+                        if (this.dataGridMainActivity.SelectedItem != null && Convert.ToInt32(this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem)) < this.DataGridMainActivityItemsList.Count - 1)
+                        {
+                            this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem) + 1];
+                            this.dataGridMainActivity.ScrollTo(this.dataGridMainActivity.SelectedItem, ScrollToPosition.MakeVisible, true);
+                        }
+                    }
+                    else if (keycode == Keycode.DpadUp)
+                    {
+                        if (this.dataGridMainActivity.SelectedItem != null && Convert.ToInt32(this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem)) > 0)
+                        {
+                            this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem) - 1];
+                            this.dataGridMainActivity.ScrollTo(this.dataGridMainActivity.SelectedItem, ScrollToPosition.MakeVisible, true);
+                        }
+                    }
                 }
             });
 
@@ -1311,8 +1327,6 @@ namespace dMobile.View.Activity
             {
                 if (!SysEnvironment.GetInstance().IsApplicationExitInvoked)
                 {
-                    this.Loading = true;
-
                     //// This prevents UI lag when pushing modal into view
                     //await Task.Delay(500);
 
@@ -1368,8 +1382,6 @@ namespace dMobile.View.Activity
                 this.IsControlLoaded = true;
 
             });
-
-            this.Loading = false;
         }
 
         /// <summary>
@@ -2063,6 +2075,8 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         private async Task RefreshData()
         {
+            this.Loading = true;
+
             //this.TotalTicks = this.TotalTicks + this.tmrActivityDetailLoaded.Interval;
 
             this.ScannerDisable();
@@ -2110,6 +2124,8 @@ namespace dMobile.View.Activity
 
                 this.ScannerEnable();
             });
+
+            this.Loading = false;
         }
 
         /// <summary>

@@ -17,7 +17,7 @@
                 </Grid.RowDefinitions>
 
                 <Label x:Name="lblDeviceNameIP" Text="Device ID / Name / IP" Grid.Row="0" FontAttributes="Bold"/>
-                <Label x:Name="lblDeviceIDData" Text="000000000000-00000000000000000000" Grid.Row="1"/>
+                <Label x:Name="lblDeviceIDData" Text="000000000000-00000000000000000000" Grid.Row="1" HorizontalOptions="FillAndExpand"/>
 
                 <Frame OutlineColor="{DynamicResource BorderColor}" Grid.Row="2" Grid.ColumnSpan="2">
                     <ListView x:Name="lstDeviceNameIP" ItemSelected="LstDeviceNameIP_ItemSelected" HasUnevenRows="True">

@@ -1028,10 +1028,10 @@ namespace dMobile.View.Activity
 
                 this.cboSerialNo.SelectedItem = this.ActDetailEdit.SchemeData.SingleTradeItemSerialNumber;
 
-                if (this.cboSerialNo.SelectedIndex < 0)
-                {
-                    this.cboSerialNo.SelectedItem = this.ActDetailEdit.SchemeData.SingleTradeItemSerialNumber;
-                }
+                //if (this.cboSerialNo.See < 0)
+                //{
+                //    this.cboSerialNo.SelectedItem = this.ActDetailEdit.SchemeData.SingleTradeItemSerialNumber;
+                //}
             }
 
             if (prodInfo.Scheme.IsLotTracked)
@@ -1221,7 +1221,7 @@ namespace dMobile.View.Activity
 
             this.cboVariantCode.ItemDisplayBinding = new Binding("ProductSchemeVariantDisplay");
             this.cboVariantCode.ItemsSource = productVariantList;
-            
+
             //this.cboVariantCode.ValueMember = "ProductSchemeVariantNo";
             //this.cboVariantCode.DisplayMember = "ProductSchemeVariantDisplay";
         }
@@ -1247,7 +1247,7 @@ namespace dMobile.View.Activity
 
             this.cboLotNo.ItemDisplayBinding = new Binding("ActivityDetailLogisticUnitBatchLotNumber");
             this.cboLotNo.ItemsSource = lotNumberList;
-            
+
             //this.cboLotNo.ValueMember = "ActivityDetailLogisticUnitBatchLotNumber";
             //this.cboLotNo.DisplayMember = "ActivityDetailLogisticUnitBatchLotNumber";
         }
@@ -1265,7 +1265,7 @@ namespace dMobile.View.Activity
 
             if (selectedSerialNumberItem != null)
             {
-                selectedSerialNumber.ActivityDetailSingleTradeItemSerialNumber = Convert.ToString(selectedSerialNumberItem); 
+                selectedSerialNumber.ActivityDetailSingleTradeItemSerialNumber = Convert.ToString(selectedSerialNumberItem);
                 serialNumberList.Add(selectedSerialNumber);
             }
 
@@ -1273,7 +1273,7 @@ namespace dMobile.View.Activity
             {
                 SerialNumber serialNumber = new SerialNumber()
                 {
-                     ActivityDetailSingleTradeItemSerialNumber = Convert.ToString(row["ActivityDetailSingleTradeItemSerialNumber"] != DBNull.Value ? row["ActivityDetailSingleTradeItemSerialNumber"] : null)
+                    ActivityDetailSingleTradeItemSerialNumber = Convert.ToString(row["ActivityDetailSingleTradeItemSerialNumber"] != DBNull.Value ? row["ActivityDetailSingleTradeItemSerialNumber"] : null)
                 };
 
                 serialNumberList.Add(serialNumber);
@@ -1299,14 +1299,12 @@ namespace dMobile.View.Activity
         private async Task IsValidData()
         {
             SProductSchemeData s = this.ActDetailEdit.SchemeData;
-            SerialNumber serialNumber = this.cboSerialNo.SelectedItem != null ? this.cboSerialNo.SelectedItem as SerialNumber : null;
-            LotNumber lotNumber = this.cboLotNo.SelectedItem != null ? this.cboLotNo.SelectedItem as LotNumber : null;
 
-            s.SingleTradeItemSerialNumber = serialNumber != null ? serialNumber.ActivityDetailSingleTradeItemSerialNumber : string.Empty;
-            s.LogisticUnitBatchLotNumber = lotNumber != null ? lotNumber.ActivityDetailLogisticUnitBatchLotNumber : string.Empty;
+            s.SingleTradeItemSerialNumber = this.cboSerialNo.Text;
+            s.LogisticUnitBatchLotNumber = this.cboLotNo.Text;
 
             if (this.ActDetail.ActItem.ProdInfo.Scheme.IsVariantTracked)
-            {                
+            {
                 ProductVariant variant = this.cboVariantCode != null ? this.cboVariantCode.SelectedItem as ProductVariant : null;
                 s.VariantNumber = Convert.ToInt32(variant != null ? variant.ProductSchemeVariantNo : -1);
                 s = this.ActDetail.FillSchemeDataVarInfoFromSchemeDataVarNo(s);
@@ -1574,7 +1572,7 @@ namespace dMobile.View.Activity
                         {
                             this.LoadData();
                             this.ShowProductInfo();
-                            
+
                             this.GetProductVariantList(prodInfo.Refno);
                             this.GetSerialNumberList(prodInfo.Refno);
                             this.GetLotNumberList(prodInfo.Refno);
