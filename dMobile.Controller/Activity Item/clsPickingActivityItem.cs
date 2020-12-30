@@ -342,7 +342,7 @@ namespace dMobile.Controller
         public override async Task Insert(XDocument data, bool askToInsertAsNewItem)
         {
             int foundActItemRefno = 0;
-            DialogResult result = DialogResult.None;
+            bool result = false;
             int prodUnitRefno = int.Parse(data.Root.Element("ProductUnitRefno").Value);
 
             if (prodUnitRefno != 0)
@@ -362,16 +362,16 @@ namespace dMobile.Controller
 
                     if (await Application.Current.MainPage.DisplayAlert("New Item", "A line item already exists for this location and product." + Environment.NewLine + "Do you wish to create one?", "Yes", "No"))
                     {
-                        result = DialogResult.Yes;
+                        result = true;
                     }
                 }
                 else
                 {
                     // If the selected product to insert was not found, force the dialog result to insert it.
-                    result = DialogResult.Yes;
+                    result = true;
                 }
 
-                if (result == DialogResult.Yes)
+                if (result)
                 {
                     SQLiteConnection conn = DatabaseConnection.GetInstance().SQLConn;
 
