@@ -14,38 +14,33 @@
         public static string GetDeviceID()
         {
             string deviceID = string.Empty;
-            NetworkInterface nic = null;
 
-            foreach (NetworkInterface ni in NetworkInterface.GetAllNetworkInterfaces())
+            if (!string.IsNullOrEmpty(Build.Device))
             {
-                nic = ni;
-                break;
+                deviceID += Build.Device;
             }
 
-            if (nic != null)
+            // TODO: If we start targeting a higher sdk, this will be changed to Build.getSerial().
+            // This will require additional device permissions.
+            if (!string.IsNullOrEmpty(Build.Serial))
             {
-                deviceID = nic.GetPhysicalAddress().ToString();
+                deviceID += Build.Serial;
             }
 
-            // If then MAC address is not known then fall back to device id
             if (string.IsNullOrEmpty(deviceID))
             {
-                string id = string.Empty;
+                NetworkInterface nic = null;
 
-                if (!string.IsNullOrEmpty(Build.Device))
+                foreach (NetworkInterface ni in NetworkInterface.GetAllNetworkInterfaces())
                 {
-                    id += Build.Device;
+                    nic = ni;
+                    break;
                 }
 
-                // TODO: If we start targeting a higher sdk, this will be changed to Build.getSerial().
-                // This will require additional device permissions.
-                if (!string.IsNullOrEmpty(Build.Serial))
+                if (nic != null)
                 {
-                    id += Build.Serial;
+                    deviceID = nic.GetPhysicalAddress().ToString();
                 }
-
-                deviceID = id;
-                //Android.Provider.Settings.Secure.GetString(Android.App.Application.Context.ContentResolver, Android.Provider.Settings.Secure.AndroidId);
             }
 
             return deviceID;
