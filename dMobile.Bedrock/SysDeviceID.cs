@@ -15,7 +15,11 @@
         {
             string deviceID = string.Empty;
 
-            if (!string.IsNullOrEmpty(Build.Device))
+            if (!string.IsNullOrEmpty(Build.Product))
+            {
+                deviceID += Build.Product;
+            }
+            else if (!string.IsNullOrEmpty(Build.Device))
             {
                 deviceID += Build.Device;
             }
