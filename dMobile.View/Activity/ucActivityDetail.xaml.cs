@@ -131,6 +131,20 @@ namespace dMobile.View.Activity
             {
                 this.PopulateOptionsMenu();
             }
+
+            if (propertyName == nameof(this.CmdSelectSkidText))
+            {
+                if (this.CmdSelectSkidText != "Select Skid")
+                {
+                    this.lblSkidNumber.Text = this.CmdSelectSkidText;
+                    this.lblSkidNumber.IsVisible = true;
+                }
+                else
+                {
+                    this.lblSkidNumber.Text = string.Empty;
+                    this.lblSkidNumber.IsVisible = false;
+                }
+            }
         }
 
         /// <summary>
@@ -684,7 +698,6 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public async Task<bool> SaveChanges()
         {
-            // TODO: Ensure correct value is returned
             bool isSaveComplete = true;
 
             if (this.ActSubType == SysCommon.ActSubTypes.Receiving &&
@@ -1056,41 +1069,44 @@ namespace dMobile.View.Activity
                 this.ScannerDisable();
 
                 FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucSkidInfo, this.ActDetail.ActItem, this.ActSubType);
-                await form.DisplayControl.ShowDialog();
-                XDocument xmlDoc = form.DisplayControlData;
-                this.ActDetail.ActItem.ActHdr.SkidInfo = SysSkidInfo.GetSkidInfoFromXML(xmlDoc);
 
-                if (this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
+                if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
                 {
-                    SSkidInfo currSkid = this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid;
+                    XDocument xmlDoc = form.DisplayControlData;
+                    this.ActDetail.ActItem.ActHdr.SkidInfo = SysSkidInfo.GetSkidInfoFromXML(xmlDoc);
 
-                    if (this.ActDetail.ActItem.ProdInfo.Code == currSkid.ProdInfo.Code && this.ActDetail.ActItem.ProdInfo.UnitBC == currSkid.ProdInfo.UnitBC && this.ActDetail.ActItem.ProdInfo.UnitCode == currSkid.ProdInfo.UnitCode)
+                    if (this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
                     {
-                        this.CmdAddSkidIsEnabled = true;
-                        // TODO: Resource strings
-                        this.CmdSelectSkidText = "Skid# " + currSkid.SkidCode;
-                        this.LocMap.CurrLocMap = currSkid.LocMap;
+                        SSkidInfo currSkid = this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid;
 
-                        this.CmdLocationIsEnabled = false;
+                        if (this.ActDetail.ActItem.ProdInfo.Code == currSkid.ProdInfo.Code && this.ActDetail.ActItem.ProdInfo.UnitBC == currSkid.ProdInfo.UnitBC && this.ActDetail.ActItem.ProdInfo.UnitCode == currSkid.ProdInfo.UnitCode)
+                        {
+                            this.CmdAddSkidIsEnabled = true;
+                            // TODO: Resource strings
+                            this.CmdSelectSkidText = "Skid# " + currSkid.SkidCode;
+                            this.LocMap.CurrLocMap = currSkid.LocMap;
+
+                            this.CmdLocationIsEnabled = false;
+                        }
+                        else
+                        {
+                            // TODO: Resource strings
+                            //MessageBox.Show("Skid product must match the selected line item product.", "Skid", MessageBoxButtons.OK, MessageBoxIcon.Hand, MessageBoxDefaultButton.Button1);
+                            await DisplayAlert("Skid", "Skid product must match the selected line item product.", "Ok");
+
+                            // TODO: Resource strings
+                            this.ActDetail.ActItem.ActHdr.SkidInfo = new SysSkidInfo();
+                            this.CmdSelectSkidText = "Select Skid";
+                            this.CmdAddSkidIsEnabled = false;
+                        }
                     }
                     else
                     {
                         // TODO: Resource strings
-                        //MessageBox.Show("Skid product must match the selected line item product.", "Skid", MessageBoxButtons.OK, MessageBoxIcon.Hand, MessageBoxDefaultButton.Button1);
-                        await DisplayAlert("Skid", "Skid product must match the selected line item product.", "Ok");
-
-                        // TODO: Resource strings
-                        this.ActDetail.ActItem.ActHdr.SkidInfo = new SysSkidInfo();
                         this.CmdSelectSkidText = "Select Skid";
                         this.CmdAddSkidIsEnabled = false;
+                        this.CmdLocationIsEnabled = true;
                     }
-                }
-                else
-                {
-                    // TODO: Resource strings
-                    this.CmdSelectSkidText = "Select Skid";
-                    this.CmdAddSkidIsEnabled = false;
-                    this.CmdLocationIsEnabled = true;
                 }
             }
 
@@ -1109,98 +1125,106 @@ namespace dMobile.View.Activity
             {
                 this.Loading = true;
 
-                if (this.IsControlLoaded)
+                await Task.Run(async () =>
                 {
-                    LocationMap locMap = LocationMap.GetInstance();
 
-                    this.ScannerDisable();
+                    if (this.IsControlLoaded)
+                    {
+                        LocationMap locMap = LocationMap.GetInstance();
 
-                    if (!LocationMapTasks.IsCompleteLocMapRefno(locMap.CurrLocMapRefno))
-                    {
-                        // TODO: Resource strings
-                        //MessageBox.Show("Location must be set first.", this.GetControlDescription(), MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
-                        await DisplayAlert(this.GetControlDescription(), "Location must be set first.", "OK");
-                    }
-                    else
-                    {
-                        try
+                        this.ScannerDisable();
+
+                        if (!LocationMapTasks.IsCompleteLocMapRefno(locMap.CurrLocMapRefno))
                         {
-                            bool isAllowedAddManualDetail = true;
-
-                            if (sysEnv.SysSettings.IsPickAddManualDetailPasswordRequired && (this.ActSubType == SysCommon.ActSubTypes.PickingSingle || this.ActSubType == SysCommon.ActSubTypes.Picking))
+                            // TODO: Resource strings
+                            //MessageBox.Show("Location must be set first.", this.GetControlDescription(), MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
+                            await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Location must be set first.", "OK"));
+                        }
+                        else
+                        {
+                            try
                             {
-                                // TODO: Do form
-                                FormAddManualDetailOverride form = new FormAddManualDetailOverride();
+                                bool isAllowedAddManualDetail = true;
 
-                                if (await form.ShowDialog() == DialogResult.OK)
+                                if (sysEnv.SysSettings.IsPickAddManualDetailPasswordRequired && (this.ActSubType == SysCommon.ActSubTypes.PickingSingle || this.ActSubType == SysCommon.ActSubTypes.Picking))
                                 {
-                                    isAllowedAddManualDetail = true;
-                                }
-                                else
-                                {
-                                    isAllowedAddManualDetail = false;
-                                }
-                            }
+                                    FormAddManualDetailOverride form = new FormAddManualDetailOverride();
 
-                            if (isAllowedAddManualDetail)
-                            {
-                                // Not allowed to count individual boxes on a skid. Skids must be
-                                // scanned as a whole unit or built in skid maintenance.
-
-                                // DEV-827 This change to allow counting partial skids is a bad idea.                        
-                                ////if (this.ActSubType == SysCommon.ActSubTypes.PhysicalCounts
-                                ////    || this.ActSubType == SysCommon.ActSubTypes.CycleCounts)
-                                ////{
-                                ////    if (this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
-                                ////    {
-                                ////        this.ActDetail.ActItem.ActHdr.SkidInfo = new SysSkidInfo();
-                                ////    }
-                                ////}
-
-                                BarCodeParse parse = BarCodeParseFacade.ParseData(string.Empty);
-                                bool isInsertReady = false;
-
-                                this.ActDetail.Quantity = 0;
-                                this.ActDetail.BaseQuantity = 0;
-                                this.ActDetail.WeightQuantity = 0;
-                                this.ActDetail.SchemeID = string.Empty;
-                                this.ActDetail.UniqueSchemeID = string.Empty;
-                                this.ActDetail.ActExtra.Text1 = string.Empty;
-                                this.ActDetail.ActExtra.Text2 = string.Empty;
-                                this.ActDetail.ActExtra.Text3 = string.Empty;
-                                this.ActDetail.ActExtra.Text4 = string.Empty;
-                                this.ActDetail.ActExtra.DateTime5 = new DateTime(1980, 1, 1);
-
-                                // Did not use this.ActItem.ActHdr.SkidInfo.CurrSkid.LogisticUnitSkidCode because of the len of the code
-                                // and the fact is isn't human readable friendly.
-                                SActItemSchemeData tempItemProdSchemeData = new SActItemSchemeData();
-                                SProductSchemeData schemeData = actDetail.SchemeData;
-
-                                if (this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
-                                {
-                                    schemeData.LogisticUnitSkidNumber = this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode;
-                                    schemeData.LogisticUnitBatchLotNumber = this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid.SchemeData.LogisticUnitBatchLotNumber;
-                                    schemeData.LogisticUnitBestBeforeSellByDate = this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid.SchemeData.LogisticUnitBestBeforeSellByDate;
-                                    schemeData.LogisticUnitProductionDate = this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid.SchemeData.LogisticUnitProductionDate;
-                                    schemeData.VariantCode = this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid.SchemeData.VariantCode;
-                                    schemeData.VariantNumber = this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid.SchemeData.VariantNumber;
-                                    schemeData.VariantDescription = this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid.SchemeData.VariantDescription;
+                                    if (await Device.InvokeOnMainThreadAsync(async () => await form.ShowDialog() == DialogResult.OK))
+                                    {
+                                        isAllowedAddManualDetail = true;
+                                    }
+                                    else
+                                    {
+                                        isAllowedAddManualDetail = false;
+                                    }
                                 }
 
-                                tempItemProdSchemeData.ProdSchemeData = schemeData;
-                                actDetail.SchemeData = schemeData;
-
-                                await Task.Run(async () =>
+                                if (isAllowedAddManualDetail)
                                 {
+                                    // Not allowed to count individual boxes on a skid. Skids must be
+                                    // scanned as a whole unit or built in skid maintenance.
+
+                                    // DEV-827 This change to allow counting partial skids is a bad idea.                        
+                                    ////if (this.ActSubType == SysCommon.ActSubTypes.PhysicalCounts
+                                    ////    || this.ActSubType == SysCommon.ActSubTypes.CycleCounts)
+                                    ////{
+                                    ////    if (this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
+                                    ////    {
+                                    ////        this.ActDetail.ActItem.ActHdr.SkidInfo = new SysSkidInfo();
+                                    ////    }
+                                    ////}
+
+                                    BarCodeParse parse = BarCodeParseFacade.ParseData(string.Empty);
+                                    bool isInsertReady = false;
+
+                                    this.ActDetail.Quantity = 0;
+                                    this.ActDetail.BaseQuantity = 0;
+                                    this.ActDetail.WeightQuantity = 0;
+                                    this.ActDetail.SchemeID = string.Empty;
+                                    this.ActDetail.UniqueSchemeID = string.Empty;
+                                    this.ActDetail.ActExtra.Text1 = string.Empty;
+                                    this.ActDetail.ActExtra.Text2 = string.Empty;
+                                    this.ActDetail.ActExtra.Text3 = string.Empty;
+                                    this.ActDetail.ActExtra.Text4 = string.Empty;
+                                    this.ActDetail.ActExtra.DateTime5 = new DateTime(1980, 1, 1);
+
+                                    // Did not use this.ActItem.ActHdr.SkidInfo.CurrSkid.LogisticUnitSkidCode because of the len of the code
+                                    // and the fact is isn't human readable friendly.
+                                    SActItemSchemeData tempItemProdSchemeData = new SActItemSchemeData();
+                                    SProductSchemeData schemeData = actDetail.SchemeData;
+
+                                    if (this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
+                                    {
+                                        schemeData.LogisticUnitSkidNumber = this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode;
+                                        schemeData.LogisticUnitBatchLotNumber = this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid.SchemeData.LogisticUnitBatchLotNumber;
+                                        schemeData.LogisticUnitBestBeforeSellByDate = this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid.SchemeData.LogisticUnitBestBeforeSellByDate;
+                                        schemeData.LogisticUnitProductionDate = this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid.SchemeData.LogisticUnitProductionDate;
+                                        schemeData.VariantCode = this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid.SchemeData.VariantCode;
+                                        schemeData.VariantNumber = this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid.SchemeData.VariantNumber;
+                                        schemeData.VariantDescription = this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid.SchemeData.VariantDescription;
+                                    }
+
+                                    tempItemProdSchemeData.ProdSchemeData = schemeData;
+                                    actDetail.SchemeData = schemeData;
+
                                     isInsertReady = await SysShared.GatherProductData(parse, this.ActSubType, this.ActDetail.ActItem, tempItemProdSchemeData, isInsertReady, this.ActDetail, true);
                                     await this.InsertActivityDetail(this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem), this.ActDetail, parse, isInsertReady);
                                     this.ActDetail.SelectDetail(this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem));
-                                });
+                                }
                             }
-                        }
-                        catch (GatherProductDataException ex)
-                        {
-                            if (!ex.SuppressError)
+                            catch (GatherProductDataException ex)
+                            {
+                                if (!ex.SuppressError)
+                                {
+                                    await Device.InvokeOnMainThreadAsync(async () =>
+                                    {
+                                        FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                                        await errRpt.ShowDialog();
+                                    });
+                                }
+                            }
+                            catch (Exception ex)
                             {
                                 await Device.InvokeOnMainThreadAsync(async () =>
                                 {
@@ -1209,16 +1233,8 @@ namespace dMobile.View.Activity
                                 });
                             }
                         }
-                        catch (Exception ex)
-                        {
-                            await Device.InvokeOnMainThreadAsync(async () =>
-                            {
-                                FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
-                                await errRpt.ShowDialog();
-                            });
-                        }
                     }
-                }
+                });
             }
             catch (Exception ex)
             {
@@ -1258,7 +1274,6 @@ namespace dMobile.View.Activity
                         {
                             FormAddManualDetailOverride form = new FormAddManualDetailOverride();
 
-                            // TODO: Do form FormAddManualDetailOverride
                             if (await form.ShowDialog() == DialogResult.OK)
                             {
                                 isAllowedAddManualDetail = true;
@@ -1323,6 +1338,8 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         private async Task ucActivityDetail_GotFocus(object sender, EventArgs e)
         {
+            this.Loading = true;
+
             await Task.Run(async () =>
             {
                 if (!SysEnvironment.GetInstance().IsApplicationExitInvoked)
@@ -1382,6 +1399,8 @@ namespace dMobile.View.Activity
                 this.IsControlLoaded = true;
 
             });
+
+            this.Loading = false;
         }
 
         /// <summary>
@@ -1458,7 +1477,7 @@ namespace dMobile.View.Activity
                     if (0 <= this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem))
                     {
                         int currIdx = this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem);
-                        SysSkidInfo skidInfo = SysSkidInfo.GetSkidInfoFromBarCodeOrCode((string)this.ActDetail.DataViewDetails[currIdx]["ActivityDetailLogisticUnitSkidNumber"]);
+                        SysSkidInfo skidInfo = SysSkidInfo.GetSkidInfoFromBarCodeOrCode(Convert.ToString(this.ActDetail.DataViewDetails[currIdx]["ActivityDetailLogisticUnitSkidNumber"]));
                         //DialogResult result = MessageBox.Show(string.Format("Do you wish to delete this entire skid \'{0}\'?", skidInfo.CurrSkid.SkidCode), this.GetControlDescription(), MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
 
                         if (await DisplayAlert(this.GetControlDescription(), string.Format("Do you wish to delete this entire skid \'{0}\'?", skidInfo.CurrSkid.SkidCode), "Yes", "No"))
@@ -1743,6 +1762,8 @@ namespace dMobile.View.Activity
             int currRowIdx = this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem);
             int svdActDetailFKRefno = this.ActDetail.FKRefno;
 
+            this.Loading = true;
+
             await Task.Run(async () =>
             {
                 try
@@ -1862,12 +1883,9 @@ namespace dMobile.View.Activity
                                     tempItemProdSchemeData.ProdSchemeData = schemeData;
                                     actDetail.SchemeData = schemeData;
 
-                                    await Device.InvokeOnMainThreadAsync(async () =>
-                                    {
-                                        isInsertReady = await SysShared.GatherProductData(this.Parse, this.ActSubType, this.ActDetail.ActItem, tempItemProdSchemeData, isInsertReady, this.ActDetail, false);
-                                        await this.InsertActivityDetail(currRowIdx, this.ActDetail, this.Parse, isInsertReady);
-                                        await this.RefreshData();
-                                    });
+                                    isInsertReady = await SysShared.GatherProductData(this.Parse, this.ActSubType, this.ActDetail.ActItem, tempItemProdSchemeData, isInsertReady, this.ActDetail, false);
+                                    await this.InsertActivityDetail(currRowIdx, this.ActDetail, this.Parse, isInsertReady);
+                                    await this.RefreshData();
                                 }
                             }
                         }
@@ -1875,19 +1893,19 @@ namespace dMobile.View.Activity
                         {
                             // TODO: Resource strings
                             //MessageBox.Show("Scanning a header reference # is not supported here.", this.GetControlDescription(), MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
-                            Device.BeginInvokeOnMainThread(async () => await DisplayAlert(this.GetControlDescription(), "Scanning a header reference # is not supported here.", "Ok"));
+                            await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Scanning a header reference # is not supported here.", "Ok"));
                         }
                         else if (!string.IsNullOrEmpty(this.Parse.ActItemFKRefno))
                         {
                             // TODO: Resource strings
                             //MessageBox.Show("Scanning an item reference # is not supported here.", this.GetControlDescription(), MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
-                            Device.BeginInvokeOnMainThread(async () => await DisplayAlert(this.GetControlDescription(), "Scanning an item reference # is not supported here.", "Ok"));
+                            await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Scanning an item reference # is not supported here.", "Ok"));
                         }
                         else if (!string.IsNullOrEmpty(this.Parse.ActDetailFKRefno))
                         {
                             // TODO: Resource strings
                             //MessageBox.Show("Scanning a detail reference # is not supported here.", this.GetControlDescription(), MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
-                            Device.BeginInvokeOnMainThread(async () => await DisplayAlert(this.GetControlDescription(), "Scanning a detail reference # is not supported here.", "Ok"));
+                            await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Scanning a detail reference # is not supported here.", "Ok"));
                         }
                         else if (!string.IsNullOrEmpty(this.Parse.SSCC18))
                         {
@@ -2075,8 +2093,6 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         private async Task RefreshData()
         {
-            this.Loading = true;
-
             //this.TotalTicks = this.TotalTicks + this.tmrActivityDetailLoaded.Interval;
 
             this.ScannerDisable();
@@ -2124,8 +2140,6 @@ namespace dMobile.View.Activity
 
                 this.ScannerEnable();
             });
-
-            this.Loading = false;
         }
 
         /// <summary>

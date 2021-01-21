@@ -84,7 +84,7 @@
 
             if (this.SysEnv.SysSettings.IsProductUnitBarCodeModifier1)
             {
-                this.updnBarCodeModifier1.Items.Add(" ");
+                this.updnBarCodeModifier1.Items.Add(string.Empty);
                 string[] modifiers = this.SysEnv.SysSettings.ProductUnitBarCodeModifier1Codes.Split(',');
 
                 foreach (string item in modifiers)
@@ -722,7 +722,7 @@
                 cmndProductUnitBarCode.CommandType = CommandType.Text;
                 cmndProductUnitBarCode.CommandText = "SELECT * FROM tProductUnitBarCode WHERE ProductUnitBarCodeCode = @productUnitBarCodeCode AND ProductUnitBarCodeModifier1 = @productUnitBarCodeModifier1";
                 //cmndProductUnitBarCode.IndexName = "UQ_ProductUnitBarCodeOnProductUnitBarCodeCodeAndProductUnitBarCodeModifier1";
-                cmndProductUnitBarCode.Parameters.Add(new SQLiteParameter("@productUnitBarCodeCode", oBarCodeParse.ProductIdentifier));
+                cmndProductUnitBarCode.Parameters.Add(new SQLiteParameter("@productUnitBarCodeCode", oBarCodeParse.ProductIdentifier.PadRight(20)));
                 cmndProductUnitBarCode.Parameters.Add(new SQLiteParameter("@productUnitBarCodeModifier1", this.SysEnv.CurrentBarCodeModifier1));
 
                 using (SQLiteDataReader drProductUnitBarCode = cmndProductUnitBarCode.ExecuteReader())

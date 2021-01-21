@@ -274,11 +274,8 @@ namespace dMobile.Controller
             }
             catch (Exception ex)
             {
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.RefreshInventoryInquiryItemsFailed), ex);
-#else
+                // TODO: Resource strings
                 throw new Exception("Refresh inventory inquiry items failed.", ex);
-#endif
             }
         }
 

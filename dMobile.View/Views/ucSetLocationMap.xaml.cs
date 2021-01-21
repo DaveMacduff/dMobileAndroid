@@ -18,8 +18,7 @@
     using Xamarin.Forms.Xaml;
     using Color = Xamarin.Forms.Color;
 
-    [XamlCompilation(XamlCompilationOptions.Compile)]
-    public partial class ucSetLocationMap : DMobileModal, IAppArea, IAppPublisher
+    public partial class ucSetLocationMap : DMobileTabbedModal, IAppArea, IAppPublisher
     {
         private SysCommon.ActSubTypes actSubType = SysCommon.ActSubTypes.SelectLocation;
         //private UserControl callingControl = null;
@@ -60,9 +59,7 @@
 
             // TODO: Resource strings
             this.Title = this.GetControlDescription();
-            this.lblWarehouse.Text = "Whs";
-            this.lblSection.Text = "Section";
-            this.lblSlot.Text = "Slot";
+
             this.tabWarehouse.Text = "Warehouse";
             this.tabSection.Text = "Section";
             this.lblSearch.Text = "Search";
@@ -70,12 +67,14 @@
             this.lblSlotCoordinate1.Text = "Coord 1";
             this.lblSlotCoordinate2.Text = "Coord 2";
             this.lblSlotCoordinate3.Text = "Coord 3";
-            this.lblWarehouseData.Text = "Unknown";
-            this.lblSectionData.Text = "Unknown";
-            this.lblSlotData.Text = "Unknown";
+
+            this.warehouseTab.Title = "Warehouse";
+            this.sectionTab.Title = "Section";
+            this.slotTab.Title = "Slot";
 
             this.cboSectionSearch.Items.Add("Code");
             this.cboSectionSearch.Items.Add("Description");
+            this.cboSectionSearch.SelectedItem = "Code";
 
             if (!DesignMode.IsDesignModeEnabled)
             {
@@ -87,9 +86,10 @@
 
                 this.LocMapInfo = new SLocMap();
                 this.LocMap = LocationMap.GetInstance();
-                //this.LoadData();
                 this.Scanner = BarCodeSingleton.GetInstance().Scanner;
             }
+
+            this.ApplyEvents();
         }
 
         /// <summary>
@@ -102,9 +102,7 @@
 
             // TODO: Resource strings
             this.Title = this.GetControlDescription();
-            this.lblWarehouse.Text = "Whs";
-            this.lblSection.Text = "Section";
-            this.lblSlot.Text = "Slot";
+
             this.tabWarehouse.Text = "Warehouse";
             this.tabSection.Text = "Section";
             this.lblSearch.Text = "Search";
@@ -112,12 +110,14 @@
             this.lblSlotCoordinate1.Text = "Coord 1";
             this.lblSlotCoordinate2.Text = "Coord 2";
             this.lblSlotCoordinate3.Text = "Coord 3";
-            this.lblWarehouseData.Text = "Unknown";
-            this.lblSectionData.Text = "Unknown";
-            this.lblSlotData.Text = "Unknown";
+
+            this.warehouseTab.Title = "Warehouse";
+            this.sectionTab.Title = "Section";
+            this.slotTab.Title = "Slot";
 
             this.cboSectionSearch.Items.Add("Code");
             this.cboSectionSearch.Items.Add("Description");
+            this.cboSectionSearch.SelectedItem = "Code";
 
             if (!DesignMode.IsDesignModeEnabled)
             {
@@ -138,6 +138,8 @@
                     this.dgWhs.IsEnabled = false;
                 }
             }
+
+            this.ApplyEvents();
         }
 
         /// <summary>
@@ -169,6 +171,44 @@
                         this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     }
                 }
+                else if (keycode == Keycode.DpadDown)
+                {
+                    if (this.CurrentPage.Title == this.warehouseTab.Title)
+                    {
+                        if (this.dgWhs.SelectedItem != null && Convert.ToInt32(this.WarehouseList.IndexOf(this.dgWhs.SelectedItem as Warehouse)) < this.WarehouseList.Count - 1)
+                        {
+                            this.dgWhs.SelectedItem = this.WarehouseList[this.WarehouseList.IndexOf(this.dgWhs.SelectedItem as Warehouse) + 1];
+                            this.dgWhs.ScrollTo(this.dgWhs.SelectedItem, ScrollToPosition.MakeVisible, true);
+                        }
+                    }
+                    else if(this.CurrentPage.Title == this.sectionTab.Title)
+                    {
+                        if (this.dgSections.SelectedItem != null && Convert.ToInt32(this.SectionList.IndexOf(this.dgSections.SelectedItem as Section)) < this.SectionList.Count - 1)
+                        {
+                            this.dgSections.SelectedItem = this.SectionList[this.SectionList.IndexOf(this.dgSections.SelectedItem as Section) + 1];
+                            this.dgSections.ScrollTo(this.dgSections.SelectedItem, ScrollToPosition.MakeVisible, true);
+                        }
+                    }
+                }
+                else if (keycode == Keycode.DpadUp)
+                {
+                    if (this.CurrentPage.Title == this.warehouseTab.Title)
+                    {
+                        if (this.dgWhs.SelectedItem != null && Convert.ToInt32(this.WarehouseList.IndexOf(this.dgWhs.SelectedItem as Warehouse)) > 0)
+                        {
+                            this.dgWhs.SelectedItem = this.WarehouseList[this.WarehouseList.IndexOf(this.dgWhs.SelectedItem as Warehouse) - 1];
+                            this.dgWhs.ScrollTo(this.dgWhs.SelectedItem, ScrollToPosition.MakeVisible, true);
+                        }
+                    }
+                    else if (this.CurrentPage.Title == this.sectionTab.Title)
+                    {
+                        if (this.dgSections.SelectedItem != null && Convert.ToInt32(this.SectionList.IndexOf(this.dgSections.SelectedItem as Section)) > 0)
+                        {
+                            this.dgSections.SelectedItem = this.SectionList[this.SectionList.IndexOf(this.dgSections.SelectedItem as Section) - 1];
+                            this.dgSections.ScrollTo(this.dgSections.SelectedItem, ScrollToPosition.MakeVisible, true);
+                        }
+                    }
+                }
             });
 
             try
@@ -192,6 +232,52 @@
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
 
             base.OnDisappearing();
+        }
+
+        private void ApplyEvents()
+        {
+            this.warehouseLocationMapInfo.BtnSaveClick += this.BtnSave_Clicked;
+            this.sectionLocationMapInfo.BtnSaveClick += this.BtnSave_Clicked;
+            this.slotLocationMapInfo.BtnSaveClick += this.BtnSave_Clicked;
+
+            this.warehouseLocationMapInfo.BtnCancelClick += this.BtnCancel_Clicked;
+            this.sectionLocationMapInfo.BtnCancelClick += this.BtnCancel_Clicked;
+            this.slotLocationMapInfo.BtnCancelClick += this.BtnCancel_Clicked;
+
+            this.CurrentPageChanged += UcSetLocationMap_CurrentPageChanged;
+        }
+
+        private void UcSetLocationMap_CurrentPageChanged(object sender, EventArgs e)
+        {
+            if (this.CurrentPage.Title == this.sectionTab.Title)
+            {
+                if (this.dgSections.SelectedItem == null && this.SectionList.Count > 0)
+                {
+                    this.dgSections.SelectedItem = this.SectionList[0];
+                }
+            }
+            else if (this.CurrentPage.Title == this.slotTab.Title)
+            {
+                if (this.dgSections.SelectedItem == null && this.SectionList.Count > 0)
+                {
+                    this.dgSections.SelectedItem = this.SectionList[0];
+                }
+
+                if (this.dgCoord1.SelectedItem == null && this.SlotCoord1List.Count > 0)
+                {
+                    this.dgCoord1.SelectedItem = this.SlotCoord1List[0];
+                }
+
+                if (this.dgCoord2.SelectedItem == null && this.SlotCoord2List.Count > 0)
+                {
+                    this.dgCoord2.SelectedItem = this.SlotCoord2List[0];
+                }
+
+                if (this.dgCoord3.SelectedItem == null && this.SlotCoord3List.Count > 0)
+                {
+                    this.dgCoord3.SelectedItem = this.SlotCoord3List[0];
+                }
+            }
         }
 
         public delegate void ReqCloseHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
@@ -910,20 +996,41 @@
             // Did not consider selected data changed
             ////this.IsChangesMade = true;
 
-            // By Code
-            if (this.cboSectionSearch.SelectedIndex == 0)
+            try
             {
-                if ((string.Compare(txtSearchSection.Text, string.Empty) > 0))
+                // By Code
+                if (this.cboSectionSearch.SelectedIndex == 0)
                 {
-                    this.DataViewSections.RowFilter = "LocationMapSectionCode = " + this.txtSearchSection.Text.Trim();
+                    if (string.Compare(txtSearchSection.Text, string.Empty) > 0)
+                    {
+                        this.DataViewSections.RowFilter = "LocationMapSectionCode = " + this.txtSearchSection.Text.Trim();
+                    }
+                    else
+                    {
+                        this.DataViewSections.RowFilter = string.Empty;
+                    }
+                }
+                else
+                {
+                    this.DataViewSections.RowFilter = "LocationMapSectionName LIKE \'" + this.txtSearchSection.Text.Trim() + "%\'";
                 }
             }
-            else
+            // Setting this.DataViewSections.RowFilter = "LocationMapSectionCode = " + this.txtSearchSection.Text.Trim();
+            // when txt is not numeric blows up. Handle here
+            catch (EvaluateException ex)
             {
-                this.DataViewSections.RowFilter = "LocationMapSectionName LIKE \'" + this.txtSearchSection.Text.Trim() + "%\'";
+                Console.WriteLine(ex);
+                this.DataViewSections.RowFilter = "LocationMapSectionCode = -1";
             }
-
-            this.PopulateSectionList();
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                this.DataViewSections.RowFilter = string.Empty;
+            }
+            finally
+            {
+                this.PopulateSectionList();
+            }
         }
 
         /// <summary>
@@ -1225,7 +1332,7 @@
             // Attempt to find last selected warehouse in warehouse view
             if (this.LocMapInfo.WhsLocMapRefno != 0)
             {
-                for (int rowIdx = 0; rowIdx <= this.DataViewWhs.Count - 1; rowIdx++)
+                for (int rowIdx = 0; rowIdx < this.DataViewWhs.Count; rowIdx++)
                 {
                     if (Convert.ToInt32(this.DataViewWhs[rowIdx]["LocationMapRefno"]) == this.LocMapInfo.WhsLocMapRefno)
                     {
@@ -1264,68 +1371,116 @@
                 if (this.LocMapInfo.WhsLocMapRefno == 0)
                 {
                     // TODO: Resource strings
-                    this.lblWarehouseData.Text = "Unknown";
-                    this.lblWarehouseData.TextColor = Color.Black;
+                    //this.lblWarehouseData.Text = "Unknown";
+                    //this.lblWarehouseData.TextColor = Color.Black;
+
+                    this.warehouseLocationMapInfo.SetWarehouseDataText("Unknown");
+                    this.warehouseLocationMapInfo.SetWarehouseDataTextColor(Color.Black);
+                    this.sectionLocationMapInfo.SetWarehouseDataText("Unknown");
+                    this.sectionLocationMapInfo.SetWarehouseDataTextColor(Color.Black);
+                    this.slotLocationMapInfo.SetWarehouseDataText("Unknown");
+                    this.slotLocationMapInfo.SetWarehouseDataTextColor(Color.Black);
                 }
                 else
                 {
-                    this.lblWarehouseData.Text = this.LocMapInfo.WhsCode + "  " + this.LocMapInfo.WhsName;
-                    this.lblWarehouseData.TextColor = Color.Blue;
+                    //this.lblWarehouseData.Text = this.LocMapInfo.WhsCode + "  " + this.LocMapInfo.WhsName;
+                    //this.lblWarehouseData.TextColor = Color.Blue;
+
+                    this.warehouseLocationMapInfo.SetWarehouseDataText(this.LocMapInfo.WhsCode + "  " + this.LocMapInfo.WhsName);
+                    this.warehouseLocationMapInfo.SetWarehouseDataTextColor(Color.Blue);
+                    this.sectionLocationMapInfo.SetWarehouseDataText(this.LocMapInfo.WhsCode + "  " + this.LocMapInfo.WhsName);
+                    this.sectionLocationMapInfo.SetWarehouseDataTextColor(Color.Blue);
+                    this.slotLocationMapInfo.SetWarehouseDataText(this.LocMapInfo.WhsCode + "  " + this.LocMapInfo.WhsName);
+                    this.slotLocationMapInfo.SetWarehouseDataTextColor(Color.Blue);
                 }
 
                 if (this.LocMapInfo.SectLocMapRefno == 0)
                 {
                     // TODO: Resource strings
-                    this.lblSectionData.Text = "Unknown";
-                    this.lblSectionData.TextColor = Color.Black;
+                    //this.lblSectionData.Text = "Unknown";
+                    //this.lblSectionData.TextColor = Color.Black;
+
+                    this.warehouseLocationMapInfo.SetSectionDataText("Unknown");
+                    this.warehouseLocationMapInfo.SetSectionDataTextColor(Color.Black);
+                    this.sectionLocationMapInfo.SetSectionDataText("Unknown");
+                    this.sectionLocationMapInfo.SetSectionDataTextColor(Color.Black);
+                    this.slotLocationMapInfo.SetSectionDataText("Unknown");
+                    this.slotLocationMapInfo.SetSectionDataTextColor(Color.Black);
                 }
                 else
                 {
-                    this.lblSectionData.Text = this.LocMapInfo.SectCode + "  " + this.LocMapInfo.SectName;
-                    this.lblSectionData.TextColor = Color.Blue;
+                    //this.lblSectionData.Text = this.LocMapInfo.SectCode + "  " + this.LocMapInfo.SectName;
+                    //this.lblSectionData.TextColor = Color.Blue;
+
+                    this.warehouseLocationMapInfo.SetSectionDataText(this.LocMapInfo.SectCode + "  " + this.LocMapInfo.SectName);
+                    this.warehouseLocationMapInfo.SetSectionDataTextColor(Color.Blue);
+                    this.sectionLocationMapInfo.SetSectionDataText(this.LocMapInfo.SectCode + "  " + this.LocMapInfo.SectName);
+                    this.sectionLocationMapInfo.SetSectionDataTextColor(Color.Blue);
+                    this.slotLocationMapInfo.SetSectionDataText(this.LocMapInfo.SectCode + "  " + this.LocMapInfo.SectName);
+                    this.slotLocationMapInfo.SetSectionDataTextColor(Color.Blue);
                 }
 
                 if (this.LocMapInfo.SlotLocMapRefno == 0)
                 {
                     // TODO: Resource strings
-                    this.lblSlotData.Text = "Unknown";
-                    this.lblSlotData.TextColor = Color.Black;
+                    //this.lblSlotData.Text = "Unknown";
+                    //this.lblSlotData.TextColor = Color.Black;
+
+                    this.warehouseLocationMapInfo.SetSlotDataText("Unknown");
+                    this.warehouseLocationMapInfo.SetSlotDataTextColor(Color.Black);
+                    this.sectionLocationMapInfo.SetSlotDataText("Unknown");
+                    this.sectionLocationMapInfo.SetSlotDataTextColor(Color.Black);
+                    this.slotLocationMapInfo.SetSlotDataText("Unknown");
+                    this.slotLocationMapInfo.SetSlotDataTextColor(Color.Black);
                 }
                 else
                 {
-                    this.lblSlotData.Text = this.LocMapInfo.SlotName;
-                    this.lblSlotData.TextColor = Color.Blue;
+                    //this.lblSlotData.Text = this.LocMapInfo.SlotName;
+                    //this.lblSlotData.TextColor = Color.Blue;
+
+                    this.warehouseLocationMapInfo.SetSlotDataText(this.LocMapInfo.SlotName);
+                    this.warehouseLocationMapInfo.SetSlotDataTextColor(Color.Blue);
+                    this.sectionLocationMapInfo.SetSlotDataText(this.LocMapInfo.SlotName);
+                    this.sectionLocationMapInfo.SetSlotDataTextColor(Color.Blue);
+                    this.slotLocationMapInfo.SetSlotDataText(this.LocMapInfo.SlotName);
+                    this.slotLocationMapInfo.SetSlotDataTextColor(Color.Blue);
                 }
 
                 //if (this.tabLocation.SelectedIndex == 1)
                 //{
-                //    this.cboSectionSearch.SelectedIndex = 0;
-                //    this.cboSectionSearch.Text = "Description";
+                if (this.CurrentPage.TabIndex == 1)
+                {
+                    this.cboSectionSearch.SelectedIndex = 0;
+                    //this.cboSectionSearch.Text = "Description";
+                }
                 //}
 
                 //if (this.tabLocation.SelectedIndex == 2)
                 //{
-                if (this.DataViewSlotCoord1.Count > 0)
+                if (this.CurrentPage.TabIndex == 2)
                 {
-                    if (this.dgCoord1.SelectedItem is Slot slot1)
+                    if (this.DataViewSlotCoord1.Count > 0)
                     {
-                        this.lblSlotCoordinate1.Text = "Crd1: " + slot1.LocationMapSlotCoordinateCode;
+                        if (this.dgCoord1.SelectedItem is Slot slot1)
+                        {
+                            this.lblSlotCoordinate1.Text = "Coord1: " + slot1.LocationMapSlotCoordinateCode;
+                        }
                     }
-                }
 
-                if (this.DataViewSlotCoord2.Count > 0)
-                {
-                    if (this.dgCoord2.SelectedItem is Slot slot2)
+                    if (this.DataViewSlotCoord2.Count > 0)
                     {
-                        this.lblSlotCoordinate2.Text = "Crd2: " + slot2.LocationMapSlotCoordinateCode;
+                        if (this.dgCoord2.SelectedItem is Slot slot2)
+                        {
+                            this.lblSlotCoordinate2.Text = "Coord2: " + slot2.LocationMapSlotCoordinateCode;
+                        }
                     }
-                }
 
-                if (this.DataViewSlotCoord3.Count > 0)
-                {
-                    if (this.dgCoord3.SelectedItem is Slot slot3)
+                    if (this.DataViewSlotCoord3.Count > 0)
                     {
-                        this.lblSlotCoordinate3.Text = "Crd3: " + slot3.LocationMapSlotCoordinateCode;
+                        if (this.dgCoord3.SelectedItem is Slot slot3)
+                        {
+                            this.lblSlotCoordinate3.Text = "Coord3: " + slot3.LocationMapSlotCoordinateCode;
+                        }
                     }
                 }
             });
@@ -1340,11 +1495,13 @@
             if (this.LocMap.CurrLocMap.IsSectionTracked)
             {
                 // attempt to find last selected section in section view
-                if (this.LocMapInfo.SectLocMapRefno != 0 && this.dgSections.SelectedItem != null)
+                if (this.LocMapInfo.SectLocMapRefno != 0)
                 {
-                    if (Convert.ToInt32(this.DataViewSections[this.SectionList.IndexOf(this.dgSections.SelectedItem as Section)]["LocationMapRefno"]) != this.LocMapInfo.SectLocMapRefno)
+                    int index = this.dgSections.SelectedItem is Section section ? this.SectionList.IndexOf(section) : 0;
+
+                    if (Convert.ToInt32(this.DataViewSections[index]["LocationMapRefno"]) != this.LocMapInfo.SectLocMapRefno)
                     {
-                        for (int rowIdx = 0; rowIdx <= this.DataViewSections.Count - 1; rowIdx++)
+                        for (int rowIdx = 0; rowIdx < this.DataViewSections.Count; rowIdx++)
                         {
                             if (Convert.ToInt32(this.DataViewSections[rowIdx]["LocationMapRefno"]) == this.LocMapInfo.SectLocMapRefno)
                             {
@@ -1407,9 +1564,9 @@
                 }
 
                 // Attempt to find last selected slot coordinate in slot coordinate 1 view
-                if (this.LocMapInfo.SlotCoord1LocMapRefno != 0 && this.dgCoord1.SelectedItem != null)
+                if (this.LocMapInfo.SlotCoord1LocMapRefno != 0)
                 {
-                    for (int rowIdx = 0; rowIdx <= this.DataViewSlotCoord1.Count - 1; rowIdx++)
+                    for (int rowIdx = 0; rowIdx < this.DataViewSlotCoord1.Count; rowIdx++)
                     {
                         if (Convert.ToInt32(this.DataViewSlotCoord1[rowIdx]["LocationMapSlotCoordinateRefno"]) == this.LocMapInfo.SlotCoord1LocMapRefno)
                         {
@@ -1431,9 +1588,9 @@
                 }
 
                 // attempt to find last selected slot coordinate in slot coordinate 2 view
-                if (this.LocMapInfo.SlotCoord2LocMapRefno != 0 && this.dgCoord2.SelectedItem != null)
+                if (this.LocMapInfo.SlotCoord2LocMapRefno != 0)
                 {
-                    for (int rowIdx = 0; rowIdx <= this.DataViewSlotCoord2.Count - 1; rowIdx++)
+                    for (int rowIdx = 0; rowIdx < this.DataViewSlotCoord2.Count; rowIdx++)
                     {
                         if (Convert.ToInt32(this.DataViewSlotCoord2[rowIdx]["LocationMapSlotCoordinateRefno"]) == this.LocMapInfo.SlotCoord2LocMapRefno)
                         {
@@ -1457,7 +1614,7 @@
                 // Attempt to find last selected slot coordinate in slot coordinate 3 view
                 if (0 < this.LocMapInfo.SlotCoord3LocMapRefno)
                 {
-                    for (int rowIdx = 0; rowIdx <= this.DataViewSlotCoord3.Count - 1; rowIdx++)
+                    for (int rowIdx = 0; rowIdx < this.DataViewSlotCoord3.Count; rowIdx++)
                     {
                         if (Convert.ToInt32(this.DataViewSlotCoord3[rowIdx]["LocationMapSlotCoordinateRefno"]) == this.LocMapInfo.SlotCoord3LocMapRefno)
                         {
@@ -1548,6 +1705,11 @@
                 if (this.IsControlLoaded && e.SelectedItem is Warehouse warehouse)
                 {
                     this.LocMapInfo = LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(warehouse.LocationMapRefno));
+                    this.dgSections.SelectedItem = null;
+                    this.dgCoord1.SelectedItem = null;
+                    this.dgCoord2.SelectedItem = null;
+                    this.dgCoord3.SelectedItem = null;
+                    this.LoadSections();
                     await this.UpdateLocationDisplay();
                 }
             }
@@ -1560,6 +1722,10 @@
             if (this.IsControlLoaded && e.SelectedItem is Section section)
             {
                 this.LocMapInfo = LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(section.LocationMapRefno));
+                this.dgCoord1.SelectedItem = null;
+                this.dgCoord2.SelectedItem = null;
+                this.dgCoord3.SelectedItem = null;
+                this.LoadSlots();
                 await this.UpdateLocationDisplay();
             }
         }

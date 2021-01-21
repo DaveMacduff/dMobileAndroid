@@ -106,7 +106,7 @@ namespace dMobile.View.Options
 
             try
             {
-                this.ucSubmitBatch_GotFocus(this, new EventArgs());
+                await this.ucSubmitBatch_GotFocus(this, new EventArgs());
             }
             catch (Exception ex)
             {
@@ -560,7 +560,7 @@ namespace dMobile.View.Options
                     // Methods that could be called to restore the control to a closable state.
                     // ClearProperties();
                     // DisplayData();
-                    this.LoadData();
+                    await this.LoadData();
                     cancelChanges = false;
                     this.IsChangesMade = false;
                 }
@@ -703,93 +703,109 @@ namespace dMobile.View.Options
         ///
         /// </summary>
         /// <remarks></remarks>
-        private void LoadData()
+        private async Task LoadData()
         {
-            this.Activity = null;
-
-            switch (this.SubmitBatchSettings.eActivitySubType)
+            if (!this.Loading)
             {
-                case SysCommon.ActSubTypes.Receiving:
-                    this.Activity = ActivityFacade.GetActivity(SysCommon.ActSubTypes.Receiving);
-                    break;
+                try
+                {
+                    this.Loading = true;
+                    this.Activity = null;
 
-                case SysCommon.ActSubTypes.Picking:
-                    this.Activity = ActivityFacade.GetActivity(SysCommon.ActSubTypes.Picking);
-                    break;
+                    switch (this.SubmitBatchSettings.eActivitySubType)
+                    {
+                        case SysCommon.ActSubTypes.Receiving:
+                            this.Activity = ActivityFacade.GetActivity(SysCommon.ActSubTypes.Receiving);
+                            break;
 
-                case SysCommon.ActSubTypes.Returns:
-                    this.Activity = ActivityFacade.GetActivity(SysCommon.ActSubTypes.Returns);
-                    break;
+                        case SysCommon.ActSubTypes.Picking:
+                            this.Activity = ActivityFacade.GetActivity(SysCommon.ActSubTypes.Picking);
+                            break;
 
-                case SysCommon.ActSubTypes.TransferFrom:
-                    this.Activity = ActivityFacade.GetActivity(SysCommon.ActSubTypes.TransferFrom);
-                    break;
+                        case SysCommon.ActSubTypes.Returns:
+                            this.Activity = ActivityFacade.GetActivity(SysCommon.ActSubTypes.Returns);
+                            break;
 
-                case SysCommon.ActSubTypes.CycleCounts:
-                    this.Activity = ActivityFacade.GetActivity(SysCommon.ActSubTypes.CycleCounts);
-                    break;
+                        case SysCommon.ActSubTypes.TransferFrom:
+                            this.Activity = ActivityFacade.GetActivity(SysCommon.ActSubTypes.TransferFrom);
+                            break;
 
-                case SysCommon.ActSubTypes.PhysicalCounts:
-                    this.Activity = ActivityFacade.GetActivity(SysCommon.ActSubTypes.PhysicalCounts);
-                    break;
+                        case SysCommon.ActSubTypes.CycleCounts:
+                            this.Activity = ActivityFacade.GetActivity(SysCommon.ActSubTypes.CycleCounts);
+                            break;
 
-                case SysCommon.ActSubTypes.BarCodeAssociation:
-                    this.Activity = ActivityFacade.GetActivity(SysCommon.ActSubTypes.BarCodeAssociation);
-                    break;
+                        case SysCommon.ActSubTypes.PhysicalCounts:
+                            this.Activity = ActivityFacade.GetActivity(SysCommon.ActSubTypes.PhysicalCounts);
+                            break;
 
-                case SysCommon.ActSubTypes.Adjustment:
-                    this.Activity = ActivityFacade.GetActivity(SysCommon.ActSubTypes.Adjustment);
-                    break;
+                        case SysCommon.ActSubTypes.BarCodeAssociation:
+                            this.Activity = ActivityFacade.GetActivity(SysCommon.ActSubTypes.BarCodeAssociation);
+                            break;
 
-                case SysCommon.ActSubTypes.TicketFinished:
-                    this.Activity = ActivityFacade.GetActivity(SysCommon.ActSubTypes.TicketFinished);
-                    break;
+                        case SysCommon.ActSubTypes.Adjustment:
+                            this.Activity = ActivityFacade.GetActivity(SysCommon.ActSubTypes.Adjustment);
+                            break;
 
-                case SysCommon.ActSubTypes.TicketMaterial:
-                    this.Activity = ActivityFacade.GetActivity(SysCommon.ActSubTypes.TicketMaterial);
-                    break;
+                        case SysCommon.ActSubTypes.TicketFinished:
+                            this.Activity = ActivityFacade.GetActivity(SysCommon.ActSubTypes.TicketFinished);
+                            break;
 
-                case SysCommon.ActSubTypes.TicketAddProduct:
-                    this.Activity = ActivityFacade.GetActivity(SysCommon.ActSubTypes.TicketAddProduct);
-                    break;
+                        case SysCommon.ActSubTypes.TicketMaterial:
+                            this.Activity = ActivityFacade.GetActivity(SysCommon.ActSubTypes.TicketMaterial);
+                            break;
 
-                case SysCommon.ActSubTypes.PurchaseOrderWorkSheet:
-                    this.Activity = ActivityFacade.GetActivity(SysCommon.ActSubTypes.PurchaseOrderWorkSheet);
-                    break;
+                        case SysCommon.ActSubTypes.TicketAddProduct:
+                            this.Activity = ActivityFacade.GetActivity(SysCommon.ActSubTypes.TicketAddProduct);
+                            break;
 
-                default:
-                    throw new NotSupportedException("Unhandled activity sub type.");
-            }
+                        case SysCommon.ActSubTypes.PurchaseOrderWorkSheet:
+                            this.Activity = ActivityFacade.GetActivity(SysCommon.ActSubTypes.PurchaseOrderWorkSheet);
+                            break;
 
-            try
-            {
-                this.Activity.Refresh(null);
-            }
-            catch (SQLiteException ex)
-            {
-                for (int curExNdx = 0; curExNdx <= ex.Data.Count; curExNdx++)
+                        default:
+                            throw new NotSupportedException("Unhandled activity sub type.");
+                    }
+
+                    try
+                    {
+                        this.Activity.Refresh(null);
+                    }
+                    catch (SQLiteException ex)
+                    {
+                        for (int curExNdx = 0; curExNdx < ex.Data.Count; curExNdx++)
+                        {
+                            // TODO: Resource strings
+                            await DisplayAlert("Submit Batch", Convert.ToString("Error " + ex.Data[curExNdx].ToString() + '\r'), "OK");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        await DisplayAlert("Error", "Submit Batch", ex.Message, "OK");
+                    }
+
+                    this.Activity.DataViewHdrs = this.Activity.GetDataView(true);
+
+                    this.DataGridMainActivityItemsList = this.Activity.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
+                    this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
+
+                    if (Activity.DataViewHdrs.Count > 0)
+                    {
+                        //dataGridMainActivity.Select(0);
+                        Activity.SelectHdr(0);
+                    }
+
+                    this.IsControlLoaded = true;
+                }
+                catch (Exception ex)
                 {
                     // TODO: Resource strings
-                    DisplayAlert("Submit Batch", Convert.ToString("Error " + ex.Data[curExNdx].ToString() + '\r'), "OK");
+                    await DisplayAlert("Error", ex.Message, "OK");
+                }
+                finally
+                {
+                    this.Loading = false;
                 }
             }
-            catch (Exception ex)
-            {
-                DisplayAlert("Error", "Submit Batch", ex.Message, "OK");
-            }
-
-            this.Activity.DataViewHdrs = this.Activity.GetDataView(true);
-
-            this.DataGridMainActivityItemsList = this.Activity.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
-            this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
-
-            if (Activity.DataViewHdrs.Count > 0)
-            {
-                //dataGridMainActivity.Select(0);
-                Activity.SelectHdr(0);
-            }
-
-            this.IsControlLoaded = true;
         }
 
         /// <summary>
@@ -811,7 +827,7 @@ namespace dMobile.View.Options
                 XDocument xmlDoc = form.DisplayControlData;
                 this.SubmitBatchSettings = this.SubmitBatchSettings.LoadData();
                 this.ItemsList.Clear();
-                this.LoadData();
+                await this.LoadData();
             }
 
             this.ReqCancelEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
@@ -834,6 +850,7 @@ namespace dMobile.View.Options
 
             try
             {
+                this.Loading = true;
                 this.cmdSubmit.IsEnabled = false;
                 //this.pbarStatus.Visible = true;
 
@@ -1073,8 +1090,9 @@ namespace dMobile.View.Options
             {
                 //this.pbarStatus.Maximum = 100;
                 //this.pbarStatus.Visible = false;
+                this.Loading = false;
                 this.ItemsList.Clear();
-                this.LoadData();
+                await this.LoadData();
                 this.cmdSubmit.IsEnabled = true;
 
                 //GC.Collect();
@@ -1088,14 +1106,14 @@ namespace dMobile.View.Options
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        private void ucSubmitBatch_GotFocus(object sender, EventArgs e)
+        private async Task ucSubmitBatch_GotFocus(object sender, EventArgs e)
         {
             if (!SysEnvironment.GetInstance().IsApplicationExitInvoked)
             {
                 this.ReqCancelEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                 this.ReqSaveEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
 
-                this.LoadData();
+                await this.LoadData();
             }
         }
 

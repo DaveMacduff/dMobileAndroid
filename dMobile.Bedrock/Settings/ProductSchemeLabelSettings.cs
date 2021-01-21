@@ -444,7 +444,7 @@ namespace dMobile.Bedrock
                                             throw new Exception("drProdScheme.Read() failed." + Environment.NewLine + errMsg);
                                         }
 
-                                        schemeLblInfo.SchemeRefno = Convert.ToInt32(drScheme.GetValue((int)SysCommon.ProdSchemeFields.Refno));
+                                        schemeLblInfo.SchemeRefno = Convert.ToInt32(drScheme.GetValue(Convert.ToInt32(SysCommon.ProdSchemeFields.Refno)));
                                         schemeLblInfo.IsBestBeforeDateTracked = Convert.ToBoolean(drow["ProductSchemeLabelIsBestBeforeDateTracked"]);
                                         schemeLblInfo.IsLotTracked = Convert.ToBoolean(drow["ProductSchemeLabelIsLotTracked"]);
                                         schemeLblInfo.IsProductionDateTracked = Convert.ToBoolean(drow["ProductSchemeLabelIsProductionDateTracked"]);

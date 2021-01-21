@@ -5,9 +5,9 @@
                      xmlns:customcontrols="clr-namespace:dMobile.View.CustomControls" 
                      xmlns:Helpers="clr-namespace:dMobile.View.Helpers"
                      x:Class="dMobile.View.Activity.ucActivityHdrSkidInfo">
-    <ContentPage.ToolbarItems>
+    <!--<ContentPage.ToolbarItems>
         <ToolbarItem x:Name="optionsMenu" IconImageSource="{Binding OptionsIconSource}" Clicked="OptionsMenu_Clicked" />
-    </ContentPage.ToolbarItems>
+    </ContentPage.ToolbarItems>-->
     <ContentPage.Content>
         <Grid x:Name="gridContainer" Padding="10">
             <Grid.RowDefinitions>

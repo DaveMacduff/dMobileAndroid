@@ -15,6 +15,8 @@ using dMobile.Resources.Enums;
 using System.Threading.Tasks;
 using Android.Views;
 using System.Collections.ObjectModel;
+using System.Runtime.CompilerServices;
+using System.Collections.Generic;
 
 namespace dMobile.View.Activity
 {
@@ -44,6 +46,16 @@ namespace dMobile.View.Activity
         //private UserControl callingControl = new ucPurchaseOrdersMenu();
         private ObservableCollection<string> itemsList;
         private ObservableCollection<object> dataGridMainActivityItemsList;
+        //private List<string> optionsMenuItems = new List<string>();
+
+        //// cmdLocation
+        //private string cmdLocationText;
+        //private bool cmdLocationIsEnabled;
+
+        //// cmdSelectSkid
+        //private string cmdSelectSkidText;
+        //private bool cmdSelectSkidIsEnabled;
+
 
         #endregion
 
@@ -77,7 +89,7 @@ namespace dMobile.View.Activity
 
                 if (this.SysEnv.SysSettings.IsProductUnitBarCodeModifier1)
                 {
-                    this.updnBarCodeModifier1.Items.Add(" ");
+                    this.updnBarCodeModifier1.Items.Add(string.Empty);
                     string[] modifiers = this.SysEnv.SysSettings.ProductUnitBarCodeModifier1Codes.Split(',');
             
                     foreach (string item in modifiers)
@@ -100,10 +112,44 @@ namespace dMobile.View.Activity
                 this.ClearContents();
 
                 this.Title = this.GetControlDescription();
+                //this.PopulateOptionsMenu();
             }
         }
 
         #endregion
+
+        //protected override void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        //{
+        //    base.OnPropertyChanged(propertyName);
+
+        //    if (
+        //        propertyName == nameof(cmdLocationText) ||
+        //        propertyName == nameof(cmdLocationIsEnabled) ||
+        //        propertyName == nameof(cmdSelectSkidText) ||
+        //        propertyName == nameof(cmdSelectSkidIsEnabled)
+        //       )
+        //    {
+        //        this.PopulateOptionsMenu();
+        //    }
+        //}
+
+        ///// <summary>
+        ///// Populates a string array to be used in DisplayActionSheet
+        ///// </summary>
+        //private void PopulateOptionsMenu()
+        //{
+        //    this.optionsMenuItems.Clear();
+
+        //    if (this.cmdLocationIsEnabled)
+        //    {
+        //        this.optionsMenuItems.Add(this.cmdLocationText);
+        //    }
+
+        //    if (this.cmdSelectSkidIsEnabled)
+        //    {
+        //        this.optionsMenuItems.Add(this.cmdSelectSkidText);
+        //    }
+        //}
 
         /// <summary>
         /// The OnAppearing
@@ -117,36 +163,39 @@ namespace dMobile.View.Activity
                 // TODO: Verify keycodes
                 Enum.TryParse(keyPressed, out Keycode keycode);
 
-                if (keycode == Keycode.Escape)
+                if (!this.Loading)
                 {
-                    if (await this.CancelChanges())
+                    if (keycode == Keycode.Escape)
                     {
-                        this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-                    }
-                }
-                else if (keycode == Keycode.F1)
-                {
-                    if (await this.SaveChanges())
-                    {
-                        this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-                    }
-                }
-                else if (keycode == Keycode.Del || keycode == Keycode.Clear || keycode == Keycode.Back)
-                {
-                    if (this.DataGridMainActivityItemsList.Count > 0 && this.dataGridMainActivity.SelectedItem != null)
-                    {
-                        //DialogResult result = MessageBox.Show("Do you wish yo delete this record?", "Put Away", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
-                        if (await DisplayAlert("Put Away", "Do you wish yo delete this record?", "Yes", "No"))
+                        if (await this.CancelChanges())
                         {
-                            this.ActDetail.DataViewDetails[this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem)].Delete();
-
-                            // Delete needs to rebind the the grid to the proper dataview depending on the record count
-                            if (this.ActDetail.DataViewDetails.Count == 0)
+                            this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                        }
+                    }
+                    else if (keycode == Keycode.F1)
+                    {
+                        if (await this.SaveChanges())
+                        {
+                            this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                        }
+                    }
+                    else if (keycode == Keycode.Del || keycode == Keycode.Clear || keycode == Keycode.Back)
+                    {
+                        if (this.DataGridMainActivityItemsList.Count > 0 && this.dataGridMainActivity.SelectedItem != null)
+                        {
+                            //DialogResult result = MessageBox.Show("Do you wish yo delete this record?", "Put Away", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
+                            if (await DisplayAlert("Put Away", "Do you wish yo delete this record?", "Yes", "No"))
                             {
-                                this.DataGridMainActivityItemsList = this.ActDetailOnSkid.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
-                                this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
-                                //this.dataGridMainActivity.ForeColor = Color.Orange;
-                                //this.dataGridMainActivity.Refresh();
+                                this.ActDetail.DataViewDetails[this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem)].Delete();
+
+                                // Delete needs to rebind the the grid to the proper dataview depending on the record count
+                                if (this.ActDetail.DataViewDetails.Count == 0)
+                                {
+                                    this.DataGridMainActivityItemsList = this.ActDetailOnSkid.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
+                                    this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
+                                    //this.dataGridMainActivity.ForeColor = Color.Orange;
+                                    //this.dataGridMainActivity.Refresh();
+                                }
                             }
                         }
                     }
@@ -552,50 +601,52 @@ namespace dMobile.View.Activity
             {
                 this.ScannerDisable();
                 FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucSkidInfo, this.Activity, this.ActSubType);
-                await form.DisplayControl.ShowDialog();
-                await form.SaveChanges(this, new EventArgs());
-                XDocument xmlDoc = form.DisplayControlData;
-                this.ClearContents();
 
-                SysSkidInfo tmpSkidInfo = SysSkidInfo.GetSkidInfoFromXML(xmlDoc);
-                
-                if (tmpSkidInfo.CurrSkid.SkidFKRefno != 0)
+                if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
                 {
-                    this.Activity.SkidInfo = tmpSkidInfo;
-                    this.cmdAddProduct.IsEnabled = true;
+                    XDocument xmlDoc = form.DisplayControlData;
+                    this.ClearContents();
 
-                    // TODO: Resource strings
-                    this.cmdSelectSkid.Text = "Skid# " + this.Activity.SkidInfo.CurrSkid.SkidCode;
+                    SysSkidInfo tmpSkidInfo = SysSkidInfo.GetSkidInfoFromXML(xmlDoc);
 
-                    // TODO: Resource strings
-                    this.ItemsList.Clear();
-                    this.ItemsList.Add("Skid Product: " + ProductInfoTasks.GetCurrReadableProdBCUnit(this.Activity.SkidInfo.CurrSkid.ProdInfo));
-                    this.ItemsList.Add("Skid Location: " + LocationMapTasks.GetCurrentReadableLocation(this.Activity.SkidInfo.CurrSkid.LocMap));
-                    this.cmdLocation.IsEnabled = true;
+                    if (tmpSkidInfo.CurrSkid.SkidFKRefno != 0)
+                    {
+                        this.Activity.SkidInfo = tmpSkidInfo;
+                        this.cmdAddProduct.IsEnabled = true;
 
-                    // Set the global location to the skid location, 
-                    // need to enforce that the skid and location warehouses match.
-                    this.LocMap.CurrLocMap = this.Activity.SkidInfo.CurrSkid.LocMap;
-                    this.LocMap.CurrLocMapRefno = this.Activity.SkidInfo.CurrSkid.LocMapRefno;
-                    this.cmdLocation.Text = LocationMapTasks.GetCurrentReadableLocation(this.Activity.SkidInfo.CurrSkid.LocMap);
+                        // TODO: Resource strings
+                        this.cmdSelectSkid.Text = "Skid# " + this.Activity.SkidInfo.CurrSkid.SkidCode;
 
-                    this.Activity.FKRefno = this.Activity.SkidInfo.CurrSkid.SkidFKRefno;
-                    this.Activity.Refno = this.Activity.SkidInfo.CurrSkid.SkidFKRefno;
+                        // TODO: Resource strings
+                        this.ItemsList.Clear();
+                        this.ItemsList.Add("Skid Product: " + ProductInfoTasks.GetCurrReadableProdBCUnit(this.Activity.SkidInfo.CurrSkid.ProdInfo));
+                        this.ItemsList.Add("Skid Location: " + LocationMapTasks.GetCurrentReadableLocation(this.Activity.SkidInfo.CurrSkid.LocMap));
+                        this.cmdLocation.IsEnabled = true;
 
-                    this.ActItem.FKRefno = this.Activity.SkidInfo.CurrSkid.SkidFKRefno;
-                    this.ActItem.Refno = this.Activity.SkidInfo.CurrSkid.SkidFKRefno;
-                    this.ActItem.LocMap = this.LocMap;
-                    this.ActItem.ProdInfo = Activity.SkidInfo.CurrSkid.ProdInfo;
-                    this.ActItem.ProdInfo.Unit2BaseUnitFactor = ProductInfoTasks.GetUnitRelationFactor(this.ActItem.ProdInfo);
-                    
-                    this.ActDetailOnSkid.LocMap = this.ActItem.LocMap;
-                    SProductSchemeData tempSchemeData = this.ActDetailOnSkid.SchemeData;
-                    tempSchemeData.LogisticUnitSkidNumber = this.ActDetailOnSkid.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode;
-                    this.ActDetailOnSkid.SchemeData = tempSchemeData;
-                    this.OrigProdInfoOnSkid = this.ActDetailOnSkid.ActItem.ProdInfo;
+                        // Set the global location to the skid location, 
+                        // need to enforce that the skid and location warehouses match.
+                        this.LocMap.CurrLocMap = this.Activity.SkidInfo.CurrSkid.LocMap;
+                        this.LocMap.CurrLocMapRefno = this.Activity.SkidInfo.CurrSkid.LocMapRefno;
+                        this.cmdLocation.Text = LocationMapTasks.GetCurrentReadableLocation(this.Activity.SkidInfo.CurrSkid.LocMap);
 
-                    this.ActDetailOnSkid.Refresh();
-                    //this.dataGridMainActivity.Refresh();
+                        this.Activity.FKRefno = this.Activity.SkidInfo.CurrSkid.SkidFKRefno;
+                        this.Activity.Refno = this.Activity.SkidInfo.CurrSkid.SkidFKRefno;
+
+                        this.ActItem.FKRefno = this.Activity.SkidInfo.CurrSkid.SkidFKRefno;
+                        this.ActItem.Refno = this.Activity.SkidInfo.CurrSkid.SkidFKRefno;
+                        this.ActItem.LocMap = this.LocMap;
+                        this.ActItem.ProdInfo = Activity.SkidInfo.CurrSkid.ProdInfo;
+                        this.ActItem.ProdInfo.Unit2BaseUnitFactor = ProductInfoTasks.GetUnitRelationFactor(this.ActItem.ProdInfo);
+
+                        this.ActDetailOnSkid.LocMap = this.ActItem.LocMap;
+                        SProductSchemeData tempSchemeData = this.ActDetailOnSkid.SchemeData;
+                        tempSchemeData.LogisticUnitSkidNumber = this.ActDetailOnSkid.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode;
+                        this.ActDetailOnSkid.SchemeData = tempSchemeData;
+                        this.OrigProdInfoOnSkid = this.ActDetailOnSkid.ActItem.ProdInfo;
+
+                        this.ActDetailOnSkid.Refresh();
+                        //this.dataGridMainActivity.Refresh();
+                    }
                 }
             }
             catch (Exceptions.MessageOnlyException ex)
@@ -635,6 +686,11 @@ namespace dMobile.View.Activity
                     this.IsControlLoaded = true;
 
                     //this.RefreshData();
+
+                    if (this.Loading)
+                    {
+                        this.Loading = false;
+                    }
                 }
 
                 this.ReqCancelEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
@@ -661,14 +717,16 @@ namespace dMobile.View.Activity
                 if (await DisplayAlert("Select UOM", "Select a different unit of measure?", "Yes", "No"))
                 {
                     FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucSelectProductUnitFilterToProduct, this.ActItem, this.ActSubType);
-                    await form.DisplayControl.ShowDialog();
-                    await form.SaveChanges(this, new EventArgs());
-                    XDocument xmlDoc = form.DisplayControlData;
-                    int prodUnitRefno = int.Parse(xmlDoc.Root.Element("ProductUnitRefno").Value);
-                    
-                    if (prodUnitRefno != 0)
+
+                    if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
                     {
-                        this.ActItem.ProdInfo = ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
+                        XDocument xmlDoc = form.DisplayControlData;
+                        int prodUnitRefno = int.Parse(xmlDoc.Root.Element("ProductUnitRefno").Value);
+                    
+                        if (prodUnitRefno != 0)
+                        {
+                            this.ActItem.ProdInfo = ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
+                        }
                     }
                 }
 
@@ -1400,11 +1458,9 @@ namespace dMobile.View.Activity
 
             // Check for duplicate occurs in form
             FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucActivityDetailEdit, actDetail, this.ActSubType);
-            await form.DisplayControl.ShowDialog();
 
-            if (form.DialogResult == DialogResult.OK)
+            if (await Device.InvokeOnMainThreadAsync(async () => await form.DisplayControl.ShowDialog() == DialogResult.OK))
             {
-                await form.SaveChanges(this, new EventArgs());
                 xmlDoc = form.DisplayControlData;
                 actDetail.Quantity = decimal.Parse(xmlDoc.Root.Element("alt_qty").Value);
                 actDetail.BaseQuantity = decimal.Parse(xmlDoc.Root.Element("base_qty").Value);
@@ -1433,24 +1489,12 @@ namespace dMobile.View.Activity
             {
                 if (!isDuplicateSchemeId)
                 {
-                    if (actDetail.DataViewDetails.Count == 0)
+                    actDetail.Insert(xmlDoc);
+
+                    if (actDetail.DataViewDetails.Count > 0)
                     {
                         this.DataGridMainActivityItemsList = actDetail.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
                         this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
-                        //this.dataGridMainActivity.ForeColor = Color.Black;
-                        //this.dataGridMainActivity.Refresh();
-                        idx = this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem);
-                    }
-
-                    //if (actDetail.DataViewDetails.Count > 0)
-                    //{
-                        //this.dataGridMainActivity.UnSelect(idx);
-                    //}
-
-                    actDetail.Insert(xmlDoc);
-
-                    if (actDetail.DataViewDetails.Count > 0 && this.DataGridMainActivityItemsList.Count > 0)
-                    {
                         //this.dataGridMainActivity.Focus();
                         this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[actDetail.DataViewDetails.Count - 1];
                     }
@@ -1767,9 +1811,24 @@ namespace dMobile.View.Activity
 
         #endregion
 
-        private void OptionsMenu_Clicked(object sender, EventArgs e)
-        {
-            // TODO: DisplayActionSheet()
-        }
+        //private async void OptionsMenu_Clicked(object sender, EventArgs e)
+        //{
+        //    if (this.Loading)
+        //    {
+        //        return;
+        //    }
+
+        //    // TODO: Resource strings
+        //    string result = await DisplayActionSheet("Skid Put Away", "Close", null, this.optionsMenuItems.ToArray());
+
+        //    if (result == this.cmdLocationText && this.cmdLocationIsEnabled)
+        //    {
+        //        await this.cmdLocation_Click(sender, e);
+        //    }
+        //    else if (result == this.cmdSelectSkidText && this.cmdSelectSkidIsEnabled)
+        //    {
+        //        await this.cmdSelectSkid_Click(sender, e);
+        //    }
+        //}
     }
 }

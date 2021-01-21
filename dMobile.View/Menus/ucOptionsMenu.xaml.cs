@@ -73,12 +73,6 @@
                 // TODO: Verify keycodes
                 Enum.TryParse(keyPressed, out Keycode keycode);
 
-                // TODO: REMOVE, JUST FOR TESTING
-                if (keycode == Keycode.Grave)
-                {
-                    this.EnableControls();
-                }
-
                 if (keycode == Keycode.Enter)
                 {
                     //this.CallingControl = new ucSetupDefaults();

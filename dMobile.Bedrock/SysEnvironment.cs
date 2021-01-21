@@ -23,7 +23,7 @@ namespace dMobile.Bedrock
         /// <summary>
         /// Contains current bar code modifier.
         /// </summary>
-        private static string currentBarCodeModifier1 = " ";
+        private static string currentBarCodeModifier1 = string.Empty;
 
         /// <summary>
         /// Contains device id
@@ -382,7 +382,7 @@ namespace dMobile.Bedrock
         /// </summary>
         public static void RefreshEnv()
         {
-            sysEnv.CurrentBarCodeModifier1 = " ";
+            sysEnv.CurrentBarCodeModifier1 = string.Empty;
             sysEnv.DeviceID = SysDeviceID.GetDeviceID();
 
             SystemSettings sysSettings = sysEnv.SysSettings;

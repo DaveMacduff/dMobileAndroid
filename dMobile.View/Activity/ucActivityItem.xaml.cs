@@ -101,6 +101,8 @@
             this.CmdAddSkidText = "Add Skid";
             this.CmdAddSkidIsEnabled = false;
 
+            
+
             if (!DesignMode.IsDesignModeEnabled)
             {
                 this.LocMap = LocationMap.GetInstance();
@@ -122,7 +124,7 @@
 
                 if (this.SysEnv.SysSettings.IsProductUnitBarCodeModifier1)
                 {
-                    this.updnBarCodeModifier1.Items.Add(" ");
+                    this.updnBarCodeModifier1.Items.Add(string.Empty);
                     string[] modifiers = this.SysEnv.SysSettings.ProductUnitBarCodeModifier1Codes.Split(',');
 
                     foreach (string item in modifiers)
@@ -165,6 +167,21 @@
                )
             {
                 this.PopulateOptionsMenu();
+            }
+
+
+            if (propertyName == nameof(this.CmdSelectSkidText))
+            {
+                if (this.CmdSelectSkidText != "Select Skid")
+                {
+                    this.lblSkidNumber.Text = this.CmdSelectSkidText;
+                    this.lblSkidNumber.IsVisible = true;
+                }
+                else
+                {
+                    this.lblSkidNumber.Text = string.Empty;
+                    this.lblSkidNumber.IsVisible = false;
+                }
             }
         }
 
@@ -1493,12 +1510,12 @@
                                 if (this.SysEnv.SysSettings.IsPickQtyUnderShowBaseQtyAvail)
                                 {
                                     // TODO: Resource strings
-                                    msg = string.Format("The quantity shipped is less than the quantity ordered." + Environment.NewLine + "On Hand {0} {1}", (decimal)dvItems[currIdx]["ActivityItemPickingBaseQuantityAvailable"], (string)dvItems[currIdx]["BaseUnitCode"]);
+                                    msg = string.Format("The quantity shipped is less than the quantity ordered." + Environment.NewLine + "On Hand {0} {1}", Convert.ToDecimal(dvItems[currIdx]["ActivityItemPickingBaseQuantityAvailable"]), Convert.ToString(dvItems[currIdx]["BaseUnitCode"]));
                                 }
                                 else
                                 {
                                     // TODO: Resource strings
-                                    msg = string.Format("The quantity shipped is less than the quantity ordered." + Environment.NewLine + "On Hand {0} {1}", (decimal)dvItems[currIdx]["ActivityItemPickingQuantityAvailable"], (string)dvItems[currIdx]["UnitCode"]);
+                                    msg = string.Format("The quantity shipped is less than the quantity ordered." + Environment.NewLine + "On Hand {0} {1}", Convert.ToDecimal(dvItems[currIdx]["ActivityItemPickingQuantityAvailable"]), Convert.ToString(dvItems[currIdx]["UnitCode"]));
                                 }
 
                                 throw new Exceptions.MessageOnlyException(msg);
@@ -2048,28 +2065,6 @@
 
                         // Upon a save of completed data update the data view to to show new item and quantity change
                         this.ActItem.CurrRowIdx = this.ActItem.UpdateDataViewQuantity(foundRowIdx, actDetail.Quantity, actDetail.BaseQuantity, actDetail.WeightQuantity);
-
-                        // TODO: Fix block
-                        //if (Convert.ToInt32(this.dataGridMainActivity[this.dataGridMainActivity.CurrentRowIndex, 0]) == actItemFoundRefno)
-                        //{
-                        //    //this.dataGridMainActivity.Select(this.dataGridMainActivity.CurrentRowIndex);
-                        //}
-                        //else
-                        //{
-                        //    //this.dataGridMainActivity.UnSelect(this.dataGridMainActivity.CurrentRowIndex);
-
-                        //    for (int rowIdx = 0; rowIdx <= this.ActItem.DataViewItems.Count - 1; rowIdx++)
-                        //    {
-                        //        if (Convert.ToInt32(this.dataGridMainActivity[rowIdx, 0]) == actItemFoundRefno)
-                        //        {
-                        //            //this.dataGridMainActivity.CurrentRowIndex = rowIdx;
-                        //            this.dataGridMainActivity.Select(this.dataGridMainActivity.CurrentRowIndex);
-                        //            break;
-                        //        }
-                        //    }
-                        //}
-
-                        this.ActItem.CurrRowIdx = this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem);
                     }
                 }
                 catch (IsReadyToApplyException)
@@ -2270,8 +2265,7 @@
             await this.KeyUpF4_LaunchInvInquiry(sender, e);
         }
 
-        ///// <summary>
-        ///// TODO: Move this to onAppearing
+        ///// <summary>        
         ///// </summary>
         ///// <param name="sender"></param>
         ///// <param name="e"></param>
@@ -2322,7 +2316,6 @@
         ///// <param name="sender"></param>
         ///// <param name="e"></param>
         ///// <remarks></remarks>
-        /// TODO: Move this to onAppearing
         //private async Task cmdSelectSkid_KeyUp(object sender, KeyEventArgs e)
         //{
         //    if (this.IsControlLoaded)
@@ -2572,7 +2565,6 @@
         }
 
         ///// <summary>
-        ///// TODO: Move this to onAppearing
         ///// </summary>
         ///// <param name="sender"></param>
         ///// <param name="e"></param>
@@ -2981,7 +2973,7 @@
                                 this.CmdAddSkidIsEnabled = true;
 
                                 // TODO: Resource strings
-                                this.CmdSelectSkidText = (string)("Skid# " + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode);
+                                this.CmdSelectSkidText = "Skid# " + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode;
                             });
                         }
                         else

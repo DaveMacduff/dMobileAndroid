@@ -858,7 +858,7 @@ namespace dMobile.Controller
                 sql.Append("LEFT JOIN tActivityItemPickingComment ON tActivityItemPickingComment.ActivityItemRefno ");
                 sql.Append("= tActivityItemPicking.ActivityItemRefno ");
                 sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", ActHdr.Refno);
-                sql.AppendFormat("AND tActivityItem.ActivityItemStatus <> {0}", (int)SysCommon.ActStatus.NoChange);
+                sql.AppendFormat("AND tActivityItem.ActivityItemStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append("UNION ");
                 sql.Append("SELECT tActivityItemPicking.ActivityItemRefno,");
                 sql.Append("tActivityItemPicking.ActivityItemPickingFKRefno,");
@@ -900,7 +900,7 @@ namespace dMobile.Controller
                 sql.Append("LEFT JOIN tActivityItemPickingComment ON tActivityItemPickingComment.ActivityItemRefno ");
                 sql.Append("= tActivityItemPicking.ActivityItemRefno ");
                 sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.Refno);
-                sql.AppendFormat("AND tActivityDetail.ActivityDetailStatus <> {0}", (int)SysCommon.ActStatus.NoChange);
+                sql.AppendFormat("AND tActivityDetail.ActivityDetailStatus <> {0}", Convert.ToInt32(SysCommon.ActStatus.NoChange));
             }
             else
             {

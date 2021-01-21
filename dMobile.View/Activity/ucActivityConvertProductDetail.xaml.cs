@@ -97,9 +97,9 @@ namespace dMobile.View.Activity
 
         #endregion
 
-         #region OnAppearing/OnDisappearing
+        #region OnAppearing/OnDisappearing
 
-         /// <summary>
+        /// <summary>
         /// The OnAppearing
         /// </summary>
         protected override async void OnAppearing()
@@ -151,7 +151,7 @@ namespace dMobile.View.Activity
         {
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
             this.ScannerDisable();
-            
+
             base.OnDisappearing();
         }
 
@@ -671,8 +671,6 @@ namespace dMobile.View.Activity
 
             try
             {
-                // TODO Let's delete everything
-
                 if (await this.IsReadyToClose())
                 {
                     // Change any values back that you need
@@ -1025,14 +1023,35 @@ namespace dMobile.View.Activity
             if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
             {
                 XDocument xmlDoc = form.DisplayControlData;
-                await CreateAdjustment(xmlDoc);
-                // We check if we are allowed to print on scan
-                if (
-                    //(this.SysEnv.SysSettings.CanPrintProductLabelConvertProduct &&// TODO remove true || (workaround com server not updated with value yet)
-                    !this.sysEnv.SysSettings.IsPrintProductLabelsAsBatch &&
-                    !this.SysEnv.SysSettings.IsDisconnectedMode)
+
+                try
                 {
-                    await PrintProductLabel();
+                    this.Loading = true;
+
+                    await Task.Run(async () =>
+                    {
+                        await CreateAdjustment(xmlDoc);
+
+                    // We check if we are allowed to print on scan
+                    if (
+                            //(this.SysEnv.SysSettings.CanPrintProductLabelConvertProduct &&// TODO remove true || (workaround com server not updated with value yet)
+                            !this.sysEnv.SysSettings.IsPrintProductLabelsAsBatch &&
+                            !this.SysEnv.SysSettings.IsDisconnectedMode)
+                        {
+                            await PrintProductLabel();
+                        }
+
+                    });
+                }
+                catch (Exception ex)
+                {
+                    // TODO: logging
+                    // TODO: Resource strings
+                    await DisplayAlert("Error", ex.Message, "OK");
+                }
+                finally
+                {
+                    this.Loading = false;
                 }
             }
         }
@@ -1055,7 +1074,6 @@ namespace dMobile.View.Activity
                 string request = this.ActDetail.CreateSubmitXML(data);
                 string response = SysCommon.SubmitComm(request);
                 SysCommon.CheckCommResponseForErrors(response);
-
 
                 // Parse response for the updated fk_refnos
                 // Modify and change the ActivityDetail/Item/Header to be up to date with the reponse fk_refnos

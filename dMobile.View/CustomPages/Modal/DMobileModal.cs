@@ -9,13 +9,14 @@
     /// <summary>
     /// Defines the <see cref="DMobileModal" />
     /// </summary>
-    public class DMobileModal : ContentPage
+    public class DMobileModal : ContentPage, IDMobileModal
     {
         /// <summary>
         /// Defines the loading
         /// </summary>
         private bool loading;
         private string optionsIconSource;
+        private DialogResult dialogResult = DialogResult.None;
 
         /// <summary>
         /// Gets or sets a value indicating whether Loading
@@ -54,14 +55,11 @@
         }
 
         /// <summary>
-        /// Defines the DialogResult
-        /// </summary>
-        public DialogResult DialogResult = DialogResult.None;
-
-        /// <summary>
         /// Gets or sets the tcs
         /// </summary>
         private TaskCompletionSource<bool> tcs { get; set; }
+
+        public DialogResult DialogResult { get => dialogResult; set => dialogResult = value; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DMobileModal"/> class.

@@ -50,7 +50,7 @@ namespace dMobile.View
             {
                 if (0 < parse.NetWeightMetricKG)
                 {
-                    weight = (decimal)SysCommon.ConvertKG2LB((double)parse.NetWeightMetricKG);
+                    weight = Convert.ToDecimal(SysCommon.ConvertKG2LB(Convert.ToDouble(parse.NetWeightMetricKG)));
                 }
                 else if (0 < parse.NetWeightNonMetricLB)
                 {
@@ -61,7 +61,7 @@ namespace dMobile.View
             {
                 if (0 < parse.NetWeightNonMetricLB)
                 {
-                    weight = (decimal)SysCommon.ConvertLB2KG((double)parse.NetWeightNonMetricLB);
+                    weight = Convert.ToDecimal(SysCommon.ConvertLB2KG(Convert.ToDouble(parse.NetWeightNonMetricLB)));
                 }
                 else if (0 < parse.NetWeightMetricKG)
                 {
@@ -88,8 +88,6 @@ namespace dMobile.View
         /// <param name="productUnitRefno"></param>
         public static async Task<int> IdentifyProductScanned(SysCommon.ActSubTypes actSubType, BarCodeParse barCodeParse, int prodUnitRefno)
         {
-            TaskCompletionSource<int> tcs = new TaskCompletionSource<int>();
-
             int prodUnitBarCodeRefno = 0;
             Controller.Activity actBarCode = ActivityFacade.GetActivity(SysCommon.ActSubTypes.BarCodeAssociation);
             ActItem actItemBarCode = ActItemFacade.GetActItem(actBarCode, SysCommon.ActSubTypes.BarCodeAssociation);
@@ -108,7 +106,7 @@ namespace dMobile.View
                 {
                     BarCodeRuleParseSumwaFarmFedWholeDuckUseWeightRangeToIDProduct(barCodeParse);
 
-                    ProductInfo prodInfo = ProductInfoTasks.GetInfoFromCodeBCUnit(barCodeParse.ProductIdentifier, " ", "CS");
+                    ProductInfo prodInfo = ProductInfoTasks.GetInfoFromCodeBCUnit(barCodeParse.ProductIdentifier, string.Empty, "CS");
                     prodUnitBarCodeRefno = 0;
                     prodUnitRefno = prodInfo.UnitRefno;
                 }
@@ -117,10 +115,8 @@ namespace dMobile.View
                     cmndProdUnitBarCode.CommandType = CommandType.Text;
                     cmndProdUnitBarCode.CommandText = "SELECT ProductUnitBarCodeRefno, ProductUnitRefno "
                         + "FROM tProductUnitBarCode "
-                        + "WHERE tProductUnitBarCode.ProductUnitBarCodeCode = @productUnitBarCodeCode "
-                        + "AND tProductUnitBarCode.ProductUnitBarCodeModifier1 = @productUnitBarCodeModifier1";
-                    // TODO: figure out why padRight is used here as it does not return any results.
-                    //cmndProdUnitBarCode.Parameters.Add(new SQLiteParameter("@productUnitBarCodeCode", barCodeParse.ProductIdentifier.PadRight(20)));
+                        + "WHERE ProductUnitBarCodeCode = @productUnitBarCodeCode "
+                        + "AND ProductUnitBarCodeModifier1 = @productUnitBarCodeModifier1";
                     cmndProdUnitBarCode.Parameters.Add(new SQLiteParameter("@productUnitBarCodeCode", barCodeParse.ProductIdentifier));
                     cmndProdUnitBarCode.Parameters.Add(new SQLiteParameter("@productUnitBarCodeModifier1", sysEnv.CurrentBarCodeModifier1));
 
@@ -130,8 +126,6 @@ namespace dMobile.View
                         {
                             prodUnitBarCodeRefno = Convert.ToInt32(prodUnitBarCodeReader["ProductUnitBarCodeRefno"]);
                             prodUnitRefno = Convert.ToInt32(prodUnitBarCodeReader["ProductUnitRefno"]);
-
-                            tcs.SetResult(prodUnitRefno);
                         }
                     }
                 }
@@ -177,11 +171,8 @@ namespace dMobile.View
                         }
                         catch (Exception ex)
                         {
-                            tcs.SetCanceled();
-
                             // TODO: Resource strings
                             await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert("Identify Product", ex.Message, "OK"));
-                            return await tcs.Task;
                         }
                     }
 
@@ -190,113 +181,97 @@ namespace dMobile.View
                     {
                         // TODO: Resource strings
                         string msg = "Scanned product bar code is not associated to a product." + Environment.NewLine + "Do you wish to associate it now? ";
-
                         bool selectedYes = false;
 
-                        Device.BeginInvokeOnMainThread(async () =>
+                        // TODO: Resource strings
+                        if (await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert("Activity Item", msg, "Yes", "No")))
                         {
-                            // TODO: Resource strings
-                            if (await Application.Current.MainPage.DisplayAlert("Activity Item", msg, "Yes", "No"))
-                            {
-                                selectedYes = true;
-                            };
+                            selectedYes = true;
+                        };
 
-                            // Changed functionality to disallow product scanning everywhere.
-                            // However, always prompt for password if not allowed to associate.
-                            bool isAllowedAssocProdBarCode = sysEnv.ContactLog.IsAllowedAssociateProductBarCode;
+                        // Changed functionality to disallow product scanning everywhere.
+                        // However, always prompt for password if not allowed to associate.
+                        bool isAllowedAssocProdBarCode = sysEnv.ContactLog.IsAllowedAssociateProductBarCode;
 
-                            if (selectedYes)
+                        if (selectedYes)
+                        {
+                            if (!isAllowedAssocProdBarCode)
                             {
-                                if (!isAllowedAssocProdBarCode)
+                                // Prompt for password
+                                FormAssociateBarCodeOverride formAssociateBarCodeOverride = new FormAssociateBarCodeOverride();
+
+                                await formAssociateBarCodeOverride.ShowDialog();
+
+                                if (formAssociateBarCodeOverride.DialogResult == DialogResult.OK)
                                 {
-                                    // Prompt for password
-                                    FormAssociateBarCodeOverride formAssociateBarCodeOverride = new FormAssociateBarCodeOverride();
+                                    isAllowedAssocProdBarCode = true;
+                                }
+                            }
 
-                                    await formAssociateBarCodeOverride.ShowDialog();
+                            if (isAllowedAssocProdBarCode)
+                            {
+                                bool continueAssocBarCode = false;
 
-                                    if (formAssociateBarCodeOverride.DialogResult == DialogResult.OK)
-                                    {
-                                        isAllowedAssocProdBarCode = true;
-                                    }
+                                FormDialogContainer frmSelectProduct = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucSelectProductUnit, actSubType);
+
+                                if (await Device.InvokeOnMainThreadAsync(async () => await frmSelectProduct.DisplayControl.ShowDialog() == DialogResult.OK))
+                                {
+                                    continueAssocBarCode = true;
                                 }
 
-                                if (isAllowedAssocProdBarCode)
+                                if (continueAssocBarCode)
                                 {
-                                    bool continueAssocBarCode = false;
+                                    await frmSelectProduct.SaveChanges(frmSelectProduct, new EventArgs());
+                                    XDocument xmlDoc = frmSelectProduct.DisplayControlData;
+                                    prodUnitRefno = int.Parse(xmlDoc.Root.Element("ProductUnitRefno").Value);
 
-                                    FormDialogContainer frmSelectProduct = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucSelectProductUnit, actSubType);
-
-                                    await frmSelectProduct.DisplayControl.ShowDialog();
-
-                                    if (frmSelectProduct.DisplayControl.DialogResult == DialogResult.OK)
+                                    // If a product was selected, create the xml for the bar code
+                                    // the activity insert
+                                    if (prodUnitRefno != 0)
                                     {
-                                        continueAssocBarCode = true;
-                                    }
+                                        xmlDoc = XDocument.Parse(
+                                            "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
+                                            + "<params>"
+                                            + ("<ProductUnitRefno>" + prodUnitRefno.ToString() + "</ProductUnitRefno>")
+                                            + ("<ProductUnitBarCodeRefno>" + prodUnitBarCodeRefno.ToString()
+                                            + "</ProductUnitBarCodeRefno>")
+                                            + ("<ProductIdentifier>" + barCodeParse.ProductIdentifier + "</ProductIdentifier>")
+                                            + ("<ProductUnitBarCodeModifier1>" + sysEnv.CurrentBarCodeModifier1
+                                            + "</ProductUnitBarCodeModifier1>")
+                                            + ("<RawData>" + barCodeParse.Raw + "</RawData>")
+                                            + ("<enumBarCodeSymbology>" + Convert.ToInt32(barCodeParse.Symbology))
+                                            + "</enumBarCodeSymbology>"
+                                            + ("<BarCodeSymbologyPrefix>" + barCodeParse.SymbologyPrefix + "</BarCodeSymbologyPrefix>")
+                                            + "</params>");
 
-                                    if (continueAssocBarCode)
-                                    {
-                                        await frmSelectProduct.SaveChanges(frmSelectProduct, new EventArgs());
-                                        XDocument xmlDoc = frmSelectProduct.DisplayControlData;
-                                        prodUnitRefno = int.Parse(xmlDoc.Root.Element("ProductUnitRefno").Value);
-
-                                        // If a product was selected, create the xml for the bar code
-                                        // the activity insert
-                                        if (prodUnitRefno != 0)
-                                        {
-                                            xmlDoc = XDocument.Parse(
-                                                "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                                                + "<params>"
-                                                + ("<ProductUnitRefno>" + prodUnitRefno.ToString() + "</ProductUnitRefno>")
-                                                + ("<ProductUnitBarCodeRefno>" + prodUnitBarCodeRefno.ToString()
-                                                + "</ProductUnitBarCodeRefno>")
-                                                + ("<ProductIdentifier>" + barCodeParse.ProductIdentifier + "</ProductIdentifier>")
-                                                + ("<ProductUnitBarCodeModifier1>" + sysEnv.CurrentBarCodeModifier1
-                                                + "</ProductUnitBarCodeModifier1>")
-                                                + ("<RawData>" + barCodeParse.Raw + "</RawData>")
-                                                + ("<enumBarCodeSymbology>" + Convert.ToInt32(barCodeParse.Symbology))
-                                                + "</enumBarCodeSymbology>"
-                                                + ("<BarCodeSymbologyPrefix>" + barCodeParse.SymbologyPrefix + "</BarCodeSymbologyPrefix>")
-                                                + "</params>");
-
-                                            await actItemBarCode.Insert(xmlDoc, false);
-
-                                            tcs.SetResult(prodUnitRefno);
-                                        }
-                                    }
-                                    else
-                                    {
-                                        // TODO: Resource strings
-                                        Exception ex = new Exception("Product not identified.");
-                                        tcs.SetException(ex);
-                                        //throw ex;
+                                        await actItemBarCode.Insert(xmlDoc, false);
                                     }
                                 }
                                 else
                                 {
                                     // TODO: Resource strings
                                     Exception ex = new Exception("Product not identified.");
-                                    tcs.SetException(ex);
-                                    //throw ex;
+                                    throw ex;
                                 }
                             }
                             else
                             {
-                                tcs.SetCanceled();
+                                // TODO: Resource strings
+                                Exception ex = new Exception("Product not identified.");
+                                throw ex;
                             }
-                        });
+                        }
                     }
                     else
                     {
                         // TODO: Resource strings
-                        Exception ex = new Exception("Product not identified.");
-                        tcs.SetException(ex);
-
+                        //Exception ex = new Exception("Product not identified.");
                         //throw ex;
                     }
                 }
             }
 
-            return await tcs.Task;
+            return prodUnitRefno;
         }
 
         /// <summary>
@@ -515,39 +490,39 @@ namespace dMobile.View
         /// <param name="barCodeParse"></param>
         public static void BarCodeRuleParseSumwaFarmFedWholeDuckUseWeightRangeToIDProduct(BarCodeParse barCodeParse)
         {
-            if (barCodeParse.NetWeightMetricKG >= (decimal)11.00 && barCodeParse.NetWeightMetricKG <= (decimal)11.99)
+            if (barCodeParse.NetWeightMetricKG >= Convert.ToDecimal(11.00) && barCodeParse.NetWeightMetricKG <= Convert.ToDecimal(11.99))
             {
                 barCodeParse.ProductIdentifier = "MC10448";
             }
-            else if (barCodeParse.NetWeightMetricKG >= (decimal)12.00 && barCodeParse.NetWeightMetricKG <= (decimal)12.49)
+            else if (barCodeParse.NetWeightMetricKG >= Convert.ToDecimal(12.00) && barCodeParse.NetWeightMetricKG <= Convert.ToDecimal(12.49))
             {
                 barCodeParse.ProductIdentifier = "MC10443";
             }
-            else if (barCodeParse.NetWeightMetricKG >= (decimal)12.50 && barCodeParse.NetWeightMetricKG <= (decimal)12.99)
+            else if (barCodeParse.NetWeightMetricKG >= Convert.ToDecimal(12.50) && barCodeParse.NetWeightMetricKG <= Convert.ToDecimal(12.99))
             {
                 barCodeParse.ProductIdentifier = "MC10441";
             }
-            else if (barCodeParse.NetWeightMetricKG >= (decimal)13.00 && barCodeParse.NetWeightMetricKG <= (decimal)13.49)
+            else if (barCodeParse.NetWeightMetricKG >= Convert.ToDecimal(13.00) && barCodeParse.NetWeightMetricKG <= Convert.ToDecimal(13.49))
             {
                 barCodeParse.ProductIdentifier = "MC10442";
             }
-            else if (barCodeParse.NetWeightMetricKG >= (decimal)13.50 && barCodeParse.NetWeightMetricKG <= (decimal)13.99)
+            else if (barCodeParse.NetWeightMetricKG >= Convert.ToDecimal(13.50) && barCodeParse.NetWeightMetricKG <= Convert.ToDecimal(13.99))
             {
                 barCodeParse.ProductIdentifier = "MC10440";
             }
-            else if (barCodeParse.NetWeightMetricKG >= (decimal)14.00 && barCodeParse.NetWeightMetricKG <= (decimal)14.49)
+            else if (barCodeParse.NetWeightMetricKG >= Convert.ToDecimal(14.00) && barCodeParse.NetWeightMetricKG <= Convert.ToDecimal(14.49))
             {
                 barCodeParse.ProductIdentifier = "MC10445";
             }
-            else if (barCodeParse.NetWeightMetricKG >= (decimal)14.50 && barCodeParse.NetWeightMetricKG <= (decimal)14.99)
+            else if (barCodeParse.NetWeightMetricKG >= Convert.ToDecimal(14.50) && barCodeParse.NetWeightMetricKG <= Convert.ToDecimal(14.99))
             {
                 barCodeParse.ProductIdentifier = "MC10446";
             }
-            else if (barCodeParse.NetWeightMetricKG >= (decimal)15.00 && barCodeParse.NetWeightMetricKG <= (decimal)15.49)
+            else if (barCodeParse.NetWeightMetricKG >= Convert.ToDecimal(15.00) && barCodeParse.NetWeightMetricKG <= Convert.ToDecimal(15.49))
             {
                 barCodeParse.ProductIdentifier = "MC10447";
             }
-            else if (barCodeParse.NetWeightMetricKG >= (decimal)15.50 && barCodeParse.NetWeightMetricKG <= (decimal)16.00)
+            else if (barCodeParse.NetWeightMetricKG >= Convert.ToDecimal(15.50) && barCodeParse.NetWeightMetricKG <= Convert.ToDecimal(16.00))
             {
                 barCodeParse.ProductIdentifier = "MC10450";
             }
@@ -926,27 +901,27 @@ namespace dMobile.View
             {
                 isStopForDetail = true;
             }
-            else if (actDetail.ActItem.ProdInfo.Scheme.Extra1Type != (int)SysCommon.SchemeExtraTypes.Disabled
+            else if (actDetail.ActItem.ProdInfo.Scheme.Extra1Type != Convert.ToInt32(SysCommon.SchemeExtraTypes.Disabled)
                 && actDetail.ActItem.ProdInfo.Scheme.Extra2IsRequired)
             {
                 isStopForDetail = true;
             }
-            else if (actDetail.ActItem.ProdInfo.Scheme.Extra2Type != (int)SysCommon.SchemeExtraTypes.Disabled
+            else if (actDetail.ActItem.ProdInfo.Scheme.Extra2Type != Convert.ToInt32(SysCommon.SchemeExtraTypes.Disabled)
                 && actDetail.ActItem.ProdInfo.Scheme.Extra2IsRequired)
             {
                 isStopForDetail = true;
             }
-            else if (actDetail.ActItem.ProdInfo.Scheme.Extra3Type != (int)SysCommon.SchemeExtraTypes.Disabled
+            else if (actDetail.ActItem.ProdInfo.Scheme.Extra3Type != Convert.ToInt32(SysCommon.SchemeExtraTypes.Disabled)
                 && actDetail.ActItem.ProdInfo.Scheme.Extra3IsRequired)
             {
                 isStopForDetail = true;
             }
-            else if (actDetail.ActItem.ProdInfo.Scheme.Extra4Type != (int)SysCommon.SchemeExtraTypes.Disabled
+            else if (actDetail.ActItem.ProdInfo.Scheme.Extra4Type != Convert.ToInt32(SysCommon.SchemeExtraTypes.Disabled)
                 && actDetail.ActItem.ProdInfo.Scheme.Extra4IsRequired)
             {
                 isStopForDetail = true;
             }
-            else if (actDetail.ActItem.ProdInfo.Scheme.Extra5Type != (int)SysCommon.SchemeExtraTypes.Disabled
+            else if (actDetail.ActItem.ProdInfo.Scheme.Extra5Type != Convert.ToInt32(SysCommon.SchemeExtraTypes.Disabled)
                 && actDetail.ActItem.ProdInfo.Scheme.Extra4IsRequired)
             {
                 isStopForDetail = true;

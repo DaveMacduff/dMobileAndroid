@@ -59,8 +59,7 @@ namespace dMobile.View.Activity
         /// <param name="_actItem"></param>
         /// <param name="_ActivitySubTypes"></param>
         /// <remarks></remarks>
-        /// TODO: Confirm callingActSubType is not required
-        public ucActivityDetailSkid(ActItem actItem, SysCommon.ActSubTypes actSubTypes)
+        public ucActivityDetailSkid(ActItem actItem, SysCommon.ActSubTypes actSubTypes, SysCommon.ActSubTypes callingActSubType)
         {
             this.InitializeComponent();
 
@@ -109,10 +108,12 @@ namespace dMobile.View.Activity
                     {
                         if (await this.SaveChanges())
                         {
+                            this.DialogResult = DialogResult.OK;
                             this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                         }
                         else
                         {
+                            this.DialogResult = DialogResult.None;
                             await this.CancelChanges();
                         }
                     }
@@ -144,10 +145,12 @@ namespace dMobile.View.Activity
 
                             if (await this.SaveChanges())
                             {
+                                this.DialogResult = DialogResult.OK;
                                 this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                             }
                             else
                             {
+                                this.DialogResult = DialogResult.None;
                                 await this.CancelChanges();
                             }
                         }
@@ -1039,17 +1042,14 @@ namespace dMobile.View.Activity
         {
             if (ScannerModeAdd)
             {
-                // TODO: Grid header background color
-                //this.dataGridMainActivityHeader.BackgroundColor = addModeHeaderColor;
-
                 // TODO: Resource strings
+                this.scannerModeText.Text = "Adding";
                 this.cmdAdd.Text = "Add";
             }
             else
             {
-                //this.dataGridMainActivityHeader.BackgroundColor = removeModeHeaderColor;
-
                 // TODO: Resource strings
+                this.scannerModeText.Text = "Removing";
                 this.cmdAdd.Text = "Remove";
             }
         }
@@ -1437,6 +1437,11 @@ namespace dMobile.View.Activity
             // bug in "REQUEST SKID DETAIL"
             // Note for David: do we want to see transactions on the skid detail?
             //ScannerModeAdd = !ScannerModeAdd;
+        }
+
+        private void scannerModeText_Clicked(object sender, EventArgs e)
+        {
+            ToggleScannerMode();
         }
     }
 }

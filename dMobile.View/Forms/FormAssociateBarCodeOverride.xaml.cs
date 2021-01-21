@@ -222,9 +222,9 @@
                         {
                             if (drUser.Read())
                             {
-                                this.Password = drUser.GetString((int)SysCommon.ContactUserFields.Password);
-                                this.UserCode = drUser.GetInt32((int)SysCommon.ContactUserFields.Code);
-                                this.IsAllowedAssocBarCode = drUser.GetBoolean((int)SysCommon.ContactUserFields.IsAllowedAssocProdBarCode);
+                                this.Password = drUser.GetString(Convert.ToInt32(SysCommon.ContactUserFields.Password));
+                                this.UserCode = drUser.GetInt32(Convert.ToInt32(SysCommon.ContactUserFields.Code));
+                                this.IsAllowedAssocBarCode = drUser.GetBoolean(Convert.ToInt32(SysCommon.ContactUserFields.IsAllowedAssocProdBarCode));
                             }
 
                             drUser.Close();

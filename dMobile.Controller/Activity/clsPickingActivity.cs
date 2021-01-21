@@ -340,7 +340,6 @@ namespace dMobile.Controller
         {
             bool isReleased = false;
 
-            // TODO: Pull view logic out of this project
             //if (MessageBox.Show(string.Format("Release order# {0} ?", this.FKRefno), this.GetControlDescription(), MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
             if (await Application.Current.MainPage.DisplayAlert(this.GetControlDescription(), string.Format("Release order# {0} ?", this.FKRefno), "Yes", "No"))
             {
@@ -573,7 +572,7 @@ namespace dMobile.Controller
         public override string GetControlDescription()
         {
             // TODO: Resource strings
-            return "dMobile Picking";
+            return "Picking";
         }
 
         public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity)
@@ -737,6 +736,7 @@ namespace dMobile.Controller
             return observableCollection;
         }
 
+
         //    /// <summary>
         //    ///
         //    /// </summary>
@@ -855,7 +855,7 @@ namespace dMobile.Controller
                 sql.Append("LEFT JOIN tActivityPickingRoute ON tActivityPickingRoute.PickingActivityRefno "
                     + "= tActivityPicking.ActivityRefno ");
                 sql.Append("LEFT JOIN tRoute ON tRoute.RouteRefno = tActivityPickingRoute.RouteRefno ");
-                sql.AppendFormat("WHERE tActivity.ActivityStatus <> {0} ", (int)SysCommon.ActStatus.NoChange);
+                sql.AppendFormat("WHERE tActivity.ActivityStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append("UNION ");
                 sql.Append("SELECT tActivityPicking.ActivityRefno,");
                 sql.Append("tActivityPicking.ActivityPickingFKRefno,");
@@ -881,7 +881,7 @@ namespace dMobile.Controller
                 sql.Append("LEFT JOIN tActivityPickingRoute ON tActivityPickingRoute.PickingActivityRefno "
                     + "= tActivityPicking.ActivityRefno ");
                 sql.Append("LEFT JOIN tRoute ON tRoute.RouteRefno = tActivityPickingRoute.RouteRefno ");
-                sql.AppendFormat("WHERE tActivityItem.ActivityItemStatus <> {0} ", (int)SysCommon.ActStatus.NoChange);
+                sql.AppendFormat("WHERE tActivityItem.ActivityItemStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append("UNION ");
                 sql.Append("SELECT tActivityPicking.ActivityRefno,");
                 sql.Append("tActivityPicking.ActivityPickingFKRefno,");
@@ -909,7 +909,7 @@ namespace dMobile.Controller
                 sql.Append("LEFT JOIN tActivityPickingRoute ON tActivityPickingRoute.PickingActivityRefno "
                     + "= tActivityPicking.ActivityRefno ");
                 sql.Append("LEFT JOIN tRoute ON tRoute.RouteRefno = tActivityPickingRoute.RouteRefno ");
-                sql.AppendFormat("WHERE tActivityDetail.ActivityDetailStatus <> {0}", (int)SysCommon.ActStatus.NoChange);
+                sql.AppendFormat("WHERE tActivityDetail.ActivityDetailStatus <> {0}", Convert.ToInt32(SysCommon.ActStatus.NoChange));
             }
             else
             {

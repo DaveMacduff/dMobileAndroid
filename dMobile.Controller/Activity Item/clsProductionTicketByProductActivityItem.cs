@@ -128,6 +128,7 @@ namespace dMobile.Controller
 
                 if (foundActItemRefno > 0)
                 {
+                    // TODO: Resource strings
                     dlgResult = await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert("New Item", "A line item already exists for this location and product." + Environment.NewLine + "Do you wish to create one?", "Yes", "No"));
                 }
                 else
@@ -612,8 +613,8 @@ namespace dMobile.Controller
                 sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
                 sql.Append("= tActivityItemProduction.LocationMapRefno ");
                 sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.Refno);
-                sql.AppendFormat("AND tActivityItem.ActivityItemStatus <> {0} ", (int)SysCommon.ActStatus.NoChange);
-                sql.AppendFormat("AND tActivityItem.ActivityItemSubType = {0} ", (int)SysCommon.ActSubTypes.TicketAddProduct);
+                sql.AppendFormat("AND tActivityItem.ActivityItemStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
+                sql.AppendFormat("AND tActivityItem.ActivityItemSubType = {0} ", Convert.ToInt32(SysCommon.ActSubTypes.TicketAddProduct));
                 sql.Append("UNION ");
                 sql.Append("SELECT tActivityItemProduction.ActivityItemRefno,");
                 sql.Append("tActivityItemProductionByProduct.ActivityItemProductionByProductFKRefno,");
@@ -650,10 +651,10 @@ namespace dMobile.Controller
                 sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
                 sql.Append("= tActivityItemProduction.LocationMapRefno ");
                 sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.Refno);
-                sql.AppendFormat("AND tActivityDetail.ActivityDetailStatus <> {0} ", (int)SysCommon.ActStatus.NoChange);
+                sql.AppendFormat("AND tActivityDetail.ActivityDetailStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.AppendFormat(
                     "AND tActivityDetail.ActivityDetailSubType = {0} ",
-                    (int)SysCommon.ActSubTypes.TicketAddProduct);
+                    Convert.ToInt32(SysCommon.ActSubTypes.TicketAddProduct));
                 sql.AppendFormat("ORDER BY tActivityItemProduction.ActivityItemRefno");
             }
             else
@@ -691,7 +692,7 @@ namespace dMobile.Controller
                 sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
                 sql.Append("= tActivityItemProduction.LocationMapRefno ");
                 sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.Refno);
-                sql.AppendFormat("AND tActivityItem.ActivityItemSubType = {0} ", (int)SysCommon.ActSubTypes.TicketAddProduct);
+                sql.AppendFormat("AND tActivityItem.ActivityItemSubType = {0} ", Convert.ToInt32(SysCommon.ActSubTypes.TicketAddProduct));
                 sql.Append("ORDER BY tActivityItemProduction.ActivityItemRefno");
             }
 
@@ -915,7 +916,7 @@ namespace dMobile.Controller
                     + "SET ActivityItemProductionQuantity = " + this.DataViewItems[idx]["ActivityItemProductionQuantity"] + ","
                     + "ActivityItemProductionBaseQuantity = " + this.DataViewItems[idx]["ActivityItemProductionBaseQuantity"] + ","
                     + "ActivityItemProductionWeightQuantity = " + this.DataViewItems[idx]["ActivityItemProductionWeightQuantity"]
-                    + " WHERE tActivityItemProduction.ActivityItemRefno = " + actItemRefno;
+                    + " WHERE ActivityItemRefno = " + actItemRefno;
                 cmndItem.ExecuteNonQuery();
             }
         }

@@ -248,23 +248,23 @@ namespace dMobile.Controller
 
             if (isSubmitBatch)
             {
-                sql.Append("SELECT tActivityItemPurchaseOrderWorkSheet.ActivityItemRefno,");
-                sql.Append(" tActivityItem.ActivityRefno,");
-                sql.Append(" tActivityItemPurchaseOrderWorkSheet.ActivityItemPurchaseOrderWorkSheetFKRefno, ");
-                sql.Append(" tActivityItemPurchaseOrderWorkSheet.ActivityItemPurchaseOrderWorkSheetStringFKRefno, ");
-                sql.Append(" tProductUnit.ProductUnitRefno,");
-                sql.Append(" tProduct.ProductRefno,");
-                sql.Append(" tProduct.ProductCode,");
-                sql.Append(" tProduct.ProductDescription,");
-                sql.Append(" tUnit.UnitCode,");
-                sql.Append(" tProductUnit.ProductUnitSizeDescription,");
-                sql.Append(" tActivityItemPurchaseOrderWorkSheet.ActivityItemPurchaseOrderWorkSheetQuantityOrdered,");
-                sql.Append(" tActivityItemPurchaseOrderWorkSheet.ActivityItemPurchaseOrderWorkSheetBaseQuantityOrdered,");
-                sql.Append(" tActivityItemPurchaseOrderWorkSheet.ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered,");
-                sql.Append(" tLocationMapWarehouse.LocationMapRefno,");
+                sql.Append("SELECT tActivityItemPurchaseOrderWorkSheet.ActivityItemRefno AS ActivityItemRefno,");
+                sql.Append(" tActivityItem.ActivityRefno AS ActivityRefno,");
+                sql.Append(" tActivityItemPurchaseOrderWorkSheet.ActivityItemPurchaseOrderWorkSheetFKRefno AS ActivityItemPurchaseOrderWorkSheetFKRefno, ");
+                sql.Append(" tActivityItemPurchaseOrderWorkSheet.ActivityItemPurchaseOrderWorkSheetStringFKRefno AS ActivityItemPurchaseOrderWorkSheetStringFKRefno, ");
+                sql.Append(" tProductUnit.ProductUnitRefno AS ProductUnitRefno,");
+                sql.Append(" tProduct.ProductRefno AS ProductRefno,");
+                sql.Append(" tProduct.ProductCode AS ProductCode,");
+                sql.Append(" tProduct.ProductDescription AS ProductDescription,");
+                sql.Append(" tUnit.UnitCode AS UnitCode,");
+                sql.Append(" tProductUnit.ProductUnitSizeDescription AS ProductUnitSizeDescription,");
+                sql.Append(" tActivityItemPurchaseOrderWorkSheet.ActivityItemPurchaseOrderWorkSheetQuantityOrdered AS ActivityItemPurchaseOrderWorkSheetQuantityOrdered,");
+                sql.Append(" tActivityItemPurchaseOrderWorkSheet.ActivityItemPurchaseOrderWorkSheetBaseQuantityOrdered AS ActivityItemPurchaseOrderWorkSheetBaseQuantityOrdered,");
+                sql.Append(" tActivityItemPurchaseOrderWorkSheet.ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered AS ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered,");
+                sql.Append(" tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
                 sql.Append(" tLocationMapWarehouse.LocationMapWarehouseCode AS LocationCode,");
                 sql.Append(" tLocationMapWarehouse.LocationMapWarehouseName AS LocationName,");
-                sql.Append(" tActivityItem.ActivityItemStatus");
+                sql.Append(" tActivityItem.ActivityItemStatus AS ActivityItemStatus");
                 sql.Append(" FROM tActivityItemPurchaseOrderWorkSheet ");
                 sql.Append(" INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno ");
                 sql.Append("= tActivityItemPurchaseOrderWorkSheet.ActivityItemRefno");
@@ -274,28 +274,28 @@ namespace dMobile.Controller
                 sql.Append(" INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno ");
                 sql.Append(" INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
                 sql.Append("= tActivityItemPurchaseOrderWorkSheet.WarehouseLocationMapRefno ");
-                sql.AppendFormat(" WHERE tActivityItem.ActivityItemStatus <> {0}", (int)SysCommon.ActStatus.NoChange);
+                sql.AppendFormat(" WHERE tActivityItem.ActivityItemStatus <> {0}", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append(" ORDER BY tActivityItemPurchaseOrderWorkSheet.ActivityItemRefno");
             }
             else
             {
-                sql.Append("SELECT tActivityItemPurchaseOrderWorkSheet.ActivityItemRefno,");
-                sql.Append(" tActivityItem.ActivityRefno,");
-                sql.Append(" tActivityItemPurchaseOrderWorkSheet.ActivityItemPurchaseOrderWorkSheetFKRefno,");
-                sql.Append(" tActivityItemPurchaseOrderWorkSheet.ActivityItemPurchaseOrderWorkSheetStringFKRefno,");
-                sql.Append(" tProductUnit.ProductUnitRefno,");
-                sql.Append(" tProduct.ProductRefno,");
-                sql.Append(" tProduct.ProductCode,");
-                sql.Append(" tProduct.ProductDescription,");
-                sql.Append(" tUnit.UnitCode,");
-                sql.Append(" tProductUnit.ProductUnitSizeDescription,");
-                sql.Append(" tActivityItemPurchaseOrderWorkSheet.ActivityItemPurchaseOrderWorkSheetQuantityOrdered,");
-                sql.Append(" tActivityItemPurchaseOrderWorkSheet.ActivityItemPurchaseOrderWorkSheetBaseQuantityOrdered,");
-                sql.Append(" tActivityItemPurchaseOrderWorkSheet.ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered,");
-                sql.Append(" tLocationMapWarehouse.LocationMapRefno,");
+                sql.Append("SELECT tActivityItemPurchaseOrderWorkSheet.ActivityItemRefno AS ActivityItemRefno,");
+                sql.Append(" tActivityItem.ActivityRefno AS ActivityRefno,");
+                sql.Append(" tActivityItemPurchaseOrderWorkSheet.ActivityItemPurchaseOrderWorkSheetFKRefno AS ActivityItemPurchaseOrderWorkSheetFKRefno,");
+                sql.Append(" tActivityItemPurchaseOrderWorkSheet.ActivityItemPurchaseOrderWorkSheetStringFKRefno AS ActivityItemPurchaseOrderWorkSheetStringFKRefno,");
+                sql.Append(" tProductUnit.ProductUnitRefno AS ProductUnitRefno,");
+                sql.Append(" tProduct.ProductRefno AS ProductRefno,");
+                sql.Append(" tProduct.ProductCode AS ProductCode,");
+                sql.Append(" tProduct.ProductDescription AS ProductDescription,");
+                sql.Append(" tUnit.UnitCode AS UnitCode,");
+                sql.Append(" tProductUnit.ProductUnitSizeDescription AS ProductUnitSizeDescription,");
+                sql.Append(" tActivityItemPurchaseOrderWorkSheet.ActivityItemPurchaseOrderWorkSheetQuantityOrdered AS ActivityItemPurchaseOrderWorkSheetQuantityOrdered,");
+                sql.Append(" tActivityItemPurchaseOrderWorkSheet.ActivityItemPurchaseOrderWorkSheetBaseQuantityOrdered AS ActivityItemPurchaseOrderWorkSheetBaseQuantityOrdered,");
+                sql.Append(" tActivityItemPurchaseOrderWorkSheet.ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered AS ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered,");
+                sql.Append(" tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
                 sql.Append(" tLocationMapWarehouse.LocationMapWarehouseCode AS LocationCode,");
                 sql.Append(" tLocationMapWarehouse.LocationMapWarehouseName AS LocationName,");
-                sql.Append(" tActivityItem.ActivityItemStatus");
+                sql.Append(" tActivityItem.ActivityItemStatus AS ActivityItemStatus");
                 sql.Append(" FROM tActivityItemPurchaseOrderWorkSheet");
                 sql.Append(" INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno ");
                 sql.Append("= tActivityItemPurchaseOrderWorkSheet.ActivityItemRefno");

@@ -1,9 +1,11 @@
 ﻿namespace dMobile.View.Forms
 {
     using dMobile.Bedrock;
+    using dMobile.Resources.Enums;
     using dMobile.View.CustomPages.Modal;
     using System;
     using System.Data.SQLite;
+    using System.Threading.Tasks;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
     using Resource = Resources.Properties.Resources;
@@ -236,6 +238,29 @@
             //snd.Play();
         }
 
+        public override async Task<DialogResult> ShowDialog()
+        {
+            string msg = this.ErrMsg + Environment.NewLine + this.ErrMsgDetail;
+            Exception inner = this.GetInnerExeception(this.ExData);
+
+            while (inner != null)
+            {
+                msg = msg + Environment.NewLine + inner.Message;
+                inner = this.GetInnerExeception(inner);
+            }
+
+            if (await Application.Current.MainPage.DisplayAlert(this.Title, msg, this.buttonContinue.Text, this.buttonSendReport.Text))
+            {
+                this.buttonContinue_Click(this, new EventArgs());
+            }
+            else
+            {
+                this.ButtonSendReport_Clicked(this, new EventArgs());
+            }
+
+            return this.DialogResult;
+        }
+
         /// <summary>
         /// Gets or sets the ErrMsg
         /// </summary>
@@ -380,7 +405,7 @@
         private async void ButtonSendReport_Clicked(object sender, EventArgs e)
         {
             // TODO: Send error report
-            await DisplayAlert("Error", "Not Implemented", "OK");
+            await Application.Current.MainPage.DisplayAlert("Error", "Not Implemented", "OK");
         }
     }
 }

@@ -39,7 +39,7 @@
             this.Title = this.GetControlDescription();
 
             // TODO: Resource strings
-            this.lblDeviceNameIP.Text = "Device ID / Name / IP";
+            this.lblDeviceNameIP.Text = "Device Serial Number";
             this.lblMACAddress.Text = "MAC Address:";
             this.lblStatus.Text = "Status:";
             this.lblMACAddressData.Text = "<Unknown>";
@@ -544,7 +544,6 @@
             //this.lstDeviceNameIP.EndUpdate();
         }
 
-        // TODO: MOVE THIS
         private class IPAddr : ContentPage
         {
             public NetworkInterface networkInterface;

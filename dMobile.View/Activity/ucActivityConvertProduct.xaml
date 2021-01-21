@@ -5,15 +5,15 @@
                                  xmlns:Helpers="clr-namespace:dMobile.View.Helpers" 
                                  xmlns:customcontrols="clr-namespace:dMobile.View.CustomControls"
                                  x:Class="dMobile.View.Activity.ucActivityConvertProduct">
-    <!--<ContentPage.ToolbarItems>
-        <ToolbarItem x:Name="optionsMenu" IconImageSource="{Binding OptionsIconSource}" Clicked="OptionsMenu_Clicked" />
-    </ContentPage.ToolbarItems>-->
+    <ContentPage.ToolbarItems>
+        <ToolbarItem x:Name="optionsMenu" IconImageSource="{Binding OptionsIconSource}" Clicked="optionsMenu_Clicked" />
+    </ContentPage.ToolbarItems>
     <ContentPage.Content>
         <AbsoluteLayout VerticalOptions="Center">
             <Grid x:Name="gridContainer" Padding="10" AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0,0,1,1">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="30*"/>
-                    <RowDefinition Height="70*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
                 <Frame VerticalOptions="Start" Grid.Row="0" OutlineColor="{DynamicResource BorderColor}">

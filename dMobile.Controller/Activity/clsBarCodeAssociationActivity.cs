@@ -39,7 +39,7 @@ namespace dMobile.Controller
                 using (SQLiteCommand cmndPurgeActItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
                 {
                     cmndPurgeActItem.CommandText = "DELETE FROM tActivityItem "
-                        + "WHERE tActivityItem.ActivityItemSubType = " + (int)SysCommon.ActSubTypes.BarCodeAssociation;
+                        + "WHERE tActivityItem.ActivityItemSubType = " + Convert.ToInt32(SysCommon.ActSubTypes.BarCodeAssociation);
                     cmndPurgeActItem.CommandType = CommandType.Text;
                     cmndPurgeActItem.ExecuteNonQuery();
                 }
@@ -47,7 +47,7 @@ namespace dMobile.Controller
                 using (SQLiteCommand cmndPurgeActivity = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
                 {
                     cmndPurgeActivity.CommandText = "DELETE FROM tActivity "
-                        + "WHERE tActivity.ActivitySubType = " + (int)SysCommon.ActSubTypes.BarCodeAssociation;
+                        + "WHERE tActivity.ActivitySubType = " + Convert.ToInt32(SysCommon.ActSubTypes.BarCodeAssociation);
                     cmndPurgeActivity.CommandType = CommandType.Text;
                     cmndPurgeActivity.ExecuteNonQuery();
                 }
@@ -115,14 +115,14 @@ namespace dMobile.Controller
 
             if (isSubmitBatch)
             {
-                sql.Append("SELECT tActivity.ActivityRefno,");
-                sql.Append("tProduct.ProductCode,");
-                sql.Append("tProductUnit.ProductUnitBC,");
-                sql.Append("tUnit.UnitCode,");
-                sql.Append("tProductUnitBarCode.ProductUnitBarCodeRefno,");
-                sql.Append("tProductUnitBarCode.ProductUnitBarCodeCode,");
-                sql.Append("tProductUnitBarCode.ProductUnitBarCodeModifier1,");
-                sql.Append("tActivity.ActivityStatus");
+                sql.Append("SELECT tActivity.ActivityRefno AS ActivityRefno,");
+                sql.Append("tProduct.ProductCode AS ProductCode,");
+                sql.Append("tProductUnit.ProductUnitBC AS ProductUnitBC,");
+                sql.Append("tUnit.UnitCode AS UnitCode,");
+                sql.Append("tProductUnitBarCode.ProductUnitBarCodeRefno AS ProductUnitBarCodeRefno,");
+                sql.Append("tProductUnitBarCode.ProductUnitBarCodeCode AS ProductUnitBarCodeCode,");
+                sql.Append("tProductUnitBarCode.ProductUnitBarCodeModifier1 AS ProductUnitBarCodeModifier1,");
+                sql.Append("tActivity.ActivityStatus AS ActivityStatus");
                 sql.Append(" FROM tActivity");
                 sql.Append(" INNER JOIN tActivityItem ON tActivityItem.ActivityRefno = tActivity.ActivityRefno");
                 sql.Append(" INNER JOIN tActivityItemBarCodeAssociationXRef ON ");
@@ -132,19 +132,19 @@ namespace dMobile.Controller
                 sql.Append(" INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = tProductUnitBarCode.ProductUnitRefno");
                 sql.Append(" INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno");
                 sql.Append(" INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno");
-                sql.AppendFormat(" WHERE tActivityItem.ActivityItemStatus <> {0}", (int)SysCommon.ActStatus.NoChange);
-                sql.AppendFormat(" AND tActivityItem.ActivityItemSubType = {0}", (int)SysCommon.ActSubTypes.BarCodeAssociation);
+                sql.AppendFormat(" WHERE tActivityItem.ActivityItemStatus <> {0}", Convert.ToInt32(SysCommon.ActStatus.NoChange));
+                sql.AppendFormat(" AND tActivityItem.ActivityItemSubType = {0}", Convert.ToInt32(SysCommon.ActSubTypes.BarCodeAssociation));
             }
             else
             {
-                sql.Append("SELECT tActivity.ActivityRefno,");
-                sql.Append("tProduct.ProductCode,");
-                sql.Append("tProductUnit.ProductUnitBC,");
-                sql.Append("tUnit.UnitCode,");
-                sql.Append("tProductUnitBarCode.ProductUnitBarCodeRefno,");
-                sql.Append("tProductUnitBarCode.ProductUnitBarCodeCode,");
-                sql.Append("tProductUnitBarCode.ProductUnitBarCodeModifier1,");
-                sql.Append("tActivity.ActivityStatus");
+                sql.Append("SELECT tActivity.ActivityRefno AS ActivityRefno,");
+                sql.Append("tProduct.ProductCode AS ProductCode,");
+                sql.Append("tProductUnit.ProductUnitBC AS ProductUnitBC,");
+                sql.Append("tUnit.UnitCode AS UnitCode,");
+                sql.Append("tProductUnitBarCode.ProductUnitBarCodeRefno AS ProductUnitBarCodeRefno,");
+                sql.Append("tProductUnitBarCode.ProductUnitBarCodeCode AS ProductUnitBarCodeCode,");
+                sql.Append("tProductUnitBarCode.ProductUnitBarCodeModifier1 AS ProductUnitBarCodeModifier1,");
+                sql.Append("tActivity.ActivityStatus AS ActivityStatus");
                 sql.Append(" FROM tActivity");
                 sql.Append(" INNER JOIN tActivityItem ON tActivityItem.ActivityRefno = tActivity.ActivityRefno");
                 sql.Append(" INNER JOIN tActivityItemBarCodeAssociationXRef ON ");
@@ -154,7 +154,7 @@ namespace dMobile.Controller
                 sql.Append(" INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = tProductUnitBarCode.ProductUnitRefno");
                 sql.Append(" INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno");
                 sql.Append(" INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno");
-                sql.AppendFormat(" AND tActivityItem.ActivityItemSubType = {0}", (int)SysCommon.ActSubTypes.BarCodeAssociation);
+                sql.AppendFormat(" AND tActivityItem.ActivityItemSubType = {0}", Convert.ToInt32(SysCommon.ActSubTypes.BarCodeAssociation));
             }
 
             using (SQLiteDataAdapter dataAdapterBarCode = new SQLiteDataAdapter(sql.ToString(), DatabaseConnection.GetInstance().SQLConn))
@@ -180,6 +180,7 @@ namespace dMobile.Controller
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
+            // TODO: Search
             // TODO: search needs to handle non alphanumeric characters such as '[' which blows chunks
             this.DataViewHdrs.RowFilter = "ProductUnitBarCodeCode LIKE \'%" + searchText.Trim() + "%\'";
 
@@ -197,6 +198,7 @@ namespace dMobile.Controller
                 
         public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity)
         {
+            // TODO: Design Grid
             throw new NotImplementedException();
         }
 

@@ -50,7 +50,7 @@
 
                             <!--Row 2-->
                             <Label x:Name="lblSerialNo" Grid.Row="2" Grid.Column="0" VerticalOptions="CenterAndExpand"/>
-                            <customcontrols:CustomPicker x:Name="cboSerialNo" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" VerticalOptions="CenterAndExpand" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                            <Entry x:Name="cboSerialNo" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" VerticalOptions="CenterAndExpand" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
 
                             <!--Row 3-->
                             <Label x:Name="lblProductionDate" Grid.Row="3" Grid.Column="0" VerticalOptions="CenterAndExpand"/>

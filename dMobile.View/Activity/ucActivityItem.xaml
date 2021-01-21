@@ -12,12 +12,15 @@
         <AbsoluteLayout VerticalOptions="Center">
             <Grid Padding="10" AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0,0,1,1">
                 <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
                     <RowDefinition Height="65*"/>
                     <RowDefinition Height="20*"/>
                     <RowDefinition Height="15*"/>
                 </Grid.RowDefinitions>
 
-                <Frame VerticalOptions="Start" OutlineColor="{DynamicResource BorderColor}" Grid.Row="0">
+                <Label x:Name="lblSkidNumber" Grid.Row="0"/>
+
+                <Frame VerticalOptions="Start" OutlineColor="{DynamicResource BorderColor}" Grid.Row="1">
                     <ScrollView Orientation="Horizontal">
                         <Grid x:Name="dataGridMainActivityHeader">
                             <Grid.RowDefinitions>
@@ -29,7 +32,7 @@
                     </ScrollView>
                 </Frame>
 
-                <Frame VerticalOptions="Start" Grid.Row="1" OutlineColor="{DynamicResource BorderColor}">
+                <Frame VerticalOptions="Start" Grid.Row="2" OutlineColor="{DynamicResource BorderColor}">
                     <ListView x:Name="lstDisplay" SelectionMode="None" HasUnevenRows="True" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" SeparatorVisibility="None">
                         <ListView.ItemTemplate>
                             <DataTemplate>
@@ -43,7 +46,7 @@
                     </ListView>
                 </Frame>
 
-                <Grid x:Name="gridControls" Grid.Row="2">
+                <Grid x:Name="gridControls" Grid.Row="3">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="70*"/>
                         <ColumnDefinition Width="30*"/>

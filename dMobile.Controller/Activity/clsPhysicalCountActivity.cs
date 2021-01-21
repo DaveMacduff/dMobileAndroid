@@ -54,6 +54,7 @@ namespace dMobile.Controller
 
         public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity)
         {
+            // TODO: Calculate column widths
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
             Grid gridHeaderPhysicalCount = new Grid
@@ -158,16 +159,16 @@ namespace dMobile.Controller
 
             if (isSubmitBatch)
             {
-                sql.Append("SELECT tActivityCount.ActivityRefno,");
-                sql.Append("tActivityCount.ActivityCountFKRefno,");
-                sql.Append("tActivityCount.ActivityCountStringFKRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseName,");
-                sql.Append("tActivityCount.ActivityCountTypeDescription,");
-                sql.Append("tActivityCount.ActivityCountDescription,");
-                sql.Append("tActivityCount.ActivityCountDateTime,");
-                sql.Append("tActivity.ActivityStatus ");
+                sql.Append("SELECT tActivityCount.ActivityRefno AS ActivityRefno,");
+                sql.Append("tActivityCount.ActivityCountFKRefno AS ActivityCountFKRefno,");
+                sql.Append("tActivityCount.ActivityCountStringFKRefno AS ActivityCountStringFKRefno,");
+                sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
+                sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno AS LocationMapWarehouseFKRefno,");
+                sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationMapWarehouseName,");
+                sql.Append("tActivityCount.ActivityCountTypeDescription AS ActivityCountTypeDescription,");
+                sql.Append("tActivityCount.ActivityCountDescription AS ActivityCountDescription,");
+                sql.Append("tActivityCount.ActivityCountDateTime AS ActivityCountDateTime,");
+                sql.Append("tActivity.ActivityStatus AS ActivityStatus ");
                 sql.Append("FROM tActivityCount ");
                 sql.Append("INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityCount.ActivityRefno ");
                 sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
@@ -218,16 +219,16 @@ namespace dMobile.Controller
             }
             else
             {
-                sql.Append("SELECT tActivityCount.ActivityRefno,");
-                sql.Append("tActivityCount.ActivityCountFKRefno,");
-                sql.Append("tActivityCount.ActivityCountStringFKRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseName,");
-                sql.Append("tActivityCount.ActivityCountTypeDescription,");
-                sql.Append("tActivityCount.ActivityCountDescription,");
-                sql.Append("tActivityCount.ActivityCountDateTime,");
-                sql.Append("tActivity.ActivityStatus ");
+                sql.Append("SELECT tActivityCount.ActivityRefno AS ActivityRefno,");
+                sql.Append("tActivityCount.ActivityCountFKRefno AS ActivityCountFKRefno,");
+                sql.Append("tActivityCount.ActivityCountStringFKRefno AS ActivityCountStringFKRefno,");
+                sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
+                sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno AS LocationMapWarehouseFKRefno,");
+                sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationMapWarehouseName,");
+                sql.Append("tActivityCount.ActivityCountTypeDescription AS ActivityCountTypeDescription,");
+                sql.Append("tActivityCount.ActivityCountDescription AS ActivityCountDescription,");
+                sql.Append("tActivityCount.ActivityCountDateTime AS ActivityCountDateTime,");
+                sql.Append("tActivity.ActivityStatus AS ActivityStatus ");
                 sql.Append("FROM tActivityCount ");
                 sql.Append("INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityCount.ActivityRefno ");
                 sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");

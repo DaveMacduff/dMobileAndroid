@@ -71,7 +71,7 @@
 
                 if (this.SysEnv.SysSettings.IsProductUnitBarCodeModifier1)
                 {
-                    this.updnBarCodeModifier1.Items.Add(" ");
+                    this.updnBarCodeModifier1.Items.Add(string.Empty);
                     string[] modifiers = this.SysEnv.SysSettings.ProductUnitBarCodeModifier1Codes.Split(',');
 
                     foreach (string item in modifiers)
@@ -105,7 +105,7 @@
         /// <summary>
         /// The OnAppearing
         /// </summary>
-        protected override async void OnAppearing()
+        protected override void OnAppearing()
         {
             base.OnAppearing();
 
@@ -133,7 +133,7 @@
 
             try
             {
-                await this.AssignDefaultLocation_GotFocus(this, new EventArgs());
+                this.AssignDefaultLocation_GotFocus(this, new EventArgs());
             }
             catch (Exception ex)
             {
@@ -1009,7 +1009,7 @@
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        private async Task AssignDefaultLocation_GotFocus(object sender, EventArgs e)
+        private void AssignDefaultLocation_GotFocus(object sender, EventArgs e)
         {
             if (!SysEnvironment.GetInstance().IsApplicationExitInvoked)
             {

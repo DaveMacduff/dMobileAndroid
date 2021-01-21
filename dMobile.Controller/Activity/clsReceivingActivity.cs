@@ -239,25 +239,25 @@ namespace dMobile.Controller
 
             if (isSubmitBatch)
             {
-                sql.Append("SELECT tActivityReceiving.ActivityRefno,");
-                sql.Append("tActivityReceiving.ActivityReceivingFKRefno,");
-                sql.Append("tActivityReceiving.ActivityReceivingStringFKRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseName,");
-                sql.Append("tActivityReceiving.ActivityReceivingPONumber,");
-                sql.Append("tActivityReceiving.ActivityReceivingIssuedDateTime,");
-                sql.Append("tActivityReceiving.ActivityReceivingArrivalDateTime,");
-                sql.Append("tActivityReceiving.ActivityReceivingVendorContactName,");
-                sql.Append("tActivityReceiving.ActivityReceivingVendorSupplierContactName,");
-                sql.Append("tActivityReceiving.ActivityReceivingVendorSupplierGTINCompanyPrefix,");
-                sql.Append("tActivity.ActivityStatus ");
+                sql.Append("SELECT tActivityReceiving.ActivityRefno AS ActivityRefno,");
+                sql.Append("tActivityReceiving.ActivityReceivingFKRefno AS ActivityReceivingFKRefno,");
+                sql.Append("tActivityReceiving.ActivityReceivingStringFKRefno AS ActivityReceivingStringFKRefno,");
+                sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
+                sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno AS LocationMapWarehouseFKRefno,");
+                sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationMapWarehouseName,");
+                sql.Append("tActivityReceiving.ActivityReceivingPONumber AS ActivityReceivingPONumber,");
+                sql.Append("tActivityReceiving.ActivityReceivingIssuedDateTime AS ActivityReceivingIssuedDateTime,");
+                sql.Append("tActivityReceiving.ActivityReceivingArrivalDateTime AS ActivityReceivingArrivalDateTime,");
+                sql.Append("tActivityReceiving.ActivityReceivingVendorContactName AS ActivityReceivingVendorContactName,");
+                sql.Append("tActivityReceiving.ActivityReceivingVendorSupplierContactName AS ActivityReceivingVendorSupplierContactName,");
+                sql.Append("tActivityReceiving.ActivityReceivingVendorSupplierGTINCompanyPrefix AS ActivityReceivingVendorSupplierGTINCompanyPrefix,");
+                sql.Append("tActivity.ActivityStatus AS ActivityStatus ");
                 sql.Append("FROM tActivityReceiving ");
                 sql.Append("INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityReceiving.ActivityRefno ");
                 sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
                 sql.Append("= tActivityReceiving.WarehouseLocationMapRefno ");
-                sql.AppendFormat("WHERE tActivity.ActivityStatus <> {0} ", (int)SysCommon.ActStatus.NoChange);
-                sql.AppendFormat("AND tActivity.ActivitySubType = {0} ", (int)SysCommon.ActSubTypes.Receiving);
+                sql.AppendFormat("WHERE tActivity.ActivityStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
+                sql.AppendFormat("AND tActivity.ActivitySubType = {0} ", Convert.ToInt32(SysCommon.ActSubTypes.Receiving));
                 sql.Append("UNION ");
                 sql.Append("SELECT tActivityReceiving.ActivityRefno,");
                 sql.Append("tActivityReceiving.ActivityReceivingFKRefno,");
@@ -277,10 +277,10 @@ namespace dMobile.Controller
                 sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
                 sql.Append("= tActivityReceiving.WarehouseLocationMapRefno ");
                 sql.Append("INNER JOIN tActivityItem ON tActivityItem.ActivityRefno = tActivity.ActivityRefno ");
-                sql.AppendFormat("WHERE tActivity.ActivityStatus = {0} ", (int)SysCommon.ActStatus.NoChange);
-                sql.AppendFormat("AND tActivity.ActivitySubType = {0} ", (int)SysCommon.ActSubTypes.Receiving);
-                sql.AppendFormat("AND tActivityItem.ActivityItemSubType = {0} ", (int)SysCommon.ActSubTypes.Receiving);
-                sql.AppendFormat("AND tActivityItem.ActivityItemStatus <> {0} ", (int)SysCommon.ActStatus.NoChange);
+                sql.AppendFormat("WHERE tActivity.ActivityStatus = {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
+                sql.AppendFormat("AND tActivity.ActivitySubType = {0} ", Convert.ToInt32(SysCommon.ActSubTypes.Receiving));
+                sql.AppendFormat("AND tActivityItem.ActivityItemSubType = {0} ", Convert.ToInt32(SysCommon.ActSubTypes.Receiving));
+                sql.AppendFormat("AND tActivityItem.ActivityItemStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append("UNION ");
                 sql.Append("SELECT tActivityReceiving.ActivityRefno,");
                 sql.Append("tActivityReceiving.ActivityReceivingFKRefno,");
@@ -302,34 +302,34 @@ namespace dMobile.Controller
                 sql.Append("= tActivityReceiving.WarehouseLocationMapRefno ");
                 sql.Append("INNER JOIN tActivityDetail ");
                 sql.Append("ON tActivityDetail.ActivityItemRefno = tActivityItem.ActivityItemRefno ");
-                sql.AppendFormat("WHERE tActivity.ActivityStatus = {0} ", (int)SysCommon.ActStatus.NoChange);
-                sql.AppendFormat("AND tActivityItem.ActivityItemStatus = {0} ", (int)SysCommon.ActStatus.NoChange);
-                sql.AppendFormat("AND tActivityDetail.ActivityDetailStatus <> {0} ", (int)SysCommon.ActStatus.NoChange);
-                sql.AppendFormat("AND tActivityItem.ActivityItemSubType = {0} ", (int)SysCommon.ActSubTypes.Receiving);
-                sql.AppendFormat("AND tActivityDetail.ActivityDetailSubType = {0} ", (int)SysCommon.ActSubTypes.Receiving);
-                sql.AppendFormat("AND tActivity.ActivitySubType = {0}", (int)SysCommon.ActSubTypes.Receiving);
+                sql.AppendFormat("WHERE tActivity.ActivityStatus = {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
+                sql.AppendFormat("AND tActivityItem.ActivityItemStatus = {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
+                sql.AppendFormat("AND tActivityDetail.ActivityDetailStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
+                sql.AppendFormat("AND tActivityItem.ActivityItemSubType = {0} ", Convert.ToInt32(SysCommon.ActSubTypes.Receiving));
+                sql.AppendFormat("AND tActivityDetail.ActivityDetailSubType = {0} ", Convert.ToInt32(SysCommon.ActSubTypes.Receiving));
+                sql.AppendFormat("AND tActivity.ActivitySubType = {0}", Convert.ToInt32(SysCommon.ActSubTypes.Receiving));
             }
             else
             {
-                sql.Append("SELECT tActivityReceiving.ActivityRefno,");
-                sql.Append("tActivityReceiving.ActivityReceivingFKRefno,");
-                sql.Append("tActivityReceiving.ActivityReceivingStringFKRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseName,");
-                sql.Append("tActivityReceiving.ActivityReceivingPONumber,");
-                sql.Append("tActivityReceiving.ActivityReceivingIssuedDateTime,");
-                sql.Append("tActivityReceiving.ActivityReceivingArrivalDateTime,");
-                sql.Append("tActivityReceiving.ActivityReceivingVendorContactName,");
-                sql.Append("tActivityReceiving.ActivityReceivingVendorSupplierContactName,");
-                sql.Append("tActivityReceiving.ActivityReceivingVendorSupplierGTINCompanyPrefix,");
-                sql.Append("tActivity.ActivityStatus ");
+                sql.Append("SELECT tActivityReceiving.ActivityRefno AS ActivityRefno,");
+                sql.Append("tActivityReceiving.ActivityReceivingFKRefno AS ActivityReceivingFKRefno,");
+                sql.Append("tActivityReceiving.ActivityReceivingStringFKRefno AS ActivityReceivingStringFKRefno,");
+                sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
+                sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno AS LocationMapWarehouseFKRefno,");
+                sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationMapWarehouseName,");
+                sql.Append("tActivityReceiving.ActivityReceivingPONumber AS ActivityReceivingPONumber,");
+                sql.Append("tActivityReceiving.ActivityReceivingIssuedDateTime AS ActivityReceivingIssuedDateTime,");
+                sql.Append("tActivityReceiving.ActivityReceivingArrivalDateTime AS ActivityReceivingArrivalDateTime,");
+                sql.Append("tActivityReceiving.ActivityReceivingVendorContactName AS ActivityReceivingVendorContactName,");
+                sql.Append("tActivityReceiving.ActivityReceivingVendorSupplierContactName AS ActivityReceivingVendorSupplierContactName,");
+                sql.Append("tActivityReceiving.ActivityReceivingVendorSupplierGTINCompanyPrefix AS ActivityReceivingVendorSupplierGTINCompanyPrefix,");
+                sql.Append("tActivity.ActivityStatus AS ActivityStatus ");
                 sql.Append("FROM tActivityReceiving ");
                 sql.Append("INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityReceiving.ActivityRefno ");
                 sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
                 sql.Append("= tActivityReceiving.WarehouseLocationMapRefno ");
                 sql.AppendFormat("WHERE tActivityReceiving.WarehouseLocationMapRefno = {0} ", locMap.LoginWhsLocMapRefno);
-                sql.AppendFormat("AND tActivity.ActivitySubType = {0}", (int)SysCommon.ActSubTypes.Receiving);
+                sql.AppendFormat("AND tActivity.ActivitySubType = {0}", Convert.ToInt32(SysCommon.ActSubTypes.Receiving));
             }
 
             using (SQLiteDataAdapter da = new SQLiteDataAdapter(sql.ToString(), DatabaseConnection.GetInstance().SQLConn))

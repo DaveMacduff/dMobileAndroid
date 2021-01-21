@@ -46,6 +46,9 @@ namespace dMobile.View.Activity
         private ReqCancelEnableHandler reqCancelEnableEvent;
         private ReqCancelDisableHandler reqCancelDisableEvent;
         private ObservableCollection<string> itemsList = new ObservableCollection<string>();
+        private List<string> optionsMenuItems = new List<string>();
+        private string saveText;
+        private string cancelText;
 
         #endregion
 
@@ -63,6 +66,8 @@ namespace dMobile.View.Activity
             this.cmdSelectToProduct.Text = "Select To Product";
             this.cmdSelectFromProduct.Text = "Select From Product";
             this.cmdDetail.Text = "Detail";
+            this.saveText = "Save";
+            this.cancelText = "Cancel";
 
             if (!DesignMode.IsDesignModeEnabled)
             {
@@ -86,7 +91,19 @@ namespace dMobile.View.Activity
                 this.ActDetail.GetDataView(false);
 
                 this.Title = this.GetControlDescription();
+                this.PopulateOptionsMenu();
             }
+        }
+
+        /// <summary>
+        /// Populates a string array to be used in DisplayActionSheet
+        /// </summary>
+        private void PopulateOptionsMenu()
+        {
+            this.OptionsMenuItems.Clear();
+
+            this.OptionsMenuItems.Add(this.saveText);
+            this.OptionsMenuItems.Add(this.cancelText);
         }
 
         /// <summary>
@@ -98,7 +115,7 @@ namespace dMobile.View.Activity
 
             if (this.SysEnv.SysSettings.IsProductUnitBarCodeModifier1)
             {
-                this.updnBarCodeModifier1.Items.Add(" ");
+                this.updnBarCodeModifier1.Items.Add(string.Empty);
                 string[] modifiers = this.SysEnv.SysSettings.ProductUnitBarCodeModifier1Codes.Split(',');
                 
                 foreach (string item in modifiers)
@@ -554,6 +571,7 @@ namespace dMobile.View.Activity
         }
 
         public ObservableCollection<string> ItemsList { get => itemsList; set => itemsList = value; }
+        public List<string> OptionsMenuItems { get => optionsMenuItems; set => optionsMenuItems = value; }
 
         //private UserControl CallingControl
         //{
@@ -1627,6 +1645,32 @@ namespace dMobile.View.Activity
         private void updnBarCodeModifier1_SelectedIndexChanged(object sender, EventArgs e)
         {
             this.IdentifyChangesMade(sender, e);
+        }
+
+        private async void optionsMenu_Clicked(object sender, EventArgs e)
+        {
+            if (this.Loading)
+            {
+                return;
+            }
+
+            // TODO: Resource strings
+            string result = await DisplayActionSheet("Convert Product Options", "Close", null, this.OptionsMenuItems.ToArray());
+
+            if (result == this.saveText)
+            {
+                if (await this.SaveChanges())
+                {
+                    this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                    await this.Close();
+                }
+            }
+            else if (result == this.cancelText)
+            {
+                await this.CancelChanges();
+                this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                await this.Close();
+            }
         }
     }
 }

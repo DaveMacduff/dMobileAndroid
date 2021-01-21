@@ -84,7 +84,7 @@ namespace dMobile.View.Activity
             
             if (this.SysEnv.SysSettings.IsProductUnitBarCodeModifier1)
             {
-                this.updnBarCodeModifier1.Items.Add(" ");
+                this.updnBarCodeModifier1.Items.Add(string.Empty);
                 string[] modifiers = this.SysEnv.SysSettings.ProductUnitBarCodeModifier1Codes.Split(',');
             
                 foreach (string item in modifiers)

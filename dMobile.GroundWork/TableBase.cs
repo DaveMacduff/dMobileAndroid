@@ -661,7 +661,7 @@ namespace dMobile.GroundWork
                     {
                         if (drLocMapSlot.Read())
                         {
-                            locMapRefno = Convert.ToInt32(drLocMapSlot.GetValue((int)SysCommon.LocMapSlotFields.LocMapRefno));
+                            locMapRefno = Convert.ToInt32(drLocMapSlot.GetValue(Convert.ToInt32(SysCommon.LocMapSlotFields.LocMapRefno)));
                         }
                     }
                 }
@@ -679,7 +679,7 @@ namespace dMobile.GroundWork
                     {
                         if (drLocMapSection.Read())
                         {
-                            locMapRefno = Convert.ToInt32(drLocMapSection.GetValue((int)SysCommon.LocMapSectFields.LocMapRefno));
+                            locMapRefno = Convert.ToInt32(drLocMapSection.GetValue(Convert.ToInt32(SysCommon.LocMapSectFields.LocMapRefno)));
                         }
                     }
                 }
@@ -697,7 +697,7 @@ namespace dMobile.GroundWork
                     {
                         if (drLocMapWhs.Read())
                         {
-                            locMapRefno = Convert.ToInt32(drLocMapWhs.GetValue((int)SysCommon.LocMapWhsFields.LocMapRefno));
+                            locMapRefno = Convert.ToInt32(drLocMapWhs.GetValue(Convert.ToInt32(SysCommon.LocMapWhsFields.LocMapRefno)));
                         }
                     }
                 }
@@ -984,7 +984,7 @@ namespace dMobile.GroundWork
                 {
                     if (drProduct.Read())
                     {
-                        prodRefno = drProduct.GetInt32((int)SysCommon.ProductFields.Refno);
+                        prodRefno = drProduct.GetInt32(Convert.ToInt32(SysCommon.ProductFields.Refno));
                     }
                     else
                     {
@@ -1001,7 +1001,7 @@ namespace dMobile.GroundWork
                 {
                     if (drUnit.Read())
                     {
-                        unitRefno = drUnit.GetInt32((int)SysCommon.UnitFields.UnitRefno);
+                        unitRefno = drUnit.GetInt32(Convert.ToInt32(SysCommon.UnitFields.UnitRefno));
                     }
                     else
                     {
@@ -1020,7 +1020,7 @@ namespace dMobile.GroundWork
                 {
                     if (drProductUnit.Read())
                     {
-                        prodUnitRefno = drProductUnit.GetInt32((int)SysCommon.ProdUnitFields.Refno);
+                        prodUnitRefno = drProductUnit.GetInt32(Convert.ToInt32(SysCommon.ProdUnitFields.Refno));
                     }
                     else
                     {

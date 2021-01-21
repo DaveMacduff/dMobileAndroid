@@ -171,7 +171,7 @@ namespace dMobile.Controller
 
             if (!isAdd)
             {
-                this.FKRefno = (int)this.DataViewDetails[idx]["ActivityDetailFKRefno"];
+                this.FKRefno = Convert.ToInt32(this.DataViewDetails[idx]["ActivityDetailFKRefno"]);
                 ////this.LocMap.CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(
                 ////    (int)this.DataViewDetails[idx]["LocationMapRefno"]);
             }
@@ -242,8 +242,8 @@ namespace dMobile.Controller
             {
                 using (SQLiteCommand cmndProdSchemeVar = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
                 {
-                    cmndProdSchemeVar.CommandText = "tProductSchemeVariant";
-                    cmndProdSchemeVar.CommandType = CommandType.TableDirect;
+                    cmndProdSchemeVar.CommandText = "SELECT * FROM tProductSchemeVariant WHERE ProductSchemeVariantNo = @productSchemeVariantNo";
+                    cmndProdSchemeVar.CommandType = CommandType.Text;
                     //cmndProdSchemeVar.IndexName = "UQ_ProductSchemeVariantOnProductSchemeVariantNo";
 
                     using (SQLiteDataReader drProdSchemeVar = cmndProdSchemeVar.ExecuteReader())
@@ -258,33 +258,30 @@ namespace dMobile.Controller
                             this.ActItem.Refno = Convert.ToInt32(drow["ActivityItemFKRefno"]);
                             this.FKRefno = Convert.ToInt32(drow["ActivityDetailFKRefno"]);
                             this.Refno = Convert.ToInt32(drow["ActivityDetailFKRefno"]);
-                            this.SchemeID = (string)drow["ActivityDetailSchemeID"];
-                            this.UniqueSchemeID = (string)drow["ActivityDetailUniqueSchemeID"];
+                            this.SchemeID = Convert.ToString(drow["ActivityDetailSchemeID"]);
+                            this.UniqueSchemeID = Convert.ToString(drow["ActivityDetailUniqueSchemeID"]);
                             this.Quantity = Convert.ToDecimal(drow["ActivityDetailQuantity"]);
                             this.BaseQuantity = Convert.ToDecimal(drow["ActivityDetailBaseQuantity"]);
                             this.WeightQuantity = Convert.ToDecimal(drow["ActivityDetailWeightQuantity"]);
 
                             SProductSchemeData tempSchemeData = this.SchemeData;
-                            tempSchemeData.LogisticUnitBatchLotNumber = (string)drow["ActivityDetailLogisticUnitBatchLotNumber"];
-                            tempSchemeData.SingleTradeItemSerialNumber = (string)drow["ActivityDetailSingleTradeItemSerialNumber"];
+                            tempSchemeData.LogisticUnitBatchLotNumber = Convert.ToString(drow["ActivityDetailLogisticUnitBatchLotNumber"]);
+                            tempSchemeData.SingleTradeItemSerialNumber = Convert.ToString(drow["ActivityDetailSingleTradeItemSerialNumber"]);
                             tempSchemeData.LogisticUnitSkidNumber = ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno.ToString();
                             tempSchemeData.VariantNumber = Convert.ToInt32(drow["ProductSchemeVariantNo"]);
+                            cmndProdSchemeVar.Parameters.Add(new SQLiteParameter("@productSchemeVariantNo", tempSchemeData.VariantNumber));
 
                             //if (drProdSchemeVar.Seek(DbSeekOptions.FirstEqual, new object[] { tempSchemeData.VariantNumber }))
                             //{
-                            //    if (drProdSchemeVar.Read())
-                            //    {
-                            //        tempSchemeData.VariantCode = drProdSchemeVar.GetString((int)SysCommon.ProdSchemeVariantFields.Code);
-                            //        tempSchemeData.VariantDescription = drProdSchemeVar.GetString(
-                            //            (int)SysCommon.ProdSchemeVariantFields.Description);
-                            //    }
-                            //    else
-                            //    {
-                            //        throw new Exception(
-                            //            string.Format(
-                            //            "Unable to locate the product scheme variant no {0} in tProductSchemeVariant",
-                            //            tempSchemeData.VariantNumber));
-                            //    }
+                            if (drProdSchemeVar.Read())
+                            {
+                                tempSchemeData.VariantCode = drProdSchemeVar.GetString(Convert.ToInt32(SysCommon.ProdSchemeVariantFields.Code));
+                                tempSchemeData.VariantDescription = drProdSchemeVar.GetString(Convert.ToInt32(SysCommon.ProdSchemeVariantFields.Description));
+                            }
+                            else
+                            {
+                                throw new Exception(string.Format("Unable to locate the product scheme variant no {0} in tProductSchemeVariant", tempSchemeData.VariantNumber));
+                            }
                             //}
 
                             string newDate = "01-01-1900";
@@ -295,8 +292,7 @@ namespace dMobile.Controller
                             }
                             else
                             {
-                                tempSchemeData.LogisticUnitBestBeforeSellByDate
-                                    = Convert.ToDateTime(drow["ActivityDetailLogisticUnitBestBeforeSellByDate"]);
+                                tempSchemeData.LogisticUnitBestBeforeSellByDate = Convert.ToDateTime(drow["ActivityDetailLogisticUnitBestBeforeSellByDate"]);
                             }
 
                             if (string.IsNullOrEmpty(drow["ActivityDetailLogisticUnitExpiryUseByDate"].ToString()))
@@ -305,8 +301,7 @@ namespace dMobile.Controller
                             }
                             else
                             {
-                                tempSchemeData.LogisticUnitExpiryUseByDate
-                                    = Convert.ToDateTime(drow["ActivityDetailLogisticUnitExpiryUseByDate"]);
+                                tempSchemeData.LogisticUnitExpiryUseByDate = Convert.ToDateTime(drow["ActivityDetailLogisticUnitExpiryUseByDate"]);
                             }
 
                             if (string.IsNullOrEmpty(drow["ActivityDetailLogisticUnitProductionDate"].ToString()))
@@ -315,8 +310,7 @@ namespace dMobile.Controller
                             }
                             else
                             {
-                                tempSchemeData.LogisticUnitProductionDate
-                                    = Convert.ToDateTime(drow["ActivityDetailLogisticUnitProductionDate"]);
+                                tempSchemeData.LogisticUnitProductionDate = Convert.ToDateTime(drow["ActivityDetailLogisticUnitProductionDate"]);
                             }
 
                             if (string.IsNullOrEmpty(drow["ActivityDetailLogisticUnitDueDate"].ToString()))
@@ -334,8 +328,7 @@ namespace dMobile.Controller
                             }
                             else
                             {
-                                tempSchemeData.LogisticUnitPackagingDate
-                                    = Convert.ToDateTime(drow["ActivityDetailLogisticUnitPackagingDate"]);
+                                tempSchemeData.LogisticUnitPackagingDate = Convert.ToDateTime(drow["ActivityDetailLogisticUnitPackagingDate"]);
                             }
 
                             this.SchemeData = tempSchemeData;
@@ -355,7 +348,7 @@ namespace dMobile.Controller
         /// <returns></returns>
         public override int GetRefno(int idx)
         {
-            return (int)this.DataViewDetails[idx]["ActivityDetailRefno"];
+            return Convert.ToInt32(this.DataViewDetails[idx]["ActivityDetailRefno"]);
         }
 
         /// <summary>
@@ -365,7 +358,7 @@ namespace dMobile.Controller
         /// <returns></returns>
         public override int GetFKRefno(int idx)
         {
-            return (int)this.DataViewDetails[idx]["ActivityDetailFKRefno"];
+            return Convert.ToInt32(this.DataViewDetails[idx]["ActivityDetailFKRefno"]);
         }
 
         /// <summary>
@@ -607,8 +600,8 @@ namespace dMobile.Controller
                 DataRowView drow = this.DataViewDetails[idx];
                 this.FKRefno = Convert.ToInt32(drow["ActivityDetailFKRefno"]);
                 this.Refno = Convert.ToInt32(drow["ActivityDetailRefno"]);
-                this.SchemeID = (string)drow["ActivityDetailSchemeID"];
-                this.UniqueSchemeID = (string)drow["ActivityDetailUniqueSchemeID"];
+                this.SchemeID = Convert.ToString(drow["ActivityDetailSchemeID"]);
+                this.UniqueSchemeID = Convert.ToString(drow["ActivityDetailUniqueSchemeID"]);
                 this.Quantity = Convert.ToDecimal(drow["ActivityDetailQuantity"]);
                 this.BaseQuantity = Convert.ToDecimal(drow["ActivityDetailBaseQuantity"]);
                 this.WeightQuantity = Convert.ToDecimal(drow["ActivityDetailWeightQuantity"]);

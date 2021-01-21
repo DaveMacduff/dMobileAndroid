@@ -176,9 +176,9 @@
                         + "WHERE tActivityDetail.ActivityDetailSubType = " + (int)SysCommon.ActSubTypes.TransferTo + ")";
                     cmndPurge.ExecuteNonQuery();
 
-                    cmndPurge.CommandText = (string)("DELETE FROM tActivityDetail" +
+                    cmndPurge.CommandText = "DELETE FROM tActivityDetail" +
                         " WHERE tActivityDetail.ActivityDetailSubType = " +
-                        Convert.ToInt32(SysCommon.ActSubTypes.TransferTo));
+                        Convert.ToInt32(SysCommon.ActSubTypes.TransferTo);
                     cmndPurge.ExecuteNonQuery();
                 }
 

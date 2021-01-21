@@ -1,4 +1,3 @@
-// TODO: Check for Symbol SDK for android
 //namespace dMobile.BarCodeScanner
 //{
 //  using System;

@@ -19,6 +19,8 @@ using dMobile.View.Forms;
 using System.Data.SQLite;
 using System.Runtime.CompilerServices;
 using System.Collections.ObjectModel;
+using dMobile.Resources.Types;
+using dMobile.View.Views;
 
 namespace dMobile.View.Activity
 {
@@ -80,7 +82,7 @@ namespace dMobile.View.Activity
 
                 if (this.SysEnv.SysSettings.IsProductUnitBarCodeModifier1)
                 {
-                    this.updnBarCodeModifier1.Items.Add(" ");
+                    this.updnBarCodeModifier1.Items.Add(string.Empty);
                     string[] modifiers = this.SysEnv.SysSettings.ProductUnitBarCodeModifier1Codes.Split(',');
 
                     foreach (string item in modifiers)
@@ -118,9 +120,18 @@ namespace dMobile.View.Activity
 
         private void DesignObservableCollection()
         {
-            this.ActDetail.GetDataView(false);
+            if (this.ActDetail.DataViewDetails == null)
+            {
+                this.ActDetail.GetDataView(false);
+            }
+
             this.DataGridMainActivityItemsList = this.ActDetail.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dgUnitWeight);
             this.dgUnitWeight.ItemsSource = this.DataGridMainActivityItemsList;
+
+            if (this.DataGridMainActivityItemsList.Count > 0)
+            {
+                this.dgUnitWeight.SelectedItem = this.DataGridMainActivityItemsList[0];
+            }
         }
 
         #endregion
@@ -130,7 +141,7 @@ namespace dMobile.View.Activity
         /// <summary>
         /// The OnAppearing
         /// </summary>
-        protected override void OnAppearing()
+        protected override async void OnAppearing()
         {
             base.OnAppearing();
 
@@ -144,6 +155,22 @@ namespace dMobile.View.Activity
                     if (await this.SaveChanges())
                     {
                         this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                        await this.Close();
+                    }
+                }
+                else if (keycode == Keycode.F2)
+                {
+                    if (this.dgUnitWeight.SelectedItem is ConvertUnitDetail convertUnitDetail)
+                    {
+                        ucActivityConvertUnitWeightEdit activityConvertUnitWeightEdit = new ucActivityConvertUnitWeightEdit(convertUnitDetail);
+
+                        if (await activityConvertUnitWeightEdit.ShowDialog() == DialogResult.OK && activityConvertUnitWeightEdit.WeightHasChanged)
+                        {
+                            int index = this.DataGridMainActivityItemsList.IndexOf(this.dgUnitWeight.SelectedItem);
+                            this.ActDetail.DataViewDetails[index]["ActivityDetailWeightQuantity"] = activityConvertUnitWeightEdit.EditedWeight;
+                            this.DisplayData();
+                            this.DesignObservableCollection();
+                        }
                     }
                 }
                 else if (keycode == Keycode.Escape)
@@ -159,7 +186,7 @@ namespace dMobile.View.Activity
             catch (Exception ex)
             {
                 // TODO: Resource strings
-                DisplayAlert("Error", "this.ucActivityConvertUnit_GotFocus threw an error " + ex, "OK");
+                await DisplayAlert("Error", "this.ucActivityConvertUnit_GotFocus threw an error " + ex, "OK");
             }
         }
 
@@ -648,7 +675,7 @@ namespace dMobile.View.Activity
             catch (Exception ex)
             {
                 isReadyToClose = false;
-                
+
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errorReport = new FormErrorReport(this.ActSubType, ex);
@@ -696,16 +723,16 @@ namespace dMobile.View.Activity
                     if (this.FromProdUnitRefno != 0 && this.ActItem.DataViewItems.Count != 0 && this.ActDetail.DataViewDetails.Count != 0)
                     {
                         string dataReq = SysCommon.SubmitComm(this.MakeConvertUnitSubmitString());
-                        
+
                         if (dataReq.Length > 0)
                         {
                             XmlDocument xmlDoc = new XmlDocument();
                             xmlDoc.LoadXml(dataReq);
-                        
+
                             if (dataReq.Contains("<message>ERROR</message>"))
                             {
                                 string errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
-                                
+
                                 if (errorDetail.Contains("MSGBOX-"))
                                 {
                                     throw new Exceptions.MessageOnlyException(errorDetail);
@@ -722,15 +749,15 @@ namespace dMobile.View.Activity
                                     //if (MessageBox.Show("Unit conversion complete." + Environment.NewLine + "Do you wish to print product labels?", "Unit Conversion", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
                                     if (await DisplayAlert("Unit Conversion", "Unit conversion complete." + Environment.NewLine + "Do you wish to print product labels?", "Yes", "No"))
                                     {
-                                        for (int idx = 0; idx <= ActDetail.DataViewDetails.Count - 1; idx++)
+                                        for (int idx = 0; idx < ActDetail.DataViewDetails.Count; idx++)
                                         {
                                             dataReq = SysCommon.SubmitComm(this.MakeProductLabelsSubmitString(idx));
-                                            
+
                                             if (dataReq.Contains("<message>ERROR</message>"))
                                             {
                                                 xmlDoc.LoadXml(dataReq);
                                                 string errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
-                                                
+
                                                 if (errorDetail.Contains("MSGBOX-"))
                                                 {
                                                     throw new Exceptions.MessageOnlyException(errorDetail);
@@ -768,23 +795,23 @@ namespace dMobile.View.Activity
                         if (!LocationMapTasks.IsCompleteLocMapRefno(this.LocMap.CurrLocMapRefno))
                         {
                             //MessageBox.Show("Location must be set.", "Convert Unit(s)", MessageBoxButtons.OK, MessageBoxIcon.Hand, MessageBoxDefaultButton.Button1);
-                            
+
                             // TODO: Resource strings
-                            await DisplayAlert( "Convert Unit(s)", "Location must be set.", "OK");
+                            await DisplayAlert("Convert Unit(s)", "Location must be set.", "OK");
                         }
                         else if (this.ActItem.DataViewItems.Count == 0)
                         {
                             //MessageBox.Show("Convert from unit must be set.", "Convert Unit(s)", MessageBoxButtons.OK, MessageBoxIcon.Hand,MessageBoxDefaultButton.Button1);
-                             
+
                             // TODO: Resource strings
-                            await DisplayAlert( "Convert Unit(s)", "Convert from unit must be set.", "OK");
+                            await DisplayAlert("Convert Unit(s)", "Convert from unit must be set.", "OK");
                         }
                         else if (this.ActDetail.DataViewDetails.Count == 0)
                         {
                             //MessageBox.Show("Convert to unit(s) must be set.", "Convert Unit(s)", MessageBoxButtons.OK, MessageBoxIcon.Hand, MessageBoxDefaultButton.Button1);
 
-                             // TODO: Resource strings
-                            await DisplayAlert( "Convert Unit(s)", "Convert to unit(s) must be set.", "OK");
+                            // TODO: Resource strings
+                            await DisplayAlert("Convert Unit(s)", "Convert to unit(s) must be set.", "OK");
                         }
                     }
                 }
@@ -797,7 +824,7 @@ namespace dMobile.View.Activity
             catch (Exception ex)
             {
                 saveComplete = false;
-   
+
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errorReport = new FormErrorReport(this.ActSubType, ex);
@@ -1159,7 +1186,7 @@ namespace dMobile.View.Activity
             {
                 decimal qty = 0;
                 decimal wtQty = 0;
-                
+
                 for (int item = 0; item <= this.ActDetail.DataViewDetails.Count - 1; item++)
                 {
                     qty += Convert.ToDecimal(this.ActDetail.DataViewDetails[item]["ActivityDetailQuantity"]);
@@ -1208,12 +1235,12 @@ namespace dMobile.View.Activity
                 {
                 }
 
-                // TODO: Fix
+                // TODO: Fix (Cell editing)
                 //if (sender == this.txtGridEdit)
                 //{
                 //    DataGridCell cell = dgUnitWeight.CurrentCell;
                 //    this.dgUnitWeight[cell.RowNumber, cell.ColumnNumber] = this.txtGridEdit.Text;
-                    
+
                 //    if (this.ActItem.ProdInfo.BaseUnitCode == "LB" || this.ActItem.ProdInfo.BaseUnitCode == "KG")
                 //    {
                 //        this.ActDetail.DataViewDetails[cell.RowNumber]["ActivityDetailBaseQuantity"] = (decimal)this.dgUnitWeight[cell.RowNumber, cell.ColumnNumber];
@@ -1264,6 +1291,8 @@ namespace dMobile.View.Activity
                 this.lblFullUnitInfo.Text = "Qty 0 UOM @ KG/LB";
                 this.lblConvertedUnitInfo.Text = "Qty 0 UOM @ KG/LB";
             });
+
+            this.DesignObservableCollection();
         }
 
         /// <summary>
@@ -1462,7 +1491,7 @@ namespace dMobile.View.Activity
                     await frmSelectProduct.SaveChanges(sender, e);
                     XDocument xmlDocProduct = frmSelectProduct.DisplayControlData;
                     this.FromProdUnitRefno = int.Parse(xmlDocProduct.Root.Element("ProductUnitRefno").Value);
-                    
+
                     if (this.FromProdUnitRefno != 0)
                     {
                         this.ActItem.ProdInfo = ProductInfoTasks.GetInfoFromUnitRefno(this.FromProdUnitRefno);
@@ -1489,7 +1518,6 @@ namespace dMobile.View.Activity
 
                             if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
                             {
-                                await form.SaveChanges(sender, e);
                                 XDocument xmlDoc = form.DisplayControlData;
                                 await this.ActItem.Insert(xmlDoc, false);
 
@@ -1548,7 +1576,7 @@ namespace dMobile.View.Activity
             }
 
             this.ScannerEnable();
-            
+
             this.cmdSelectFromUnit.IsEnabled = true;
         }
 
@@ -1591,7 +1619,6 @@ namespace dMobile.View.Activity
 
                     if (await frmSelectProduct.DisplayControl.ShowDialog() == DialogResult.OK)
                     {
-                        await frmSelectProduct.SaveChanges(sender, e);
                         XDocument xmlDocProduct = frmSelectProduct.DisplayControlData;
 
                         this.ToProdUnitRefno = int.Parse(xmlDocProduct.Root.Element("ProductUnitRefno").Value);
@@ -1633,7 +1660,6 @@ namespace dMobile.View.Activity
 
                                 if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
                                 {
-                                    await form.SaveChanges(sender, e);
                                     XDocument xmlDoc = form.DisplayControlData;
                                     this.cmdSelectToUnit.Text = string.Format("{0} {1}\'S ({2} per {3})",
                                         this.ActItem.ProdInfo.UnitBC,
@@ -1690,8 +1716,11 @@ namespace dMobile.View.Activity
                                     }
                                 }
 
-                                this.DisplayData();
-                                this.DesignObservableCollection();
+                                await Device.InvokeOnMainThreadAsync(() =>
+                                {
+                                    this.DisplayData();
+                                    this.DesignObservableCollection();
+                                });
                             }
                             catch (SQLiteException ex)
                             {
@@ -1751,16 +1780,16 @@ namespace dMobile.View.Activity
 
             string request = this.CreateConvertUnitResultXML(fromProdUnitRefno, toProdUnitRefno, quantity, weightQuantity);
             string dataReq = SysCommon.SubmitComm(request);
-            
+
             if (dataReq.Length > 0)
             {
                 XmlDocument xmlDoc = new XmlDocument();
                 xmlDoc.LoadXml(dataReq);
-            
+
                 if (dataReq.Contains("<message>ERROR</message>"))
                 {
                     string errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
-                
+
                     if (errorDetail.Contains("MSGBOX-"))
                     {
                         throw new Exceptions.MessageOnlyException(errorDetail);
@@ -1900,7 +1929,7 @@ namespace dMobile.View.Activity
             }
         }
 
-        // TODO: Fix double click
+        // TODO: Fix double click (Cell editing)
         ///// <summary>
         /////
         ///// </summary>
@@ -1938,11 +1967,6 @@ namespace dMobile.View.Activity
                 {
                     this.SysEnv.CurrentBarCodeModifier1 = Convert.ToString(this.updnBarCodeModifier1.SelectedItem);
                 }
-
-                // TODO: Grid cell editing
-                //if (sender == this.txtGridEdit)
-                //{
-                //}
             }
         }
 

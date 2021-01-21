@@ -64,7 +64,6 @@ namespace dMobile.BarCodeScanner
         //    }
         //    else
         //    {
-        //        // TODO: Resource strings
         //        throw new NotSupportedException("Unidentified bar code scanner type");
         //    }
 
@@ -77,7 +76,6 @@ namespace dMobile.BarCodeScanner
         /// <returns>Generic barcode scanner object</returns>
         public static BarCodeScanner GetBarCodeScanner()
         {
-            // TODO: Get device type
             BarCodeScanner scanner = null;
             BarCodeScannerFactory scannerFactory = null;
 

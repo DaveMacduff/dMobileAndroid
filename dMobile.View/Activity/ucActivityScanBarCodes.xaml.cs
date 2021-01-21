@@ -79,7 +79,7 @@ namespace dMobile.View.Activity
 
                 if (this.SysEnv.SysSettings.IsProductUnitBarCodeModifier1)
                 {
-                    this.updnBarCodeModifier1.Items.Add(" ");
+                    this.updnBarCodeModifier1.Items.Add(string.Empty);
                     string[] modifiers = this.SysEnv.SysSettings.ProductUnitBarCodeModifier1Codes.Split(',');
 
                     foreach (string item in modifiers)
@@ -933,7 +933,7 @@ namespace dMobile.View.Activity
                                 {
                                     SysShared.BarCodeRuleParseSumwaFarmFedWholeDuckUseWeightRangeToIDProduct(this.Parse);
 
-                                    prodInfo = ProductInfoTasks.GetInfoFromCodeBCUnit(this.Parse.ProductIdentifier, " ", "CS");
+                                    prodInfo = ProductInfoTasks.GetInfoFromCodeBCUnit(this.Parse.ProductIdentifier, string.Empty, "CS");
                                     this.UnitRefno = prodInfo.UnitRefno;
                                 }
                             }
@@ -1098,7 +1098,7 @@ namespace dMobile.View.Activity
                     if (!string.IsNullOrEmpty(scanArgs.ParseInfo.SSCC18))
                     {
                         // TODO: Resource strings
-                        this.AddScanMsg(sender, scanArgs, (string)("SSCC-18: " + scanArgs.ParseInfo.SSCC18));
+                        this.AddScanMsg(sender, scanArgs, "SSCC-18: " + scanArgs.ParseInfo.SSCC18);
 
                         if (!this.SysEnv.SysSettings.IsDisconnectedMode)
                         {
@@ -1149,7 +1149,7 @@ namespace dMobile.View.Activity
                     if (!string.IsNullOrEmpty(scanArgs.ParseInfo.LocationIdentifier))
                     {
                         // TODO: Resource strings
-                        this.AddScanMsg(sender, scanArgs, (string)("Location identifier: " + scanArgs.ParseInfo.LocationIdentifier));
+                        this.AddScanMsg(sender, scanArgs, "Location identifier: " + scanArgs.ParseInfo.LocationIdentifier);
 
                         int locMapRefno = Convert.ToInt32(LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(scanArgs.ParseInfo.LocationIdentifier));
 

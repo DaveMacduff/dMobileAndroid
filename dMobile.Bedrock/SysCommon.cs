@@ -1,6 +1,5 @@
 namespace dMobile.Bedrock
 {
-    using Android.Content;
     using System;
     using System.Collections.Generic;
     using System.Data;
@@ -13,7 +12,6 @@ namespace dMobile.Bedrock
     using System.Text;
     using System.Xml;
     using System.Xml.Schema;
-    using static Android.App.ActivityManager;
 
     public struct SProductSchemeData
     {
@@ -1875,13 +1873,13 @@ namespace dMobile.Bedrock
             sql.Append("SELECT tActivity.ActivityRefno ");
             sql.Append("FROM tActivity ");
             sql.Append("INNER JOIN tActivityItem ON tActivityItem.ActivityRefno = tActivity.ActivityRefno ");
-            sql.AppendFormat("WHERE tActivityItem.ActivityItemStatus <> {0} ", (int)ActStatus.NoChange);
+            sql.AppendFormat("WHERE tActivityItem.ActivityItemStatus <> {0} ", Convert.ToInt32(ActStatus.NoChange));
             sql.Append("UNION ");
             sql.Append("SELECT tActivity.ActivityRefno ");
             sql.Append("FROM tActivity ");
             sql.Append("INNER JOIN tActivityItem ON tActivityItem.ActivityRefno = tActivity.ActivityRefno ");
             sql.Append("INNER JOIN tActivityDetail ON tActivityDetail.ActivityItemRefno = tActivityItem.ActivityItemRefno ");
-            sql.AppendFormat("WHERE tActivityDetail.ActivityDetailStatus <> {0}", (int)ActStatus.NoChange);
+            sql.AppendFormat("WHERE tActivityDetail.ActivityDetailStatus <> {0}", Convert.ToInt32(ActStatus.NoChange));
 
             using (SQLiteCommand cmndDetail = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
             {

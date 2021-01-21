@@ -4,9 +4,10 @@
                      xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
                      xmlns:Helpers="clr-namespace:dMobile.View.Helpers"
                      x:Class="dMobile.View.Activity.ucActivityDetailSkid">
-    <!--<ContentPage.ToolbarItems>
-            <ToolbarItem x:Name="optionsMenu" IconImageSource="{Binding OptionsIconSource}" Clicked="OptionsMenu_Clicked" />
-        </ContentPage.ToolbarItems>-->
+        <ContentPage.ToolbarItems>
+            <!--<ToolbarItem x:Name="optionsMenu" IconImageSource="{Binding OptionsIconSource}" Clicked="OptionsMenu_Clicked" />-->
+            <ToolbarItem x:Name="scannerModeText" Clicked="scannerModeText_Clicked"/>
+        </ContentPage.ToolbarItems>
         <ContentPage.Content>
             <AbsoluteLayout VerticalOptions="Center">
                 <Grid x:Name="gridContainer" Padding="10" AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0,0,1,1">

@@ -186,7 +186,7 @@ namespace dMobile.Controller
                         cmndItem.CommandText = "UPDATE tActivityItemAdjustment "
                             + "SET ActivityItemAdjustmentStringFKRefno = \'" + this.NewItemFKRefno + "\',"
                             + "ActivityItemAdjustmentFKRefno = " + this.NewItemFKRefno
-                            + " WHERE tActivityItemAdjustment.ActivityItemRefno = " + this.ActItem.Refno;
+                            + " WHERE ActivityItemRefno = " + this.ActItem.Refno;
                         cmndItem.ExecuteNonQuery();
                     }
 
@@ -259,16 +259,16 @@ namespace dMobile.Controller
             using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
             {
                 cmndPurge.CommandType = CommandType.Text;
-                cmndPurge.CommandText = "DELETE FROM tActivityDetailProductSchemeVariantXRef WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno = " + this.Refno;
+                cmndPurge.CommandText = "DELETE FROM tActivityDetailProductSchemeVariantXRef WHERE ActivityDetailRefno = " + this.Refno;
                 cmndPurge.ExecuteNonQuery();
 
-                cmndPurge.CommandText = "DELETE FROM tActivityDetailAdjustment WHERE tActivityDetailAdjustment.ActivityDetailRefno = " + this.Refno;
+                cmndPurge.CommandText = "DELETE FROM tActivityDetailAdjustment WHERE ActivityDetailRefno = " + this.Refno;
                 cmndPurge.ExecuteNonQuery();
 
-                cmndPurge.CommandText = "DELETE FROM tActivityDetailExtra WHERE tActivityDetailExtra.ActivityDetailRefno = " + this.Refno;
+                cmndPurge.CommandText = "DELETE FROM tActivityDetailExtra WHERE ActivityDetailRefno = " + this.Refno;
                 cmndPurge.ExecuteNonQuery();
 
-                cmndPurge.CommandText = "DELETE FROM tActivityDetail WHERE tActivityDetail.ActivityDetailRefno = " + this.Refno;
+                cmndPurge.CommandText = "DELETE FROM tActivityDetail WHERE ActivityDetailRefno = " + this.Refno;
                 cmndPurge.ExecuteNonQuery();
             }
         }
@@ -318,8 +318,8 @@ namespace dMobile.Controller
                     {
                         cmndDetail.CommandType = CommandType.Text;
                         cmndDetail.CommandText = "UPDATE tActivityDetail "
-                            + "SET tActivityDetail.ActivityDetailStatus = " + (int)SysCommon.ActStatus.NoChange
-                            + "WHERE tActivityDetail.ActivityDetailRefno = " + this.Refno;
+                            + "SET ActivityDetailStatus = " + Convert.ToInt32(SysCommon.ActStatus.NoChange)
+                            + "WHERE ActivityDetailRefno = " + this.Refno;
                         cmndDetail.ExecuteNonQuery();
                     }
                 }
@@ -454,14 +454,14 @@ namespace dMobile.Controller
                 sql.Append("INNER JOIN tLocationMapSlot ON tLocationMapSlot.LocationMapRefno ");
                 sql.Append("= tActivityDetail.LocationMapRefno ");
                 sql.Append("LEFT JOIN tActivityDetailProductSchemeVariantXRef ON ");
-                sql.Append("tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno ");
+                sql.Append("ActivityDetailRefno ");
                 sql.Append("= tActivityDetailAdjustment.ActivityDetailRefno ");
                 sql.Append("LEFT JOIN tProductSchemeVariant ON tProductSchemeVariant.ProductSchemeVariantRefno ");
                 sql.Append("= tActivityDetailProductSchemeVariantXRef.ProductSchemeVariantRefno ");
                 sql.Append("LEFT JOIN tActivityDetailExtra ON tActivityDetailExtra.ActivityDetailRefno ");
                 sql.Append("= tActivityDetail.ActivityDetailRefno ");
                 sql.AppendFormat("WHERE tActivityDetail.ActivityItemRefno = {0} ", this.ActItem.Refno);
-                sql.AppendFormat("AND tActivityDetail.ActivityDetailStatus <> {0} ", (int)SysCommon.ActStatus.NoChange);
+                sql.AppendFormat("AND tActivityDetail.ActivityDetailStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append("UNION ");
                 sql.Append("SELECT tActivityDetail.ActivityDetailRefno,");
                 sql.Append("tActivityDetail.LocationMapRefno,");
@@ -516,7 +516,7 @@ namespace dMobile.Controller
                 sql.Append("LEFT JOIN tActivityDetailExtra ON tActivityDetailExtra.ActivityDetailRefno ");
                 sql.Append("= tActivityDetail.ActivityDetailRefno ");
                 sql.AppendFormat("WHERE tActivityDetail.ActivityItemRefno = {0} ", this.ActItem.Refno);
-                sql.AppendFormat("AND tActivityDetail.ActivityDetailStatus <> {0} ", (int)SysCommon.ActStatus.NoChange);
+                sql.AppendFormat("AND tActivityDetail.ActivityDetailStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append("UNION ");
                 sql.Append("SELECT tActivityDetail.ActivityDetailRefno,");
                 sql.Append("tActivityDetail.LocationMapRefno,");
@@ -571,7 +571,7 @@ namespace dMobile.Controller
                 sql.Append("LEFT JOIN tActivityDetailExtra ON tActivityDetailExtra.ActivityDetailRefno ");
                 sql.Append("= tActivityDetail.ActivityDetailRefno ");
                 sql.AppendFormat("WHERE tActivityDetail.ActivityItemRefno = {0} ", this.ActItem.Refno);
-                sql.AppendFormat("AND tActivityDetail.ActivityDetailStatus <> {0} ", (int)SysCommon.ActStatus.NoChange);
+                sql.AppendFormat("AND tActivityDetail.ActivityDetailStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append("ORDER BY tActivityDetail.ActivityDetailRefno");
             }
             else

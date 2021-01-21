@@ -83,7 +83,7 @@ namespace dMobile.View.Activity
 
             if (this.SysEnv.SysSettings.IsProductUnitBarCodeModifier1)
             {
-                this.updnBarCodeModifier1.Items.Add(" ");
+                this.updnBarCodeModifier1.Items.Add(string.Empty);
                 string[] modifiers = this.SysEnv.SysSettings.ProductUnitBarCodeModifier1Codes.Split(',');
 
                 foreach (string item in modifiers)
@@ -141,7 +141,7 @@ namespace dMobile.View.Activity
 
             if (this.SysEnv.SysSettings.IsProductUnitBarCodeModifier1)
             {
-                this.updnBarCodeModifier1.Items.Add(" ");
+                this.updnBarCodeModifier1.Items.Add(string.Empty);
                 string[] modifiers = this.SysEnv.SysSettings.ProductUnitBarCodeModifier1Codes.Split(',');
 
                 foreach (string item in modifiers)
@@ -236,7 +236,7 @@ namespace dMobile.View.Activity
 
             if (this.SysEnv.SysSettings.IsProductUnitBarCodeModifier1)
             {
-                this.updnBarCodeModifier1.Items.Add(" ");
+                this.updnBarCodeModifier1.Items.Add(string.Empty);
                 string[] modifiers = this.SysEnv.SysSettings.ProductUnitBarCodeModifier1Codes.Split(',');
 
                 foreach (string item in modifiers)
@@ -330,25 +330,18 @@ namespace dMobile.View.Activity
 
                 if (!this.Loading)
                 {
-                    if (keycode == Keycode.Escape)
-                    {
-                        if (await this.CancelChanges())
-                        {
-                            this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-                        }
-                    }
-                    else if (keycode == Keycode.F1)
+                    if (keycode == Keycode.F1)
                     {
                         if (await this.SaveChanges())
                         {
+                            this.DialogResult = DialogResult.OK;
                             this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                            await this.Close();
                         }
                     }
                     else if (keycode == Keycode.F5)
                     {
                         this.ScannerDisable();
-                        //DialogResult result = MessageBox.Show("Do you wish to break this skid?", this.GetControlDescription(), MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
-                        //if (result == DialogResult.Yes)
                         // TODO: Resource strings
                         if (await DisplayAlert(this.GetControlDescription(), "Do you wish to break this skid?", "Yes", "No"))
                         {
@@ -400,6 +393,36 @@ namespace dMobile.View.Activity
 
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
         }
+
+        protected override bool OnBackButtonPressed()
+        {
+            Device.BeginInvokeOnMainThread(async () =>
+            {
+                if (await DisplayAlert("Save Changes", "Would you like to save changes?", "Yes", "No"))
+                {
+                    if (await this.SaveChanges())
+                    {
+                        base.OnBackButtonPressed();
+                        this.DialogResult = DialogResult.OK;
+                        this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                        await this.Close();
+                    }
+                }
+                else
+                {
+                    if (await this.CancelChanges())
+                    {
+                        base.OnBackButtonPressed();
+                        this.DialogResult = DialogResult.None;
+                        this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                        await this.Close();
+                    }
+                }
+            });
+
+            return true;
+        }
+
 
         public delegate void ReqCloseHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
         public delegate void ReqCancelDisableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
@@ -1682,11 +1705,11 @@ namespace dMobile.View.Activity
                 actItem.ProdInfo = this.SkidInfo.CurrSkid.ProdInfo;
                 actItem.ProdInfo.Unit2BaseUnitFactor = ProductInfoTasks.GetUnitRelationFactor(actItem.ProdInfo);
 
-                FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucActivityDetailSkid, actItem, SysCommon.ActSubTypes.SkidInfo);
+                // TODO: Test that this passes correct callingActSubType
+                FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucActivityDetailSkid, actItem, SysCommon.ActSubTypes.SkidInfo, this.callingActSubType);
 
                 if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
                 {
-                    await form.SaveChanges(sender, e);
                     XDocument xmlDoc = form.DisplayControlData;
 
                     if (this.SkidInfo.CurrSkid.IsConsumed)
@@ -1713,14 +1736,14 @@ namespace dMobile.View.Activity
         {
             try
             {
-                this.Loading = true;
+                //this.Loading = true;
 
-                await Task.Run(() =>
-                {
+                //await Task.Run(() =>
+                //{
                     this.SkidInfo = SysSkidInfo.Complete(this.SkidInfo);
-                });
+                //});
 
-                this.Loading = false;
+                //this.Loading = false;
                 //MessageBox.Sho;w("Skid completed.", this.GetControlDescription(), MessageBoxButtons.OK, MessageBoxIcon.None, MessageBoxDefaultButton.Button1);
                 // TODO: Resource strings
                 await DisplayAlert(this.GetControlDescription(), "Skid completed.", "OK");
@@ -1748,8 +1771,7 @@ namespace dMobile.View.Activity
             FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucSelectProductUnit, SysCommon.ActSubTypes.SkidInfo);
 
             if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
-            {
-                await form.SaveChanges(sender, e);
+            {                
                 XDocument xmlDoc = form.DisplayControlData;
                 this.ProdUnitRefno = int.Parse(xmlDoc.Root.Element("ProductUnitRefno").Value);
                 SSkidInfo tempSkidInfo = this.SkidInfo.CurrSkid;
@@ -2403,7 +2425,7 @@ namespace dMobile.View.Activity
 
         private void OptionsMenu_Clicked(object sender, EventArgs e)
         {
-            // TODO: Add actions to displayactionsheet
+           
         }
 
         private void updnBarCodeModifier1_SelectedIndexChanged(object sender, EventArgs e)

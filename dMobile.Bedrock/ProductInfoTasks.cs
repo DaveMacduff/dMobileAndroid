@@ -177,8 +177,6 @@
                             prodInfo.UnitIsSellUnit = Convert.ToBoolean(drProdInfo["ProductUnitIsSellUnit"]);
                             prodInfo.BoxCount = Convert.ToDecimal(drProdInfo["ProductUnitBoxCount"]);
                         }
-
-                        drProdInfo.Close();
                     }
                 }
 
@@ -300,7 +298,7 @@
                                                 {
                                                     if (drProdUnit.Read())
                                                     {
-                                                        prodInfo.UnitRefno = drProdUnit.GetInt32((int)SysCommon.ProdUnitFields.Refno);
+                                                        prodInfo.UnitRefno = drProdUnit.GetInt32(Convert.ToInt32(SysCommon.ProdUnitFields.Refno));
                                                     }
                                                 }
                                             }
@@ -329,27 +327,27 @@
             using (SQLiteCommand cmndProdInfo = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
             {
                 cmndProdInfo.CommandType = CommandType.Text;
-                cmndProdInfo.CommandText = "SELECT tProduct.ProductFKRefno, " +
-                "tUnit.UnitCode, " +
+                cmndProdInfo.CommandText = "SELECT tProduct.ProductFKRefno AS ProductFKRefno, " +
+                "tUnit.UnitCode AS UnitCode, " +
                 "aUnitBase.UnitCode AS BaseUnitCode, " +
                 "aUnitWeight.UnitCode AS WeightUnitCode, " +
-                "tProduct.ProductRefno, " +
-                "tProduct.ProductCode, " +
-                "tProduct.ProductDescription, " +
-                "tProduct.ProductIsCatchCount, " +
-                "tProduct.ProductIsCatchWeight, " +
-                "tProduct.ProductIsCatchAsk, " +
-                "tProduct.ProductIsCatchAskZero, " +
-                "tProduct.ProductAllowConvertProduct, " +
-                "tProductUnit.ProductUnitRefno, " +
-                "tProductUnit.ProductUnitBC, " +
-                "tProductUnit.ProductUnitIsBC, " +
-                "tProductUnit.ProductUnitWeight, " +
-                "tProductUnit.ProductUnitSizeDescription, " +
-                "tProduct.ProductBrandDescription, " +
-                "tProductUnit.ProductUnitIsSellUnit, " +
-                "tProductUnit.ProductUnitIsDefault, " +
-                "tProductUnit.ProductUnitBoxCount " +
+                "tProduct.ProductRefno AS ProductRefno, " +
+                "tProduct.ProductCode AS ProductCode, " +
+                "tProduct.ProductDescription AS ProductDescription, " +
+                "tProduct.ProductIsCatchCount AS ProductIsCatchCount, " +
+                "tProduct.ProductIsCatchWeight AS ProductIsCatchWeight, " +
+                "tProduct.ProductIsCatchAsk AS ProductIsCatchAsk, " +
+                "tProduct.ProductIsCatchAskZero AS ProductIsCatchAskZero, " +
+                "tProduct.ProductAllowConvertProduct AS ProductAllowConvertProduct, " +
+                "tProductUnit.ProductUnitRefno AS ProductUnitRefno, " +
+                "tProductUnit.ProductUnitBC AS ProductUnitBC, " +
+                "tProductUnit.ProductUnitIsBC AS ProductUnitIsBC, " +
+                "tProductUnit.ProductUnitWeight AS ProductUnitWeight, " +
+                "tProductUnit.ProductUnitSizeDescription AS ProductUnitSizeDescription, " +
+                "tProduct.ProductBrandDescription AS ProductBrandDescription, " +
+                "tProductUnit.ProductUnitIsSellUnit AS ProductUnitIsSellUnit, " +
+                "tProductUnit.ProductUnitIsDefault AS ProductUnitIsDefault, " +
+                "tProductUnit.ProductUnitBoxCount AS ProductUnitBoxCount " +
                 "FROM tProductUnit " +
                 "INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno " +
                 "INNER JOIN tUnit AS aUnitWeight ON aUnitWeight.UnitRefno = tProductUnit.WtUnitRefno " +
@@ -487,34 +485,34 @@
             using (SQLiteCommand cmndProductSchemeComponents = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
             {
                 cmndProductSchemeComponents.CommandType = CommandType.Text;
-                cmndProductSchemeComponents.CommandText = "SELECT tProductScheme.ProductSchemeRefno, " +
-                "tProductScheme.ProductSchemeIsSerialTracked, " +
-                "tProductScheme.ProductSchemeIsProductionDateTracked, " +
-                "tProductScheme.ProductSchemeIsLotTracked, " +
-                "tProductScheme.ProductSchemeIsBestBeforeDateTracked, " +
-                "tProductScheme.ProductSchemeIsVariantTracked, " +
-                "tProductScheme.ProductSchemeIsLotUniqueComponent, " +
-                "tProductScheme.ProductSchemeIsProductionDateUniqueComponent, " +
-                "tProductScheme.ProductSchemeIsBestBeforeDateUniqueComponent, " +
-                "tProductScheme.ProductSchemeIsVariantUniqueComponent, " +
-                "tProductScheme.ProductSchemeExtra1Type, " +
-                "tProductScheme.ProductSchemeExtra2Type, " +
-                "tProductScheme.ProductSchemeExtra3Type, " +
-                "tProductScheme.ProductSchemeExtra4Type, " +
-                "tProductScheme.ProductSchemeExtra5Type, " +
-                "tProductScheme.ProductSchemeExtra1Caption, " +
-                "tProductScheme.ProductSchemeExtra2Caption, " +
-                "tProductScheme.ProductSchemeExtra3Caption, " +
-                "tProductScheme.ProductSchemeExtra4Caption, " +
-                "tProductScheme.ProductSchemeExtra5Caption, " +
-                "tProductScheme.ProductSchemeExtra1IsRequired, " +
-                "tProductScheme.ProductSchemeExtra2IsRequired, " +
-                "tProductScheme.ProductSchemeExtra3IsRequired, " +
-                "tProductScheme.ProductSchemeExtra4IsRequired, " +
-                "tProductScheme.ProductSchemeExtra5IsRequired, " +
-                "tProductScheme.ProductSchemeIsLotTrackedDefault, " +
-                "tProductScheme.ProductSchemeIsProductionDateTrackedDefault, " +
-                "tProductScheme.ProductSchemeIsBestBeforeDateTrackedDefault " +
+                cmndProductSchemeComponents.CommandText = "SELECT tProductScheme.ProductSchemeRefno AS ProductSchemeRefno, " +
+                "tProductScheme.ProductSchemeIsSerialTracked AS ProductSchemeIsSerialTracked, " +
+                "tProductScheme.ProductSchemeIsProductionDateTracked AS ProductSchemeIsProductionDateTracked, " +
+                "tProductScheme.ProductSchemeIsLotTracked AS ProductSchemeIsLotTracked, " +
+                "tProductScheme.ProductSchemeIsBestBeforeDateTracked AS ProductSchemeIsBestBeforeDateTracked, " +
+                "tProductScheme.ProductSchemeIsVariantTracked AS ProductSchemeIsVariantTracked, " +
+                "tProductScheme.ProductSchemeIsLotUniqueComponent AS ProductSchemeIsLotUniqueComponent, " +
+                "tProductScheme.ProductSchemeIsProductionDateUniqueComponent AS ProductSchemeIsProductionDateUniqueComponent, " +
+                "tProductScheme.ProductSchemeIsBestBeforeDateUniqueComponent AS ProductSchemeIsBestBeforeDateUniqueComponent, " +
+                "tProductScheme.ProductSchemeIsVariantUniqueComponent AS ProductSchemeIsVariantUniqueComponent, " +
+                "tProductScheme.ProductSchemeExtra1Type AS ProductSchemeExtra1Type, " +
+                "tProductScheme.ProductSchemeExtra2Type AS ProductSchemeExtra2Type, " +
+                "tProductScheme.ProductSchemeExtra3Type AS ProductSchemeExtra3Type, " +
+                "tProductScheme.ProductSchemeExtra4Type AS ProductSchemeExtra4Type, " +
+                "tProductScheme.ProductSchemeExtra5Type AS ProductSchemeExtra5Type, " +
+                "tProductScheme.ProductSchemeExtra1Caption AS ProductSchemeExtra1Caption, " +
+                "tProductScheme.ProductSchemeExtra2Caption AS ProductSchemeExtra2Caption, " +
+                "tProductScheme.ProductSchemeExtra3Caption AS ProductSchemeExtra3Caption, " +
+                "tProductScheme.ProductSchemeExtra4Caption AS ProductSchemeExtra4Caption, " +
+                "tProductScheme.ProductSchemeExtra5Caption AS ProductSchemeExtra5Caption, " +
+                "tProductScheme.ProductSchemeExtra1IsRequired AS ProductSchemeExtra1IsRequired, " +
+                "tProductScheme.ProductSchemeExtra2IsRequired AS ProductSchemeExtra2IsRequired, " +
+                "tProductScheme.ProductSchemeExtra3IsRequired AS ProductSchemeExtra3IsRequired, " +
+                "tProductScheme.ProductSchemeExtra4IsRequired AS ProductSchemeExtra4IsRequired, " +
+                "tProductScheme.ProductSchemeExtra5IsRequired AS ProductSchemeExtra5IsRequired, " +
+                "tProductScheme.ProductSchemeIsLotTrackedDefault AS ProductSchemeIsLotTrackedDefault, " +
+                "tProductScheme.ProductSchemeIsProductionDateTrackedDefault AS ProductSchemeIsProductionDateTrackedDefault, " +
+                "tProductScheme.ProductSchemeIsBestBeforeDateTrackedDefault AS ProductSchemeIsBestBeforeDateTrackedDefault " +
                 "FROM tProduct " +            
                 "INNER JOIN tLocationMapWarehouseProductScheme ON tLocationMapWarehouseProductScheme.ProductRefno = tProduct.ProductRefno " +
                 "AND tLocationMapWarehouseProductScheme.WarehouseLocationMapRefno = @whsLocMapRefno " +
@@ -584,7 +582,7 @@
                 using (SQLiteCommand cmndProdUnitRelation = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
                 {
                     cmndProdUnitRelation.CommandType = CommandType.Text;
-                    cmndProdUnitRelation.CommandText = "SELECT tProductUnitRelation.ProductUnitRelationFactor " +
+                    cmndProdUnitRelation.CommandText = "SELECT tProductUnitRelation.ProductUnitRelationFactor AS ProductUnitRelationFactor " +
                     "FROM tProductUnitRelation " +
                     "INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = tProductUnitRelation.ProductUnit1Refno " +
                     "INNER JOIN tProductUnit AS tProductBaseUnit ON tProductBaseUnit.ProductUnitRefno = tProductUnitRelation.ProductUnit2Refno " +
@@ -625,7 +623,7 @@
             using (SQLiteCommand cmndProdUnitRelation = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
             {
                 cmndProdUnitRelation.CommandType = CommandType.Text;
-                cmndProdUnitRelation.CommandText = "SELECT tProductUnitRelation.ProductUnitRelationFactor " +
+                cmndProdUnitRelation.CommandText = "SELECT tProductUnitRelation.ProductUnitRelationFactor AS ProductUnitRelationFactor " +
                 "FROM tProductUnitRelation " +
                 "INNER JOIN tProductUnit AS aProductUnit1 ON aProductUnit1.ProductUnitRefno = tProductUnitRelation.ProductUnit1Refno " +
                 "INNER JOIN tProductUnit AS aProductUnit2 ON aProductUnit2.ProductUnitRefno = tProductUnitRelation.ProductUnit2Refno " +
@@ -712,18 +710,18 @@
         /// <param name="dataTableProdUnit"></param>
         public static void GetProductUnitList(ref DataTable dataTableProdUnit)
         {
-            string sql = @"SELECT tProductUnit.ProductUnitRefno,
-                tProduct.ProductCode,
-                tProduct.ProductDescription,
-                tUnit.UnitCode,
+            string sql = @"SELECT tProductUnit.ProductUnitRefno AS ProductUnitRefno,
+                tProduct.ProductCode AS ProductCode,
+                tProduct.ProductDescription AS ProductDescription,
+                tUnit.UnitCode AS UnitCode,
                 aUnitBase.UnitCode AS BaseUnitCode,
                 aUnitWeight.UnitCode AS WeightUnitCode,
-                tProductUnit.ProductUnitBC,
-                tProductUnit.ProductUnitIsBC,
-                tProductUnit.ProductUnitSizeDescription,
-                tProduct.ProductRefno,
-                tProductUnit.ProductUnitIsSellUnit,
-                tProductUnit.ProductUnitIsDefault
+                tProductUnit.ProductUnitBC AS ProductUnitBC,
+                tProductUnit.ProductUnitIsBC AS ProductUnitIsBC,
+                tProductUnit.ProductUnitSizeDescription AS ProductUnitSizeDescription,
+                tProduct.ProductRefno AS ProductRefno,
+                tProductUnit.ProductUnitIsSellUnit AS ProductUnitIsSellUnit,
+                tProductUnit.ProductUnitIsDefault AS ProductUnitIsDefault 
                 FROM tProductUnit
                 INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno
                 INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno
@@ -747,11 +745,11 @@
         /// <param name="dataTableProd"></param>
         public static void GetProductList(ref DataTable dataTableProd)
         {
-            string sql = @"SELECT tProduct.ProductRefno,
-                                            tProduct.ProductCode,
-                                            tProduct.ProductDescription
+            string sql = @"SELECT ProductRefno,
+                                            ProductCode,
+                                            ProductDescription
                                             FROM tProduct
-                                            ORDER BY tProduct.ProductCode";
+                                            ORDER BY ProductCode";
 
             using (SQLiteDataAdapter dataAdapterProd = new SQLiteDataAdapter(sql, DatabaseConnection.GetInstance().SQLConn))
             {
@@ -769,13 +767,13 @@
         /// <param name="dataTableProd"></param>
         public static void GetProductListAllowConvertProduct(ref DataTable dataTableProd)
         {
-            string sql = "SELECT tProduct.ProductRefno, " +
-            "tProduct.ProductCode, " +
-            "tProduct.ProductDescription, " +
-            "tProduct.ProductAllowConvertProduct " +
+            string sql = "SELECT ProductRefno, " +
+            "ProductCode, " +
+            "ProductDescription, " +
+            "ProductAllowConvertProduct " +
             "FROM tProduct " +
-            "WHERE tProduct.ProductAllowConvertProduct = 1 " +
-            "ORDER BY tProduct.ProductCode";
+            "WHERE ProductAllowConvertProduct = 1 " +
+            "ORDER BY ProductCode";
 
             DataSet ds = new DataSet();
             using (SQLiteDataAdapter dataAdapterProd = new SQLiteDataAdapter(sql, DatabaseConnection.GetInstance().SQLConn))

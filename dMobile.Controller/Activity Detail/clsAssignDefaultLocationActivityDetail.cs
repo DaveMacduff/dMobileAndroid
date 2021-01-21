@@ -108,7 +108,7 @@ namespace dMobile.Controller
 
             if (!isAdd)
             {
-                this.FKRefno = (int)DataViewDetails[idx]["ActivityDetailFKRefno"];
+                this.FKRefno = Convert.ToInt32(DataViewDetails[idx]["ActivityDetailFKRefno"]);
             }
 
             return this;
@@ -237,6 +237,7 @@ namespace dMobile.Controller
 
         public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity)
         {
+            // TODO: Design Grid 
             throw new NotImplementedException();
         }
 

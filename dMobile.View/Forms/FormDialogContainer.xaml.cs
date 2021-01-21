@@ -28,7 +28,7 @@ namespace dMobile.View.Forms
 
         private bool isControlClosing = false;
         private XDocument displayControlData;
-        private DMobileModal displayControl;
+        private IDMobileModal displayControl;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FormDialogContainer"/> class.
@@ -37,7 +37,7 @@ namespace dMobile.View.Forms
         /// <param name="actSubType"></param>
         public FormDialogContainer(EDialogTypes typeInnerControl, SysCommon.ActSubTypes actSubType)
         {
-            DMobileModal control = null;
+            IDMobileModal control = null;
 
             this.InitializeComponent();
 
@@ -82,7 +82,7 @@ namespace dMobile.View.Forms
         /// <param name="selectMode">The selectMode<see cref="SysCommon.ShippingLabelQuantitySelectionMode"/></param>
         public FormDialogContainer(EDialogTypes typeInnerControl, SysCommon.ActSubTypes actSubType, SysCommon.SLabelQuantity labelQtyEdit, Activity activity, SysCommon.ShippingLabelQuantitySelectionMode selectMode)
         {
-            DMobileModal control = null;
+            IDMobileModal control = null;
 
             this.InitializeComponent();
 
@@ -109,7 +109,7 @@ namespace dMobile.View.Forms
         /// <param name="callingControl"></param>
         public FormDialogContainer(EDialogTypes typeInnerControl, Activity activity, SysCommon.ActSubTypes actSubType)
         {
-            DMobileModal control = null;
+            IDMobileModal control = null;
 
             this.InitializeComponent();
 
@@ -141,9 +141,9 @@ namespace dMobile.View.Forms
         /// <param name="actItem"></param>
         /// <param name="actSubType"></param>
         /// <param name="callingControl"></param>
-        public FormDialogContainer(EDialogTypes typeInnerControl, ActItem actItem, SysCommon.ActSubTypes actSubType)
+        public FormDialogContainer(EDialogTypes typeInnerControl, ActItem actItem, SysCommon.ActSubTypes actSubType, SysCommon.ActSubTypes callingActSubType = SysCommon.ActSubTypes.SkidInfo)
         {
-            DMobileModal control = null;
+            IDMobileModal control = null;
 
             this.InitializeComponent();
 
@@ -165,7 +165,7 @@ namespace dMobile.View.Forms
                     break;
 
                 default:
-                    control = this.GetControlObj(typeInnerControl, actItem, actSubType);
+                    control = this.GetControlObj(typeInnerControl, actItem, actSubType, callingActSubType);
                     break;
             }
 
@@ -181,7 +181,7 @@ namespace dMobile.View.Forms
         /// <param name="callingControl"></param>
         public FormDialogContainer(EDialogTypes typeInnerControl, ActDetail actDetail, SysCommon.ActSubTypes actSubType)
         {
-            DMobileModal control = null;
+            IDMobileModal control = null;
 
             this.InitializeComponent();
 
@@ -208,7 +208,7 @@ namespace dMobile.View.Forms
 
         public FormDialogContainer(EDialogTypes typeInnerControl, int defaultWhsLocMapRefno, bool lockWhsSelection)
         {
-            DMobileModal control = null;
+            IDMobileModal control = null;
             this.InitializeComponent();
 
             switch (typeInnerControl)
@@ -282,7 +282,7 @@ namespace dMobile.View.Forms
         /// <summary>
         /// Gets or sets the DisplayControl
         /// </summary>
-        public DMobileModal DisplayControl
+        public IDMobileModal DisplayControl
         {
             get
             {
@@ -510,7 +510,7 @@ namespace dMobile.View.Forms
         /// The ShowActivityObj
         /// </summary>
         /// <param name="control"></param>
-        private void ShowActivityObj(DMobileModal control)
+        private void ShowActivityObj(IDMobileModal control)
         {
             if (control == null)
             {
@@ -539,9 +539,9 @@ namespace dMobile.View.Forms
         /// <param name="activity"></param>
         /// <param name="selectMode">The selectMode<see cref="SysCommon.ShippingLabelQuantitySelectionMode"/></param>
         /// <returns></returns>
-        private DMobileModal GetControlObj(EDialogTypes typeInnerControl, SysCommon.ActSubTypes actSubType, SysCommon.SLabelQuantity labelQtyEdit, Activity activity, SysCommon.ShippingLabelQuantitySelectionMode selectMode)
+        private IDMobileModal GetControlObj(EDialogTypes typeInnerControl, SysCommon.ActSubTypes actSubType, SysCommon.SLabelQuantity labelQtyEdit, Activity activity, SysCommon.ShippingLabelQuantitySelectionMode selectMode)
         {
-            DMobileModal control = null;
+            IDMobileModal control = null;
 
             switch (typeInnerControl)
             {
@@ -561,9 +561,9 @@ namespace dMobile.View.Forms
         /// <param name="actSubType"></param>
         /// <param name="callingControl"></param>
         /// <returns></returns>
-        private DMobileModal GetControlObj(EDialogTypes typeInnerControl, Activity activity, SysCommon.ActSubTypes actSubType)
+        private IDMobileModal GetControlObj(EDialogTypes typeInnerControl, Activity activity, SysCommon.ActSubTypes actSubType)
         {
-            DMobileModal control = null;
+            IDMobileModal control = null;
 
             switch (typeInnerControl)
             {
@@ -591,9 +591,9 @@ namespace dMobile.View.Forms
         /// <param name="actSubType"></param>
         /// <param name="callingControl"></param>
         /// <returns></returns>
-        private DMobileModal GetControlObj(EDialogTypes typeInnerControl, ActDetail actDetail, SysCommon.ActSubTypes actSubType)
+        private IDMobileModal GetControlObj(EDialogTypes typeInnerControl, ActDetail actDetail, SysCommon.ActSubTypes actSubType)
         {
-            DMobileModal control = null;
+            IDMobileModal control = null;
 
             switch (typeInnerControl)
             {
@@ -639,9 +639,9 @@ namespace dMobile.View.Forms
         /// <param name="actSubType"></param>
         /// <param name="callingControl"></param>
         /// <returns></returns>
-        private DMobileModal GetControlObj(EDialogTypes typeInnerControl, ActItem actItem, SysCommon.ActSubTypes actSubType)
+        private IDMobileModal GetControlObj(EDialogTypes typeInnerControl, ActItem actItem, SysCommon.ActSubTypes actSubType, SysCommon.ActSubTypes callingActSubType = SysCommon.ActSubTypes.SkidInfo)
         {
-            DMobileModal control = null;
+            IDMobileModal control = null;
 
             switch (typeInnerControl)
             {
@@ -658,7 +658,7 @@ namespace dMobile.View.Forms
                     break;
 
                 case EDialogTypes.ucActivityDetailSkid:
-                    control = new ucActivityDetailSkid(actItem, actSubType);
+                    control = new ucActivityDetailSkid(actItem, actSubType, callingActSubType);
                     break;
 
                 case EDialogTypes.ucActivityInventoryInquiryItem:
@@ -676,9 +676,9 @@ namespace dMobile.View.Forms
         /// <param name="callingControl"></param>
         /// <param name="actSubType"></param>
         /// <returns></returns>
-        private DMobileModal GetControlObj(EDialogTypes typeInnerControl, SysCommon.ActSubTypes actSubType)
+        private IDMobileModal GetControlObj(EDialogTypes typeInnerControl, SysCommon.ActSubTypes actSubType)
         {
-            DMobileModal control = null;
+            IDMobileModal control = null;
 
             switch (typeInnerControl)
             {
@@ -696,9 +696,9 @@ namespace dMobile.View.Forms
         /// <param name="typeInnerControl"></param>
         /// <param name="callingControl"></param>
         /// <returns></returns>
-        private DMobileModal GetControlObj(EDialogTypes typeInnerControl)
+        private IDMobileModal GetControlObj(EDialogTypes typeInnerControl)
         {
-            DMobileModal control = null;
+            IDMobileModal control = null;
 
             switch (typeInnerControl)
             {

@@ -7,6 +7,7 @@ namespace dMobile.Controller
     using System.Xml;
     using System.Xml.Linq;
     using dMobile.Bedrock;
+    using dMobile.Resources.Services;
     using dMobile.Resources.Types;
     using Xamarin.Forms;
 
@@ -164,7 +165,7 @@ namespace dMobile.Controller
                 if (reqData.Contains("<message>ERROR</message>"))
                 {
                     string errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
-                    
+
                     if (errorDetail.Contains("MSGBOX-"))
                     {
                         throw new MessageOnlyException(errorDetail);
@@ -190,8 +191,8 @@ namespace dMobile.Controller
                     {
                         cmndDetail.CommandType = CommandType.Text;
                         cmndDetail.CommandText = "UPDATE tActivityDetail "
-                            + "SET tActivityDetail.ActivityDetailStatus = " + (int)SysCommon.ActStatus.NoChange
-                            + " WHERE tActivityDetail.ActivityDetailRefno = " + this.Refno;
+                            + "SET ActivityDetailStatus = " + Convert.ToInt32(SysCommon.ActStatus.NoChange)
+                            + " WHERE ActivityDetailRefno = " + this.Refno;
                         cmndDetail.ExecuteNonQuery();
                     }
                 }
@@ -215,7 +216,7 @@ namespace dMobile.Controller
         /// <returns></returns>
         public override int GetRefno(int idx)
         {
-            return (int)DataViewDetails[idx]["ActivityDetailRefno"];
+            return Convert.ToInt32(DataViewDetails[idx]["ActivityDetailRefno"]);
         }
 
         /// <summary>
@@ -283,80 +284,6 @@ namespace dMobile.Controller
             // TODO: Calculate column widths
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
-            // Header grid
-            Grid gridHeaderSkidPutAway = new Grid
-            {
-                Padding = new Thickness(5),
-                ColumnDefinitions =
-                {
-                    new ColumnDefinition { Width = GridLength.Star },
-                    new ColumnDefinition { Width = GridLength.Star },
-                    new ColumnDefinition { Width = GridLength.Star },
-                    new ColumnDefinition { Width = new GridLength(4, GridUnitType.Star) },
-                }
-            };
-
-            gridHeaderSkidPutAway.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
-
-            // TODO: Resource strings
-            Label labelQtyHeader = new Label { Text = "Qty", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
-            Label labelWeightHeader = new Label { Text = "Weight", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
-            Label labelSpacerHeader = new Label { Text = " ", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
-            Label labelSchemeIDHeader = new Label { Text = "Scheme ID", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
-
-            gridHeaderSkidPutAway.Children.Add(labelQtyHeader);
-            gridHeaderSkidPutAway.Children.Add(labelWeightHeader);
-            gridHeaderSkidPutAway.Children.Add(labelSpacerHeader);
-            gridHeaderSkidPutAway.Children.Add(labelSchemeIDHeader);
-
-            Grid.SetColumn(labelQtyHeader, 0);
-            Grid.SetColumn(labelWeightHeader, 1);
-            Grid.SetColumn(labelSpacerHeader, 2);
-            Grid.SetColumn(labelSchemeIDHeader, 3);
-
-            Grid.SetRow(gridHeaderSkidPutAway, 0);
-
-            dataGridMainActivityHeader.Children.Add(gridHeaderSkidPutAway);
-
-            // Data grid
-            DataTemplate dataTemplateReceiving = new DataTemplate(() =>
-            {
-                Grid gridData = new Grid
-                {
-                    Padding = new Thickness(5),
-                    ColumnDefinitions =
-                    {
-                        new ColumnDefinition { Width = GridLength.Star },
-                        new ColumnDefinition { Width = GridLength.Star },
-                        new ColumnDefinition { Width = GridLength.Star },
-                        new ColumnDefinition { Width = new GridLength(4, GridUnitType.Star) },
-                    }
-                };
-
-                Label labelQty = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-                Label labelWeight = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-                Label labelSpacer = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-                Label labelSchemeID = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-
-                labelQty.SetBinding(Label.TextProperty, new Binding("ActivityDetailQuantity", BindingMode.Default, null, null, "{0:F3}"));
-                labelWeight.SetBinding(Label.TextProperty, new Binding("ActivityDetailWeightQuantity", BindingMode.Default, null, null, "{0:F3}"));
-                labelSchemeID.SetBinding(Label.TextProperty, new Binding("ActivityDetailSchemeID"));
-
-                gridData.Children.Add(labelQty);
-                gridData.Children.Add(labelWeight);
-                gridData.Children.Add(labelSpacer);
-                gridData.Children.Add(labelSchemeID);
-
-                Grid.SetColumn(labelQty, 0);
-                Grid.SetColumn(labelWeight, 1);
-                Grid.SetColumn(labelSpacer, 2);
-                Grid.SetColumn(labelSchemeID, 3);
-
-                return new ViewCell { View = gridData };
-            });
-
-            dataGridMainActivity.ItemTemplate = dataTemplateReceiving;
-
             foreach (DataRow row in this.DataViewDetails.ToTable().Rows)
             {
                 SkidPutAwayDetail skidPutAwayDetail = new SkidPutAwayDetail
@@ -394,6 +321,118 @@ namespace dMobile.Controller
 
                 observableCollection.Add(skidPutAwayDetail);
             }
+
+            // TODO: Resource strings
+            Label labelQtyHeader = new Label { Text = "Qty", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
+            Label labelWeightHeader = new Label { Text = "Weight", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
+            Label labelSpacerHeader = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
+            Label labelSchemeIDHeader = new Label { Text = "Scheme ID", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
+
+            double columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelQtyHeader.Text);
+            double columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelWeightHeader.Text);
+            double columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelSpacerHeader.Text);
+            double columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelSchemeIDHeader.Text);
+
+            // Header grid
+            Grid gridHeaderSkidPutAway = new Grid
+            {
+                Padding = new Thickness(5),
+                ColumnDefinitions =
+                {
+                    new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth3, GridUnitType.Absolute) }
+                }
+            };
+
+            gridHeaderSkidPutAway.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
+
+            gridHeaderSkidPutAway.Children.Add(labelQtyHeader);
+            gridHeaderSkidPutAway.Children.Add(labelWeightHeader);
+            gridHeaderSkidPutAway.Children.Add(labelSpacerHeader);
+            gridHeaderSkidPutAway.Children.Add(labelSchemeIDHeader);
+
+            Grid.SetColumn(labelQtyHeader, 0);
+            Grid.SetColumn(labelWeightHeader, 1);
+            Grid.SetColumn(labelSpacerHeader, 2);
+            Grid.SetColumn(labelSchemeIDHeader, 3);
+
+            Grid.SetRow(gridHeaderSkidPutAway, 0);
+
+            dataGridMainActivityHeader.Children.Add(gridHeaderSkidPutAway);
+
+            foreach (SkidPutAwayDetail skidPutAwayDetail in observableCollection)
+            {
+                double detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", skidPutAwayDetail.ActivityDetailQuantity));
+                double detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", skidPutAwayDetail.ActivityDetailWeightQuantity));
+                double detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(skidPutAwayDetail.UnitCode);
+                double detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(skidPutAwayDetail.ActivityDetailSchemeID);
+
+                if (detailWidth0 > columnWidth0)
+                {
+                    columnWidth0 = detailWidth0;
+                    gridHeaderSkidPutAway.ColumnDefinitions[0].Width = columnWidth0;
+                }
+
+                if (detailWidth1 > columnWidth1)
+                {
+                    columnWidth1 = detailWidth1;
+                    gridHeaderSkidPutAway.ColumnDefinitions[1].Width = columnWidth1;
+                }
+
+                if (detailWidth2 > columnWidth2)
+                {
+                    columnWidth2 = detailWidth2;
+                    gridHeaderSkidPutAway.ColumnDefinitions[2].Width = columnWidth2;
+                }
+
+                if (detailWidth3 > columnWidth3)
+                {
+                    columnWidth3 = detailWidth3;
+                    gridHeaderSkidPutAway.ColumnDefinitions[3].Width = columnWidth3;
+                }
+            }
+
+            // Data grid
+            DataTemplate dataTemplateReceiving = new DataTemplate(() =>
+            {
+                Grid gridData = new Grid
+                {
+                    Padding = new Thickness(5),
+                    ColumnDefinitions =
+                    {
+                        new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth3, GridUnitType.Absolute) }
+                    }
+                };
+
+                Label labelQty = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                Label labelWeight = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                Label labelSpacer = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                Label labelSchemeID = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+
+                labelQty.SetBinding(Label.TextProperty, new Binding("ActivityDetailQuantity", BindingMode.Default, null, null, "{0:F3}"));
+                labelWeight.SetBinding(Label.TextProperty, new Binding("ActivityDetailWeightQuantity", BindingMode.Default, null, null, "{0:F3}"));
+                labelSpacer.SetBinding(Label.TextProperty, new Binding("UnitCode"));
+                labelSchemeID.SetBinding(Label.TextProperty, new Binding("ActivityDetailSchemeID"));
+
+                gridData.Children.Add(labelQty);
+                gridData.Children.Add(labelWeight);
+                gridData.Children.Add(labelSpacer);
+                gridData.Children.Add(labelSchemeID);
+
+                Grid.SetColumn(labelQty, 0);
+                Grid.SetColumn(labelWeight, 1);
+                Grid.SetColumn(labelSpacer, 2);
+                Grid.SetColumn(labelSchemeID, 3);
+
+                return new ViewCell { View = gridData };
+            });
+
+            dataGridMainActivity.ItemTemplate = dataTemplateReceiving;
 
             return observableCollection;
         }

@@ -364,20 +364,20 @@ namespace dMobile.Controller
 
             if (isSubmitBatch)
             {
-                sql.Append("SELECT tActivityPicking.ActivityRefno,");
-                sql.Append("tActivityPicking.ActivityPickingFKRefno,");
-                sql.Append("tActivityPicking.ActivityPickingStringFKRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseName,");
-                sql.Append("tActivityPicking.ActivityPickingOrderedDateTime,");
-                sql.Append("tActivityPicking.ActivityPickingDeliveryDateTime,");
-                sql.Append("tActivityPicking.ActivityPickingCustomerContactName,");
-                sql.Append("tActivityPicking.ActivityPickingCustomerShipToInfo,");
-                sql.Append("tRoute.RouteCode,");
-                sql.Append("tRoute.RouteDescription,");
-                sql.Append("tRoute.RouteDayOfWeek,");
-                sql.Append("tActivityPickingRoute.RouteStop,");
-                sql.Append("tActivity.ActivityStatus");
+                sql.Append("SELECT tActivityPicking.ActivityRefno AS ActivityRefno,");
+                sql.Append("tActivityPicking.ActivityPickingFKRefno AS ActivityPickingFKRefno,");
+                sql.Append("tActivityPicking.ActivityPickingStringFKRefno AS ActivityPickingStringFKRefno,");
+                sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno AS LocationMapWarehouseFKRefno,");
+                sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationMapWarehouseName,");
+                sql.Append("tActivityPicking.ActivityPickingOrderedDateTime AS ActivityPickingOrderedDateTime,");
+                sql.Append("tActivityPicking.ActivityPickingDeliveryDateTime AS ActivityPickingDeliveryDateTime,");
+                sql.Append("tActivityPicking.ActivityPickingCustomerContactName AS ActivityPickingCustomerContactName,");
+                sql.Append("tActivityPicking.ActivityPickingCustomerShipToInfo AS ActivityPickingCustomerShipToInfo,");
+                sql.Append("tRoute.RouteCode AS RouteCode,");
+                sql.Append("tRoute.RouteDescription AS RouteDescription,");
+                sql.Append("tRoute.RouteDayOfWeek AS RouteDayOfWeek,");
+                sql.Append("tActivityPickingRoute.RouteStop AS RouteStop,");
+                sql.Append("tActivity.ActivityStatus AS ActivityStatus");
                 sql.Append(" FROM tActivityPicking");
                 sql.Append(" INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityPicking.ActivityRefno");
                 sql.Append(" INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
@@ -385,8 +385,8 @@ namespace dMobile.Controller
                 sql.Append(" LEFT JOIN tActivityPickingRoute ON tActivityPickingRoute.PickingActivityRefno ");
                 sql.Append("= tActivityPicking.ActivityRefno");
                 sql.Append(" LEFT JOIN tRoute ON tRoute.RouteRefno = tActivityPickingRoute.RouteRefno");
-                sql.AppendFormat(" WHERE tActivity.ActivityStatus <> {0}", (int)SysCommon.ActStatus.NoChange);
-                sql.AppendFormat(" AND tActivity.ActivitySubType = {0}", (int)SysCommon.ActSubTypes.Picking);
+                sql.AppendFormat(" WHERE tActivity.ActivityStatus <> {0}", Convert.ToInt32(SysCommon.ActStatus.NoChange));
+                sql.AppendFormat(" AND tActivity.ActivitySubType = {0}", Convert.ToInt32(SysCommon.ActSubTypes.Picking));
                 sql.Append(" UNION ");
                 sql.Append(" SELECT tActivityPicking.ActivityRefno,");
                 sql.Append("tActivityPicking.ActivityPickingFKRefno,");
@@ -410,9 +410,9 @@ namespace dMobile.Controller
                 sql.Append(" LEFT JOIN tActivityPickingRoute ON tActivityPickingRoute.PickingActivityRefno ");
                 sql.Append("= tActivityPicking.ActivityRefno");
                 sql.Append(" LEFT JOIN tRoute ON tRoute.RouteRefno = tActivityPickingRoute.RouteRefno");
-                sql.AppendFormat(" WHERE tActivity.ActivityStatus = {0}", (int)SysCommon.ActStatus.NoChange);
-                sql.AppendFormat(" AND tActivityItem.ActivityItemStatus <> {0}", (int)SysCommon.ActStatus.NoChange);
-                sql.AppendFormat(" AND tActivity.ActivitySubType = {0}", (int)SysCommon.ActSubTypes.Picking);
+                sql.AppendFormat(" WHERE tActivity.ActivityStatus = {0}", Convert.ToInt32(SysCommon.ActStatus.NoChange));
+                sql.AppendFormat(" AND tActivityItem.ActivityItemStatus <> {0}", Convert.ToInt32(SysCommon.ActStatus.NoChange));
+                sql.AppendFormat(" AND tActivity.ActivitySubType = {0}", Convert.ToInt32(SysCommon.ActSubTypes.Picking));
                 sql.Append(" UNION ");
                 sql.Append(" SELECT tActivityPicking.ActivityRefno,");
                 sql.Append("tActivityPicking.ActivityPickingFKRefno,");
@@ -437,27 +437,27 @@ namespace dMobile.Controller
                 sql.Append(" LEFT JOIN tActivityPickingRoute ON tActivityPickingRoute.PickingActivityRefno ");
                 sql.Append("= tActivityPicking.ActivityRefno");
                 sql.Append(" LEFT JOIN tRoute ON tRoute.RouteRefno = tActivityPickingRoute.RouteRefno");
-                sql.AppendFormat(" WHERE tActivity.ActivityStatus = {0}", (int)SysCommon.ActStatus.NoChange);
-                sql.AppendFormat(" AND tActivityItem.ActivityItemStatus = {0}", (int)SysCommon.ActStatus.NoChange);
-                sql.AppendFormat(" AND tActivityDetail.ActivityDetailStatus <> {0}", (int)SysCommon.ActStatus.NoChange);
-                sql.AppendFormat(" AND tActivity.ActivitySubType = {0}", (int)SysCommon.ActSubTypes.Picking);
+                sql.AppendFormat(" WHERE tActivity.ActivityStatus = {0}", Convert.ToInt32(SysCommon.ActStatus.NoChange));
+                sql.AppendFormat(" AND tActivityItem.ActivityItemStatus = {0}", Convert.ToInt32(SysCommon.ActStatus.NoChange));
+                sql.AppendFormat(" AND tActivityDetail.ActivityDetailStatus <> {0}", Convert.ToInt32(SysCommon.ActStatus.NoChange));
+                sql.AppendFormat(" AND tActivity.ActivitySubType = {0}", Convert.ToInt32(SysCommon.ActSubTypes.Picking));
             }
             else
             {
-                sql.Append("SELECT tActivityPicking.ActivityRefno,");
-                sql.Append(" tActivityPicking.ActivityPickingFKRefno,");
-                sql.Append(" tActivityPicking.ActivityPickingStringFKRefno,");
-                sql.Append(" tLocationMapWarehouse.LocationMapWarehouseFKRefno,");
-                sql.Append(" tLocationMapWarehouse.LocationMapWarehouseName,");
-                sql.Append(" tActivityPicking.ActivityPickingOrderedDateTime,");
-                sql.Append(" tActivityPicking.ActivityPickingDeliveryDateTime,");
-                sql.Append(" tActivityPicking.ActivityPickingCustomerContactName,");
-                sql.Append(" tActivityPicking.ActivityPickingCustomerShipToInfo,");
-                sql.Append(" tRoute.RouteCode,");
-                sql.Append(" tRoute.RouteDescription,");
-                sql.Append(" tRoute.RouteDayOfWeek,");
-                sql.Append(" tActivityPickingRoute.RouteStop,");
-                sql.Append(" tActivity.ActivityStatus");
+                sql.Append("SELECT tActivityPicking.ActivityRefno AS ActivityRefno,");
+                sql.Append(" tActivityPicking.ActivityPickingFKRefno AS ActivityPickingFKRefno,");
+                sql.Append(" tActivityPicking.ActivityPickingStringFKRefno AS ActivityPickingStringFKRefno,");
+                sql.Append(" tLocationMapWarehouse.LocationMapWarehouseFKRefno AS LocationMapWarehouseFKRefno,");
+                sql.Append(" tLocationMapWarehouse.LocationMapWarehouseName AS LocationMapWarehouseName,");
+                sql.Append(" tActivityPicking.ActivityPickingOrderedDateTime AS ActivityPickingOrderedDateTime,");
+                sql.Append(" tActivityPicking.ActivityPickingDeliveryDateTime AS ActivityPickingDeliveryDateTime,");
+                sql.Append(" tActivityPicking.ActivityPickingCustomerContactName AS ActivityPickingCustomerContactName,");
+                sql.Append(" tActivityPicking.ActivityPickingCustomerShipToInfo AS ActivityPickingCustomerShipToInfo,");
+                sql.Append(" tRoute.RouteCode AS RouteCode,");
+                sql.Append(" tRoute.RouteDescription AS RouteDescription,");
+                sql.Append(" tRoute.RouteDayOfWeek AS RouteDayOfWeek,");
+                sql.Append(" tActivityPickingRoute.RouteStop AS RouteStop,");
+                sql.Append(" tActivity.ActivityStatus AS ActivityStatus");
                 sql.Append(" FROM tActivityPicking");
                 sql.Append(" INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityPicking.ActivityRefno");
                 sql.Append(" INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");

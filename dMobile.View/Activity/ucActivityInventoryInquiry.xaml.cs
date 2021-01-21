@@ -59,9 +59,11 @@ namespace dMobile.View.Activity
         {
             this.InitializeComponent();
 
+            // TODO: Resource strings
             this.cmdSelectProduct.Text = "Select Product";
             this.cmdLocation.Text = "Set Location";
             this.cmdDisplayDefault.Text = "Display Defaults";
+            this.cmdView.Text = "View";
 
             if (!DesignMode.IsDesignModeEnabled)
             {
@@ -72,7 +74,7 @@ namespace dMobile.View.Activity
 
                 if (this.SysEnv.SysSettings.IsProductUnitBarCodeModifier1)
                 {
-                    this.updnBarCodeModifier1.Items.Add(" ");
+                    this.updnBarCodeModifier1.Items.Add(string.Empty);
                     string[] modifiers = this.SysEnv.SysSettings.ProductUnitBarCodeModifier1Codes.Split(',');
 
                     foreach (string item in modifiers)
@@ -115,9 +117,11 @@ namespace dMobile.View.Activity
         {
             this.InitializeComponent();
 
+            // TODO: Resource strings
             this.cmdSelectProduct.Text = "Select Product";
             this.cmdLocation.Text = "Set Location";
             this.cmdDisplayDefault.Text = "Display Defaults";
+            this.cmdView.Text = "View";
 
             if (!DesignMode.IsDesignModeEnabled)
             {
@@ -128,7 +132,7 @@ namespace dMobile.View.Activity
 
                 if (this.SysEnv.SysSettings.IsProductUnitBarCodeModifier1)
                 {
-                    this.updnBarCodeModifier1.Items.Add(" ");
+                    this.updnBarCodeModifier1.Items.Add(string.Empty);
                     string[] modifiers = this.SysEnv.SysSettings.ProductUnitBarCodeModifier1Codes.Split(',');
 
                     foreach (string item in modifiers)
@@ -193,6 +197,13 @@ namespace dMobile.View.Activity
                         else
                         {
                             await this.CancelChanges();
+                        }
+                    }
+                    else if (keycode == Keycode.Enter)
+                    {
+                        if (await this.SaveChanges())
+                        {
+                            this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                         }
                     }
                 }
@@ -1404,16 +1415,19 @@ namespace dMobile.View.Activity
                 cmndProdLocType.CommandType = CommandType.Text;
                 cmndProdLocType.CommandText = this.GetDataViewProductOnlyPickingQuery();
 
-                using (SQLiteDataReader drProdLocType = cmndProdLocType.ExecuteReader())
+                if (!string.IsNullOrEmpty(cmndProdLocType.CommandText))
                 {
-                    while (drProdLocType.Read())
+                    using (SQLiteDataReader drProdLocType = cmndProdLocType.ExecuteReader())
                     {
-                        DataRow row = dataTableItems.NewRow();
-                        row["ProductCode"] = Convert.ToString(drProdLocType["ProductCode"]);
-                        row["LocationMapType"] = "Picking";
-                        row["ProductBrandDescription"] = Convert.ToString(drProdLocType["ProductBrandDescription"]);
-                        row["ProductDescription"] = Convert.ToString(drProdLocType["ProductDescription"]);
-                        dataTableItems.Rows.Add(row);
+                        while (drProdLocType.Read())
+                        {
+                            DataRow row = dataTableItems.NewRow();
+                            row["ProductCode"] = Convert.ToString(drProdLocType["ProductCode"]);
+                            row["LocationMapType"] = "Picking";
+                            row["ProductBrandDescription"] = Convert.ToString(drProdLocType["ProductBrandDescription"]);
+                            row["ProductDescription"] = Convert.ToString(drProdLocType["ProductDescription"]);
+                            dataTableItems.Rows.Add(row);
+                        }
                     }
                 }
             }
@@ -1423,16 +1437,19 @@ namespace dMobile.View.Activity
                 cmndProdLocType.CommandType = CommandType.Text;
                 cmndProdLocType.CommandText = this.GetDataViewProductOnlyReceivingQuery();
 
-                using (SQLiteDataReader drProdLocType = cmndProdLocType.ExecuteReader())
+                if (!string.IsNullOrEmpty(cmndProdLocType.CommandText))
                 {
-                    while (drProdLocType.Read())
+                    using (SQLiteDataReader drProdLocType = cmndProdLocType.ExecuteReader())
                     {
-                        DataRow row = dataTableItems.NewRow();
-                        row["ProductCode"] = Convert.ToString(drProdLocType["ProductCode"]);
-                        row["LocationMapType"] = "Receiving";
-                        row["ProductBrandDescription"] = Convert.ToString(drProdLocType["ProductBrandDescription"]);
-                        row["ProductDescription"] = Convert.ToString(drProdLocType["ProductDescription"]);
-                        dataTableItems.Rows.Add(row);
+                        while (drProdLocType.Read())
+                        {
+                            DataRow row = dataTableItems.NewRow();
+                            row["ProductCode"] = Convert.ToString(drProdLocType["ProductCode"]);
+                            row["LocationMapType"] = "Receiving";
+                            row["ProductBrandDescription"] = Convert.ToString(drProdLocType["ProductBrandDescription"]);
+                            row["ProductDescription"] = Convert.ToString(drProdLocType["ProductDescription"]);
+                            dataTableItems.Rows.Add(row);
+                        }
                     }
                 }
             }
@@ -1548,6 +1565,14 @@ namespace dMobile.View.Activity
         private void updnBarCodeModifier1_SelectedIndexChanged(object sender, EventArgs e)
         {
             this.SysEnv.CurrentBarCodeModifier1 = Convert.ToString(this.updnBarCodeModifier1.SelectedItem);
+        }
+
+        private async void cmdView_Clicked(object sender, EventArgs e)
+        {
+            if (await this.SaveChanges())
+            {
+                this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+            }
         }
     }
 }

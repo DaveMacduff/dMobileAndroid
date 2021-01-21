@@ -4,9 +4,9 @@
                                  xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" 
                                  xmlns:Helpers="clr-namespace:dMobile.View.Helpers"
                                  x:Class="dMobile.View.Activity.ucActivitySkidPutAway">
-    <ContentPage.ToolbarItems>
-        <ToolbarItem x:Name="optionsMenu" IconImageSource="{Binding IconSource}" Clicked="OptionsMenu_Clicked" />
-    </ContentPage.ToolbarItems>
+    <!--<ContentPage.ToolbarItems>
+        <ToolbarItem x:Name="optionsMenu" IconImageSource="{Binding OptionsIconSource}" Clicked="OptionsMenu_Clicked" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+    </ContentPage.ToolbarItems>-->
     <ContentPage.Content>
         <AbsoluteLayout VerticalOptions="Center">
             <Grid Padding="10" AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0,0,1,1">
@@ -23,9 +23,6 @@
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition x:Name="dataGridWidth" Width="Auto"/>
-                            </Grid.ColumnDefinitions>
 
                             <ListView x:Name="dataGridMainActivity" HasUnevenRows="True" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" Grid.Row="1"/>
                         </Grid>
@@ -46,7 +43,7 @@
                     </ListView>
                 </Frame>
 
-                <StackLayout Grid.Row="2" IsVisible="{Binding ActionsVisible}">
+                <StackLayout Grid.Row="2">
                     <Grid>
                         <Picker x:Name="updnBarCodeModifier1" Grid.Row="0" Grid.Column="0" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
                         <Button x:Name="cmdAddProduct" Grid.Row="0" Grid.Column="1" Clicked="cmdAddProduct_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>

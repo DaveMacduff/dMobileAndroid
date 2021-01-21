@@ -1,0 +1,50 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<ContentView xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:Helpers="clr-namespace:dMobile.View.Helpers"
+             x:Class="dMobile.View.CustomControls.LocationMapInfo">
+    <ContentView.Content>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <Frame Grid.Row="0" OutlineColor="{DynamicResource BorderColor}" Padding="5">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Label x:Name="lblWarehouse" Text="Whs" Grid.Row="0" Grid.Column="0"/>
+                    <Label x:Name="lblWarehouseData" Text="Unknown" Grid.Row="0" Grid.Column="1"/>
+
+                    <Label x:Name="lblSection" Text="Section" Grid.Row="1" Grid.Column="0"/>
+                    <Label x:Name="lblSectionData" Text="Unknown" Grid.Row="1" Grid.Column="1"/>
+
+                    <Label x:Name="lblSlot" Text="Slot" Grid.Row="2" Grid.Column="0"/>
+                    <Label x:Name="lblSlotData" Text="Unknown" Grid.Row="2" Grid.Column="1"/>
+                </Grid>
+            </Frame>
+
+            <Grid Grid.Row="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <Button x:Name="btnSave" Text="Save" Grid.Row="0" Grid.Column="0" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                <Button x:Name="btnCancel" Text="Cancel" Grid.Row="0" Grid.Column="1" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+            </Grid>
+        </Grid>
+    </ContentView.Content>
+</ContentView>

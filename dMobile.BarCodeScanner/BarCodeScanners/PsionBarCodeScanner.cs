@@ -1,5 +1,4 @@
-﻿// TODO: Check for Psion SDK for android
-//using dMobile.Bedrock;
+﻿//using dMobile.Bedrock;
 //using PsionTeklogix.Barcode;
 //using PsionTeklogix.Barcode.ScannerServices;
 //using System;

@@ -105,10 +105,12 @@ namespace dMobile.View.Activity
                 {
                     if (await this.SaveChanges())
                     {
+                        this.DialogResult = DialogResult.OK;
                         this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     }
                     else
                     {
+                        this.DialogResult = DialogResult.None;
                         await this.CancelChanges();
                     }
                 }

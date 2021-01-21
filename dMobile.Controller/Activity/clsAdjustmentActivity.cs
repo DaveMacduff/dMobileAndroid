@@ -296,7 +296,7 @@ namespace dMobile.Controller
                 sql.Append(" INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityAdjustment.ActivityRefno");
                 sql.Append(" INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = ");
                 sql.Append("tActivityAdjustment.WarehouseLocationMapRefno");
-                sql.AppendFormat(" WHERE tActivity.ActivityStatus <> {0}", (int)SysCommon.ActStatus.NoChange);
+                sql.AppendFormat(" WHERE tActivity.ActivityStatus <> {0}", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append(" UNION ");
                 sql.Append(" SELECT tActivityAdjustment.ActivityRefno,");
                 sql.Append("tActivityAdjustment.ActivityAdjustmentFKRefno,");
@@ -314,7 +314,7 @@ namespace dMobile.Controller
                 sql.Append(" INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = ");
                 sql.Append("tActivityAdjustment.WarehouseLocationMapRefno");
                 sql.Append(" INNER JOIN tActivityItem ON tActivityItem.ActivityRefno = tActivity.ActivityRefno");
-                sql.AppendFormat(" WHERE tActivityItem.ActivityItemStatus <> {0}", (int)SysCommon.ActStatus.NoChange);
+                sql.AppendFormat(" WHERE tActivityItem.ActivityItemStatus <> {0}", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append(" UNION ");
                 sql.Append(" SELECT tActivityAdjustment.ActivityRefno,");
                 sql.Append("tActivityAdjustment.ActivityAdjustmentFKRefno,");
@@ -333,7 +333,7 @@ namespace dMobile.Controller
                 sql.Append(" INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = ");
                 sql.Append("tActivityAdjustment.WarehouseLocationMapRefno");
                 sql.Append(" INNER JOIN tActivityDetail ON tActivityDetail.ActivityItemRefno = tActivityItem.ActivityItemRefno");
-                sql.AppendFormat(" WHERE tActivityDetail.ActivityDetailStatus <> {0}", (int)SysCommon.ActStatus.NoChange);
+                sql.AppendFormat(" WHERE tActivityDetail.ActivityDetailStatus <> {0}", Convert.ToInt32(SysCommon.ActStatus.NoChange));
             }
             else
             {
@@ -494,11 +494,11 @@ namespace dMobile.Controller
             {
                 if (string.IsNullOrEmpty(filter))
                 {
-                    filter += string.Format("ActivityAdjustmentType = {0}", (int)adjSettings.AdjustmentType);
+                    filter += string.Format("ActivityAdjustmentType = {0}", Convert.ToInt32(adjSettings.AdjustmentType));
                 }
                 else
                 {
-                    filter += string.Format(" AND ActivityAdjustmentType = {0}", (int)adjSettings.AdjustmentType);
+                    filter += string.Format(" AND ActivityAdjustmentType = {0}", Convert.ToInt32(adjSettings.AdjustmentType));
                 }
             }
 

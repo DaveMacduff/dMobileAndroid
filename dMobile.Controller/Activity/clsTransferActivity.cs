@@ -73,7 +73,6 @@ namespace dMobile.Controller
 
         public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity)
         {
-            // TODO: Calculate Column Widths
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
             
             foreach (DataRow row in this.DataViewHdrs.ToTable().Rows)
@@ -304,7 +303,7 @@ namespace dMobile.Controller
                 sql.Append("INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityTransfer.ActivityRefno ");
                 sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
                 sql.Append("= tActivityTransfer.TransferToWarehouseLocationMapRefno ");
-                sql.AppendFormat("WHERE tActivity.ActivityStatus <> {0} ", (int)SysCommon.ActStatus.NoChange);
+                sql.AppendFormat("WHERE tActivity.ActivityStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append("UNION ");
                 sql.Append("SELECT tActivityTransfer.ActivityRefno,");
                 sql.Append("tActivityTransfer.ActivityTransferFKRefno,");
@@ -321,7 +320,7 @@ namespace dMobile.Controller
                 sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
                 sql.Append("= tActivityTransfer.TransferToWarehouseLocationMapRefno ");
                 sql.Append("INNER JOIN tActivityItem ON tActivityItem.ActivityRefno = tActivity.ActivityRefno ");
-                sql.AppendFormat("WHERE tActivityItem.ActivityItemStatus <> {0} ", (int)SysCommon.ActStatus.NoChange);
+                sql.AppendFormat("WHERE tActivityItem.ActivityItemStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append("UNION ");
                 sql.Append("SELECT tActivityTransfer.ActivityRefno,");
                 sql.Append("tActivityTransfer.ActivityTransferFKRefno,");
@@ -340,8 +339,8 @@ namespace dMobile.Controller
                 sql.Append("= tActivityTransfer.TransferToWarehouseLocationMapRefno ");
                 sql.Append("INNER JOIN tActivityDetail ON tActivityDetail.ActivityItemRefno ");
                 sql.Append("= tActivityItem.ActivityItemRefno ");
-                sql.AppendFormat("WHERE tActivityDetail.ActivityDetailStatus <> {0}", (int)SysCommon.ActStatus.NoChange);
-                sql.AppendFormat(" AND tActivityTransfer.ActivitySubType = {0}", (int)this.ActSubType);
+                sql.AppendFormat("WHERE tActivityDetail.ActivityDetailStatus <> {0}", Convert.ToInt32(SysCommon.ActStatus.NoChange));
+                sql.AppendFormat(" AND tActivityTransfer.ActivitySubType = {0}", Convert.ToInt32(this.ActSubType));
             }
             else
             {
@@ -359,7 +358,7 @@ namespace dMobile.Controller
                 sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
                 sql.Append("= tActivityTransfer.TransferToWarehouseLocationMapRefno ");
                 sql.Append("INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityTransfer.ActivityRefno");
-                sql.AppendFormat(" AND tActivityTransfer.ActivitySubType = {0}", (int)this.ActSubType);
+                sql.AppendFormat(" AND tActivityTransfer.ActivitySubType = {0}", Convert.ToInt32(this.ActSubType));
             }
 
             using (SQLiteDataAdapter da = new SQLiteDataAdapter(sql.ToString(), DatabaseConnection.GetInstance().SQLConn))

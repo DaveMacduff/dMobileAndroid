@@ -1,6 +1,8 @@
 ﻿namespace dMobile.Bedrock
 {
+    using System;
     using System.Net.NetworkInformation;
+    using Android.OS;
 
     public class SysDeviceID
     {
@@ -17,7 +19,6 @@
             foreach (NetworkInterface ni in NetworkInterface.GetAllNetworkInterfaces())
             {
                 nic = ni;
-
                 break;
             }
 
@@ -29,7 +30,22 @@
             // If then MAC address is not known then fall back to device id
             if (string.IsNullOrEmpty(deviceID))
             {
-                deviceID = Android.Provider.Settings.Secure.GetString(Android.App.Application.Context.ContentResolver, Android.Provider.Settings.Secure.AndroidId);
+                string id = string.Empty;
+
+                if (!string.IsNullOrEmpty(Build.Device))
+                {
+                    id += Build.Device;
+                }
+
+                // TODO: If we start targeting a higher sdk, this will be changed to Build.getSerial().
+                // This will require additional device permissions.
+                if (!string.IsNullOrEmpty(Build.Serial))
+                {
+                    id += Build.Serial;
+                }
+
+                deviceID = id;
+                //Android.Provider.Settings.Secure.GetString(Android.App.Application.Context.ContentResolver, Android.Provider.Settings.Secure.AndroidId);
             }
 
             return deviceID;

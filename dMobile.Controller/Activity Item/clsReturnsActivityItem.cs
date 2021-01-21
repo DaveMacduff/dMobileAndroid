@@ -397,27 +397,27 @@ namespace dMobile.Controller
             if (isSubmitBatch)
             {
                 cmd.CommandText =
-                "SELECT tActivityItemReturns.ActivityItemRefno, " +
-                "tActivityItemReturns.ActivityItemReturnsFKRefno, " +
-                "tActivityItemReturns.ActivityItemReturnsStringFKRefno, " +
-                "tProductUnit.ProductUnitRefno, " +
-                "tProduct.ProductRefno, " +
-                "tProduct.ProductCode, " +
-                "tProduct.ProductDescription, " +
-                "tProduct.ProductBrandDescription, " +
-                "tUnit.UnitCode, " +
-                "tProductUnit.ProductUnitBC, " +
-                "tProductUnit.ProductUnitSizeDescription, " +
-                "tActivityItemReturns.ActivityItemReturnsQuantityReturned, " +
-                "tActivityItemReturns.ActivityItemReturnsBaseQuantityReturned, " +
-                "tActivityItemReturns.ActivityItemReturnsWeightQuantityReturned, " +
-                "tActivityItemReturns.ActivityItemReturnsCustomerProductUnitCode, " +
-                "tLocationMapWarehouse.LocationMapRefno, " +
+                "SELECT tActivityItemReturns.ActivityItemRefno AS ActivityItemRefno, " +
+                "tActivityItemReturns.ActivityItemReturnsFKRefno AS ActivityItemReturnsFKRefno, " +
+                "tActivityItemReturns.ActivityItemReturnsStringFKRefno AS ActivityItemReturnsStringFKRefno, " +
+                "tProductUnit.ProductUnitRefno AS ProductUnitRefno, " +
+                "tProduct.ProductRefno AS ProductRefno, " +
+                "tProduct.ProductCode AS ProductCode, " +
+                "tProduct.ProductDescription AS ProductDescription, " +
+                "tProduct.ProductBrandDescription AS ProductBrandDescription, " +
+                "tUnit.UnitCode AS UnitCode, " +
+                "tProductUnit.ProductUnitBC AS ProductUnitBC, " +
+                "tProductUnit.ProductUnitSizeDescription AS ProductUnitSizeDescription, " +
+                "tActivityItemReturns.ActivityItemReturnsQuantityReturned AS ActivityItemReturnsQuantityReturned, " +
+                "tActivityItemReturns.ActivityItemReturnsBaseQuantityReturned AS ActivityItemReturnsBaseQuantityReturned, " +
+                "tActivityItemReturns.ActivityItemReturnsWeightQuantityReturned AS ActivityItemReturnsWeightQuantityReturned, " +
+                "tActivityItemReturns.ActivityItemReturnsCustomerProductUnitCode AS ActivityItemReturnsCustomerProductUnitCode, " +
+                "tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno, " +
                 "tLocationMapWarehouse.LocationMapWarehouseCode AS LocationCode, " +
                 "tLocationMapWarehouse.LocationMapWarehouseName AS LocationName, " +
                 "CASE WHEN tActivityItemReturnsComment.ActivityItemReturnsCommentComment IS NULL " +
                 "THEN \' \' ELSE \'*\' END AS IsActivityItemReturnsComment, " +
-                "tActivityItem.ActivityItemStatus " +
+                "tActivityItem.ActivityItemStatus AS ActivityItemStatus " +
                 "FROM tActivityItemReturns " +
                 "INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno = " +
                 "tActivityItemReturns.ActivityItemRefno " +
@@ -468,32 +468,32 @@ namespace dMobile.Controller
                 "AND tActivityDetail.ActivityDetailStatus <> @ActStatus " +
                 "ORDER BY tActivityItemReturns.ActivityItemRefno";
                 cmd.Parameters.Add(new SQLiteParameter("@Refno", this.ActHdr.Refno));
-                cmd.Parameters.Add(new SQLiteParameter("@ActStatus", (int)SysCommon.ActStatus.NoChange));
+                cmd.Parameters.Add(new SQLiteParameter("@ActStatus", Convert.ToInt32(SysCommon.ActStatus.NoChange)));
             }
             else
             {
                 cmd.CommandText =
-                "SELECT tActivityItemReturns.ActivityItemRefno, " +
-                "tActivityItemReturns.ActivityItemReturnsFKRefno, " +
-                "tActivityItemReturns.ActivityItemReturnsStringFKRefno, " +
-                "tProductUnit.ProductUnitRefno, " +
-                "tProduct.ProductRefno, " +
-                "tProduct.ProductCode, " +
-                "tProduct.ProductDescription, " +
-                "tProduct.ProductBrandDescription, " +
-                "tUnit.UnitCode, " +
-                "tProductUnit.ProductUnitBC, " +
-                "tProductUnit.ProductUnitSizeDescription, " +
-                "tActivityItemReturns.ActivityItemReturnsQuantityReturned, " +
-                "tActivityItemReturns.ActivityItemReturnsBaseQuantityReturned, " +
-                "tActivityItemReturns.ActivityItemReturnsWeightQuantityReturned, " +
-                "tActivityItemReturns.ActivityItemReturnsCustomerProductUnitCode, " +
-                "tLocationMapWarehouse.LocationMapRefno, " +
+                "SELECT tActivityItemReturns.ActivityItemRefno AS ActivityItemRefno, " +
+                "tActivityItemReturns.ActivityItemReturnsFKRefno AS ActivityItemReturnsFKRefno, " +
+                "tActivityItemReturns.ActivityItemReturnsStringFKRefno AS ActivityItemReturnsStringFKRefno, " +
+                "tProductUnit.ProductUnitRefno AS ProductUnitRefno, " +
+                "tProduct.ProductRefno AS ProductRefno, " +
+                "tProduct.ProductCode AS ProductCode, " +
+                "tProduct.ProductDescription AS ProductDescription, " +
+                "tProduct.ProductBrandDescription AS ProductBrandDescription, " +
+                "tUnit.UnitCode AS UnitCode, " +
+                "tProductUnit.ProductUnitBC AS ProductUnitBC, " +
+                "tProductUnit.ProductUnitSizeDescription AS ProductUnitSizeDescription, " +
+                "tActivityItemReturns.ActivityItemReturnsQuantityReturned AS ActivityItemReturnsQuantityReturned, " +
+                "tActivityItemReturns.ActivityItemReturnsBaseQuantityReturned AS ActivityItemReturnsBaseQuantityReturned, " +
+                "tActivityItemReturns.ActivityItemReturnsWeightQuantityReturned AS ActivityItemReturnsWeightQuantityReturned, " +
+                "tActivityItemReturns.ActivityItemReturnsCustomerProductUnitCode AS ActivityItemReturnsCustomerProductUnitCode, " +
+                "tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno, " +
                 "tLocationMapWarehouse.LocationMapWarehouseCode AS LocationCode, " +
                 "tLocationMapWarehouse.LocationMapWarehouseName AS LocationName, " +
                 "CASE WHEN tActivityItemReturnsComment.ActivityItemReturnsCommentComment IS NULL " +
                 "THEN \' \' ELSE \'*\' END AS IsActivityItemReturnsComment, " +
-                "tActivityItem.ActivityItemStatus " +
+                "tActivityItem.ActivityItemStatus AS ActivityItemStatus " +
                 "FROM tActivityItemReturns " +
                 "INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno = " +
                 "tActivityItemReturns.ActivityItemRefno " +
@@ -711,7 +711,7 @@ namespace dMobile.Controller
                     "SET ActivityItemReturnsQuantityReturned = @ActivityItemReturnsQuantityReturned, " +
                     "ActivityItemReturnsBaseQuantityReturned = @ActivityItemReturnsBaseQuantityReturned, " +
                     "ActivityItemReturnsWeightQuantityReturned = @ActivityItemReturnsWeightQuantityReturned " +
-                    "WHERE tActivityItemReturns.ActivityItemRefno = @actItemRefno";
+                    "WHERE ActivityItemRefno = @actItemRefno";
                 cmndItem.Parameters.Add(new SQLiteParameter("@ActivityItemReturnsQuantityReturned", this.DataViewItems[idx]["ActivityItemReturnsQuantityReturned"]));
                 cmndItem.Parameters.Add(new SQLiteParameter("@ActivityItemReturnsBaseQuantityReturned", this.DataViewItems[idx]["ActivityItemReturnsBaseQuantityReturned"]));
                 cmndItem.Parameters.Add(new SQLiteParameter("@ActivityItemReturnsWeightQuantityReturned", this.DataViewItems[idx]["ActivityItemReturnsWeightQuantityReturned"]));

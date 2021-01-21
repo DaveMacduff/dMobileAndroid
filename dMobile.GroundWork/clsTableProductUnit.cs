@@ -299,7 +299,6 @@ namespace dMobile.GroundWork
                         {
                             while (drUnit.Read())
                             {
-                                Console.WriteLine("___ unit: " + drUnit.GetString(Convert.ToInt32(SysCommon.UnitFields.UnitCode)) + " " + Convert.ToInt32(drUnit.GetValue(Convert.ToInt32(SysCommon.UnitFields.UnitRefno))));
                                 unitLookup.Add(drUnit.GetString(Convert.ToInt32(SysCommon.UnitFields.UnitCode)), Convert.ToInt32(drUnit.GetValue(Convert.ToInt32(SysCommon.UnitFields.UnitRefno))));
                             }
                         }
@@ -648,7 +647,7 @@ namespace dMobile.GroundWork
                                 cmndProdUnit.Parameters.Add(new SQLiteParameter("@baseUnitRefno", Convert.ToInt32(baseUnitRefno)));
                                 cmndProdUnit.Parameters.Add(new SQLiteParameter("@wtUnitRefno", Convert.ToInt32(wtUnitRefno)));
                                 cmndProdUnit.Parameters.Add(new SQLiteParameter("@productUnitIsBC", Convert.ToInt32(isProdUnitBC)));
-                                cmndProdUnit.Parameters.Add(new SQLiteParameter("@productUnitBC", Convert.ToString(isProdUnitBC ? "X" : " ")));
+                                cmndProdUnit.Parameters.Add(new SQLiteParameter("@productUnitBC", Convert.ToString(isProdUnitBC ? "X" : string.Empty)));
                                 cmndProdUnit.Parameters.Add(new SQLiteParameter("@productUnitWeight", Convert.ToDecimal(prodUnitWeight)));
                                 cmndProdUnit.Parameters.Add(new SQLiteParameter("@productUnitSizeDescription", Convert.ToString(description)));
                                 cmndProdUnit.Parameters.Add(new SQLiteParameter("@productUnitIsSellUnit", Convert.ToInt32(isProdUnitSellUnit)));

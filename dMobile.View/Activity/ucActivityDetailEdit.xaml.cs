@@ -101,12 +101,14 @@ namespace dMobile.View.Activity
 
                 if (!this.ActDetail.ActItem.ProdInfo.Scheme.IsBestBeforeDateTrackedDefault)
                 {
-                    this.dtBestBeforeDate.Date = new DateTime(1900, 1, 1);
+                    // Default to current date
+                    this.dtBestBeforeDate.Date = DateTime.Now;
                 }
 
                 if (!this.ActDetail.ActItem.ProdInfo.Scheme.IsProductionDateTrackedDefault)
                 {
-                    this.dtProductionDate.Date = new DateTime(1900, 1, 1);
+                    // Default to current date
+                    this.dtProductionDate.Date = DateTime.Now;
                 }
 
                 this.Title = this.GetControlDescription();
@@ -115,6 +117,8 @@ namespace dMobile.View.Activity
                 this.lbl3.Text = this.ActDetail.ActItem.ProdInfo.Scheme.Extra3Caption;
                 this.lbl4.Text = this.ActDetail.ActItem.ProdInfo.Scheme.Extra4Caption;
                 this.lbl5.Text = this.ActDetail.ActItem.ProdInfo.Scheme.Extra5Caption;
+
+                this.txtAltQty.TextChanged += this.txtAltQty_TextChanged;
             }
         }
 
@@ -134,52 +138,13 @@ namespace dMobile.View.Activity
                 // TODO: Verify keycodes
                 Enum.TryParse(keyPressed, out Keycode keycode);
 
-                // TODO: Remove Keycode.Grave, just for testing
                 if (keycode == Keycode.Escape)
                 {
                     if (await this.CancelChanges())
                     {
+                        this.DialogResult = DialogResult.None;
                         this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     }
-                }
-                else if (keycode == Keycode.Grave)
-                {
-                    if (await this.SaveChanges())
-                    {
-                        if (this.printLabels)
-                        {
-                            if (!this.SysEnv.SysSettings.IsPrintProductLabelsAsBatch)
-                            {
-                                // TODO: Resource strings
-                                if (await DisplayAlert(this.GetControlDescription(), "Print product labels?", "Yes", "No"))
-                                {
-                                    try
-                                    {
-                                        await this.PrintProductLabels();
-                                    }
-                                    catch (Exceptions.MessageOnlyException ex)
-                                    {
-                                        // Even though an error was raised, during label printing allow the control to close.
-                                        ex.Show(this.ActSubType);
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        // Even though an error was raised, during label printing allow the control to close.
-
-                                        await Device.InvokeOnMainThreadAsync(async () =>
-                                        {
-                                            FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
-                                            await errRpt.ShowDialog();
-                                        });
-                                    }
-                                }
-                            }
-                        }
-
-                        this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-                    }
-
-                    await this.Close();
                 }
                 else if (keycode == Keycode.F1)
                 {
@@ -215,7 +180,9 @@ namespace dMobile.View.Activity
                             }
                         }
 
+                        this.DialogResult = DialogResult.OK;
                         this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                        await this.Close();
                     }
                 }
             });
@@ -1026,7 +993,7 @@ namespace dMobile.View.Activity
                     this.ActDetailEdit.SchemeData = schemeData;
                 }
 
-                this.cboSerialNo.SelectedItem = this.ActDetailEdit.SchemeData.SingleTradeItemSerialNumber;
+                this.cboSerialNo.Text = this.ActDetailEdit.SchemeData.SingleTradeItemSerialNumber;
 
                 //if (this.cboSerialNo.See < 0)
                 //{
@@ -1260,10 +1227,10 @@ namespace dMobile.View.Activity
         {
             this.DataViewSerialNumbers = this.ActDetailEdit.GetSerialNumberDataView(prodRefno);
             ObservableCollection<SerialNumber> serialNumberList = new ObservableCollection<SerialNumber>();
-            object selectedSerialNumberItem = this.cboSerialNo.SelectedItem;
+            string selectedSerialNumberItem = this.cboSerialNo.Text;
             SerialNumber selectedSerialNumber = new SerialNumber();
 
-            if (selectedSerialNumberItem != null)
+            if (!string.IsNullOrEmpty(selectedSerialNumberItem))
             {
                 selectedSerialNumber.ActivityDetailSingleTradeItemSerialNumber = Convert.ToString(selectedSerialNumberItem);
                 serialNumberList.Add(selectedSerialNumber);
@@ -1279,12 +1246,12 @@ namespace dMobile.View.Activity
                 serialNumberList.Add(serialNumber);
             }
 
-            this.cboSerialNo.ItemDisplayBinding = new Binding("ActivityDetailSingleTradeItemSerialNumber");
-            this.cboSerialNo.ItemsSource = serialNumberList;
+            //this.cboSerialNo.ItemDisplayBinding = new Binding("ActivityDetailSingleTradeItemSerialNumber");
+            //this.cboSerialNo.ItemsSource = serialNumberList;
 
             if (selectedSerialNumber.ActivityDetailSingleTradeItemSerialNumber != null)
             {
-                this.cboSerialNo.SelectedItem = selectedSerialNumber;
+                this.cboSerialNo.Text = selectedSerialNumber.ActivityDetailSingleTradeItemSerialNumber;
             }
 
             //this.cboSerialNo.ValueMember = "ActivityDetailSingleTradeItemSerialNumber";
@@ -1652,43 +1619,6 @@ namespace dMobile.View.Activity
             this.IsChangesMade = true;
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <remarks></remarks>
-        private void TxtAltQty_TextChanged(object sender, EventArgs e)
-        {
-            decimal qtyEntered = 0;
-            decimal wtQty;
-
-            try
-            {
-                if (!string.IsNullOrEmpty(this.txtAltQty.Text))
-                {
-                    int.TryParse(this.txtAltQty.Text, out int result);
-                    qtyEntered = result;
-                }
-            }
-            catch
-            {
-            }
-
-            if (this.ActDetail.ActItem.ProdInfo.UnitCode == "LB" || this.ActDetail.ActItem.ProdInfo.UnitCode == "KG")
-            {
-                // if the unit code is in LBs or KGs then just use that value
-                wtQty = qtyEntered;
-            }
-            else
-            {
-                // Otherwise the weigth = quantity * weightPerOneQty
-                wtQty = qtyEntered * this.ActDetail.ActItem.ProdInfo.UnitWeight;
-            }
-
-            this.txtWtQty.Text = Math.Round(wtQty, 3).ToString();
-        }
-
         #endregion
 
         private async void BtnSave_Clicked(object sender, EventArgs e)
@@ -1725,16 +1655,51 @@ namespace dMobile.View.Activity
                     }
                 }
 
-                this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                 this.DialogResult = DialogResult.OK;
+                this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                 await this.Close();
             }
         }
 
         private async void BtnCancel_Clicked(object sender, EventArgs e)
         {
-            this.DialogResult = DialogResult.None;
-            await this.Close();
+            if (await this.CancelChanges())
+            {
+                this.DialogResult = DialogResult.None;
+                this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                await this.Close();
+            }
+        }
+
+        private void txtAltQty_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            decimal qtyEntered = 0;
+            decimal wtQty;
+
+            try
+            {
+                if (!string.IsNullOrEmpty(this.txtAltQty.Text))
+                {
+                    int.TryParse(this.txtAltQty.Text, out int result);
+                    qtyEntered = result;
+                }
+            }
+            catch
+            {
+            }
+
+            if (this.ActDetail.ActItem.ProdInfo.UnitCode == "LB" || this.ActDetail.ActItem.ProdInfo.UnitCode == "KG")
+            {
+                // if the unit code is in LBs or KGs then just use that value
+                wtQty = qtyEntered;
+            }
+            else
+            {
+                // Otherwise the weigth = quantity * weightPerOneQty
+                wtQty = qtyEntered * this.ActDetail.ActItem.ProdInfo.UnitWeight;
+            }
+
+            this.txtWtQty.Text = Convert.ToString(Math.Round(wtQty, 3));
         }
     }
 }

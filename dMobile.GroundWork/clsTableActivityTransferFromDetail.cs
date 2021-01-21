@@ -156,26 +156,26 @@
                         + "WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno IN "
                         + "(SELECT tActivityDetail.ActivityDetailRefno "
                         + "FROM tActivityDetail "
-                        + "WHERE tActivityDetail.ActivityDetailSubType = " + (int)SysCommon.ActSubTypes.TransferFrom + ")";
+                        + "WHERE tActivityDetail.ActivityDetailSubType = " + Convert.ToInt32(SysCommon.ActSubTypes.TransferFrom) + ")";
                     cmndPurge.ExecuteNonQuery();
 
                     cmndPurge.CommandText = "DELETE FROM tActivityDetailTransfer "
                         + "WHERE tActivityDetailTransfer.ActivityDetailRefno IN "
                         + "(SELECT tActivityDetail.ActivityDetailRefno "
                         + "FROM tActivityDetail "
-                        + " WHERE tActivityDetail.ActivityDetailSubType = " + (int)SysCommon.ActSubTypes.TransferFrom + ")";
+                        + " WHERE tActivityDetail.ActivityDetailSubType = " + Convert.ToInt32(SysCommon.ActSubTypes.TransferFrom) + ")";
                     cmndPurge.ExecuteNonQuery();
 
                     cmndPurge.CommandText = "DELETE FROM tActivityDetailExtra "
                         + "WHERE tActivityDetailExtra.ActivityDetailRefno IN "
                         + "(SELECT tActivityDetail.ActivityDetailRefno "
                         + "FROM tActivityDetail "
-                        + "WHERE tActivityDetail.ActivityDetailSubType = " + (int)SysCommon.ActSubTypes.TransferFrom + ")";
+                        + "WHERE tActivityDetail.ActivityDetailSubType = " + Convert.ToInt32(SysCommon.ActSubTypes.TransferFrom) + ")";
                     cmndPurge.ExecuteNonQuery();
 
-                    cmndPurge.CommandText = (string)("DELETE FROM tActivityDetail" +
+                    cmndPurge.CommandText = "DELETE FROM tActivityDetail" +
                         " WHERE tActivityDetail.ActivityDetailSubType = " +
-                        Convert.ToInt32(SysCommon.ActSubTypes.TransferFrom));
+                        Convert.ToInt32(SysCommon.ActSubTypes.TransferFrom);
                     cmndPurge.ExecuteNonQuery();
                 }
 

@@ -594,12 +594,14 @@ namespace dMobile.Bedrock
                     {
                         XmlDocument docError = new XmlDocument();
                         docError.LoadXml(reqData);
-//#if MULTILANGUAGE
-//            MessageBox.Show(Translator.GetInstance().Translate(TranslatorVocabulary.SubmitContactLogInError) + Strings.Chr(13) +
-//#else
-//                        MessageBox.Show("Submit contact log in error" + Strings.Chr(13) +
-//#endif
-// docError.DocumentElement["detail"].InnerText);
+
+                        // TODO: Logging
+                        //#if MULTILANGUAGE
+                        //            MessageBox.Show(Translator.GetInstance().Translate(TranslatorVocabulary.SubmitContactLogInError) + Strings.Chr(13) +
+                        //#else
+                        //                        MessageBox.Show("Submit contact log in error" + Strings.Chr(13) +
+                        //#endif
+                        // docError.DocumentElement["detail"].InnerText);
                         docError = null;
                     }
                 }
@@ -677,12 +679,14 @@ namespace dMobile.Bedrock
                         XmlDocument docError = new XmlDocument();
                         docError.LoadXml(reqData);
                         string errorDetail = docError.DocumentElement["detail"].InnerText;
-//#if MULTILANGUAGE
-//            MessageBox.Show(Translator.GetInstance().Translate(TranslatorVocabulary.SubmitContactLogOutError) + Strings.Chr(13) +
-//#else
-//                        MessageBox.Show("Submit contact log out error" + Strings.Chr(13) +
-//#endif
-// errorDetail);
+
+                        // TODO: Logging
+                        //#if MULTILANGUAGE
+                        //            MessageBox.Show(Translator.GetInstance().Translate(TranslatorVocabulary.SubmitContactLogOutError) + Strings.Chr(13) +
+                        //#else
+                        //                        MessageBox.Show("Submit contact log out error" + Strings.Chr(13) +
+                        //#endif
+                        // errorDetail);
                         docError = null;
                     }
                 }

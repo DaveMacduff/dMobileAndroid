@@ -125,10 +125,9 @@ namespace dMobile.Controller
                 cmndProdUnitBarCode.CommandType = CommandType.Text;
                 cmndProdUnitBarCode.CommandText = "SELECT ProductUnitRefno, ProductUnitBarCodeRefno "
                     + "FROM tProductUnitBarCode "
-                    + "WHERE tProductUnitBarCode.ProductUnitBarCodeCode = @productUnitBarCodeCode "
-                    + "AND tProductUnitBarCode.ProductUnitBarCodeModifier1 = @productUnitBarCodeModifier1";
-                //cmndProdUnitBarCode.Parameters.Add(new SQLiteParameter("@productUnitBarCodeCode", prodIdentifier.PadRight(20)));
-                cmndProdUnitBarCode.Parameters.Add(new SQLiteParameter("@productUnitBarCodeCode", prodIdentifier));
+                    + "WHERE ProductUnitBarCodeCode = @productUnitBarCodeCode "
+                    + "AND ProductUnitBarCodeModifier1 = @productUnitBarCodeModifier1";
+                cmndProdUnitBarCode.Parameters.Add(new SQLiteParameter("@productUnitBarCodeCode", prodIdentifier.PadRight(20)));
                 cmndProdUnitBarCode.Parameters.Add(new SQLiteParameter("@productUnitBarCodeModifier1", data.Root.Element("ProductUnitBarCodeModifier1").Value));
 
                 using (SQLiteDataReader drProdUnitBarCode = cmndProdUnitBarCode.ExecuteReader())
@@ -146,27 +145,13 @@ namespace dMobile.Controller
                             isProdUnitBarCodeFound = true;
 
                             // TODO: Resource strings
-                            throw new MessageOnlyException(string.Format("Scanned bar code is already associated to a different product {0} {1} {2}.", prodCode, prodUnitBC, unitCode));
-
-                            // TODO: DisplayAlert
-                            //              MessageBox.Show(
-                            //                  string.Format(
-                            //#if MULTILANGUAGE
-                            //                  Translator.GetInstance().Translate(TranslatorVocabulary.ScannedBarCodeIsAlreadyAssociatedToADifferentProduct), 
-                            //#else
-                            //                  "Scanned bar code is already associated to a different product {0} {1} {2}.", 
-                            //#endif
-                            //                  prodCode, 
-                            //                  prodUnitBC, 
-                            //                  unitCode), 
-                            //#if MULTILANGUAGE
-                            //                  Translator.GetInstance().Translate(TranslatorVocabulary.BarCodez), 
-                            //#else
-                            //                  "Bar Code", 
-                            //#endif
-                            //                  MessageBoxButtons.OK, 
-                            //                  MessageBoxIcon.Hand, 
-                            //                  MessageBoxDefaultButton.Button1);
+                            await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert("Bar Code",
+                                string.Format(
+                                    "Scanned bar code is already associated to a different product {0} {1} {2}.",
+                                    prodCode,
+                                    prodUnitBC,
+                                    unitCode),
+                                "Yes", "No"));
                         }
                     }
                 }
@@ -312,16 +297,16 @@ namespace dMobile.Controller
 
             if (isSubmitBatch)
             {
-                sql.Append("SELECT tActivityItem.ActivityItemRefno,");
-                sql.Append("tProduct.ProductCode,");
-                sql.Append("tProductUnit.ProductUnitRefno,");
-                sql.Append("tProductUnit.ProductUnitBC,");
-                sql.Append("tProductUnit.ProductUnitIsBC,");
-                sql.Append("tUnit.UnitCode,");
-                sql.Append("tProductUnitBarCode.ProductUnitBarCodeRefno,");
-                sql.Append("tProductUnitBarCode.ProductUnitBarCodeCode,");
-                sql.Append("tProductUnitBarCode.ProductUnitBarCodeModifier1,");
-                sql.Append("tProductUnitBarCode.ProductUnitBarCodeSymbologyEnum,");
+                sql.Append("SELECT tActivityItem.ActivityItemRefno AS ActivityItemRefno,");
+                sql.Append("tProduct.ProductCode AS ProductCode,");
+                sql.Append("tProductUnit.ProductUnitRefno AS ProductUnitRefno,");
+                sql.Append("tProductUnit.ProductUnitBC AS ProductUnitBC,");
+                sql.Append("tProductUnit.ProductUnitIsBC AS ProductUnitIsBC,");
+                sql.Append("tUnit.UnitCode AS UnitCode,");
+                sql.Append("tProductUnitBarCode.ProductUnitBarCodeRefno AS ProductUnitBarCodeRefno,");
+                sql.Append("tProductUnitBarCode.ProductUnitBarCodeCode AS ProductUnitBarCodeCode,");
+                sql.Append("tProductUnitBarCode.ProductUnitBarCodeModifier1 AS ProductUnitBarCodeModifier1,");
+                sql.Append("tProductUnitBarCode.ProductUnitBarCodeSymbologyEnum AS ProductUnitBarCodeSymbologyEnum,");
                 sql.Append("tActivityItem.ActivityItemStatus AS ActivityStatus ");
                 sql.Append("FROM tActivityItem ");
                 sql.Append("INNER JOIN tActivityItemBarCodeAssociationXRef ON ");
@@ -332,21 +317,21 @@ namespace dMobile.Controller
                 sql.Append("INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno ");
                 sql.Append("INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno ");
                 sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.Refno);
-                sql.AppendFormat("AND tActivityItem.ActivityItemStatus <> {0} ", (int)SysCommon.ActStatus.NoChange);
+                sql.AppendFormat("AND tActivityItem.ActivityItemStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append("ORDER BY tActivityItem.ActivityItemRefno");
             }
             else
             {
-                sql.Append("SELECT tActivityItem.ActivityItemRefno,");
-                sql.Append("tProduct.ProductCode,");
-                sql.Append("tProductUnit.ProductUnitRefno,");
-                sql.Append("tProductUnit.ProductUnitBC,");
-                sql.Append("tProductUnit.ProductUnitIsBC,");
-                sql.Append("tUnit.UnitCode,");
-                sql.Append("tProductUnitBarCode.ProductUnitBarCodeRefno,");
-                sql.Append("tProductUnitBarCode.ProductUnitBarCodeCode,");
-                sql.Append("tProductUnitBarCode.ProductUnitBarCodeModifier1,");
-                sql.Append("tProductUnitBarCode.ProductUnitBarCodeSymbologyEnum,");
+                sql.Append("SELECT tActivityItem.ActivityItemRefno AS ActivityItemRefno,");
+                sql.Append("tProduct.ProductCode AS ProductCode,");
+                sql.Append("tProductUnit.ProductUnitRefno AS ProductUnitRefno,");
+                sql.Append("tProductUnit.ProductUnitBC AS ProductUnitBC,");
+                sql.Append("tProductUnit.ProductUnitIsBC AS ProductUnitIsBC,");
+                sql.Append("tUnit.UnitCode AS UnitCode,");
+                sql.Append("tProductUnitBarCode.ProductUnitBarCodeRefno AS ProductUnitBarCodeRefno,");
+                sql.Append("tProductUnitBarCode.ProductUnitBarCodeCode AS ProductUnitBarCodeCode,");
+                sql.Append("tProductUnitBarCode.ProductUnitBarCodeModifier1 AS ProductUnitBarCodeModifier1,");
+                sql.Append("tProductUnitBarCode.ProductUnitBarCodeSymbologyEnum AS ProductUnitBarCodeSymbologyEnum,");
                 sql.Append("tActivityItem.ActivityItemStatus AS ActivityStatus ");
                 sql.Append("FROM tActivityItem ");
                 sql.Append("INNER JOIN tActivityItemBarCodeAssociationXRef ");
@@ -455,8 +440,8 @@ namespace dMobile.Controller
                     {
                         cmndItem.CommandType = CommandType.Text;
                         cmndItem.CommandText = "UPDATE tActivityItem "
-                            + "SET tActivityItem.ActivityItemStatus = " + Convert.ToInt32(SysCommon.ActStatus.NoChange)
-                            + " WHERE tActivityItem.ActivityItemRefno = " + this.Refno;
+                            + "SET ActivityItemStatus = " + Convert.ToInt32(SysCommon.ActStatus.NoChange)
+                            + " WHERE ActivityItemRefno = " + this.Refno;
                         cmndItem.ExecuteNonQuery();
                     }
 

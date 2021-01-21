@@ -38,7 +38,7 @@ namespace dMobile.GroundWork
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Default picking locations.", true);
 
-                string reqData = this.SendRequest((int)SysCommon.ProdLocMapTypes.Picking);
+                string reqData = this.SendRequest(Convert.ToInt32(SysCommon.ProdLocMapTypes.Picking));
 
                 if (0 < reqData.Length)
                 {
@@ -58,7 +58,7 @@ namespace dMobile.GroundWork
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Default receiving locations.", true);
 
-                reqData = this.SendRequest((int)SysCommon.ProdLocMapTypes.Receiving);
+                reqData = this.SendRequest(Convert.ToInt32(SysCommon.ProdLocMapTypes.Receiving));
 
                 if (0 < reqData.Length)
                 {
@@ -247,7 +247,7 @@ namespace dMobile.GroundWork
                                     //{
                                     if (drWhs.Read())
                                     {
-                                        whsLocMapRefno = Convert.ToInt32(drWhs.GetValue((int)SysCommon.LocMapWhsFields.LocMapRefno));
+                                        whsLocMapRefno = Convert.ToInt32(drWhs.GetValue(Convert.ToInt32(SysCommon.LocMapWhsFields.LocMapRefno)));
                                     }
                                     else
                                     {
@@ -311,7 +311,7 @@ namespace dMobile.GroundWork
                                             //{
                                             if (drWhs.Read())
                                             {
-                                                locMapRefno = Convert.ToInt32(drWhs.GetValue((int)SysCommon.LocMapWhsFields.LocMapRefno));
+                                                locMapRefno = Convert.ToInt32(drWhs.GetValue(Convert.ToInt32(SysCommon.LocMapWhsFields.LocMapRefno)));
                                             }
                                             else
                                             {
@@ -343,7 +343,7 @@ namespace dMobile.GroundWork
                                             if (drSect.Read())
                                             {
                                                 locMapRefno = Convert.ToInt32(
-                                                    drSect.GetValue((int)SysCommon.LocMapSectFields.LocMapRefno));
+                                                    drSect.GetValue(Convert.ToInt32(SysCommon.LocMapSectFields.LocMapRefno)));
                                             }
                                             else
                                             {
@@ -374,7 +374,7 @@ namespace dMobile.GroundWork
                                             //{
                                             if (drSlot.Read())
                                             {
-                                                locMapRefno = Convert.ToInt32(drSlot.GetValue((int)SysCommon.LocMapSlotFields.LocMapRefno));
+                                                locMapRefno = Convert.ToInt32(drSlot.GetValue(Convert.ToInt32(SysCommon.LocMapSlotFields.LocMapRefno)));
                                             }
                                             else
                                             {
@@ -414,7 +414,7 @@ namespace dMobile.GroundWork
                                         //{
                                         if (drLocMapType.Read())
                                         {
-                                            currWhsLocMapRefno = Convert.ToInt32(drLocMapType.GetValue((int)SysCommon.WhsLocMapTypeFields.LocMapRefno));
+                                            currWhsLocMapRefno = Convert.ToInt32(drLocMapType.GetValue(Convert.ToInt32(SysCommon.WhsLocMapTypeFields.LocMapRefno)));
                                             isLocMapTypeFound = true;
                                         }
                                         else

@@ -121,10 +121,7 @@
                 {
                     if (keycode == Keycode.Enter)
                     {
-                        if (this.dataGridMainActivity.SelectedItem != null && (Convert.ToInt32(this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem)) > -1))
-                        {
-                            await this.DataGridMainActivity_KeyUpEnter(this, null);
-                        }
+                        await this.DataGridMainActivity_KeyUpEnter();
                     }
                     else if (keycode == Keycode.Escape)
                     {
@@ -195,6 +192,7 @@
 
         /// <summary>
         /// Handle double click on listview item
+        /// Using a tap gesture recognizer in the designGrid would be optimal, however there is currently a known bug that prevents selectedItemChanged from firing
         /// </summary>
         private async void DataGridMainActivity_ItemTapped(object sender, ItemTappedEventArgs e)
         {
@@ -211,10 +209,7 @@
                 {
                     this.numTaps = 0;
 
-                    if (this.dataGridMainActivity.SelectedItem != null && (Convert.ToInt32(this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem)) > -1))
-                    {
-                        await this.DataGridMainActivity_KeyUpEnter(this, null);
-                    }
+                    await this.DataGridMainActivity_KeyUpEnter();
                 }
             }
             else
@@ -1682,84 +1677,87 @@
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private async Task DataGridMainActivity_KeyUpEnter(object sender, KeyEventArgs e)
+        private async Task DataGridMainActivity_KeyUpEnter()
         {
-            await Task.Run(async () =>
+            if (!this.Loading && this.dataGridMainActivity.SelectedItem != null && (Convert.ToInt32(this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem)) > -1))
             {
-                try
+                await Task.Run(async () =>
                 {
-                    this.Loading = true;
-
-                    this.ReqCancelDisableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-                    this.ReqSaveDisableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-
-                    this.ScannerDisable();
-                    this.ActHdr.Refno = this.ActHdr.GetRefnoFromRowIdx(Convert.ToInt32(this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem)));
-
-                    if (this.SysEnv.SysSettings.IsPickSingleProd && this.ActSubType == SysCommon.ActSubTypes.PickingSingle)
+                    try
                     {
-                        bool isAllowedToPick = true;
+                        this.Loading = true;
 
-                        if (await ((PickingActivity)this.ActHdr).IsSalesOrderBeingPicked())
+                        this.ReqCancelDisableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                        this.ReqSaveDisableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+
+                        this.ScannerDisable();
+                        this.ActHdr.Refno = this.ActHdr.GetRefnoFromRowIdx(Convert.ToInt32(this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem)));
+
+                        if (this.SysEnv.SysSettings.IsPickSingleProd && this.ActSubType == SysCommon.ActSubTypes.PickingSingle)
                         {
-                            isAllowedToPick = false;
+                            bool isAllowedToPick = true;
 
-                            if (this.SysEnv.ContactLog.IsAllowedPickingModuleOverridePicker)
+                            if (await ((PickingActivity)this.ActHdr).IsSalesOrderBeingPicked())
                             {
+                                isAllowedToPick = false;
+
+                                if (this.SysEnv.ContactLog.IsAllowedPickingModuleOverridePicker)
+                                {
                                 //if (MessageBox.Show("Do you wish to clear the current picker?", "Picker Override", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
 
                                 if (await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Picker Override", "Do you wish to clear the current picker?", "Yes", "No")))
-                                {
-                                    if (await ((PickingActivity)this.ActHdr).ClearSalesOrderBeingPicked(false))
                                     {
+                                        if (await ((PickingActivity)this.ActHdr).ClearSalesOrderBeingPicked(false))
+                                        {
                                         //MessageBox.Show("Picker cleared.", "Picker Override", MessageBoxButtons.OK, MessageBoxIcon.Hand, MessageBoxDefaultButton.Button1);
                                         await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Picker Override", "Picker cleared.", "OK"));
-                                    }
-                                    else
-                                    {
+                                        }
+                                        else
+                                        {
                                         //MessageBox.Show("Unable to clear the current picker.", "Picker Override", MessageBoxButtons.OK, MessageBoxIcon.Hand, MessageBoxDefaultButton.Button1);
                                         await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Picker Override", "Unable to clear the current picker.", "OK"));
+                                        }
                                     }
                                 }
                             }
-                        }
 
-                        if (isAllowedToPick)
+                            if (isAllowedToPick)
+                            {
+                                FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucActivityItemSingle, this.ActHdr, this.ActSubType);
+                                this.IsChangesMade = false;
+                                await Device.InvokeOnMainThreadAsync(async () => await form.DisplayControl.ShowDialog());
+                            }
+                        }
+                        else
                         {
-                            FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucActivityItemSingle, this.ActHdr, this.ActSubType);
+                            FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucActivityItem, this.ActHdr, this.ActSubType);
                             this.IsChangesMade = false;
                             await Device.InvokeOnMainThreadAsync(async () => await form.DisplayControl.ShowDialog());
                         }
                     }
-                    else
+                    catch (Exceptions.MessageOnlyException ex)
                     {
-                        FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucActivityItem, this.ActHdr, this.ActSubType);
-                        this.IsChangesMade = false;
-                        await Device.InvokeOnMainThreadAsync(async () => await form.DisplayControl.ShowDialog());
+                        ex.Show(this.ActSubType);
                     }
-                }
-                catch (Exceptions.MessageOnlyException ex)
-                {
-                    ex.Show(this.ActSubType);
-                }
-                catch (Exception ex)
-                {
-                    await Device.InvokeOnMainThreadAsync(async () =>
+                    catch (Exception ex)
                     {
-                        FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
-                        await errRpt.ShowDialog();
-                    });
-                }
-                finally
-                {
-                    this.ScannerEnable();
+                        await Device.InvokeOnMainThreadAsync(async () =>
+                        {
+                            FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                            await errRpt.ShowDialog();
+                        });
+                    }
+                    finally
+                    {
+                        this.ScannerEnable();
 
-                    this.ReqCancelEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-                    this.ReqSaveEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                        this.ReqCancelEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                        this.ReqSaveEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
 
-                    this.Loading = false;
-                }
-            });
+                        this.Loading = false;
+                    }
+                });
+            }
         }
 
         /// <summary>

@@ -1,0 +1,57 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<modal:DMobileModal
+    xmlns:modal="clr-namespace:dMobile.View.CustomPages.Modal"
+    xmlns="http://xamarin.com/schemas/2014/forms"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" xmlns:Helpers="clr-namespace:dMobile.View.Helpers"
+    x:Class="dMobile.View.Views.ucActivityConvertUnitWeightEdit">
+    <ContentPage.Content>
+        <AbsoluteLayout VerticalOptions="FillAndExpand">
+            <Grid Padding="10" AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0,0,1,1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0" Padding="10" ColumnSpacing="15" VerticalOptions="CenterAndExpand" HorizontalOptions="CenterAndExpand">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="35*"/>
+                        <ColumnDefinition Width="65*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Label x:Name="lblUnitNumber" Grid.Row="0" Grid.Column="0" FontAttributes="Bold" VerticalOptions="Center"/>
+                    <Label x:Name="lblUnitNumberValue" Grid.Row="0" Grid.Column="1" VerticalOptions="Center"/>
+
+                    <Label x:Name="lblQuantity" Grid.Row="1" Grid.Column="0" FontAttributes="Bold" VerticalOptions="Center"/>
+                    <Label x:Name="lblQuantityValue" Grid.Row="1" Grid.Column="1" VerticalOptions="Center"/>
+
+                    <Label x:Name="lblWeight" Grid.Row="2" Grid.Column="0" FontAttributes="Bold" VerticalOptions="Center"/>
+                    <Entry x:Name="entryWeight" Grid.Row="2" Grid.Column="1" Keyboard="Numeric" VerticalOptions="Center"/>
+                </Grid>
+
+                <Grid Grid.Row="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Button x:Name="cmdSave" Grid.Row="0" Grid.Column="0" Clicked="cmdSave_Clicked" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                    <Button x:Name="cmdCancel" Grid.Row="0" Grid.Column="1" Clicked="cmdCancel_Clicked" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                </Grid>
+            </Grid>
+
+            <ActivityIndicator IsVisible="{Binding Loading}" 
+                               IsRunning="{Binding Loading}"
+                               AbsoluteLayout.LayoutFlags="All" 
+                               AbsoluteLayout.LayoutBounds="0.5,0.5,0.3,0.3"/>
+        </AbsoluteLayout>
+    </ContentPage.Content>
+</modal:DMobileModal>

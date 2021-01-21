@@ -17,7 +17,6 @@ using Xamarin.Forms.Xaml;
 
 namespace dMobile.View.Activity
 {
-    // TODO: TEST FORM
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ucActivityItemInventoryInquiry : DMobileModal, IAppArea, IAppPublisher
     {

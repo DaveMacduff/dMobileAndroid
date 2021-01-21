@@ -77,11 +77,10 @@ namespace dMobile.Controller
                     if (reqData.Contains("<message>ERROR</message>"))
                     {
                         string errorDetail = string.Format(
-#if MULTILANGUAGE
-                Translator.GetInstance().Translate(TranslatorVocabulary.OrderRequestShippingLabelsQuantityFailed) + Environment.NewLine + "{1}",
-#else
+
+                // TODO: Resource strings
                 "Order# {0} request shipping label(s) quantity failed." + Environment.NewLine + "{1}",
-#endif
+
                 this.FKRefno,
                             xmlResult.DocumentElement["detail"].InnerText);
                         if (errorDetail.Contains("MSGBOX-"))
@@ -145,12 +144,8 @@ namespace dMobile.Controller
                 }
                 else
                 {
-                    throw new Exception(
-#if MULTILANGUAGE
-              string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.OrderItemRequestShippingLabelsQuantityFailed), this.FKRefno));
-#else
-              string.Format("Order # {0} item request shipping label(s) quantity failed.", this.FKRefno));
-#endif
+                    // TODO: Resource strings
+                    throw new Exception(string.Format("Order # {0} item request shipping label(s) quantity failed.", this.FKRefno));
                 }
             }
             catch (Exception ex)
@@ -231,7 +226,7 @@ namespace dMobile.Controller
                     switch (this.SysEnv.SysSettings.PickQtyOverWarn)
                     {
                         case SysCommon.ActPickingQtyOverValLevels.ValidateWarnAndContinue:
-                            // TODO: DisplayAlert
+                            // TODO: Resource strings
                             if (await Application.Current.MainPage.DisplayAlert("Quantity Over", ex.Message + Environment.NewLine + "Continue?", "Yes", "No"))
                             {
                                 throw new IsReadyToApplyException(ex.Message, true, true);
@@ -389,11 +384,8 @@ namespace dMobile.Controller
         /// <returns></returns>
         public override string GetUnableToParseItemFKRefnoMessage(string actItemStringFKRefno)
         {
-#if MULTILANGUAGE
-      return string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.UnableToParseSalesOrderItemz), actItemStringFKRefno);
-#else
+            // TODO: Resource strings
             return string.Format("Unable to parse sales order item # {0}", actItemStringFKRefno);
-#endif
         }
 
         /// <summary>
@@ -403,11 +395,8 @@ namespace dMobile.Controller
         /// <returns></returns>
         public override string GetUnableToFindItemFKRefnoMessage(string actItemStringFKRefno)
         {
-#if MULTILANGUAGE
-      return string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.UnableToFindSalesOrderItemz), actItemStringFKRefno);
-#else
+            // TODO: Resource strings
             return string.Format("Unable to find sales order item # {0}", actItemStringFKRefno);
-#endif
         }
 
         /// <summary>
@@ -558,35 +547,35 @@ namespace dMobile.Controller
 
             if (isSubmitBatch)
             {
-                sql.Append("SELECT tActivityItemPicking.ActivityItemRefno,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingFKRefno,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingStringFKRefno,");
-                sql.Append("tProductUnit.ProductUnitRefno,");
-                sql.Append("tProduct.ProductRefno,");
-                sql.Append("tProduct.ProductCode,");
-                sql.Append("tProduct.ProductDescription,");
-                sql.Append("tProduct.ProductBrandDescription,");
-                sql.Append("tUnit.UnitCode,");
+                sql.Append("SELECT tActivityItemPicking.ActivityItemRefno AS ActivityItemRefno,");
+                sql.Append("tActivityItemPicking.ActivityItemPickingFKRefno AS ActivityItemPickingFKRefno,");
+                sql.Append("tActivityItemPicking.ActivityItemPickingStringFKRefno AS ActivityItemPickingStringFKRefno,");
+                sql.Append("tProductUnit.ProductUnitRefno AS ProductUnitRefno,");
+                sql.Append("tProduct.ProductRefno AS ProductRefno,");
+                sql.Append("tProduct.ProductCode AS ProductCode,");
+                sql.Append("tProduct.ProductDescription AS ProductDescription,");
+                sql.Append("tProduct.ProductBrandDescription AS ProductBrandDescription,");
+                sql.Append("tUnit.UnitCode AS UnitCode,");
                 sql.Append("tUnitBase.UnitCode AS BaseUnitCode,");
-                sql.Append("tProductUnit.ProductUnitBC,");
-                sql.Append("tProductUnit.ProductUnitSizeDescription,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingQuantityOrdered,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingBaseQuantityOrdered,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingWeightQuantityOrdered,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingQuantityShipped,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingBaseQuantityShipped,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingWeightQuantityShipped,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingCustomerProductUnitCode,");
-                sql.Append("tLocationMapWarehouse.LocationMapRefno,");
+                sql.Append("tProductUnit.ProductUnitBC AS ProductUnitBC,");
+                sql.Append("tProductUnit.ProductUnitSizeDescription AS ProductUnitSizeDescription,");
+                sql.Append("tActivityItemPicking.ActivityItemPickingQuantityOrdered AS ActivityItemPickingQuantityOrdered,");
+                sql.Append("tActivityItemPicking.ActivityItemPickingBaseQuantityOrdered AS ActivityItemPickingBaseQuantityOrdered,");
+                sql.Append("tActivityItemPicking.ActivityItemPickingWeightQuantityOrdered AS ActivityItemPickingWeightQuantityOrdered,");
+                sql.Append("tActivityItemPicking.ActivityItemPickingQuantityShipped AS ActivityItemPickingQuantityShipped,");
+                sql.Append("tActivityItemPicking.ActivityItemPickingBaseQuantityShipped AS ActivityItemPickingBaseQuantityShipped,");
+                sql.Append("tActivityItemPicking.ActivityItemPickingWeightQuantityShipped AS ActivityItemPickingWeightQuantityShipped,");
+                sql.Append("tActivityItemPicking.ActivityItemPickingCustomerProductUnitCode AS ActivityItemPickingCustomerProductUnitCode,");
+                sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapWarehouseCode AS LocationCode,");
                 sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationName,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingQuantityAvailable,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingBaseQuantityAvailable,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingWeightQuantityAvailable,");
+                sql.Append("tActivityItemPicking.ActivityItemPickingQuantityAvailable AS ActivityItemPickingQuantityAvailable,");
+                sql.Append("tActivityItemPicking.ActivityItemPickingBaseQuantityAvailable AS ActivityItemPickingBaseQuantityAvailable,");
+                sql.Append("tActivityItemPicking.ActivityItemPickingWeightQuantityAvailable AS ActivityItemPickingWeightQuantityAvailable,");
                 sql.Append("CASE WHEN tActivityItemPickingComment.ActivityItemPickingCommentComment IS NULL THEN \' \' ");
                 sql.Append("ELSE \'*\' END AS IsActivityItemPickingComment,");
-                sql.Append("tActivityItem.ActivityItemStatus,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingIsReviewed ");
+                sql.Append("tActivityItem.ActivityItemStatus AS ActivityItemStatus,");
+                sql.Append("tActivityItemPicking.ActivityItemPickingIsReviewed AS ActivityItemPickingIsReviewed ");
                 sql.Append("FROM tActivityItemPicking ");
                 sql.Append("INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno = ");
                 sql.Append("tActivityItemPicking.ActivityItemRefno ");
@@ -599,7 +588,7 @@ namespace dMobile.Controller
                 sql.Append("LEFT JOIN tActivityItemPickingComment ON tActivityItemPickingComment.ActivityItemRefno = ");
                 sql.Append("tActivityItemPicking.ActivityItemRefno ");
                 sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.Refno);
-                sql.AppendFormat("AND tActivityItem.ActivityItemStatus <> {0} ", (int)SysCommon.ActStatus.NoChange);
+                sql.AppendFormat("AND tActivityItem.ActivityItemStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append("UNION ");
                 sql.Append("SELECT tActivityItemPicking.ActivityItemRefno,");
                 sql.Append("tActivityItemPicking.ActivityItemPickingFKRefno,");
@@ -644,39 +633,39 @@ namespace dMobile.Controller
                 sql.Append("LEFT JOIN tActivityItemPickingComment ON tActivityItemPickingComment.ActivityItemRefno = ");
                 sql.Append("tActivityItemPicking.ActivityItemRefno ");
                 sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.Refno);
-                sql.AppendFormat("AND tActivityDetail.ActivityDetailStatus <> {0} ", (int)SysCommon.ActStatus.NoChange);
+                sql.AppendFormat("AND tActivityDetail.ActivityDetailStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append("ORDER BY tActivityItemPicking.ActivityItemRefno");
             }
             else
             {
-                sql.Append("SELECT tActivityItemPicking.ActivityItemRefno,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingFKRefno,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingStringFKRefno,");
-                sql.Append("tProductUnit.ProductUnitRefno,");
-                sql.Append("tProduct.ProductRefno,");
-                sql.Append("tProduct.ProductCode,");
-                sql.Append("tProduct.ProductDescription,");
-                sql.Append("tProduct.ProductBrandDescription,");
-                sql.Append("tUnit.UnitCode,");
+                sql.Append("SELECT tActivityItemPicking.ActivityItemRefno AS ActivityItemRefno,");
+                sql.Append("tActivityItemPicking.ActivityItemPickingFKRefno AS ActivityItemPickingFKRefno,");
+                sql.Append("tActivityItemPicking.ActivityItemPickingStringFKRefno AS ActivityItemPickingStringFKRefno,");
+                sql.Append("tProductUnit.ProductUnitRefno AS ProductUnitRefno,");
+                sql.Append("tProduct.ProductRefno AS ProductRefno,");
+                sql.Append("tProduct.ProductCode AS ProductCode,");
+                sql.Append("tProduct.ProductDescription AS ProductDescription,");
+                sql.Append("tProduct.ProductBrandDescription AS ProductBrandDescription,");
+                sql.Append("tUnit.UnitCode AS UnitCode,");
                 sql.Append("tUnitBase.UnitCode AS BaseUnitCode,");
-                sql.Append("tProductUnit.ProductUnitBC,");
-                sql.Append("tProductUnit.ProductUnitSizeDescription,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingQuantityOrdered,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingBaseQuantityOrdered,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingWeightQuantityOrdered,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingQuantityShipped,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingBaseQuantityShipped,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingWeightQuantityShipped,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingCustomerProductUnitCode,");
-                sql.Append("tLocationMapWarehouse.LocationMapRefno,");
+                sql.Append("tProductUnit.ProductUnitBC AS ProductUnitBC,");
+                sql.Append("tProductUnit.ProductUnitSizeDescription AS ProductUnitSizeDescription,");
+                sql.Append("tActivityItemPicking.ActivityItemPickingQuantityOrdered AS ActivityItemPickingQuantityOrdered,");
+                sql.Append("tActivityItemPicking.ActivityItemPickingBaseQuantityOrdered AS ActivityItemPickingBaseQuantityOrdered,");
+                sql.Append("tActivityItemPicking.ActivityItemPickingWeightQuantityOrdered AS ActivityItemPickingWeightQuantityOrdered,");
+                sql.Append("tActivityItemPicking.ActivityItemPickingQuantityShipped AS ActivityItemPickingQuantityShipped,");
+                sql.Append("tActivityItemPicking.ActivityItemPickingBaseQuantityShipped AS ActivityItemPickingBaseQuantityShipped,");
+                sql.Append("tActivityItemPicking.ActivityItemPickingWeightQuantityShipped AS ActivityItemPickingWeightQuantityShipped,");
+                sql.Append("tActivityItemPicking.ActivityItemPickingCustomerProductUnitCode AS ActivityItemPickingCustomerProductUnitCode,");
+                sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapWarehouseCode AS LocationCode,");
                 sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationName,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingQuantityAvailable,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingBaseQuantityAvailable,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingWeightQuantityAvailable,");
+                sql.Append("tActivityItemPicking.ActivityItemPickingQuantityAvailable AS ActivityItemPickingQuantityAvailable,");
+                sql.Append("tActivityItemPicking.ActivityItemPickingBaseQuantityAvailable AS ActivityItemPickingBaseQuantityAvailable,");
+                sql.Append("tActivityItemPicking.ActivityItemPickingWeightQuantityAvailable AS ActivityItemPickingWeightQuantityAvailable,");
                 sql.Append("CASE WHEN tActivityItemPickingComment.ActivityItemPickingCommentComment IS NULL THEN \' \' ");
                 sql.Append("ELSE \'*\' END AS IsActivityItemPickingComment,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingIsReviewed ");
+                sql.Append("tActivityItemPicking.ActivityItemPickingIsReviewed AS ActivityItemPickingIsReviewed ");
                 sql.Append("FROM tActivityItemPicking ");
                 sql.Append("INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno = ");
                 sql.Append("tActivityItemPicking.ActivityItemRefno ");
@@ -856,7 +845,7 @@ namespace dMobile.Controller
                     + this.DataViewItems[idx]["ActivityItemPickingBaseQuantityShipped"] + "," +
                     " ActivityItemPickingWeightQuantityShipped = "
                     + this.DataViewItems[idx]["ActivityItemPickingWeightQuantityShipped"] +
-                    " WHERE tActivityItemPicking.ActivityItemRefno = " + actItemRefno;
+                    " WHERE ActivityItemRefno = " + actItemRefno;
                 cmndItem.ExecuteNonQuery();
             }
         }
@@ -900,22 +889,13 @@ namespace dMobile.Controller
 
             if (this.CurrRowIdx >= 0 && this.CurrRowIdx < this.DataViewItems.Count)
             {
-                decimal shipped = (decimal)this.DataViewItems[this.CurrRowIdx]["ActivityItemPickingQuantityShipped"];
-                decimal ordered = (decimal)this.DataViewItems[this.CurrRowIdx]["ActivityItemPickingQuantityOrdered"];
+                decimal shipped = Convert.ToDecimal(this.DataViewItems[this.CurrRowIdx]["ActivityItemPickingQuantityShipped"]);
+                decimal ordered = Convert.ToDecimal(this.DataViewItems[this.CurrRowIdx]["ActivityItemPickingQuantityOrdered"]);
 
                 if (shipped + actItemPickQuantity > ordered)
                 {
-                    throw new Exception(
-                        string.Format(
-#if MULTILANGUAGE
-              Translator.GetInstance().Translate(TranslatorVocabulary.TheResultingQuantityShippedWillBeGreaterThanTheQuantityOrdered),
-#else
-              "The resulting quantity shipped {0} {1} will be greater than the quantity ordered {2} {3}.",
-#endif
-              shipped + actItemPickQuantity,
-                        this.ProdInfo.UnitCode,
-                        ordered,
-                        this.ProdInfo.UnitCode));
+                    // TODO: Resource strings
+                    throw new Exception(string.Format("The resulting quantity shipped {0} {1} will be greater than the quantity ordered {2} {3}.", shipped + actItemPickQuantity, this.ProdInfo.UnitCode, ordered, this.ProdInfo.UnitCode));
                 }
             }
         }

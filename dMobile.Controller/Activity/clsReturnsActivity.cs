@@ -247,22 +247,22 @@ namespace dMobile.Controller
 
             if (isSubmitBatch)
             {
-                sql.Append("SELECT tActivityReturns.ActivityRefno,");
-                sql.Append("tActivityReturns.ActivityReturnsFKRefno,");
-                sql.Append("tActivityReturns.ActivityReturnsStringFKRefno,");
-                sql.Append("tActivityReturns.ActivityReturnsOrderedDateTime,");
-                sql.Append("tActivityReturns.ActivityReturnsDeliveryDateTime,");
-                sql.Append("tLocationMapWarehouse.LocationMapRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseName,");
-                sql.Append("tActivityReturns.ActivityReturnsCustomerContactName,");
-                sql.Append("tActivityReturns.ActivityReturnsCustomerShipToInfo,");
-                sql.Append("tActivity.ActivityStatus");
+                sql.Append("SELECT tActivityReturns.ActivityRefno AS ActivityRefno,");
+                sql.Append("tActivityReturns.ActivityReturnsFKRefno AS ActivityReturnsFKRefno,");
+                sql.Append("tActivityReturns.ActivityReturnsStringFKRefno AS ActivityReturnsStringFKRefno,");
+                sql.Append("tActivityReturns.ActivityReturnsOrderedDateTime AS ActivityReturnsOrderedDateTime,");
+                sql.Append("tActivityReturns.ActivityReturnsDeliveryDateTime AS ActivityReturnsDeliveryDateTime,");
+                sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
+                sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno AS LocationMapWarehouseFKRefno,");
+                sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationMapWarehouseName,");
+                sql.Append("tActivityReturns.ActivityReturnsCustomerContactName AS ActivityReturnsCustomerContactName,");
+                sql.Append("tActivityReturns.ActivityReturnsCustomerShipToInfo AS ActivityReturnsCustomerShipToInfo,");
+                sql.Append("tActivity.ActivityStatus AS ActivityStatus");
                 sql.Append(" FROM tActivityReturns");
                 sql.Append(" INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityReturns.ActivityRefno");
                 sql.Append(" INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = ");
                 sql.Append("tActivityReturns.WarehouseLocationMapRefno");
-                sql.AppendFormat(" WHERE tActivity.ActivityStatus <> {0}", (int)SysCommon.ActStatus.NoChange);
+                sql.AppendFormat(" WHERE tActivity.ActivityStatus <> {0}", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append(" UNION ");
                 sql.Append(" SELECT tActivityReturns.ActivityRefno,");
                 sql.Append("tActivityReturns.ActivityReturnsFKRefno,");
@@ -280,7 +280,7 @@ namespace dMobile.Controller
                 sql.Append(" INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = ");
                 sql.Append("tActivityReturns.WarehouseLocationMapRefno");
                 sql.Append(" INNER JOIN tActivityItem ON tActivityItem.ActivityRefno = tActivity.ActivityRefno");
-                sql.AppendFormat(" WHERE tActivityItem.ActivityItemStatus <> {0}", (int)SysCommon.ActStatus.NoChange);
+                sql.AppendFormat(" WHERE tActivityItem.ActivityItemStatus <> {0}", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append(" UNION ");
                 sql.Append(" SELECT tActivityReturns.ActivityRefno,");
                 sql.Append("tActivityReturns.ActivityReturnsFKRefno,");
@@ -299,21 +299,21 @@ namespace dMobile.Controller
                 sql.Append("tActivityReturns.WarehouseLocationMapRefno");
                 sql.Append(" INNER JOIN tActivityItem ON tActivityItem.ActivityRefno = tActivity.ActivityRefno");
                 sql.Append(" INNER JOIN tActivityDetail ON tActivityDetail.ActivityItemRefno = tActivityItem.ActivityItemRefno");
-                sql.AppendFormat(" WHERE tActivityDetail.ActivityDetailStatus <> {0}", (int)SysCommon.ActStatus.NoChange);
+                sql.AppendFormat(" WHERE tActivityDetail.ActivityDetailStatus <> {0}", Convert.ToInt32(SysCommon.ActStatus.NoChange));
             }
             else
             {
-                sql.Append("SELECT tActivityReturns.ActivityRefno,");
-                sql.Append("tActivityReturns.ActivityReturnsFKRefno,");
-                sql.Append("tActivityReturns.ActivityReturnsStringFKRefno,");
-                sql.Append("tActivityReturns.ActivityReturnsOrderedDateTime,");
-                sql.Append("tActivityReturns.ActivityReturnsDeliveryDateTime,");
-                sql.Append("tLocationMapWarehouse.LocationMapRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseName,");
-                sql.Append("tActivityReturns.ActivityReturnsCustomerContactName,");
-                sql.Append("tActivityReturns.ActivityReturnsCustomerShipToInfo,");
-                sql.Append("tActivity.ActivityStatus");
+                sql.Append("SELECT tActivityReturns.ActivityRefno AS ActivityRefno,");
+                sql.Append("tActivityReturns.ActivityReturnsFKRefno AS ActivityReturnsFKRefno,");
+                sql.Append("tActivityReturns.ActivityReturnsStringFKRefno AS ActivityReturnsStringFKRefno,");
+                sql.Append("tActivityReturns.ActivityReturnsOrderedDateTime AS ActivityReturnsOrderedDateTime,");
+                sql.Append("tActivityReturns.ActivityReturnsDeliveryDateTime AS ActivityReturnsDeliveryDateTime,");
+                sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
+                sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno AS LocationMapWarehouseFKRefno,");
+                sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationMapWarehouseName,");
+                sql.Append("tActivityReturns.ActivityReturnsCustomerContactName AS ActivityReturnsCustomerContactName,");
+                sql.Append("tActivityReturns.ActivityReturnsCustomerShipToInfo AS ActivityReturnsCustomerShipToInfo,");
+                sql.Append("tActivity.ActivityStatus AS ActivityStatus");
                 sql.Append(" FROM tActivityReturns");
                 sql.Append(" INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = ");
                 sql.Append("tActivityReturns.WarehouseLocationMapRefno");

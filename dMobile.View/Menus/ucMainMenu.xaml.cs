@@ -65,12 +65,6 @@
                 // TODO: Verify keycodes
                 Enum.TryParse(keyPressed, out Keycode keycode);
 
-                // TODO: REMOVE, JUST FOR TESTING
-                if (keycode == Keycode.Grave)
-                {
-                    this.EnableControls();
-                }
-
                 if (keycode == Keycode.Escape || keycode == Keycode.F1)
                 {
                     this.DisableControls();

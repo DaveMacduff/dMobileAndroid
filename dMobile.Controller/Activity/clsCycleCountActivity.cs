@@ -251,8 +251,8 @@ namespace dMobile.Controller
                 sql.Append("INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityCount.ActivityRefno ");
                 sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = ");
                 sql.Append("tActivityCount.WarehouseLocationMapRefno ");
-                sql.AppendFormat("WHERE tActivity.ActivitySubType = {0} ", (int)SysCommon.ActSubTypes.CycleCounts);
-                sql.AppendFormat("AND tActivity.ActivityStatus <> {0} ", (int)SysCommon.ActStatus.NoChange);
+                sql.AppendFormat("WHERE tActivity.ActivitySubType = {0} ", Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts));
+                sql.AppendFormat("AND tActivity.ActivityStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append("UNION ");
                 sql.Append("SELECT tActivityCount.ActivityRefno,");
                 sql.Append("tActivityCount.ActivityCountFKRefno,");
@@ -269,9 +269,9 @@ namespace dMobile.Controller
                 sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = ");
                 sql.Append("tActivityCount.WarehouseLocationMapRefno ");
                 sql.Append("LEFT JOIN tActivityItem ON tActivityItem.ActivityRefno = tActivity.ActivityRefno ");
-                sql.AppendFormat("WHERE tActivity.ActivitySubType = {0} ", (int)SysCommon.ActSubTypes.CycleCounts);
-                sql.AppendFormat("AND tActivityItem.ActivityItemSubType = {0} ", (int)SysCommon.ActSubTypes.CycleCounts);
-                sql.AppendFormat("AND tActivityItem.ActivityItemStatus <> {0} ", (int)SysCommon.ActStatus.NoChange);
+                sql.AppendFormat("WHERE tActivity.ActivitySubType = {0} ", Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts));
+                sql.AppendFormat("AND tActivityItem.ActivityItemSubType = {0} ", Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts));
+                sql.AppendFormat("AND tActivityItem.ActivityItemStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append("UNION ");
                 sql.Append("SELECT tActivityCount.ActivityRefno,");
                 sql.Append("tActivityCount.ActivityCountFKRefno,");
@@ -289,10 +289,10 @@ namespace dMobile.Controller
                 sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = ");
                 sql.Append("tActivityCount.WarehouseLocationMapRefno ");
                 sql.Append("INNER JOIN tActivityDetail ON tActivityDetail.ActivityItemRefno = tActivityItem.ActivityItemRefno ");
-                sql.AppendFormat("WHERE tActivity.ActivitySubType = {0} ", (int)SysCommon.ActSubTypes.CycleCounts);
-                sql.AppendFormat("AND tActivityItem.ActivityItemSubType = {0} ", (int)SysCommon.ActSubTypes.CycleCounts);
-                sql.AppendFormat("AND tActivityDetail.ActivityDetailSubType = {0} ", (int)SysCommon.ActSubTypes.CycleCounts);
-                sql.AppendFormat("AND tActivityDetail.ActivityDetailStatus <> {0}", (int)SysCommon.ActStatus.NoChange);
+                sql.AppendFormat("WHERE tActivity.ActivitySubType = {0} ", Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts));
+                sql.AppendFormat("AND tActivityItem.ActivityItemSubType = {0} ", Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts));
+                sql.AppendFormat("AND tActivityDetail.ActivityDetailSubType = {0} ", Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts));
+                sql.AppendFormat("AND tActivityDetail.ActivityDetailStatus <> {0}", Convert.ToInt32(SysCommon.ActStatus.NoChange));
             }
             else
             {
@@ -310,7 +310,7 @@ namespace dMobile.Controller
                 sql.Append("INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityCount.ActivityRefno ");
                 sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = ");
                 sql.Append("tActivityCount.WarehouseLocationMapRefno ");
-                sql.AppendFormat("WHERE tActivityCount.ActivitySubType = {0}", (int)SysCommon.ActSubTypes.CycleCounts);
+                sql.AppendFormat("WHERE tActivityCount.ActivitySubType = {0}", Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts));
             }
 
             using (SQLiteDataAdapter dataAdapterCycle = new SQLiteDataAdapter(sql.ToString(), DatabaseConnection.GetInstance().SQLConn))

@@ -93,6 +93,7 @@
             this.txtSearchProduct.Text = string.Empty;
             this.cboSearch.Items.Add("Code");
             this.cboSearch.Items.Add("Description");
+            this.cboSearch.SelectedItem = "Code";
 
             this.SysEnv = SysEnvironment.GetInstance();
             this.scanner = BarCodeSingleton.GetInstance().Scanner;
@@ -119,13 +120,16 @@
                 {
                     if (await this.SaveChanges())
                     {
+                        this.DialogResult = DialogResult.OK;
                         this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                        await this.Close();
                     }
                 }
                 else if (keycode == Keycode.Escape)
                 {
                     if (await this.CancelChanges())
                     {
+                        this.DialogResult = DialogResult.None;
                         this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     }
                 }
@@ -1331,6 +1335,11 @@
             }
 
             this.dgProducts.ItemsSource = this.ProductUnitsList;
+
+            if (this.ProductUnitsList.Count > 0 && this.dgProducts.SelectedItem == null)
+            {
+                this.dgProducts.SelectedItem = this.ProductUnitsList[0];
+            } 
         }
 
         private async void TxtSearchProduct_TextChanged(object sender, TextChangedEventArgs e)
@@ -1377,14 +1386,22 @@
 
         private async void CmdSelect_Clicked(object sender, EventArgs e)
         {
-            this.DialogResult = DialogResult.OK;
-            await this.Close();
+            if (await this.SaveChanges())
+            {
+                this.DialogResult = DialogResult.OK;
+                this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                await this.Close();
+            }
         }
 
         private async void CmdClose_Clicked(object sender, EventArgs e)
         {
-            this.DialogResult = DialogResult.None;
-            await this.Close();
+            if (await this.CancelChanges())
+            {
+                this.DialogResult = DialogResult.None;
+                this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                await this.Close();
+            }
         }
     }
 }

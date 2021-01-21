@@ -1080,7 +1080,7 @@ namespace dMobile.Controller
 
                 using (SQLiteCommand cmndDetail = conn.CreateCommand())
                 {
-                    cmndDetail.CommandText = "INSER INTO tActivityDetail (" +
+                    cmndDetail.CommandText = "INSERT INTO tActivityDetail (" +
                         "ActivityDetailSubType, " +
                         "ActivityDetailStatus, " +
                         "ActivityItemRefno, " +
@@ -1195,7 +1195,7 @@ namespace dMobile.Controller
                                 //{
                                 if (drSchemeVar.Read())
                                 {
-                                    schemeVarRefno = drSchemeVar.GetInt32((int)SysCommon.ProdSchemeVariantFields.Refno);
+                                    schemeVarRefno = drSchemeVar.GetInt32(Convert.ToInt32(SysCommon.ProdSchemeVariantFields.Refno));
 
                                     cmndSchemeVarXRef.CommandText = "INSERT INTO tActivityDetailProductSchemeVariantXRef (ActivityDetailRefno, ProductSchemeVariantRefno) VALUES (@activityDetailRefno, @productSchemeVariantRefno)";
                                     cmndSchemeVarXRef.CommandType = CommandType.Text;
@@ -1235,7 +1235,7 @@ namespace dMobile.Controller
                             "ActivityDetailExtra2Text, " +
                             "ActivityDetailExtra3Text, " +
                             "ActivityDetailExtra4Text, " +
-                            "ActivityDetailExtra5Date," +
+                            "ActivityDetailExtra5Date" +
                             ") VALUES (" +                         
                             "@activityDetailRefno, " +
                             "@activityDetailSubType, " +
@@ -1243,7 +1243,7 @@ namespace dMobile.Controller
                             "@activityDetailExtra2Text, " +
                             "@activityDetailExtra3Text, " +
                             "@activityDetailExtra4Text, " +
-                            "@activityDetailExtra5Date," +
+                            "@activityDetailExtra5Date" +
                             ")";
                         cmndExtra.CommandType = CommandType.Text;
                         //cmndExtra.IndexName = "PK_ActivityDetailExtraOnActivityDetailRefno";

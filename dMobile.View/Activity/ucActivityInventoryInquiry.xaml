@@ -45,7 +45,8 @@
                     <Button x:Name="cmdSelectProduct" Grid.Row="1" Grid.Column="0" Clicked="cmdSelectProduct_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
                     <customcontrols:CustomPicker x:Name="updnBarCodeModifier1" Grid.Row="1" Grid.Column="1" Image="arrow_drop_down" SelectedIndexChanged="updnBarCodeModifier1_SelectedIndexChanged" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
 
-                    <Button x:Name="cmdDisplayDefault" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Clicked="cmdDisplayDefault_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                    <Button x:Name="cmdDisplayDefault" Grid.Row="2" Grid.Column="0" Clicked="cmdDisplayDefault_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                    <Button x:Name="cmdView" Grid.Row="2" Grid.Column="1" Clicked="cmdView_Clicked" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
                 </Grid>
             </Grid>
 

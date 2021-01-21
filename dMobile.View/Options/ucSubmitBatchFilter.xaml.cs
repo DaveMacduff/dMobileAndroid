@@ -130,6 +130,8 @@ namespace dMobile.View.Options
                         if (await this.SaveChanges())
                         {
                             this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                            this.DialogResult = DialogResult.OK;
+                            await this.Close();
                         }
                     }
                     else if (keycode == Keycode.Escape)
@@ -137,6 +139,7 @@ namespace dMobile.View.Options
                         if (await this.CancelChanges())
                         {
                             this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                            this.DialogResult = DialogResult.None;
                         }
                     }
                 }
@@ -749,14 +752,22 @@ namespace dMobile.View.Options
 
         private async void btnSave_Clicked(object sender, EventArgs e)
         {
-            this.DialogResult = DialogResult.OK;
-            await this.Close();
+            if (await this.SaveChanges())
+            {
+                this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                this.DialogResult = DialogResult.OK;
+                await this.Close();
+            }
         }
 
         private async void btnClose_Clicked(object sender, EventArgs e)
         {
-            this.DialogResult = DialogResult.None;
-            await this.Close();
+            if (await this.CancelChanges())
+            {
+                this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                this.DialogResult = DialogResult.None;
+                await this.Close();
+            }
         }
     }
 }

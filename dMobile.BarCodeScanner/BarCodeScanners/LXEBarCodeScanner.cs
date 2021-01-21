@@ -1,4 +1,3 @@
-// TODO: Check for LXEBarCode sdk for android
 //namespace dMobile.BarCodeScanner
 //{
 //    using dMobile.Bedrock;

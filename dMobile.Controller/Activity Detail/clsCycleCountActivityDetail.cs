@@ -80,7 +80,7 @@ namespace dMobile.Controller
                             cmndItem.CommandText = "UPDATE tActivityItemCount "
                                 + "SET ActivityItemCountStringFKRefno = \'" + this.NewItemFKRefno + "\', "
                                 + "ActivityItemCountFKRefno = " + this.NewItemFKRefno
-                                + " WHERE tActivityItemCount.ActivityItemRefno = " + ActItem.Refno;
+                                + " WHERE ActivityItemRefno = " + ActItem.Refno;
                             cmndItem.ExecuteNonQuery();
 
                             this.ActItem.FKRefno = this.NewItemFKRefno;
@@ -207,7 +207,7 @@ namespace dMobile.Controller
                             cmndItem.CommandText = "UPDATE tActivityItemCount "
                                 + "SET ActivityItemCountStringFKRefno = \'" + this.NewItemFKRefno + "\',"
                                 + "ActivityItemCountFKRefno = " + this.NewItemFKRefno
-                                + " WHERE tActivityItemCount.ActivityItemRefno = " + this.ActItem.Refno; //<WO ID="14711" comment="Changed Refno to FKRefno. They are the same when no barcode modifier present. Opposite +/- when modifier exists." />
+                                + " WHERE ActivityItemRefno = " + this.ActItem.Refno; //<WO ID="14711" comment="Changed Refno to FKRefno. They are the same when no barcode modifier present. Opposite +/- when modifier exists." />
                             cmndItem.ExecuteNonQuery();
                         }
 
@@ -280,16 +280,16 @@ namespace dMobile.Controller
             {
                 cmndPurge.CommandType = CommandType.Text;
 
-                cmndPurge.CommandText = "DELETE FROM tActivityDetailProductSchemeVariantXRef WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno = " + this.Refno;
+                cmndPurge.CommandText = "DELETE FROM tActivityDetailProductSchemeVariantXRef WHERE ActivityDetailRefno = " + this.Refno;
                 cmndPurge.ExecuteNonQuery();
 
-                cmndPurge.CommandText = "DELETE FROM tActivityDetailCount WHERE tActivityDetailCount.ActivityDetailRefno = " + this.Refno;
+                cmndPurge.CommandText = "DELETE FROM tActivityDetailCount WHERE ActivityDetailRefno = " + this.Refno;
                 cmndPurge.ExecuteNonQuery();
 
-                cmndPurge.CommandText = "DELETE FROM tActivityDetailExtra WHERE tActivityDetailExtra.ActivityDetailRefno = " + this.Refno;
+                cmndPurge.CommandText = "DELETE FROM tActivityDetailExtra WHERE ActivityDetailRefno = " + this.Refno;
                 cmndPurge.ExecuteNonQuery();
 
-                cmndPurge.CommandText = "DELETE FROM tActivityDetail WHERE tActivityDetail.ActivityDetailRefno = " + this.Refno;
+                cmndPurge.CommandText = "DELETE FROM tActivityDetail WHERE ActivityDetailRefno = " + this.Refno;
                 cmndPurge.ExecuteNonQuery();
             }
         }
@@ -340,7 +340,7 @@ namespace dMobile.Controller
                         cmndDetail.CommandType = CommandType.Text;
                         cmndDetail.CommandText = "UPDATE tActivityDetail "
                             + "SET tActivityDetail.ActivityDetailStatus = " + (int)SysCommon.ActStatus.NoChange
-                            + "WHERE tActivityDetail.ActivityDetailRefno = " + this.Refno;
+                            + "WHERE ActivityDetailRefno = " + this.Refno;
                         cmndDetail.ExecuteNonQuery();
                     }
                 }
@@ -420,41 +420,41 @@ namespace dMobile.Controller
 
             if (isSubmitBatch)
             {
-                sql.Append("SELECT tActivityDetail.ActivityDetailRefno,");
-                sql.Append("tActivityDetail.LocationMapRefno,");
-                sql.Append("tActivityDetailCount.ActivityDetailCountFKRefno,");
-                sql.Append("tUnit.UnitCode,");
+                sql.Append("SELECT tActivityDetail.ActivityDetailRefno AS ActivityDetailRefno,");
+                sql.Append("tActivityDetail.LocationMapRefno AS LocationMapRefno,");
+                sql.Append("tActivityDetailCount.ActivityDetailCountFKRefno AS ActivityDetailCountFKRefno,");
+                sql.Append("tUnit.UnitCode AS UnitCode,");
                 sql.Append("aUnitWeight.UnitCode AS WtUnitCode,");
                 sql.Append("aUnitBase.UnitCode AS BaseUnitCode,");
-                sql.Append("tProduct.ProductCode,");
-                sql.Append("tProduct.ProductRefno,");
-                sql.Append("tProduct.ProductDescription,");
-                sql.Append("tProductUnit.ProductUnitBC,");
-                sql.Append("tProductUnit.ProductUnitIsBC,");
-                sql.Append("tProductUnit.ProductUnitSizeDescription,");
-                sql.Append("tActivityDetail.ActivityDetailQuantity,");
-                sql.Append("tActivityDetail.ActivityDetailBaseQuantity,");
-                sql.Append("tActivityDetail.ActivityDetailWeightQuantity,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitBestBeforeSellByDate,");
-                sql.Append("tActivityDetail.ActivityDetailSchemeID,");
-                sql.Append("tActivityDetail.ActivityDetailUniqueSchemeID,");
-                sql.Append("tActivityDetail.ActivityDetailSingleTradeItemSerialNumber,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitBatchLotNumber,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitExpiryUseByDate,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitProductionDate,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitSkidNumber,");
+                sql.Append("tProduct.ProductCode AS ProductCode,");
+                sql.Append("tProduct.ProductRefno AS ProductRefno,");
+                sql.Append("tProduct.ProductDescription AS ProductDescription,");
+                sql.Append("tProductUnit.ProductUnitBC AS ProductUnitBC,");
+                sql.Append("tProductUnit.ProductUnitIsBC AS ProductUnitIsBC,");
+                sql.Append("tProductUnit.ProductUnitSizeDescription AS ProductUnitSizeDescription,");
+                sql.Append("tActivityDetail.ActivityDetailQuantity AS ActivityDetailQuantity,");
+                sql.Append("tActivityDetail.ActivityDetailBaseQuantity AS ActivityDetailBaseQuantity,");
+                sql.Append("tActivityDetail.ActivityDetailWeightQuantity AS ActivityDetailWeightQuantity,");
+                sql.Append("tActivityDetail.ActivityDetailLogisticUnitBestBeforeSellByDate AS ActivityDetailLogisticUnitBestBeforeSellByDate,");
+                sql.Append("tActivityDetail.ActivityDetailSchemeID AS ActivityDetailSchemeID,");
+                sql.Append("tActivityDetail.ActivityDetailUniqueSchemeID AS ActivityDetailUniqueSchemeID,");
+                sql.Append("tActivityDetail.ActivityDetailSingleTradeItemSerialNumber AS ActivityDetailSingleTradeItemSerialNumber,");
+                sql.Append("tActivityDetail.ActivityDetailLogisticUnitBatchLotNumber AS ActivityDetailLogisticUnitBatchLotNumber,");
+                sql.Append("tActivityDetail.ActivityDetailLogisticUnitExpiryUseByDate AS ActivityDetailLogisticUnitExpiryUseByDate,");
+                sql.Append("tActivityDetail.ActivityDetailLogisticUnitProductionDate AS ActivityDetailLogisticUnitProductionDate,");
+                sql.Append("tActivityDetail.ActivityDetailLogisticUnitSkidNumber AS ActivityDetailLogisticUnitSkidNumber,");
                 sql.Append("tLocationMapSlot.LocationMapSlotCode AS LocationCode,");
                 sql.Append("CAST(tLocationMapSlot.LocationMapSlotName AS NVARCHAR(22)) AS LocationName,");
                 sql.Append("\'Slot\' AS Location,");
-                sql.Append("tProductSchemeVariant.ProductSchemeVariantCode,");
-                sql.Append("tProductSchemeVariant.ProductSchemeVariantNo,");
-                sql.Append("tProductSchemeVariant.ProductSchemeVariantDescription,");
-                sql.Append("tActivityDetail.ActivityDetailStatus,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra1Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra2Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra3Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra4Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra5Date ");
+                sql.Append("tProductSchemeVariant.ProductSchemeVariantCode AS ProductSchemeVariantCode,");
+                sql.Append("tProductSchemeVariant.ProductSchemeVariantNo AS ProductSchemeVariantNo,");
+                sql.Append("tProductSchemeVariant.ProductSchemeVariantDescription AS ProductSchemeVariantDescription,");
+                sql.Append("tActivityDetail.ActivityDetailStatus AS ActivityDetailStatus,");
+                sql.Append("tActivityDetailExtra.ActivityDetailExtra1Text AS ActivityDetailExtra1Text,");
+                sql.Append("tActivityDetailExtra.ActivityDetailExtra2Text AS ActivityDetailExtra2Text,");
+                sql.Append("tActivityDetailExtra.ActivityDetailExtra3Text AS ActivityDetailExtra3Text,");
+                sql.Append("tActivityDetailExtra.ActivityDetailExtra4Text AS ActivityDetailExtra4Text,");
+                sql.Append("tActivityDetailExtra.ActivityDetailExtra5Date AS ActivityDetailExtra5Date ");
                 sql.Append("FROM tActivityDetailCount ");
                 sql.Append("INNER JOIN tActivityDetail ON tActivityDetail.ActivityDetailRefno ");
                 sql.Append("= tActivityDetailCount.ActivityDetailRefno ");
@@ -473,8 +473,8 @@ namespace dMobile.Controller
                 sql.Append("LEFT JOIN tActivityDetailExtra ON tActivityDetailExtra.ActivityDetailRefno ");
                 sql.Append("= tActivityDetail.ActivityDetailRefno ");
                 sql.AppendFormat("WHERE tActivityDetail.ActivityItemRefno = {0} ", this.ActItem.Refno);
-                sql.AppendFormat("AND tActivityDetail.ActivityDetailSubType = {0} ", (int)SysCommon.ActSubTypes.CycleCounts);
-                sql.AppendFormat("AND tActivityDetail.ActivityDetailStatus <> {0} ", (int)SysCommon.ActStatus.NoChange);
+                sql.AppendFormat("AND tActivityDetail.ActivityDetailSubType = {0} ", Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts));
+                sql.AppendFormat("AND tActivityDetail.ActivityDetailStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append("UNION ");
                 sql.Append("SELECT tActivityDetail.ActivityDetailRefno,");
                 sql.Append("tActivityDetail.LocationMapRefno,");
@@ -529,8 +529,8 @@ namespace dMobile.Controller
                 sql.Append("LEFT JOIN tActivityDetailExtra ON tActivityDetailExtra.ActivityDetailRefno ");
                 sql.Append("= tActivityDetail.ActivityDetailRefno ");
                 sql.AppendFormat("WHERE tActivityDetail.ActivityItemRefno = {0} ", this.ActItem.Refno);
-                sql.AppendFormat("AND tActivityDetail.ActivityDetailSubType = {0} ", (int)SysCommon.ActSubTypes.CycleCounts);
-                sql.AppendFormat("AND tActivityDetail.ActivityDetailStatus <> {0} ", (int)SysCommon.ActStatus.NoChange);
+                sql.AppendFormat("AND tActivityDetail.ActivityDetailSubType = {0} ", Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts));
+                sql.AppendFormat("AND tActivityDetail.ActivityDetailStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append("UNION ");
                 sql.Append("SELECT tActivityDetail.ActivityDetailRefno,");
                 sql.Append("tActivityDetail.LocationMapRefno,");
@@ -585,8 +585,8 @@ namespace dMobile.Controller
                 sql.Append("LEFT JOIN tActivityDetailExtra ON tActivityDetailExtra.ActivityDetailRefno ");
                 sql.Append("= tActivityDetail.ActivityDetailRefno ");
                 sql.AppendFormat("WHERE tActivityDetail.ActivityItemRefno = {0} ", this.ActItem.Refno);
-                sql.AppendFormat("AND tActivityDetail.ActivityDetailSubType = {0} ", (int)SysCommon.ActSubTypes.CycleCounts);
-                sql.AppendFormat("AND tActivityDetail.ActivityDetailStatus <> {0} ", (int)SysCommon.ActStatus.NoChange);
+                sql.AppendFormat("AND tActivityDetail.ActivityDetailSubType = {0} ", Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts));
+                sql.AppendFormat("AND tActivityDetail.ActivityDetailStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append("ORDER BY tActivityDetail.ActivityDetailRefno");
             }
             else
@@ -630,41 +630,41 @@ namespace dMobile.Controller
         /// <returns></returns>
         private DataTable GetSlotDetails(int refno)
         {
-            string slotQuery = "SELECT tActivityDetail.ActivityDetailRefno, " +
-            "tActivityDetail.LocationMapRefno, " +
-            "tActivityDetailCount.ActivityDetailCountFKRefno, " +
-            "tUnit.UnitCode, " +
+            string slotQuery = "SELECT tActivityDetail.ActivityDetailRefno AS ActivityDetailRefno, " +
+            "tActivityDetail.LocationMapRefno AS LocationMapRefno, " +
+            "tActivityDetailCount.ActivityDetailCountFKRefno AS ActivityDetailCountFKRefno, " +
+            "tUnit.UnitCode AS UnitCode, " +
             "aUnitWeight.UnitCode AS WtUnitCode, " +
             "aUnitBase.UnitCode AS BaseUnitCode, " +
-            "tProduct.ProductCode, " +
-            "tProduct.ProductRefno, " +
-            "tProduct.ProductDescription, " +
-            "tProductUnit.ProductUnitBC, " +
-            "tProductUnit.ProductUnitIsBC, " +
-            "tProductUnit.ProductUnitSizeDescription, " +
-            "tActivityDetail.ActivityDetailQuantity, " +
-            "tActivityDetail.ActivityDetailBaseQuantity, " +
-            "tActivityDetail.ActivityDetailWeightQuantity, " +
-            "tActivityDetail.ActivityDetailLogisticUnitBestBeforeSellByDate, " +
-            "tActivityDetail.ActivityDetailSchemeID, " +
-            "tActivityDetail.ActivityDetailUniqueSchemeID, " +
-            "tActivityDetail.ActivityDetailSingleTradeItemSerialNumber, " +
-            "tActivityDetail.ActivityDetailLogisticUnitBatchLotNumber, " +
-            "tActivityDetail.ActivityDetailLogisticUnitExpiryUseByDate, " +
-            "tActivityDetail.ActivityDetailLogisticUnitProductionDate, " +
-            "tActivityDetail.ActivityDetailLogisticUnitSkidNumber, " +
+            "tProduct.ProductCode AS ProductCode, " +
+            "tProduct.ProductRefno AS ProductRefno, " +
+            "tProduct.ProductDescription AS ProductDescription, " +
+            "tProductUnit.ProductUnitBC AS ProductUnitBC, " +
+            "tProductUnit.ProductUnitIsBC AS ProductUnitIsBC, " +
+            "tProductUnit.ProductUnitSizeDescription AS ProductUnitSizeDescription, " +
+            "tActivityDetail.ActivityDetailQuantity AS ActivityDetailQuantity, " +
+            "tActivityDetail.ActivityDetailBaseQuantity AS ActivityDetailBaseQuantity, " +
+            "tActivityDetail.ActivityDetailWeightQuantity AS ActivityDetailWeightQuantity, " +
+            "tActivityDetail.ActivityDetailLogisticUnitBestBeforeSellByDate AS ActivityDetailLogisticUnitBestBeforeSellByDate, " +
+            "tActivityDetail.ActivityDetailSchemeID AS ActivityDetailSchemeID, " +
+            "tActivityDetail.ActivityDetailUniqueSchemeID AS ActivityDetailUniqueSchemeID, " +
+            "tActivityDetail.ActivityDetailSingleTradeItemSerialNumber AS ActivityDetailSingleTradeItemSerialNumber, " +
+            "tActivityDetail.ActivityDetailLogisticUnitBatchLotNumber AS ActivityDetailLogisticUnitBatchLotNumber, " +
+            "tActivityDetail.ActivityDetailLogisticUnitExpiryUseByDate AS ActivityDetailLogisticUnitExpiryUseByDate, " +
+            "tActivityDetail.ActivityDetailLogisticUnitProductionDate AS ActivityDetailLogisticUnitProductionDate, " +
+            "tActivityDetail.ActivityDetailLogisticUnitSkidNumber AS ActivityDetailLogisticUnitSkidNumber, " +
             "tLocationMapSlot.LocationMapSlotCode AS LocationCode, " +
             "CAST(tLocationMapSlot.LocationMapSlotName AS NVARCHAR(22)) AS LocationName, " +
             "\'Slot\' AS Location, " +
-            "tProductSchemeVariant.ProductSchemeVariantCode, " +
-            "tProductSchemeVariant.ProductSchemeVariantNo, " +
-            "tProductSchemeVariant.ProductSchemeVariantDescription, " +
-            "tActivityDetail.ActivityDetailStatus, " +
-            "tActivityDetailExtra.ActivityDetailExtra1Text, " +
-            "tActivityDetailExtra.ActivityDetailExtra2Text, " +
-            "tActivityDetailExtra.ActivityDetailExtra3Text, " +
-            "tActivityDetailExtra.ActivityDetailExtra4Text, " +
-            "tActivityDetailExtra.ActivityDetailExtra5Date  " +
+            "tProductSchemeVariant.ProductSchemeVariantCode AS ProductSchemeVariantCode, " +
+            "tProductSchemeVariant.ProductSchemeVariantNo AS ProductSchemeVariantNo, " +
+            "tProductSchemeVariant.ProductSchemeVariantDescription AS ProductSchemeVariantDescription, " +
+            "tActivityDetail.ActivityDetailStatus AS ActivityDetailStatus, " +
+            "tActivityDetailExtra.ActivityDetailExtra1Text AS ActivityDetailExtra1Text, " +
+            "tActivityDetailExtra.ActivityDetailExtra2Text AS ActivityDetailExtra2Text, " +
+            "tActivityDetailExtra.ActivityDetailExtra3Text AS ActivityDetailExtra3Text, " +
+            "tActivityDetailExtra.ActivityDetailExtra4Text AS ActivityDetailExtra4Text, " +
+            "tActivityDetailExtra.ActivityDetailExtra5Date AS ActivityDetailExtra5Date  " +
             "FROM tActivityDetailCount  " +
             "INNER JOIN tActivityDetail ON tActivityDetail.ActivityDetailRefno  " +
             "= tActivityDetailCount.ActivityDetailRefno  " +
@@ -683,7 +683,7 @@ namespace dMobile.Controller
             "LEFT JOIN tActivityDetailExtra ON tActivityDetailExtra.ActivityDetailRefno  " +
             "= tActivityDetail.ActivityDetailRefno  " +
            "WHERE tActivityDetail.ActivityItemRefno = " + refno +
-           " AND tActivityDetail.ActivityDetailSubType = " + (int)SysCommon.ActSubTypes.CycleCounts;
+           " AND tActivityDetail.ActivityDetailSubType = " + Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts);
 
             DataTable table = new DataTable();
 
@@ -697,41 +697,41 @@ namespace dMobile.Controller
 
         private DataTable GetSectionDetails(int refno)
         {
-            string sectionQuery = "SELECT tActivityDetail.ActivityDetailRefno, " +
-             "tActivityDetail.LocationMapRefno, " +
-             "tActivityDetailCount.ActivityDetailCountFKRefno, " +
-             "tUnit.UnitCode, " +
+            string sectionQuery = "SELECT tActivityDetail.ActivityDetailRefno AS ActivityDetailRefno, " +
+             "tActivityDetail.LocationMapRefno AS LocationMapRefno, " +
+             "tActivityDetailCount.ActivityDetailCountFKRefno AS ActivityDetailCountFKRefno, " +
+             "tUnit.UnitCode AS UnitCode, " +
              "aUnitWeight.UnitCode AS WtUnitCode, " +
              "aUnitBase.UnitCode AS BaseUnitCode, " +
-             "tProduct.ProductCode, " +
-             "tProduct.ProductRefno, " +
-             "tProduct.ProductDescription, " +
-             "tProductUnit.ProductUnitBC, " +
-             "tProductUnit.ProductUnitIsBC, " +
-             "tProductUnit.ProductUnitSizeDescription, " +
-             "tActivityDetail.ActivityDetailQuantity, " +
-             "tActivityDetail.ActivityDetailBaseQuantity, " +
-             "tActivityDetail.ActivityDetailWeightQuantity, " +
-             "tActivityDetail.ActivityDetailLogisticUnitBestBeforeSellByDate, " +
-             "tActivityDetail.ActivityDetailSchemeID, " +
-             "tActivityDetail.ActivityDetailUniqueSchemeID, " +
-             "tActivityDetail.ActivityDetailSingleTradeItemSerialNumber, " +
-             "tActivityDetail.ActivityDetailLogisticUnitBatchLotNumber, " +
-             "tActivityDetail.ActivityDetailLogisticUnitExpiryUseByDate, " +
-             "tActivityDetail.ActivityDetailLogisticUnitProductionDate, " +
-             "tActivityDetail.ActivityDetailLogisticUnitSkidNumber, " +
+             "tProduct.ProductCode AS ProductCode, " +
+             "tProduct.ProductRefno AS ProductRefno, " +
+             "tProduct.ProductDescription AS ProductDescription, " +
+             "tProductUnit.ProductUnitBC AS ProductUnitBC, " +
+             "tProductUnit.ProductUnitIsBC AS ProductUnitIsBC, " +
+             "tProductUnit.ProductUnitSizeDescription AS ProductUnitSizeDescription, " +
+             "tActivityDetail.ActivityDetailQuantity AS ActivityDetailQuantity, " +
+             "tActivityDetail.ActivityDetailBaseQuantity AS ActivityDetailBaseQuantity, " +
+             "tActivityDetail.ActivityDetailWeightQuantity AS ActivityDetailWeightQuantity, " +
+             "tActivityDetail.ActivityDetailLogisticUnitBestBeforeSellByDate AS ActivityDetailLogisticUnitBestBeforeSellByDate, " +
+             "tActivityDetail.ActivityDetailSchemeID AS ActivityDetailSchemeID, " +
+             "tActivityDetail.ActivityDetailUniqueSchemeID AS ActivityDetailUniqueSchemeID, " +
+             "tActivityDetail.ActivityDetailSingleTradeItemSerialNumber AS ActivityDetailSingleTradeItemSerialNumber, " +
+             "tActivityDetail.ActivityDetailLogisticUnitBatchLotNumber AS ActivityDetailLogisticUnitBatchLotNumber, " +
+             "tActivityDetail.ActivityDetailLogisticUnitExpiryUseByDate AS ActivityDetailLogisticUnitExpiryUseByDate, " +
+             "tActivityDetail.ActivityDetailLogisticUnitProductionDate AS ActivityDetailLogisticUnitProductionDate, " +
+             "tActivityDetail.ActivityDetailLogisticUnitSkidNumber AS ActivityDetailLogisticUnitSkidNumber, " +
              "tLocationMapSection.LocationMapSectionCode AS LocationCode, " +
              "CAST(tLocationMapSection.LocationMapSectionName AS NVARCHAR(22)) AS LocationName, " +
              "\'Section\' AS Location, " +
-             "tProductSchemeVariant.ProductSchemeVariantCode, " +
-             "tProductSchemeVariant.ProductSchemeVariantNo, " +
-             "tProductSchemeVariant.ProductSchemeVariantDescription, " +
-             "tActivityDetail.ActivityDetailStatus, " +
-             "tActivityDetailExtra.ActivityDetailExtra1Text, " +
-             "tActivityDetailExtra.ActivityDetailExtra2Text, " +
-             "tActivityDetailExtra.ActivityDetailExtra3Text, " +
-             "tActivityDetailExtra.ActivityDetailExtra4Text, " +
-             "tActivityDetailExtra.ActivityDetailExtra5Date  " +
+             "tProductSchemeVariant.ProductSchemeVariantCode AS ProductSchemeVariantCode, " +
+             "tProductSchemeVariant.ProductSchemeVariantNo AS ProductSchemeVariantNo, " +
+             "tProductSchemeVariant.ProductSchemeVariantDescription AS ProductSchemeVariantDescription, " +
+             "tActivityDetail.ActivityDetailStatus AS ActivityDetailStatus, " +
+             "tActivityDetailExtra.ActivityDetailExtra1Text AS ActivityDetailExtra1Text, " +
+             "tActivityDetailExtra.ActivityDetailExtra2Text AS ActivityDetailExtra2Text, " +
+             "tActivityDetailExtra.ActivityDetailExtra3Text AS ActivityDetailExtra3Text, " +
+             "tActivityDetailExtra.ActivityDetailExtra4Text AS ActivityDetailExtra4Text, " +
+             "tActivityDetailExtra.ActivityDetailExtra5Date AS ActivityDetailExtra5Date  " +
              "FROM tActivityDetailCount  " +
              "INNER JOIN tActivityDetail ON tActivityDetail.ActivityDetailRefno  " +
              "= tActivityDetailCount.ActivityDetailRefno  " +
@@ -750,7 +750,7 @@ namespace dMobile.Controller
              "LEFT JOIN tActivityDetailExtra ON tActivityDetailExtra.ActivityDetailRefno  " +
              "= tActivityDetail.ActivityDetailRefno  " +
             "WHERE tActivityDetail.ActivityItemRefno = " + refno +
-            " AND tActivityDetail.ActivityDetailSubType = " + (int)SysCommon.ActSubTypes.CycleCounts;
+            " AND tActivityDetail.ActivityDetailSubType = " + Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts);
 
             DataTable table = new DataTable();
             using (SQLiteDataAdapter da = new SQLiteDataAdapter(sectionQuery, DatabaseConnection.GetInstance().SQLConn))
@@ -764,41 +764,41 @@ namespace dMobile.Controller
         private DataTable GetWarehouseDetails(int refno)
         {
             string warehouseQuery =
-                "SELECT tActivityDetail.ActivityDetailRefno, " +
-                 "tActivityDetail.LocationMapRefno, " +
-                 "tActivityDetailCount.ActivityDetailCountFKRefno, " +
-                 "tUnit.UnitCode, " +
+                "SELECT tActivityDetail.ActivityDetailRefno AS ActivityDetailRefno, " +
+                 "tActivityDetail.LocationMapRefno AS LocationMapRefno, " +
+                 "tActivityDetailCount.ActivityDetailCountFKRefno AS ActivityDetailCountFKRefno, " +
+                 "tUnit.UnitCode AS UnitCode, " +
                  "aUnitWeight.UnitCode AS WtUnitCode, " +
                  "aUnitBase.UnitCode AS BaseUnitCode, " +
-                 "tProduct.ProductCode, " +
-                 "tProduct.ProductRefno, " +
-                 "tProduct.ProductDescription, " +
-                 "tProductUnit.ProductUnitBC, " +
-                 "tProductUnit.ProductUnitIsBC, " +
-                 "tProductUnit.ProductUnitSizeDescription, " +
-                 "tActivityDetail.ActivityDetailQuantity, " +
-                 "tActivityDetail.ActivityDetailBaseQuantity, " +
-                 "tActivityDetail.ActivityDetailWeightQuantity, " +
-                 "tActivityDetail.ActivityDetailLogisticUnitBestBeforeSellByDate, " +
-                 "tActivityDetail.ActivityDetailSchemeID, " +
-                 "tActivityDetail.ActivityDetailUniqueSchemeID, " +
-                 "tActivityDetail.ActivityDetailSingleTradeItemSerialNumber, " +
-                 "tActivityDetail.ActivityDetailLogisticUnitBatchLotNumber, " +
-                 "tActivityDetail.ActivityDetailLogisticUnitExpiryUseByDate, " +
-                 "tActivityDetail.ActivityDetailLogisticUnitProductionDate, " +
-                 "tActivityDetail.ActivityDetailLogisticUnitSkidNumber, " +
+                 "tProduct.ProductCode AS ProductCode, " +
+                 "tProduct.ProductRefno AS ProductRefno, " +
+                 "tProduct.ProductDescription AS ProductDescription, " +
+                 "tProductUnit.ProductUnitBC AS ProductUnitBC, " +
+                 "tProductUnit.ProductUnitIsBC AS ProductUnitIsBC, " +
+                 "tProductUnit.ProductUnitSizeDescription AS ProductUnitSizeDescription, " +
+                 "tActivityDetail.ActivityDetailQuantity AS ActivityDetailQuantity, " +
+                 "tActivityDetail.ActivityDetailBaseQuantity AS ActivityDetailBaseQuantity, " +
+                 "tActivityDetail.ActivityDetailWeightQuantity AS ActivityDetailWeightQuantity, " +
+                 "tActivityDetail.ActivityDetailLogisticUnitBestBeforeSellByDate AS ActivityDetailLogisticUnitBestBeforeSellByDate, " +
+                 "tActivityDetail.ActivityDetailSchemeID AS ActivityDetailSchemeID, " +
+                 "tActivityDetail.ActivityDetailUniqueSchemeID AS ActivityDetailUniqueSchemeID, " +
+                 "tActivityDetail.ActivityDetailSingleTradeItemSerialNumber AS ActivityDetailSingleTradeItemSerialNumber, " +
+                 "tActivityDetail.ActivityDetailLogisticUnitBatchLotNumber AS ActivityDetailLogisticUnitBatchLotNumber, " +
+                 "tActivityDetail.ActivityDetailLogisticUnitExpiryUseByDate AS ActivityDetailLogisticUnitExpiryUseByDate, " +
+                 "tActivityDetail.ActivityDetailLogisticUnitProductionDate AS ActivityDetailLogisticUnitProductionDate, " +
+                 "tActivityDetail.ActivityDetailLogisticUnitSkidNumber AS ActivityDetailLogisticUnitSkidNumber, " +
                  "tLocationMapWarehouse.LocationMapWarehouseCode AS LocationCode, " +
                  "tLocationMapWarehouse.LocationMapWarehouseName AS LocationName, " +
                  "\'Whs\' AS Location, " +
-                 "tProductSchemeVariant.ProductSchemeVariantCode, " +
-                 "tProductSchemeVariant.ProductSchemeVariantNo, " +
-                 "tProductSchemeVariant.ProductSchemeVariantDescription, " +
-                 "tActivityDetail.ActivityDetailStatus, " +
-                 "tActivityDetailExtra.ActivityDetailExtra1Text, " +
-                 "tActivityDetailExtra.ActivityDetailExtra2Text, " +
-                 "tActivityDetailExtra.ActivityDetailExtra3Text, " +
-                 "tActivityDetailExtra.ActivityDetailExtra4Text, " +
-                 "tActivityDetailExtra.ActivityDetailExtra5Date  " +
+                 "tProductSchemeVariant.ProductSchemeVariantCode AS ProductSchemeVariantCode, " +
+                 "tProductSchemeVariant.ProductSchemeVariantNo AS ProductSchemeVariantNo, " +
+                 "tProductSchemeVariant.ProductSchemeVariantDescription AS ProductSchemeVariantDescription, " +
+                 "tActivityDetail.ActivityDetailStatus AS ActivityDetailStatus, " +
+                 "tActivityDetailExtra.ActivityDetailExtra1Text AS ActivityDetailExtra1Text, " +
+                 "tActivityDetailExtra.ActivityDetailExtra2Text AS ActivityDetailExtra2Text, " +
+                 "tActivityDetailExtra.ActivityDetailExtra3Text AS ActivityDetailExtra3Text, " +
+                 "tActivityDetailExtra.ActivityDetailExtra4Text AS ActivityDetailExtra4Text, " +
+                 "tActivityDetailExtra.ActivityDetailExtra5Date AS ActivityDetailExtra5Date  " +
                  "FROM tActivityDetailCount  " +
                  "INNER JOIN tActivityDetail ON tActivityDetail.ActivityDetailRefno  " +
                  "= tActivityDetailCount.ActivityDetailRefno  " +
@@ -817,7 +817,7 @@ namespace dMobile.Controller
                  "LEFT JOIN tActivityDetailExtra ON tActivityDetailExtra.ActivityDetailRefno  " +
                  "= tActivityDetail.ActivityDetailRefno  " +
                 "WHERE tActivityDetail.ActivityItemRefno = " + refno +
-                " AND tActivityDetail.ActivityDetailSubType = " + (int)SysCommon.ActSubTypes.CycleCounts;
+                " AND tActivityDetail.ActivityDetailSubType = " + Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts);
 
             DataTable table = new DataTable();
 

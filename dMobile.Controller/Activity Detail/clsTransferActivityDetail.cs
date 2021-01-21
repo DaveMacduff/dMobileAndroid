@@ -80,7 +80,7 @@ namespace dMobile.Controller
                             cmndItem.CommandText = "UPDATE tActivityItemTransfer "
                                 + "SET ActivityItemTransferStringFKRefno = \'" + this.NewItemFKRefno.ToString() + "\',"
                                 + "ActivityItemTransferFKRefno = " + this.NewItemFKRefno
-                                + " WHERE tActivityItemTransfer.ActivityItemRefno = " + this.ActItem.Refno;
+                                + " WHERE ActivityItemRefno = " + this.ActItem.Refno;
                             cmndItem.ExecuteNonQuery();
 
                             this.ActItem.FKRefno = this.NewItemFKRefno;
@@ -162,7 +162,7 @@ namespace dMobile.Controller
 
                     this.IsUpdateView = true;
 
-                    //recActDetailTransfer.SetInt32((int)SysCommon.ActDetailTransferFields.ActDetailRefno, actDetailRefno);
+                    //recActDetailTransfer.SetInt32(Convert.ToInt32(SysCommon.ActDetailTransferFields.ActDetailRefno, actDetailRefno));
                     //recActDetailTransfer.SetInt32((int)SysCommon.ActDetailTransferFields.FKRefno, this.FKRefno);
                     ////recActDetailTransfer.SetBoolean((int)SysCommon.ActDetailTransferFields.IsConfirmed, true);
                     //rsActDetailTransfer.Insert(recActDetailTransfer);
@@ -178,7 +178,7 @@ namespace dMobile.Controller
                         cmndItem.CommandText = "UPDATE tActivityItemTransfer "
                             + "SET ActivityItemTransferStringFKRefno = \'" + this.NewItemFKRefno + "\', "
                             + "ActivityItemTransferFKRefno = " + this.NewItemFKRefno
-                            + " WHERE tActivityItemTransfer.ActivityItemRefno = " + this.ActItem.Refno;
+                            + " WHERE ActivityItemRefno = " + this.ActItem.Refno;
                         cmndItem.ExecuteNonQuery();
                     }
 
@@ -250,16 +250,16 @@ namespace dMobile.Controller
             {
                 cmndPurge.CommandType = CommandType.Text;
 
-                cmndPurge.CommandText = "DELETE FROM tActivityDetailProductSchemeVariantXRef WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno = " + this.Refno;
+                cmndPurge.CommandText = "DELETE FROM tActivityDetailProductSchemeVariantXRef WHERE ActivityDetailRefno = " + this.Refno;
                 cmndPurge.ExecuteNonQuery();
 
-                cmndPurge.CommandText = "DELETE FROM tActivityDetailTransfer WHERE tActivityDetailTransfer.ActivityDetailRefno = " + this.Refno;
+                cmndPurge.CommandText = "DELETE FROM tActivityDetailTransfer WHERE ActivityDetailRefno = " + this.Refno;
                 cmndPurge.ExecuteNonQuery();
 
-                cmndPurge.CommandText = "DELETE FROM tActivityDetailExtra WHERE tActivityDetailExtra.ActivityDetailRefno = " + this.Refno;
+                cmndPurge.CommandText = "DELETE FROM tActivityDetailExtra WHERE ActivityDetailRefno = " + this.Refno;
                 cmndPurge.ExecuteNonQuery();
 
-                cmndPurge.CommandText = "DELETE FROM tActivityDetail WHERE tActivityDetail.ActivityDetailRefno = " + this.Refno;
+                cmndPurge.CommandText = "DELETE FROM tActivityDetail WHERE ActivityDetailRefno = " + this.Refno;
                 cmndPurge.ExecuteNonQuery();
             }
         }
@@ -298,7 +298,7 @@ namespace dMobile.Controller
                     {
                         this.DataViewDetails[selectedRowIndex].BeginEdit();
                         this.DataViewDetails[selectedRowIndex]["ActivityDetailTransferFKRefno"] = this.FKRefno;
-                        this.DataViewDetails[selectedRowIndex]["ActivityDetailStatus"] = (int)SysCommon.ActStatus.NoChange;
+                        this.DataViewDetails[selectedRowIndex]["ActivityDetailStatus"] = Convert.ToInt32(SysCommon.ActStatus.NoChange);
                         this.DataViewDetails[selectedRowIndex].EndEdit();
                     }
 
@@ -306,8 +306,8 @@ namespace dMobile.Controller
                     {
                         cmndDetail.CommandType = CommandType.Text;
                         cmndDetail.CommandText = "UPDATE tActivityDetail "
-                            + "SET tActivityDetail.ActivityDetailStatus = " + (int)SysCommon.ActStatus.NoChange
-                            + " WHERE tActivityDetail.ActivityDetailRefno = " + this.Refno;
+                            + "SET ActivityDetailStatus = " + Convert.ToInt32(SysCommon.ActStatus.NoChange)
+                            + " WHERE ActivityDetailRefno = " + this.Refno;
                         cmndDetail.ExecuteNonQuery();
                     }
                 }
@@ -465,7 +465,7 @@ namespace dMobile.Controller
                 sql.Append("LEFT JOIN tActivityDetailExtra ON tActivityDetailExtra.ActivityDetailRefno ");
                 sql.Append("= tActivityDetail.ActivityDetailRefno ");
                 sql.AppendFormat("WHERE tActivityDetail.ActivityItemRefno = {0} ", this.ActItem.Refno);
-                sql.AppendFormat("AND tActivityDetail.ActivityDetailStatus <> {0} ", (int)SysCommon.ActStatus.NoChange);
+                sql.AppendFormat("AND tActivityDetail.ActivityDetailStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append("UNION ");
                 sql.Append("SELECT tActivityDetail.ActivityDetailRefno,");
                 sql.Append("tActivityDetail.LocationMapRefno,");
@@ -523,7 +523,7 @@ namespace dMobile.Controller
                 sql.Append("LEFT JOIN tActivityDetailExtra ON tActivityDetailExtra.ActivityDetailRefno ");
                 sql.Append("= tActivityDetail.ActivityDetailRefno ");
                 sql.AppendFormat("WHERE tActivityDetail.ActivityItemRefno = {0} ", this.ActItem.Refno);
-                sql.AppendFormat("AND tActivityDetail.ActivityDetailStatus <> {0} ", (int)SysCommon.ActStatus.NoChange);
+                sql.AppendFormat("AND tActivityDetail.ActivityDetailStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append("UNION ");
                 sql.Append("SELECT tActivityDetail.ActivityDetailRefno,");
                 sql.Append("tActivityDetail.LocationMapRefno,");
@@ -582,7 +582,7 @@ namespace dMobile.Controller
                 sql.Append("LEFT JOIN tActivityDetailExtra ON tActivityDetailExtra.ActivityDetailRefno ");
                 sql.Append("= tActivityDetail.ActivityDetailRefno ");
                 sql.AppendFormat("WHERE tActivityDetail.ActivityItemRefno = {0} ", this.ActItem.Refno);
-                sql.AppendFormat("AND tActivityDetail.ActivityDetailStatus <> {0} ", (int)SysCommon.ActStatus.NoChange);
+                sql.AppendFormat("AND tActivityDetail.ActivityDetailStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append("ORDER BY tActivityDetail.ActivityDetailRefno");
             }
             else
@@ -786,21 +786,21 @@ namespace dMobile.Controller
             {
                 for (int i = 0; i <= this.DataViewDetails.Count - 1; i++)
                 {
-                    //if (this.SysEnv.SysSettings.IsTransConfirmFromDet)
-                    //{
-                    //    if (Convert.ToBoolean(this.DataViewDetails[i]["ActivityDetailIsConfirmed"]) == true)
-                    //    {
-                    //        fillQty.Quantity = fillQty.Quantity + Convert.ToDecimal(this.DataViewDetails[i]["ActivityDetailQuantity"]);
-                    //        fillQty.BaseQuantity = fillQty.BaseQuantity + Convert.ToDecimal(this.DataViewDetails[i]["ActivityDetailBaseQuantity"]);
-                    //        fillQty.WeightQuantity = fillQty.WeightQuantity + Convert.ToDecimal(this.DataViewDetails[i]["ActivityDetailWeightQuantity"]);
-                    //    }
-                    //}
-                    //else
-                    //{
+                    ////if (this.SysEnv.SysSettings.IsTransConfirmFromDet)
+                    ////{
+                    ////    if (Convert.ToBoolean(this.DataViewDetails[i]["ActivityDetailIsConfirmed"]) == true)
+                    ////    {
+                    ////        fillQty.Quantity = fillQty.Quantity + Convert.ToDecimal(this.DataViewDetails[i]["ActivityDetailQuantity"]);
+                    ////        fillQty.BaseQuantity = fillQty.BaseQuantity + Convert.ToDecimal(this.DataViewDetails[i]["ActivityDetailBaseQuantity"]);
+                    ////        fillQty.WeightQuantity = fillQty.WeightQuantity + Convert.ToDecimal(this.DataViewDetails[i]["ActivityDetailWeightQuantity"]);
+                    ////    }
+                    ////}
+                    ////else
+                    ////{
                     fillQty.Quantity += Convert.ToDecimal(this.DataViewDetails[i]["ActivityDetailQuantity"]);
                     fillQty.BaseQuantity += Convert.ToDecimal(this.DataViewDetails[i]["ActivityDetailBaseQuantity"]);
                     fillQty.WeightQuantity += Convert.ToDecimal(this.DataViewDetails[i]["ActivityDetailWeightQuantity"]);
-                    //}
+                    ////}
                 }
             }
 

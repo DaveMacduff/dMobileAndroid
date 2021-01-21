@@ -151,7 +151,7 @@ namespace dMobile.Controller
 
                             cmndItem.ExecuteNonQuery();
 
-                            //recActItem.SetInt32((int)SysCommon.ActItemFields.SubType, (int)SysCommon.ActSubTypes.Adjustment);
+                            //recActItem.SetInt32(Convert.ToInt32(SysCommon.ActItemFields.SubType, (int)SysCommon.ActSubTypes.Adjustment));
                             //recActItem.SetInt32((int)SysCommon.ActItemFields.Status, (int)SysCommon.ActStatus.NoChange);
                             //recActItem.SetInt32((int)SysCommon.ActItemFields.ActRefno, this.ActHdr.Refno);
                             //rsActItem.Insert(recActItem);
@@ -565,7 +565,7 @@ namespace dMobile.Controller
                 sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
                 sql.Append("= tActivityItemAdjustment.WarehouseLocationMapRefno ");
                 sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.Refno);
-                sql.AppendFormat("AND tActivityItem.ActivityItemStatus <> {0} ", (int)SysCommon.ActStatus.NoChange);
+                sql.AppendFormat("AND tActivityItem.ActivityItemStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append("UNION ");
                 sql.Append("SELECT tActivityItemAdjustment.ActivityItemRefno,");
                 sql.Append("tActivityItemAdjustment.ActivityItemAdjustmentFKRefno,");
@@ -596,7 +596,7 @@ namespace dMobile.Controller
                 sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
                 sql.Append("= tActivityItemAdjustment.WarehouseLocationMapRefno ");
                 sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.Refno);
-                sql.AppendFormat("AND tActivityDetail.ActivityDetailStatus <> {0} ", (int)SysCommon.ActStatus.NoChange);
+                sql.AppendFormat("AND tActivityDetail.ActivityDetailStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append("ORDER BY tActivityItemAdjustment.ActivityItemRefno");
             }
             else
@@ -745,10 +745,10 @@ namespace dMobile.Controller
             using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
             {
                 StringBuilder sql = new StringBuilder();
-                sql.Append("SELECT tActivityItem.ActivityItemRefno,");
-                sql.Append("tActivityItemAdjustment.ActivityItemAdjustmentFKRefno,");
-                sql.Append("tActivityItemAdjustment.ProductUnitRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapRefno ");
+                sql.Append("SELECT tActivityItem.ActivityItemRefno AS ActivityItemRefno,");
+                sql.Append("tActivityItemAdjustment.ActivityItemAdjustmentFKRefno AS ActivityItemAdjustmentFKRefno,");
+                sql.Append("tActivityItemAdjustment.ProductUnitRefno AS ProductUnitRefno,");
+                sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno ");
                 sql.Append("FROM tActivityItemAdjustment ");
                 sql.Append("INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno ");
                 sql.Append("= tActivityItemAdjustment.ActivityItemRefno ");
@@ -871,8 +871,7 @@ namespace dMobile.Controller
                 cmndItem.CommandText = "UPDATE tActivityItemAdjustment"
                     + " SET ActivityItemAdjustmentQuantity = " + this.DataViewItems[idx]["ActivityItemAdjustmentQuantity"] + ","
                     + " ActivityItemAdjustmentBaseQuantity = " + this.DataViewItems[idx]["ActivityItemAdjustmentBaseQuantity"] + "," +
-                    " ActivityItemAdjustmentWeightQuantity = "
-                    + this.DataViewItems[idx]["ActivityItemAdjustmentWeightQuantity"] + " WHERE tActivityItemAdjustment.ActivityItemRefno = " + actItemRefno;
+                    " ActivityItemAdjustmentWeightQuantity = " + this.DataViewItems[idx]["ActivityItemAdjustmentWeightQuantity"] + " WHERE ActivityItemRefno = " + actItemRefno;
 
                 cmndItem.ExecuteNonQuery();
             }

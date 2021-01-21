@@ -1,4 +1,3 @@
-// TODO: Check for Intermec SDK for android
 //namespace dMobile.BarCodeScanner
 //{
 //  using System;

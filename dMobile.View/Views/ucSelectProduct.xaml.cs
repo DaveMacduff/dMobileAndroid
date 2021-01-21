@@ -61,6 +61,7 @@ namespace dMobile.View
             {
                 this.cboSearch.Items.Add("Code");
                 this.cboSearch.Items.Add("Description");
+                this.cboSearch.SelectedItem = "Code";
                 this.SysEnv = SysEnvironment.GetInstance();
                 this.ProductList = new ObservableCollection<Product>();
                 this.ProductFilteredList = new ObservableCollection<Product>();
@@ -85,13 +86,16 @@ namespace dMobile.View
                 {
                     if (await this.SaveChanges())
                     {
+                        this.DialogResult = DialogResult.OK;
                         this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                        await this.Close();
                     }
                 }
                 else if (keycode == Keycode.Escape)
                 {
                     if (await this.CancelChanges())
                     {
+                        this.DialogResult = DialogResult.None;
                         this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     }
                 }
@@ -1002,8 +1006,8 @@ namespace dMobile.View
         {
             if (await this.SaveChanges())
             {
-                this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                 this.DialogResult = DialogResult.OK;
+                this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                 await this.Close();
             }
         }
@@ -1012,8 +1016,8 @@ namespace dMobile.View
         {
             if (await this.CancelChanges())
             {
-                this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                 this.DialogResult = DialogResult.None;
+                this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                 await this.Close();
             }
         }

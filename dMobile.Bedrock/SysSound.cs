@@ -30,7 +30,7 @@
         {
             // read the data from the stream
             this.SoundBytes = new byte[stream.Length];
-            stream.Read(this.SoundBytes, 0, (int)stream.Length);
+            stream.Read(this.SoundBytes, 0, Convert.ToInt32(stream.Length));
         }
 
         #endregion

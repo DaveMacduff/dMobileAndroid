@@ -593,8 +593,8 @@ namespace dMobile.Controller
                 sql.Append("INNER JOIN tLocationMapSection ON tLocationMapSection.LocationMapRefno ");
                 sql.Append("= tLocationMapSlot.SectionLocationMapRefno ");
                 sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.Refno);
-                sql.AppendFormat("AND tActivityItem.ActivityItemSubType = {0} ", (int)SysCommon.ActSubTypes.PhysicalCounts);
-                sql.AppendFormat("AND tActivityItem.ActivityItemStatus <> {0} ", (int)SysCommon.ActStatus.NoChange);
+                sql.AppendFormat("AND tActivityItem.ActivityItemSubType = {0} ", Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts));
+                sql.AppendFormat("AND tActivityItem.ActivityItemStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append("UNION ");
                 sql.Append("SELECT tActivityItemCount.ActivityItemRefno,");
                 sql.Append("tActivityItemCount.ActivityItemCountFKRefno,");
@@ -625,8 +625,8 @@ namespace dMobile.Controller
                 sql.Append("INNER JOIN tLocationMapSection ON tLocationMapSection.LocationMapRefno ");
                 sql.Append("= tActivityItemCount.LocationMapRefno ");
                 sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.Refno);
-                sql.AppendFormat("AND tActivityItem.ActivityItemSubType = {0} ", (int)SysCommon.ActSubTypes.PhysicalCounts);
-                sql.AppendFormat("AND tActivityItem.ActivityItemStatus <> {0} ", (int)SysCommon.ActStatus.NoChange);
+                sql.AppendFormat("AND tActivityItem.ActivityItemSubType = {0} ", Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts));
+                sql.AppendFormat("AND tActivityItem.ActivityItemStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append("UNION ");
                 sql.Append("SELECT tActivityItemCount.ActivityItemRefno,");
                 sql.Append("tActivityItemCount.ActivityItemCountFKRefno,");
@@ -657,8 +657,8 @@ namespace dMobile.Controller
                 sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
                 sql.Append("= tActivityItemCount.LocationMapRefno ");
                 sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.Refno);
-                sql.AppendFormat("AND tActivityItem.ActivityItemSubType = {0} ", (int)SysCommon.ActSubTypes.PhysicalCounts);
-                sql.AppendFormat("AND tActivityItem.ActivityItemStatus <> {0} ", (int)SysCommon.ActStatus.NoChange);
+                sql.AppendFormat("AND tActivityItem.ActivityItemSubType = {0} ", Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts));
+                sql.AppendFormat("AND tActivityItem.ActivityItemStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append("UNION ");
                 sql.Append(" SELECT tActivityItemCount.ActivityItemRefno,");
                 sql.Append("tActivityItemCount.ActivityItemCountFKRefno,");
@@ -694,9 +694,9 @@ namespace dMobile.Controller
                 sql.Append("INNER JOIN tLocationMapSection ON tLocationMapSection.LocationMapRefno ");
                 sql.Append("= tLocationMapSlot.SectionLocationMapRefno ");
                 sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.Refno);
-                sql.AppendFormat("AND tActivityItem.ActivityItemSubType = {0} ", (int)SysCommon.ActSubTypes.PhysicalCounts);
-                sql.AppendFormat("AND tActivityDetail.ActivityDetailSubType = {0} ", (int)SysCommon.ActSubTypes.PhysicalCounts);
-                sql.AppendFormat("AND tActivityDetail.ActivityDetailStatus <> {0} ", (int)SysCommon.ActStatus.NoChange);
+                sql.AppendFormat("AND tActivityItem.ActivityItemSubType = {0} ", Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts));
+                sql.AppendFormat("AND tActivityDetail.ActivityDetailSubType = {0} ", Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts));
+                sql.AppendFormat("AND tActivityDetail.ActivityDetailStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append("UNION ");
                 sql.Append("SELECT tActivityItemCount.ActivityItemRefno,");
                 sql.Append("tActivityItemCount.ActivityItemCountFKRefno,");
@@ -729,9 +729,9 @@ namespace dMobile.Controller
                 sql.Append("INNER JOIN tLocationMapSection ON tLocationMapSection.LocationMapRefno ");
                 sql.Append("= tActivityItemCount.LocationMapRefno ");
                 sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.Refno);
-                sql.AppendFormat("AND tActivityItem.ActivityItemSubType = {0} ", (int)SysCommon.ActSubTypes.PhysicalCounts);
-                sql.AppendFormat("AND tActivityDetail.ActivityDetailSubType = {0} ", (int)SysCommon.ActSubTypes.PhysicalCounts);
-                sql.AppendFormat("AND tActivityDetail.ActivityDetailStatus <> {0} ", (int)SysCommon.ActStatus.NoChange);
+                sql.AppendFormat("AND tActivityItem.ActivityItemSubType = {0} ", Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts));
+                sql.AppendFormat("AND tActivityDetail.ActivityDetailSubType = {0} ", Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts));
+                sql.AppendFormat("AND tActivityDetail.ActivityDetailStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append("UNION ");
                 sql.Append("SELECT tActivityItemCount.ActivityItemRefno,");
                 sql.Append("tActivityItemCount.ActivityItemCountFKRefno,");
@@ -764,9 +764,9 @@ namespace dMobile.Controller
                 sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
                 sql.Append("= tActivityItemCount.LocationMapRefno ");
                 sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.Refno);
-                sql.AppendFormat("AND tActivityItem.ActivityItemSubType = {0} ", (int)SysCommon.ActSubTypes.PhysicalCounts);
-                sql.AppendFormat("AND tActivityDetail.ActivityDetailSubType = {0} ", (int)SysCommon.ActSubTypes.PhysicalCounts);
-                sql.AppendFormat("AND tActivityDetail.ActivityDetailStatus <> (0) ", (int)SysCommon.ActStatus.NoChange);
+                sql.AppendFormat("AND tActivityItem.ActivityItemSubType = {0} ", Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts));
+                sql.AppendFormat("AND tActivityDetail.ActivityDetailSubType = {0} ", Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts));
+                sql.AppendFormat("AND tActivityDetail.ActivityDetailStatus <> (0) ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append("ORDER BY tActivityItemCount.ActivityItemRefno");
             }
             else
@@ -978,10 +978,10 @@ namespace dMobile.Controller
             {
                 StringBuilder sql = new StringBuilder();
 
-                sql.Append("SELECT tActivityItem.ActivityItemRefno,");
-                sql.Append("tActivityItemCount.ActivityItemCountFKRefno,");
-                sql.Append("tActivityItemCount.ProductUnitRefno,");
-                sql.Append("tLocationMapSlot.LocationMapRefno ");
+                sql.Append("SELECT tActivityItem.ActivityItemRefno AS ActivityItemRefno,");
+                sql.Append("tActivityItemCount.ActivityItemCountFKRefno AS ActivityItemCountFKRefno,");
+                sql.Append("tActivityItemCount.ProductUnitRefno AS ProductUnitRefno,");
+                sql.Append("tLocationMapSlot.LocationMapRefno AS LocationMapRefno ");
                 sql.Append("FROM tActivityItemCount ");
                 sql.Append("INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno ");
                 sql.Append("= tActivityItemCount.ActivityItemRefno ");
@@ -1130,7 +1130,7 @@ namespace dMobile.Controller
                     + "SET ActivityItemCountQuantity = " + this.DataViewItems[idx]["ActivityItemCountQuantity"] + ","
                     + "ActivityItemCountBaseQuantity = " + this.DataViewItems[idx]["ActivityItemCountBaseQuantity"] + ","
                     + "ActivityItemCountWeightQuantity = " + this.DataViewItems[idx]["ActivityItemCountWeightQuantity"]
-                    + " WHERE tActivityItemCount.ActivityItemRefno = " + actItemRefno;
+                    + " WHERE ActivityItemRefno = " + actItemRefno;
 
                 cmndItem.ExecuteNonQuery();
             }

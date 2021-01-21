@@ -90,6 +90,7 @@ namespace dMobile.Controller
                         case SysCommon.ActTransfersQtyOverValLevels.ValidateWarnAndContinue:
                             //if (MessageBox.Show(ex.Message + Environment.NewLine + "Continue?", "Quantity Over", MessageBoxButtons.YesNo, MessageBoxIcon.Question, sMessageBoxDefaultButton.Button2) == DialogResult.No)
                             //{
+                            // TODO: Resource strings
                             if (!await Application.Current.MainPage.DisplayAlert("Quantity Over", ex.Message + Environment.NewLine + "Continue?", "Yes", "No"))
                             {
                                 throw new IsReadyToApplyException(ex.Message, true, false);
@@ -583,7 +584,7 @@ namespace dMobile.Controller
                 sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
                 sql.Append("= tActivityItemTransfer.TransferFromWarehouseLocationMapRefno ");
                 sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.Refno);
-                sql.AppendFormat("AND tActivityItem.ActivityItemStatus <> {0} ", (int)SysCommon.ActStatus.NoChange);
+                sql.AppendFormat("AND tActivityItem.ActivityItemStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append("UNION ");
                 sql.Append("SELECT tActivityItemTransfer.ActivityItemRefno,");
                 sql.Append("tActivityItemTransfer.ActivityItemTransferFKRefno,");
@@ -615,7 +616,7 @@ namespace dMobile.Controller
                 sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
                 sql.Append("= tActivityItemTransfer.TransferFromWarehouseLocationMapRefno ");
                 sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.Refno);
-                sql.AppendFormat(" AND tActivityDetail.ActivityDetailStatus <> {0} ", (int)SysCommon.ActStatus.NoChange);
+                sql.AppendFormat(" AND tActivityDetail.ActivityDetailStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append(" ORDER BY tActivityItemTransfer.ActivityItemRefno");
             }
             else
@@ -856,7 +857,7 @@ namespace dMobile.Controller
                     + "SET ActivityItemTransferQuantity = " + this.DataViewItems[idx]["ActivityItemTransferQuantity"] + ","
                     + "ActivityItemTransferBaseQuantity = " + this.DataViewItems[idx]["ActivityItemTransferBaseQuantity"] + ","
                     + "ActivityItemTransferWeightQuantity = " + this.DataViewItems[idx]["ActivityItemTransferWeightQuantity"] +
-                    " WHERE tActivityItemTransfer.ActivityItemRefno = " + actItemRefno;
+                    " WHERE ActivityItemRefno = " + actItemRefno;
                 cmndItem.ExecuteNonQuery();
             }
         }

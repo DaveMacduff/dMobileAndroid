@@ -45,11 +45,14 @@
                 </Grid>
 
                 <Frame VerticalOptions="Start" Grid.Row="3" Grid.ColumnSpan="3" OutlineColor="{DynamicResource BorderColor}">
-                    <ListView x:Name="dgProducts" ItemSelected="DgProducts_ItemSelected">
+                    <ListView x:Name="dgProducts" ItemSelected="DgProducts_ItemSelected" HasUnevenRows="True">
                         <ListView.ItemTemplate>
                             <DataTemplate>
                                 <ViewCell>
                                     <Grid Padding="10">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="20*"/>
                                             <ColumnDefinition Width="20*"/>

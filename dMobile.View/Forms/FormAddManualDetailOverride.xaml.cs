@@ -234,9 +234,9 @@ namespace dMobile.View.Forms
                             //{
                             if (drUser.Read())
                             {
-                                this.Password = drUser.GetString((int)SysCommon.ContactUserFields.Password);
-                                this.UserCode = drUser.GetInt32((int)SysCommon.ContactUserFields.Code);
-                                this.IsAllowedAddManualDetail = drUser.GetBoolean((int)SysCommon.ContactUserFields.IsAllowedPickingModuleOverrideAddManualDetail);
+                                this.Password = drUser.GetString(Convert.ToInt32(SysCommon.ContactUserFields.Password));
+                                this.UserCode = drUser.GetInt32(Convert.ToInt32(SysCommon.ContactUserFields.Code));
+                                this.IsAllowedAddManualDetail = drUser.GetBoolean(Convert.ToInt32(SysCommon.ContactUserFields.IsAllowedPickingModuleOverrideAddManualDetail));
                             }
                             //}
                         }

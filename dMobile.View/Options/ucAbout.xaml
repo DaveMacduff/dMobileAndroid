@@ -16,7 +16,7 @@
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
-                <Label x:Name="lblDeviceNameIP" Text="Device ID / Name / IP" Grid.Row="0" FontAttributes="Bold"/>
+                <Label x:Name="lblDeviceNameIP" Grid.Row="0" FontAttributes="Bold"/>
                 <Label x:Name="lblDeviceIDData" Text="000000000000-00000000000000000000" Grid.Row="1" HorizontalOptions="FillAndExpand"/>
 
                 <Frame OutlineColor="{DynamicResource BorderColor}" Grid.Row="2" Grid.ColumnSpan="2">
@@ -52,7 +52,7 @@
                     <Label x:Name="lblSpeed" Text="Speed:" Grid.Row="2" Grid.Column="0" FontAttributes="Bold"/>
                     <Label x:Name="lblSpeedData" Text="&lt;Unknown&gt;" Grid.Row="2" Grid.Column="1"/>
                 </Grid>
-                
+
                 <Button x:Name="cmdShowMemory" Text="Show Memory" Grid.Row="5" Grid.Column="0" Clicked="cmdShowMemory_Click"/>
                 <Button x:Name="cmdVersionInfo" Text="Version Info" Grid.Row="5" Grid.Column="1" Clicked="cmdVersionInfo_Click"/>
             </Grid>

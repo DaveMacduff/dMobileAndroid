@@ -13,8 +13,8 @@
                 </Grid.RowDefinitions>
 
                 <Frame OutlineColor="{DynamicResource BorderColor}" Grid.Row="0">
-                    <ScrollView AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0,0,1,1">
-                        <Grid AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0,0,1,1">
+                    <ScrollView>
+                        <Grid Padding="10">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />

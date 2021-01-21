@@ -254,8 +254,8 @@ namespace dMobile.Controller
                 sql.Append("= tActivityProduction.ActivityRefno ");
                 sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
                 sql.Append("= tActivityProduction.WarehouseLocationMapRefno ");
-                sql.AppendFormat("WHERE tActivity.ActivityStatus <> {0} ", (int)SysCommon.ActStatus.NoChange);
-                sql.AppendFormat("AND tActivity.ActivitySubType = {0} ", (int)SysCommon.ActSubTypes.TicketAddProduct);
+                sql.AppendFormat("WHERE tActivity.ActivityStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
+                sql.AppendFormat("AND tActivity.ActivitySubType = {0} ", Convert.ToInt32(SysCommon.ActSubTypes.TicketAddProduct));
                 sql.Append("UNION ");
                 sql.Append("SELECT tActivityProduction.ActivityRefno,");
                 sql.Append("tActivityProductionByProduct.ActivityProductionFKRefno,");
@@ -273,8 +273,8 @@ namespace dMobile.Controller
                 sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
                 sql.Append("= tActivityProduction.WarehouseLocationMapRefno ");
                 sql.Append("INNER JOIN tActivityItem ON tActivityItem.ActivityRefno = tActivity.ActivityRefno ");
-                sql.AppendFormat("WHERE tActivityItem.ActivityItemStatus <> {0} ", (int)SysCommon.ActStatus.NoChange);
-                sql.AppendFormat("AND tActivity.ActivitySubType = {0} ", (int)SysCommon.ActSubTypes.TicketAddProduct);
+                sql.AppendFormat("WHERE tActivityItem.ActivityItemStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
+                sql.AppendFormat("AND tActivity.ActivitySubType = {0} ", Convert.ToInt32(SysCommon.ActSubTypes.TicketAddProduct));
                 sql.Append("UNION ");
                 sql.Append("SELECT tActivityProduction.ActivityRefno,");
                 sql.Append("tActivityProductionByProduct.ActivityProductionFKRefno,");
@@ -294,8 +294,8 @@ namespace dMobile.Controller
                 sql.Append("= tActivityProduction.WarehouseLocationMapRefno ");
                 sql.Append("INNER JOIN tActivityDetail ON tActivityDetail.ActivityItemRefno ");
                 sql.Append("= tActivityItem.ActivityItemRefno ");
-                sql.AppendFormat("WHERE tActivityDetail.ActivityDetailStatus <> {0} ", (int)SysCommon.ActStatus.NoChange);
-                sql.AppendFormat("AND tActivity.ActivitySubType = {0}", (int)SysCommon.ActSubTypes.TicketAddProduct);
+                sql.AppendFormat("WHERE tActivityDetail.ActivityDetailStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
+                sql.AppendFormat("AND tActivity.ActivitySubType = {0}", Convert.ToInt32(SysCommon.ActSubTypes.TicketAddProduct));
             }
             else
             {
@@ -314,7 +314,7 @@ namespace dMobile.Controller
                 sql.Append("INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityProduction.ActivityRefno ");
                 sql.Append("INNER JOIN tActivityProductionByProduct ON tActivityProductionByProduct.ActivityRefno ");
                 sql.Append("= tActivityProduction.ActivityRefno ");
-                sql.AppendFormat("WHERE tActivity.ActivitySubType = {0}", (int)SysCommon.ActSubTypes.TicketAddProduct);
+                sql.AppendFormat("WHERE tActivity.ActivitySubType = {0}", Convert.ToInt32(SysCommon.ActSubTypes.TicketAddProduct));
             }
 
             using (SQLiteDataAdapter da = new SQLiteDataAdapter(sql.ToString(), DatabaseConnection.GetInstance().SQLConn))

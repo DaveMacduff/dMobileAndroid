@@ -4,7 +4,6 @@
     using System.Collections.ObjectModel;
     using System.Data;
     using System.Xml.Linq;
-    using dMobile.Bedrock;
     using Xamarin.Forms;
 
     /// <summary>

@@ -62,7 +62,7 @@
                 cmndLocMap.CommandType = CommandType.Text;
                 cmndLocMap.CommandText = "SELECT tLocationMapSlot.LocationMapRefno "
                         + "FROM tLocationMapSlot "
-                        + "WHERE tLocationMapSlot.LocationMapSlotBarCode LIKE @barcode%";
+                        + "WHERE LocationMapSlotBarCode LIKE @barcode%";
                     cmndLocMap.Parameters.Add(new SQLiteParameter("@barCode", barCode));
 
                 locMapRefno = Convert.ToInt32(cmndLocMap.ExecuteScalar());
@@ -284,7 +284,7 @@
         /// <param name="dataTableSlotCoord1List">The dataTableSlotCoord1List<see cref="DataTable"/></param>
         public static void GetSlotCoord1List(ref DataTable dataTableSlotCoord1List)
         {
-            int coord = (int)SysCommon.LocMapSlotCoordTypes.Coord1;
+            int coord = Convert.ToInt32(SysCommon.LocMapSlotCoordTypes.Coord1);
 
             using (SQLiteCommand cmd = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
             {
@@ -316,7 +316,7 @@
         /// <param name="dataTableSlotCoord2List">The dataTableSlotCoord2List<see cref="DataTable"/></param>
         public static void GetSlotCoord2List(ref DataTable dataTableSlotCoord2List)
         {
-            int coord = (int)SysCommon.LocMapSlotCoordTypes.Coord2;
+            int coord = Convert.ToInt32(SysCommon.LocMapSlotCoordTypes.Coord2);
 
             using (SQLiteCommand cmd = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
             {
@@ -349,7 +349,7 @@
         /// <param name="dataTableSlotCoord3List">The dataTableSlotCoord3List<see cref="DataTable"/></param>
         public static void GetSlotCoord3List(ref DataTable dataTableSlotCoord3List)
         {
-            int coord = (int)SysCommon.LocMapSlotCoordTypes.Coord3;
+            int coord = Convert.ToInt32(SysCommon.LocMapSlotCoordTypes.Coord3);
 
 
             using (SQLiteCommand cmd = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
