@@ -142,13 +142,16 @@ namespace dMobile.View.Activity
                     {
                         if (await this.SaveChanges())
                         {
+                            this.DialogResult = DialogResult.OK;
                             this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                            await this.Close();
                         }
                     }
                     else if (keycode == Keycode.Escape)
                     {
                         if (await this.CancelChanges())
                         {
+                            this.DialogResult = DialogResult.None;
                             this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                         }
                     }
