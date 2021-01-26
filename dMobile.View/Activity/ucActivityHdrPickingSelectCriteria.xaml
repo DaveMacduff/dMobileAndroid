@@ -1,93 +1,111 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<modal:DMobileModal  xmlns:modal="clr-namespace:dMobile.View.CustomPages.Modal"
+<modal:DMobileTabbedModal  xmlns:modal="clr-namespace:dMobile.View.CustomPages.Modal"
                      xmlns="http://xamarin.com/schemas/2014/forms"
                      xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" 
                      xmlns:customcontrols="clr-namespace:dMobile.View.CustomControls"
                      xmlns:Helpers="clr-namespace:dMobile.View.Helpers"
                      x:Class="dMobile.View.Activity.ucActivityHdrPickingSelectCriteria">
-    <ContentPage.Content>
-        <AbsoluteLayout>
-            <Grid AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0,0,1,1" Padding="10">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="65*" />
-                    <RowDefinition Height="20*" />
-                    <RowDefinition Height="15*" />
-                </Grid.RowDefinitions>
 
-                <ScrollView Grid.Row="0">
-                    <Grid Padding="5">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="150" />
-                            <RowDefinition Height="10" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="150" />
-                        </Grid.RowDefinitions>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
+    <ContentPage x:Name="warehouseTab">
+        <Grid Padding="10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
 
-                        <!--Warehouse tab-->
-                        <Label x:Name="tabWarehouse" Text="Warehouse" Grid.Row="0" FontAttributes="Bold" Grid.ColumnSpan="3"/>
+            <Frame Grid.Row="0" OutlineColor="{DynamicResource BorderColor}">
+                <ListView x:Name="dgWhs" ItemSelected="dgWhs_ItemSelected" HasUnevenRows="True" />
+            </Frame>
 
-                        <Frame Grid.Row="1" OutlineColor="{DynamicResource BorderColor}" Grid.ColumnSpan="3">
-                            <ListView x:Name="dgWhs" ItemSelected="dgWhs_ItemSelected" HasUnevenRows="True" />
-                        </Frame>
+            <Frame VerticalOptions="FillAndExpand" Grid.Row="1" OutlineColor="{DynamicResource BorderColor}" HorizontalOptions="FillAndExpand">
+                <Grid Padding="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="30*" />
+                        <ColumnDefinition Width="70*" />
+                    </Grid.ColumnDefinitions>
 
-                        <!--Section tab-->
-                        <Label x:Name="tabSection" Text="Section" Grid.Row="3" FontAttributes="Bold" Grid.ColumnSpan="3"/>
+                    <Label x:Name="lblWarehouse_tabWarehouse" Grid.Row="0" Grid.Column="0" Text="Warehouse"/>
+                    <Label x:Name="lblWarehouseData_tabWarehouse" Grid.Row="0" Grid.Column="1"/>
 
-                        <Label x:Name="lblSearch" Text="Search" Grid.Row="4" Grid.Column="0" VerticalOptions="Center"/>
-                        <customcontrols:CustomPicker x:Name="cboSectionSearch" Grid.Row="4" Grid.Column="1" FontSize="Body" Image="arrow_drop_down" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
-                        <Entry x:Name="txtSearchSection" Grid.Row="4" Grid.Column="2" Keyboard="Numeric" TextChanged="txtSearchSection_TextChanged" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                    <Label x:Name="lblSection_tabWarehouse" Grid.Row="1" Grid.Column="0" Text="Section"/>
+                    <Label x:Name="lblSectionData_tabWarehouse" Grid.Row="1" Grid.Column="1"/>
 
-                        <Frame VerticalOptions="Start" Grid.Row="5" OutlineColor="{DynamicResource BorderColor}" Grid.ColumnSpan="3">
-                            <Grid x:Name="dataGridSectionsHeader">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                </Grid.RowDefinitions>
-
-                                <ListView x:Name="dgSections" ItemSelected="dgSections_ItemSelected" HasUnevenRows="True" Grid.Row="1" />
-                            </Grid>
-                        </Frame>
-                    </Grid>
-                </ScrollView>
-
-                <Frame VerticalOptions="FillAndExpand" Grid.Row="1" OutlineColor="{DynamicResource BorderColor}" HorizontalOptions="FillAndExpand">
-                    <Grid Padding="10">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="*" />
-                            <RowDefinition Height="*" />
-                        </Grid.RowDefinitions>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="30*" />
-                            <ColumnDefinition Width="70*" />
-                        </Grid.ColumnDefinitions>
-                    
-                        <Label x:Name="lblWarehouse" Grid.Row="0" Grid.Column="0" Text="Warehouse"/>
-                        <Label x:Name="lblWarehouseData" Grid.Row="0" Grid.Column="1"/>
-
-                        <Label x:Name="lblSection" Grid.Row="1" Grid.Column="0" Text="Section"/>
-                        <Label x:Name="lblSectionData" Grid.Row="1" Grid.Column="1"/>
-
-                    </Grid>
-                </Frame>
-
-
-                <Grid Grid.Row="2">
-                    <Button x:Name="btnSave" Text="Save" Grid.Row="0" Grid.Column="0" Clicked="btnSave_Clicked" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
-                    <Button x:Name="btnCancel" Text="Cancel" Grid.Row="0" Grid.Column="1" Clicked="btnCancel_Clicked" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
                 </Grid>
-            </Grid>
-            
-            <ActivityIndicator IsVisible="{Binding Loading}" 
-                               IsRunning="{Binding Loading}" 
-                               AbsoluteLayout.LayoutFlags="All" 
-                               AbsoluteLayout.LayoutBounds="0.5,0.5,0.3,0.3"/>
+            </Frame>
 
-        </AbsoluteLayout>
-    </ContentPage.Content>
-</modal:DMobileModal>
+            <Grid Grid.Row="2">
+                <Button x:Name="btnSave_tabWarehouse" Text="Save" Grid.Row="0" Grid.Column="0" Clicked="btnSave_Clicked" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                <Button x:Name="btnCancel_tabWarehouse" Text="Cancel" Grid.Row="0" Grid.Column="1" Clicked="btnCancel_Clicked" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+            </Grid>
+        </Grid>
+    </ContentPage>
+
+
+    <!--Section tab-->
+    <ContentPage x:Name="sectionTab">
+        <Grid Padding="10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <Grid Grid.Row="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="20*" />
+                    <ColumnDefinition Width="35*" />
+                    <ColumnDefinition Width="45*" />
+                </Grid.ColumnDefinitions>
+
+                <Label x:Name="lblSearch" Text="Search" Grid.Row="0" Grid.Column="0" VerticalOptions="Center"/>
+                <customcontrols:CustomPicker x:Name="cboSectionSearch" Grid.Row="0" Grid.Column="1" FontSize="Body" Image="arrow_drop_down" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                <Entry x:Name="txtSearchSection" Grid.Row="0" Grid.Column="2" Keyboard="Numeric" TextChanged="txtSearchSection_TextChanged" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+            </Grid>
+
+            <Frame VerticalOptions="Start" Grid.Row="1" OutlineColor="{DynamicResource BorderColor}">
+                <Grid x:Name="dataGridSectionsHeader">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <ListView x:Name="dgSections" ItemSelected="dgSections_ItemSelected" HasUnevenRows="True" Grid.Row="1" />
+                </Grid>
+            </Frame>
+
+            <Frame VerticalOptions="FillAndExpand" Grid.Row="2" OutlineColor="{DynamicResource BorderColor}" HorizontalOptions="FillAndExpand">
+                <Grid Padding="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="30*" />
+                        <ColumnDefinition Width="70*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Label x:Name="lblWarehouse_tabSection" Grid.Row="0" Grid.Column="0" Text="Warehouse"/>
+                    <Label x:Name="lblWarehouseData_tabSection" Grid.Row="0" Grid.Column="1"/>
+
+                    <Label x:Name="lblSection_tabSection" Grid.Row="1" Grid.Column="0" Text="Section"/>
+                    <Label x:Name="lblSectionData_tabSection" Grid.Row="1" Grid.Column="1"/>
+
+                </Grid>
+            </Frame>
+
+            <Grid Grid.Row="3">
+                <Button x:Name="btnSave_tabSection" Text="Save" Grid.Row="0" Grid.Column="0" Clicked="btnSave_Clicked" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                <Button x:Name="btnCancel_tabSection" Text="Cancel" Grid.Row="0" Grid.Column="1" Clicked="btnCancel_Clicked" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+            </Grid>
+        </Grid>
+    </ContentPage>
+
+</modal:DMobileTabbedModal>

@@ -23,7 +23,7 @@ using dMobile.Resources.Services;
 namespace dMobile.View.Activity
 {
     [XamlCompilation(XamlCompilationOptions.Compile)]
-    public partial class ucActivityHdrPickingSelectCriteria : DMobileModal, IAppArea, IAppPublisher
+    public partial class ucActivityHdrPickingSelectCriteria : DMobileTabbedModal, IAppArea, IAppPublisher
     {
         #region Fields
 
@@ -61,15 +61,21 @@ namespace dMobile.View.Activity
             this.InitializeComponent();
 
             // TODO: Resource strings
-            this.lblSectionData.Text = "";
-            this.lblWarehouseData.Text = "";
+            this.lblSectionData_tabWarehouse.Text = string.Empty;
+            this.lblWarehouseData_tabWarehouse.Text = string.Empty;
+            this.lblSectionData_tabSection.Text = string.Empty;
+            this.lblWarehouseData_tabSection.Text = string.Empty;
             this.lblSearch.Text = "Search";
-            this.lblWarehouse.Text = "Warehouse";
-            this.lblSection.Text = "Section";
-            this.tabWarehouse.Text = "Warehouse";
-            this.tabSection.Text = "Section";
-            this.btnCancel.Text = "Cancel";
-            this.btnSave.Text = "Save";
+            this.lblWarehouse_tabWarehouse.Text = "Warehouse";
+            this.lblSection_tabWarehouse.Text = "Section";
+            this.lblWarehouse_tabSection.Text = "Warehouse";
+            this.lblSection_tabSection.Text = "Section";
+            this.warehouseTab.Title = "Warehouse";
+            this.sectionTab.Title = "Section";
+            this.btnCancel_tabWarehouse.Text = "Cancel";
+            this.btnSave_tabWarehouse.Text = "Save";
+            this.btnCancel_tabSection.Text = "Cancel";
+            this.btnSave_tabSection.Text = "Save";
 
             if (!DesignMode.IsDesignModeEnabled)
             {
@@ -110,6 +116,44 @@ namespace dMobile.View.Activity
                             this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                             this.DialogResult = DialogResult.OK;
                             await this.Close();
+                        }
+                    }
+                    else if (keycode == Keycode.DpadDown)
+                    {
+                        if (this.CurrentPage.Title == this.warehouseTab.Title)
+                        {
+                            if (this.dgWhs.SelectedItem != null && Convert.ToInt32(this.WarehouseList.IndexOf(this.dgWhs.SelectedItem as Warehouse)) < this.WarehouseList.Count - 1)
+                            {
+                                this.dgWhs.SelectedItem = this.WarehouseList[this.WarehouseList.IndexOf(this.dgWhs.SelectedItem as Warehouse) + 1];
+                                this.dgWhs.ScrollTo(this.dgWhs.SelectedItem, ScrollToPosition.MakeVisible, true);
+                            }
+                        }
+                        else if (this.CurrentPage.Title == this.sectionTab.Title)
+                        {
+                            if (this.dgSections.SelectedItem != null && Convert.ToInt32(this.SectionList.IndexOf(this.dgSections.SelectedItem as Section)) < this.SectionList.Count - 1)
+                            {
+                                this.dgSections.SelectedItem = this.SectionList[this.SectionList.IndexOf(this.dgSections.SelectedItem as Section) + 1];
+                                this.dgSections.ScrollTo(this.dgSections.SelectedItem, ScrollToPosition.MakeVisible, true);
+                            }
+                        }
+                    }
+                    else if (keycode == Keycode.DpadUp)
+                    {
+                        if (this.CurrentPage.Title == this.warehouseTab.Title)
+                        {
+                            if (this.dgWhs.SelectedItem != null && Convert.ToInt32(this.WarehouseList.IndexOf(this.dgWhs.SelectedItem as Warehouse)) > 0)
+                            {
+                                this.dgWhs.SelectedItem = this.WarehouseList[this.WarehouseList.IndexOf(this.dgWhs.SelectedItem as Warehouse) - 1];
+                                this.dgWhs.ScrollTo(this.dgWhs.SelectedItem, ScrollToPosition.MakeVisible, true);
+                            }
+                        }
+                        else if (this.CurrentPage.Title == this.sectionTab.Title)
+                        {
+                            if (this.dgSections.SelectedItem != null && Convert.ToInt32(this.SectionList.IndexOf(this.dgSections.SelectedItem as Section)) > 0)
+                            {
+                                this.dgSections.SelectedItem = this.SectionList[this.SectionList.IndexOf(this.dgSections.SelectedItem as Section) - 1];
+                                this.dgSections.ScrollTo(this.dgSections.SelectedItem, ScrollToPosition.MakeVisible, true);
+                            }
                         }
                     }
                 }
@@ -1033,25 +1077,33 @@ namespace dMobile.View.Activity
             if (this.LocMapInfo.WhsLocMapRefno == 0)
             {
                 // TODO: Resource strings
-                this.lblWarehouseData.Text = "Unknown";
-                this.lblWarehouseData.TextColor = Color.Black;
+                this.lblWarehouseData_tabWarehouse.Text = "Unknown";
+                this.lblWarehouseData_tabWarehouse.TextColor = Color.Black;
+                this.lblWarehouseData_tabSection.Text = "Unknown";
+                this.lblWarehouseData_tabSection.TextColor = Color.Black;
             }
             else
             {
-                this.lblWarehouseData.Text = this.LocMapInfo.WhsCode + " " + this.LocMapInfo.WhsName;
-                this.lblWarehouseData.TextColor = Color.Blue;
+                this.lblWarehouseData_tabWarehouse.Text = this.LocMapInfo.WhsCode + " " + this.LocMapInfo.WhsName;
+                this.lblWarehouseData_tabWarehouse.TextColor = Color.Blue;
+                this.lblWarehouseData_tabSection.Text = this.LocMapInfo.WhsCode + " " + this.LocMapInfo.WhsName;
+                this.lblWarehouseData_tabSection.TextColor = Color.Blue;
             }
 
             if (this.LocMapInfo.SectLocMapRefno == 0)
             {
                 // TODO: Resource strings
-                this.lblSectionData.Text = "Unknown";
-                this.lblSectionData.TextColor = Color.Black;
+                this.lblSectionData_tabWarehouse.Text = "Unknown";
+                this.lblSectionData_tabWarehouse.TextColor = Color.Black;
+                this.lblSectionData_tabSection.Text = "Unknown";
+                this.lblSectionData_tabSection.TextColor = Color.Black;
             }
             else
             {
-                this.lblSectionData.Text = this.LocMapInfo.SectCode + " " + this.LocMapInfo.SectName;
-                this.lblSectionData.TextColor = Color.Blue;
+                this.lblSectionData_tabWarehouse.Text = this.LocMapInfo.SectCode + " " + this.LocMapInfo.SectName;
+                this.lblSectionData_tabWarehouse.TextColor = Color.Blue;
+                this.lblSectionData_tabSection.Text = this.LocMapInfo.SectCode + " " + this.LocMapInfo.SectName;
+                this.lblSectionData_tabSection.TextColor = Color.Blue;
             }
         }
 
@@ -1361,6 +1413,7 @@ namespace dMobile.View.Activity
             {
                 this.IsChangesMade = true;
                 this.LocMapInfo = LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(warehouse.LocationMapRefno));
+                this.LoadSections();
                 this.UpdateLocationDisplay();
             }
         }

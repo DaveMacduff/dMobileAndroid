@@ -9,6 +9,7 @@ namespace dMobile.Controller
     using System.Xml.Linq;
     using dMobile.Bedrock;
     using dMobile.GroundWork;
+    using dMobile.Resources.Services;
     using dMobile.Resources.Types;
     using Xamarin.Forms;
 
@@ -825,83 +826,7 @@ namespace dMobile.Controller
 
         public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity)
         {
-            // TODO: Calculate column widths
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
-
-            // Header grid
-            Grid gridHeaderReceiving = new Grid
-            {
-                Padding = new Thickness(5),
-                ColumnDefinitions =
-                {
-                    new ColumnDefinition { Width = new GridLength(10, GridUnitType.Star) },
-                    new ColumnDefinition { Width = new GridLength(10, GridUnitType.Star) },
-                    new ColumnDefinition { Width = new GridLength(5, GridUnitType.Star) },
-                    new ColumnDefinition { Width = new GridLength(75, GridUnitType.Star) }
-                }
-            };
-
-            gridHeaderReceiving.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
-
-            // TODO: Resource strings
-            Label labelActivityDetailQuantityReceiveDetailHeader = new Label { Text = "Qty", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
-            Label labelActivityDetailWeightQuantityReceiveDetailHeader = new Label { Text = "Weight", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
-            Label labelUnitCodeReceiveDetailHeader = new Label { Text = " ", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
-            Label labelActivityDetailSchemeIDReceiveDetailHeader = new Label { Text = "Scheme ID", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
-
-            gridHeaderReceiving.Children.Add(labelActivityDetailQuantityReceiveDetailHeader);
-            gridHeaderReceiving.Children.Add(labelActivityDetailWeightQuantityReceiveDetailHeader);
-            gridHeaderReceiving.Children.Add(labelUnitCodeReceiveDetailHeader);
-            gridHeaderReceiving.Children.Add(labelActivityDetailSchemeIDReceiveDetailHeader);
-
-            Grid.SetColumn(labelActivityDetailQuantityReceiveDetailHeader, 0);
-            Grid.SetColumn(labelActivityDetailWeightQuantityReceiveDetailHeader, 1);
-            Grid.SetColumn(labelUnitCodeReceiveDetailHeader, 2);
-            Grid.SetColumn(labelActivityDetailSchemeIDReceiveDetailHeader, 3);
-
-            Grid.SetRow(gridHeaderReceiving, 0);
-
-            dataGridMainActivityHeader.Children.Add(gridHeaderReceiving);
-
-            // Data grid
-            DataTemplate dataTemplateReceiving = new DataTemplate(() =>
-            {
-                Grid gridData = new Grid
-                {
-                    Padding = new Thickness(5),
-                    ColumnDefinitions =
-                    {
-                        new ColumnDefinition { Width = new GridLength(10, GridUnitType.Star) },
-                        new ColumnDefinition { Width = new GridLength(10, GridUnitType.Star) },
-                        new ColumnDefinition { Width = new GridLength(5, GridUnitType.Star) },
-                        new ColumnDefinition { Width = new GridLength(75, GridUnitType.Star) }
-                    }
-                };
-
-                Label labelActivityDetailQuantityReceiveDetail = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-                Label labelActivityDetailWeightQuantityReceiveDetail = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-                Label labelUnitCodeReceiveDetail = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-                Label labelActivityDetailSchemeIDReceiveDetail = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-
-                labelActivityDetailQuantityReceiveDetail.SetBinding(Label.TextProperty, new Binding("ActivityDetailQuantity", BindingMode.Default, null, null, "{0:F3}"));
-                labelActivityDetailWeightQuantityReceiveDetail.SetBinding(Label.TextProperty, new Binding("ActivityDetailWeightQuantity", BindingMode.Default, null, null, "{0:F3}"));
-                labelUnitCodeReceiveDetail.SetBinding(Label.TextProperty, new Binding("UnitCode"));
-                labelActivityDetailSchemeIDReceiveDetail.SetBinding(Label.TextProperty, new Binding("ActivityDetailSchemeID"));
-
-                gridData.Children.Add(labelActivityDetailQuantityReceiveDetail);
-                gridData.Children.Add(labelActivityDetailWeightQuantityReceiveDetail);
-                gridData.Children.Add(labelUnitCodeReceiveDetail);
-                gridData.Children.Add(labelActivityDetailSchemeIDReceiveDetail);
-
-                Grid.SetColumn(labelActivityDetailQuantityReceiveDetail, 0);
-                Grid.SetColumn(labelActivityDetailWeightQuantityReceiveDetail, 1);
-                Grid.SetColumn(labelUnitCodeReceiveDetail, 2);
-                Grid.SetColumn(labelActivityDetailSchemeIDReceiveDetail, 3);
-
-                return new ViewCell { View = gridData };
-            });
-
-            dataGridMainActivity.ItemTemplate = dataTemplateReceiving;
 
             foreach (DataRow row in this.DataViewDetails.ToTable().Rows)
             {
@@ -947,6 +872,118 @@ namespace dMobile.Controller
 
                 observableCollection.Add(receiveDetail);
             }
+
+            // TODO: Resource strings
+            Label labelActivityDetailQuantityReceiveDetailHeader = new Label { Text = "Qty", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
+            Label labelActivityDetailWeightQuantityReceiveDetailHeader = new Label { Text = "Weight", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
+            Label labelUnitCodeReceiveDetailHeader = new Label { Text = " ", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
+            Label labelActivityDetailSchemeIDReceiveDetailHeader = new Label { Text = "Scheme ID", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
+
+            double columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelActivityDetailQuantityReceiveDetailHeader.Text);
+            double columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelActivityDetailWeightQuantityReceiveDetailHeader.Text);
+            double columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelUnitCodeReceiveDetailHeader.Text);
+            double columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelActivityDetailSchemeIDReceiveDetailHeader.Text);
+
+            // Header grid
+            Grid gridHeaderReceiving = new Grid
+            {
+                Padding = new Thickness(5),
+                ColumnDefinitions =
+                {
+                    new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth3, GridUnitType.Absolute) }
+                }
+            };
+
+            gridHeaderReceiving.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
+
+            gridHeaderReceiving.Children.Add(labelActivityDetailQuantityReceiveDetailHeader);
+            gridHeaderReceiving.Children.Add(labelActivityDetailWeightQuantityReceiveDetailHeader);
+            gridHeaderReceiving.Children.Add(labelUnitCodeReceiveDetailHeader);
+            gridHeaderReceiving.Children.Add(labelActivityDetailSchemeIDReceiveDetailHeader);
+
+            Grid.SetColumn(labelActivityDetailQuantityReceiveDetailHeader, 0);
+            Grid.SetColumn(labelActivityDetailWeightQuantityReceiveDetailHeader, 1);
+            Grid.SetColumn(labelUnitCodeReceiveDetailHeader, 2);
+            Grid.SetColumn(labelActivityDetailSchemeIDReceiveDetailHeader, 3);
+
+            Grid.SetRow(gridHeaderReceiving, 0);
+
+            dataGridMainActivityHeader.Children.Add(gridHeaderReceiving);
+
+            foreach (ReceiveDetail receiveDetail in observableCollection)
+            {
+                double detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", receiveDetail.ActivityDetailQuantity));
+                double detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", receiveDetail.ActivityDetailWeightQuantity));
+                double detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(receiveDetail.UnitCode);
+                double detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(receiveDetail.ActivityDetailSchemeID);
+
+                if (detailWidth0 > columnWidth0)
+                {
+                    columnWidth0 = detailWidth0;
+                    gridHeaderReceiving.ColumnDefinitions[0].Width = columnWidth0;
+                }
+
+                if (detailWidth1 > columnWidth1)
+                {
+                    columnWidth1 = detailWidth1;
+                    gridHeaderReceiving.ColumnDefinitions[1].Width = columnWidth1;
+                }
+
+                if (detailWidth2 > columnWidth2)
+                {
+                    columnWidth2 = detailWidth2;
+                    gridHeaderReceiving.ColumnDefinitions[2].Width = columnWidth2;
+                }
+
+                if (detailWidth3 > columnWidth3)
+                {
+                    columnWidth3 = detailWidth3;
+                    gridHeaderReceiving.ColumnDefinitions[3].Width = columnWidth3;
+                }
+            }
+
+            // Data grid
+            DataTemplate dataTemplateReceiving = new DataTemplate(() =>
+            {
+                Grid gridData = new Grid
+                {
+                    Padding = new Thickness(5),
+                    ColumnDefinitions =
+                    {
+                        new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth3, GridUnitType.Absolute) }
+                    }
+                };
+
+                Label labelActivityDetailQuantityReceiveDetail = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                Label labelActivityDetailWeightQuantityReceiveDetail = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                Label labelUnitCodeReceiveDetail = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                Label labelActivityDetailSchemeIDReceiveDetail = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+
+                labelActivityDetailQuantityReceiveDetail.SetBinding(Label.TextProperty, new Binding("ActivityDetailQuantity", BindingMode.Default, null, null, "{0:F3}"));
+                labelActivityDetailWeightQuantityReceiveDetail.SetBinding(Label.TextProperty, new Binding("ActivityDetailWeightQuantity", BindingMode.Default, null, null, "{0:F3}"));
+                labelUnitCodeReceiveDetail.SetBinding(Label.TextProperty, new Binding("UnitCode"));
+                labelActivityDetailSchemeIDReceiveDetail.SetBinding(Label.TextProperty, new Binding("ActivityDetailSchemeID"));
+
+                gridData.Children.Add(labelActivityDetailQuantityReceiveDetail);
+                gridData.Children.Add(labelActivityDetailWeightQuantityReceiveDetail);
+                gridData.Children.Add(labelUnitCodeReceiveDetail);
+                gridData.Children.Add(labelActivityDetailSchemeIDReceiveDetail);
+
+                Grid.SetColumn(labelActivityDetailQuantityReceiveDetail, 0);
+                Grid.SetColumn(labelActivityDetailWeightQuantityReceiveDetail, 1);
+                Grid.SetColumn(labelUnitCodeReceiveDetail, 2);
+                Grid.SetColumn(labelActivityDetailSchemeIDReceiveDetail, 3);
+
+                return new ViewCell { View = gridData };
+            });
+
+            dataGridMainActivity.ItemTemplate = dataTemplateReceiving;
 
             return observableCollection;
         }

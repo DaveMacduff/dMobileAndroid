@@ -577,6 +577,7 @@ namespace dMobile.Controller
 
         public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity)
         {
+            // TODO: Fix grid (add if (!this.SysEnv.SysSettings.IsPickHideRouteCol))
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
             
             foreach (DataRow row in this.DataViewHdrs.ToTable().Rows)
@@ -635,14 +636,24 @@ namespace dMobile.Controller
 
             gridHeader.Children.Add(labelPickingOrderNumber);
             gridHeader.Children.Add(labelPickingDelDate);
-            gridHeader.Children.Add(labelPickingRoute);
-            gridHeader.Children.Add(labelPickingStop);
+
+            if (!this.SysEnv.SysSettings.IsPickHideRouteCol)
+            {
+                gridHeader.Children.Add(labelPickingRoute);
+                gridHeader.Children.Add(labelPickingStop);
+            }
+
             gridHeader.Children.Add(labelPickingShipTo);
 
             Grid.SetColumn(labelPickingOrderNumber, 0);
             Grid.SetColumn(labelPickingDelDate, 1);
-            Grid.SetColumn(labelPickingRoute, 2);
-            Grid.SetColumn(labelPickingStop, 3);
+
+            if (!this.SysEnv.SysSettings.IsPickHideRouteCol)
+            {
+                Grid.SetColumn(labelPickingRoute, 2);
+                Grid.SetColumn(labelPickingStop, 3);
+            }
+
             Grid.SetColumn(labelPickingShipTo, 4);
 
             Grid.SetRow(gridHeader, 0);
@@ -669,15 +680,25 @@ namespace dMobile.Controller
                     gridHeader.ColumnDefinitions[1].Width = columnWidth1;
                 }
 
-                if (detailWidth2 > columnWidth2)
+                if (!this.SysEnv.SysSettings.IsPickHideRouteCol)
                 {
-                    columnWidth2 = detailWidth2;
-                    gridHeader.ColumnDefinitions[2].Width = columnWidth2;
-                }
+                    if (detailWidth2 > columnWidth2)
+                    {
+                        columnWidth2 = detailWidth2;
+                        gridHeader.ColumnDefinitions[2].Width = columnWidth2;
+                    }
 
-                if (detailWidth3 > columnWidth3)
+                    if (detailWidth3 > columnWidth3)
+                    {
+                        columnWidth3 = detailWidth3;
+                        gridHeader.ColumnDefinitions[3].Width = columnWidth3;
+                    }
+                }
+                else
                 {
-                    columnWidth3 = detailWidth3;
+                    columnWidth2 = 0;
+                    gridHeader.ColumnDefinitions[2].Width = columnWidth2;
+                    columnWidth3 = 0;
                     gridHeader.ColumnDefinitions[3].Width = columnWidth3;
                 }
                                 
@@ -718,14 +739,24 @@ namespace dMobile.Controller
 
                 gridData.Children.Add(labelActivityPickingStringFKRefno);
                 gridData.Children.Add(labelActivityPickingDeliveryDateTime);
-                gridData.Children.Add(labelActivityPickingRouteCode);
-                gridData.Children.Add(labelActivityPickingRouteStop);
+
+                if (!this.SysEnv.SysSettings.IsPickHideRouteCol)
+                {
+                    gridData.Children.Add(labelActivityPickingRouteCode);
+                    gridData.Children.Add(labelActivityPickingRouteStop);
+                }
+
                 gridData.Children.Add(labelActivityPickingCustomerShipToInfo);
 
                 Grid.SetColumn(labelActivityPickingStringFKRefno, 0);
                 Grid.SetColumn(labelActivityPickingDeliveryDateTime, 1);
-                Grid.SetColumn(labelActivityPickingRouteCode, 2);
-                Grid.SetColumn(labelActivityPickingRouteStop, 3);
+
+                if (!this.SysEnv.SysSettings.IsPickHideRouteCol)
+                {
+                    Grid.SetColumn(labelActivityPickingRouteCode, 2);
+                    Grid.SetColumn(labelActivityPickingRouteStop, 3);
+                }
+
                 Grid.SetColumn(labelActivityPickingCustomerShipToInfo, 4);
 
                 return new ViewCell { View = gridData };
@@ -743,38 +774,13 @@ namespace dMobile.Controller
         //    /// <remarks></remarks>
         //    public override void DesignDataGrid(DataGrid dataGridMain)
         //    {
-        //      int colWidthFactor = 1;
-
-        //      if (this.SysEnv.IsWindowsMobile6Device)
-        //      {
-        //        colWidthFactor = 2;
-        //      }
-
-        //      if (dataGridMain.TableStyles.Count > 0)
-        //      {
-        //        dataGridMain.TableStyles.Clear();
-        //      }
-
-        //      DataGridTableStyle dataGridStyle = new DataGridTableStyle();
-        //      dataGridStyle.MappingName = this.MainGridMappingName;
-
         //      DataGridTextBoxColumn dataGridCol = new DataGridTextBoxColumn();
         //      dataGridCol.MappingName = "ActivityPickingStringFKRefno";
-        //#if MULTILANGUAGE
-        //      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Order);
-        //#else
         //      dataGridCol.HeaderText = "Order #";
-        //#endif
-        //      dataGridCol.Width = 50 * colWidthFactor;
-        //      dataGridStyle.GridColumnStyles.Add(dataGridCol);
 
         //      dataGridCol = new DataGridTextBoxColumn();
         //      dataGridCol.MappingName = "ActivityPickingDeliveryDateTime";
-        //#if MULTILANGUAGE
-        //      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.DelDate);
-        //#else
         //      dataGridCol.HeaderText = "Del Date";
-        //#endif
         //      dataGridCol.Width = 65 * colWidthFactor;
         //      dataGridStyle.GridColumnStyles.Add(dataGridCol);
 
@@ -782,40 +788,17 @@ namespace dMobile.Controller
         //      {
         //        dataGridCol = new DataGridTextBoxColumn();
         //        dataGridCol.MappingName = "RouteCode";
-        //#if MULTILANGUAGE
-        //        dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Route);
-        //#else
         //        dataGridCol.HeaderText = "Route";
-        //#endif
-        //        dataGridCol.Width = 45 * colWidthFactor;
-        //        dataGridCol.NullText = string.Empty;
-        //        dataGridStyle.GridColumnStyles.Add(dataGridCol);
 
         //        dataGridCol = new DataGridTextBoxColumn();
         //        dataGridCol.MappingName = "RouteStop";
-        //#if MULTILANGUAGE
-        //        dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Stop);
-        //#else
         //        dataGridCol.HeaderText = "Stop";
-        //#endif
-        //        dataGridCol.Width = 45 * colWidthFactor;
-        //        dataGridCol.NullText = string.Empty;
-        //        dataGridStyle.GridColumnStyles.Add(dataGridCol);
         //      }
 
         //      dataGridCol = new DataGridTextBoxColumn();
         //      dataGridCol.MappingName = "ActivityPickingCustomerShipToInfo";
-        //#if MULTILANGUAGE
-        //      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.ShipTo);
-        //#else
         //      dataGridCol.HeaderText = "Ship To";
-        //#endif
-        //      dataGridCol.Width = 100 * colWidthFactor;
-        //      dataGridStyle.GridColumnStyles.Add(dataGridCol);
 
-        //      dataGridMain.TableStyles.Add(dataGridStyle);
-        //      dataGridMain.RowHeadersVisible = false;
-        //      dataGridMain.ColumnHeadersVisible = true;
         //    }
 
         /// <summary>

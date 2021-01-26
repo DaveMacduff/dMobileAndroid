@@ -1235,7 +1235,6 @@ namespace dMobile.View.Activity
                 {
                 }
 
-                // TODO: Fix (Cell editing)
                 //if (sender == this.txtGridEdit)
                 //{
                 //    DataGridCell cell = dgUnitWeight.CurrentCell;
@@ -1929,7 +1928,6 @@ namespace dMobile.View.Activity
             }
         }
 
-        // TODO: Fix double click (Cell editing)
         ///// <summary>
         /////
         ///// </summary>

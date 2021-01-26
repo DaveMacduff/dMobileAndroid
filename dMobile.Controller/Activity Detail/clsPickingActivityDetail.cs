@@ -832,15 +832,17 @@ namespace dMobile.Controller
             }
 
             // TODO: Resource strings
+            Label labelPickingDetailConfirmedHeader = new Label { Text = "C", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
             Label labelPickingQuantityHeader = new Label { Text = "Qty", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
             Label labelPickingWeightQuantityHeader = new Label { Text = "Weight", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
             Label labelPickingUnitCodeHeader = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
             Label labelPickingSchemeIDHeader = new Label { Text = "Scheme ID", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
 
-            double columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPickingQuantityHeader.Text);
-            double columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPickingWeightQuantityHeader.Text);
-            double columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPickingUnitCodeHeader.Text);
-            double columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPickingSchemeIDHeader.Text);
+            double columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPickingDetailConfirmedHeader.Text);
+            double columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPickingQuantityHeader.Text);
+            double columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPickingWeightQuantityHeader.Text);
+            double columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPickingUnitCodeHeader.Text);
+            double columnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPickingSchemeIDHeader.Text);
 
             // Header grid
             Grid gridHeader = new Grid
@@ -851,21 +853,32 @@ namespace dMobile.Controller
                     new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
                     new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
                     new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) },
-                    new ColumnDefinition { Width = new GridLength(columnWidth3, GridUnitType.Absolute) }
+                    new ColumnDefinition { Width = new GridLength(columnWidth3, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth4, GridUnitType.Absolute) }
                 }
             };
 
             gridHeader.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
+
+            if (this.SysEnv.SysSettings.IsPickConfirmDet)
+            {
+                gridHeader.Children.Add(labelPickingDetailConfirmedHeader);
+            }
 
             gridHeader.Children.Add(labelPickingQuantityHeader);
             gridHeader.Children.Add(labelPickingWeightQuantityHeader);
             gridHeader.Children.Add(labelPickingUnitCodeHeader);
             gridHeader.Children.Add(labelPickingSchemeIDHeader);
 
-            Grid.SetColumn(labelPickingQuantityHeader, 0);
-            Grid.SetColumn(labelPickingWeightQuantityHeader, 1);
-            Grid.SetColumn(labelPickingUnitCodeHeader, 2);
-            Grid.SetColumn(labelPickingSchemeIDHeader, 3);
+            if (this.SysEnv.SysSettings.IsPickConfirmDet)
+            {
+                Grid.SetColumn(labelPickingDetailConfirmedHeader, 0);
+            }
+
+            Grid.SetColumn(labelPickingQuantityHeader, 1);
+            Grid.SetColumn(labelPickingWeightQuantityHeader, 2);
+            Grid.SetColumn(labelPickingUnitCodeHeader, 3);
+            Grid.SetColumn(labelPickingSchemeIDHeader, 4);
 
             Grid.SetRow(gridHeader, 0);
 
@@ -873,14 +886,23 @@ namespace dMobile.Controller
 
             foreach (PickingDetail pickingDetail in observableCollection)
             {
-                double detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", pickingDetail.ActivityDetailQuantity));
-                double detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", pickingDetail.ActivityDetailWeightQuantity));
-                double detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(pickingDetail.UnitCode);
-                double detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(pickingDetail.ActivityDetailSchemeID);
+                double detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(pickingDetail.ActivityDetailIsConfirmedString);
+                double detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", pickingDetail.ActivityDetailQuantity));
+                double detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", pickingDetail.ActivityDetailWeightQuantity));
+                double detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(pickingDetail.UnitCode);
+                double detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(pickingDetail.ActivityDetailSchemeID);
 
-                if (detailWidth0 > columnWidth0)
+                if (this.SysEnv.SysSettings.IsPickConfirmDet)
                 {
-                    columnWidth0 = detailWidth0;
+                    if (detailWidth0 > columnWidth0)
+                    {
+                        columnWidth0 = detailWidth0;
+                        gridHeader.ColumnDefinitions[0].Width = columnWidth0;
+                    }
+                }
+                else
+                {
+                    columnWidth0 = 0;
                     gridHeader.ColumnDefinitions[0].Width = columnWidth0;
                 }
 
@@ -901,6 +923,12 @@ namespace dMobile.Controller
                     columnWidth3 = detailWidth3;
                     gridHeader.ColumnDefinitions[3].Width = columnWidth3;
                 }
+
+                if (detailWidth4 > columnWidth4)
+                {
+                    columnWidth4 = detailWidth4;
+                    gridHeader.ColumnDefinitions[4].Width = columnWidth4;
+                }
             }
 
             // Data grid
@@ -911,32 +939,45 @@ namespace dMobile.Controller
                     Padding = new Thickness(5),
                     ColumnDefinitions =
                     {
-                    new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
-                    new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
-                    new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) },
-                    new ColumnDefinition { Width = new GridLength(columnWidth3, GridUnitType.Absolute) }
+                        new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth3, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth4, GridUnitType.Absolute) }
                     }
                 };
 
+                Label labelPickingDetailConfirmed = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
                 Label labelPickingQuantity = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
                 Label labelPickingWeightQuantity = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
                 Label labelPickingUnitCode = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
                 Label labelPickingSchemeID = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
 
+                labelPickingDetailConfirmed.SetBinding(Label.TextProperty, new Binding("ActivityDetailIsConfirmedString"));
                 labelPickingQuantity.SetBinding(Label.TextProperty, new Binding("ActivityDetailQuantity", BindingMode.Default, null, null, "{0:F3}"));
                 labelPickingWeightQuantity.SetBinding(Label.TextProperty, new Binding("ActivityDetailWeightQuantity", BindingMode.Default, null, null, "{0:F3}"));
                 labelPickingUnitCode.SetBinding(Label.TextProperty, new Binding("UnitCode"));
                 labelPickingSchemeID.SetBinding(Label.TextProperty, new Binding("ActivityDetailSchemeID"));
+
+                if (this.SysEnv.SysSettings.IsPickConfirmDet)
+                {
+                    gridData.Children.Add(labelPickingDetailConfirmed);
+                }
 
                 gridData.Children.Add(labelPickingQuantity);
                 gridData.Children.Add(labelPickingWeightQuantity);
                 gridData.Children.Add(labelPickingUnitCode);
                 gridData.Children.Add(labelPickingSchemeID);
 
-                Grid.SetColumn(labelPickingQuantity, 0);
-                Grid.SetColumn(labelPickingWeightQuantity, 1);
-                Grid.SetColumn(labelPickingUnitCode, 2);
-                Grid.SetColumn(labelPickingSchemeID, 3);
+                if (this.SysEnv.SysSettings.IsPickConfirmDet)
+                {
+                    Grid.SetColumn(labelPickingDetailConfirmed, 0);
+                }
+
+                Grid.SetColumn(labelPickingQuantity, 1);
+                Grid.SetColumn(labelPickingWeightQuantity, 2);
+                Grid.SetColumn(labelPickingUnitCode, 3);
+                Grid.SetColumn(labelPickingSchemeID, 4);
 
                 return new ViewCell { View = gridData };
             });
@@ -953,17 +994,6 @@ namespace dMobile.Controller
         //        /// <remarks></remarks>
         //        public override void DesignDataGrid(DataGrid dataGridMain)
         //        {
-        //            int colWidthFactor = 1;
-
-        //            if (SysEnv.IsWindowsMobile6Device)
-        //            {
-        //                colWidthFactor = 2;
-        //            }
-
-        //            if (dataGridMain.TableStyles.Count > 0)
-        //            {
-        //                dataGridMain.TableStyles.Clear();
-        //            }
 
         //            DataGridTableStyle dataGridStyle = new DataGridTableStyle();
         //            dataGridStyle.MappingName = this.MainGridMappingName;

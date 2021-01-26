@@ -321,7 +321,6 @@ namespace dMobile.Controller
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
-            // Add all items in dataview to observable collection for display
             foreach (DataRow row in this.DataViewItems.ToTable().Rows)
             {
                 ProductionTicketByProductItem productionTicketByProductItem = new ProductionTicketByProductItem
@@ -408,7 +407,7 @@ namespace dMobile.Controller
                 if (detailWidth0 > columnWidth0)
                 {
                     columnWidth0 = detailWidth0;
-                    gridHeader.ColumnDefinitions[0].Width = columnWidth0;
+                    gridHeader.ColumnDefinitions[0].Width = columnWidth0;   
                 }
 
                 if (detailWidth1 > columnWidth1)
