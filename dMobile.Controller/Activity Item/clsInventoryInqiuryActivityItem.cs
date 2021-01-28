@@ -8,6 +8,8 @@ namespace dMobile.Controller
     using System.Xml;
     using System.Xml.Linq;
     using dMobile.Bedrock;
+    using dMobile.Resources.Services;
+    using dMobile.Resources.Types;
     using Xamarin.Forms;
 
     public class InvInquiryActItem : ActItem
@@ -94,8 +96,173 @@ namespace dMobile.Controller
 
         public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity)
         {
-            // TODO: Design Grid
-            throw new NotImplementedException();
+            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+
+            // TODO: Resource strings
+            Label labelHeader1 = new Label { Text = "Product ID", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            Label labelHeader2 = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            Label labelHeader3 = new Label { Text = "Quantity", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            Label labelHeader4 = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            Label labelHeader5 = new Label { Text = "Weight", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            Label labelHeader6 = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+
+            double columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader1.Text);
+            double columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader2.Text);
+            double columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader3.Text);
+            double columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader4.Text);
+            double columnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader5.Text);
+            double columnWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader6.Text);
+            double detailWidth0 = 0;
+            double detailWidth1 = 0;
+            double detailWidth2 = 0;
+            double detailWidth3 = 0;
+            double detailWidth4 = 0;
+            double detailWidth5 = 0;
+
+            // Create header data template
+            Grid gridHeader = new Grid
+            {
+                Padding = new Thickness(5),
+                ColumnDefinitions =
+                {
+                    new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth3, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth4, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth5, GridUnitType.Absolute) }
+                }
+            };
+
+            gridHeader.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
+
+            gridHeader.Children.Add(labelHeader1);
+            gridHeader.Children.Add(labelHeader2);
+            gridHeader.Children.Add(labelHeader3);
+            gridHeader.Children.Add(labelHeader4);
+            gridHeader.Children.Add(labelHeader5);
+            gridHeader.Children.Add(labelHeader6);
+
+            Grid.SetColumn(labelHeader1, 0);
+            Grid.SetColumn(labelHeader2, 1);
+            Grid.SetColumn(labelHeader3, 2);
+            Grid.SetColumn(labelHeader4, 3);
+            Grid.SetColumn(labelHeader5, 4);
+            Grid.SetColumn(labelHeader6, 5);
+
+            Grid.SetRow(gridHeader, 0);
+
+            dataGridMainActivityHeader.Children.Add(gridHeader);
+
+            foreach (DataRow row in this.DataViewItems.ToTable().Rows)
+            {
+                InventoryInquiryItem inventoryInquiryItem = new InventoryInquiryItem
+                {
+                    Productcode = Convert.ToString(row["Productcode"] != DBNull.Value ? row["Productcode"] : null),
+                    Productunitbc = Convert.ToString(row["Productunitbc"] != DBNull.Value ? row["Productunitbc"] : null),
+                    Unitcode = Convert.ToString(row["Unitcode"] != DBNull.Value ? row["Unitcode"] : null),
+                    Weightunitcode = Convert.ToString(row["Weightunitcode"] != DBNull.Value ? row["Weightunitcode"] : null),
+                    Activityitemquantity = Convert.ToDecimal(row["Activityitemquantity"] != DBNull.Value ? row["Activityitemquantity"] : null),
+                    Activityitemweightquantity = Convert.ToDecimal(row["Activityitemweightquantity"] != DBNull.Value ? row["Activityitemweightquantity"] : null)
+                };
+
+                observableCollection.Add(inventoryInquiryItem);
+
+                detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(inventoryInquiryItem.Productcode);
+                detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(inventoryInquiryItem.Productunitbc);
+                detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", inventoryInquiryItem.Activityitemquantity));
+                detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(inventoryInquiryItem.Unitcode);
+                detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", inventoryInquiryItem.Activityitemweightquantity));
+                detailWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(inventoryInquiryItem.Weightunitcode);
+
+                if (detailWidth0 > columnWidth0)
+                {
+                    columnWidth0 = detailWidth0;
+                    gridHeader.ColumnDefinitions[0].Width = columnWidth0;
+                }
+
+                if (detailWidth1 > columnWidth1)
+                {
+                    columnWidth1 = detailWidth1;
+                    gridHeader.ColumnDefinitions[1].Width = columnWidth1;
+                }
+
+                if (detailWidth2 > columnWidth2)
+                {
+                    columnWidth2 = detailWidth2;
+                    gridHeader.ColumnDefinitions[2].Width = columnWidth2;
+                }
+
+                if (detailWidth3 > columnWidth3)
+                {
+                    columnWidth3 = detailWidth3;
+                    gridHeader.ColumnDefinitions[3].Width = columnWidth3;
+                }
+
+                if (detailWidth4 > columnWidth4)
+                {
+                    columnWidth4 = detailWidth4;
+                    gridHeader.ColumnDefinitions[4].Width = columnWidth4;
+                }
+
+                if (detailWidth5 > columnWidth5)
+                {
+                    columnWidth5 = detailWidth5;
+                    gridHeader.ColumnDefinitions[5].Width = columnWidth5;
+                }
+            }
+
+            // Data grid
+            DataTemplate dataTemplate = new DataTemplate(() =>
+            {
+                Grid gridData = new Grid
+                {
+                    Padding = new Thickness(5),
+                    ColumnDefinitions =
+                    {
+                        new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth3, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth4, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth5, GridUnitType.Absolute) }
+                    }
+                };
+
+                Label label1 = new Label { VerticalOptions = LayoutOptions.Center };
+                Label label2 = new Label { VerticalOptions = LayoutOptions.Center };
+                Label label3 = new Label { VerticalOptions = LayoutOptions.Center };
+                Label label4 = new Label { VerticalOptions = LayoutOptions.Center };
+                Label label5 = new Label { VerticalOptions = LayoutOptions.Center };
+                Label label6 = new Label { VerticalOptions = LayoutOptions.Center };
+
+                label1.SetBinding(Label.TextProperty, new Binding("Productcode"));
+                label2.SetBinding(Label.TextProperty, new Binding("Productunitbc"));
+                label3.SetBinding(Label.TextProperty, new Binding("Activityitemquantity", BindingMode.Default, null, null, "{0:F3}"));
+                label4.SetBinding(Label.TextProperty, new Binding("Unitcode"));
+                label5.SetBinding(Label.TextProperty, new Binding("Activityitemweightquantity", BindingMode.Default, null, null, "{0:F3}"));
+                label6.SetBinding(Label.TextProperty, new Binding("Weightunitcode"));
+
+                gridData.Children.Add(label1);
+                gridData.Children.Add(label2);
+                gridData.Children.Add(label3);
+                gridData.Children.Add(label4);
+                gridData.Children.Add(label5);
+                gridData.Children.Add(label6);
+
+                Grid.SetColumn(label1, 0);
+                Grid.SetColumn(label2, 1);
+                Grid.SetColumn(label3, 2);
+                Grid.SetColumn(label4, 3);
+                Grid.SetColumn(label5, 4);
+                Grid.SetColumn(label6, 5);
+
+                return new ViewCell { View = gridData };
+            });
+
+            dataGridMainActivity.ItemTemplate = dataTemplate;
+
+            return observableCollection;
         }
 
         //        /// <summary>
@@ -105,30 +272,9 @@ namespace dMobile.Controller
         //        /// <remarks></remarks>
         //        public override void DesignDataGrid(DataGrid dataGridMain)
         //        {
-        //            int columnWidthFactor = 1;
-
-        //            if (this.SysEnv.IsWindowsMobile6Device)
-        //            {
-        //                columnWidthFactor = 2;
-        //            }
-
-        //            if (dataGridMain.TableStyles.Count > 0)
-        //            {
-        //                dataGridMain.TableStyles.Clear();
-        //            }
-
-        //            DataGridTableStyle dataGridStyle = new DataGridTableStyle();
-        //            dataGridStyle.MappingName = this.MainGridMappingName;
-
-        //            DataGridTextBoxColumn dataGridCol = null;
-
         //            dataGridCol = new DataGridTextBoxColumn();
         //            dataGridCol.MappingName = "productcode";
-        //#if MULTILANGUAGE
-        //      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.ProductId);
-        //#else
         //            dataGridCol.HeaderText = "Product ID";
-        //#endif
         //            if (0 < ProdInfo.Refno)
         //            {
         //                dataGridCol.Width = -1;
@@ -137,54 +283,24 @@ namespace dMobile.Controller
         //            {
         //                dataGridCol.Width = (int)(65 * columnWidthFactor);
         //            }
-
         //            dataGridStyle.GridColumnStyles.Add(dataGridCol);
 
-        //            dataGridCol = new DataGridTextBoxColumn();
         //            dataGridCol.MappingName = "productunitbc";
         //            dataGridCol.HeaderText = string.Empty;
-        //            dataGridCol.Width = (int)(10 * columnWidthFactor);
-        //            dataGridStyle.GridColumnStyles.Add(dataGridCol);
 
-        //            dataGridCol = new DataGridTextBoxColumn();
         //            dataGridCol.MappingName = "activityitemquantity";
-        //#if MULTILANGUAGE
-        //      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Quantity);
-        //#else
         //            dataGridCol.HeaderText = "Quantity";
-        //#endif
-        //            dataGridCol.Width = (int)(60 * columnWidthFactor);
         //            dataGridCol.Format = "0.000";
-        //            dataGridStyle.GridColumnStyles.Add(dataGridCol);
 
-        //            dataGridCol = new DataGridTextBoxColumn();
         //            dataGridCol.MappingName = "unitcode";
         //            dataGridCol.HeaderText = string.Empty;
-        //            dataGridCol.Width = (int)(20 * columnWidthFactor);
-        //            dataGridStyle.GridColumnStyles.Add(dataGridCol);
 
-        //            dataGridCol = new DataGridTextBoxColumn();
         //            dataGridCol.MappingName = "activityitemweightquantity";
-        //#if MULTILANGUAGE
-        //      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Weight);
-        //#else
         //            dataGridCol.HeaderText = "Weight";
-        //#endif
-        //            dataGridCol.Width = (int)(60 * columnWidthFactor);
         //            dataGridCol.Format = "0.000";
-        //            dataGridStyle.GridColumnStyles.Add(dataGridCol);
 
-        //            dataGridCol = new DataGridTextBoxColumn();
         //            dataGridCol.MappingName = "weightunitcode";
         //            dataGridCol.HeaderText = string.Empty;
-        //            dataGridCol.Width = (int)(20 * columnWidthFactor);
-        //            dataGridStyle.GridColumnStyles.Add(dataGridCol);
-
-        //            dataGridMain.TableStyles.Add(dataGridStyle);
-
-        //            // dataGridMain.Font = "Arial, 10pt, style=Bold"
-        //            dataGridMain.RowHeadersVisible = false;
-        //            dataGridMain.ColumnHeadersVisible = true;
         //        }
 
         /// <summary>

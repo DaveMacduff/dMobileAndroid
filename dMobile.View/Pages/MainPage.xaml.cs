@@ -25,8 +25,7 @@
         /// <param name="sender">The sender<see cref="object"/></param>
         /// <param name="e">The e<see cref="SelectedItemChangedEventArgs"/></param>
         private void OnItemSelected(object sender, SelectedItemChangedEventArgs e)
-        {
-            // TODO: This will have to be updated if more options are added
+        {            
             if (e.SelectedItem is MasterPageItem item)
             {
                 masterPage.listView.SelectedItem = null;

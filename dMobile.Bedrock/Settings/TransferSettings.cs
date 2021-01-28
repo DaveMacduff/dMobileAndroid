@@ -1,12 +1,8 @@
 ﻿namespace dMobile.Bedrock
 {
-
     using System;
     using System.IO;
-    using System.Reflection;
     using System.Xml.Serialization;
-
-
 
     [Serializable]
     public class TransferSettings

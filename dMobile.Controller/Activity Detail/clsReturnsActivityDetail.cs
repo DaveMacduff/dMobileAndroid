@@ -774,7 +774,6 @@ namespace dMobile.Controller
 
         public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity)
         {
-            // TODO: add if (this.SysEnv.SysSettings.IsRetConfirmDet)
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
             foreach (DataRow row in this.DataViewDetails.ToTable().Rows)
@@ -825,15 +824,17 @@ namespace dMobile.Controller
             }
 
             // TODO: Resource strings
+            Label labelConfirmedHeader = new Label { Text = "C", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
             Label labelQuantityHeader = new Label { Text = "Qty", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
             Label labelWeightQuantityHeader = new Label { Text = "Weight", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
             Label labelUnitCodeHeader = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
             Label labelSchemeIDHeader = new Label { Text = "Scheme ID", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
 
-            double columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelQuantityHeader.Text);
-            double columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelWeightQuantityHeader.Text);
-            double columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelUnitCodeHeader.Text);
-            double columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelSchemeIDHeader.Text);
+            double columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelConfirmedHeader.Text);
+            double columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelQuantityHeader.Text);
+            double columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelWeightQuantityHeader.Text);
+            double columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelUnitCodeHeader.Text);
+            double columnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelSchemeIDHeader.Text);
 
             // Header grid
             Grid gridHeaderReturnsActivityDetail = new Grid
@@ -844,21 +845,32 @@ namespace dMobile.Controller
                     new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
                     new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
                     new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) },
-                    new ColumnDefinition { Width = new GridLength(columnWidth3, GridUnitType.Absolute) }
+                    new ColumnDefinition { Width = new GridLength(columnWidth3, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth4, GridUnitType.Absolute) }
                 }
             };
 
             gridHeaderReturnsActivityDetail.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
+
+            if (this.SysEnv.SysSettings.IsRetConfirmDet)
+            {
+                gridHeaderReturnsActivityDetail.Children.Add(labelConfirmedHeader);
+            }
 
             gridHeaderReturnsActivityDetail.Children.Add(labelQuantityHeader);
             gridHeaderReturnsActivityDetail.Children.Add(labelWeightQuantityHeader);
             gridHeaderReturnsActivityDetail.Children.Add(labelUnitCodeHeader);
             gridHeaderReturnsActivityDetail.Children.Add(labelSchemeIDHeader);
 
-            Grid.SetColumn(labelQuantityHeader, 0);
-            Grid.SetColumn(labelWeightQuantityHeader, 1);
-            Grid.SetColumn(labelUnitCodeHeader, 2);
-            Grid.SetColumn(labelSchemeIDHeader, 3);
+            if (this.SysEnv.SysSettings.IsRetConfirmDet)
+            {
+                Grid.SetColumn(labelConfirmedHeader, 0);
+            }
+
+            Grid.SetColumn(labelQuantityHeader, 1);
+            Grid.SetColumn(labelWeightQuantityHeader, 2);
+            Grid.SetColumn(labelUnitCodeHeader, 3);
+            Grid.SetColumn(labelSchemeIDHeader, 4);
 
             Grid.SetRow(gridHeaderReturnsActivityDetail, 0);
 
@@ -866,14 +878,23 @@ namespace dMobile.Controller
 
             foreach (ReturnDetail returnDetail in observableCollection)
             {
-                double detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", returnDetail.ActivityDetailQuantity));
-                double detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", returnDetail.ActivityDetailWeightQuantity));
-                double detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(returnDetail.UnitCode);
-                double detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(returnDetail.ActivityDetailSchemeID);
+                double detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(returnDetail.ActivityDetailIsConfirmedString);
+                double detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", returnDetail.ActivityDetailQuantity));
+                double detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", returnDetail.ActivityDetailWeightQuantity));
+                double detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(returnDetail.UnitCode);
+                double detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(returnDetail.ActivityDetailSchemeID);
 
-                if (detailWidth0 > columnWidth0)
+                if (this.SysEnv.SysSettings.IsRetConfirmDet)
                 {
-                    columnWidth0 = detailWidth0;
+                    if (detailWidth0 > columnWidth0)
+                    {
+                        columnWidth0 = detailWidth0;
+                        gridHeaderReturnsActivityDetail.ColumnDefinitions[0].Width = columnWidth0;
+                    }
+                }
+                else
+                {
+                    columnWidth0 = 0;
                     gridHeaderReturnsActivityDetail.ColumnDefinitions[0].Width = columnWidth0;
                 }
 
@@ -894,6 +915,12 @@ namespace dMobile.Controller
                     columnWidth3 = detailWidth3;
                     gridHeaderReturnsActivityDetail.ColumnDefinitions[3].Width = columnWidth3;
                 }
+
+                if (detailWidth4 > columnWidth4)
+                {
+                    columnWidth4 = detailWidth4;
+                    gridHeaderReturnsActivityDetail.ColumnDefinitions[4].Width = columnWidth4;
+                }
             }
 
             // Data grid
@@ -907,29 +934,42 @@ namespace dMobile.Controller
                         new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
                         new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
                         new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth3, GridUnitType.Absolute) }
+                        new ColumnDefinition { Width = new GridLength(columnWidth3, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth4, GridUnitType.Absolute) }
                     }
                 };
 
+                Label labelConfirmed = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
                 Label labelQuantity = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
                 Label labelWeightQuantity = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
                 Label labelUnitCode = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
                 Label labelSchemeID = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
 
+                labelConfirmed.SetBinding(Label.TextProperty, new Binding("ActivityDetailIsConfirmedString"));
                 labelQuantity.SetBinding(Label.TextProperty, new Binding("ActivityDetailQuantity", BindingMode.Default, null, null, "{0:F3}"));
                 labelWeightQuantity.SetBinding(Label.TextProperty, new Binding("ActivityDetailWeightQuantity", BindingMode.Default, null, null, "{0:F3}"));
                 labelUnitCode.SetBinding(Label.TextProperty, new Binding("UnitCode"));
                 labelSchemeID.SetBinding(Label.TextProperty, new Binding("ActivityDetailSchemeID"));
+
+                if (this.SysEnv.SysSettings.IsRetConfirmDet)
+                {
+                    gridData.Children.Add(labelConfirmed);
+                }
 
                 gridData.Children.Add(labelQuantity);
                 gridData.Children.Add(labelWeightQuantity);
                 gridData.Children.Add(labelUnitCode);
                 gridData.Children.Add(labelSchemeID);
 
-                Grid.SetColumn(labelQuantity, 0);
-                Grid.SetColumn(labelWeightQuantity, 1);
-                Grid.SetColumn(labelUnitCode, 2);
-                Grid.SetColumn(labelSchemeID, 3);
+                if (this.SysEnv.SysSettings.IsRetConfirmDet)
+                {
+                    Grid.SetColumn(labelConfirmed, 0);
+                }
+
+                Grid.SetColumn(labelQuantity, 1);
+                Grid.SetColumn(labelWeightQuantity, 2);
+                Grid.SetColumn(labelUnitCode, 3);
+                Grid.SetColumn(labelSchemeID, 4);
 
                 return new ViewCell { View = gridData };
             });
@@ -946,74 +986,28 @@ namespace dMobile.Controller
 //        /// <remarks></remarks>
 //        public override void DesignDataGrid(DataGrid dataGridMain)
 //        {
-//            int colWidthFactor = 1;
-
-//            if (this.SysEnv.IsWindowsMobile6Device)
-//            {
-//                colWidthFactor = 2;
-//            }
-
-//            if (dataGridMain.TableStyles.Count > 0)
-//            {
-//                dataGridMain.TableStyles.Clear();
-//            }
-
-//            DataGridTableStyle dataGridStyle = new DataGridTableStyle();
-//            dataGridStyle.MappingName = this.MainGridMappingName;
 
 //            if (this.SysEnv.SysSettings.IsRetConfirmDet)
 //            {
-//                CustomColumnStyle oColumnType = null;
-//                oColumnType = new CustomColumnStyle(0);
 //                oColumnType.MappingName = "ActivityDetailIsConfirmedString";
 //                oColumnType.HeaderText = "C";
-//                oColumnType.Width = Convert.ToInt32(12 * colWidthFactor);
-//                dataGridStyle.GridColumnStyles.Add(oColumnType);
 //            }
 
-//            DataGridTextBoxColumn dataGridCol = null;
-
-//            dataGridCol = new DataGridTextBoxColumn();
 //            dataGridCol.MappingName = "ActivityDetailQuantity";
-//#if MULTILANGUAGE
-//      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Qtyzzz);
-//#else
 //            dataGridCol.HeaderText = "Qty";
-//#endif
-//            dataGridCol.Width = Convert.ToInt32((50 * colWidthFactor));
 //            dataGridCol.Format = "0.000";
-//            dataGridStyle.GridColumnStyles.Add(dataGridCol);
 
 //            dataGridCol = new DataGridTextBoxColumn();
 //            dataGridCol.MappingName = "ActivityDetailWeightQuantity";
-//#if MULTILANGUAGE
-//      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Weight);
-//#else
 //            dataGridCol.HeaderText = "Weight";
-//#endif
-//            dataGridCol.Width = (int)(55 * colWidthFactor);
 //            dataGridCol.Format = "0.000";
-//            dataGridStyle.GridColumnStyles.Add(dataGridCol);
 
-//            dataGridCol = new DataGridTextBoxColumn();
 //            dataGridCol.MappingName = "UnitCode";
 //            dataGridCol.HeaderText = string.Empty;
-//            dataGridCol.Width = (int)(30 * colWidthFactor);
-//            dataGridStyle.GridColumnStyles.Add(dataGridCol);
 
-//            dataGridCol = new DataGridTextBoxColumn();
 //            dataGridCol.MappingName = "ActivityDetailSchemeID";
-//#if MULTILANGUAGE
-//      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.SchemeId);
-//#else
 //            dataGridCol.HeaderText = "Scheme ID";
-//#endif
-//            dataGridCol.Width = (int)(500 * colWidthFactor);
-//            dataGridStyle.GridColumnStyles.Add(dataGridCol);
 
-//            dataGridMain.TableStyles.Add(dataGridStyle);
-//            dataGridMain.RowHeadersVisible = false;
-//            dataGridMain.ColumnHeadersVisible = true;
 //        }
 
         /// <summary>
@@ -1027,15 +1021,52 @@ namespace dMobile.Controller
 
             this.DataViewDetails.RowFilter = "ActivityReturnsStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
 
-            // TODO: search
-            //foreach (DataRow row in this.DataViewHdrs.ToTable().Rows)
-            //{
-            //    ObjectType objectType = new ObjectType
-            //    {
-            //    };
+            foreach (DataRow row in this.DataViewDetails.ToTable().Rows)
+            {
+                ReturnDetail returnDetail = new ReturnDetail
+                {
+                    ActivityDetailRefno = Convert.ToInt32(row["ActivityDetailRefno"] != DBNull.Value ? row["ActivityDetailRefno"] : null),
+                    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
+                    ActivityDetailReturnsFKRefno = Convert.ToInt32(row["ActivityDetailReturnsFKRefno"] != DBNull.Value ? row["ActivityDetailReturnsFKRefno"] : null),
+                    UnitCode = Convert.ToString(row["UnitCode"] != DBNull.Value ? row["UnitCode"] : null),
+                    WtUnitCode = Convert.ToString(row["WtUnitCode"] != DBNull.Value ? row["WtUnitCode"] : null),
+                    BaseUnitCode = Convert.ToString(row["BaseUnitCode"] != DBNull.Value ? row["BaseUnitCode"] : null),
+                    ProductCode = Convert.ToString(row["ProductCode"] != DBNull.Value ? row["ProductCode"] : null),
+                    ProductRefno = Convert.ToInt32(row["ProductRefno"] != DBNull.Value ? row["ProductRefno"] : null),
+                    ProductDescription = Convert.ToString(row["ProductDescription"] != DBNull.Value ? row["ProductDescription"] : null),
+                    ProductBrandDescription = Convert.ToString(row["ProductBrandDescription"] != DBNull.Value ? row["ProductBrandDescription"] : null),
+                    ProductUnitBC = Convert.ToString(row["ProductUnitBC"] != DBNull.Value ? row["ProductUnitBC"] : null),
+                    ProductUnitIsBC = Convert.ToBoolean(row["ProductUnitIsBC"] != DBNull.Value ? row["ProductUnitIsBC"] : null),
+                    ProductUnitSizeDescription = Convert.ToString(row["ProductUnitSizeDescription"] != DBNull.Value ? row["ProductUnitSizeDescription"] : null),
+                    ActivityDetailQuantity = Convert.ToDecimal(row["ActivityDetailQuantity"] != DBNull.Value ? row["ActivityDetailQuantity"] : null),
+                    ActivityDetailBaseQuantity = Convert.ToDecimal(row["ActivityDetailBaseQuantity"] != DBNull.Value ? row["ActivityDetailBaseQuantity"] : null),
+                    ActivityDetailWeightQuantity = Convert.ToDecimal(row["ActivityDetailWeightQuantity"] != DBNull.Value ? row["ActivityDetailWeightQuantity"] : null),
+                    ActivityDetailLogisticUnitBestBeforeSellByDate = Convert.ToDateTime(row["ActivityDetailLogisticUnitBestBeforeSellByDate"] != DBNull.Value ? row["ActivityDetailLogisticUnitBestBeforeSellByDate"] : null),
+                    ActivityDetailSchemeID = Convert.ToString(row["ActivityDetailSchemeID"] != DBNull.Value ? row["ActivityDetailSchemeID"] : null),
+                    ActivityDetailUniqueSchemeID = Convert.ToString(row["ActivityDetailUniqueSchemeID"] != DBNull.Value ? row["ActivityDetailUniqueSchemeID"] : null),
+                    ActivityDetailSingleTradeItemSerialNumber = Convert.ToString(row["ActivityDetailSingleTradeItemSerialNumber"] != DBNull.Value ? row["ActivityDetailSingleTradeItemSerialNumber"] : null),
+                    ActivityDetailLogisticUnitBatchLotNumber = Convert.ToString(row["ActivityDetailLogisticUnitBatchLotNumber"] != DBNull.Value ? row["ActivityDetailLogisticUnitBatchLotNumber"] : null),
+                    ActivityDetailLogisticUnitExpiryUseByDate = Convert.ToDateTime(row["ActivityDetailLogisticUnitExpiryUseByDate"] != DBNull.Value ? row["ActivityDetailLogisticUnitExpiryUseByDate"] : null),
+                    ActivityDetailLogisticUnitProductionDate = Convert.ToDateTime(row["ActivityDetailLogisticUnitProductionDate"] != DBNull.Value ? row["ActivityDetailLogisticUnitProductionDate"] : null),
+                    ActivityDetailLogisticUnitSkidNumber = Convert.ToString(row["ActivityDetailLogisticUnitSkidNumber"] != DBNull.Value ? row["ActivityDetailLogisticUnitSkidNumber"] : null),
+                    LocationCode = Convert.ToInt32(row["LocationCode"] != DBNull.Value ? row["LocationCode"] : null),
+                    LocationName = Convert.ToString(row["LocationName"] != DBNull.Value ? row["LocationName"] : null),
+                    Location = Convert.ToString(row["Location"] != DBNull.Value ? row["Location"] : null),
+                    ProductSchemeVariantCode = Convert.ToString(row["ProductSchemeVariantCode"] != DBNull.Value ? row["ProductSchemeVariantCode"] : null),
+                    ProductSchemeVariantNo = Convert.ToInt32(row["ProductSchemeVariantNo"] != DBNull.Value ? row["ProductSchemeVariantNo"] : null),
+                    ProductSchemeVariantDescription = Convert.ToString(row["ProductSchemeVariantDescription"] != DBNull.Value ? row["ProductSchemeVariantDescription"] : null),
+                    ActivityDetailStatus = Convert.ToInt32(row["ActivityDetailStatus"] != DBNull.Value ? row["ActivityDetailStatus"] : null),
+                    ActivityDetailIsConfirmed = Convert.ToBoolean(row["ActivityDetailIsConfirmed"] != DBNull.Value ? row["ActivityDetailIsConfirmed"] : null),
+                    ActivityDetailIsConfirmedString = Convert.ToString(row["ActivityDetailIsConfirmedString"] != DBNull.Value ? row["ActivityDetailIsConfirmedString"] : null),
+                    ActivityDetailExtra1Text = Convert.ToString(row["ActivityDetailExtra1Text"] != DBNull.Value ? row["ActivityDetailExtra1Text"] : null),
+                    ActivityDetailExtra2Text = Convert.ToString(row["ActivityDetailExtra2Text"] != DBNull.Value ? row["ActivityDetailExtra2Text"] : null),
+                    ActivityDetailExtra3Text = Convert.ToString(row["ActivityDetailExtra3Text"] != DBNull.Value ? row["ActivityDetailExtra3Text"] : null),
+                    ActivityDetailExtra4Text = Convert.ToString(row["ActivityDetailExtra4Text"] != DBNull.Value ? row["ActivityDetailExtra4Text"] : null),
+                    ActivityDetailExtra5Date = Convert.ToDateTime(row["ActivityDetailExtra5Date"] != DBNull.Value ? row["ActivityDetailExtra5Date"] : null)
+                };
 
-            //    observableCollection.Add(objectType);
-            //}
+                observableCollection.Add(returnDetail);
+            }
 
             return observableCollection;
         }

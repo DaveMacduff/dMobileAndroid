@@ -10,6 +10,7 @@ namespace dMobile.Controller
     using System.Xml.Linq;
     using dMobile.Bedrock;
     using dMobile.GroundWork;
+    using dMobile.Resources.Services;
     using dMobile.Resources.Types;
     using Xamarin.Forms;
 
@@ -171,7 +172,7 @@ namespace dMobile.Controller
                 {
                     cmndItem.Parameters.Add(new SQLiteParameter("@activityItemSubType", Convert.ToInt32(SysCommon.ActSubTypes.TransferTo)));
                 }
-                
+
                 cmndItem.Parameters.Add(new SQLiteParameter("@activityItemStatus", Convert.ToInt32(SysCommon.ActStatus.NoChange)));
                 cmndItem.Parameters.Add(new SQLiteParameter("@activityRefno", Convert.ToInt32(this.ActHdr.Refno)));
 
@@ -214,7 +215,7 @@ namespace dMobile.Controller
                 cmndActTransferItem.CommandType = CommandType.Text;
                 //cmndActTransferItem.IndexName = "UQ_ActivityItemTransferOnActivityItemTransferFKRefno";
                 cmndActTransferItem.Parameters.Add(new SQLiteParameter("@activityItemRefno", Convert.ToInt32(this.Refno)));
-                
+
                 if (this.ActSubType == SysCommon.ActSubTypes.TransferFrom)
                 {
                     cmndActTransferItem.Parameters.Add(new SQLiteParameter("@activityItemSubType", Convert.ToInt32(SysCommon.ActSubTypes.TransferFrom)));
@@ -321,33 +322,45 @@ namespace dMobile.Controller
 
         public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity)
         {
-            // TODO: Calculate column widths
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
-            // Create header data template
-            Grid gridHeader = new Grid
-            {
-                Padding = new Thickness(5),
-                ColumnSpacing = 15,
-                ColumnDefinitions =
-                {
-                    new ColumnDefinition { Width = new GridLength(20, GridUnitType.Star) },
-                    new ColumnDefinition { Width = new GridLength(10, GridUnitType.Star) },
-                    new ColumnDefinition { Width = new GridLength(10, GridUnitType.Star) },
-                    new ColumnDefinition { Width = new GridLength(20, GridUnitType.Star) },
-                    new ColumnDefinition { Width = new GridLength(20, GridUnitType.Star) },
-                    new ColumnDefinition { Width = new GridLength(20, GridUnitType.Star) }
-                }
-            };
-
-            gridHeader.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
-
+            // TODO: Resource strings
             Label labelProductIDHeader = new Label { Text = "Product ID", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             Label labelBCHeader = new Label { Text = "BC", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             Label labelUnitCodeHeader = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             Label labelRequiredHeader = new Label { Text = "Required", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             Label labelQtyHeader = new Label { Text = "Qty", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             Label labelWhsHeader = new Label { Text = "Whs", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+
+            double columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelProductIDHeader.Text);
+            double columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelBCHeader.Text);
+            double columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelUnitCodeHeader.Text);
+            double columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelRequiredHeader.Text);
+            double columnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelQtyHeader.Text);
+            double columnWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(labelWhsHeader.Text);
+            double detailWidth0 = 0;
+            double detailWidth1 = 0;
+            double detailWidth2 = 0;
+            double detailWidth3 = 0;
+            double detailWidth4 = 0;
+            double detailWidth5 = 0;
+
+            // Create header data template
+            Grid gridHeader = new Grid
+            {
+                Padding = new Thickness(5),
+                ColumnDefinitions =
+                {
+                    new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth3, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth4, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth5, GridUnitType.Absolute) }
+                }
+            };
+
+            gridHeader.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
 
             gridHeader.Children.Add(labelProductIDHeader);
             gridHeader.Children.Add(labelBCHeader);
@@ -367,21 +380,90 @@ namespace dMobile.Controller
 
             dataGridMainActivityHeader.Children.Add(gridHeader);
 
+            foreach (DataRow row in this.DataViewItems.ToTable().Rows)
+            {
+                TransferItem transferItem = new TransferItem
+                {
+                    ActivityItemRefno = Convert.ToInt32(row["ActivityItemRefno"] != DBNull.Value ? row["ActivityItemRefno"] : null),
+                    ActivityItemStatus = Convert.ToInt32(row["ActivityItemStatus"] != DBNull.Value ? row["ActivityItemStatus"] : null),
+                    ActivityItemTransferBaseQuantity = Convert.ToDecimal(row["ActivityItemTransferBaseQuantity"] != DBNull.Value ? row["ActivityItemTransferBaseQuantity"] : null),
+                    ActivityItemTransferFKRefno = Convert.ToInt32(row["ActivityItemTransferFKRefno"] != DBNull.Value ? row["ActivityItemTransferFKRefno"] : null),
+                    ActivityItemTransferQuantity = Convert.ToDecimal(row["ActivityItemTransferQuantity"] != DBNull.Value ? row["ActivityItemTransferQuantity"] : null),
+                    ActivityItemTransferRequiredQuantity = Convert.ToDecimal(row["ActivityItemTransferRequiredQuantity"] != DBNull.Value ? row["ActivityItemTransferRequiredQuantity"] : null),
+                    ActivityItemTransferStringFKRefno = Convert.ToString(row["ActivityItemTransferStringFKRefno"] != DBNull.Value ? row["ActivityItemTransferStringFKRefno"] : null),
+                    ActivityItemTransferWeightQuantity = Convert.ToDecimal(row["ActivityItemTransferWeightQuantity"] != DBNull.Value ? row["ActivityItemTransferWeightQuantity"] : null),
+                    LocationCode = Convert.ToInt32(row["LocationCode"] != DBNull.Value ? row["LocationCode"] : null),
+                    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
+                    LocationName = Convert.ToString(row["LocationName"] != DBNull.Value ? row["LocationName"] : null),
+                    ProductCode = Convert.ToString(row["ProductCode"] != DBNull.Value ? row["ProductCode"] : null),
+                    ProductDescription = Convert.ToString(row["ProductDescription"] != DBNull.Value ? row["ProductDescription"] : null),
+                    ProductRefno = Convert.ToInt32(row["ProductRefno"] != DBNull.Value ? row["ProductRefno"] : null),
+                    ProductUnitBC = Convert.ToString(row["ProductUnitBC"] != DBNull.Value ? row["ProductUnitBC"] : null),
+                    ProductUnitRefno = Convert.ToInt32(row["ProductUnitRefno"] != DBNull.Value ? row["ProductUnitRefno"] : null),
+                    ProductUnitSizeDescription = Convert.ToString(row["ProductUnitSizeDescription"] != DBNull.Value ? row["ProductUnitSizeDescription"] : null),
+                    UnitCode = Convert.ToString(row["UnitCode"] != DBNull.Value ? row["UnitCode"] : null)
+                };
+
+                observableCollection.Add(transferItem);
+
+                detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(transferItem.ProductCode);
+                detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(transferItem.ProductUnitBC);
+                detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(transferItem.UnitCode);
+                detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", transferItem.ActivityItemTransferRequiredQuantity));
+                detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", transferItem.ActivityItemTransferQuantity));
+                detailWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(transferItem.LocationCode));
+
+                if (detailWidth0 > columnWidth0)
+                {
+                    columnWidth0 = detailWidth0;
+                    gridHeader.ColumnDefinitions[0].Width = columnWidth0;
+                }
+
+                if (detailWidth1 > columnWidth1)
+                {
+                    columnWidth1 = detailWidth1;
+                    gridHeader.ColumnDefinitions[1].Width = columnWidth1;
+                }
+
+                if (detailWidth2 > columnWidth2)
+                {
+                    columnWidth2 = detailWidth2;
+                    gridHeader.ColumnDefinitions[2].Width = columnWidth2;
+                }
+
+                if (detailWidth3 > columnWidth3)
+                {
+                    columnWidth3 = detailWidth3;
+                    gridHeader.ColumnDefinitions[3].Width = columnWidth3;
+                }
+
+                if (detailWidth4 > columnWidth4)
+                {
+                    columnWidth4 = detailWidth4;
+                    gridHeader.ColumnDefinitions[4].Width = columnWidth4;
+                }
+
+                if (detailWidth5 > columnWidth5)
+                {
+                    columnWidth5 = detailWidth5;
+                    gridHeader.ColumnDefinitions[5].Width = columnWidth5;
+                }
+            }
+
             // Data grid
             DataTemplate dataTemplate = new DataTemplate(() =>
             {
                 Grid gridData = new Grid
                 {
                     Padding = new Thickness(5),
-                    ColumnSpacing = 15,
                     ColumnDefinitions =
                     {
-                        new ColumnDefinition { Width = new GridLength(20, GridUnitType.Star) },
-                        new ColumnDefinition { Width = new GridLength(10, GridUnitType.Star) },
-                        new ColumnDefinition { Width = new GridLength(10, GridUnitType.Star) },
-                        new ColumnDefinition { Width = new GridLength(20, GridUnitType.Star) },
-                        new ColumnDefinition { Width = new GridLength(20, GridUnitType.Star) },
-                        new ColumnDefinition { Width = new GridLength(20, GridUnitType.Star) }
+                            new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
+                            new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
+                            new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) },
+                            new ColumnDefinition { Width = new GridLength(columnWidth3, GridUnitType.Absolute) },
+                            new ColumnDefinition { Width = new GridLength(columnWidth4, GridUnitType.Absolute) },
+                            new ColumnDefinition { Width = new GridLength(columnWidth5, GridUnitType.Absolute) }
                     }
                 };
 
@@ -417,34 +499,6 @@ namespace dMobile.Controller
             });
 
             dataGridMainActivity.ItemTemplate = dataTemplate;
-            observableCollection.Clear();
-
-            foreach (DataRow row in this.DataViewItems.ToTable().Rows)
-            {
-                TransferItem transferItem = new TransferItem
-                {
-                    ActivityItemRefno = Convert.ToInt32(row["ActivityItemRefno"] != DBNull.Value ? row["ActivityItemRefno"] : null),
-                    ActivityItemStatus = Convert.ToInt32(row["ActivityItemStatus"] != DBNull.Value ? row["ActivityItemStatus"] : null),
-                    ActivityItemTransferBaseQuantity = Convert.ToDecimal(row["ActivityItemTransferBaseQuantity"] != DBNull.Value ? row["ActivityItemTransferBaseQuantity"] : null),
-                    ActivityItemTransferFKRefno = Convert.ToInt32(row["ActivityItemTransferFKRefno"] != DBNull.Value ? row["ActivityItemTransferFKRefno"] : null),
-                    ActivityItemTransferQuantity = Convert.ToDecimal(row["ActivityItemTransferQuantity"] != DBNull.Value ? row["ActivityItemTransferQuantity"] : null),
-                    ActivityItemTransferRequiredQuantity = Convert.ToDecimal(row["ActivityItemTransferRequiredQuantity"] != DBNull.Value ? row["ActivityItemTransferRequiredQuantity"] : null),
-                    ActivityItemTransferStringFKRefno = Convert.ToString(row["ActivityItemTransferStringFKRefno"] != DBNull.Value ? row["ActivityItemTransferStringFKRefno"] : null),
-                    ActivityItemTransferWeightQuantity = Convert.ToDecimal(row["ActivityItemTransferWeightQuantity"] != DBNull.Value ? row["ActivityItemTransferWeightQuantity"] : null),
-                    LocationCode = Convert.ToInt32(row["LocationCode"] != DBNull.Value ? row["LocationCode"] : null),
-                    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
-                    LocationName = Convert.ToString(row["LocationName"] != DBNull.Value ? row["LocationName"] : null),
-                    ProductCode = Convert.ToString(row["ProductCode"] != DBNull.Value ? row["ProductCode"] : null),
-                    ProductDescription = Convert.ToString(row["ProductDescription"] != DBNull.Value ? row["ProductDescription"] : null),
-                    ProductRefno = Convert.ToInt32(row["ProductRefno"] != DBNull.Value ? row["ProductRefno"] : null),
-                    ProductUnitBC = Convert.ToString(row["ProductUnitBC"] != DBNull.Value ? row["ProductUnitBC"] : null),
-                    ProductUnitRefno = Convert.ToInt32(row["ProductUnitRefno"] != DBNull.Value ? row["ProductUnitRefno"] : null),
-                    ProductUnitSizeDescription = Convert.ToString(row["ProductUnitSizeDescription"] != DBNull.Value ? row["ProductUnitSizeDescription"] : null),
-                    UnitCode = Convert.ToString(row["UnitCode"] != DBNull.Value ? row["UnitCode"] : null)
-                };
-
-                observableCollection.Add(transferItem);
-            }
 
             return observableCollection;
         }
@@ -677,7 +731,7 @@ namespace dMobile.Controller
         public override ObservableCollection<object> Search(string searchText)
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
-            
+
             if (string.IsNullOrEmpty(this.ActItemFilter))
             {
                 this.DataViewItems.RowFilter = "ProductCode LIKE \'%" + searchText.Trim() + "%\'";

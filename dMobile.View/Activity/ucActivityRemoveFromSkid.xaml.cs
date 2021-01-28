@@ -21,7 +21,6 @@ namespace dMobile.View.Activity
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ucActivityRemoveFromSkid : DMobileModal, IAppArea, IAppPublisher
     {
-        // TODO: Test form
         #region Fields
 
         private ActDetailEdit actDetailEdit;
@@ -104,14 +103,31 @@ namespace dMobile.View.Activity
 
                 if (!this.Loading)
                 {
-                    if (keycode == Keycode.F1 || keycode == Keycode.Escape)
+                    if (keycode == Keycode.F1)
                     {
                         if (await this.SaveChanges())
                         {
+                            this.DialogResult = DialogResult.OK;
                             this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                         }
                         else
                         {
+                            this.DialogResult = DialogResult.None;
+                            await this.CancelChanges();
+                        }
+
+                        await this.Close();
+                    }
+                    else if (keycode == Keycode.Escape)
+                    {
+                        if (await this.SaveChanges())
+                        {
+                            this.DialogResult = DialogResult.OK;
+                            this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                        }
+                        else
+                        {
+                            this.DialogResult = DialogResult.None;
                             await this.CancelChanges();
                         }
                     }
@@ -858,10 +874,12 @@ namespace dMobile.View.Activity
 
                     if (await this.SaveChanges())
                     {
+                        this.DialogResult = DialogResult.OK;
                         this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     }
                     else
                     {
+                        this.DialogResult = DialogResult.None;
                         await this.CancelChanges();
                     }
                 }

@@ -188,25 +188,24 @@ namespace dMobile.GroundWork
 
                                 isSchemeLotFound = false;
 
-                                // TODO: Uncomment SysEnv.RefreshOpt.RefreshDataChangesOnly
-                                //if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly)
-                                //{
-                                cmndSchemeLot.CommandText = "SELECT ProductSchemeLotNumberCode FROM tProductSchemeLotNumber WHERE ProductSchemeLotNumberCode = @productSchemeLotNumberCode";
-                                cmndSchemeLot.CommandType = CommandType.Text;
-                                //cmndSchemeLot.IndexName = "UQ_ProductSchemeLotNumberOnProductSchemeLotNumberCode";
-                                cmndSchemeLot.Parameters.Add(new SQLiteParameter("@productSchemeLotNumberCode", schemeLotCode));
-
-                                using (SQLiteDataReader drSchemeLot = cmndSchemeLot.ExecuteReader())
+                                if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly)
                                 {
-                                    //if (drSchemeLot.Seek(DbSeekOptions.FirstEqual, new object[] { schemeLotCode }))
-                                    if (drSchemeLot.Read())
-                                    {
-                                        isSchemeLotFound = true;
-                                    }
+                                    cmndSchemeLot.CommandText = "SELECT ProductSchemeLotNumberCode FROM tProductSchemeLotNumber WHERE ProductSchemeLotNumberCode = @productSchemeLotNumberCode";
+                                    cmndSchemeLot.CommandType = CommandType.Text;
+                                    //cmndSchemeLot.IndexName = "UQ_ProductSchemeLotNumberOnProductSchemeLotNumberCode";
+                                    cmndSchemeLot.Parameters.Add(new SQLiteParameter("@productSchemeLotNumberCode", schemeLotCode));
 
-                                    drSchemeLot.Close();
+                                    using (SQLiteDataReader drSchemeLot = cmndSchemeLot.ExecuteReader())
+                                    {
+                                        //if (drSchemeLot.Seek(DbSeekOptions.FirstEqual, new object[] { schemeLotCode }))
+                                        if (drSchemeLot.Read())
+                                        {
+                                            isSchemeLotFound = true;
+                                        }
+
+                                        drSchemeLot.Close();
+                                    }
                                 }
-                                //}
 
                                 if (!isSchemeLotFound)
                                 {

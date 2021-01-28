@@ -111,6 +111,7 @@ namespace dMobile.Controller
                     }
                     else
                     {
+                        // TODO: Resource Strings
                         throw new Exception(string.Format("Unable to location the product unit refno {0} in tProductUnit.", prodUnitRefno));
                     }
                 }

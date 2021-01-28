@@ -50,27 +50,8 @@ namespace dMobile.Controller
         public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity)
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
-                        
-            foreach (DataRow row in this.DataViewHdrs.ToTable().Rows)
-            {
-                string description = string.Empty;
-                string[] descriptionSubstring = Convert.ToString(row["ActivityCountTypeDescription"]).Split();
 
-                if (descriptionSubstring != null && descriptionSubstring.Length > 1)
-                {
-                    description = descriptionSubstring[0] + " " + descriptionSubstring[1];
-                }
-
-                Count count = new Count
-                {
-                    ActivityCountStringFKRefno = Convert.ToString(row["ActivityCountStringFKRefno"] != DBNull.Value ? row["ActivityCountStringFKRefno"] : null),
-                    ActivityCountDateTime = Convert.ToDateTime(row["ActivityCountDateTime"] != DBNull.Value ? row["ActivityCountDateTime"] : null),
-                    ActivityCountTypeDescription = description,
-                };
-
-                observableCollection.Add(count);
-            }
-
+            // TODO: Resource Strings
             Label labelCountNumber = new Label { Text = "Count #", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             Label labelCountDate = new Label { Text = "Date", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             Label labelCountType = new Label { Text = "Count Type", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
@@ -79,11 +60,13 @@ namespace dMobile.Controller
             double columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelCountNumber.Text);
             double columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelCountDate.Text);
             double columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelCountType.Text);
+            double dataColumnWidth0 = 0;
+            double dataColumnWidth1 = 0;
+            double dataColumnWidth2 = 0;
 
             Grid gridHeader = new Grid
             {
                 Padding = new Thickness(5),
-                //ColumnSpacing = 15,
                 ColumnDefinitions =
                 {
                     new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
@@ -106,11 +89,28 @@ namespace dMobile.Controller
 
             dataGridMainActivityHeader.Children.Add(gridHeader);
 
-            foreach (Count count in observableCollection)
+            foreach (DataRow row in this.DataViewHdrs.ToTable().Rows)
             {
-                double dataColumnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(count.ActivityCountStringFKRefno);
-                double dataColumnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(count.ActivityCountDateTime.ToString("MM/dd/yyyy")));
-                double dataColumnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(count.ActivityCountTypeDescription);
+                string description = string.Empty;
+                string[] descriptionSubstring = Convert.ToString(row["ActivityCountTypeDescription"]).Split();
+
+                if (descriptionSubstring != null && descriptionSubstring.Length > 1)
+                {
+                    description = descriptionSubstring[0] + " " + descriptionSubstring[1];
+                }
+
+                Count count = new Count
+                {
+                    ActivityCountStringFKRefno = Convert.ToString(row["ActivityCountStringFKRefno"] != DBNull.Value ? row["ActivityCountStringFKRefno"] : null),
+                    ActivityCountDateTime = Convert.ToDateTime(row["ActivityCountDateTime"] != DBNull.Value ? row["ActivityCountDateTime"] : null),
+                    ActivityCountTypeDescription = description,
+                };
+
+                observableCollection.Add(count);
+
+                dataColumnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(count.ActivityCountStringFKRefno);
+                dataColumnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(count.ActivityCountDateTime.ToString("MM/dd/yyyy")));
+                dataColumnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(count.ActivityCountTypeDescription);
 
                 if (dataColumnWidth0 > columnWidth0)
                 {
@@ -137,7 +137,6 @@ namespace dMobile.Controller
                 Grid gridData = new Grid
                 {
                     Padding = new Thickness(5),
-                    //ColumnSpacing = 15,
                     ColumnDefinitions =
                     {
                         new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },

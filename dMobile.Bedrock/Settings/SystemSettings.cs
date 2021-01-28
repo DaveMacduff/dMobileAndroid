@@ -1,14 +1,7 @@
 namespace dMobile.Bedrock
 {
     using System;
-    using System.Data;
-    using System.IO;
-    using System.Reflection;
-    using System.Text;
-    using System.Xml;
-    using System.Xml.Linq;
     using System.Xml.Serialization;
-    using Microsoft.VisualBasic;
     using System.Collections.Generic;
 
     [Serializable]
@@ -462,7 +455,7 @@ namespace dMobile.Bedrock
         #endregion
 
         #endregion
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -2782,7 +2775,7 @@ namespace dMobile.Bedrock
             SystemSettingsTasks.OnSysSettingsProgressOut -= new SystemSettingsTasks.OnSysSettingsProgressOutEventHandler(
                 sysSettingsListener.OnSysSettingsProgressOut);
         }
-        
+
         #endregion
     }
 }

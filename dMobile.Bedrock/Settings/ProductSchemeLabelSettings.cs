@@ -5,7 +5,6 @@ namespace dMobile.Bedrock
     using System.Data;
     using System.Data.SQLite;
     using System.IO;
-    using System.Reflection;
     using System.Text;
     using System.Xml;
     using System.Xml.Linq;
@@ -298,10 +297,8 @@ namespace dMobile.Bedrock
 
             if (schemeLblInfo.SchemeRefno == 0)
             {
-                throw new Exception(
-                    string.Format(
-                    "GetSchemeInfoFromSchemeRefno failed. Could not find scheme refno {0} in the AllProdSchemeLabel arraylist.",
-                    schemeRefno));
+                // TODO: Resource strings
+                throw new Exception(string.Format("GetSchemeInfoFromSchemeRefno failed. Could not find scheme refno {0} in the AllProdSchemeLabel arraylist.", schemeRefno));
             }
 
             return schemeLblInfo;
@@ -420,65 +417,67 @@ namespace dMobile.Bedrock
                             cmndScheme.CommandType = CommandType.Text;
                             //cmndScheme.IndexName = "UQ_ProductSchemeOnProductSchemeCode";
 
-                                this.AllProdSchemeLabel.Clear();
-                                int progValue = 0;
-                                ProdSchemeLabelInfo schemeLblInfo = new ProdSchemeLabelInfo();
+                            this.AllProdSchemeLabel.Clear();
+                            int progValue = 0;
+                            ProdSchemeLabelInfo schemeLblInfo = new ProdSchemeLabelInfo();
 
-                                foreach (DataRow drow in ds.Tables["seg"].Rows)
+                            foreach (DataRow drow in ds.Tables["seg"].Rows)
+                            {
+                                schemeCode = Convert.ToString(drow["ProductSchemeCode"]);
+                                errMsg = "Scheme code \'" + errMsg + "\'";
+
+                                cmndScheme.Parameters.Add(new SQLiteParameter("@productSchemeCode", schemeCode));
+
+                                using (SQLiteDataReader drScheme = cmndScheme.ExecuteReader())
                                 {
-                                    schemeCode = Convert.ToString(drow["ProductSchemeCode"]);
-                                    errMsg = "Scheme code \'" + errMsg + "\'";
+                                    //if (!drScheme.Seek(DbSeekOptions.FirstEqual, new object[] { schemeCode }))
+                                    //{
+                                    //    throw new Exception("Unable to locate the product scheme code in tProductScheme."
+                                    //        + Environment.NewLine + errMsg);
+                                    //}
 
-                                    cmndScheme.Parameters.Add(new SQLiteParameter("@productSchemeCode", schemeCode));
-
-                                    using (SQLiteDataReader drScheme = cmndScheme.ExecuteReader())
+                                    if (!drScheme.Read())
                                     {
-                                        //if (!drScheme.Seek(DbSeekOptions.FirstEqual, new object[] { schemeCode }))
-                                        //{
-                                        //    throw new Exception("Unable to locate the product scheme code in tProductScheme."
-                                        //        + Environment.NewLine + errMsg);
-                                        //}
-
-                                        if (!drScheme.Read())
-                                        {
-                                            throw new Exception("drProdScheme.Read() failed." + Environment.NewLine + errMsg);
-                                        }
-
-                                        schemeLblInfo.SchemeRefno = Convert.ToInt32(drScheme.GetValue(Convert.ToInt32(SysCommon.ProdSchemeFields.Refno)));
-                                        schemeLblInfo.IsBestBeforeDateTracked = Convert.ToBoolean(drow["ProductSchemeLabelIsBestBeforeDateTracked"]);
-                                        schemeLblInfo.IsLotTracked = Convert.ToBoolean(drow["ProductSchemeLabelIsLotTracked"]);
-                                        schemeLblInfo.IsProductionDateTracked = Convert.ToBoolean(drow["ProductSchemeLabelIsProductionDateTracked"]);
-                                        schemeLblInfo.IsSerialTracked = Convert.ToBoolean(drow["ProductSchemeLabelIsSerialTracked"]);
-                                        schemeLblInfo.IsVariantTracked = Convert.ToBoolean(drow["ProductSchemeLabelIsVariantTracked"]);
-
-                                        this.AllProdSchemeLabel.Add(schemeLblInfo);
-
-                                        progValue = progValue + 1;
-
-                                        if (this.OnProdSchemeLabelSettingsProgressOut != null)
-                                        {
-                                            msgArg.CurrentValue = progValue;
-                                            msgArg.MinValue = 0;
-                                            msgArg.MaxValue = progMax;
-                                            this.OnProdSchemeLabelSettingsProgressOut(this, msgArg);
-                                        }
-
-                                        drScheme.Close();
+                                        // TODO: Resource strings
+                                        throw new Exception("drProdScheme.Read() failed." + Environment.NewLine + errMsg);
                                     }
+
+                                    schemeLblInfo.SchemeRefno = Convert.ToInt32(drScheme.GetValue(Convert.ToInt32(SysCommon.ProdSchemeFields.Refno)));
+                                    schemeLblInfo.IsBestBeforeDateTracked = Convert.ToBoolean(drow["ProductSchemeLabelIsBestBeforeDateTracked"]);
+                                    schemeLblInfo.IsLotTracked = Convert.ToBoolean(drow["ProductSchemeLabelIsLotTracked"]);
+                                    schemeLblInfo.IsProductionDateTracked = Convert.ToBoolean(drow["ProductSchemeLabelIsProductionDateTracked"]);
+                                    schemeLblInfo.IsSerialTracked = Convert.ToBoolean(drow["ProductSchemeLabelIsSerialTracked"]);
+                                    schemeLblInfo.IsVariantTracked = Convert.ToBoolean(drow["ProductSchemeLabelIsVariantTracked"]);
+
+                                    this.AllProdSchemeLabel.Add(schemeLblInfo);
+
+                                    progValue += 1;
 
                                     if (this.OnProdSchemeLabelSettingsProgressOut != null)
                                     {
-                                        msgArg.CurrentValue = progMax;
+                                        msgArg.CurrentValue = progValue;
                                         msgArg.MinValue = 0;
                                         msgArg.MaxValue = progMax;
                                         this.OnProdSchemeLabelSettingsProgressOut(this, msgArg);
                                     }
+
+                                    drScheme.Close();
                                 }
+
+                                if (this.OnProdSchemeLabelSettingsProgressOut != null)
+                                {
+                                    msgArg.CurrentValue = progMax;
+                                    msgArg.MinValue = 0;
+                                    msgArg.MaxValue = progMax;
+                                    this.OnProdSchemeLabelSettingsProgressOut(this, msgArg);
+                                }
+                            }
                         }
                     }
 
                     if (this.OnProdSchemeLabelSettingsStatusOut != null)
                     {
+                        // TODO: Resource strings
                         msgArg.StatusOutMsg = "Saving product scheme label settings complete.";
 
                         this.OnProdSchemeLabelSettingsStatusOut(this, msgArg);

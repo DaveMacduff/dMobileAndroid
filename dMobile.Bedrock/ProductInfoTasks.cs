@@ -11,7 +11,6 @@
 
     public static class ProductInfoTasks
     {
-
         /// <summary>
         /// 
         /// </summary>
@@ -745,11 +744,7 @@
         /// <param name="dataTableProd"></param>
         public static void GetProductList(ref DataTable dataTableProd)
         {
-            string sql = @"SELECT ProductRefno,
-                                            ProductCode,
-                                            ProductDescription
-                                            FROM tProduct
-                                            ORDER BY ProductCode";
+            string sql = @"SELECT ProductRefno, ProductCode, ProductDescription FROM tProduct ORDER BY ProductCode";
 
             using (SQLiteDataAdapter dataAdapterProd = new SQLiteDataAdapter(sql, DatabaseConnection.GetInstance().SQLConn))
             {

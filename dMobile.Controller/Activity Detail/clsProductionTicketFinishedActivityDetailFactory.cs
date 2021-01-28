@@ -1,10 +1,10 @@
 namespace dMobile.Controller
 {
-  public class TicketFinishedDetailFactory : ActDetailFactory
-  {
-    public override ActDetail GetActDetail(ActItem actItem)
+    public class TicketFinishedDetailFactory : ActDetailFactory
     {
-      return new TicketFinishedActDetail(actItem);
+        public override ActDetail GetActDetail(ActItem actItem)
+        {
+            return new TicketFinishedActDetail(actItem);
+        }
     }
-  }
 }

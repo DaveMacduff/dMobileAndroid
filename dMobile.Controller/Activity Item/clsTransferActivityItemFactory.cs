@@ -1,10 +1,10 @@
 namespace dMobile.Controller
 {
-  public class TransferActItemFactory : ActItemFactory
-  {
-    public override ActItem GetActItem(Activity activity)
+    public class TransferActItemFactory : ActItemFactory
     {
-      return new TransferActItem(activity);
+        public override ActItem GetActItem(Activity activity)
+        {
+            return new TransferActItem(activity);
+        }
     }
-  }
 }

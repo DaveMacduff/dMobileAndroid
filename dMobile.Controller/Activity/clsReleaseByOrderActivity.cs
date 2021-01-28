@@ -43,7 +43,8 @@ namespace dMobile.Controller
             if (this.SysEnv.SysSettings.IsRelByOrder && !this.SysEnv.SysSettings.IsDisconnectedMode)
             {
                 //if (MessageBox.Show(string.Format("Release Order# {0} To Invoice Status?", this.FKRefno), "Release Order", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
-                    
+
+                // TODO: Resource Strings
                 if (await Application.Current.MainPage.DisplayAlert("Release Order", string.Format("Release Order# {0} To Invoice Status?", this.FKRefno), "Yes", "No"))
                 {
                     //GC.Collect();
@@ -504,15 +505,30 @@ namespace dMobile.Controller
                     + "%\'";
             }
 
-            // TODO: search
-            //foreach (DataRow row in this.DataViewHdrs.ToTable().Rows)
-            //{
-            //    ObjectType objectType = new ObjectType
-            //    {
-            //    };
+            foreach (DataRow row in this.DataViewHdrs.ToTable().Rows)
+            {
+                Picking picking = new Picking
+                {
+                    ActivityRefno = Convert.ToInt32(row["ActivityRefno"] != DBNull.Value ? row["ActivityRefno"] : null),
+                    ActivityPickingFKRefno = Convert.ToInt32(row["ActivityPickingFKRefno"] != DBNull.Value ? row["ActivityPickingFKRefno"] : null),
+                    ActivityPickingStringFKRefno = Convert.ToString(row["ActivityPickingStringFKRefno"] != DBNull.Value ? row["ActivityPickingStringFKRefno"] : null),
+                    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
+                    LocationMapWarehouseFKRefno = Convert.ToInt32(row["LocationMapWarehouseFKRefno"] != DBNull.Value ? row["LocationMapWarehouseFKRefno"] : null),
+                    LocationMapWarehouseName = Convert.ToString(row["LocationMapWarehouseName"] != DBNull.Value ? row["LocationMapWarehouseName"] : null),
+                    ActivityPickingOrderedDateTime = Convert.ToDateTime(row["ActivityPickingOrderedDateTime"] != DBNull.Value ? row["ActivityPickingOrderedDateTime"] : null),
+                    ActivityPickingDeliveryDateTime = Convert.ToDateTime(row["ActivityPickingDeliveryDateTime"] != DBNull.Value ? row["ActivityPickingDeliveryDateTime"] : null),
+                    ActivityPickingCustomerContactName = Convert.ToString(row["ActivityPickingCustomerContactName"] != DBNull.Value ? row["ActivityPickingCustomerContactName"] : null),
+                    ActivityPickingCustomerShipToInfo = Convert.ToString(row["ActivityPickingCustomerShipToInfo"] != DBNull.Value ? row["ActivityPickingCustomerShipToInfo"] : null),
+                    RouteCode = Convert.ToString(row["RouteCode"] != DBNull.Value ? row["RouteCode"] : null),
+                    RouteDescription = Convert.ToString(row["RouteDescription"] != DBNull.Value ? row["RouteDescription"] : null),
+                    RouteDayOfWeek = Convert.ToString(row["RouteDayOfWeek"] != DBNull.Value ? row["RouteDayOfWeek"] : null),
+                    RouteStop = Convert.ToInt32(row["RouteStop"] != DBNull.Value ? row["RouteStop"] : null),
+                    ActivityStatus = Convert.ToInt32(row["ActivityStatus"] != DBNull.Value ? row["ActivityStatus"] : null),
+                    ActivityPickingIsReviewed = Convert.ToBoolean(row["ActivityPickingIsReviewed"] != DBNull.Value ? row["ActivityPickingIsReviewed"] : null),
+                };
 
-            //    observableCollection.Add(objectType);
-            //}
+                observableCollection.Add(picking);
+            }
 
             return observableCollection;
         }

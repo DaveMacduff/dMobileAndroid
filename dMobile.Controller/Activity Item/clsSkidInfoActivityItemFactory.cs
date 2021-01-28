@@ -1,10 +1,10 @@
 namespace dMobile.Controller
 {
-  public class SkidInfoActItemFactory : ActItemFactory
-  {
-    public override ActItem GetActItem(Activity activity)
+    public class SkidInfoActItemFactory : ActItemFactory
     {
-      return new SkidInfoActItem(activity);
+        public override ActItem GetActItem(Activity activity)
+        {
+            return new SkidInfoActItem(activity);
+        }
     }
-  }
 }

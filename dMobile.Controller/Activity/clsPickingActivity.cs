@@ -110,6 +110,7 @@ namespace dMobile.Controller
                     {
                         XmlDocument docError = new XmlDocument();
                         docError.LoadXml(reqData);
+                        // TODO: Resource Strings
                         throw new MessageOnlyException(string.Format("Order# {0} print shipping label(s) failed." + Environment.NewLine + "{1}", this.FKRefno, docError.DocumentElement["detail"].InnerText));
                     }
                 }
@@ -340,7 +341,7 @@ namespace dMobile.Controller
         {
             bool isReleased = false;
 
-            //if (MessageBox.Show(string.Format("Release order# {0} ?", this.FKRefno), this.GetControlDescription(), MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
+            // TODO: Resource Strings
             if (await Application.Current.MainPage.DisplayAlert(this.GetControlDescription(), string.Format("Release order# {0} ?", this.FKRefno), "Yes", "No"))
             {
                 string reqResult = string.Empty;
@@ -577,34 +578,8 @@ namespace dMobile.Controller
 
         public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity)
         {
-            // TODO: Fix grid (add if (!this.SysEnv.SysSettings.IsPickHideRouteCol))
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
             
-            foreach (DataRow row in this.DataViewHdrs.ToTable().Rows)
-            {
-                Picking picking = new Picking
-                {
-                    ActivityRefno = Convert.ToInt32(row["ActivityRefno"] != DBNull.Value ? row["ActivityRefno"] : null),
-                    ActivityPickingFKRefno = Convert.ToInt32(row["ActivityPickingFKRefno"] != DBNull.Value ? row["ActivityPickingFKRefno"] : null),
-                    ActivityPickingStringFKRefno = Convert.ToString(row["ActivityPickingStringFKRefno"] != DBNull.Value ? row["ActivityPickingStringFKRefno"] : null),
-                    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
-                    LocationMapWarehouseFKRefno = Convert.ToInt32(row["LocationMapWarehouseFKRefno"] != DBNull.Value ? row["LocationMapWarehouseFKRefno"] : null),
-                    LocationMapWarehouseName = Convert.ToString(row["LocationMapWarehouseName"] != DBNull.Value ? row["LocationMapWarehouseName"] : null),
-                    ActivityPickingOrderedDateTime = Convert.ToDateTime(row["ActivityPickingOrderedDateTime"] != DBNull.Value ? row["ActivityPickingOrderedDateTime"] : null),
-                    ActivityPickingDeliveryDateTime = Convert.ToDateTime(row["ActivityPickingDeliveryDateTime"] != DBNull.Value ? row["ActivityPickingDeliveryDateTime"] : null),
-                    ActivityPickingCustomerContactName = Convert.ToString(row["ActivityPickingCustomerContactName"] != DBNull.Value ? row["ActivityPickingCustomerContactName"] : null),
-                    ActivityPickingCustomerShipToInfo = Convert.ToString(row["ActivityPickingCustomerShipToInfo"] != DBNull.Value ? row["ActivityPickingCustomerShipToInfo"] : null),
-                    RouteCode = Convert.ToString(row["RouteCode"] != DBNull.Value ? row["RouteCode"] : null),
-                    RouteDescription = Convert.ToString(row["RouteDescription"] != DBNull.Value ? row["RouteDescription"] : null),
-                    RouteDayOfWeek = Convert.ToString(row["RouteDayOfWeek"] != DBNull.Value ? row["RouteDayOfWeek"] : null),
-                    RouteStop = Convert.ToInt32(row["RouteStop"] != DBNull.Value ? row["RouteStop"] : null),
-                    ActivityStatus = Convert.ToInt32(row["ActivityStatus"] != DBNull.Value ? row["ActivityStatus"] : null),
-                    ActivityPickingIsReviewed = Convert.ToBoolean(row["ActivityPickingIsReviewed"] != DBNull.Value ? row["ActivityPickingIsReviewed"] : null),
-                };
-
-                observableCollection.Add(picking);
-            }
-
             // TODO: Resource strings            
             Label labelPickingOrderNumber = new Label { Text = "Order #", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             Label labelPickingDelDate = new Label { Text = "Del Date", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
@@ -617,6 +592,11 @@ namespace dMobile.Controller
             double columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPickingRoute.Text);
             double columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPickingStop.Text);
             double columnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPickingShipTo.Text);
+            double detailWidth0 = 0;
+            double detailWidth1 = 0;
+            double detailWidth2 = 0;
+            double detailWidth3 = 0;
+            double detailWidth4 = 0;
 
             // Create header data template
             Grid gridHeader = new Grid
@@ -659,14 +639,36 @@ namespace dMobile.Controller
             Grid.SetRow(gridHeader, 0);
 
             dataGridMainActivityHeader.Children.Add(gridHeader);
-            
-            foreach (Picking picking in observableCollection)
+
+            foreach (DataRow row in this.DataViewHdrs.ToTable().Rows)
             {
-                double detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(picking.ActivityPickingStringFKRefno);
-                double detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(picking.ActivityPickingDeliveryDateTime.ToString("MM/dd/yyyy"));
-                double detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(picking.RouteCode);
-                double detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(picking.RouteStop));
-                double detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(picking.ActivityPickingCustomerShipToInfo);
+                Picking picking = new Picking
+                {
+                    ActivityRefno = Convert.ToInt32(row["ActivityRefno"] != DBNull.Value ? row["ActivityRefno"] : null),
+                    ActivityPickingFKRefno = Convert.ToInt32(row["ActivityPickingFKRefno"] != DBNull.Value ? row["ActivityPickingFKRefno"] : null),
+                    ActivityPickingStringFKRefno = Convert.ToString(row["ActivityPickingStringFKRefno"] != DBNull.Value ? row["ActivityPickingStringFKRefno"] : null),
+                    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
+                    LocationMapWarehouseFKRefno = Convert.ToInt32(row["LocationMapWarehouseFKRefno"] != DBNull.Value ? row["LocationMapWarehouseFKRefno"] : null),
+                    LocationMapWarehouseName = Convert.ToString(row["LocationMapWarehouseName"] != DBNull.Value ? row["LocationMapWarehouseName"] : null),
+                    ActivityPickingOrderedDateTime = Convert.ToDateTime(row["ActivityPickingOrderedDateTime"] != DBNull.Value ? row["ActivityPickingOrderedDateTime"] : null),
+                    ActivityPickingDeliveryDateTime = Convert.ToDateTime(row["ActivityPickingDeliveryDateTime"] != DBNull.Value ? row["ActivityPickingDeliveryDateTime"] : null),
+                    ActivityPickingCustomerContactName = Convert.ToString(row["ActivityPickingCustomerContactName"] != DBNull.Value ? row["ActivityPickingCustomerContactName"] : null),
+                    ActivityPickingCustomerShipToInfo = Convert.ToString(row["ActivityPickingCustomerShipToInfo"] != DBNull.Value ? row["ActivityPickingCustomerShipToInfo"] : null),
+                    RouteCode = Convert.ToString(row["RouteCode"] != DBNull.Value ? row["RouteCode"] : null),
+                    RouteDescription = Convert.ToString(row["RouteDescription"] != DBNull.Value ? row["RouteDescription"] : null),
+                    RouteDayOfWeek = Convert.ToString(row["RouteDayOfWeek"] != DBNull.Value ? row["RouteDayOfWeek"] : null),
+                    RouteStop = Convert.ToInt32(row["RouteStop"] != DBNull.Value ? row["RouteStop"] : null),
+                    ActivityStatus = Convert.ToInt32(row["ActivityStatus"] != DBNull.Value ? row["ActivityStatus"] : null),
+                    ActivityPickingIsReviewed = Convert.ToBoolean(row["ActivityPickingIsReviewed"] != DBNull.Value ? row["ActivityPickingIsReviewed"] : null),
+                };
+
+                observableCollection.Add(picking);
+
+                detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(picking.ActivityPickingStringFKRefno);
+                detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(picking.ActivityPickingDeliveryDateTime.ToString("MM/dd/yyyy"));
+                detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(picking.RouteCode);
+                detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(picking.RouteStop));
+                detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(picking.ActivityPickingCustomerShipToInfo);
 
                 if (detailWidth0 > columnWidth0)
                 {
@@ -701,7 +703,7 @@ namespace dMobile.Controller
                     columnWidth3 = 0;
                     gridHeader.ColumnDefinitions[3].Width = columnWidth3;
                 }
-                                
+
                 if (detailWidth4 > columnWidth4)
                 {
                     columnWidth4 = detailWidth4;
@@ -1109,7 +1111,7 @@ namespace dMobile.Controller
                     }
                     else
                     {
-                        filter = filter + string.Format(
+                        filter += string.Format(
                             " AND ActivityPickingOrderedDateTime >= '{0}-{1}-{2} 00:00:00.000' "
                             + "AND ActivityPickingOrderedDateTime <= '{0}-{1}-{2} 23:59:59.997'",
                             dt.Year,
@@ -1137,7 +1139,7 @@ namespace dMobile.Controller
                     }
                     else
                     {
-                        filter = filter + string.Format(
+                        filter += string.Format(
                             " AND ActivityPickingDeliveryDateTime >= '{0}-{1}-{2} 00:00:00.000' "
                             + "AND ActivityPickingDeliveryDateTime <= '{0}-{1}-{2} 23:59:59.997'",
                             dt.Year,
@@ -1196,7 +1198,7 @@ namespace dMobile.Controller
                     }
                     else
                     {
-                        filter = filter + string.Format(
+                        filter += string.Format(
                             " AND ActivityPickingOrderedDateTime >= '{0}-{1}-{2} 00:00:00.000' "
                             + "AND ActivityPickingOrderedDateTime <= '{0}-{1}-{2} 23:59:59.997'",
                             dt.Year,
@@ -1224,7 +1226,7 @@ namespace dMobile.Controller
                     }
                     else
                     {
-                        filter = filter + string.Format(
+                        filter += string.Format(
                             " AND ActivityPickingDeliveryDateTime >= '{0}-{1}-{2} 00:00:00.000' "
                             + "AND ActivityPickingDeliveryDateTime <= '{0}-{1}-{2} 23:59:59.997'",
                             dt.Year,

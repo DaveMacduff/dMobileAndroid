@@ -72,7 +72,8 @@ namespace dMobile.Controller
 
                 observableCollection.Add(returns);
             }
-            
+
+            // TODO: Resource Strings
             Label labelReturnNumber = new Label { Text = "Return #", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             Label labelReturnEntered = new Label { Text = "Entered", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             Label labelReturnReturned = new Label { Text = "Returned", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };

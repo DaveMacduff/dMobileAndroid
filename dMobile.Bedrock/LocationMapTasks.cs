@@ -1,6 +1,5 @@
 ﻿namespace dMobile.Bedrock
 {
-    using Microsoft.VisualBasic;
     using System;
     using System.Data;
     using System.Data.SQLite;
@@ -63,7 +62,7 @@
                 cmndLocMap.CommandText = "SELECT tLocationMapSlot.LocationMapRefno "
                         + "FROM tLocationMapSlot "
                         + "WHERE LocationMapSlotBarCode LIKE @barcode%";
-                    cmndLocMap.Parameters.Add(new SQLiteParameter("@barCode", barCode));
+                cmndLocMap.Parameters.Add(new SQLiteParameter("@barCode", barCode));
 
                 locMapRefno = Convert.ToInt32(cmndLocMap.ExecuteScalar());
             }
@@ -148,18 +147,18 @@
                     drLocMap.Close();
                 }
 
-                    if (secondAttempt)
-                    {
-                        string barCode = globalLocationIdentifier.Substring(0, globalLocationIdentifier.TrimEnd().Length - 1);
-                        cmndLocMap.CommandType = CommandType.Text;
-                        //cmndLocMap.IndexName = string.Empty;
-                        cmndLocMap.CommandText = "SELECT tLocationMapWarehouse.LocationMapRefno "
-                            + "FROM tLocationMapWarehouse "
-                            + "WHERE tLocationMapWarehouse.LocationMapWarehouseBarCode LIKE \'" + barCode + "%\'";
-                    }
-
-                    locMapRefno = Convert.ToInt32(cmndLocMap.ExecuteScalar());
+                if (secondAttempt)
+                {
+                    string barCode = globalLocationIdentifier.Substring(0, globalLocationIdentifier.TrimEnd().Length - 1);
+                    cmndLocMap.CommandType = CommandType.Text;
+                    //cmndLocMap.IndexName = string.Empty;
+                    cmndLocMap.CommandText = "SELECT tLocationMapWarehouse.LocationMapRefno "
+                        + "FROM tLocationMapWarehouse "
+                        + "WHERE tLocationMapWarehouse.LocationMapWarehouseBarCode LIKE \'" + barCode + "%\'";
                 }
+
+                locMapRefno = Convert.ToInt32(cmndLocMap.ExecuteScalar());
+            }
 
             cmndLocMap.Dispose();
 

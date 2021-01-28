@@ -1705,7 +1705,6 @@ namespace dMobile.View.Activity
                 actItem.ProdInfo = this.SkidInfo.CurrSkid.ProdInfo;
                 actItem.ProdInfo.Unit2BaseUnitFactor = ProductInfoTasks.GetUnitRelationFactor(actItem.ProdInfo);
 
-                // TODO: Test that this passes correct callingActSubType
                 FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucActivityDetailSkid, actItem, SysCommon.ActSubTypes.SkidInfo, this.callingActSubType);
 
                 if (await form.DisplayControl.ShowDialog() == DialogResult.OK)

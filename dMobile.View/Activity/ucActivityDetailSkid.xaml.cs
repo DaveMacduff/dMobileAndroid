@@ -1193,7 +1193,6 @@ namespace dMobile.View.Activity
 
                 if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
                 {
-                    await form.SaveChanges(this, new EventArgs());
                     XDocument xmlDoc = form.DisplayControlData;
 
                     // Create an activity detail for it now

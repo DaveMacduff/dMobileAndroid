@@ -1,10 +1,10 @@
 namespace dMobile.Controller
 {
-  public class InvInquiryActItemFactory : ActItemFactory
-  {
-    public override ActItem GetActItem(Activity activity)
+    public class InvInquiryActItemFactory : ActItemFactory
     {
-      return new InvInquiryActItem(activity);
+        public override ActItem GetActItem(Activity activity)
+        {
+            return new InvInquiryActItem(activity);
+        }
     }
-  }
 }

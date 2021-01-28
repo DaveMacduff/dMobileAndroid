@@ -1,10 +1,10 @@
 namespace dMobile.Controller
 {
-  public class PickingActDetailFactory : ActDetailFactory
-  {
-    public override ActDetail GetActDetail(ActItem actItem)
+    public class PickingActDetailFactory : ActDetailFactory
     {
-      return new PickingActDetail(actItem);
+        public override ActDetail GetActDetail(ActItem actItem)
+        {
+            return new PickingActDetail(actItem);
+        }
     }
-  }
 }

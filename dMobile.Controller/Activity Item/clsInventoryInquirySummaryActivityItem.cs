@@ -130,26 +130,6 @@ namespace dMobile.Controller
             Label labelWeightHeader = new Label { Text = "Weight", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             Label labelWeightUnitCodeHeader = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
 
-            if (!this.ProdInfo.Scheme.IsProductionDateTracked)
-            {
-                labelProdDateHeader.Text = string.Empty;
-            }
-
-            if (!this.ProdInfo.Scheme.IsBestBeforeDateTracked)
-            {
-                labelBBDateHeader.Text = string.Empty;
-            }
-
-            if (!this.LocMap.CurrLocMap.IsSectionTracked)
-            {
-                labelSectionHeader.Text = string.Empty;
-            }
-
-            if (!(this.LocMap.CurrLocMap.IsSectionTracked && this.LocMap.CurrLocMap.IsSlotTracked))
-            {
-                labelSlotHeader.Text = string.Empty;
-            }
-
             double columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelProductIDHeader.Text);
             double columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelBCHeader.Text);
             double columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelQuantityHeader.Text);
@@ -188,10 +168,27 @@ namespace dMobile.Controller
             gridHeader.Children.Add(labelBCHeader);
             gridHeader.Children.Add(labelQuantityHeader);
             gridHeader.Children.Add(labelUnitCodeHeader);
-            gridHeader.Children.Add(labelProdDateHeader);
-            gridHeader.Children.Add(labelBBDateHeader);
-            gridHeader.Children.Add(labelSectionHeader);
-            gridHeader.Children.Add(labelSlotHeader);
+
+            if (this.ProdInfo.Scheme.IsProductionDateTracked)
+            {
+                gridHeader.Children.Add(labelProdDateHeader);
+            }
+
+            if (this.ProdInfo.Scheme.IsBestBeforeDateTracked)
+            {
+                gridHeader.Children.Add(labelBBDateHeader);
+            }
+
+            if (this.LocMap.CurrLocMap.IsSectionTracked)
+            {
+                gridHeader.Children.Add(labelSectionHeader);
+            }
+
+            if (this.LocMap.CurrLocMap.IsSectionTracked && this.LocMap.CurrLocMap.IsSlotTracked)
+            {
+                gridHeader.Children.Add(labelSlotHeader);
+            }
+
             gridHeader.Children.Add(labelSkidHeader);
             gridHeader.Children.Add(labelWeightHeader);
             gridHeader.Children.Add(labelWeightUnitCodeHeader);
@@ -201,10 +198,27 @@ namespace dMobile.Controller
             Grid.SetColumn(labelBCHeader, 1);
             Grid.SetColumn(labelQuantityHeader, 2);
             Grid.SetColumn(labelUnitCodeHeader, 3);
-            Grid.SetColumn(labelProdDateHeader, 4);
-            Grid.SetColumn(labelBBDateHeader, 5);
-            Grid.SetColumn(labelSectionHeader, 6);
-            Grid.SetColumn(labelSlotHeader, 7);
+
+            if (this.ProdInfo.Scheme.IsProductionDateTracked)
+            {
+                Grid.SetColumn(labelProdDateHeader, 4);
+            }
+
+            if (this.ProdInfo.Scheme.IsBestBeforeDateTracked)
+            {
+                Grid.SetColumn(labelBBDateHeader, 5);
+            }
+
+            if (this.LocMap.CurrLocMap.IsSectionTracked)
+            {
+                Grid.SetColumn(labelSectionHeader, 6);
+            }
+
+            if (this.LocMap.CurrLocMap.IsSectionTracked && this.LocMap.CurrLocMap.IsSlotTracked)
+            {
+                Grid.SetColumn(labelSlotHeader, 7);
+            }
+
             Grid.SetColumn(labelSkidHeader, 8);
             Grid.SetColumn(labelWeightHeader, 9);
             Grid.SetColumn(labelWeightUnitCodeHeader, 10);
@@ -251,61 +265,61 @@ namespace dMobile.Controller
                     gridHeader.ColumnDefinitions[3].Width = columnWidth3;
                 }
 
-                //if (this.ProdInfo.Scheme.IsProductionDateTracked)
-                //{
+                if (this.ProdInfo.Scheme.IsProductionDateTracked)
+                {
                     if (detailWidth4 > columnWidth4)
                     {
                         columnWidth4 = detailWidth4;
                         gridHeader.ColumnDefinitions[4].Width = columnWidth4;
                     }
-                //}
-                //else
-                //{
-                //    columnWidth4 = 0;
-                //    gridHeader.ColumnDefinitions[4].Width = 0;
-                //}
+                }
+                else
+                {
+                    columnWidth4 = 0;
+                    gridHeader.ColumnDefinitions[4].Width = columnWidth4;
+                }
 
-                //if (this.ProdInfo.Scheme.IsBestBeforeDateTracked)
-                //{
+                if (this.ProdInfo.Scheme.IsBestBeforeDateTracked)
+                {
                     if (detailWidth5 > columnWidth5)
                     {
                         columnWidth5 = detailWidth5;
                         gridHeader.ColumnDefinitions[5].Width = columnWidth5;
                     }
-                //}
-                //else
-                //{
-                //    columnWidth5 = 0;
-                //    gridHeader.ColumnDefinitions[5].Width = 0;
-                //}
+                }
+                else
+                {
+                    columnWidth5 = 0;
+                    gridHeader.ColumnDefinitions[5].Width = columnWidth5;
+                }
 
-                //if (this.LocMap.CurrLocMap.IsSectionTracked)
-                //{
+                if (this.LocMap.CurrLocMap.IsSectionTracked)
+                {
                     if (detailWidth6 > columnWidth6)
                     {
                         columnWidth6 = detailWidth6;
                         gridHeader.ColumnDefinitions[6].Width = columnWidth6;
                     }
-                //}
-                //else
-                //{
-                //    columnWidth6 = 0;
-                //    gridHeader.ColumnDefinitions[6].Width = 0;
-                //}
+                }
+                else
+                {
+                    columnWidth6 = 0;
+                    gridHeader.ColumnDefinitions[6].Width = columnWidth6;
+                }
 
-                //if (this.LocMap.CurrLocMap.IsSectionTracked && this.LocMap.CurrLocMap.IsSlotTracked)
-                //{
+                if (this.LocMap.CurrLocMap.IsSectionTracked && this.LocMap.CurrLocMap.IsSlotTracked)
+                {
                     if (detailWidth7 > columnWidth7)
                     {
                         columnWidth7 = detailWidth7;
                         gridHeader.ColumnDefinitions[7].Width = columnWidth7;
                     }
-                //}
-                //else
-                //{
-                //    columnWidth7 = 0;
-                //    gridHeader.ColumnDefinitions[7].Width = 0;
-                //}
+                }
+                else
+                {
+                    columnWidth7 = 0;
+                    gridHeader.ColumnDefinitions[7].Width = columnWidth7;
+                }
 
                 if (detailWidth8 > columnWidth8)
                 {
@@ -378,10 +392,27 @@ namespace dMobile.Controller
                 gridData.Children.Add(labelBC);
                 gridData.Children.Add(labelQuantity);
                 gridData.Children.Add(labelUnitCode);
-                gridData.Children.Add(labelProdDate);
-                gridData.Children.Add(labelBBDate);
-                gridData.Children.Add(labelSection);
-                gridData.Children.Add(labelSlot);
+
+                if (this.ProdInfo.Scheme.IsProductionDateTracked)
+                {
+                    gridData.Children.Add(labelProdDate);
+                }
+
+                if (this.ProdInfo.Scheme.IsBestBeforeDateTracked)
+                {
+                    gridData.Children.Add(labelBBDate);
+                }
+
+                if (this.LocMap.CurrLocMap.IsSectionTracked)
+                {
+                    gridData.Children.Add(labelSection);
+                }
+
+                if (this.LocMap.CurrLocMap.IsSectionTracked && this.LocMap.CurrLocMap.IsSlotTracked)
+                {
+                    gridData.Children.Add(labelSlot);
+                }
+
                 gridData.Children.Add(labelSkid);
                 gridData.Children.Add(labelWeight);
                 gridData.Children.Add(labelWeightUnitCode);
@@ -391,10 +422,27 @@ namespace dMobile.Controller
                 Grid.SetColumn(labelBC, 1);
                 Grid.SetColumn(labelQuantity, 2);
                 Grid.SetColumn(labelUnitCode, 3);
-                Grid.SetColumn(labelProdDate, 4);
-                Grid.SetColumn(labelBBDate, 5);
-                Grid.SetColumn(labelSection, 6);
-                Grid.SetColumn(labelSlot, 7);
+
+                if (this.ProdInfo.Scheme.IsProductionDateTracked)
+                {
+                    Grid.SetColumn(labelProdDate, 4);
+                }
+
+                if (this.ProdInfo.Scheme.IsBestBeforeDateTracked)
+                {
+                    Grid.SetColumn(labelBBDate, 5);
+                }
+
+                if (this.LocMap.CurrLocMap.IsSectionTracked)
+                {
+                    Grid.SetColumn(labelSection, 6);
+                }
+
+                if (this.LocMap.CurrLocMap.IsSectionTracked && this.LocMap.CurrLocMap.IsSlotTracked)
+                {
+                    Grid.SetColumn(labelSlot, 7);
+                }
+
                 Grid.SetColumn(labelSkid, 8);
                 Grid.SetColumn(labelWeight, 9);
                 Grid.SetColumn(labelWeightUnitCode, 10);

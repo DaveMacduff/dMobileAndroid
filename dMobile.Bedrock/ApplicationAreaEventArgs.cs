@@ -1,11 +1,11 @@
 ﻿namespace dMobile.Bedrock
 {
-  using System;
+    using System;
 
-  public class AppEventArgs : EventArgs
-  {
-    public AppEventArgs()
+    public class AppEventArgs : EventArgs
     {
+        public AppEventArgs()
+        {
+        }
     }
-  }
 }

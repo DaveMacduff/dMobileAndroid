@@ -1,10 +1,10 @@
 namespace dMobile.Controller
 {
-  public class AssignDefaultLocActItemFactory : ActItemFactory
-  {
-    public override ActItem GetActItem(Activity activity)
+    public class AssignDefaultLocActItemFactory : ActItemFactory
     {
-      return new AssignDefaultLocActItem(activity);
+        public override ActItem GetActItem(Activity activity)
+        {
+            return new AssignDefaultLocActItem(activity);
+        }
     }
-  }
 }

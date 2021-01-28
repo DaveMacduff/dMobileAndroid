@@ -430,19 +430,39 @@ namespace dMobile.Controller
 
                 gridData.Children.Add(labelQty);
                 gridData.Children.Add(labelWeight);
-                gridData.Children.Add(labelSerialNo);
-                gridData.Children.Add(labelProdDate);
-                gridData.Children.Add(labelBBSBDate);
-                gridData.Children.Add(labelLot);
-                gridData.Children.Add(labelVariant);
 
                 Grid.SetColumn(labelQty, 0);
                 Grid.SetColumn(labelWeight, 1);
-                Grid.SetColumn(labelSerialNo, 2);
-                Grid.SetColumn(labelProdDate, 3);
-                Grid.SetColumn(labelBBSBDate, 4);
-                Grid.SetColumn(labelLot, 5);
-                Grid.SetColumn(labelVariant, 6);
+
+                if (this.ActItem.ProdInfo.Scheme.IsSerialTracked)
+                {
+                    gridHeader.Children.Add(labelSerialNo);
+                    Grid.SetColumn(labelSerialNo, 2);
+                }
+
+                if (this.ActItem.ProdInfo.Scheme.IsProductionDateTracked)
+                {
+                    gridData.Children.Add(labelProdDate);
+                    Grid.SetColumn(labelProdDate, 3);
+                }
+
+                if (this.ActItem.ProdInfo.Scheme.IsBestBeforeDateTracked)
+                {
+                    gridData.Children.Add(labelBBSBDate);
+                    Grid.SetColumn(labelBBSBDate, 4);
+                }
+
+                if (this.ActItem.ProdInfo.Scheme.IsLotTracked)
+                {
+                    gridHeader.Children.Add(labelLot);
+                    Grid.SetColumn(labelLot, 5);
+                }
+
+                if (this.ActItem.ProdInfo.Scheme.IsVariantTracked)
+                {
+                    gridData.Children.Add(labelVariant);
+                    Grid.SetColumn(labelVariant, 6);
+                }
 
                 return new ViewCell { View = gridData };
             });

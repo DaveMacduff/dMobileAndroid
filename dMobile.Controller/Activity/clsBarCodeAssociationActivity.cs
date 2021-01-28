@@ -8,6 +8,8 @@ namespace dMobile.Controller
     using System.Xml.Linq;
     using dMobile.Bedrock;
     using dMobile.GroundWork;
+    using dMobile.Resources.Services;
+    using dMobile.Resources.Types;
     using Xamarin.Forms;
 
     public class BarCodeAssocActivity : Activity
@@ -180,84 +182,206 @@ namespace dMobile.Controller
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
-            // TODO: Search
-            // TODO: search needs to handle non alphanumeric characters such as '[' which blows chunks
             this.DataViewHdrs.RowFilter = "ProductUnitBarCodeCode LIKE \'%" + searchText.Trim() + "%\'";
 
-            //foreach (DataRow row in this.DataViewHdrs.ToTable().Rows)
-            //{
-            //    ObjectType objectType = new ObjectType
-            //    {
-            //    };
+            foreach (DataRow row in this.DataViewHdrs.ToTable().Rows)
+            {
+                BarcodeAssociation barcodeAssociation = new BarcodeAssociation
+                {
+                    ActivityRefno = Convert.ToInt32(row["ActivityRefno"] != DBNull.Value ? row["ActivityRefno"] : null),
+                    ActivityStatus = Convert.ToInt32(row["ActivityRefno"] != DBNull.Value ? row["ActivityRefno"] : null),
+                    ProductUnitBarCodeCode = Convert.ToString(row["ProductUnitBarCodeCode"] != DBNull.Value ? row["ProductUnitBarCodeCode"] : null),
+                    ProductUnitBarCodeModifier1 = Convert.ToString(row["ProductUnitBarCodeModifier1"] != DBNull.Value ? row["ProductUnitBarCodeModifier1"] : null),
+                    ProductUnitBarCodeRefno = Convert.ToInt32(row["ProductUnitBarCodeRefno"] != DBNull.Value ? row["ProductUnitBarCodeRefno"] : null),
+                    ProductCode = Convert.ToString(row["ProductCode"] != DBNull.Value ? row["ProductCode"] : null),
+                    ProductUnitBC = Convert.ToString(row["ProductUnitBC"] != DBNull.Value ? row["ProductUnitBC"] : null),
+                    UnitCode = Convert.ToString(row["UnitCode"] != DBNull.Value ? row["UnitCode"] : null)
+                };
 
-            //    observableCollection.Add(objectType);
-            //}
+                observableCollection.Add(barcodeAssociation);
+            }
+
+                return observableCollection;
+        }
+
+        public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity)
+        {
+            ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+
+            // TODO: Resource Strings
+            Label labelHeader1 = new Label { Text = "Product", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            Label labelHeader2 = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            Label labelHeader3 = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            Label labelHeader4 = new Label { Text = "Bar Code", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            Label labelHeader5 = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+
+            double columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader1.Text);
+            double columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader2.Text);
+            double columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader3.Text);
+            double columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader4.Text);
+            double columnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader5.Text);
+            double detailWidth0 = 0;
+            double detailWidth1 = 0;
+            double detailWidth2 = 0;
+            double detailWidth3 = 0;
+            double detailWidth4 = 0;
+
+            // Create header data template
+            Grid gridHeader = new Grid
+            {
+                Padding = new Thickness(5),
+                ColumnDefinitions =
+                {
+                    new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth3, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth4, GridUnitType.Absolute) }
+                }
+            };
+
+            gridHeader.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
+
+            gridHeader.Children.Add(labelHeader1);
+            gridHeader.Children.Add(labelHeader2);
+            gridHeader.Children.Add(labelHeader3);
+            gridHeader.Children.Add(labelHeader4);
+            gridHeader.Children.Add(labelHeader5);
+
+            Grid.SetColumn(labelHeader1, 0);
+            Grid.SetColumn(labelHeader2, 1);
+            Grid.SetColumn(labelHeader3, 2);
+            Grid.SetColumn(labelHeader4, 3);
+            Grid.SetColumn(labelHeader5, 4);
+
+            Grid.SetRow(gridHeader, 0);
+
+            dataGridMainActivityHeader.Children.Add(gridHeader);
+
+            foreach (DataRow row in this.DataViewHdrs.ToTable().Rows)
+            {
+                BarcodeAssociation barcodeAssociation = new BarcodeAssociation
+                {
+                    ActivityRefno = Convert.ToInt32(row["ActivityRefno"] != DBNull.Value ? row["ActivityRefno"] : null),
+                    ActivityStatus = Convert.ToInt32(row["ActivityRefno"] != DBNull.Value ? row["ActivityRefno"] : null),
+                    ProductUnitBarCodeCode = Convert.ToString(row["ProductUnitBarCodeCode"] != DBNull.Value ? row["ProductUnitBarCodeCode"] : null),
+                    ProductUnitBarCodeModifier1 = Convert.ToString(row["ProductUnitBarCodeModifier1"] != DBNull.Value ? row["ProductUnitBarCodeModifier1"] : null),
+                    ProductUnitBarCodeRefno = Convert.ToInt32(row["ProductUnitBarCodeRefno"] != DBNull.Value ? row["ProductUnitBarCodeRefno"] : null),
+                    ProductCode = Convert.ToString(row["ProductCode"] != DBNull.Value ? row["ProductCode"] : null),
+                    ProductUnitBC = Convert.ToString(row["ProductUnitBC"] != DBNull.Value ? row["ProductUnitBC"] : null),
+                    UnitCode = Convert.ToString(row["UnitCode"] != DBNull.Value ? row["UnitCode"] : null)
+                };
+
+                observableCollection.Add(barcodeAssociation);
+
+                detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(barcodeAssociation.ProductCode);
+                detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(barcodeAssociation.ProductUnitBC);
+                detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(barcodeAssociation.UnitCode);
+                detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(barcodeAssociation.ProductUnitBarCodeCode);
+                detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(barcodeAssociation.ProductUnitBarCodeModifier1);
+
+                if (detailWidth0 > columnWidth0)
+                {
+                    columnWidth0 = detailWidth0;
+                    gridHeader.ColumnDefinitions[0].Width = columnWidth0;
+                }
+
+                if (detailWidth1 > columnWidth1)
+                {
+                    columnWidth1 = detailWidth1;
+                    gridHeader.ColumnDefinitions[1].Width = columnWidth1;
+                }
+
+                if (detailWidth2 > columnWidth2)
+                {
+                    columnWidth2 = detailWidth2;
+                    gridHeader.ColumnDefinitions[2].Width = columnWidth2;
+                }
+
+                if (detailWidth3 > columnWidth3)
+                {
+                    columnWidth3 = detailWidth3;
+                    gridHeader.ColumnDefinitions[3].Width = columnWidth3;
+                }
+
+                if (detailWidth4 > columnWidth4)
+                {
+                    columnWidth4 = detailWidth4;
+                    gridHeader.ColumnDefinitions[4].Width = columnWidth4;
+                }
+            }
+
+            // Data grid
+            DataTemplate dataTemplate = new DataTemplate(() =>
+            {
+                Grid gridData = new Grid
+                {
+                    Padding = new Thickness(5),
+                    ColumnDefinitions =
+                    {
+                            new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
+                            new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
+                            new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) },
+                            new ColumnDefinition { Width = new GridLength(columnWidth3, GridUnitType.Absolute) },
+                            new ColumnDefinition { Width = new GridLength(columnWidth4, GridUnitType.Absolute) }
+                    }
+                };
+
+                Label label1 = new Label { VerticalOptions = LayoutOptions.Center };
+                Label label2 = new Label { VerticalOptions = LayoutOptions.Center };
+                Label label3 = new Label { VerticalOptions = LayoutOptions.Center };
+                Label label4 = new Label { VerticalOptions = LayoutOptions.Center };
+                Label label5 = new Label { VerticalOptions = LayoutOptions.Center };
+
+                //    /// <summary>
+                //    ///
+                //    /// </summary>
+                //    /// <remarks></remarks>
+                //    public override void DesignDataGrid(DataGrid dataGridMain)
+                //    {
+
+                //      dataGridCol1.MappingName = "ProductCode";
+                //      dataGridCol1.HeaderText = "Product";
+
+                //      dataGridCol2.MappingName = "ProductUnitBC";
+                //      dataGridCol2.HeaderText = string.Empty;
+
+                //      dataGridCol3.MappingName = "UnitCode";
+                //      dataGridCol3.HeaderText = string.Empty;
+
+                //      dataGridCol4.MappingName = "ProductUnitBarCodeCode";
+                //      dataGridCol4.HeaderText = "Bar Code";
+
+                //      dataGridCol5.MappingName = "ProductUnitBarCodeModifier1";
+                //      dataGridCol5.HeaderText = string.Empty;
+
+                //    }
+
+                label1.SetBinding(Label.TextProperty, new Binding("ProductCode"));
+                label2.SetBinding(Label.TextProperty, new Binding("ProductUnitBC"));
+                label3.SetBinding(Label.TextProperty, new Binding("UnitCode"));
+                label4.SetBinding(Label.TextProperty, new Binding("ProductUnitBarCodeCode"));
+                label5.SetBinding(Label.TextProperty, new Binding("ProductUnitBarCodeModifier1"));
+
+                gridData.Children.Add(label1);
+                gridData.Children.Add(label2);
+                gridData.Children.Add(label3);
+                gridData.Children.Add(label4);
+                gridData.Children.Add(label5);
+
+                Grid.SetColumn(label1, 0);
+                Grid.SetColumn(label2, 1);
+                Grid.SetColumn(label3, 2);
+                Grid.SetColumn(label4, 3);
+                Grid.SetColumn(label5, 4);
+
+                return new ViewCell { View = gridData };
+            });
+
+            dataGridMainActivity.ItemTemplate = dataTemplate;
 
             return observableCollection;
         }
-                
-        public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity)
-        {
-            // TODO: Design Grid
-            throw new NotImplementedException();
-        }
-
-        //    /// <summary>
-        //    ///
-        //    /// </summary>
-        //    /// <remarks></remarks>
-        //    public override void DesignDataGrid(DataGrid dataGridMain)
-        //    {
-        //      if (dataGridMain.TableStyles.Count > 0)
-        //      {
-        //        dataGridMain.TableStyles.Clear();
-        //      }
-
-        //      DataGridTableStyle dataGridStyle = new DataGridTableStyle();
-        //      dataGridStyle.MappingName = this.MainGridMappingName;
-
-        //      DataGridTextBoxColumn dataGridCol1 = new DataGridTextBoxColumn();
-        //      dataGridCol1.MappingName = "ProductCode";
-        //#if MULTILANGUAGE
-        //      dataGridCol1.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Productz);
-        //#else
-        //      dataGridCol1.HeaderText = "Product";
-        //#endif
-        //      dataGridCol1.Width = 65;
-        //      dataGridStyle.GridColumnStyles.Add(dataGridCol1);
-
-        //      DataGridTextBoxColumn dataGridCol2 = new DataGridTextBoxColumn();
-        //      dataGridCol2.MappingName = "ProductUnitBC";
-        //      dataGridCol2.HeaderText = string.Empty;
-        //      dataGridCol2.Width = 12;
-        //      dataGridStyle.GridColumnStyles.Add(dataGridCol2);
-
-        //      DataGridTextBoxColumn dataGridCol3 = new DataGridTextBoxColumn();
-        //      dataGridCol3.MappingName = "UnitCode";
-        //      dataGridCol3.HeaderText = string.Empty;
-        //      dataGridCol3.Width = 22;
-        //      dataGridStyle.GridColumnStyles.Add(dataGridCol3);
-
-        //      DataGridTextBoxColumn dataGridCol4 = new DataGridTextBoxColumn();
-        //      dataGridCol4.MappingName = "ProductUnitBarCodeCode";
-        //#if MULTILANGUAGE
-        //      dataGridCol4.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.BarCodez);
-        //#else
-        //      dataGridCol4.HeaderText = "Bar Code";
-        //#endif
-        //      dataGridCol4.Width = 130;
-        //      dataGridStyle.GridColumnStyles.Add(dataGridCol4);
-
-        //      DataGridTextBoxColumn dataGridCol5 = new DataGridTextBoxColumn();
-        //      dataGridCol5.MappingName = "ProductUnitBarCodeModifier1";
-        //      dataGridCol5.HeaderText = string.Empty;
-        //      dataGridCol5.Width = 12;
-        //      dataGridStyle.GridColumnStyles.Add(dataGridCol5);
-
-        //      dataGridMain.TableStyles.Add(dataGridStyle);
-        //      dataGridMain.RowHeadersVisible = false;
-        //      dataGridMain.ColumnHeadersVisible = true;
-        //    }
 
         /// <summary>
         ///

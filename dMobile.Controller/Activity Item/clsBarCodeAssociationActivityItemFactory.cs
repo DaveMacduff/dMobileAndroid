@@ -1,10 +1,10 @@
 namespace dMobile.Controller
 {
-  public class BarCodeActItemFactory : ActItemFactory
-  {
-    public override ActItem GetActItem(Activity activity)
+    public class BarCodeActItemFactory : ActItemFactory
     {
-      return new BarCodeActItem(activity);
+        public override ActItem GetActItem(Activity activity)
+        {
+            return new BarCodeActItem(activity);
+        }
     }
-  }
 }

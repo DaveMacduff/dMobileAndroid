@@ -10,6 +10,7 @@ namespace dMobile.Controller
     using System.Xml.Linq;
     using dMobile.Bedrock;
     using dMobile.GroundWork;
+    using dMobile.Resources.Services;
     using dMobile.Resources.Types;
     using Xamarin.Forms;
 
@@ -257,8 +258,55 @@ namespace dMobile.Controller
 
         public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity)
         {
-            // TODO: Calculate column widths
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+
+            foreach (DataRow row in this.DataViewItems.ToTable().Rows)
+            {
+                ReceiveItem receiveItem = new ReceiveItem
+                {
+                    ActivityItemRefno = Convert.ToInt32(row["ActivityItemRefno"] != DBNull.Value ? row["ActivityItemRefno"] : null),
+                    ActivityItemReceivingFKRefno = Convert.ToInt32(row["ActivityItemReceivingFKRefno"]!= DBNull.Value ? row["ActivityItemReceivingFKRefno"] : null),
+                    ActivityItemReceivingStringFKRefno = Convert.ToString(row["ActivityItemReceivingStringFKRefno"]!= DBNull.Value ? row["ActivityItemReceivingStringFKRefno"] : null),
+                    ProductUnitRefno = Convert.ToInt32(row["ProductUnitRefno"]!= DBNull.Value ? row["ProductUnitRefno"] : null),
+                    ProductRefno = Convert.ToInt32(row["ProductRefno"]!= DBNull.Value ? row["ProductRefno"] : null),
+                    ProductCode = Convert.ToString(row["ProductCode"]!= DBNull.Value ? row["ProductCode"] : null),
+                    ProductDescription = Convert.ToString(row["ProductDescription"]!= DBNull.Value ? row["ProductDescription"] : null),
+                    UnitCode = Convert.ToString(row["UnitCode"]!= DBNull.Value ? row["UnitCode"] : null),
+                    ProductUnitBC = Convert.ToString(row["ProductUnitBC"]!= DBNull.Value ? row["ProductUnitBC"] : null),
+                    ProductUnitSizeDescription = Convert.ToString(row["ProductUnitSizeDescription"]!= DBNull.Value ? row["ProductUnitSizeDescription"] : null),
+                    ActivityItemReceivingQuantityOrdered = Convert.ToDecimal(row["ActivityItemReceivingQuantityOrdered"]!= DBNull.Value ? row["ActivityItemReceivingQuantityOrdered"] : null),
+                    ActivityItemReceivingBaseQuantityOrdered = Convert.ToDecimal(row["ActivityItemReceivingBaseQuantityOrdered"]!= DBNull.Value ? row["ActivityItemReceivingBaseQuantityOrdered"] : null),
+                    ActivityItemReceivingWeightQuantityOrdered = Convert.ToDecimal(row["ActivityItemReceivingWeightQuantityOrdered"]!= DBNull.Value ? row["ActivityItemReceivingWeightQuantityOrdered"] : null),
+                    ActivityItemReceivingQuantityReceived = Convert.ToDecimal(row["ActivityItemReceivingQuantityReceived"]!= DBNull.Value ? row["ActivityItemReceivingQuantityReceived"] : null),
+                    ActivityItemReceivingBaseQuantityReceived = Convert.ToDecimal(row["ActivityItemReceivingBaseQuantityReceived"]!= DBNull.Value ? row["ActivityItemReceivingBaseQuantityReceived"] : null),
+                    ActivityItemReceivingWeightQuantityReceived = Convert.ToDecimal(row["ActivityItemReceivingWeightQuantityReceived"]!= DBNull.Value ? row["ActivityItemRefno"] : null),
+                    ActivityItemReceivingVendorProductUnitCode = Convert.ToString(row["ActivityItemReceivingVendorProductUnitCode"]!= DBNull.Value ? row["ActivityItemReceivingVendorProductUnitCode"] : null),
+                    ActivityItemReceivingDescription = Convert.ToString(row["ActivityItemReceivingDescription"]!= DBNull.Value ? row["ActivityItemReceivingDescription"] : null),
+                    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"]!= DBNull.Value ? row["LocationMapRefno"] : null),
+                    LocationCode = Convert.ToInt32(row["LocationCode"]!= DBNull.Value ? row["LocationCode"] : null),
+                    LocationName = Convert.ToString(row["LocationName"]!= DBNull.Value ? row["LocationName"] : null),
+                    ActivityItemReceivingQuantityReceivedToDate = Convert.ToDecimal(row["ActivityItemReceivingQuantityReceivedToDate"]!= DBNull.Value ? row["ActivityItemReceivingQuantityReceivedToDate"] : null),
+                    ActivityItemReceivingWeightQuantityReceivedToDate = Convert.ToDecimal(row["ActivityItemReceivingWeightQuantityReceivedToDate"]!= DBNull.Value ? row["ActivityItemReceivingWeightQuantityReceivedToDate"] : null),
+                    IsActivityItemReceivingCommentString = !string.IsNullOrWhiteSpace(Convert.ToString(row["IsActivityItemReceivingComment"])) ? "X" : ""
+                };
+
+                observableCollection.Add(receiveItem);
+            }
+
+            // TODO: Resource strings
+            Label labelIsActivityItemReceivingCommentReceiving = new Label { Text = "C", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
+            Label labelProductCodeReceiving = new Label { Text = "Product ID", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
+            Label labelProductUnitBCReceiving = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
+            Label labelUnitCodeReceiving = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
+            Label labelActivityItemReceivingQuantityOrderedReceiving = new Label { Text = "Ordered", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
+            Label labelActivityItemReceivingQuantityReceivedReceiving = new Label { Text = "Received", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
+
+            double columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelIsActivityItemReceivingCommentReceiving.Text);
+            double columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelProductCodeReceiving.Text);
+            double columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelProductUnitBCReceiving.Text);
+            double columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelUnitCodeReceiving.Text);
+            double columnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelActivityItemReceivingQuantityOrderedReceiving.Text);
+            double columnWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(labelActivityItemReceivingQuantityReceivedReceiving.Text);
 
             // Header grid
             Grid gridHeaderReceiving = new Grid
@@ -266,23 +314,16 @@ namespace dMobile.Controller
                 Padding = new Thickness(5),
                 ColumnDefinitions =
                 {
-                    new ColumnDefinition { Width = GridLength.Star },
-                    new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) },
-                    new ColumnDefinition { Width = GridLength.Star },
-                    new ColumnDefinition { Width = GridLength.Star },
-                    new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) },
-                    new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) }
+                    new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth3, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth4, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth5, GridUnitType.Absolute) }
                 }
             };
 
             gridHeaderReceiving.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
-
-            Label labelIsActivityItemReceivingCommentReceiving = new Label { Text = "C", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
-            Label labelProductCodeReceiving = new Label { Text = "Product ID", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
-            Label labelProductUnitBCReceiving = new Label { Text = " ", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
-            Label labelUnitCodeReceiving = new Label { Text = " ", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
-            Label labelActivityItemReceivingQuantityOrderedReceiving = new Label { Text = "Ordered", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
-            Label labelActivityItemReceivingQuantityReceivedReceiving = new Label { Text = "Received", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
 
             gridHeaderReceiving.Children.Add(labelIsActivityItemReceivingCommentReceiving);
             gridHeaderReceiving.Children.Add(labelProductCodeReceiving);
@@ -302,6 +343,52 @@ namespace dMobile.Controller
 
             dataGridMainActivityHeader.Children.Add(gridHeaderReceiving);
 
+            foreach (ReceiveItem receiveItem in observableCollection)
+            {
+                double detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(receiveItem.IsActivityItemReceivingCommentString);
+                double detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(receiveItem.ProductCode);
+                double detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(receiveItem.ProductUnitBC);
+                double detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(receiveItem.UnitCode);
+                double detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", receiveItem.ActivityItemReceivingQuantityOrdered));
+                double detailWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", receiveItem.ActivityItemReceivingQuantityReceived));
+
+                if (detailWidth0 > columnWidth0)
+                {
+                    columnWidth0 = detailWidth0;
+                    gridHeaderReceiving.ColumnDefinitions[0].Width = columnWidth0;
+                }
+
+                if (detailWidth1 > columnWidth1)
+                {
+                    columnWidth1 = detailWidth1;
+                    gridHeaderReceiving.ColumnDefinitions[1].Width = columnWidth1;
+                }
+
+                if (detailWidth2 > columnWidth2)
+                {
+                    columnWidth2 = detailWidth2;
+                    gridHeaderReceiving.ColumnDefinitions[2].Width = columnWidth2;
+                }
+
+                if (detailWidth3 > columnWidth3)
+                {
+                    columnWidth3 = detailWidth3;
+                    gridHeaderReceiving.ColumnDefinitions[3].Width = columnWidth3;
+                }
+
+                if (detailWidth4 > columnWidth4)
+                {
+                    columnWidth4 = detailWidth4;
+                    gridHeaderReceiving.ColumnDefinitions[4].Width = columnWidth4;
+                }
+
+                if (detailWidth5 > columnWidth5)
+                {
+                    columnWidth5 = detailWidth5;
+                    gridHeaderReceiving.ColumnDefinitions[5].Width = columnWidth5;
+                }
+            }
+
             // Data grid
             DataTemplate dataTemplateReceiving = new DataTemplate(() =>
             {
@@ -310,12 +397,12 @@ namespace dMobile.Controller
                     Padding = new Thickness(5),
                     ColumnDefinitions =
                     {
-                        new ColumnDefinition { Width = GridLength.Star },
-                        new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) },
-                        new ColumnDefinition { Width = GridLength.Star },
-                        new ColumnDefinition { Width = GridLength.Star },
-                        new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) },
-                        new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) }
+                        new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth3, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth4, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth5, GridUnitType.Absolute) }
                     }
                 };
 
@@ -351,40 +438,6 @@ namespace dMobile.Controller
             });
 
             dataGridMainActivity.ItemTemplate = dataTemplateReceiving;
-            observableCollection.Clear();
-
-            foreach (DataRow row in this.DataViewItems.ToTable().Rows)
-            {
-                ReceiveItem receiveItem = new ReceiveItem
-                {
-                    ActivityItemRefno = Convert.ToInt32(row["ActivityItemRefno"]),
-                    ActivityItemReceivingFKRefno = Convert.ToInt32(row["ActivityItemReceivingFKRefno"]),
-                    ActivityItemReceivingStringFKRefno = Convert.ToString(row["ActivityItemReceivingStringFKRefno"]),
-                    ProductUnitRefno = Convert.ToInt32(row["ProductUnitRefno"]),
-                    ProductRefno = Convert.ToInt32(row["ProductRefno"]),
-                    ProductCode = Convert.ToString(row["ProductCode"]),
-                    ProductDescription = Convert.ToString(row["ProductDescription"]),
-                    UnitCode = Convert.ToString(row["UnitCode"]),
-                    ProductUnitBC = Convert.ToString(row["ProductUnitBC"]),
-                    ProductUnitSizeDescription = Convert.ToString(row["ProductUnitSizeDescription"]),
-                    ActivityItemReceivingQuantityOrdered = Convert.ToDecimal(row["ActivityItemReceivingQuantityOrdered"]),
-                    ActivityItemReceivingBaseQuantityOrdered = Convert.ToDecimal(row["ActivityItemReceivingBaseQuantityOrdered"]),
-                    ActivityItemReceivingWeightQuantityOrdered = Convert.ToDecimal(row["ActivityItemReceivingWeightQuantityOrdered"]),
-                    ActivityItemReceivingQuantityReceived = Convert.ToDecimal(row["ActivityItemReceivingQuantityReceived"]),
-                    ActivityItemReceivingBaseQuantityReceived = Convert.ToDecimal(row["ActivityItemReceivingBaseQuantityReceived"]),
-                    ActivityItemReceivingWeightQuantityReceived = Convert.ToDecimal(row["ActivityItemReceivingWeightQuantityReceived"]),
-                    ActivityItemReceivingVendorProductUnitCode = Convert.ToString(row["ActivityItemReceivingVendorProductUnitCode"]),
-                    ActivityItemReceivingDescription = Convert.ToString(row["ActivityItemReceivingDescription"]),
-                    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"]),
-                    LocationCode = Convert.ToInt32(row["LocationCode"]),
-                    LocationName = Convert.ToString(row["LocationName"]),
-                    ActivityItemReceivingQuantityReceivedToDate = Convert.ToDecimal(row["ActivityItemReceivingQuantityReceivedToDate"]),
-                    ActivityItemReceivingWeightQuantityReceivedToDate = Convert.ToDecimal(row["ActivityItemReceivingWeightQuantityReceivedToDate"]),
-                    IsActivityItemReceivingCommentString = !string.IsNullOrWhiteSpace(Convert.ToString(row["IsActivityItemReceivingComment"])) ? "X" : "",
-                };
-
-                observableCollection.Add(receiveItem);
-            }
 
             return observableCollection;
         }

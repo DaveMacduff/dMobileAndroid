@@ -1,10 +1,10 @@
 namespace dMobile.Controller
 {
-  public class RecvActDetailFactory : ActDetailFactory
-  {
-    public override ActDetail GetActDetail(ActItem activityItem)
+    public class RecvActDetailFactory : ActDetailFactory
     {
-      return new RecvActDetail(activityItem);
+        public override ActDetail GetActDetail(ActItem activityItem)
+        {
+            return new RecvActDetail(activityItem);
+        }
     }
-  }
 }

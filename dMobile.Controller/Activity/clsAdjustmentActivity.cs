@@ -95,26 +95,7 @@ namespace dMobile.Controller
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
-            foreach (DataRow row in this.DataViewHdrs.ToTable().Rows)
-            {
-                Adjustment adjustment = new Adjustment
-                {
-                    ActivityRefno = Convert.ToInt32(row["ActivityRefno"] != DBNull.Value ? row["ActivityRefno"] : null),
-                    ActivityAdjustmentFKRefno = Convert.ToInt32(row["ActivityAdjustmentFKRefno"] != DBNull.Value ? row["ActivityAdjustmentFKRefno"] : null),
-                    ActivityAdjustmentType = Convert.ToInt32(row["ActivityAdjustmentType"] != DBNull.Value ? row["ActivityAdjustmentType"] : null),
-                    LocationMapWarehouseFKRefno = Convert.ToInt32(row["LocationMapWarehouseFKRefno"] != DBNull.Value ? row["LocationMapWarehouseFKRefno"] : null),
-                    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
-                    ActivityStatus = Convert.ToInt32(row["ActivityStatus"] != DBNull.Value ? row["ActivityStatus"] : null),
-                    ActivityAdjustmentStringFKRefno = Convert.ToString(row["ActivityAdjustmentStringFKRefno"] != DBNull.Value ? row["ActivityAdjustmentStringFKRefno"] : null),
-                    ActivityAdjustmentDescription = Convert.ToString(row["ActivityAdjustmentDescription"] != DBNull.Value ? row["ActivityAdjustmentDescription"] : null),
-                    ActivityAdjustmentTypeDescription = Convert.ToString(row["ActivityAdjustmentTypeDescription"] != DBNull.Value ? row["ActivityAdjustmentTypeDescription"] : null),
-                    LocationMapWarehouseName = Convert.ToString(row["LocationMapWarehouseName"] != DBNull.Value ? row["LocationMapWarehouseName"] : null),
-                    ActivityAdjustmentDateTime = Convert.ToDateTime(row["ActivityAdjustmentDateTime"] != DBNull.Value ? row["ActivityAdjustmentDateTime"] : null)
-                };
-
-                observableCollection.Add(adjustment);
-            }
-
+            // TODO: Resource Strings
             Label labelAdjustmentNumber = new Label { Text = "Adj #", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             Label labelAdjustmentDate = new Label { Text = "Date", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             Label labelAdjustmentDescription = new Label { Text = "Description", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
@@ -123,10 +104,13 @@ namespace dMobile.Controller
             double columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelAdjustmentNumber.Text);
             double columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelAdjustmentDate.Text);
             double columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelAdjustmentDescription.Text);
+            double dataColumnWidth0 = 0;
+            double dataColumnWidth1 = 0;
+            double dataColumnWidth2 = 0;
 
             Grid gridHeader = new Grid
             {
-                Padding = new Thickness(5),                
+                Padding = new Thickness(5),
                 ColumnDefinitions =
                 {
                     new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
@@ -149,11 +133,28 @@ namespace dMobile.Controller
 
             dataGridMainActivityHeader.Children.Add(gridHeader);
 
-            foreach (Adjustment adjustment in observableCollection)
+            foreach (DataRow row in this.DataViewHdrs.ToTable().Rows)
             {
-                double dataColumnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(adjustment.ActivityAdjustmentStringFKRefno);
-                double dataColumnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(adjustment.ActivityAdjustmentDateTime.ToString("MM/dd/yyyy")));
-                double dataColumnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(adjustment.ActivityAdjustmentDescription);
+                Adjustment adjustment = new Adjustment
+                {
+                    ActivityRefno = Convert.ToInt32(row["ActivityRefno"] != DBNull.Value ? row["ActivityRefno"] : null),
+                    ActivityAdjustmentFKRefno = Convert.ToInt32(row["ActivityAdjustmentFKRefno"] != DBNull.Value ? row["ActivityAdjustmentFKRefno"] : null),
+                    ActivityAdjustmentType = Convert.ToInt32(row["ActivityAdjustmentType"] != DBNull.Value ? row["ActivityAdjustmentType"] : null),
+                    LocationMapWarehouseFKRefno = Convert.ToInt32(row["LocationMapWarehouseFKRefno"] != DBNull.Value ? row["LocationMapWarehouseFKRefno"] : null),
+                    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
+                    ActivityStatus = Convert.ToInt32(row["ActivityStatus"] != DBNull.Value ? row["ActivityStatus"] : null),
+                    ActivityAdjustmentStringFKRefno = Convert.ToString(row["ActivityAdjustmentStringFKRefno"] != DBNull.Value ? row["ActivityAdjustmentStringFKRefno"] : null),
+                    ActivityAdjustmentDescription = Convert.ToString(row["ActivityAdjustmentDescription"] != DBNull.Value ? row["ActivityAdjustmentDescription"] : null),
+                    ActivityAdjustmentTypeDescription = Convert.ToString(row["ActivityAdjustmentTypeDescription"] != DBNull.Value ? row["ActivityAdjustmentTypeDescription"] : null),
+                    LocationMapWarehouseName = Convert.ToString(row["LocationMapWarehouseName"] != DBNull.Value ? row["LocationMapWarehouseName"] : null),
+                    ActivityAdjustmentDateTime = Convert.ToDateTime(row["ActivityAdjustmentDateTime"] != DBNull.Value ? row["ActivityAdjustmentDateTime"] : null)
+                };
+
+                observableCollection.Add(adjustment);
+
+                dataColumnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(adjustment.ActivityAdjustmentStringFKRefno);
+                dataColumnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(adjustment.ActivityAdjustmentDateTime.ToString("MM/dd/yyyy")));
+                dataColumnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(adjustment.ActivityAdjustmentDescription);
 
                 if (dataColumnWidth0 > columnWidth0)
                 {

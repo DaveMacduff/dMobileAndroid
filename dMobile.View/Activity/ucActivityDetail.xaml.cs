@@ -1052,7 +1052,6 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         private void txtSearchDetail_GotFocus(object sender, EventArgs e)
         {
-            // TODO: Text selection 
             //this.txtSearchDetail.SelectAll();
         }
 

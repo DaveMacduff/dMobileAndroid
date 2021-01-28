@@ -564,9 +564,10 @@ namespace dMobile.View.Activity
 
             this.ItemsList.Clear();
 
-            if (this.ActDetail.DataViewDetails.Count > 0)
+            if (this.ActDetail.DataViewDetails.Count > 0 && this.DataGridMainActivityItemsList.Count > 0)
             {
                 this.ActDetail.SelectDetail(0);
+                this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[0];
             }
 
             this.ScannerEnable();

@@ -1,10 +1,10 @@
 namespace dMobile.Controller
 {
-  public class ConvertUnitActItemFactory : ActItemFactory
-  {
-    public override ActItem GetActItem(Activity activity)
+    public class ConvertUnitActItemFactory : ActItemFactory
     {
-      return new ConvertUnitActItem(activity);
+        public override ActItem GetActItem(Activity activity)
+        {
+            return new ConvertUnitActItem(activity);
+        }
     }
-  }
 }

@@ -1,10 +1,10 @@
 namespace dMobile.Controller
 {
-  public class InventoryInquiryActDetailFactory : ActDetailFactory
-  {
-    public override ActDetail GetActDetail(ActItem actItem)
+    public class InventoryInquiryActDetailFactory : ActDetailFactory
     {
-      return new InventoryInquiryActDetail(actItem);
+        public override ActDetail GetActDetail(ActItem actItem)
+        {
+            return new InventoryInquiryActDetail(actItem);
+        }
     }
-  }
 }

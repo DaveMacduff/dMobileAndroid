@@ -93,7 +93,8 @@ namespace dMobile.Controller
 
                 observableCollection.Add(transfer);
             }
-            
+
+            // TODO: Resource Strings
             Label labelTransferNumberHeader = new Label { Text = "Transfer #", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             Label labelWhsHeader = new Label { Text = "Whs", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             Label labelDateHeader = new Label { Text = "Date", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };

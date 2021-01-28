@@ -9,6 +9,7 @@ namespace dMobile.Bedrock
     using System.Xml;
     using System.Xml.Linq;
     using System.Xml.Serialization;
+    using Xamarin.Forms;
 
     [Serializable]
     public class ContactLogin : IContactLoginEventPublisher, ISysSocketEventListener
@@ -399,21 +400,15 @@ namespace dMobile.Bedrock
             {
                 if (this.OnContactLoginStatusOut != null)
                 {
-#if MULTILANGUAGE
-          msgEventArg.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.SocketExceptionOccurredz);
-#else
+                    // TODO: Resource strings
                     msgEventArg.StatusOutMsg = "Socket exception occurred";
-#endif
                     this.OnContactLoginStatusOut(this, msgEventArg);
                 }
 
                 if (this.OnContactLoginStatusOut != null)
                 {
-#if MULTILANGUAGE
-          msgEventArg.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.RequestForContactLogInFailed);
-#else
+                    // TODO: Resource strings
                     msgEventArg.StatusOutMsg = "Request for contact log in failed";
-#endif
                     this.OnContactLoginStatusOut(this, msgEventArg);
                 }
 
@@ -423,11 +418,8 @@ namespace dMobile.Bedrock
             {
                 if (this.OnContactLoginStatusOut != null)
                 {
-#if MULTILANGUAGE
-          msgEventArg.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.RequestForContactLogInFailed);
-#else
+                    // TODO: Resource strings
                     msgEventArg.StatusOutMsg = "Request for contact log in failed";
-#endif
                     this.OnContactLoginStatusOut(this, msgEventArg);
                 }
 
@@ -595,13 +587,8 @@ namespace dMobile.Bedrock
                         XmlDocument docError = new XmlDocument();
                         docError.LoadXml(reqData);
 
-                        // TODO: Logging
-                        //#if MULTILANGUAGE
-                        //            MessageBox.Show(Translator.GetInstance().Translate(TranslatorVocabulary.SubmitContactLogInError) + Strings.Chr(13) +
-                        //#else
-                        //                        MessageBox.Show("Submit contact log in error" + Strings.Chr(13) +
-                        //#endif
-                        // docError.DocumentElement["detail"].InnerText);
+                        // TODO: Resource Strings
+                        Application.Current.MainPage.DisplayAlert("Login Error", "Submit contact login error" + Environment.NewLine + docError.DocumentElement["detail"].InnerText, "OK");
                         docError = null;
                     }
                 }
@@ -680,13 +667,8 @@ namespace dMobile.Bedrock
                         docError.LoadXml(reqData);
                         string errorDetail = docError.DocumentElement["detail"].InnerText;
 
-                        // TODO: Logging
-                        //#if MULTILANGUAGE
-                        //            MessageBox.Show(Translator.GetInstance().Translate(TranslatorVocabulary.SubmitContactLogOutError) + Strings.Chr(13) +
-                        //#else
-                        //                        MessageBox.Show("Submit contact log out error" + Strings.Chr(13) +
-                        //#endif
-                        // errorDetail);
+                        // TODO: Resource Strings
+                        Application.Current.MainPage.DisplayAlert("Logout Error", "Submit contact logout error" + Environment.NewLine + errorDetail, "OK");
                         docError = null;
                     }
                 }

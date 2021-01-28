@@ -1584,7 +1584,6 @@ namespace dMobile.Bedrock
 
                 if (this.OnBarCodeSettingsStatusOut != null)
                 {
-
                     // TODO: Resource strings
                     msgEventArg.StatusOutMsg = "Seeding bar code settings complete.";
                     this.OnBarCodeSettingsStatusOut(this, msgEventArg);
@@ -1718,11 +1717,8 @@ namespace dMobile.Bedrock
                 {
                     if (this.OnBarCodeSettingsStatusOut != null)
                     {
-#if MULTILANGUAGE
-            msgEventArg.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.ReadingReceivedData);
-#else
+                        // TODO: Resource strings
                         msgEventArg.StatusOutMsg = "Reading received data.";
-#endif
                         this.OnBarCodeSettingsStatusOut(this, msgEventArg);
                     }
 
@@ -1730,11 +1726,8 @@ namespace dMobile.Bedrock
 
                     if (this.OnBarCodeSettingsStatusOut != null)
                     {
-#if MULTILANGUAGE
-            msgEventArg.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.SavingBarCodeSettings);
-#else
+                        // TODO: Resource strings
                         msgEventArg.StatusOutMsg = "Saving bar code settings.";
-#endif
                         this.OnBarCodeSettingsStatusOut(this, msgEventArg);
                     }
 
@@ -1744,11 +1737,8 @@ namespace dMobile.Bedrock
 
                         if (this.OnBarCodeSettingsStatusOut != null)
                         {
-#if MULTILANGUAGE
-              msgEventArg.StatusOutMsg = string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.Records), progMax);
-#else
+                            // TODO: Resource strings
                             msgEventArg.StatusOutMsg = string.Format("Records {0}.", progMax);
-#endif
                             this.OnBarCodeSettingsStatusOut(this, msgEventArg);
                         }
 
@@ -1960,11 +1950,8 @@ namespace dMobile.Bedrock
 
                     if (this.OnBarCodeSettingsStatusOut != null)
                     {
-#if MULTILANGUAGE
-            msgEventArg.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.SavingBarCodeSettingsComplete);
-#else
+                        // TODO: Resource strings
                         msgEventArg.StatusOutMsg = "Saving bar code settings complete.";
-#endif
                         this.OnBarCodeSettingsStatusOut(this, msgEventArg);
                     }
                 }
@@ -1973,19 +1960,13 @@ namespace dMobile.Bedrock
             {
                 if (this.OnBarCodeSettingsStatusOut != null)
                 {
-#if MULTILANGUAGE
-          msgEventArg.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.SavingBarCodeSettingsFailed);
-#else
+                    // TODO: Resource strings
                     msgEventArg.StatusOutMsg = "Saving bar code settings failed.";
-#endif
                     this.OnBarCodeSettingsStatusOut(this, msgEventArg);
                 }
 
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.SavingBarCodeSettingsFailed), ex);
-#else
+                // TODO: Resource strings
                 throw new Exception("Saving bar code settings failed.", ex);
-#endif
             }
         }
 

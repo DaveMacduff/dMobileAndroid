@@ -238,29 +238,28 @@ namespace dMobile.GroundWork
 
                                 isSchemeVarXRef = false;
 
-                                // TODO: Uncomment SysEnv.RefreshOpt.RefreshDataChangesOnly
-                                //if (SysEnv.RefreshOpt.RefreshDataChangesOnly)
-                                //{
-
-                                //cmndSchemeVarXRef.IndexName = "PK_ProductSchemeVariantXRefOnProductSchemeRefnoAndProductSchemeVariantRefno";
-
-                                //cmndSchemeVarXRef.CommandText = "tProductSchemeVariantXRef";
-                                //cmndSchemeVarXRef.CommandType = CommandType.TableDirect;
-                                //cmndSchemeVarXRef.IndexName = "PK_ProductSchemeVariantXRefOnProductSchemeRefnoAndProductSchemeVariantRefno";
-                                cmndSchemeVarXRef.Parameters.Add(new SQLiteParameter("@productSchemeRefno", schemeRefno));
-                                cmndSchemeVarXRef.Parameters.Add(new SQLiteParameter("@productSchemeVariantRefno", schemeVarRefno));
-
-                                using (SQLiteDataReader drSchemeVarXRef = cmndSchemeVarXRef.ExecuteReader())
+                                if (SysEnv.RefreshOpt.RefreshDataChangesOnly)
                                 {
-                                    //if (drSchemeVarXRef.Seek(DbSeekOptions.FirstEqual, new object[] { schemeRefno, schemeVarRefno }))
-                                    if (drSchemeVarXRef.Read())
-                                    {
-                                        isSchemeVarXRef = true;
-                                    }
 
-                                    drSchemeVarXRef.Close();
+                                    //cmndSchemeVarXRef.IndexName = "PK_ProductSchemeVariantXRefOnProductSchemeRefnoAndProductSchemeVariantRefno";
+
+                                    //cmndSchemeVarXRef.CommandText = "tProductSchemeVariantXRef";
+                                    //cmndSchemeVarXRef.CommandType = CommandType.TableDirect;
+                                    //cmndSchemeVarXRef.IndexName = "PK_ProductSchemeVariantXRefOnProductSchemeRefnoAndProductSchemeVariantRefno";
+                                    cmndSchemeVarXRef.Parameters.Add(new SQLiteParameter("@productSchemeRefno", schemeRefno));
+                                    cmndSchemeVarXRef.Parameters.Add(new SQLiteParameter("@productSchemeVariantRefno", schemeVarRefno));
+
+                                    using (SQLiteDataReader drSchemeVarXRef = cmndSchemeVarXRef.ExecuteReader())
+                                    {
+                                        //if (drSchemeVarXRef.Seek(DbSeekOptions.FirstEqual, new object[] { schemeRefno, schemeVarRefno }))
+                                        if (drSchemeVarXRef.Read())
+                                        {
+                                            isSchemeVarXRef = true;
+                                        }
+
+                                        drSchemeVarXRef.Close();
+                                    }
                                 }
-                                //}
 
                                 if (!isSchemeVarXRef)
                                 {

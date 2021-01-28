@@ -276,7 +276,7 @@ namespace dMobile.Bedrock
                             this.OnSysSocketStatusOut(this, sockEventArgs);
                         }
 
-                        port = port + 1;
+                        port += 1;
 
                         if (port > this.BasePort + this.MaxPorts - 1)
                         {
@@ -308,7 +308,7 @@ namespace dMobile.Bedrock
                             this.OnSysSocketStatusOut(this, sockEventArgs);
                         }
 
-                        port = port + 1;
+                        port += 1;
                         if (port > this.BasePort + this.MaxPorts - 1)
                         {
                             port = this.BasePort;
@@ -326,7 +326,7 @@ namespace dMobile.Bedrock
                             this.OnSysSocketStatusOut(this, sockEventArgs);
                         }
 
-                        port = port + 1;
+                        port += 1;
                         if (port > this.BasePort + this.MaxPorts - 1)
                         {
                             port = this.BasePort;
@@ -390,11 +390,8 @@ namespace dMobile.Bedrock
 
             if (this.OnSysSocketStatusOut != null)
             {
-#if MULTILANGUAGE
-        sockEventArgs.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.GettingIpHostEntry);
-#else
+                // TODO: Resource Strings
                 sockEventArgs.StatusOutMsg = "Getting IP host entry";
-#endif
                 this.OnSysSocketStatusOut(this, sockEventArgs);
             }
 
@@ -413,11 +410,8 @@ namespace dMobile.Bedrock
                         ipAddress = ipAddressLoopVariable;
                         if (this.OnSysSocketStatusOut != null)
                         {
-#if MULTILANGUAGE
-              sockEventArgs.StatusOutMsg = string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.IpAddressz), ipAddress.ToString());
-#else
+                            // TODO: Resource Strings
                             sockEventArgs.StatusOutMsg = string.Format("IP address {0} ", ipAddress.ToString());
-#endif
                             this.OnSysSocketStatusOut(this, sockEventArgs);
                         }
 
@@ -427,11 +421,8 @@ namespace dMobile.Bedrock
 
                         if (this.OnSysSocketStatusOut != null)
                         {
-#if MULTILANGUAGE
-              sockEventArgs.StatusOutMsg = string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.ConnectionAttemptPort), attempt, port);
-#else
+                            // TODO: Resource Strings
                             sockEventArgs.StatusOutMsg = string.Format("Connection attempt {0} port {1}.", attempt, port);
-#endif
                             this.OnSysSocketStatusOut(this, sockEventArgs);
                         }
 
@@ -442,11 +433,8 @@ namespace dMobile.Bedrock
                             socket = tempSocket;
                             if (this.OnSysSocketStatusOut != null)
                             {
-#if MULTILANGUAGE
-                sockEventArgs.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.ConnectionSuccessful);
-#else
+                                // TODO: Resource Strings
                                 sockEventArgs.StatusOutMsg = "Connection successful.";
-#endif
                                 this.OnSysSocketStatusOut(this, sockEventArgs);
                             }
                         }
@@ -456,15 +444,12 @@ namespace dMobile.Bedrock
                     {
                         if (this.OnSysSocketStatusOut != null)
                         {
-#if MULTILANGUAGE
-              sockEventArgs.StatusOutMsg = string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.ConnectionAttemptFailedOnPort), port);
-#else
+                            // TODO: Resource Strings
                             sockEventArgs.StatusOutMsg = string.Format("Connection attempt failed on port {0}.", port);
-#endif
                             this.OnSysSocketStatusOut(this, sockEventArgs);
                         }
 
-                        port = port + 1;
+                        port += 1;
                         if (port > this.BasePort + this.MaxPorts - 1)
                         {
                             port = this.BasePort;
@@ -487,17 +472,16 @@ namespace dMobile.Bedrock
                     if (ex.ErrorCode == 10060)
                     {
                         exConn = ex;
+
                         if (this.OnSysSocketStatusOut != null)
                         {
-#if MULTILANGUAGE
-              sockEventArgs.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.ConnectionAttemptTimedOut);
-#else
+                            // TODO: Resource Strings
                             sockEventArgs.StatusOutMsg = "Connection attempt timed out.";
-#endif
                             this.OnSysSocketStatusOut(this, sockEventArgs);
                         }
 
-                        port = port + 1;
+                        port += 1;
+
                         if (port > this.BasePort + this.MaxPorts - 1)
                         {
                             port = this.BasePort;
@@ -508,17 +492,16 @@ namespace dMobile.Bedrock
                     else if (ex.ErrorCode == 10061)
                     {
                         exConn = ex;
+
                         if (this.OnSysSocketStatusOut != null)
                         {
-#if MULTILANGUAGE
-              sockEventArgs.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.ConnectionAttemptRefused);
-#else
+                            // TODO: Resource Strings
                             sockEventArgs.StatusOutMsg = "Connection attempt refused.";
-#endif
                             this.OnSysSocketStatusOut(this, sockEventArgs);
                         }
 
-                        port = port + 1;
+                        port += 1;
+
                         if (port > this.BasePort + this.MaxPorts - 1)
                         {
                             port = this.BasePort;
@@ -533,31 +516,22 @@ namespace dMobile.Bedrock
                         // Raised multiple events to keep message size down
                         if (this.OnSysSocketStatusOut != null)
                         {
-#if MULTILANGUAGE
-              sockEventArgs.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.SocketExceptionOccurred);
-#else
+                            // TODO: Resource Strings
                             sockEventArgs.StatusOutMsg = "Socket exception occurred.";
-#endif
                             this.OnSysSocketStatusOut(this, sockEventArgs);
                         }
 
                         if (this.OnSysSocketStatusOut != null)
                         {
-#if MULTILANGUAGE
-              sockEventArgs.StatusOutMsg = string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.Codezzz), ex.ErrorCode);
-#else
+                            // TODO: Resource Strings
                             sockEventArgs.StatusOutMsg = string.Format("Code {0}.", ex.ErrorCode);
-#endif
                             this.OnSysSocketStatusOut(this, sockEventArgs);
                         }
 
                         if (this.OnSysSocketStatusOut != null)
                         {
-#if MULTILANGUAGE
-              sockEventArgs.StatusOutMsg = Translator.GetInstance().Translate(TranslatorVocabulary.Msg) + ex.Message;
-#else
+                            // TODO: Resource Strings
                             sockEventArgs.StatusOutMsg = "Msg " + ex.Message;
-#endif
                             this.OnSysSocketStatusOut(this, sockEventArgs);
                         }
 

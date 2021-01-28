@@ -1,10 +1,10 @@
 namespace dMobile.Controller
 {
-  public class TicketByProdActItemFactory : ActItemFactory
-  {
-    public override ActItem GetActItem(Activity activity)
+    public class TicketByProdActItemFactory : ActItemFactory
     {
-      return new TicketByProdActItem(activity);
+        public override ActItem GetActItem(Activity activity)
+        {
+            return new TicketByProdActItem(activity);
+        }
     }
-  }
 }

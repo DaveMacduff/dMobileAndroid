@@ -1029,7 +1029,6 @@ namespace dMobile.View
         /// <param name="e"></param>
         private async void PictureBoxLogo_DoubleClick(object sender, EventArgs e)
         {
-            // TODO: Add logo
             if (this.IsEnableAllModuleBypassLicense)
             {
                 //this.txtLoginPassword.BackColor = SystemColors.Window;

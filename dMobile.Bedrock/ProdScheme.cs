@@ -125,11 +125,8 @@ namespace dMobile.Bedrock
             {
                 if (string.IsNullOrEmpty(this.extra1Caption))
                 {
-#if MULTILANGUAGE
-          this.extra1Caption = Translator.GetInstance().Translate(TranslatorVocabulary.Extrazzzz);
-#else
+                    // TODO: Resource Strings
                     this.extra1Caption = "Extra 1";
-#endif
                 }
 
                 return this.extra1Caption;

@@ -984,7 +984,7 @@ namespace dMobile.View.Options
 
                                 if (this.SubmitBatchSettings.eActivitySubType == SysCommon.ActSubTypes.BarCodeAssociation)
                                 {
-                                    SysCommon.BarCodeSymbologies i = (SysCommon.BarCodeSymbologies)actItem.DataViewItems[itemIdx]["ProductUnitBarCodeSymbologyEnum"];
+                                    SysCommon.BarCodeSymbologies i = (SysCommon.BarCodeSymbologies)Convert.ToInt32(actItem.DataViewItems[itemIdx]["ProductUnitBarCodeSymbologyEnum"]);
                                     string symbologyPrefix = SysCommon.GetSymbologyPrefixFromSymbologyEnum(i);
 
                                     XDocument xmlParams = XDocument.Parse(

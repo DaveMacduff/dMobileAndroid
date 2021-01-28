@@ -633,7 +633,6 @@ namespace dMobile.View.Activity
 
                 this.Activity.DataViewHdrs.RowFilter = filter;
 
-                // TODO: search
                 if (!string.IsNullOrEmpty(this.txtSearchHdr.Text))
                 {
                     this.Activity.Search(txtSearchHdr.Text);

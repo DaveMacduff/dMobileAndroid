@@ -44,8 +44,7 @@
             {
                 this.SysEnv = SysEnvironment.GetInstance();
             }
-
-            // TODO: Add numbers to resources?
+            
             this.cmdPurchaseOrders.Text = "1) " + Resource.ReceivingAndPutAway;
             this.cmdSalesOrders.Text = "2) " + Resource.SalesOrders;
             this.cmdInventory.Text = "3) " + Resource.Inventory;

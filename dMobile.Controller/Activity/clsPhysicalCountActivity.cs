@@ -8,6 +8,7 @@ namespace dMobile.Controller
     using System.Xml.Linq;
     using dMobile.Bedrock;
     using dMobile.GroundWork;
+    using dMobile.Resources.Services;
     using dMobile.Resources.Types;
     using Xamarin.Forms;
 
@@ -54,26 +55,32 @@ namespace dMobile.Controller
 
         public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity)
         {
-            // TODO: Calculate column widths
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
+
+            // TODO: Resource Strings
+            Label labelPhysicalCountNumber = new Label { Text = "Count #", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            Label labelPhysicalCountDate = new Label { Text = "Date", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            Label labelPhysicalCountType = new Label { Text = "Count Type", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+
+            double columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPhysicalCountNumber.Text);
+            double columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPhysicalCountDate.Text);
+            double columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPhysicalCountType.Text);
+            double dataColumnWidth0 = 0;
+            double dataColumnWidth1 = 0;
+            double dataColumnWidth2 = 0;
 
             Grid gridHeaderPhysicalCount = new Grid
             {
-                Padding = new Thickness(5, 5, 5, 5),
-                ColumnSpacing = 15,
+                Padding = new Thickness(5),
                 ColumnDefinitions =
                 {
-                    new ColumnDefinition { Width = new GridLength(20, GridUnitType.Star) },
-                    new ColumnDefinition { Width = new GridLength(30, GridUnitType.Star) },
-                    new ColumnDefinition { Width = new GridLength(50, GridUnitType.Star) }
+                    new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) }
                 }
             };
 
             gridHeaderPhysicalCount.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
-
-            Label labelPhysicalCountNumber = new Label { Text = "Count #", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelPhysicalCountDate = new Label { Text = "Date", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            Label labelPhysicalCountType = new Label { Text = "Count Type", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
 
             gridHeaderPhysicalCount.Children.Add(labelPhysicalCountNumber);
             gridHeaderPhysicalCount.Children.Add(labelPhysicalCountDate);
@@ -87,18 +94,59 @@ namespace dMobile.Controller
 
             dataGridMainActivityHeader.Children.Add(gridHeaderPhysicalCount);
 
+            foreach (DataRow row in this.DataViewHdrs.ToTable().Rows)
+            {
+                string description = string.Empty;
+                string[] descriptionSubstring = Convert.ToString(row["ActivityCountTypeDescription"]).Split();
+
+                if (descriptionSubstring != null && descriptionSubstring.Length > 1)
+                {
+                    description = descriptionSubstring[0] + " " + descriptionSubstring[1];
+                }
+
+                Count count = new Count
+                {
+                    ActivityCountStringFKRefno = Convert.ToString(row["ActivityCountStringFKRefno"]),
+                    ActivityCountDateTime = Convert.ToDateTime(row["ActivityCountDateTime"]),
+                    ActivityCountTypeDescription = description,
+                };
+
+                observableCollection.Add(count);
+
+                dataColumnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(count.ActivityCountStringFKRefno);
+                dataColumnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(count.ActivityCountDateTime.ToString("MM/dd/yyyy")));
+                dataColumnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(count.ActivityCountTypeDescription);
+
+                if (dataColumnWidth0 > columnWidth0)
+                {
+                    columnWidth0 = dataColumnWidth0;
+                    gridHeaderPhysicalCount.ColumnDefinitions[0].Width = columnWidth0;
+                }
+
+                if (dataColumnWidth1 > columnWidth1)
+                {
+                    columnWidth1 = dataColumnWidth1;
+                    gridHeaderPhysicalCount.ColumnDefinitions[1].Width = columnWidth1;
+                }
+
+                if (dataColumnWidth2 > columnWidth2)
+                {
+                    columnWidth2 = dataColumnWidth2;
+                    gridHeaderPhysicalCount.ColumnDefinitions[2].Width = columnWidth2;
+                }
+            }
+
             // Data grid
             DataTemplate dataTemplatePhysicalCount = new DataTemplate(() =>
             {
                 Grid gridData = new Grid
                 {
-                    Padding = new Thickness(5, 5, 5, 5),
-                    ColumnSpacing = 15,
+                    Padding = new Thickness(5),
                     ColumnDefinitions =
                     {
-                        new ColumnDefinition { Width = new GridLength(20, GridUnitType.Star) },
-                        new ColumnDefinition { Width = new GridLength(30, GridUnitType.Star) },
-                        new ColumnDefinition { Width = new GridLength(50, GridUnitType.Star) }
+                        new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) }
                     }
                 };
 
@@ -122,27 +170,6 @@ namespace dMobile.Controller
             });
 
             dataGridMainActivity.ItemTemplate = dataTemplatePhysicalCount;
-            observableCollection.Clear();
-
-            foreach (DataRow row in this.DataViewHdrs.ToTable().Rows)
-            {
-                string description = string.Empty;
-                string[] descriptionSubstring = Convert.ToString(row["ActivityCountTypeDescription"]).Split();
-
-                if (descriptionSubstring != null && descriptionSubstring.Length > 1)
-                {
-                    description = descriptionSubstring[0] + " " + descriptionSubstring[1];
-                }
-
-                Count count = new Count
-                {
-                    ActivityCountStringFKRefno = Convert.ToString(row["ActivityCountStringFKRefno"]),
-                    ActivityCountDateTime = Convert.ToDateTime(row["ActivityCountDateTime"]),
-                    ActivityCountTypeDescription = description,
-                };
-
-                observableCollection.Add(count);
-            }
 
             return observableCollection;
         }

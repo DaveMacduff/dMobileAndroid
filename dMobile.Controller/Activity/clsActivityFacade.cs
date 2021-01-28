@@ -5,12 +5,6 @@
 namespace dMobile.Controller
 {
     using System;
-    using System.Collections;
-    using System.Collections.Generic;
-    using System.Data;
-    using System.Data.SqlTypes;
-    using System.Diagnostics;
-    using System.Xml.Linq;
     using dMobile.Bedrock;
 
     public class ActivityFacade
@@ -129,7 +123,6 @@ namespace dMobile.Controller
 
             if (actFactory == null)
             {
-
                 // TODO: Resource strings
                 throw new NotImplementedException("Could not create activity object.");
             }

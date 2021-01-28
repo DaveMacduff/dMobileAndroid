@@ -1,10 +1,10 @@
 namespace dMobile.Controller
 {
-  public class POWorkSheetActDetailFactory : ActDetailFactory
-  {
-    public override ActDetail GetActDetail(ActItem actItem)
+    public class POWorkSheetActDetailFactory : ActDetailFactory
     {
-      return new POWorkSheetActDetail(actItem);
+        public override ActDetail GetActDetail(ActItem actItem)
+        {
+            return new POWorkSheetActDetail(actItem);
+        }
     }
-  }
 }

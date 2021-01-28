@@ -109,7 +109,7 @@ namespace dMobile.Controller
         public override async Task Insert(XDocument data, bool askToInsertAsNewItem)
         {
             int foundActItemRefno = 0;
-            DialogResult result = DialogResult.None;
+            bool result = false;
             int prodUnitRefno = int.Parse(data.Root.Element("ProductUnitRefno").Value);
             int locMapRefno = this.LocMap.CurrLocMap.WhsLocMapRefno;
 
@@ -126,20 +126,11 @@ namespace dMobile.Controller
                 {
                     // TODO: Resource strings
                     string msg = "A line item already exists for this location and product." + Environment.NewLine + "Do you wish to create one?";
-                    //                    result = MessageBox.Show(msg,
-                    //#if MULTILANGUAGE
-                    //                          Translator.GetInstance().Translate(TranslatorVocabulary.NewItem), 
-                    //#else
-                    //                          "New Item",
-                    //#endif
-                    //                          MessageBoxButtons.YesNoCancel,
-                    //                        MessageBoxIcon.Question,
-                    //                        MessageBoxDefaultButton.Button3);
 
                     // TODO: Resource strings
                     if (await Application.Current.MainPage.DisplayAlert("New Item", msg, "Yes", "No"))
                     {
-                        result = DialogResult.Yes;
+                        result = true;
                     }
                     else
                     {
@@ -151,10 +142,10 @@ namespace dMobile.Controller
                 else
                 {
                     //if the selected product to insert was not found, force the dialog result to insert it.
-                    result = DialogResult.Yes;
+                    result = true;
                 }
 
-                if (result == DialogResult.Yes)
+                if (result)
                 {
                     SQLiteConnection conn = DatabaseConnection.GetInstance().SQLConn;
 

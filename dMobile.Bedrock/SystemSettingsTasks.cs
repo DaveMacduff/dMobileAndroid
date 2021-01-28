@@ -510,7 +510,6 @@ namespace dMobile.Bedrock
 
                 if (OnSysSettingsStatusOut != null)
                 {
-
                     // TODO: Resource strings
                     msgEventArg.StatusOutMsg = "Seeding system settings.";
                     OnSysSettingsStatusOut(settings, msgEventArg);
