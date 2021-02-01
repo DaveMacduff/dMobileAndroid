@@ -1,5 +1,6 @@
 ﻿namespace dMobile.View
 {
+    using Android.Content;
     using Android.Views;
     using dMobile.BarCodeScanner;
     using dMobile.Bedrock;
