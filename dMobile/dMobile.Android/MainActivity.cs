@@ -3,6 +3,7 @@
     using Android.App;
     using Android.Content.PM;
     using Android.OS;
+    using Android.Util;
     using Android.Views;
     using dMobile.Bedrock;
     using dMobile.Resources.Enums;
@@ -37,9 +38,16 @@
         {
             base.OnStop();
 
-            SystemSettings tempSystemSettings = SysEnvironment.GetInstance().SysSettings;
-            SystemSettingsTasks.SaveData(ref tempSystemSettings);
-            SysEnvironment.GetInstance().ContactLog.SubmitContactLogOut();
+            try
+            {
+                SystemSettings tempSystemSettings = SysEnvironment.GetInstance().SysSettings;
+                SystemSettingsTasks.SaveData(ref tempSystemSettings);
+                SysEnvironment.GetInstance().ContactLog.SubmitContactLogOut();
+            }
+            catch (Exception ex)
+            {
+                Log.Error(nameof(MainActivity), ex.Message);
+            }
         }
 
         /// <summary>

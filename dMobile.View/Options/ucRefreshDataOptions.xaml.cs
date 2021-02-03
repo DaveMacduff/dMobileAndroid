@@ -769,7 +769,12 @@
                         FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucRefreshDataStatus, SysCommon.ActSubTypes.RefreshData);
 
                         await form.DisplayControl.ShowDialog();
-                        await form.SaveChanges(this, new EventArgs());
+
+                        if (form.DialogResult == DialogResult.None)
+                        {
+                            await form.SaveChanges(this, new EventArgs());
+                        }
+
                         XDocument xmlDoc = form.DisplayControlData;
                         this.IsRefreshComplete = bool.Parse(xmlDoc.Root.Element("IsRefreshComplete").Value);
                         await this.RefreshCompelete();

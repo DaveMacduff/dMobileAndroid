@@ -210,6 +210,7 @@ namespace dMobile.View.Options
                 {
                     if (await this.IsReadyToClose())
                     {
+                        this.DialogResult = DialogResult.OK;
                         this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     }
                     else
@@ -3003,9 +3004,10 @@ namespace dMobile.View.Options
             }
         }
 
-        private void BtnClose_Clicked(object sender, EventArgs e)
+        private async void BtnClose_Clicked(object sender, EventArgs e)
         {
-            Device.BeginInvokeOnMainThread(async () => await this.Close());
+            this.DialogResult = DialogResult.OK;
+            await this.Close();
         }
     }
 }
