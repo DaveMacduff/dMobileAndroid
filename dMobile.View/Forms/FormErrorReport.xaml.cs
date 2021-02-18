@@ -1,5 +1,6 @@
 ﻿namespace dMobile.View.Forms
 {
+    using Android.Util;
     using dMobile.Bedrock;
     using dMobile.Resources.Enums;
     using dMobile.View.CustomPages.Modal;
@@ -248,6 +249,8 @@
                 msg = msg + Environment.NewLine + inner.Message;
                 inner = this.GetInnerExeception(inner);
             }
+
+            Log.Error(this.FullClassName, msg);
 
             if (await Application.Current.MainPage.DisplayAlert(this.Title, msg, this.buttonContinue.Text, this.buttonSendReport.Text))
             {

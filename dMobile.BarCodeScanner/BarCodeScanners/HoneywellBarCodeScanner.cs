@@ -22,11 +22,6 @@
         private SynchronizationContext mUIContext = SynchronizationContext.Current;
 
         /// <summary>
-        /// Defines the symbologyPrefix
-        /// </summary>
-        private string symbologyPrefix = "aim";
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="HoneywellBarCodeScanner"/> class.
         /// </summary>
         public HoneywellBarCodeScanner()
@@ -102,7 +97,6 @@
                 {
                     this.HoneywellReader.BarcodeDataReady -= HoneywellReader_BarcodeDataReady;
                     await this.HoneywellReader.EnableAsync(false);
-                    //await this.HoneywellReader.SoftwareTriggerAsync(false);
                 }
                 else
                 {
@@ -159,14 +153,17 @@
         {
             try
             {
+                IList<BarcodeReaderInfo> readerList = await BarcodeReader.GetConnectedBarcodeReaders();
+                var test = BarcodeReader.GetConnectedBarcodeReaders();
+
                 if (this.HoneywellReader.IsReaderOpened)
                 {
                     Dictionary<string, object> settings = new Dictionary<string, object>()
                     {
-                        {this.HoneywellReader.SettingKeys.DataProcessorSymbologyPrefix, this.symbologyPrefix },
+                        { this.HoneywellReader.SettingKeys.DataProcessorSymbologyPrefix, this.HoneywellReader.SettingValues.DataProcessorSymbologyPrefix_AIM },
                     };
 
-                    BarcodeReader.Result result = await this.HoneywellReader.SetAsync(settings);
+                    await this.HoneywellReader.SetAsync(settings);
                 }
             }
             catch (Exception exp)
