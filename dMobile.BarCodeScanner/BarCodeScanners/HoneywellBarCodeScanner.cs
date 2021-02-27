@@ -1,10 +1,14 @@
 ﻿namespace dMobile.BarCodeScanner
 {
+    using Android.Util;
+    using dMobile.Resources.Services;
     using Honeywell.AIDC.CrossPlatform;
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Threading;
     using System.Threading.Tasks;
+    using Xamarin.Forms;
 
     /// <summary>
     /// Defines the <see cref="HoneywellBarCodeScanner" />
@@ -21,8 +25,14 @@
         /// </summary>
         private SynchronizationContext mUIContext = SynchronizationContext.Current;
 
+        private IHoneywellScannerService honeywellScannerService = DependencyService.Get<IHoneywellScannerService>();
+
+        private EventHandler profileDataHandler = null;
+
+        private bool symbologySettingsSet = false;
+
         /// <summary>
-        /// Initializes a new instance of the <see cref="HoneywellBarCodeScanner"/> class.
+        /// Initializes a new instance of the <see cref="HoneywellBarCodeScanner"´/> class.
         /// </summary>
         public HoneywellBarCodeScanner()
         {
@@ -48,16 +58,22 @@
         /// The Initialize
         /// </summary>
         /// <returns>The <see cref="bool"/></returns>
-        public override bool Initialize()
+        public override async Task<bool> Initialize()
         {
-            bool isInitialized = false;
-
             if (this.HoneywellReader == null)
             {
-                this.HoneywellReader = new BarcodeReader();
+                string readerName = string.Empty;
+                var connectedReaders = await BarcodeReader.GetConnectedBarcodeReaders();
+
+                if (connectedReaders != null && connectedReaders.Count > 0)
+                {
+                    readerName = connectedReaders[0].ScannerName;
+                }
+
+                this.HoneywellReader = new BarcodeReader(!string.IsNullOrEmpty(readerName) ? readerName : null);
             }
 
-            return isInitialized;
+            return true;
         }
 
         /// <summary>
@@ -72,7 +88,7 @@
 
                 if (result.Code == BarcodeReader.Result.Codes.SUCCESS || result.Code == BarcodeReader.Result.Codes.READER_ALREADY_OPENED)
                 {
-                    await this.SetSymbologySettings();
+                    this.SetSymbologySettings();
                     this.HoneywellReader.BarcodeDataReady += HoneywellReader_BarcodeDataReady;
                     await this.HoneywellReader.EnableAsync(true);
                 }
@@ -149,26 +165,38 @@
         /// The SetSymbologySettings
         /// </summary>
         /// <returns>The <see cref="Task"/></returns>
-        private async Task SetSymbologySettings()
+        private void SetSymbologySettings()
         {
-            try
+            if (!this.symbologySettingsSet)
             {
-                IList<BarcodeReaderInfo> readerList = await BarcodeReader.GetConnectedBarcodeReaders();
-                var test = BarcodeReader.GetConnectedBarcodeReaders();
-
-                if (this.HoneywellReader.IsReaderOpened)
+                if (HoneywellReader.IsReaderOpened)
                 {
-                    Dictionary<string, object> settings = new Dictionary<string, object>()
+                    this.honeywellScannerService.ProfileDataReady += this.profileDataHandler = async (s, e) =>
                     {
-                        { this.HoneywellReader.SettingKeys.DataProcessorSymbologyPrefix, this.HoneywellReader.SettingValues.DataProcessorSymbologyPrefix_AIM },
+                        try
+                        {
+                            this.honeywellScannerService.ProfileDataReady -= this.profileDataHandler;
+                            Dictionary<string, object> profileSettings = this.honeywellScannerService.BarcodeReaderSettings;
+
+                            BarcodeReader.Result result = await this.HoneywellReader.SetAsync(profileSettings);
+
+                            if (result.Code != BarcodeReader.Result.Codes.SUCCESS)
+                            {
+                                await Application.Current.MainPage.DisplayAlert("Error", "Could not set symbology settings " + result.Message, "OK");
+                            }
+                            else
+                            {
+                                this.symbologySettingsSet = true;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Log.Error("SetSymbologySettings", "Error setting symbology settings " + ex.Message);
+                        }
                     };
 
-                    await this.HoneywellReader.SetAsync(settings);
+                    this.honeywellScannerService.GetScannerProfile();
                 }
-            }
-            catch (Exception exp)
-            {
-                Console.WriteLine(exp);
             }
         }
     }

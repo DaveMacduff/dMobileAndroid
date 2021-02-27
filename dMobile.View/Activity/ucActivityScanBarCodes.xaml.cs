@@ -64,6 +64,7 @@ namespace dMobile.View.Activity
 
             this.Title = this.GetControlDescription();
 
+            // TODO: Resource strings
             this.cmdAssignProduct.Text = "Assign Scan To Product";
             this.lblProduct.Text = "Product:";
             this.lblProductData.Text = "Unidentified";

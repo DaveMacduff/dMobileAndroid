@@ -16,7 +16,12 @@
             // if (Initialize())
             // ...start a scan on the scanner
             // this.Start();
-            Initialize();
+            InitializeAsync();
+        }
+
+        private async void InitializeAsync()
+        {
+            await Initialize();
         }
 
         #endregion
@@ -36,7 +41,7 @@
         #region Public Members
 
         // Methods that need to be implemented in subclass.
-        public abstract bool Initialize();
+        public abstract Task<bool> Initialize();
         public abstract Task Start();
         public abstract Task Stop();
         public abstract void Terminate();

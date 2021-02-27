@@ -33,10 +33,10 @@
     <ProjectReference Include="..\dMobile.Resources\dMobile.Resources.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Honeywell.BarcodeReader" Version="1.32.7.10" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
     <PackageReference Include="Xamarin.Forms" Version="4.4.0.991640" />
+    <PackageReference Include="Honeywell.BarcodeReader" Version="1.35.0.17" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="CustomControls\LocationMapInfo.xaml.cs">

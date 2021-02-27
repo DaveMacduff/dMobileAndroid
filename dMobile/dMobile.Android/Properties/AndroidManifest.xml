@@ -3,6 +3,6 @@
 	<uses-sdk android:minSdkVersion="23" android:targetSdkVersion="23" />
 	<uses-permission android:name="android.permission.SET_TIME" />
 	<uses-permission android:name="android.permission.READ_PHONE_STATE" />
-    <uses-permission android:name="com.honeywell.decode.permission.DECODE" />
+	<uses-permission android:name="com.honeywell.decode.permission.DECODE" />
 	<application android:label="dMobile"></application>
 </manifest>
