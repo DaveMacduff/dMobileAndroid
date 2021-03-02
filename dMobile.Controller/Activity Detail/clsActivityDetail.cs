@@ -1017,7 +1017,7 @@ namespace dMobile.Controller
             string reqData = SysCommon.SubmitComm(sendReq);
 
             if (reqData.Length > 0)
-            {
+            {   
                 XmlDocument xmlData = new XmlDocument();
                 xmlData.LoadXml(reqData);
 

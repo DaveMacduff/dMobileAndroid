@@ -1337,8 +1337,6 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         private async Task ucActivityDetail_GotFocus(object sender, EventArgs e)
         {
-            this.Loading = true;
-
             await Task.Run(async () =>
             {
                 if (!SysEnvironment.GetInstance().IsApplicationExitInvoked)
@@ -1396,10 +1394,7 @@ namespace dMobile.View.Activity
                 this.ReqSaveEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
 
                 this.IsControlLoaded = true;
-
             });
-
-            this.Loading = false;
         }
 
         /// <summary>
@@ -2092,25 +2087,16 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         private async Task RefreshData()
         {
-            //this.TotalTicks = this.TotalTicks + this.tmrActivityDetailLoaded.Interval;
-
+            this.Loading = true;
             this.ScannerDisable();
-
-            //this.pbarStatus.Visible = true;
-            //this.lstDisplay.Items.Clear();
-            //this.lstDisplay.Items.Add("Loading item detail(s). Please wait...");
-            //this.lstDisplay.Invalidate();
-            //this.lstDisplay.Update();
 
             try
             {
-                //this.pbarStatus.Minimum = 0;
-                //this.pbarStatus.Maximum = 100;
-                //this.pbarStatus.Value = 0;
                 this.ActDetail.Refresh();
             }
             catch (Exception ex)
             {
+                this.Loading = false;
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
@@ -2139,6 +2125,8 @@ namespace dMobile.View.Activity
 
                 this.ScannerEnable();
             });
+
+            this.Loading = false;
         }
 
         /// <summary>

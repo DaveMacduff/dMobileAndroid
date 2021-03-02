@@ -36,8 +36,6 @@
         ///// </summary>
         protected override void OnStop()
         {
-            base.OnStop();
-
             try
             {
                 SystemSettings tempSystemSettings = SysEnvironment.GetInstance().SysSettings;
@@ -48,6 +46,8 @@
             {
                 Log.Error(nameof(MainActivity), ex.Message);
             }
+
+            base.OnStop();
         }
 
         /// <summary>

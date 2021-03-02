@@ -619,7 +619,12 @@ namespace dMobile.View.Activity
                     
                     if (this.chkApplyRouteCode.IsToggled && this.cboRoute.SelectedIndex >= 0)
                     {
-                        this.PickSettings.strRouteCodeSelectedValue = Convert.ToString(this.cboRoute.SelectedItem);
+                        var selectedItem = this.cboRoute.SelectedItem as dynamic;
+
+                        if (selectedItem != null && !string.IsNullOrEmpty(selectedItem.RouteCode))
+                        {
+                            this.PickSettings.strRouteCodeSelectedValue = Convert.ToString(selectedItem.RouteCode);
+                        }
                     }
                     else
                     {

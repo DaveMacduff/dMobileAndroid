@@ -13,7 +13,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "dMobile.GroundWork", "dMobi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dMobile.Android", "dMobile\dMobile.Android\dMobile.Android.csproj", "{DFCCC3C0-5219-40F9-A52C-AECE73C0A7B8}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "dMobile.Resources", "dMobile.Resources\dMobile.Resources.csproj", "{40FA21C1-9078-4713-9DA0-66A15F03F5C8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dMobile.Resources", "dMobile.Resources\dMobile.Resources.csproj", "{40FA21C1-9078-4713-9DA0-66A15F03F5C8}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "dMobile.View", "dMobile.View\dMobile.View.csproj", "{CCCAE296-5421-4C29-BFBA-8A1A72006E19}"
 EndProject
@@ -507,5 +507,8 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {FD5EEBD3-1BC6-49D6-B6D2-30449BE597A2}
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		version = 0.3
 	EndGlobalSection
 EndGlobal
