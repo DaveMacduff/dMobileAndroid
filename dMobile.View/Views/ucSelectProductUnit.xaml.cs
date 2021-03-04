@@ -1169,13 +1169,16 @@
                 // Product identifier
                 if (!string.IsNullOrEmpty(parse.ProductIdentifier))
                 {
-                    this.cboSearch.SelectedIndex = 0;
-                    int maxLen = parse.ProductIdentifier.Length > 10 ? 10 : parse.ProductIdentifier.Length;
-                    this.txtSearchProduct.Text = parse.ProductIdentifier.Substring(0, maxLen);
-                    //this.txtSearchProduct.SelectAll();
-                    this.txtSearchProduct.CursorPosition = 0;
-                    this.txtSearchProduct.SelectionLength = this.txtSearchProduct.Text.Length;
-                    this.txtSearchProduct.Focus();
+                    await Device.InvokeOnMainThreadAsync(() =>
+                    {
+                        this.cboSearch.SelectedIndex = 0;
+                        int maxLen = parse.ProductIdentifier.Length > 10 ? 10 : parse.ProductIdentifier.Length;
+                        this.txtSearchProduct.Text = parse.ProductIdentifier.Substring(0, maxLen);
+                        //this.txtSearchProduct.SelectAll();
+                        this.txtSearchProduct.CursorPosition = 0;
+                        this.txtSearchProduct.SelectionLength = this.txtSearchProduct.Text.Length;
+                        this.txtSearchProduct.Focus();
+                    });
                 }
             }
             catch (Exception ex)

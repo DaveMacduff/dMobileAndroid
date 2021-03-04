@@ -98,12 +98,10 @@ namespace dMobile.Bedrock
             }
 
             // Create a FileStream to read with.
-            using (FileStream reader = new FileStream(fullPathToMyFile, FileMode.Open))
-            {
-                // Deserialize the stream to the object, and close the TextReader
-                settings = (SystemSettings)serializer.Deserialize(reader);
-                reader.Close();
-            }
+            FileStream reader = new FileStream(fullPathToMyFile, FileMode.Open);
+            // Deserialize the stream to the object, and close the TextReader
+            settings = (SystemSettings)serializer.Deserialize(reader);
+            reader.Close();
         }
 
         /// <summary>

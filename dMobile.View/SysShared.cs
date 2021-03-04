@@ -952,7 +952,7 @@ namespace dMobile.View
                         + "FROM tProductSchemeLotNumberXRef "
                         + "INNER JOIN tProductSchemeLotNumber ON tProductSchemeLotNumber.ProductSchemeLotNumberRefno = "
                         + "tProductSchemeLotNumberXRef.ProductSchemeLotNumberRefno "
-                        + string.Format("WHERE tProductSchemeLotNumberXRef.ProductSchemeRefno = {0}", schemeRefno)
+                        + string.Format("WHERE tProductSchemeLotNumberXRef.ProductSchemeRefno = {0} ", schemeRefno)
                         + "ORDER BY ProductSchemeLotNumberCode DESC";
 
                     using (SQLiteDataReader dr = cmndSchemeLot.ExecuteReader())
