@@ -325,19 +325,18 @@ namespace dMobile.View
 
                     if (keycode == Keycode.Enter)
                     {
-                        if (await this.IsReadyToClose())
-                        {
-                            this.cmdLogin_Click(this, new EventArgs());
-                        }
+                        await this.IsReadyToClose();
+                        this.cmdLogin_Click(this, new EventArgs());
                     }
-                    else if (keycode == Keycode.Escape || keycode == Keycode.F1)
+                    else if (keycode == Keycode.Escape)
                     {
-                        if (await this.IsReadyToClose())
-                        {
-                            //this.CallingControl = new ucMainMenu();
-                            this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-                            await Device.InvokeOnMainThreadAsync(async () => await this.Close());
-                        }
+                        //this.CallingControl = new ucMainMenu();
+                        this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                    }
+                    else if (keycode == Keycode.F1)
+                    {
+                        this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                        await Device.InvokeOnMainThreadAsync(async () => await this.Close());
                     }
                 }
                 catch (Exception ex)

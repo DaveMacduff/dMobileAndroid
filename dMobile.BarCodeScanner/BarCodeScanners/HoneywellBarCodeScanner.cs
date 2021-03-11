@@ -24,11 +24,8 @@
         /// Defines the mUIContext
         /// </summary>
         private SynchronizationContext mUIContext = SynchronizationContext.Current;
-
         private IHoneywellScannerService honeywellScannerService = DependencyService.Get<IHoneywellScannerService>();
-
         private EventHandler profileDataHandler = null;
-
         private bool symbologySettingsSet = false;
 
         /// <summary>
@@ -58,19 +55,11 @@
         /// The Initialize
         /// </summary>
         /// <returns>The <see cref="bool"/></returns>
-        public override async Task<bool> Initialize()
+        public override bool Initialize()
         {
             if (this.HoneywellReader == null)
             {
-                string readerName = string.Empty;
-                var connectedReaders = await BarcodeReader.GetConnectedBarcodeReaders();
-
-                if (connectedReaders != null && connectedReaders.Count > 0)
-                {
-                    readerName = connectedReaders[0].ScannerName;
-                }
-
-                this.HoneywellReader = new BarcodeReader(!string.IsNullOrEmpty(readerName) ? readerName : null);
+                this.HoneywellReader = new BarcodeReader();
             }
 
             return true;
@@ -152,13 +141,20 @@
         /// <param name="e">The e<see cref="BarcodeDataArgs"/></param>
         private void HoneywellReader_BarcodeDataReady(object sender, BarcodeDataArgs e)
         {
-            if (this.mUIContext == null)
+            try
             {
-                SynchronizationContext.SetSynchronizationContext(new SynchronizationContext());
-                this.mUIContext = SynchronizationContext.Current;
-            }
+                if (this.mUIContext == null)
+                {
+                    SynchronizationContext.SetSynchronizationContext(new SynchronizationContext());
+                    this.mUIContext = SynchronizationContext.Current;
+                }
 
-            this.mUIContext.Post(_ => { this.OnBarCodeScan(new BarCodeScannerEventArgs(e.Data)); }, null);
+                this.mUIContext.Post(_ => { this.OnBarCodeScan(new BarCodeScannerEventArgs(e.Data)); }, null);
+            }
+            catch (Exception ex)
+            {
+                Log.Error("HoneywellBarcodeScanner", ex.Message);
+            }
         }
 
         /// <summary>

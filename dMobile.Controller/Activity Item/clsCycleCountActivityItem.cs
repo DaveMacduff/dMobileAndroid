@@ -17,6 +17,14 @@ namespace dMobile.Controller
 
     public class CycleActItem : ActItem
     {
+        private double columnWidth0 = 0;
+        private double columnWidth1 = 0;
+        private double columnWidth2 = 0;
+        private double columnWidth3 = 0;
+        private double columnWidth4 = 0;
+        private double columnWidth5 = 0;
+        private ResourceDictionary resourceDictionary = new ResourceDictionary();
+
         #region Constructors
 
         /// <summary>
@@ -30,6 +38,58 @@ namespace dMobile.Controller
             this.IsAllowAddItem = this.SysEnv.SysSettings.AllowAddProduct2Cycle;
             this.IsAskCreateNewItem = !this.SysEnv.SysSettings.IsCycleCreateNewItemNoAsk;
             this.FullClassName = typeof(CycleActItem).FullName;
+
+            DataTemplate cycleCountTemplate = new DataTemplate(() =>
+            {
+                Grid gridData = new Grid
+                {
+                    Padding = new Thickness(5),
+                    ColumnDefinitions =
+                    {
+                        new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth3, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth4, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth5, GridUnitType.Absolute) }
+                    }
+                };
+
+                Label labelProductCode = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelProductUnitBC = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelUnitCode = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelActivityItemCountQuantityOnHand = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelActivityItemCountQuantity = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelActivityItemCountWeightQuantityOnHand = new Label { VerticalOptions = LayoutOptions.Center };
+
+                // Set label bindings
+                labelProductCode.SetBinding(Label.TextProperty, new Binding("ProductCode"));
+                labelProductUnitBC.SetBinding(Label.TextProperty, new Binding("ProductUnitBC"));
+                labelUnitCode.SetBinding(Label.TextProperty, new Binding("UnitCode"));
+                labelActivityItemCountQuantityOnHand.SetBinding(Label.TextProperty, new Binding("ActivityItemCountQuantityOnHand", BindingMode.Default, null, null, "{0:F3}"));
+                labelActivityItemCountQuantity.SetBinding(Label.TextProperty, new Binding("ActivityItemCountQuantity", BindingMode.Default, null, null, "{0:F3}"));
+                labelActivityItemCountWeightQuantityOnHand.SetBinding(Label.TextProperty, new Binding("ActivityItemCountWeightQuantityOnHand", BindingMode.Default, null, null, "{0:F3}"));
+
+                // Add labels to grid
+                gridData.Children.Add(labelProductCode);
+                gridData.Children.Add(labelProductUnitBC);
+                gridData.Children.Add(labelUnitCode);
+                gridData.Children.Add(labelActivityItemCountQuantityOnHand);
+                gridData.Children.Add(labelActivityItemCountQuantity);
+                gridData.Children.Add(labelActivityItemCountWeightQuantityOnHand);
+
+                // Set label columns
+                Grid.SetColumn(labelProductCode, 0);
+                Grid.SetColumn(labelProductUnitBC, 1);
+                Grid.SetColumn(labelUnitCode, 2);
+                Grid.SetColumn(labelActivityItemCountQuantityOnHand, 3);
+                Grid.SetColumn(labelActivityItemCountQuantity, 4);
+                Grid.SetColumn(labelActivityItemCountWeightQuantityOnHand, 5);
+
+                return new ViewCell { View = gridData };
+            });
+
+            resourceDictionary.Add("cycleCountTemplate", cycleCountTemplate);
         }
 
         #endregion
@@ -217,7 +277,7 @@ namespace dMobile.Controller
                         catch (SQLiteException ex)
                         {
                             transaction.Rollback();
-                            
+
                             // TOOD: Logging
                             Console.WriteLine(ex);
                         }
@@ -340,12 +400,12 @@ namespace dMobile.Controller
             Label labelCountCounted = new Label { Text = "Counted", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             Label labelCountWtOn = new Label { Text = "Wt On", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
 
-            double columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelCountCode.Text);
-            double columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelCountBC.Text);
-            double columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelCountUnit.Text);
-            double columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelCountOnHand.Text);
-            double columnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelCountCounted.Text);
-            double columnWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(labelCountWtOn.Text);
+            columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelCountCode.Text);
+            columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelCountBC.Text);
+            columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelCountUnit.Text);
+            columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelCountOnHand.Text);
+            columnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelCountCounted.Text);
+            columnWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(labelCountWtOn.Text);
 
             Grid gridHeader = new Grid
             {
@@ -383,7 +443,7 @@ namespace dMobile.Controller
 
             dataGridMainActivityHeader.Children.Add(gridHeader);
 
-             foreach (CountItem countItem in observableCollection)
+            foreach (CountItem countItem in observableCollection)
             {
                 double detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(countItem.ProductCode);
                 double detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(countItem.ProductUnitBC);
@@ -429,142 +489,98 @@ namespace dMobile.Controller
                 }
             }
 
-            // Create item template
-            DataTemplate dataTemplateCount = new DataTemplate(() =>
+            try
             {
-                Grid gridData = new Grid
-                {
-                    Padding = new Thickness(5),
-                    ColumnDefinitions =
-                    {
-                        new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth3, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth4, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth5, GridUnitType.Absolute) }
-                    }
-                };
-
-                Label labelProductCode = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelProductUnitBC = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelUnitCode = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelActivityItemCountQuantityOnHand = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelActivityItemCountQuantity = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelActivityItemCountWeightQuantityOnHand = new Label { VerticalOptions = LayoutOptions.Center };
-
-                // Set label bindings
-                labelProductCode.SetBinding(Label.TextProperty, new Binding("ProductCode"));
-                labelProductUnitBC.SetBinding(Label.TextProperty, new Binding("ProductUnitBC"));
-                labelUnitCode.SetBinding(Label.TextProperty, new Binding("UnitCode"));
-                labelActivityItemCountQuantityOnHand.SetBinding(Label.TextProperty, new Binding("ActivityItemCountQuantityOnHand", BindingMode.Default, null, null, "{0:F3}"));
-                labelActivityItemCountQuantity.SetBinding(Label.TextProperty, new Binding("ActivityItemCountQuantity", BindingMode.Default, null, null, "{0:F3}"));
-                labelActivityItemCountWeightQuantityOnHand.SetBinding(Label.TextProperty, new Binding("ActivityItemCountWeightQuantityOnHand", BindingMode.Default, null, null, "{0:F3}"));
-
-                // Add labels to grid
-                gridData.Children.Add(labelProductCode);
-                gridData.Children.Add(labelProductUnitBC);
-                gridData.Children.Add(labelUnitCode);
-                gridData.Children.Add(labelActivityItemCountQuantityOnHand);
-                gridData.Children.Add(labelActivityItemCountQuantity);
-                gridData.Children.Add(labelActivityItemCountWeightQuantityOnHand);
-
-                // Set label columns
-                Grid.SetColumn(labelProductCode, 0);
-                Grid.SetColumn(labelProductUnitBC, 1);
-                Grid.SetColumn(labelUnitCode, 2);
-                Grid.SetColumn(labelActivityItemCountQuantityOnHand, 3);
-                Grid.SetColumn(labelActivityItemCountQuantity, 4);
-                Grid.SetColumn(labelActivityItemCountWeightQuantityOnHand, 5);
-
-                return new ViewCell { View = gridData };
-            });
-
-            dataGridMainActivity.ItemTemplate = dataTemplateCount;
+                dataGridMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["cycleCountTemplate"];
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
 
             return observableCollection;
         }
 
-//        /// <summary>
-//        ///
-//        /// </summary>
-//        /// <param name="dataGridMain"></param>
-//        /// <remarks></remarks>
-//        public override void DesignDataGrid(DataGrid dataGridMain)
-//        {
-//            int colWidthFactor = 1;
+        //        /// <summary>
+        //        ///
+        //        /// </summary>
+        //        /// <param name="dataGridMain"></param>
+        //        /// <remarks></remarks>
+        //        public override void DesignDataGrid(DataGrid dataGridMain)
+        //        {
+        //            int colWidthFactor = 1;
 
-//            if (this.SysEnv.IsWindowsMobile6Device)
-//            {
-//                colWidthFactor = 2;
-//            }
+        //            if (this.SysEnv.IsWindowsMobile6Device)
+        //            {
+        //                colWidthFactor = 2;
+        //            }
 
-//            if (dataGridMain.TableStyles.Count > 0)
-//            {
-//                dataGridMain.TableStyles.Clear();
-//            }
+        //            if (dataGridMain.TableStyles.Count > 0)
+        //            {
+        //                dataGridMain.TableStyles.Clear();
+        //            }
 
-//            DataGridTableStyle dataGridStyle = new DataGridTableStyle();
-//            dataGridStyle.MappingName = this.MainGridMappingName;
+        //            DataGridTableStyle dataGridStyle = new DataGridTableStyle();
+        //            dataGridStyle.MappingName = this.MainGridMappingName;
 
-//            DataGridTextBoxColumn dataGridCol = new DataGridTextBoxColumn();
-//            dataGridCol.MappingName = "ActivityItemRefno";
-//            dataGridCol.HeaderText = string.Empty;
-//            dataGridCol.Width = -1;
-//            dataGridStyle.GridColumnStyles.Add(dataGridCol);
+        //            DataGridTextBoxColumn dataGridCol = new DataGridTextBoxColumn();
+        //            dataGridCol.MappingName = "ActivityItemRefno";
+        //            dataGridCol.HeaderText = string.Empty;
+        //            dataGridCol.Width = -1;
+        //            dataGridStyle.GridColumnStyles.Add(dataGridCol);
 
-//            dataGridCol = new DataGridTextBoxColumn();
-//            dataGridCol.MappingName = "ProductCode";
-//#if MULTILANGUAGE
-//      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Codezz);
-//#else
-//            dataGridCol.HeaderText = "Code";
-//#endif
-//            dataGridCol.Width = 62 * colWidthFactor;
-//            dataGridStyle.GridColumnStyles.Add(dataGridCol);
+        //            dataGridCol = new DataGridTextBoxColumn();
+        //            dataGridCol.MappingName = "ProductCode";
+        //#if MULTILANGUAGE
+        //      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Codezz);
+        //#else
+        //            dataGridCol.HeaderText = "Code";
+        //#endif
+        //            dataGridCol.Width = 62 * colWidthFactor;
+        //            dataGridStyle.GridColumnStyles.Add(dataGridCol);
 
-//            dataGridCol = new DataGridTextBoxColumn();
-//            dataGridCol.MappingName = "ProductUnitBC";
-//#if MULTILANGUAGE
-//      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Bc);
-//#else
-//            dataGridCol.HeaderText = "BC";
-//#endif
-//            dataGridCol.Width = 20 * colWidthFactor;
-//            dataGridStyle.GridColumnStyles.Add(dataGridCol);
+        //            dataGridCol = new DataGridTextBoxColumn();
+        //            dataGridCol.MappingName = "ProductUnitBC";
+        //#if MULTILANGUAGE
+        //      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Bc);
+        //#else
+        //            dataGridCol.HeaderText = "BC";
+        //#endif
+        //            dataGridCol.Width = 20 * colWidthFactor;
+        //            dataGridStyle.GridColumnStyles.Add(dataGridCol);
 
-//            dataGridCol = new DataGridTextBoxColumn();
-//            dataGridCol.MappingName = "UnitCode";
-//            dataGridCol.HeaderText = string.Empty;
-//            dataGridCol.Width = 22 * colWidthFactor;
-//            dataGridStyle.GridColumnStyles.Add(dataGridCol);
+        //            dataGridCol = new DataGridTextBoxColumn();
+        //            dataGridCol.MappingName = "UnitCode";
+        //            dataGridCol.HeaderText = string.Empty;
+        //            dataGridCol.Width = 22 * colWidthFactor;
+        //            dataGridStyle.GridColumnStyles.Add(dataGridCol);
 
-//            dataGridCol = new DataGridTextBoxColumn();
-//            dataGridCol.MappingName = "ActivityItemCountQuantityOnHand";
-//#if MULTILANGUAGE
-//      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.OnHandz);
-//#else
-//            dataGridCol.HeaderText = "On Hand";
-//#endif
-//            dataGridCol.Width = 55 * colWidthFactor;
-//            dataGridCol.Format = "0.000";
-//            dataGridStyle.GridColumnStyles.Add(dataGridCol);
+        //            dataGridCol = new DataGridTextBoxColumn();
+        //            dataGridCol.MappingName = "ActivityItemCountQuantityOnHand";
+        //#if MULTILANGUAGE
+        //      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.OnHandz);
+        //#else
+        //            dataGridCol.HeaderText = "On Hand";
+        //#endif
+        //            dataGridCol.Width = 55 * colWidthFactor;
+        //            dataGridCol.Format = "0.000";
+        //            dataGridStyle.GridColumnStyles.Add(dataGridCol);
 
-//            dataGridCol = new DataGridTextBoxColumn();
-//            dataGridCol.MappingName = "ActivityItemCountQuantity";
-//#if MULTILANGUAGE
-//      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Counted);
-//#else
-//            dataGridCol.HeaderText = "Counted";
-//#endif
-//            dataGridCol.Width = 45 * colWidthFactor;
-//            dataGridCol.Format = "0.000";
-//            dataGridStyle.GridColumnStyles.Add(dataGridCol);
+        //            dataGridCol = new DataGridTextBoxColumn();
+        //            dataGridCol.MappingName = "ActivityItemCountQuantity";
+        //#if MULTILANGUAGE
+        //      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Counted);
+        //#else
+        //            dataGridCol.HeaderText = "Counted";
+        //#endif
+        //            dataGridCol.Width = 45 * colWidthFactor;
+        //            dataGridCol.Format = "0.000";
+        //            dataGridStyle.GridColumnStyles.Add(dataGridCol);
 
-//            dataGridMain.TableStyles.Add(dataGridStyle);
-//            dataGridMain.RowHeadersVisible = false;
-//            dataGridMain.ColumnHeadersVisible = true;
-//        }
+        //            dataGridMain.TableStyles.Add(dataGridStyle);
+        //            dataGridMain.RowHeadersVisible = false;
+        //            dataGridMain.ColumnHeadersVisible = true;
+        //        }
 
         /// <summary>
         /// 

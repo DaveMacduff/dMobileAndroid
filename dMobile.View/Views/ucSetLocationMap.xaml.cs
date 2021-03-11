@@ -1643,7 +1643,7 @@
         /// <param name="sender"></param>
         /// <param name="oBarCodeScanArgs"></param>
         /// <remarks></remarks>
-        private async void BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
+        private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
             // No need to disable/enable scanner because only messagebox are called. 
             // GoFocus and LostFocus events will handle the scanner

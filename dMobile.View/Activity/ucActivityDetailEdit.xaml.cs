@@ -138,51 +138,54 @@ namespace dMobile.View.Activity
                 // TODO: Verify keycodes
                 Enum.TryParse(keyPressed, out Keycode keycode);
 
-                if (keycode == Keycode.Escape)
+                if (!this.Loading)
                 {
-                    if (await this.CancelChanges())
+                    if (keycode == Keycode.Escape)
                     {
-                        this.DialogResult = DialogResult.None;
-                        this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-                    }
-                }
-                else if (keycode == Keycode.F1)
-                {
-                    if (await this.SaveChanges())
-                    {
-                        if (this.printLabels)
+                        if (await this.CancelChanges())
                         {
-                            if (!this.SysEnv.SysSettings.IsPrintProductLabelsAsBatch)
+                            this.DialogResult = DialogResult.None;
+                            this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                        }
+                    }
+                    else if (keycode == Keycode.F1 || keycode == Keycode.Enter)
+                    {
+                        if (await this.SaveChanges())
+                        {
+                            if (this.printLabels)
                             {
-                                // TODO: Resource strings
-                                if (await DisplayAlert(this.GetControlDescription(), "Print product labels?", "Yes", "No"))
+                                if (!this.SysEnv.SysSettings.IsPrintProductLabelsAsBatch)
                                 {
-                                    try
+                                    // TODO: Resource strings
+                                    if (await DisplayAlert(this.GetControlDescription(), "Print product labels?", "Yes", "No"))
                                     {
-                                        await this.PrintProductLabels();
-                                    }
-                                    catch (Exceptions.MessageOnlyException ex)
-                                    {
-                                        // Even though an error was raised, during label printing allow the control to close.
-                                        ex.Show(this.ActSubType);
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        // Even though an error was raised, during label printing allow the control to close.
-
-                                        await Device.InvokeOnMainThreadAsync(async () =>
+                                        try
                                         {
-                                            FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
-                                            await errRpt.ShowDialog();
-                                        });
+                                            await this.PrintProductLabels();
+                                        }
+                                        catch (Exceptions.MessageOnlyException ex)
+                                        {
+                                            // Even though an error was raised, during label printing allow the control to close.
+                                            ex.Show(this.ActSubType);
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            // Even though an error was raised, during label printing allow the control to close.
+
+                                            await Device.InvokeOnMainThreadAsync(async () =>
+                                            {
+                                                FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                                                await errRpt.ShowDialog();
+                                            });
+                                        }
                                     }
                                 }
                             }
-                        }
 
-                        this.DialogResult = DialogResult.OK;
-                        this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-                        await this.Close();
+                            this.DialogResult = DialogResult.OK;
+                            this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                            await this.Close();
+                        }
                     }
                 }
             });

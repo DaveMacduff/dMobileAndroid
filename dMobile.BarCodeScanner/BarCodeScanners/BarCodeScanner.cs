@@ -16,19 +16,14 @@
             // if (Initialize())
             // ...start a scan on the scanner
             // this.Start();
-            InitializeAsync();
-        }
-
-        private async void InitializeAsync()
-        {
-            await Initialize();
+            Initialize();
         }
 
         #endregion
 
         #region Delegates
 
-        public delegate void BarCodeScanEventHandler(object sender, BarCodeScannerEventArgs e);
+        public delegate Task BarCodeScanEventHandler(object sender, BarCodeScannerEventArgs e);
 
         #endregion
 
@@ -41,7 +36,7 @@
         #region Public Members
 
         // Methods that need to be implemented in subclass.
-        public abstract Task<bool> Initialize();
+        public abstract bool Initialize();
         public abstract Task Start();
         public abstract Task Stop();
         public abstract void Terminate();
@@ -49,9 +44,9 @@
         /// <summary>
         /// Event that calls the delegate.
         /// </summary>
-        public virtual void OnBarCodeScan(BarCodeScannerEventArgs e)
+        public virtual async void OnBarCodeScan(BarCodeScannerEventArgs e)
         {
-            this.BarCodeScan?.Invoke(this, e);
+            await this.BarCodeScan?.Invoke(this, e);
         }
 
         #region IDisposable

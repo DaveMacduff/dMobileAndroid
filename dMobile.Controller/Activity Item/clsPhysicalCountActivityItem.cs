@@ -17,6 +17,14 @@ namespace dMobile.Controller
 
     public class PhysicalActItem : ActItem
     {
+        private double columnWidth0 = 0;
+        private double columnWidth1 = 0;
+        private double columnWidth2 = 0;
+        private double columnWidth3 = 0;
+        private double columnWidth4 = 0;
+        private double columnWidth5 = 0;
+        private ResourceDictionary resourceDictionary = new ResourceDictionary();
+
         #region Constructors
 
         /// <summary>
@@ -29,6 +37,59 @@ namespace dMobile.Controller
             this.FullClassName = typeof(PhysicalActItem).FullName;
             this.IsAllowAddItem = this.SysEnv.SysSettings.AllowAddProduct2Physical;
             this.IsAskCreateNewItem = !this.SysEnv.SysSettings.IsPhysicalCreateNewItemNoAsk;
+
+            // Create item template
+            DataTemplate dataTemplatePhysicalCount = new DataTemplate(() =>
+            {
+                Grid gridData = new Grid
+                {
+                    Padding = new Thickness(5),
+                    ColumnDefinitions =
+                    {
+                        new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth3, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth4, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth5, GridUnitType.Absolute) }
+                    }
+                };
+
+                Label labelProductCode = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelProductUnitBC = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelUnitCode = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelActivityItemCountQuantityOnHand = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelActivityItemCountQuantity = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelActivityItemCountWeightQuantityOnHand = new Label { VerticalOptions = LayoutOptions.Center };
+
+                // Set label bindings
+                labelProductCode.SetBinding(Label.TextProperty, new Binding("ProductCode"));
+                labelProductUnitBC.SetBinding(Label.TextProperty, new Binding("ProductUnitBC"));
+                labelUnitCode.SetBinding(Label.TextProperty, new Binding("UnitCode"));
+                labelActivityItemCountQuantityOnHand.SetBinding(Label.TextProperty, new Binding("ActivityItemCountQuantityOnHand", BindingMode.Default, null, null, "{0:F3}"));
+                labelActivityItemCountQuantity.SetBinding(Label.TextProperty, new Binding("ActivityItemCountQuantity", BindingMode.Default, null, null, "{0:F3}"));
+                labelActivityItemCountWeightQuantityOnHand.SetBinding(Label.TextProperty, new Binding("ActivityItemCountWeightQuantityOnHand", BindingMode.Default, null, null, "{0:F3}"));
+
+                // Add labels to grid
+                gridData.Children.Add(labelProductCode);
+                gridData.Children.Add(labelProductUnitBC);
+                gridData.Children.Add(labelUnitCode);
+                gridData.Children.Add(labelActivityItemCountQuantityOnHand);
+                gridData.Children.Add(labelActivityItemCountQuantity);
+                gridData.Children.Add(labelActivityItemCountWeightQuantityOnHand);
+
+                // Set label columns
+                Grid.SetColumn(labelProductCode, 0);
+                Grid.SetColumn(labelProductUnitBC, 1);
+                Grid.SetColumn(labelUnitCode, 2);
+                Grid.SetColumn(labelActivityItemCountQuantityOnHand, 3);
+                Grid.SetColumn(labelActivityItemCountQuantity, 4);
+                Grid.SetColumn(labelActivityItemCountWeightQuantityOnHand, 5);
+
+                return new ViewCell { View = gridData };
+            });
+
+            resourceDictionary.Add("dataTemplatePhysicalCount", dataTemplatePhysicalCount);
         }
 
         #endregion
@@ -354,12 +415,12 @@ namespace dMobile.Controller
             Label labelPhysicalCountCounted = new Label { Text = "Counted", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             Label labelPhysicalCountWtOn = new Label { Text = "Wt On", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
 
-            double columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPhysicalCountCode.Text);
-            double columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPhysicalCountBC.Text);
-            double columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPhysicalCountUnit.Text);
-            double columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPhysicalCountOnHand.Text);
-            double columnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPhysicalCountCounted.Text);
-            double columnWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPhysicalCountWtOn.Text);
+            columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPhysicalCountCode.Text);
+            columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPhysicalCountBC.Text);
+            columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPhysicalCountUnit.Text);
+            columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPhysicalCountOnHand.Text);
+            columnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPhysicalCountCounted.Text);
+            columnWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPhysicalCountWtOn.Text);
 
             Grid gridHeaderPhysicalCount = new Grid
             {
@@ -442,58 +503,14 @@ namespace dMobile.Controller
                 }
             }
 
-            // Create item template
-            DataTemplate dataTemplatePhysicalCount = new DataTemplate(() =>
+            try
             {
-                Grid gridData = new Grid
-                {
-                    Padding = new Thickness(5),
-                    ColumnDefinitions =
-                    {
-                        new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth3, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth4, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth5, GridUnitType.Absolute) }
-                    }
-                };
-
-                Label labelProductCode = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelProductUnitBC = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelUnitCode = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelActivityItemCountQuantityOnHand = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelActivityItemCountQuantity = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelActivityItemCountWeightQuantityOnHand = new Label { VerticalOptions = LayoutOptions.Center };
-
-                // Set label bindings
-                labelProductCode.SetBinding(Label.TextProperty, new Binding("ProductCode"));
-                labelProductUnitBC.SetBinding(Label.TextProperty, new Binding("ProductUnitBC"));
-                labelUnitCode.SetBinding(Label.TextProperty, new Binding("UnitCode"));
-                labelActivityItemCountQuantityOnHand.SetBinding(Label.TextProperty, new Binding("ActivityItemCountQuantityOnHand", BindingMode.Default, null, null, "{0:F3}"));
-                labelActivityItemCountQuantity.SetBinding(Label.TextProperty, new Binding("ActivityItemCountQuantity", BindingMode.Default, null, null, "{0:F3}"));
-                labelActivityItemCountWeightQuantityOnHand.SetBinding(Label.TextProperty, new Binding("ActivityItemCountWeightQuantityOnHand", BindingMode.Default, null, null, "{0:F3}"));
-
-                // Add labels to grid
-                gridData.Children.Add(labelProductCode);
-                gridData.Children.Add(labelProductUnitBC);
-                gridData.Children.Add(labelUnitCode);
-                gridData.Children.Add(labelActivityItemCountQuantityOnHand);
-                gridData.Children.Add(labelActivityItemCountQuantity);
-                gridData.Children.Add(labelActivityItemCountWeightQuantityOnHand);
-
-                // Set label columns
-                Grid.SetColumn(labelProductCode, 0);
-                Grid.SetColumn(labelProductUnitBC, 1);
-                Grid.SetColumn(labelUnitCode, 2);
-                Grid.SetColumn(labelActivityItemCountQuantityOnHand, 3);
-                Grid.SetColumn(labelActivityItemCountQuantity, 4);
-                Grid.SetColumn(labelActivityItemCountWeightQuantityOnHand, 5);
-
-                return new ViewCell { View = gridData };
-            });
-
-            dataGridMainActivity.ItemTemplate = dataTemplatePhysicalCount;
+                dataGridMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplatePhysicalCount"];
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
 
             return observableCollection;
         }

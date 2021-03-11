@@ -1283,7 +1283,7 @@ namespace dMobile.View.Activity
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="scanArgs"></param>
-        private async void BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
+        private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
             BarCodeParse codeParse = null;
 

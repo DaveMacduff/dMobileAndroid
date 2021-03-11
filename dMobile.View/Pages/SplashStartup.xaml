@@ -15,7 +15,7 @@
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
-                <ListView x:Name="listBoxStatus" SelectionMode="None" Grid.Row="0">
+                <ListView x:Name="listBoxStatus" SelectionMode="None" Grid.Row="0" CachingStrategy="RecycleElement">
                     <ListView.ItemTemplate>
                         <DataTemplate>
                             <ViewCell IsEnabled="False">

@@ -46,6 +46,7 @@
         private ObservableCollection<object> dataGridMainActivityItemsList = new ObservableCollection<object>();
         private int selectedIndex;
         private List<string> optionsMenuItems = new List<string>();
+        private object lockObject = new object();
 
         // For handling double click on listview item
         private int numTaps = 0;
@@ -58,11 +59,11 @@
         // cmdFilter
         private string cmdFilterText;
         private bool cmdFilterIsEnabled;
-        
+
         // cmdSelectSkid
         private string cmdSelectSkidText;
         private bool cmdSelectSkidIsEnabled;
-        
+
         // cmdAddProduct
         private string cmdAddProductText;
         private bool cmdAddProductIsEnabled;
@@ -101,7 +102,7 @@
             this.CmdAddSkidText = "Add Skid";
             this.CmdAddSkidIsEnabled = false;
 
-            
+
 
             if (!DesignMode.IsDesignModeEnabled)
             {
@@ -154,15 +155,15 @@
             base.OnPropertyChanged(propertyName);
 
             if (
-                propertyName == nameof(CmdLocationText)|| 
-                propertyName == nameof(CmdLocationIsEnabled)|| 
-                propertyName == nameof(CmdFilterText)|| 
-                propertyName == nameof(CmdFilterIsEnabled)||
-                propertyName == nameof(CmdSelectSkidText)||
-                propertyName == nameof(CmdSelectSkidIsEnabled)||
-                propertyName == nameof(CmdAddProductText)||
-                propertyName == nameof(CmdAddProductIsEnabled)||
-                propertyName == nameof(CmdAddSkidText)||
+                propertyName == nameof(CmdLocationText) ||
+                propertyName == nameof(CmdLocationIsEnabled) ||
+                propertyName == nameof(CmdFilterText) ||
+                propertyName == nameof(CmdFilterIsEnabled) ||
+                propertyName == nameof(CmdSelectSkidText) ||
+                propertyName == nameof(CmdSelectSkidIsEnabled) ||
+                propertyName == nameof(CmdAddProductText) ||
+                propertyName == nameof(CmdAddProductIsEnabled) ||
+                propertyName == nameof(CmdAddSkidText) ||
                 propertyName == nameof(CmdAddSkidIsEnabled)
                )
             {
@@ -276,12 +277,17 @@
 
             try
             {
+                this.Loading = true;
                 await this.ucActivityItem_GotFocus(this, new EventArgs());
             }
             catch (Exception ex)
             {
                 // TODO: Resource strings
                 await DisplayAlert("Error", "this.ucActivityItem_GotFocus threw an error " + ex, "OK");
+            }
+            finally
+            {
+                this.Loading = false;
             }
         }
 
@@ -337,27 +343,27 @@
         private void PopulateOptionsMenu()
         {
             this.OptionsMenuItems.Clear();
-            
+
             if (this.CmdLocationIsEnabled)
             {
                 this.OptionsMenuItems.Add(this.CmdLocationText);
             }
-            
+
             if (this.CmdFilterIsEnabled)
             {
                 this.OptionsMenuItems.Add(this.CmdFilterText);
-            }            
-            
+            }
+
             if (this.CmdSelectSkidIsEnabled)
             {
                 this.OptionsMenuItems.Add(this.CmdSelectSkidText);
             }
-            
+
             if (this.CmdAddProductIsEnabled)
             {
                 this.OptionsMenuItems.Add(this.CmdAddProductText);
             }
-            
+
             if (this.CmdAddSkidIsEnabled)
             {
                 this.OptionsMenuItems.Add(this.CmdAddSkidText);
@@ -710,58 +716,58 @@
         {
             bool isReadyToSave = true;
 
-                if (isReadyToSave)
+            if (isReadyToSave)
+            {
+                if (this.ActSubType == SysCommon.ActSubTypes.Picking)
                 {
-                    if (this.ActSubType == SysCommon.ActSubTypes.Picking)
+                    try
                     {
-                        try
+                        this.ItemQuantityUnderCheck();
+
+                        // Added extra check for Lekker, check all items.
+                        this.AllItemsQuantityUnderCheck();
+                    }
+                    catch (Exceptions.MessageOnlyException ex)
+                    {
+                        switch (this.SysEnv.SysSettings.PickQtyUnderWarn)
                         {
-                            this.ItemQuantityUnderCheck();
-
-                            // Added extra check for Lekker, check all items.
-                            this.AllItemsQuantityUnderCheck();
-                        }
-                        catch (Exceptions.MessageOnlyException ex)
-                        {
-                            switch (this.SysEnv.SysSettings.PickQtyUnderWarn)
-                            {
-                                case SysCommon.ActPickingQtyUnderValLevels.ValidateWarnAndContinue:
-                                    //if (MessageBox.Show(ex.Message + Environment.NewLine + "Continue?", "Quantity Validation", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.No)
-                                    // TODO: Resource strings
-                                    if (await DisplayAlert("Quantity Validation", "Continue?", "Yes", "No") == false)
-                                    {
-                                        isReadyToSave = false;
-                                        this.IsShowDataValidMsg = false;
-                                    }
-
-                                    break;
-
-                                case SysCommon.ActPickingQtyUnderValLevels.ValidateWarnAndStop:
-                                    //MessageBox.Show(ex.Message, "Quantity Validation", MessageBoxButtons.OK, MessageBoxIcon.Hand, MessageBoxDefaultButton.Button1);
-                                    // TODO: Resource strings
-                                    await DisplayAlert("Quantity Validation", ex.Message, "OK");
+                            case SysCommon.ActPickingQtyUnderValLevels.ValidateWarnAndContinue:
+                                //if (MessageBox.Show(ex.Message + Environment.NewLine + "Continue?", "Quantity Validation", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.No)
+                                // TODO: Resource strings
+                                if (await DisplayAlert("Quantity Validation", "Continue?", "Yes", "No") == false)
+                                {
                                     isReadyToSave = false;
                                     this.IsShowDataValidMsg = false;
+                                }
 
-                                    break;
+                                break;
 
-                                default:
-                                    // TODO: Resource strings
-                                    throw new NotImplementedException("Unknown this.SysEnv.SysSettings.PickingQuantityUnderWarning type.");
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            isReadyToSave = false;
+                            case SysCommon.ActPickingQtyUnderValLevels.ValidateWarnAndStop:
+                                //MessageBox.Show(ex.Message, "Quantity Validation", MessageBoxButtons.OK, MessageBoxIcon.Hand, MessageBoxDefaultButton.Button1);
+                                // TODO: Resource strings
+                                await DisplayAlert("Quantity Validation", ex.Message, "OK");
+                                isReadyToSave = false;
+                                this.IsShowDataValidMsg = false;
 
-                            await Device.InvokeOnMainThreadAsync(async () =>
-                            {
-                                FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
-                                await errRpt.ShowDialog();
-                            });
+                                break;
+
+                            default:
+                                // TODO: Resource strings
+                                throw new NotImplementedException("Unknown this.SysEnv.SysSettings.PickingQuantityUnderWarning type.");
                         }
                     }
+                    catch (Exception ex)
+                    {
+                        isReadyToSave = false;
+
+                        await Device.InvokeOnMainThreadAsync(async () =>
+                        {
+                            FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                            await errRpt.ShowDialog();
+                        });
+                    }
                 }
+            }
 
             return isReadyToSave;
         }
@@ -775,115 +781,115 @@
         {
             bool isReadyToClose = true;
 
-                // NOTE: This code is needed to clean up the scanner driver.
-                // Symbol had threading issues without this call when dMobile was terminating.
-                // All user controls that initalize a bar code need this code.
-                // The parent form (not a user control) will call scanner.terminate and dispose
-                // of the scanner instance upon exiting dMobile.
-                try
-                {
-                    this.ScannerDisable();
-                }
-                catch (Exception ex)
-                {
-                    isReadyToClose = false;
+            // NOTE: This code is needed to clean up the scanner driver.
+            // Symbol had threading issues without this call when dMobile was terminating.
+            // All user controls that initalize a bar code need this code.
+            // The parent form (not a user control) will call scanner.terminate and dispose
+            // of the scanner instance upon exiting dMobile.
+            try
+            {
+                this.ScannerDisable();
+            }
+            catch (Exception ex)
+            {
+                isReadyToClose = false;
 
-                    await Device.InvokeOnMainThreadAsync(async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
+                {
+                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    await errRpt.ShowDialog();
+                });
+            }
+            finally
+            {
+                this.ScannerEnable();
+            }
+
+            ////// Lekker requirement to check reviewed even though we are cancelling / closing.
+            ////if (this.ActSubType == SysCommon.ActSubTypes.Picking)
+            ////{
+            ////  if (isReadyToClose)
+            ////  {
+            ////    try
+            ////    {
+            ////      this.IsItemReviewed();
+
+            ////      // Added extra check for Lekker, check all items.
+            ////      this.IsAllItemsReviewed();
+            ////    }
+            ////    catch (Exceptions.MessageOnlyException ex)
+            ////    {
+            ////      isReadyToClose = false;
+            ////      ex.Show(this, this.ActSubType);
+            ////    }
+            ////    catch (Exception ex)
+            ////    {
+            ////      isReadyToClose = false;
+            ////      using (FormErrorReport errRpt = new FormErrorReport(
+            ////          this.ActSubType,
+            ////          this,
+            ////          ex))
+            ////      {
+            ////        errRpt.ShowDialog();
+            ////      }
+            ////    }
+            ////  }
+            ////}
+
+            // Prairie meats like Lekker requirement to check quantity under even though we are cancelling / closing.
+            // See WO# 12080
+            if (isReadyToClose)
+            {
+                if (this.ActSubType == SysCommon.ActSubTypes.Picking)
+                {
+                    try
                     {
-                        FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
-                        await errRpt.ShowDialog();
-                    });
-                }
-                finally
-                {
-                    this.ScannerEnable();
-                }
+                        this.IsShowDataValidMsg = true;
+                        this.ItemQuantityUnderCheck();
 
-                ////// Lekker requirement to check reviewed even though we are cancelling / closing.
-                ////if (this.ActSubType == SysCommon.ActSubTypes.Picking)
-                ////{
-                ////  if (isReadyToClose)
-                ////  {
-                ////    try
-                ////    {
-                ////      this.IsItemReviewed();
-
-                ////      // Added extra check for Lekker, check all items.
-                ////      this.IsAllItemsReviewed();
-                ////    }
-                ////    catch (Exceptions.MessageOnlyException ex)
-                ////    {
-                ////      isReadyToClose = false;
-                ////      ex.Show(this, this.ActSubType);
-                ////    }
-                ////    catch (Exception ex)
-                ////    {
-                ////      isReadyToClose = false;
-                ////      using (FormErrorReport errRpt = new FormErrorReport(
-                ////          this.ActSubType,
-                ////          this,
-                ////          ex))
-                ////      {
-                ////        errRpt.ShowDialog();
-                ////      }
-                ////    }
-                ////  }
-                ////}
-
-                // Prairie meats like Lekker requirement to check quantity under even though we are cancelling / closing.
-                // See WO# 12080
-                if (isReadyToClose)
-                {
-                    if (this.ActSubType == SysCommon.ActSubTypes.Picking)
+                        // Added extra check for Lekker, check all items.
+                        this.AllItemsQuantityUnderCheck();
+                    }
+                    catch (Exceptions.MessageOnlyException ex)
                     {
-                        try
+                        switch (this.SysEnv.SysSettings.PickQtyUnderWarn)
                         {
-                            this.IsShowDataValidMsg = true;
-                            this.ItemQuantityUnderCheck();
-
-                            // Added extra check for Lekker, check all items.
-                            this.AllItemsQuantityUnderCheck();
-                        }
-                        catch (Exceptions.MessageOnlyException ex)
-                        {
-                            switch (this.SysEnv.SysSettings.PickQtyUnderWarn)
-                            {
-                                case SysCommon.ActPickingQtyUnderValLevels.ValidateWarnAndContinue:
-                                    //if (MessageBox.Show(ex.Message + Environment.NewLine + "Continue?", "Quantity Validation", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.No)
-                                    // TODO: Resource strings
-                                    if (await DisplayAlert("Quantity Validation", ex.Message + Environment.NewLine + "Continue?", "Yes", "No") == false)
-                                    {
-                                        isReadyToClose = false;
-                                        this.IsShowDataValidMsg = false;
-                                    }
-
-                                    break;
-
-                                case SysCommon.ActPickingQtyUnderValLevels.ValidateWarnAndStop:
-                                    //MessageBox.Show(ex.Message, "Quantity Validation", MessageBoxButtons.OK, MessageBoxIcon.Hand, MessageBoxDefaultButton.Button1);
-                                    // TODO: Resource strings
-                                    await DisplayAlert("Quantity Validation", ex.Message, "OK");
+                            case SysCommon.ActPickingQtyUnderValLevels.ValidateWarnAndContinue:
+                                //if (MessageBox.Show(ex.Message + Environment.NewLine + "Continue?", "Quantity Validation", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.No)
+                                // TODO: Resource strings
+                                if (await DisplayAlert("Quantity Validation", ex.Message + Environment.NewLine + "Continue?", "Yes", "No") == false)
+                                {
                                     isReadyToClose = false;
                                     this.IsShowDataValidMsg = false;
+                                }
 
-                                    break;
+                                break;
 
-                                default:
-                                    throw new NotImplementedException("Unknown this.SysEnv.SysSettings.PickingQuantityUnderWarning type.");
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            isReadyToClose = true;
+                            case SysCommon.ActPickingQtyUnderValLevels.ValidateWarnAndStop:
+                                //MessageBox.Show(ex.Message, "Quantity Validation", MessageBoxButtons.OK, MessageBoxIcon.Hand, MessageBoxDefaultButton.Button1);
+                                // TODO: Resource strings
+                                await DisplayAlert("Quantity Validation", ex.Message, "OK");
+                                isReadyToClose = false;
+                                this.IsShowDataValidMsg = false;
 
-                            await Device.InvokeOnMainThreadAsync(async () =>
-                            {
-                                FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
-                                await errRpt.ShowDialog();
-                            });
+                                break;
+
+                            default:
+                                throw new NotImplementedException("Unknown this.SysEnv.SysSettings.PickingQuantityUnderWarning type.");
                         }
                     }
+                    catch (Exception ex)
+                    {
+                        isReadyToClose = true;
+
+                        await Device.InvokeOnMainThreadAsync(async () =>
+                        {
+                            FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                            await errRpt.ShowDialog();
+                        });
+                    }
                 }
+            }
 
             return isReadyToClose;
         }
@@ -896,7 +902,7 @@
         public async Task<bool> SaveChanges()
         {
             bool isSaveComplete = false;
-            
+
             try
             {
                 if (await this.IsReadyToSave())
@@ -1565,7 +1571,7 @@
                         else
                         {
                             // TODO: Resource strings
-                            Device.BeginInvokeOnMainThread(() => this.CmdLocationText = "Set Location");
+                            await Device.InvokeOnMainThreadAsync(() => this.CmdLocationText = "Set Location");
                         }
                     }
 
@@ -1679,7 +1685,7 @@
                 }
                 catch (Exception ex)
                 {
-                    Device.BeginInvokeOnMainThread(async () =>
+                    await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
                         await errRpt.ShowDialog();
@@ -2217,7 +2223,7 @@
             }
             catch (Exception ex)
             {
-                Device.BeginInvokeOnMainThread(async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
                     await errRpt.ShowDialog();
@@ -2371,7 +2377,7 @@
         //            }
         //            catch (Exception ex)
         //            {
-        //                Device.BeginInvokeOnMainThread(async () =>
+        //                await Device.InvokeOnMainThreadAsync(async () =>
         //                {
         //                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
         //                    await errRpt.ShowDialog();
@@ -2430,7 +2436,7 @@
             }
             catch (Exception ex)
             {
-                Device.BeginInvokeOnMainThread(async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
                     await errRpt.ShowDialog();
@@ -2502,7 +2508,7 @@
             }
             catch (Exception ex)
             {
-                Device.BeginInvokeOnMainThread(async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
                     await errRpt.ShowDialog();
@@ -2549,7 +2555,7 @@
             }
             catch (Exception ex)
             {
-                Device.BeginInvokeOnMainThread(async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
                     await errRpt.ShowDialog();
@@ -2606,238 +2612,125 @@
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="scanArgs"></param>
-        private async void BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
+        private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
-            await Task.Run(async () =>
+            if (this.Loading || scanArgs == null)
             {
-                this.Loading = true;
+                return;
+            }
 
-                int prodUnitRefno = 0;
-                int currRowIdx = this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem);
-                int foundRowIdx = 0;
-                int actItemFoundRefno = 0;
-                SActItemSchemeData tempItemProdSchemeData = new SActItemSchemeData();
-                BarCodeParse parse = null;
+            this.ScannerDisable();
+            this.Loading = true;
 
-                try
+            int prodUnitRefno = 0;
+            int currRowIdx = this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem);
+            int foundRowIdx = 0;
+            int actItemFoundRefno = 0;
+            SActItemSchemeData tempItemProdSchemeData = new SActItemSchemeData();
+            BarCodeParse parse = null;
+
+            try
+            {
+                parse = scanArgs.ParseInfo;
+
+                // GLOBAL LOCATION IDENTIFIER SCANNED
+                if (!string.IsNullOrEmpty(parse.LocationIdentifier))
                 {
-                    this.ScannerDisable();
+                    this.LocMap.CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(parse.LocationIdentifier));
 
-                    parse = scanArgs.ParseInfo;
-
-                    // GLOBAL LOCATION IDENTIFIER SCANNED
-                    if (!string.IsNullOrEmpty(parse.LocationIdentifier))
+                    if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
                     {
-                        this.LocMap.CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(parse.LocationIdentifier));
-
-                        if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
-                        {
-                            string currentReadableLocation = LocationMapTasks.GetCurrentReadableLocation();
-                            await Device.InvokeOnMainThreadAsync(() => this.CmdLocationText = "Location: " + Environment.NewLine + currentReadableLocation);
-                        }
-                        else
-                        {
-                            // TODO: Resource strings
-                            await Device.InvokeOnMainThreadAsync(() => this.CmdLocationText = "Set Location");
-                        }
+                        string currentReadableLocation = LocationMapTasks.GetCurrentReadableLocation();
+                        await Device.InvokeOnMainThreadAsync(() => this.CmdLocationText = "Location: " + Environment.NewLine + currentReadableLocation);
                     }
                     else
                     {
-                        if (!LocationMapTasks.IsCompleteLocMapRefno(this.LocMap.CurrLocMapRefno)
+                        // TODO: Resource strings
+                        await Device.InvokeOnMainThreadAsync(() => this.CmdLocationText = "Set Location");
+                    }
+                }
+                else
+                {
+                    if (!LocationMapTasks.IsCompleteLocMapRefno(this.LocMap.CurrLocMapRefno)
                             && (!this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc
                             && !(this.ActSubType == SysCommon.ActSubTypes.Picking
                             || this.ActSubType == SysCommon.ActSubTypes.Receiving
                             || this.ActSubType == SysCommon.ActSubTypes.Receiving)))
-                        {
+                    {
 
-                            // TODO: Resource strings
-                            throw new Exceptions.MessageOnlyException("Location must be set first!");
+                        // TODO: Resource strings
+                        throw new Exceptions.MessageOnlyException("Location must be set first!");
+                    }
+
+                    // PRODUCT IDENTIFIER
+                    if (!string.IsNullOrEmpty(parse.ProductIdentifier))
+                    {
+                        // Not allowed to count individual boxes on a skid. Skids must be
+                        // scanned as a whole unit or built in skid maintenance.
+
+                        // DEV-827 This change to allow counting partial skids is a bad idea.                        
+                        ////                        if (this.ActSubType == SysCommon.ActSubTypes.PhysicalCounts
+                        ////                            || this.ActSubType == SysCommon.ActSubTypes.CycleCounts)
+                        ////                        {
+                        ////                            if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
+                        ////                            {
+                        ////                                this.ActItem.ActHdr.SkidInfo = new SysSkidInfo();
+                        ////#if MULTILANGUAGE
+                        ////                this.cmdSelectSkid.Text = Translator.GetInstance().Translate(TranslatorVocabulary.SelectSkid);
+                        ////#else
+                        ////                                this.cmdSelectSkid.Text = "Select Skid";
+                        ////#endif
+                        ////                            }
+                        ////                        }
+
+                        prodUnitRefno = await SysShared.IdentifyProductScanned(this.ActSubType, parse, prodUnitRefno);
+                        ProductInfo tempProdInfo = new ProductInfo();
+                        tempProdInfo = ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
+
+                        actItemFoundRefno = this.ActItem.GetRefnoFromProdUnitRefno(prodUnitRefno);
+                        this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
+
+                        if (actItemFoundRefno > 0)
+                        {
+                            foundRowIdx = this.ActItem.DataViewItems.Find(actItemFoundRefno);
                         }
-
-                        // PRODUCT IDENTIFIER
-                        if (!string.IsNullOrEmpty(parse.ProductIdentifier))
+                        else
                         {
-                            // Not allowed to count individual boxes on a skid. Skids must be
-                            // scanned as a whole unit or built in skid maintenance.
-
-                            // DEV-827 This change to allow counting partial skids is a bad idea.                        
-                            ////                        if (this.ActSubType == SysCommon.ActSubTypes.PhysicalCounts
-                            ////                            || this.ActSubType == SysCommon.ActSubTypes.CycleCounts)
-                            ////                        {
-                            ////                            if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
-                            ////                            {
-                            ////                                this.ActItem.ActHdr.SkidInfo = new SysSkidInfo();
-                            ////#if MULTILANGUAGE
-                            ////                this.cmdSelectSkid.Text = Translator.GetInstance().Translate(TranslatorVocabulary.SelectSkid);
-                            ////#else
-                            ////                                this.cmdSelectSkid.Text = "Select Skid";
-                            ////#endif
-                            ////                            }
-                            ////                        }
-
-                            prodUnitRefno = await SysShared.IdentifyProductScanned(this.ActSubType, parse, prodUnitRefno);
-                            ProductInfo tempProdInfo = new ProductInfo();
-                            tempProdInfo = ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
-
-                            actItemFoundRefno = this.ActItem.GetRefnoFromProdUnitRefno(prodUnitRefno);
-                            this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
-
-                            if (actItemFoundRefno > 0)
+                            if (this.ActItem.IsAllowAddItem)
                             {
-                                foundRowIdx = this.ActItem.DataViewItems.Find(actItemFoundRefno);
-                            }
-                            else
-                            {
-                                if (this.ActItem.IsAllowAddItem)
+                                bool isAddNewItem = false;
+
+                                if (this.ActItem.IsAskCreateNewItem)
                                 {
-                                    bool isAddNewItem = false;
+                                    //MessageBox.Show(
+                                    //    string.Format("A line item does not exist for this warehouse {0} and product \'{1}.\'" + Environment.NewLine + "Do you wish to create one?",
+                                    //    this.LocMap.CurrLocMap.WhsCode,
+                                    //    ProductInfoTasks.GetCurrReadableProdBCUnit(tempProdInfo)),
+                                    //    this.GetControlDescription(),
+                                    //    MessageBoxButtons.YesNo,
+                                    //    MessageBoxIcon.Question,
+                                    //    MessageBoxDefaultButton.Button2) == DialogResult.Yes)
 
-                                    if (this.ActItem.IsAskCreateNewItem)
+                                    await Device.InvokeOnMainThreadAsync(async () =>
                                     {
-                                        //MessageBox.Show(
-                                        //    string.Format("A line item does not exist for this warehouse {0} and product \'{1}.\'" + Environment.NewLine + "Do you wish to create one?",
-                                        //    this.LocMap.CurrLocMap.WhsCode,
-                                        //    ProductInfoTasks.GetCurrReadableProdBCUnit(tempProdInfo)),
-                                        //    this.GetControlDescription(),
-                                        //    MessageBoxButtons.YesNo,
-                                        //    MessageBoxIcon.Question,
-                                        //    MessageBoxDefaultButton.Button2) == DialogResult.Yes)
-
-                                        await Device.InvokeOnMainThreadAsync(async () =>
+                                        if (await DisplayAlert(this.GetControlDescription(),
+                                                    string.Format("A line item does not exist for this warehouse {0} and product \'{1}.\'" + Environment.NewLine + "Do you wish to create one?",
+                                                    this.LocMap.CurrLocMap.WhsCode,
+                                                    ProductInfoTasks.GetCurrReadableProdBCUnit(tempProdInfo)),
+                                                    "Yes", "No"))
                                         {
-                                            if (await DisplayAlert(this.GetControlDescription(),
-                                                string.Format("A line item does not exist for this warehouse {0} and product \'{1}.\'" + Environment.NewLine + "Do you wish to create one?",
-                                                this.LocMap.CurrLocMap.WhsCode,
-                                                ProductInfoTasks.GetCurrReadableProdBCUnit(tempProdInfo)),
-                                                "Yes", "No"))
-                                            {
-                                                isAddNewItem = true;
-                                            }
-                                        });
-                                    }
-                                    else
-                                    {
-                                        isAddNewItem = true;
-                                    }
-
-                                    if (isAddNewItem)
-                                    {
-                                        await this.ActItem.Insert(ProductInfoTasks.GetXML(tempProdInfo), false);
-
-                                        // This is a little dangerous we assume that the new row idx will be the last one
-                                        foundRowIdx = this.ActItem.DataViewItems.Count - 1;
-                                        actItemFoundRefno = this.ActItem.Refno;
-                                    }
-                                    else
-                                    {
-                                        throw new GatherProductDataException(this.ActItem.GetItemNotFoundMessage(this.LocMap, tempProdInfo), true);
-                                    }
+                                            isAddNewItem = true;
+                                        }
+                                    });
                                 }
                                 else
                                 {
-                                    throw new Exception(this.ActItem.GetItemNotFoundMessage(this.LocMap, tempProdInfo));
+                                    isAddNewItem = true;
                                 }
-                            }
-                        }
 
-                        // ACTIVITY ITEM FK REFNO
-                        if (!string.IsNullOrEmpty(parse.ActItemFKRefno) && !this.SysEnv.SysSettings.IsDisconnectedMode)
-                        {
-                            this.ActItem.DataViewItems.Sort = this.ActItem.GetDataViewSortFKRefnoIdx();
-
-                            if (this.ActSubType == SysCommon.ActSubTypes.Picking)
-                            {
-                                foundRowIdx = this.ActItem.DataViewItems.Find(scanArgs.ParseInfo.ActItemFKRefno);
-
-                                if (foundRowIdx >= 0)
+                                if (isAddNewItem)
                                 {
-                                    this.ActItem.SelectItem(foundRowIdx);
-                                    actItemFoundRefno = this.ActItem.Refno;
-                                    this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
-                                    foundRowIdx = this.ActItem.DataViewItems.Find(actItemFoundRefno);
-                                }
-                                else
-                                {
-                                    throw new Exception(this.ActItem.GetUnableToFindItemFKRefnoMessage(scanArgs.ParseInfo.ActItemFKRefno));
-                                }
-                            }
-                            else
-                            {
-                                // TODO: Resource strings
-                                throw new Exceptions.MessageOnlyException("Scanning a line item bar code is not supported here!");
-                            }
-                        }
-
-                        // ACTIVITY DETAIL FK REFNO
-                        if (!string.IsNullOrEmpty(parse.ActDetailFKRefno) && !this.SysEnv.SysSettings.IsDisconnectedMode)
-                        {
-                            if (this.ActSubType == SysCommon.ActSubTypes.Picking)
-                            {
-                                this.ActItem.DataViewItems.Sort = this.ActItem.GetDataViewSortFKRefnoIdx();
-                                tempItemProdSchemeData = this.ActItem.GetProdSchemeDataFromDetailFKRefno(int.Parse(parse.ActDetailFKRefno));
-                                foundRowIdx = this.ActItem.DataViewItems.Find(tempItemProdSchemeData.ActItemFKRefno.ToString());
-
-                                if (foundRowIdx >= 0)
-                                {
-                                    this.ActItem.SelectItem(foundRowIdx);
-                                    actItemFoundRefno = this.ActItem.Refno;
-                                    this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
-                                    foundRowIdx = this.ActItem.DataViewItems.Find(actItemFoundRefno);
-                                }
-                                else
-                                {
-                                    throw new Exception(this.ActItem.GetUnableToFindItemFKRefnoMessage(scanArgs.ParseInfo.ActItemFKRefno));
-                                }
-                            }
-                            else
-                            {
-                                // TODO: Resource strings
-                                throw new Exceptions.MessageOnlyException("Scanning an line item detail bar code is not supported here!");
-                            }
-                        }
-
-                        if (!string.IsNullOrEmpty(parse.ActDetailFKRefno) && this.SysEnv.SysSettings.IsDisconnectedMode)
-                        {
-                            // TODO: Resource strings
-                            throw new Exceptions.MessageOnlyException("Scanning an line item detail bar code is not supported here! In Disconnected Mode");
-                        }
-
-                        // SHIPPING CONAINTER SCANNED, SKID
-                        if (!string.IsNullOrEmpty(parse.SSCC18))
-                        {
-                            if (!this.SysEnv.SysSettings.IsSkidTrackingModule)
-                            {
-                                // TODO: Resource strings
-                                throw new Exceptions.MessageOnlyException("Scanning a shipping container bar code is not enabled.");
-                            }
-
-                            if (this.SysEnv.SysSettings.IsDisconnectedMode)
-                            {
-                                // TODO: Resource strings
-                                throw new Exceptions.MessageOnlyException("Scanning a shipping container bar code is not supported in disconnected mode.");
-                            }
-
-                            this.ActItem.ActHdr.SkidInfo = SysSkidInfo.GetSkidInfoFromBarCodeOrCode(parse.SSCC18);
-
-                            if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno == 0)
-                            {
-                                // TODO: Resource strings
-                                throw new Exceptions.MessageOnlyException("Skid does not exist.");
-                            }
-
-                            prodUnitRefno = this.ActItem.ActHdr.SkidInfo.CurrSkid.ProdInfo.UnitRefno;
-                            actItemFoundRefno = this.ActItem.GetRefnoFromProdUnitRefno(prodUnitRefno);
-                            this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
-
-                            if (actItemFoundRefno > 0)
-                            {
-                                foundRowIdx = this.ActItem.DataViewItems.Find(actItemFoundRefno);
-                            }
-                            else
-                            {
-                                if (this.ActItem.IsAllowAddItem)
-                                {
-                                    await this.ActItem.Insert(ProductInfoTasks.GetXML(this.ActItem.ActHdr.SkidInfo.CurrSkid.ProdInfo), false);
+                                    await this.ActItem.Insert(ProductInfoTasks.GetXML(tempProdInfo), false);
 
                                     // This is a little dangerous we assume that the new row idx will be the last one
                                     foundRowIdx = this.ActItem.DataViewItems.Count - 1;
@@ -2845,163 +2738,245 @@
                                 }
                                 else
                                 {
-                                    throw new Exceptions.MessageOnlyException(this.ActItem.GetItemNotFoundMessage(this.LocMap, this.ActItem.ActHdr.SkidInfo.CurrSkid.ProdInfo));
+                                    throw new GatherProductDataException(this.ActItem.GetItemNotFoundMessage(this.LocMap, tempProdInfo), true);
                                 }
                             }
-                        }
-
-                        // IF AN ACTIVITY LINE ITEM WAS FOUND
-                        if (actItemFoundRefno == 0 || foundRowIdx < 0)
-                        {
-                            // TODO: Resource strings
-                            throw new Exceptions.MessageOnlyException("Line item not found.");
-                        }
-                        else
-                        {
-                            this.ActItem.SelectItem(foundRowIdx);
-                            await Device.InvokeOnMainThreadAsync(() => this.DisplayData());
-                        }
-
-                        if (!LocationMapTasks.IsCompleteLocMapRefno(this.LocMap.CurrLocMapRefno))
-                        {
-                            // TODO: Resource strings
-                            throw new Exceptions.MessageOnlyException("Location must be set first.");
-                        }
-
-                        if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
-                        {
-                            if (this.ActItem.ActHdr.SkidInfo.CurrSkid.ProdInfo.UnitRefno != this.ActItem.ProdInfo.UnitRefno)
+                            else
                             {
-                                // TODO: Resource strings
-                                throw new Exceptions.MessageOnlyException("Identified line item product does not match the selected skid product.");
+                                throw new Exception(this.ActItem.GetItemNotFoundMessage(this.LocMap, tempProdInfo));
                             }
-                        }
-
-                        // If NOT a container, evaluate
-                        // WO 14171 if Skid is catch ask zero, then prompt for quantity.
-                        if (string.IsNullOrEmpty(parse.SSCC18) || ActItem.IsCatchAskZero())
-                        {
-                            // RULE: CHECK IF THE CURRENT LOCATION AND PRODUCT HOME LOCATION ARE THE SAME
-                            if (this.SysEnv.SysSettings.IsVerifyProductLocation && (this.ActSubType == SysCommon.ActSubTypes.Picking || this.ActSubType == SysCommon.ActSubTypes.TransferFrom))
-                            {
-                                // LocationMapRefno is assumed to be the picking WarehouseLocationMapRefno
-                                int locMapRefno = this.ActItem.GetDefaultLocMapRefno(Convert.ToInt32(this.ActItem.DataViewItems[foundRowIdx]["LocationMapRefno"]), Convert.ToInt32(this.ActItem.DataViewItems[foundRowIdx]["ProductRefno"]));
-
-                                if (this.LocMap.CurrLocMapRefno != locMapRefno)
-                                {
-                                    // TODO: Resource strings
-                                    throw new Exceptions.MessageOnlyException("The current location does not match the product home location.");
-                                }
-                            }
-
-                            // Not allowed to count individual boxes on a skid. Skids must be
-                            // scanned as a whole unit or built in skid maintenance.
-
-                            // DEV-827 This change to allow counting partial skids is a bad idea.                        
-                            ////                        if (this.ActSubType == SysCommon.ActSubTypes.PhysicalCounts
-                            ////                            || this.ActSubType == SysCommon.ActSubTypes.CycleCounts)
-                            ////                        {
-                            ////                            if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
-                            ////                            {
-                            ////                                this.ActItem.ActHdr.SkidInfo = new SysSkidInfo();
-                            ////#if MULTILANGUAGE
-                            ////                this.cmdSelectSkid.Text = Translator.GetInstance().Translate(TranslatorVocabulary.SelectSkid);
-                            ////#else
-                            ////                                this.cmdSelectSkid.Text = "Select Skid";
-                            ////#endif
-                            ////                            }
-                            ////                        }
-
-                            bool isInsertReady = false;
-                            ActDetail actDetail = ActDetailFacade.GetActDetail(this.ActItem, this.ActSubType);
-
-                            // Did not use this.ActItem.ActHdr.SkidInfo.CurrSkid.LogisticUnitSkidCode because of the len of the code
-                            // and the fact is isn't human readable friendly.
-                            SProductSchemeData schemeData = actDetail.SchemeData;
-
-                            if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
-                            {
-                                schemeData.LogisticUnitSkidNumber = this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode;
-                                schemeData.LogisticUnitBatchLotNumber = this.ActItem.ActHdr.SkidInfo.CurrSkid.SchemeData.LogisticUnitBatchLotNumber;
-                                schemeData.LogisticUnitBestBeforeSellByDate = this.ActItem.ActHdr.SkidInfo.CurrSkid.SchemeData.LogisticUnitBestBeforeSellByDate;
-                                schemeData.LogisticUnitProductionDate = this.ActItem.ActHdr.SkidInfo.CurrSkid.SchemeData.LogisticUnitProductionDate;
-                                schemeData.VariantCode = this.ActItem.ActHdr.SkidInfo.CurrSkid.SchemeData.VariantCode;
-                                schemeData.VariantNumber = this.ActItem.ActHdr.SkidInfo.CurrSkid.SchemeData.VariantNumber;
-                                schemeData.VariantDescription = this.ActItem.ActHdr.SkidInfo.CurrSkid.SchemeData.VariantDescription;
-                            }
-
-                            tempItemProdSchemeData.ProdSchemeData = schemeData;
-                            actDetail.SchemeData = schemeData;
-
-                            isInsertReady = await SysShared.GatherProductData(parse, this.ActSubType, this.ActItem, tempItemProdSchemeData, isInsertReady, actDetail, false);
-                            this.InsertActivityDetail(ref foundRowIdx, actDetail, parse, isInsertReady);
-                        }
-                        else
-                        {
-                            // INSERT A NEW ACTIVITY DETAIL RECORD
-                            ActDetail actDetail = ActDetailFacade.GetActDetail(this.ActItem, this.ActSubType);
-                            actDetail.ActItem = this.ActItem;
-
-                            actDetail.SchemeID = ProductInfoTasks.GetActSchemeIDFromSProdSchemeData(this.ActItem.ProdInfo.Code, this.ActItem.ProdInfo.Scheme, actDetail.SchemeData);
-                            actDetail.UniqueSchemeID = ProductInfoTasks.GetActUniqueSchemeIDFromSProdSchemeData(this.ActItem.ProdInfo.Code, this.ActItem.ProdInfo.Scheme, actDetail.SchemeData);
-
-                            // IsReadyToApply will perform any validations, such as duplicate checks and quantity validations.
-                            XDocument xmlParam = XDocument.Parse(
-                                "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                                + "<imclient>"
-                                + ("<itm_refno>" + this.ActItem.FKRefno + "</itm_refno>")
-                                + ("<alt_qty>" + this.ActItem.ActHdr.SkidInfo.CurrSkid.Quantity + "</alt_qty>")
-                                + ("<wt_qty>" + this.ActItem.ActHdr.SkidInfo.CurrSkid.WeightQuantity + "</wt_qty>")
-                                + ("<ActivityDetailUniqueSchemeID>" + actDetail.UniqueSchemeID + "</ActivityDetailUniqueSchemeID>")
-                                + "</imclient>");
-
-                            await this.ActItem.IsReadyToApply(xmlParam);
-
-                            actDetail.InsertSkid(this.ActItem.ActHdr.SkidInfo);
-
-                            // Upon a save of completed data update the data view to to show new item and quantity change
-                            currRowIdx = this.ActItem.UpdateDataViewQuantity(foundRowIdx, actDetail.Quantity, actDetail.BaseQuantity, actDetail.WeightQuantity);
-
-                            this.ActItem.UpdateQuantityFromDataView(currRowIdx, this.ActItem.Refno);
-                        }
-
-                        // foundRowIdx = this.dataGridMainActivity.CurrentRowIndex
-                        if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
-                        {
-                            await Device.InvokeOnMainThreadAsync(() =>
-                            {
-                                this.CmdAddSkidIsEnabled = true;
-
-                                // TODO: Resource strings
-                                this.CmdSelectSkidText = "Skid# " + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode;
-                            });
-                        }
-                        else
-                        {
-                            // TODO: Resource strings
-                            await Device.InvokeOnMainThreadAsync(() => this.CmdSelectSkidText = "Select Skid");
                         }
                     }
 
-                    await this.RefreshData();
-                }
-                catch (TaskCanceledException)
-                {
-                    // Do nothing as task is being cancelled from IdentifyProductScanned when user declines to assign barcode to product
-                    Console.WriteLine("No product chosen");
-                }
-                catch (Exceptions.MessageOnlyException ex)
-                {
-                    ex.Show(this.ActSubType);
-
-                    if (this.ActItem.DataViewItems.Count > 0 && foundRowIdx >= 0 && foundRowIdx < this.ActItem.DataViewItems.Count)
+                    // ACTIVITY ITEM FK REFNO
+                    if (!string.IsNullOrEmpty(parse.ActItemFKRefno) && !this.SysEnv.SysSettings.IsDisconnectedMode)
                     {
-                        //this.dataGridMainActivity.CurrentRowIndex = foundRowIdx;
+                        this.ActItem.DataViewItems.Sort = this.ActItem.GetDataViewSortFKRefnoIdx();
+
+                        if (this.ActSubType == SysCommon.ActSubTypes.Picking)
+                        {
+                            foundRowIdx = this.ActItem.DataViewItems.Find(scanArgs.ParseInfo.ActItemFKRefno);
+
+                            if (foundRowIdx >= 0)
+                            {
+                                this.ActItem.SelectItem(foundRowIdx);
+                                actItemFoundRefno = this.ActItem.Refno;
+                                this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
+                                foundRowIdx = this.ActItem.DataViewItems.Find(actItemFoundRefno);
+                            }
+                            else
+                            {
+                                throw new Exception(this.ActItem.GetUnableToFindItemFKRefnoMessage(scanArgs.ParseInfo.ActItemFKRefno));
+                            }
+                        }
+                        else
+                        {
+                            // TODO: Resource strings
+                            throw new Exceptions.MessageOnlyException("Scanning a line item bar code is not supported here!");
+                        }
+                    }
+
+                    // ACTIVITY DETAIL FK REFNO
+                    if (!string.IsNullOrEmpty(parse.ActDetailFKRefno) && !this.SysEnv.SysSettings.IsDisconnectedMode)
+                    {
+                        if (this.ActSubType == SysCommon.ActSubTypes.Picking)
+                        {
+                            this.ActItem.DataViewItems.Sort = this.ActItem.GetDataViewSortFKRefnoIdx();
+                            tempItemProdSchemeData = this.ActItem.GetProdSchemeDataFromDetailFKRefno(int.Parse(parse.ActDetailFKRefno));
+                            foundRowIdx = this.ActItem.DataViewItems.Find(tempItemProdSchemeData.ActItemFKRefno.ToString());
+
+                            if (foundRowIdx >= 0)
+                            {
+                                this.ActItem.SelectItem(foundRowIdx);
+                                actItemFoundRefno = this.ActItem.Refno;
+                                this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
+                                foundRowIdx = this.ActItem.DataViewItems.Find(actItemFoundRefno);
+                            }
+                            else
+                            {
+                                throw new Exception(this.ActItem.GetUnableToFindItemFKRefnoMessage(scanArgs.ParseInfo.ActItemFKRefno));
+                            }
+                        }
+                        else
+                        {
+                            // TODO: Resource strings
+                            throw new Exceptions.MessageOnlyException("Scanning an line item detail bar code is not supported here!");
+                        }
+                    }
+
+                    if (!string.IsNullOrEmpty(parse.ActDetailFKRefno) && this.SysEnv.SysSettings.IsDisconnectedMode)
+                    {
+                        // TODO: Resource strings
+                        throw new Exceptions.MessageOnlyException("Scanning an line item detail bar code is not supported here! In Disconnected Mode");
+                    }
+
+                    // SHIPPING CONAINTER SCANNED, SKID
+                    if (!string.IsNullOrEmpty(parse.SSCC18))
+                    {
+                        if (!this.SysEnv.SysSettings.IsSkidTrackingModule)
+                        {
+                            // TODO: Resource strings
+                            throw new Exceptions.MessageOnlyException("Scanning a shipping container bar code is not enabled.");
+                        }
+
+                        if (this.SysEnv.SysSettings.IsDisconnectedMode)
+                        {
+                            // TODO: Resource strings
+                            throw new Exceptions.MessageOnlyException("Scanning a shipping container bar code is not supported in disconnected mode.");
+                        }
+
+                        this.ActItem.ActHdr.SkidInfo = SysSkidInfo.GetSkidInfoFromBarCodeOrCode(parse.SSCC18);
+
+                        if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno == 0)
+                        {
+                            // TODO: Resource strings
+                            throw new Exceptions.MessageOnlyException("Skid does not exist.");
+                        }
+
+                        prodUnitRefno = this.ActItem.ActHdr.SkidInfo.CurrSkid.ProdInfo.UnitRefno;
+                        actItemFoundRefno = this.ActItem.GetRefnoFromProdUnitRefno(prodUnitRefno);
+                        this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
+
+                        if (actItemFoundRefno > 0)
+                        {
+                            foundRowIdx = this.ActItem.DataViewItems.Find(actItemFoundRefno);
+                        }
+                        else
+                        {
+                            if (this.ActItem.IsAllowAddItem)
+                            {
+                                await this.ActItem.Insert(ProductInfoTasks.GetXML(this.ActItem.ActHdr.SkidInfo.CurrSkid.ProdInfo), false);
+
+                                // This is a little dangerous we assume that the new row idx will be the last one
+                                foundRowIdx = this.ActItem.DataViewItems.Count - 1;
+                                actItemFoundRefno = this.ActItem.Refno;
+                            }
+                            else
+                            {
+                                throw new Exceptions.MessageOnlyException(this.ActItem.GetItemNotFoundMessage(this.LocMap, this.ActItem.ActHdr.SkidInfo.CurrSkid.ProdInfo));
+                            }
+                        }
+                    }
+
+                    // IF AN ACTIVITY LINE ITEM WAS FOUND
+                    if (actItemFoundRefno == 0 || foundRowIdx < 0)
+                    {
+                        // TODO: Resource strings
+                        throw new Exceptions.MessageOnlyException("Line item not found.");
+                    }
+                    else
+                    {
+                        this.ActItem.SelectItem(foundRowIdx);
+                        await Device.InvokeOnMainThreadAsync(() => this.DisplayData());
+                    }
+
+                    if (!LocationMapTasks.IsCompleteLocMapRefno(this.LocMap.CurrLocMapRefno))
+                    {
+                        // TODO: Resource strings
+                        throw new Exceptions.MessageOnlyException("Location must be set first.");
                     }
 
                     if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
                     {
-                        Device.BeginInvokeOnMainThread(() =>
+                        if (this.ActItem.ActHdr.SkidInfo.CurrSkid.ProdInfo.UnitRefno != this.ActItem.ProdInfo.UnitRefno)
+                        {
+                            // TODO: Resource strings
+                            throw new Exceptions.MessageOnlyException("Identified line item product does not match the selected skid product.");
+                        }
+                    }
+
+                    // If NOT a container, evaluate
+                    // WO 14171 if Skid is catch ask zero, then prompt for quantity.
+                    if (string.IsNullOrEmpty(parse.SSCC18) || ActItem.IsCatchAskZero())
+                    {
+                        // RULE: CHECK IF THE CURRENT LOCATION AND PRODUCT HOME LOCATION ARE THE SAME
+                        if (this.SysEnv.SysSettings.IsVerifyProductLocation && (this.ActSubType == SysCommon.ActSubTypes.Picking || this.ActSubType == SysCommon.ActSubTypes.TransferFrom))
+                        {
+                            // LocationMapRefno is assumed to be the picking WarehouseLocationMapRefno
+                            int locMapRefno = this.ActItem.GetDefaultLocMapRefno(Convert.ToInt32(this.ActItem.DataViewItems[foundRowIdx]["LocationMapRefno"]), Convert.ToInt32(this.ActItem.DataViewItems[foundRowIdx]["ProductRefno"]));
+
+                            if (this.LocMap.CurrLocMapRefno != locMapRefno)
+                            {
+                                // TODO: Resource strings
+                                throw new Exceptions.MessageOnlyException("The current location does not match the product home location.");
+                            }
+                        }
+
+                        // Not allowed to count individual boxes on a skid. Skids must be
+                        // scanned as a whole unit or built in skid maintenance.
+
+                        // DEV-827 This change to allow counting partial skids is a bad idea.                        
+                        ////                        if (this.ActSubType == SysCommon.ActSubTypes.PhysicalCounts
+                        ////                            || this.ActSubType == SysCommon.ActSubTypes.CycleCounts)
+                        ////                        {
+                        ////                            if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
+                        ////                            {
+                        ////                                this.ActItem.ActHdr.SkidInfo = new SysSkidInfo();
+                        ////#if MULTILANGUAGE
+                        ////                this.cmdSelectSkid.Text = Translator.GetInstance().Translate(TranslatorVocabulary.SelectSkid);
+                        ////#else
+                        ////                                this.cmdSelectSkid.Text = "Select Skid";
+                        ////#endif
+                        ////                            }
+                        ////                        }
+
+                        bool isInsertReady = false;
+                        ActDetail actDetail = ActDetailFacade.GetActDetail(this.ActItem, this.ActSubType);
+
+                        // Did not use this.ActItem.ActHdr.SkidInfo.CurrSkid.LogisticUnitSkidCode because of the len of the code
+                        // and the fact is isn't human readable friendly.
+                        SProductSchemeData schemeData = actDetail.SchemeData;
+
+                        if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
+                        {
+                            schemeData.LogisticUnitSkidNumber = this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode;
+                            schemeData.LogisticUnitBatchLotNumber = this.ActItem.ActHdr.SkidInfo.CurrSkid.SchemeData.LogisticUnitBatchLotNumber;
+                            schemeData.LogisticUnitBestBeforeSellByDate = this.ActItem.ActHdr.SkidInfo.CurrSkid.SchemeData.LogisticUnitBestBeforeSellByDate;
+                            schemeData.LogisticUnitProductionDate = this.ActItem.ActHdr.SkidInfo.CurrSkid.SchemeData.LogisticUnitProductionDate;
+                            schemeData.VariantCode = this.ActItem.ActHdr.SkidInfo.CurrSkid.SchemeData.VariantCode;
+                            schemeData.VariantNumber = this.ActItem.ActHdr.SkidInfo.CurrSkid.SchemeData.VariantNumber;
+                            schemeData.VariantDescription = this.ActItem.ActHdr.SkidInfo.CurrSkid.SchemeData.VariantDescription;
+                        }
+
+                        tempItemProdSchemeData.ProdSchemeData = schemeData;
+                        actDetail.SchemeData = schemeData;
+
+                        isInsertReady = await SysShared.GatherProductData(parse, this.ActSubType, this.ActItem, tempItemProdSchemeData, isInsertReady, actDetail, false);
+                        this.InsertActivityDetail(ref foundRowIdx, actDetail, parse, isInsertReady);
+                    }
+                    else
+                    {
+                        // INSERT A NEW ACTIVITY DETAIL RECORD
+                        ActDetail actDetail = ActDetailFacade.GetActDetail(this.ActItem, this.ActSubType);
+                        actDetail.ActItem = this.ActItem;
+
+                        actDetail.SchemeID = ProductInfoTasks.GetActSchemeIDFromSProdSchemeData(this.ActItem.ProdInfo.Code, this.ActItem.ProdInfo.Scheme, actDetail.SchemeData);
+                        actDetail.UniqueSchemeID = ProductInfoTasks.GetActUniqueSchemeIDFromSProdSchemeData(this.ActItem.ProdInfo.Code, this.ActItem.ProdInfo.Scheme, actDetail.SchemeData);
+
+                        // IsReadyToApply will perform any validations, such as duplicate checks and quantity validations.
+                        XDocument xmlParam = XDocument.Parse(
+                                    "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
+                                    + "<imclient>"
+                                    + ("<itm_refno>" + this.ActItem.FKRefno + "</itm_refno>")
+                                    + ("<alt_qty>" + this.ActItem.ActHdr.SkidInfo.CurrSkid.Quantity + "</alt_qty>")
+                                    + ("<wt_qty>" + this.ActItem.ActHdr.SkidInfo.CurrSkid.WeightQuantity + "</wt_qty>")
+                                    + ("<ActivityDetailUniqueSchemeID>" + actDetail.UniqueSchemeID + "</ActivityDetailUniqueSchemeID>")
+                                    + "</imclient>");
+
+                        await this.ActItem.IsReadyToApply(xmlParam);
+
+                        actDetail.InsertSkid(this.ActItem.ActHdr.SkidInfo);
+
+                        // Upon a save of completed data update the data view to to show new item and quantity change
+                        currRowIdx = this.ActItem.UpdateDataViewQuantity(foundRowIdx, actDetail.Quantity, actDetail.BaseQuantity, actDetail.WeightQuantity);
+
+                        this.ActItem.UpdateQuantityFromDataView(currRowIdx, this.ActItem.Refno);
+                    }
+
+                    // foundRowIdx = this.dataGridMainActivity.CurrentRowIndex
+                    if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
+                    {
+                        await Device.InvokeOnMainThreadAsync(() =>
                         {
                             this.CmdAddSkidIsEnabled = true;
 
@@ -3011,201 +2986,233 @@
                     }
                     else
                     {
-                        Device.BeginInvokeOnMainThread(() =>
-                        {
-                            this.CmdAddSkidIsEnabled = false;
-
-                            // TODO: Resource strings
-                            this.CmdSelectSkidText = "Select Skid";
-                        });
-                    }
-
-                    // Do not refresh product list for counts. See WO# 12222.
-                    // Reloading count items into the thousands is too slow.
-                    // This could change depending on the Exception type such as Exceptions.MessageOnlyException vs Exception.
-                    // Refreshing will have to be accomplished by exiting the items activity.
-                    switch (this.ActSubType)
-                    {
-                        case SysCommon.ActSubTypes.PhysicalCounts:
-                            break;
-
-                        case SysCommon.ActSubTypes.CycleCounts:
-                            break;
-
-                        default:
-                            // Performing a refresh data will remove and partially added new items or quantity.
-                            await this.RefreshData();
-                            break;
+                        // TODO: Resource strings
+                        await Device.InvokeOnMainThreadAsync(() => this.CmdSelectSkidText = "Select Skid");
                     }
                 }
-                catch (GatherProductDataException ex)
-                {
-                    if (this.ActItem.DataViewItems.Count > 0 && foundRowIdx >= 0 && foundRowIdx < this.ActItem.DataViewItems.Count)
-                    {
-                        //this.dataGridMainActivity.CurrentRowIndex = foundRowIdx;
-                    }
 
-                    if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
-                    {
-                        Device.BeginInvokeOnMainThread(() =>
+                await this.RefreshData();
+            }
+            catch (TaskCanceledException)
+            {
+                // Do nothing as task is being cancelled from IdentifyProductScanned when user declines to assign barcode to product
+                Console.WriteLine("No product chosen");
+            }
+            catch (Exceptions.MessageOnlyException ex)
+            {
+                ex.Show(this.ActSubType);
+
+                if (this.ActItem.DataViewItems.Count > 0 && foundRowIdx >= 0 && foundRowIdx < this.ActItem.DataViewItems.Count)
+                {
+                    //this.dataGridMainActivity.CurrentRowIndex = foundRowIdx;
+                }
+
+                if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
+                {
+                    await Device.InvokeOnMainThreadAsync(() =>
                         {
                             this.CmdAddSkidIsEnabled = true;
 
                             // TODO: Resource strings
                             this.CmdSelectSkidText = "Skid# " + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode;
                         });
-                    }
-                    else
-                    {
-                        Device.BeginInvokeOnMainThread(() =>
+                }
+                else
+                {
+                    await Device.InvokeOnMainThreadAsync(() =>
                         {
                             this.CmdAddSkidIsEnabled = false;
 
                             // TODO: Resource strings
                             this.CmdSelectSkidText = "Select Skid";
                         });
-                    }
+                }
 
-                    if (!ex.SuppressError)
-                    {
-                        Device.BeginInvokeOnMainThread(async () =>
+                // Do not refresh product list for counts. See WO# 12222.
+                // Reloading count items into the thousands is too slow.
+                // This could change depending on the Exception type such as Exceptions.MessageOnlyException vs Exception.
+                // Refreshing will have to be accomplished by exiting the items activity.
+                switch (this.ActSubType)
+                {
+                    case SysCommon.ActSubTypes.PhysicalCounts:
+                        break;
+
+                    case SysCommon.ActSubTypes.CycleCounts:
+                        break;
+
+                    default:
+                        // Performing a refresh data will remove and partially added new items or quantity.
+                        await this.RefreshData();
+                        break;
+                }
+            }
+            catch (GatherProductDataException ex)
+            {
+                if (this.ActItem.DataViewItems.Count > 0 && foundRowIdx >= 0 && foundRowIdx < this.ActItem.DataViewItems.Count)
+                {
+                    //this.dataGridMainActivity.CurrentRowIndex = foundRowIdx;
+                }
+
+                if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
+                {
+                    await Device.InvokeOnMainThreadAsync(() =>
+                        {
+                            this.CmdAddSkidIsEnabled = true;
+
+                            // TODO: Resource strings
+                            this.CmdSelectSkidText = "Skid# " + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode;
+                        });
+                }
+                else
+                {
+                    await Device.InvokeOnMainThreadAsync(() =>
+                        {
+                            this.CmdAddSkidIsEnabled = false;
+
+                            // TODO: Resource strings
+                            this.CmdSelectSkidText = "Select Skid";
+                        });
+                }
+
+                if (!ex.SuppressError)
+                {
+                    await Device.InvokeOnMainThreadAsync(async () =>
                         {
                             FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
                             await errRpt.ShowDialog();
                         });
-                    }
-
-                    // Do not refresh product list for counts. See WO# 12222.
-                    // Reloading count items into the thousands is too slow.
-                    // This could change depending on the Exception type such as Exceptions.MessageOnlyException vs Exception.
-                    // Refreshing will have to be accomplished by exiting the items activity.
-                    switch (this.ActSubType)
-                    {
-                        case SysCommon.ActSubTypes.PhysicalCounts:
-                            break;
-
-                        case SysCommon.ActSubTypes.CycleCounts:
-                            break;
-
-                        default:
-                            // Performing a refresh data will remove and partially added new items or quantity.
-                            await this.RefreshData();
-                            break;
-                    }
                 }
-                catch (IsReadyToApplyException ex)
-                {
-                    if (this.ActItem.DataViewItems.Count > 0 && foundRowIdx >= 0 && foundRowIdx < this.ActItem.DataViewItems.Count)
-                    {
-                        //this.dataGridMainActivity.CurrentRowIndex = foundRowIdx;
-                    }
 
-                    if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
-                    {
-                        Device.BeginInvokeOnMainThread(() =>
+                // Do not refresh product list for counts. See WO# 12222.
+                // Reloading count items into the thousands is too slow.
+                // This could change depending on the Exception type such as Exceptions.MessageOnlyException vs Exception.
+                // Refreshing will have to be accomplished by exiting the items activity.
+                switch (this.ActSubType)
+                {
+                    case SysCommon.ActSubTypes.PhysicalCounts:
+                        break;
+
+                    case SysCommon.ActSubTypes.CycleCounts:
+                        break;
+
+                    default:
+                        // Performing a refresh data will remove and partially added new items or quantity.
+                        await this.RefreshData();
+                        break;
+                }
+            }
+            catch (IsReadyToApplyException ex)
+            {
+                if (this.ActItem.DataViewItems.Count > 0 && foundRowIdx >= 0 && foundRowIdx < this.ActItem.DataViewItems.Count)
+                {
+                    //this.dataGridMainActivity.CurrentRowIndex = foundRowIdx;
+                }
+
+                if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
+                {
+                    await Device.InvokeOnMainThreadAsync(() =>
                         {
                             this.CmdAddSkidIsEnabled = true;
 
                             // TODO: Resource strings
                             this.CmdSelectSkidText = "Skid# " + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode;
                         });
-                    }
-                    else
-                    {
-                        Device.BeginInvokeOnMainThread(() =>
+                }
+                else
+                {
+                    await Device.InvokeOnMainThreadAsync(() =>
                         {
                             this.CmdAddSkidIsEnabled = false;
 
                             // TODO: Resource strings
                             this.CmdSelectSkidText = "Select Skid";
                         });
-                    }
+                }
 
-                    if (!ex.SuppressError)
-                    {
-                        Device.BeginInvokeOnMainThread(async () =>
+                if (!ex.SuppressError)
+                {
+                    await Device.InvokeOnMainThreadAsync(async () =>
                         {
                             FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
                             await errRpt.ShowDialog();
                         });
-                    }
-
-                    // Do not refresh product list for counts. See WO# 12222.
-                    // Reloading count items into the thousands is too slow.
-                    // This could change depending on the Exception type such as Exceptions.MessageOnlyException vs Exception.
-                    // Refreshing will have to be accomplished by exiting the items activity.
-                    switch (this.ActSubType)
-                    {
-                        case SysCommon.ActSubTypes.PhysicalCounts:
-                            break;
-
-                        case SysCommon.ActSubTypes.CycleCounts:
-                            break;
-
-                        default:
-                            // Performing a refresh data will remove and partially added new items or quantity.
-                            await this.RefreshData();
-                            break;
-                    }
                 }
-                catch (Exception ex)
-                {
-                    if (this.ActItem.DataViewItems.Count > 0 && foundRowIdx >= 0 && foundRowIdx < this.ActItem.DataViewItems.Count)
-                    {
-                        //this.dataGridMainActivity.CurrentRowIndex = foundRowIdx;
-                    }
 
-                    if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
-                    {
-                        Device.BeginInvokeOnMainThread(() =>
+                // Do not refresh product list for counts. See WO# 12222.
+                // Reloading count items into the thousands is too slow.
+                // This could change depending on the Exception type such as Exceptions.MessageOnlyException vs Exception.
+                // Refreshing will have to be accomplished by exiting the items activity.
+                switch (this.ActSubType)
+                {
+                    case SysCommon.ActSubTypes.PhysicalCounts:
+                        break;
+
+                    case SysCommon.ActSubTypes.CycleCounts:
+                        break;
+
+                    default:
+                        // Performing a refresh data will remove and partially added new items or quantity.
+                        await this.RefreshData();
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                if (this.ActItem.DataViewItems.Count > 0 && foundRowIdx >= 0 && foundRowIdx < this.ActItem.DataViewItems.Count)
+                {
+                    //this.dataGridMainActivity.CurrentRowIndex = foundRowIdx;
+                }
+
+                if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
+                {
+                    await Device.InvokeOnMainThreadAsync(() =>
                         {
                             this.CmdAddSkidIsEnabled = true;
 
                             // TODO: Resource strings
                             this.CmdSelectSkidText = "Skid# " + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode;
                         });
-                    }
-                    else
-                    {
-                        Device.BeginInvokeOnMainThread(() =>
+                }
+                else
+                {
+                    await Device.InvokeOnMainThreadAsync(() =>
                         {
                             this.CmdAddSkidIsEnabled = false;
 
                             // TODO: Resource strings
                             this.CmdSelectSkidText = "Select Skid";
                         });
-                    }
+                }
 
-                    Device.BeginInvokeOnMainThread(async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
                         await errRpt.ShowDialog();
                     });
 
-                    // Do not refresh product list for counts. See WO# 12222.
-                    // Reloading count items into the thousands is too slow.
-                    // This could change depending on the Exception type such as Exceptions.MessageOnlyException vs Exception.
-                    // Refreshing will have to be accomplished by exiting the items activity.
-                    switch (this.ActSubType)
-                    {
-                        case SysCommon.ActSubTypes.PhysicalCounts:
-                            break;
-
-                        case SysCommon.ActSubTypes.CycleCounts:
-                            break;
-
-                        default:
-                            // Performing a refresh data will remove and partially added new items or quantity.
-                            await this.RefreshData();
-                            break;
-                    }
-                }
-                finally
+                // Do not refresh product list for counts. See WO# 12222.
+                // Reloading count items into the thousands is too slow.
+                // This could change depending on the Exception type such as Exceptions.MessageOnlyException vs Exception.
+                // Refreshing will have to be accomplished by exiting the items activity.
+                switch (this.ActSubType)
                 {
-                    this.Loading = false;
-                    this.ScannerEnable();
+                    case SysCommon.ActSubTypes.PhysicalCounts:
+                        break;
+
+                    case SysCommon.ActSubTypes.CycleCounts:
+                        break;
+
+                    default:
+                        // Performing a refresh data will remove and partially added new items or quantity.
+                        await this.RefreshData();
+                        break;
                 }
-            });
+            }
+            finally
+            {
+                this.Loading = false;
+                this.ScannerEnable();
+            }
         }
 
         /// <summary>
@@ -3243,7 +3250,7 @@
         {
             try
             {
-                this.Loading = true;
+                //this.Loading = true;
 
                 //this.pbarStatus.Visible = true;
                 //this.lstDisplay.Items.Clear();
@@ -3288,10 +3295,7 @@
             }
             finally
             {
-                this.Loading = false;
                 this.ActItem.UnregLayerListenerProgOut(this);
-
-                this.ScannerEnable();
             }
         }
 
@@ -3340,7 +3344,7 @@
             switch (this.ActItem.ActSubType)
             {
                 case SysCommon.ActSubTypes.Adjustment:
-                    if (idx >= 0)
+                    if (idx >= 0 && this.ActItem.DataViewItems.Count > 0)
                     {
                         prodLocCode = this.ActItem.DataViewItems[idx]["LocationCode"].ToString();
                         prodLocName = this.ActItem.DataViewItems[idx]["LocationName"].ToString();
@@ -3372,7 +3376,7 @@
                     break;
 
                 case SysCommon.ActSubTypes.CycleCounts:
-                    if (idx >= 0)
+                    if (idx >= 0 && this.ActItem.DataViewItems.Count > 0)
                     {
                         prodLocCode = this.ActItem.DataViewItems[idx]["LocationCode"].ToString();
                         prodLocName = this.ActItem.DataViewItems[idx]["LocationName"].ToString();
@@ -3430,7 +3434,7 @@
                     break;
 
                 case SysCommon.ActSubTypes.PhysicalCounts:
-                    if (idx >= 0)
+                    if (idx >= 0 && this.ActItem.DataViewItems.Count > 0)
                     {
                         // Do not check if default location is enabled. Always show the default location.
                         SLocMap tempLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(this.ActItem.DataViewItems[idx]["LocationMapRefno"]));
@@ -3452,7 +3456,7 @@
                     break;
 
                 case SysCommon.ActSubTypes.Picking:
-                    if (idx >= 0)
+                    if (idx >= 0 && this.ActItem.DataViewItems.Count > 0)
                     {
                         prodLocCode = this.ActItem.DataViewItems[idx]["LocationCode"].ToString();
                         prodLocName = this.ActItem.DataViewItems[idx]["LocationName"].ToString();
@@ -3485,7 +3489,7 @@
                     break;
 
                 case SysCommon.ActSubTypes.PickingSingle:
-                    if (idx >= 0)
+                    if (idx >= 0 && this.ActItem.DataViewItems.Count > 0)
                     {
                         prodLocCode = this.ActItem.DataViewItems[idx]["LocationCode"].ToString();
                         prodLocName = this.ActItem.DataViewItems[idx]["LocationName"].ToString();
@@ -3504,7 +3508,7 @@
                     break;
 
                 case SysCommon.ActSubTypes.TicketAddProduct:
-                    if (idx >= 0)
+                    if (idx >= 0 && this.ActItem.DataViewItems.Count > 0)
                     {
                         prodLocCode = this.ActItem.DataViewItems[idx]["LocationCode"].ToString();
                         prodLocName = this.ActItem.DataViewItems[idx]["LocationName"].ToString();
@@ -3523,7 +3527,7 @@
                     break;
 
                 case SysCommon.ActSubTypes.TicketFinished:
-                    if (idx >= 0)
+                    if (idx >= 0 && this.ActItem.DataViewItems.Count > 0)
                     {
                         prodLocCode = this.ActItem.DataViewItems[idx]["LocationCode"].ToString();
                         prodLocName = this.ActItem.DataViewItems[idx]["LocationName"].ToString();
@@ -3542,7 +3546,7 @@
                     break;
 
                 case SysCommon.ActSubTypes.TicketMaterial:
-                    if (idx >= 0)
+                    if (idx >= 0 && this.ActItem.DataViewItems.Count > 0)
                     {
                         prodLocCode = this.ActItem.DataViewItems[idx]["LocationCode"].ToString();
                         prodLocName = this.ActItem.DataViewItems[idx]["LocationName"].ToString();
@@ -3560,7 +3564,7 @@
                     break;
 
                 case SysCommon.ActSubTypes.PurchaseOrderWorkSheet:
-                    if (idx >= 0)
+                    if (idx >= 0 && this.ActItem.DataViewItems.Count > 0)
                     {
                         prodLocCode = this.ActItem.DataViewItems[idx]["LocationCode"].ToString();
                         prodLocName = this.ActItem.DataViewItems[idx]["LocationName"].ToString();
@@ -3585,7 +3589,7 @@
                     break;
 
                 case SysCommon.ActSubTypes.Receiving:
-                    if (idx >= 0)
+                    if (idx >= 0 && this.ActItem.DataViewItems.Count > 0)
                     {
                         prodLocCode = this.ActItem.DataViewItems[idx]["LocationCode"].ToString();
                         prodLocName = this.ActItem.DataViewItems[idx]["LocationName"].ToString();
@@ -3613,7 +3617,7 @@
                     break;
 
                 case SysCommon.ActSubTypes.Returns:
-                    if (idx >= 0)
+                    if (idx >= 0 && this.ActItem.DataViewItems.Count > 0)
                     {
                         prodLocCode = this.ActItem.DataViewItems[idx]["LocationCode"].ToString();
                         prodLocName = this.ActItem.DataViewItems[idx]["LocationName"].ToString();
@@ -3645,7 +3649,7 @@
                     break;
 
                 case SysCommon.ActSubTypes.TransferFrom:
-                    if (idx >= 0)
+                    if (idx >= 0 && this.ActItem.DataViewItems.Count > 0)
                     {
                         prodLocCode = this.ActItem.DataViewItems[idx]["LocationCode"].ToString();
                         prodLocName = this.ActItem.DataViewItems[idx]["LocationName"].ToString();
@@ -3664,7 +3668,7 @@
                     break;
 
                 case SysCommon.ActSubTypes.TransferTo:
-                    if (idx >= 0)
+                    if (idx >= 0 && this.ActItem.DataViewItems.Count > 0)
                     {
                         prodLocCode = this.ActItem.DataViewItems[idx]["LocationCode"].ToString();
                         prodLocName = this.ActItem.DataViewItems[idx]["LocationName"].ToString();
@@ -3747,7 +3751,7 @@
         //    {
         //        this.IsChangesMade = true;
 
-        //        Device.BeginInvokeOnMainThread(async () =>
+        //        await Device.InvokeOnMainThreadAsync(async () =>
         //        {
         //            FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
         //            await errRpt.ShowDialog();
@@ -3775,11 +3779,11 @@
             this.SysEnv.CurrentBarCodeModifier1 = this.updnBarCodeModifier1.SelectedItem.ToString();
         }
 
-        private void DataGridMainActivity_ItemSelected(object sender, SelectedItemChangedEventArgs e)
+        private async void DataGridMainActivity_ItemSelected(object sender, SelectedItemChangedEventArgs e)
         {
             this.SelectedIndex = this.DataGridMainActivityItemsList.IndexOf(e.SelectedItem);
             this.ActItem.SelectItem(this.selectedIndex);
-            Device.BeginInvokeOnMainThread(() => this.DisplayData());
+            await Device.InvokeOnMainThreadAsync(() => this.DisplayData());
         }
 
         private async Task CmdFilter_Clicked(object sender, EventArgs e)
@@ -3792,7 +3796,7 @@
             {
                 return;
             }
-            
+
             // TODO: Resource strings
             string result = await DisplayActionSheet("ActivityItem Options", "Close", null, this.OptionsMenuItems.ToArray());
 
@@ -3803,7 +3807,7 @@
             else if (result == this.CmdFilterText && this.CmdFilterIsEnabled)
             {
                 await this.CmdFilter_Clicked(sender, e);
-            }            
+            }
             else if (result == this.CmdSelectSkidText && this.CmdSelectSkidIsEnabled)
             {
                 await this.cmdSelectSkid_Click(sender, e);

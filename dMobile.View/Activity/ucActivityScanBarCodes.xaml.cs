@@ -807,9 +807,9 @@ namespace dMobile.View.Activity
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <param name="msg"></param>
-        private void AddScanMsg(object sender, EventArgs e, string msg)
+        private async Task AddScanMsg(object sender, EventArgs e, string msg)
         {
-            Device.BeginInvokeOnMainThread(() =>
+            await Device.InvokeOnMainThreadAsync(() =>
             {
                 this.ItemsList.Add(msg);
             });
@@ -822,9 +822,9 @@ namespace dMobile.View.Activity
         /// <param name="e"></param>
         /// <param name="strMessage"></param>
         /// <remarks></remarks>
-        private void StatusOut(object sender, EventArgs e, string msg)
+        private async Task StatusOut(object sender, EventArgs e, string msg)
         {
-            this.AddScanMsg(sender, e, msg);
+            await this.AddScanMsg(sender, e, msg);
         }
 
         /// <summary>
@@ -833,7 +833,7 @@ namespace dMobile.View.Activity
         /// <param name="sender"></param>
         /// <param name="barCodeScanArgs"></param>
         /// <remarks></remarks>
-        private async void BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
+        private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
             await Task.Run(async () =>
             {
@@ -910,11 +910,11 @@ namespace dMobile.View.Activity
                                     // If product was found associated display it.  'ProductID+BC+UOM'
 
                                     // TODO: Resource strings
-                                    this.AddScanMsg(sender, scanArgs, "Product associated to bar code");
+                                    await this.AddScanMsg(sender, scanArgs, "Product associated to bar code");
 
                                     string prodBCUnit = drProdBCUnit["ProductCode"].ToString() + " " + drProdBCUnit["ProductUnitBC"].ToString() + " " + drProdBCUnit["UnitCode"].ToString();
 
-                                    this.AddScanMsg(sender, scanArgs, prodBCUnit);
+                                    await this.AddScanMsg(sender, scanArgs, prodBCUnit);
 
                                     await Device.InvokeOnMainThreadAsync(() =>
                                     {
@@ -922,7 +922,7 @@ namespace dMobile.View.Activity
                                         this.lblProductData.Text = prodBCUnit;
                                     });
 
-                                    this.AddScanMsg(sender, scanArgs, drProdBCUnit["ProductDescription"].ToString());
+                                    await this.AddScanMsg(sender, scanArgs, drProdBCUnit["ProductDescription"].ToString());
                                 }
                             }
 
@@ -957,7 +957,7 @@ namespace dMobile.View.Activity
                                     if (this.UnitRefno == 0)
                                     {
                                         // TODO: Resource strings
-                                        this.AddScanMsg(sender, scanArgs, "Not associated to a product");
+                                        await this.AddScanMsg(sender, scanArgs, "Not associated to a product");
 
                                         await Device.InvokeOnMainThreadAsync(() =>
                                         {
@@ -996,20 +996,20 @@ namespace dMobile.View.Activity
                                                 // If product was found associated display it.  'ProductID+BC+UOM'
 
                                                 // TODO: Resource strings
-                                                this.AddScanMsg(sender, scanArgs, "Product Associated To Bar Code");
+                                                await this.AddScanMsg(sender, scanArgs, "Product Associated To Bar Code");
 
                                                 string prodbcuom = drProductBCUnit["ProductCode"].ToString() + " "
                                                     + drProductBCUnit["ProductUnitBC"].ToString() + " " + drProductBCUnit["UnitCode"].ToString();
-                                                this.AddScanMsg(sender, scanArgs, prodbcuom);
+                                                await this.AddScanMsg(sender, scanArgs, prodbcuom);
 
                                                 if (this.Parse.DeliScaleAmount != 0 && (this.Parse.Symbology == SysCommon.BarCodeSymbologies.UCC_12_UPC_E || this.Parse.Symbology == SysCommon.BarCodeSymbologies.EAN_UCC_13))
                                                 {
-                                                    this.AddScanMsg(sender, scanArgs, string.Format("Product Deli Scale Amount {0}", this.Parse.DeliScaleAmount));
-                                                    this.AddScanMsg(sender, scanArgs, string.Format("Product Deli Scale Weight {0} {1}", deliScaleWeight, deliScaleWeightUnit));
+                                                    await this.AddScanMsg(sender, scanArgs, string.Format("Product Deli Scale Amount {0}", this.Parse.DeliScaleAmount));
+                                                    await this.AddScanMsg(sender, scanArgs, string.Format("Product Deli Scale Weight {0} {1}", deliScaleWeight, deliScaleWeightUnit));
 
                                                     if (this.SysEnv.BarCodeSettings.IsRuleEnabled_Parse_UCC_12_UPC_E_as_Deli_PLU_4_Digit_Amount)
                                                     {
-                                                        this.AddScanMsg(sender, scanArgs, "Barcode Rule: 4 digit amount");
+                                                        await this.AddScanMsg(sender, scanArgs, "Barcode Rule: 4 digit amount");
                                                     }
                                                 }
 
@@ -1024,10 +1024,10 @@ namespace dMobile.View.Activity
                                 }
                                 catch (Exception ex)
                                 {
-                                    await Device.InvokeOnMainThreadAsync(() =>
+                                    await Device.InvokeOnMainThreadAsync(async () =>
                                     {
                                         // TODO: Resource strings
-                                        this.AddScanMsg(sender, scanArgs, "Product unidentified");
+                                        await this.AddScanMsg(sender, scanArgs, "Product unidentified");
 
                                         this.lblProductData.TextColor = Color.Red;
 
@@ -1099,7 +1099,7 @@ namespace dMobile.View.Activity
                     if (!string.IsNullOrEmpty(scanArgs.ParseInfo.SSCC18))
                     {
                         // TODO: Resource strings
-                        this.AddScanMsg(sender, scanArgs, "SSCC-18: " + scanArgs.ParseInfo.SSCC18);
+                        await this.AddScanMsg(sender, scanArgs, "SSCC-18: " + scanArgs.ParseInfo.SSCC18);
 
                         if (!this.SysEnv.SysSettings.IsDisconnectedMode)
                         {
@@ -1112,26 +1112,26 @@ namespace dMobile.View.Activity
                                     //// AddScanMsg(sender, BarCodeScanArgs, "Skid identified")
 
                                     // TODO: Resource strings
-                                    this.AddScanMsg(sender, scanArgs, string.Format("Code: {0}", skid.CurrSkid.LogisticUnitSkidCode));
-                                    this.AddScanMsg(sender, scanArgs, string.Format("Refno: {0}", skid.CurrSkid.SkidFKRefno));
-                                    this.AddScanMsg(sender, scanArgs, string.Format("Number: {0}", skid.CurrSkid.SkidCode));
+                                    await this.AddScanMsg(sender, scanArgs, string.Format("Code: {0}", skid.CurrSkid.LogisticUnitSkidCode));
+                                    await this.AddScanMsg(sender, scanArgs, string.Format("Refno: {0}", skid.CurrSkid.SkidFKRefno));
+                                    await this.AddScanMsg(sender, scanArgs, string.Format("Number: {0}", skid.CurrSkid.SkidCode));
 
                                     string locReadable = LocationMapTasks.GetCurrentReadableLocation(skid.CurrSkid.LocMap);
 
                                     // TODO: Resource strings
                                     string skidQty = string.Format("Qty: {0} {1} @ {2} {3}", skid.CurrSkid.Quantity, skid.CurrSkid.ProdInfo.UnitCode, skid.CurrSkid.WeightQuantity, skid.CurrSkid.ProdInfo.WeightUnitCode);
 
-                                    this.AddScanMsg(sender, scanArgs, string.Format("Location: {0}", locReadable));
-                                    this.AddScanMsg(sender, scanArgs, string.Format("Product: {0}", ProductInfoTasks.GetCurrReadableProdBCUnit(skid.CurrSkid.ProdInfo)));
-                                    this.AddScanMsg(sender, scanArgs, skidQty);
-                                    this.AddScanMsg(sender, scanArgs, string.Format("Put Away: {0}", skid.CurrSkid.IsPutAway));
-                                    this.AddScanMsg(sender, scanArgs, string.Format("On Hold: {0}", skid.CurrSkid.IsHold));
-                                    this.AddScanMsg(sender, scanArgs, string.Format("Cube: {0} {1}", skid.CurrSkid.Cube, skid.CurrSkid.CubeUnit));
-                                    this.AddScanMsg(sender, scanArgs, string.Format("Height: {0} {1}", skid.CurrSkid.Height, skid.CurrSkid.HeightUnit));
-                                    this.AddScanMsg(sender, scanArgs, string.Format("Ti/Hi: {0}/{1}", skid.CurrSkid.Ti, skid.CurrSkid.Hi));
-                                    this.AddScanMsg(sender, scanArgs, string.Format("CHEP: {0}", skid.CurrSkid.IsCHEP));
-                                    this.AddScanMsg(sender, scanArgs, string.Format("Completed: {0}", skid.CurrSkid.IsCompleted));
-                                    this.AddScanMsg(sender, scanArgs, string.Format("Consumed: {0}", skid.CurrSkid.IsConsumed));
+                                    await this.AddScanMsg(sender, scanArgs, string.Format("Location: {0}", locReadable));
+                                    await this.AddScanMsg(sender, scanArgs, string.Format("Product: {0}", ProductInfoTasks.GetCurrReadableProdBCUnit(skid.CurrSkid.ProdInfo)));
+                                    await this.AddScanMsg(sender, scanArgs, skidQty);
+                                    await this.AddScanMsg(sender, scanArgs, string.Format("Put Away: {0}", skid.CurrSkid.IsPutAway));
+                                    await this.AddScanMsg(sender, scanArgs, string.Format("On Hold: {0}", skid.CurrSkid.IsHold));
+                                    await this.AddScanMsg(sender, scanArgs, string.Format("Cube: {0} {1}", skid.CurrSkid.Cube, skid.CurrSkid.CubeUnit));
+                                    await this.AddScanMsg(sender, scanArgs, string.Format("Height: {0} {1}", skid.CurrSkid.Height, skid.CurrSkid.HeightUnit));
+                                    await this.AddScanMsg(sender, scanArgs, string.Format("Ti/Hi: {0}/{1}", skid.CurrSkid.Ti, skid.CurrSkid.Hi));
+                                    await this.AddScanMsg(sender, scanArgs, string.Format("CHEP: {0}", skid.CurrSkid.IsCHEP));
+                                    await this.AddScanMsg(sender, scanArgs, string.Format("Completed: {0}", skid.CurrSkid.IsCompleted));
+                                    await this.AddScanMsg(sender, scanArgs, string.Format("Consumed: {0}", skid.CurrSkid.IsConsumed));
                                 }
                                 else
                                 {
@@ -1142,7 +1142,7 @@ namespace dMobile.View.Activity
                             catch (Exception)
                             {
                                 // TODO: Resource strings
-                                this.AddScanMsg(sender, scanArgs, "Skid unidentified.");
+                                await this.AddScanMsg(sender, scanArgs, "Skid unidentified.");
                             }
                         }
                     }
@@ -1150,7 +1150,7 @@ namespace dMobile.View.Activity
                     if (!string.IsNullOrEmpty(scanArgs.ParseInfo.LocationIdentifier))
                     {
                         // TODO: Resource strings
-                        this.AddScanMsg(sender, scanArgs, "Location identifier: " + scanArgs.ParseInfo.LocationIdentifier);
+                        await this.AddScanMsg(sender, scanArgs, "Location identifier: " + scanArgs.ParseInfo.LocationIdentifier);
 
                         int locMapRefno = Convert.ToInt32(LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(scanArgs.ParseInfo.LocationIdentifier));
 
@@ -1159,63 +1159,63 @@ namespace dMobile.View.Activity
                             SLocMap locMap = LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
 
                             // TODO: Resource strings
-                            this.AddScanMsg(sender, scanArgs, string.Format("Warehouse code: {0}", locMap.WhsCode));
-                            this.AddScanMsg(sender, scanArgs, string.Format("Warehouse refno: {0}", locMap.WhsFKRefno));
-                            this.AddScanMsg(sender, scanArgs, string.Format("Warehouse name: {0}", locMap.WhsName));
-                            this.AddScanMsg(sender, scanArgs, string.Format("Section code: {0}", locMap.SectCode));
-                            this.AddScanMsg(sender, scanArgs, string.Format("Section refno: {0}", locMap.SectFKRefno));
-                            this.AddScanMsg(sender, scanArgs, string.Format("Section name: {0}", locMap.SectName));
-                            this.AddScanMsg(sender, scanArgs, string.Format("Slot code: {0}", locMap.SlotCode));
-                            this.AddScanMsg(sender, scanArgs, string.Format("Slot refno: {0}", locMap.SlotFKRefno));
-                            this.AddScanMsg(sender, scanArgs, string.Format("Slot name: {0}", locMap.SlotName));
+                            await this.AddScanMsg(sender, scanArgs, string.Format("Warehouse code: {0}", locMap.WhsCode));
+                            await this.AddScanMsg(sender, scanArgs, string.Format("Warehouse refno: {0}", locMap.WhsFKRefno));
+                            await this.AddScanMsg(sender, scanArgs, string.Format("Warehouse name: {0}", locMap.WhsName));
+                            await this.AddScanMsg(sender, scanArgs, string.Format("Section code: {0}", locMap.SectCode));
+                            await this.AddScanMsg(sender, scanArgs, string.Format("Section refno: {0}", locMap.SectFKRefno));
+                            await this.AddScanMsg(sender, scanArgs, string.Format("Section name: {0}", locMap.SectName));
+                            await this.AddScanMsg(sender, scanArgs, string.Format("Slot code: {0}", locMap.SlotCode));
+                            await this.AddScanMsg(sender, scanArgs, string.Format("Slot refno: {0}", locMap.SlotFKRefno));
+                            await this.AddScanMsg(sender, scanArgs, string.Format("Slot name: {0}", locMap.SlotName));
                         }
                         else
                         {
                             // TODO: Resource strings
-                            this.AddScanMsg(sender, scanArgs, "Not associated to a location.");
+                            await this.AddScanMsg(sender, scanArgs, "Not associated to a location.");
                         }
                     }
 
                     if (!string.IsNullOrEmpty(scanArgs.ParseInfo.GTIN))
                     {
                         // TODO: Resource strings
-                        this.AddScanMsg(sender, scanArgs, "GTIN: " + scanArgs.ParseInfo.GTIN);
+                        await this.AddScanMsg(sender, scanArgs, "GTIN: " + scanArgs.ParseInfo.GTIN);
                     }
 
                     if (!string.IsNullOrEmpty(scanArgs.ParseInfo.GTINLogisticUnit))
                     {
                         // TODO: Resource strings
-                        this.AddScanMsg(sender, scanArgs, "GTIN in a Logistic Unit: " + scanArgs.ParseInfo.GTINLogisticUnit);
+                        await this.AddScanMsg(sender, scanArgs, "GTIN in a Logistic Unit: " + scanArgs.ParseInfo.GTINLogisticUnit);
                     }
 
                     if (scanArgs.ParseInfo.PackagingType != 0)
                     {
                         // TODO: Resource strings
-                        this.AddScanMsg(sender, scanArgs, "Packaging Type: " + scanArgs.ParseInfo.PackagingType);
+                        await this.AddScanMsg(sender, scanArgs, "Packaging Type: " + scanArgs.ParseInfo.PackagingType);
                     }
 
                     if (scanArgs.ParseInfo.NumberSystemCharacter != 0)
                     {
                         // TODO: Resource strings
-                        this.AddScanMsg(sender, scanArgs, "Number System Character: " + scanArgs.ParseInfo.NumberSystemCharacter);
+                        await this.AddScanMsg(sender, scanArgs, "Number System Character: " + scanArgs.ParseInfo.NumberSystemCharacter);
                     }
 
                     if (!string.IsNullOrEmpty(scanArgs.ParseInfo.ProductIdentifier))
                     {
                         // TODO: Resource strings
-                        this.AddScanMsg(sender, scanArgs, "Product Identifier: " + scanArgs.ParseInfo.ProductIdentifier);
+                        await this.AddScanMsg(sender, scanArgs, "Product Identifier: " + scanArgs.ParseInfo.ProductIdentifier);
                     }
 
                     if (scanArgs.ParseInfo.ManufacturerSerialNumber != 0)
                     {
                         // TODO: Resource strings
-                        this.AddScanMsg(sender, scanArgs, "Manufacturer Serial Number: " + scanArgs.ParseInfo.ManufacturerSerialNumber);
+                        await this.AddScanMsg(sender, scanArgs, "Manufacturer Serial Number: " + scanArgs.ParseInfo.ManufacturerSerialNumber);
                     }
 
                     if (!string.IsNullOrEmpty(scanArgs.ParseInfo.ItemReference))
                     {
                         // TODO: Resource strings
-                        this.AddScanMsg(sender, scanArgs, "Item Reference: " + scanArgs.ParseInfo.ItemReference);
+                        await this.AddScanMsg(sender, scanArgs, "Item Reference: " + scanArgs.ParseInfo.ItemReference);
                     }
 
                     if (!string.IsNullOrEmpty(scanArgs.ParseInfo.SingleTradeItemSerialNumber))
@@ -1223,12 +1223,12 @@ namespace dMobile.View.Activity
                         if (isSerialTracked)
                         {
                             // TODO: Resource strings
-                            this.AddScanMsg(sender, scanArgs, "(Tracked) Serial #:" + scanArgs.ParseInfo.SingleTradeItemSerialNumber);
+                            await this.AddScanMsg(sender, scanArgs, "(Tracked) Serial #:" + scanArgs.ParseInfo.SingleTradeItemSerialNumber);
                         }
                         else
                         {
                             // TODO: Resource strings
-                            this.AddScanMsg(sender, scanArgs, "Serial #:" + scanArgs.ParseInfo.SingleTradeItemSerialNumber);
+                            await this.AddScanMsg(sender, scanArgs, "Serial #:" + scanArgs.ParseInfo.SingleTradeItemSerialNumber);
                         }
                     }
                     else
@@ -1236,7 +1236,7 @@ namespace dMobile.View.Activity
                         if (isSerialTracked)
                         {
                             // TODO: Resource strings
-                            this.AddScanMsg(sender, scanArgs, "(Tracked) Serial # Missing");
+                            await this.AddScanMsg(sender, scanArgs, "(Tracked) Serial # Missing");
                         }
                     }
 
@@ -1245,12 +1245,12 @@ namespace dMobile.View.Activity
                         if (isLotTracked)
                         {
                             // TODO: Resource strings
-                            this.AddScanMsg(sender, scanArgs, "(Tracked) Batch / Lot Number: " + scanArgs.ParseInfo.LogisticUnitBatchLotNumber);
+                            await this.AddScanMsg(sender, scanArgs, "(Tracked) Batch / Lot Number: " + scanArgs.ParseInfo.LogisticUnitBatchLotNumber);
                         }
                         else
                         {
                             // TODO: Resource strings
-                            this.AddScanMsg(sender, scanArgs, "Batch / Lot Number: " + scanArgs.ParseInfo.LogisticUnitBatchLotNumber);
+                            await this.AddScanMsg(sender, scanArgs, "Batch / Lot Number: " + scanArgs.ParseInfo.LogisticUnitBatchLotNumber);
                         }
                     }
                     else
@@ -1258,7 +1258,7 @@ namespace dMobile.View.Activity
                         if (isLotTracked)
                         {
                             // TODO: Resource strings
-                            this.AddScanMsg(sender, scanArgs, "(Tracked) Batch / Lot Number Missing.");
+                            await this.AddScanMsg(sender, scanArgs, "(Tracked) Batch / Lot Number Missing.");
                         }
                     }
 
@@ -1267,12 +1267,12 @@ namespace dMobile.View.Activity
                         if (isProductionDateTracked)
                         {
                             // TODO: Resource strings
-                            this.AddScanMsg(sender, scanArgs, "(Tracked) Production Date: " + scanArgs.ParseInfo.LogisticUnitProductionDate.ToShortDateString());
+                            await this.AddScanMsg(sender, scanArgs, "(Tracked) Production Date: " + scanArgs.ParseInfo.LogisticUnitProductionDate.ToShortDateString());
                         }
                         else
                         {
                             // TODO: Resource strings
-                            this.AddScanMsg(sender, scanArgs, "Production Date: " + scanArgs.ParseInfo.LogisticUnitProductionDate.ToShortDateString());
+                            await this.AddScanMsg(sender, scanArgs, "Production Date: " + scanArgs.ParseInfo.LogisticUnitProductionDate.ToShortDateString());
                         }
                     }
                     else
@@ -1280,7 +1280,7 @@ namespace dMobile.View.Activity
                         if (isProductionDateTracked)
                         {
                             // TODO: Resource strings
-                            this.AddScanMsg(sender, scanArgs, "(Tracked) Production Date Missing");
+                            await this.AddScanMsg(sender, scanArgs, "(Tracked) Production Date Missing");
                         }
                     }
 
@@ -1289,12 +1289,12 @@ namespace dMobile.View.Activity
                         if (isBestBeforeDateTracked)
                         {
                             // TODO: Resource strings
-                            this.AddScanMsg(sender, scanArgs, "(Tracked) Best Before Date: " + scanArgs.ParseInfo.LogisticUnitBestBeforeSellByDate.ToShortDateString());
+                            await this.AddScanMsg(sender, scanArgs, "(Tracked) Best Before Date: " + scanArgs.ParseInfo.LogisticUnitBestBeforeSellByDate.ToShortDateString());
                         }
                         else
                         {
                             // TODO: Resource strings
-                            this.AddScanMsg(sender, scanArgs, "Best Before Date: " + scanArgs.ParseInfo.LogisticUnitBestBeforeSellByDate.ToShortDateString());
+                            await this.AddScanMsg(sender, scanArgs, "Best Before Date: " + scanArgs.ParseInfo.LogisticUnitBestBeforeSellByDate.ToShortDateString());
                         }
                     }
                     else
@@ -1302,26 +1302,26 @@ namespace dMobile.View.Activity
                         if (isBestBeforeDateTracked)
                         {
                             // TODO: Resource strings
-                            this.AddScanMsg(sender, scanArgs, "(Tracked) Best Before Date Missing");
+                            await this.AddScanMsg(sender, scanArgs, "(Tracked) Best Before Date Missing");
                         }
                     }
 
                     if (!SysCommon.IsEmptyDateTime(scanArgs.ParseInfo.LogisticUnitExpiryUseByDate))
                     {
                         // TODO: Resource strings
-                        this.AddScanMsg(sender, scanArgs, "Expiry Date: " + scanArgs.ParseInfo.LogisticUnitExpiryUseByDate.ToShortDateString());
+                        await this.AddScanMsg(sender, scanArgs, "Expiry Date: " + scanArgs.ParseInfo.LogisticUnitExpiryUseByDate.ToShortDateString());
                     }
 
                     if (!SysCommon.IsEmptyDateTime(scanArgs.ParseInfo.LogisticUnitDueDate))
                     {
                         // TODO: Resource strings
-                        this.AddScanMsg(sender, scanArgs, "Due Date: " + scanArgs.ParseInfo.LogisticUnitDueDate.ToShortDateString());
+                        await this.AddScanMsg(sender, scanArgs, "Due Date: " + scanArgs.ParseInfo.LogisticUnitDueDate.ToShortDateString());
                     }
 
                     if (!SysCommon.IsEmptyDateTime(scanArgs.ParseInfo.LogisticUnitPackagingDate))
                     {
                         // TODO: Resource strings
-                        this.AddScanMsg(sender, scanArgs, "Packaging Date: " + scanArgs.ParseInfo.LogisticUnitPackagingDate.ToShortDateString());
+                        await this.AddScanMsg(sender, scanArgs, "Packaging Date: " + scanArgs.ParseInfo.LogisticUnitPackagingDate.ToShortDateString());
                     }
 
                     if (scanArgs.ParseInfo.LogisticUnitProductVariant != 0)
@@ -1329,12 +1329,12 @@ namespace dMobile.View.Activity
                         if (isVariantTracked)
                         {
                             // TODO: Resource strings
-                            this.AddScanMsg(sender, scanArgs, "(Tracked) Product Variant: " + scanArgs.ParseInfo.LogisticUnitProductVariant);
+                            await this.AddScanMsg(sender, scanArgs, "(Tracked) Product Variant: " + scanArgs.ParseInfo.LogisticUnitProductVariant);
                         }
                         else
                         {
                             // TODO: Resource strings
-                            this.AddScanMsg(sender, scanArgs, "Product Variant: " + scanArgs.ParseInfo.LogisticUnitProductVariant);
+                            await this.AddScanMsg(sender, scanArgs, "Product Variant: " + scanArgs.ParseInfo.LogisticUnitProductVariant);
                         }
                     }
                     else
@@ -1342,102 +1342,102 @@ namespace dMobile.View.Activity
                         if (isVariantTracked)
                         {
                             // TODO: Resource strings
-                            this.AddScanMsg(sender, scanArgs, "(Tracked) Product variant missing.");
+                            await this.AddScanMsg(sender, scanArgs, "(Tracked) Product variant missing.");
                         }
                     }
 
                     if (scanArgs.ParseInfo.NetWeightMetricKGFoundAI)
                     {
                         // TODO: Resource strings
-                        this.AddScanMsg(sender, scanArgs, "Net weight metric KG: " + scanArgs.ParseInfo.NetWeightMetricKG);
+                        await this.AddScanMsg(sender, scanArgs, "Net weight metric KG: " + scanArgs.ParseInfo.NetWeightMetricKG);
                     }
 
                     if (scanArgs.ParseInfo.NetWeightNonMetricLBFoundAI)
                     {
                         // TODO: Resource strings
-                        this.AddScanMsg(sender, scanArgs, "Net weight non-metric LB: " + scanArgs.ParseInfo.NetWeightNonMetricLB);
+                        await this.AddScanMsg(sender, scanArgs, "Net weight non-metric LB: " + scanArgs.ParseInfo.NetWeightNonMetricLB);
                     }
 
                     if (scanArgs.ParseInfo.GrossWeightMetricKGFoundAI)
                     {
                         // TODO: Resource strings
-                        this.AddScanMsg(sender, scanArgs, "Gross weight metric KG: " + scanArgs.ParseInfo.GrossWeightMetricKG);
+                        await this.AddScanMsg(sender, scanArgs, "Gross weight metric KG: " + scanArgs.ParseInfo.GrossWeightMetricKG);
                     }
 
                     if (scanArgs.ParseInfo.GrossWeightNonMetricLBFoundAI)
                     {
                         // TODO: Resource strings
-                        this.AddScanMsg(sender, scanArgs, "Gross weight non-metric LB: " + scanArgs.ParseInfo.NetWeightNonMetricLB);
+                        await this.AddScanMsg(sender, scanArgs, "Gross weight non-metric LB: " + scanArgs.ParseInfo.NetWeightNonMetricLB);
                     }
 
                     if (scanArgs.ParseInfo.LogisticUnitCountOfTradeItems != 0)
                     {
                         // TODO: Resource strings
-                        this.AddScanMsg(sender, scanArgs, "Count of trade items: " + scanArgs.ParseInfo.LogisticUnitCountOfTradeItems);
+                        await this.AddScanMsg(sender, scanArgs, "Count of trade items: " + scanArgs.ParseInfo.LogisticUnitCountOfTradeItems);
                     }
 
                     if (scanArgs.ParseInfo.LogisticUnitVariableCount != 0)
                     {
                         // TODO: Resource strings
-                        this.AddScanMsg(sender, scanArgs, "Variable Count: " + scanArgs.ParseInfo.LogisticUnitVariableCount);
+                        await this.AddScanMsg(sender, scanArgs, "Variable Count: " + scanArgs.ParseInfo.LogisticUnitVariableCount);
                     }
 
                     if (scanArgs.ParseInfo.LengthOr1stDimensionMeters != 0)
                     {
                         // TODO: Resource strings
-                        this.AddScanMsg(sender, scanArgs, "Length Meters: " + scanArgs.ParseInfo.LengthOr1stDimensionMeters);
+                        await this.AddScanMsg(sender, scanArgs, "Length Meters: " + scanArgs.ParseInfo.LengthOr1stDimensionMeters);
                     }
 
                     // AI 91 Activity Item FK Refno
                     if (!string.IsNullOrEmpty(scanArgs.ParseInfo.ActItemFKRefno))
                     {
                         // TODO: Resource strings
-                        this.AddScanMsg(sender, scanArgs, "Activity Item FK Ref#: " + scanArgs.ParseInfo.ActItemFKRefno);
+                        await this.AddScanMsg(sender, scanArgs, "Activity Item FK Ref#: " + scanArgs.ParseInfo.ActItemFKRefno);
                     }
 
                     // AI 92 Activity FK Refno
                     if (!string.IsNullOrEmpty(scanArgs.ParseInfo.ActFKRefno))
                     {
                         // TODO: Resource strings
-                        this.AddScanMsg(sender, scanArgs, "Activity FK Ref#: " + scanArgs.ParseInfo.ActFKRefno);
+                        await this.AddScanMsg(sender, scanArgs, "Activity FK Ref#: " + scanArgs.ParseInfo.ActFKRefno);
                     }
 
                     // AI 93 Activity Detail FK Refno
                     if (!string.IsNullOrEmpty(scanArgs.ParseInfo.ActDetailFKRefno))
                     {
                         // TODO: Resource strings
-                        this.AddScanMsg(sender, scanArgs, "Activity Detail FK Ref#: " + scanArgs.ParseInfo.ActDetailFKRefno);
+                        await this.AddScanMsg(sender, scanArgs, "Activity Detail FK Ref#: " + scanArgs.ParseInfo.ActDetailFKRefno);
                     }
 
                     if (!string.IsNullOrEmpty(scanArgs.ParseInfo.Remainder))
                     {
                         // TODO: Resource strings
-                        this.AddScanMsg(sender, scanArgs, "Unidentifiable Data");
-                        this.AddScanMsg(sender, scanArgs, scanArgs.ParseInfo.Remainder);
+                        await this.AddScanMsg(sender, scanArgs, "Unidentifiable Data");
+                        await this.AddScanMsg(sender, scanArgs, scanArgs.ParseInfo.Remainder);
                     }
 
                     // Symbology ID
                     // TODO: Resource strings
-                    this.AddScanMsg(sender, scanArgs, "Symbology: " + scanArgs.ParseInfo.Symbology);
+                    await this.AddScanMsg(sender, scanArgs, "Symbology: " + scanArgs.ParseInfo.Symbology);
 
                     // Symbology Prefix
                     // TODO: Resource strings
-                    this.AddScanMsg(sender, scanArgs, "Symbology Prefix: " + scanArgs.ParseInfo.SymbologyPrefix);
+                    await this.AddScanMsg(sender, scanArgs, "Symbology Prefix: " + scanArgs.ParseInfo.SymbologyPrefix);
 
                     // Length
                     // TODO: Resource strings
-                    this.AddScanMsg(sender, scanArgs, string.Format("Length: {0} prefix excluded", scanArgs.ParseInfo.Length));
+                    await this.AddScanMsg(sender, scanArgs, string.Format("Length: {0} prefix excluded", scanArgs.ParseInfo.Length));
 
                     // Raw Bar Code Data
                     // TODO: Resource strings
-                    this.AddScanMsg(sender, scanArgs, "Bar Code Raw");
+                    await this.AddScanMsg(sender, scanArgs, "Bar Code Raw");
 
                     const int LineLength = 30;
                     List<string> rawDataLine = SysCommon.WordWrap2List(scanArgs.ParseInfo.Raw, LineLength);
 
                     for (int i = 0; i < rawDataLine.Count; i++)
                     {
-                        this.AddScanMsg(sender, scanArgs, rawDataLine[i]);
+                        await this.AddScanMsg(sender, scanArgs, rawDataLine[i]);
                     }
 
                     //<issue="13609" author="RD" date="2016/02/22">
@@ -1447,12 +1447,12 @@ namespace dMobile.View.Activity
                         if (parse.Details.ErrorCount == 1)
                         {
                             // TODO: Resource strings
-                            this.AddScanMsg(sender, scanArgs, "1 Error");
+                            await this.AddScanMsg(sender, scanArgs, "1 Error");
                         }
                         else
                         {
                             // TODO: Resource strings
-                            this.AddScanMsg(sender, scanArgs, string.Format("{0} Errors", parse.Details.ErrorCount));
+                            await this.AddScanMsg(sender, scanArgs, string.Format("{0} Errors", parse.Details.ErrorCount));
                         }
 
                         int count = parse.Details.ErrorCount;
@@ -1463,7 +1463,7 @@ namespace dMobile.View.Activity
 
                             for (int i = 0; i < lines.Count; ++i)
                             {
-                                this.AddScanMsg(sender, scanArgs, lines[i]);
+                                await this.AddScanMsg(sender, scanArgs, lines[i]);
                             }
                         }
                     }
@@ -1673,7 +1673,7 @@ namespace dMobile.View.Activity
                     {
                         await this.ActItemBarCode.Insert(xmlDoc, true);
 
-                        //this.AddScanMsg(sender, null, "Product associated to bar code.");
+                        //await this.AddScanMsg(sender, null, "Product associated to bar code.");
                         await Device.InvokeOnMainThreadAsync(() => this.ItemsList[0] = "Product Associated To Bar Code");
 
                         using (SQLiteCommand cmndProdBCUnit = DatabaseConnection.GetInstance().SQLConn.CreateCommand())

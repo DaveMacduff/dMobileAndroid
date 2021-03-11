@@ -66,7 +66,7 @@
             // TODO: Resource strings
             this.cmdAdd.Text = "Add";
             this.FilterText = "Filter";
-            
+
             this.cmdAdd.IsEnabled = false;
             this.FilterIsEnabled = true;
 
@@ -168,6 +168,7 @@
 
             try
             {
+                this.Loading = true;
                 this.ucActivityHdr_GotFocus(this, new EventArgs());
                 await this.tmrActivityLoaded_Tick(this, new EventArgs());
             }
@@ -175,6 +176,10 @@
             {
                 // TODO: Resource strings
                 await DisplayAlert("Error", "this.ucActivityHdr_GotFocus threw an error " + ex, "OK");
+            }
+            finally
+            {
+                this.Loading = false;
             }
         }
 
@@ -925,115 +930,118 @@
         /// <param name="sender"></param>
         /// <param name="oBarCodeScanArgs"></param>
         /// <remarks></remarks>
-        private async void BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
+        private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
+            if (this.Loading)
+            {
+                return;
+            }
+
+            this.Loading = true;
+
             string message = string.Empty;
             //int currRowIdx = this.dataGridMainActivity.CurrentRowIndex;
             string savedViewSort = string.Empty;
             this.BarParse = scanArgs.ParseInfo;
 
-            await Task.Run(async () =>
+
+            this.ScannerDisable();
+
+            try
             {
-                this.Loading = true;
+                savedViewSort = this.ActHdr.DataViewHdrs.Sort;
 
-                this.ScannerDisable();
-
-                try
+                if (!string.IsNullOrEmpty(this.BarParse.ActFKRefno))
                 {
-                    savedViewSort = this.ActHdr.DataViewHdrs.Sort;
+                    // this.BarParse.ActFKRefno e.g. format is 'OE:12345678' 
+                    // Start at 3th pos for the fk refno
+                    string actHdrStringFKRefno = this.BarParse.ActFKRefno;
 
-                    if (!string.IsNullOrEmpty(this.BarParse.ActFKRefno))
+                    if (!string.IsNullOrEmpty(actHdrStringFKRefno))
                     {
-                        // this.BarParse.ActFKRefno e.g. format is 'OE:12345678' 
-                        // Start at 3th pos for the fk refno
-                        string actHdrStringFKRefno = this.BarParse.ActFKRefno;
+                        this.ActHdr.DataViewHdrs.Sort = this.ActHdr.GetFKRefnoIdx();
 
-                        if (!string.IsNullOrEmpty(actHdrStringFKRefno))
+                        if (this.ActHdr.DataViewHdrs.Count > 0)
                         {
-                            this.ActHdr.DataViewHdrs.Sort = this.ActHdr.GetFKRefnoIdx();
+                            //this.dataGridMainActivity.UnSelect(currRowIdx);
+                        }
 
-                            if (this.ActHdr.DataViewHdrs.Count > 0)
+                        int rowIdx = this.ActHdr.DataViewHdrs.Find(actHdrStringFKRefno);
+
+                        if (rowIdx >= 0)
+                        {
+                            //this.dataGridMainActivity.UnSelect(this.dataGridMainActivity.CurrentRowIndex);
+                            //this.dataGridMainActivity.CurrentRowIndex = rowIdx;
+                            this.ActHdr.Refno = this.ActHdr.GetRefnoFromRowIdx(rowIdx);
+
+                            await Device.InvokeOnMainThreadAsync(async () =>
                             {
-                                //this.dataGridMainActivity.UnSelect(currRowIdx);
-                            }
+                                FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucActivityItem, this.ActHdr, this.ActSubType);
+                                this.IsChangesMade = false;
+                                await form.DisplayControl.ShowDialog();
+                            });
 
-                            int rowIdx = this.ActHdr.DataViewHdrs.Find(actHdrStringFKRefno);
-
-                            if (rowIdx >= 0)
-                            {
-                                //this.dataGridMainActivity.UnSelect(this.dataGridMainActivity.CurrentRowIndex);
-                                //this.dataGridMainActivity.CurrentRowIndex = rowIdx;
-                                this.ActHdr.Refno = this.ActHdr.GetRefnoFromRowIdx(rowIdx);
-
-                                await Device.InvokeOnMainThreadAsync(async () =>
-                                {
-                                    FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucActivityItem, this.ActHdr, this.ActSubType);
-                                    this.IsChangesMade = false;
-                                    await form.DisplayControl.ShowDialog();
-                                });
-
-                                //this.dataGridMainActivity.Select(rowIdx);
-                            }
-                            else
-                            {
-                                this.ActHdr.FKRefno = 0;
-                                this.ActHdr.Refno = 0;
-
-                                // TODO: Resource strings
-                                throw new Exceptions.MessageOnlyException(string.Format("Unable to find reference # {0}", actHdrStringFKRefno));
-                            }
+                            //this.dataGridMainActivity.Select(rowIdx);
                         }
                         else
                         {
+                            this.ActHdr.FKRefno = 0;
+                            this.ActHdr.Refno = 0;
+
                             // TODO: Resource strings
-                            throw new Exceptions.MessageOnlyException(string.Format("Unable to parse reference # {0}", actHdrStringFKRefno));
+                            throw new Exceptions.MessageOnlyException(string.Format("Unable to find reference # {0}", actHdrStringFKRefno));
                         }
-                    }
-                    else if (!string.IsNullOrEmpty(this.BarParse.ActItemFKRefno))
-                    {
-                        // TODO: Resource strings
-                        throw new Exceptions.MessageOnlyException("Scanning an activity item reference # is not supported here!");
-                    }
-                    else if (!string.IsNullOrEmpty(this.BarParse.ProductIdentifier))
-                    {
-                        // TODO: Resource strings
-                        throw new Exceptions.MessageOnlyException("Scanning a product bar code is not supported here!");
-                    }
-                    else if (!string.IsNullOrEmpty(this.BarParse.SSCC18))
-                    {
-                        // TODO: Resource strings
-                        throw new Exceptions.MessageOnlyException("Scanning a shipping container bar code is not supported here!");
-                    }
-                    else if (!string.IsNullOrEmpty(this.BarParse.LocationIdentifier))
-                    {
-                        // TODO: Resource strings
-                        throw new Exceptions.MessageOnlyException("Scanning a location identifier bar code is not supported here!");
                     }
                     else
                     {
                         // TODO: Resource strings
-                        throw new Exceptions.MessageOnlyException("Scanned bar code type is not supported here!");
+                        throw new Exceptions.MessageOnlyException(string.Format("Unable to parse reference # {0}", actHdrStringFKRefno));
                     }
                 }
-                catch (Exceptions.MessageOnlyException ex)
+                else if (!string.IsNullOrEmpty(this.BarParse.ActItemFKRefno))
                 {
-                    await Device.InvokeOnMainThreadAsync(() => ex.Show(this.ActSubType));
+                    // TODO: Resource strings
+                    throw new Exceptions.MessageOnlyException("Scanning an activity item reference # is not supported here!");
                 }
-                catch (Exception ex)
+                else if (!string.IsNullOrEmpty(this.BarParse.ProductIdentifier))
                 {
-                    await Device.InvokeOnMainThreadAsync(async () =>
-                    {
-                        FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
-                        await errRpt.ShowDialog();
-                    });
+                    // TODO: Resource strings
+                    throw new Exceptions.MessageOnlyException("Scanning a product bar code is not supported here!");
                 }
-                finally
+                else if (!string.IsNullOrEmpty(this.BarParse.SSCC18))
                 {
-                    this.Loading = false;
-                    this.ActHdr.DataViewHdrs.Sort = savedViewSort;
-                    this.ScannerEnable();
+                    // TODO: Resource strings
+                    throw new Exceptions.MessageOnlyException("Scanning a shipping container bar code is not supported here!");
                 }
-            });
+                else if (!string.IsNullOrEmpty(this.BarParse.LocationIdentifier))
+                {
+                    // TODO: Resource strings
+                    throw new Exceptions.MessageOnlyException("Scanning a location identifier bar code is not supported here!");
+                }
+                else
+                {
+                    // TODO: Resource strings
+                    throw new Exceptions.MessageOnlyException("Scanned bar code type is not supported here!");
+                }
+            }
+            catch (Exceptions.MessageOnlyException ex)
+            {
+                await Device.InvokeOnMainThreadAsync(() => ex.Show(this.ActSubType));
+            }
+            catch (Exception ex)
+            {
+                await Device.InvokeOnMainThreadAsync(async () =>
+                {
+                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                    await errRpt.ShowDialog();
+                });
+            }
+            finally
+            {
+                this.Loading = false;
+                this.ActHdr.DataViewHdrs.Sort = savedViewSort;
+                this.ScannerEnable();
+            }
         }
 
         /// <summary>
@@ -1042,13 +1050,13 @@
         private void PopulateOptionsMenu()
         {
             this.OptionsMenuItems.Clear();
-            
+
             if (this.FilterIsEnabled)
             {
                 this.OptionsMenuItems.Add(this.FilterText);
             }
         }
-        
+
         /// <summary>
         ///
         /// </summary>
@@ -1063,7 +1071,7 @@
 
                     await Task.Run(async () =>
                     {
-                        this.Loading = true;
+                        //this.Loading = true;
 
                         try
                         {
@@ -1115,8 +1123,6 @@
 
                             this.DisplayData();
                         });
-
-                        this.Loading = false;
                     });
                 }
                 else
@@ -1132,6 +1138,7 @@
             }
             finally
             {
+                //this.Loading = false;
                 this.isRefreshing = false;
             }
         }
@@ -1703,19 +1710,19 @@
 
                                 if (this.SysEnv.ContactLog.IsAllowedPickingModuleOverridePicker)
                                 {
-                                //if (MessageBox.Show("Do you wish to clear the current picker?", "Picker Override", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
+                                    //if (MessageBox.Show("Do you wish to clear the current picker?", "Picker Override", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
 
-                                if (await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Picker Override", "Do you wish to clear the current picker?", "Yes", "No")))
+                                    if (await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Picker Override", "Do you wish to clear the current picker?", "Yes", "No")))
                                     {
                                         if (await ((PickingActivity)this.ActHdr).ClearSalesOrderBeingPicked(false))
                                         {
-                                        //MessageBox.Show("Picker cleared.", "Picker Override", MessageBoxButtons.OK, MessageBoxIcon.Hand, MessageBoxDefaultButton.Button1);
-                                        await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Picker Override", "Picker cleared.", "OK"));
+                                            //MessageBox.Show("Picker cleared.", "Picker Override", MessageBoxButtons.OK, MessageBoxIcon.Hand, MessageBoxDefaultButton.Button1);
+                                            await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Picker Override", "Picker cleared.", "OK"));
                                         }
                                         else
                                         {
-                                        //MessageBox.Show("Unable to clear the current picker.", "Picker Override", MessageBoxButtons.OK, MessageBoxIcon.Hand, MessageBoxDefaultButton.Button1);
-                                        await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Picker Override", "Unable to clear the current picker.", "OK"));
+                                            //MessageBox.Show("Unable to clear the current picker.", "Picker Override", MessageBoxButtons.OK, MessageBoxIcon.Hand, MessageBoxDefaultButton.Button1);
+                                            await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Picker Override", "Unable to clear the current picker.", "OK"));
                                         }
                                     }
                                 }
@@ -2002,7 +2009,7 @@
             {
                 return;
             }
-            
+
             // TODO: Resource strings
             string result = await DisplayActionSheet("Activity Options", "Close", null, this.OptionsMenuItems.ToArray());
 
