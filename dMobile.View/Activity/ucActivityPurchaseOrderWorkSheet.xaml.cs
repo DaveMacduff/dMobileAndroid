@@ -132,17 +132,38 @@
                             await CancelChanges();
                         }
                     }
+                    else if (keycode == Keycode.DpadDown)
+                    {
+                        if (this.dataGridMainActivity.SelectedItem != null && Convert.ToInt32(this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem)) < this.DataGridMainActivityItemsList.Count - 1)
+                        {
+                            this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem) + 1];
+                            this.dataGridMainActivity.ScrollTo(this.dataGridMainActivity.SelectedItem, ScrollToPosition.MakeVisible, true);
+                        }
+                    }
+                    else if (keycode == Keycode.DpadUp)
+                    {
+                        if (this.dataGridMainActivity.SelectedItem != null && Convert.ToInt32(this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem)) > 0)
+                        {
+                            this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem) - 1];
+                            this.dataGridMainActivity.ScrollTo(this.dataGridMainActivity.SelectedItem, ScrollToPosition.MakeVisible, true);
+                        }
+                    }
                 }
             });
 
             try
             {
-                await this.ucActivityPurchaseOrderWorkSheet_GotFocus(this, new EventArgs());
+                this.Loading = true;
+                await Task.Run(async () => await this.ucActivityPurchaseOrderWorkSheet_GotFocus(this, new EventArgs()));
             }
             catch (Exception ex)
             {
                 // TODO: Resource strings
                 await DisplayAlert("Error", "this.ucActivityHdr_GotFocus threw an error " + ex, "OK");
+            }
+            finally
+            {
+                this.Loading = false;
             }
         }
 
@@ -599,15 +620,10 @@
                             FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucActivityPurchaseOrderWorkSheetEdit, ActDetail, SysCommon.ActSubTypes.NotApplicable);
 
                             dialogResult = await Device.InvokeOnMainThreadAsync(async () => await form.DisplayControl.ShowDialog());
-                            await form.SaveChanges(this, new EventArgs());
 
                             if (dialogResult == DialogResult.OK)
                             {
                                 xmlDocEdit = form.DisplayControlData;
-                            }
-
-                            if (dialogResult == DialogResult.OK)
-                            {
                                 string strOldSort = ActItem.DataViewItems.Sort;
                                 ActItem.DataViewItems.Sort = "ActivityItemRefno";
                                 foundRowIdx = ActItem.DataViewItems.Find(actItemFoundRefno);
@@ -641,15 +657,10 @@
                             FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucActivityPurchaseOrderWorkSheetEdit, ActDetail, SysCommon.ActSubTypes.NotApplicable);
 
                             dialogResult = await Device.InvokeOnMainThreadAsync(async () => await form.DisplayControl.ShowDialog());
-                            await form.SaveChanges(this, new EventArgs());
 
                             if (dialogResult == DialogResult.OK)
                             {
                                 xmlDocEdit = form.DisplayControlData;
-                            }
-
-                            if (dialogResult == DialogResult.OK)
-                            {
                                 XDocument request = XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" + "<params>" + ("<ProductUnitRefno>" + ActItem.ProdInfo.UnitRefno + "</ProductUnitRefno>") + ("<ProductCode>" + ActItem.ProdInfo.Code + "</ProductCode>") + ("<ProductUnitIsBC>" + ActItem.ProdInfo.UnitIsBC + "</ProductUnitIsBC>") + ("<UnitCode>" + ActItem.ProdInfo.UnitCode + "</UnitCode>") + ("<ProductUnitBarCodeCode>" + BarParse.ProductIdentifier + "</ProductUnitBarCodeCode>") + ("<ProductUnitBarCodeSymbologyPrefix>" + BarParse.SymbologyPrefix + "</ProductUnitBarCodeSymbologyPrefix>") + ("<alt_qty>" + xmlDocEdit.Root.Element("alt_qty").Value + "</alt_qty>") + ("<base_qty>" + xmlDocEdit.Root.Element("base_qty").Value + "</base_qty>") + ("<wt_qty>" + xmlDocEdit.Root.Element("wt_qty").Value + "</wt_qty>") + ("<whs_id>" + LocMap.LoginWhsLocMapRefno + "</whs_id>") + ("<refno>" + ActItem.FKRefno + "</refno>") + ("<itm_refno>" + ActItem.FKRefno + "</itm_refno>") + ("<alt_unit>" + ActItem.ProdInfo.UnitCode + "</alt_unit>") + ("<base_unit>" + ActItem.ProdInfo.BaseUnitCode + "</base_unit>") + ("<wt_unit>" + ActItem.ProdInfo.WeightUnitCode + "</wt_unit>") + "</params>");
                                 await ActItem.Insert(request, false);
                             }
@@ -694,6 +705,7 @@
                 finally
                 {
                     ScannerEnable();
+                    this.Loading = false;
                 }
             });
         }
@@ -722,7 +734,7 @@
                 cmndProductUnitBarCode.CommandType = CommandType.Text;
                 cmndProductUnitBarCode.CommandText = "SELECT * FROM tProductUnitBarCode WHERE ProductUnitBarCodeCode = @productUnitBarCodeCode AND ProductUnitBarCodeModifier1 = @productUnitBarCodeModifier1";
                 //cmndProductUnitBarCode.IndexName = "UQ_ProductUnitBarCodeOnProductUnitBarCodeCodeAndProductUnitBarCodeModifier1";
-                cmndProductUnitBarCode.Parameters.Add(new SQLiteParameter("@productUnitBarCodeCode", oBarCodeParse.ProductIdentifier.PadRight(20)));
+                cmndProductUnitBarCode.Parameters.Add(new SQLiteParameter("@productUnitBarCodeCode", oBarCodeParse.ProductIdentifier));
                 cmndProductUnitBarCode.Parameters.Add(new SQLiteParameter("@productUnitBarCodeModifier1", this.SysEnv.CurrentBarCodeModifier1));
 
                 using (SQLiteDataReader drProductUnitBarCode = cmndProductUnitBarCode.ExecuteReader())
@@ -752,7 +764,6 @@
 
                         if (await Device.InvokeOnMainThreadAsync(async () => await form.DisplayControl.ShowDialog() == DialogResult.OK))
                         {
-                            await form.SaveChanges(this, new EventArgs());
                             xmlDocProduct = form.DisplayControlData;
                             this.prodUnitRefno = int.Parse(xmlDocProduct.Root.Element("ProductUnitRefno").Value);
 

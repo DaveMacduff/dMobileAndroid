@@ -103,13 +103,17 @@
                 {
                     if (keycode == Keycode.Escape)
                     {
+                        this.DialogResult = DialogResult.None;
+                        await CancelChanges();
+                        ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                    }
+                    else if (keycode == Keycode.Enter)
+                    {
                         if (await SaveChanges())
                         {
+                            this.DialogResult = DialogResult.OK;
                             ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-                        }
-                        else
-                        {
-                            await CancelChanges();
+                            await this.Close();
                         }
                     }
                 }
@@ -905,13 +909,18 @@
 
         private async void btnSave_Clicked(object sender, EventArgs e)
         {
-            this.DialogResult = DialogResult.OK;
-            await this.Close();
+            if (await SaveChanges())
+            {
+                this.DialogResult = DialogResult.OK;
+                ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                await this.Close();
+            }
         }
 
         private async void btnCancel_Clicked(object sender, EventArgs e)
         {
             this.DialogResult = DialogResult.None;
+            ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
             await this.Close();
         }
     }

@@ -301,10 +301,10 @@ namespace dMobile.Controller
                         else
                         {
                             this.IsUpdateView = true;
-                            this.NewActItemFKRefno = int.Parse(xmlDoc.DocumentElement["itm_refno"].InnerText);
-                            this.FKRefno = int.Parse(xmlDoc.DocumentElement["itm_refno"].InnerText);
+                            this.NewActItemFKRefno = -Math.Abs(int.Parse(xmlDoc.DocumentElement["itm_refno"].InnerText));
+                            this.FKRefno = -Math.Abs(int.Parse(xmlDoc.DocumentElement["itm_refno"].InnerText));
                             this.ActHdr.FKRefno = this.FKRefno;
-                            this.Refno = this.FKRefno * -1;
+                            this.Refno = Math.Abs(this.FKRefno);
                         }
                     }
                 }
