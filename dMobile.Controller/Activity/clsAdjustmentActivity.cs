@@ -22,6 +22,10 @@ namespace dMobile.Controller
         #region Fields
 
         private AdjustmentSettings adjSettings;
+        private double columnWidth0 = 0;
+        private double columnWidth1 = 0;
+        private double columnWidth2 = 0;
+        private ResourceDictionary resourceDictionary = new ResourceDictionary();
 
         #endregion
 
@@ -32,6 +36,41 @@ namespace dMobile.Controller
         {
             this.FullClassName = typeof(AdjActivity).FullName;
             this.AdjSettings = new AdjustmentSettings().LoadData();
+
+            // Data grid
+            DataTemplate dataTemplate = new DataTemplate(() =>
+            {
+                Grid gridData = new Grid
+                {
+                    Padding = new Thickness(5),
+                    ColumnDefinitions =
+                    {
+                        new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) }
+                    }
+                };
+
+                Label labelActivityAdjustmentStringFKRefno = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelActivityAdjustmentDateTime = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelActivityAdjustmentDescription = new Label { VerticalOptions = LayoutOptions.Center };
+
+                labelActivityAdjustmentStringFKRefno.SetBinding(Label.TextProperty, new Binding("ActivityAdjustmentStringFKRefno"));
+                labelActivityAdjustmentDateTime.SetBinding(Label.TextProperty, new Binding("ActivityAdjustmentDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
+                labelActivityAdjustmentDescription.SetBinding(Label.TextProperty, new Binding("ActivityAdjustmentDescription"));
+
+                gridData.Children.Add(labelActivityAdjustmentStringFKRefno, 0, 0);
+                gridData.Children.Add(labelActivityAdjustmentDateTime, 0, 0);
+                gridData.Children.Add(labelActivityAdjustmentDescription, 0, 0);
+
+                Grid.SetColumn(labelActivityAdjustmentStringFKRefno, 0);
+                Grid.SetColumn(labelActivityAdjustmentDateTime, 1);
+                Grid.SetColumn(labelActivityAdjustmentDescription, 2);
+
+                return new ViewCell { View = gridData };
+            });
+
+            this.resourceDictionary.Add("dataTemplate", dataTemplate);
         }
 
         #endregion
@@ -101,9 +140,9 @@ namespace dMobile.Controller
             Label labelAdjustmentDescription = new Label { Text = "Description", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
 
             // Calculate text size
-            double columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelAdjustmentNumber.Text);
-            double columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelAdjustmentDate.Text);
-            double columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelAdjustmentDescription.Text);
+            columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelAdjustmentNumber.Text);
+            columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelAdjustmentDate.Text);
+            columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelAdjustmentDescription.Text);
             double dataColumnWidth0 = 0;
             double dataColumnWidth1 = 0;
             double dataColumnWidth2 = 0;
@@ -175,40 +214,7 @@ namespace dMobile.Controller
                 }
             }
 
-            // Data grid
-            DataTemplate dataTemplate = new DataTemplate(() =>
-            {
-                Grid gridData = new Grid
-                {
-                    Padding = new Thickness(5),
-                    ColumnDefinitions =
-                    {
-                        new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) }
-                    }
-                };
-
-                Label labelActivityAdjustmentStringFKRefno = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelActivityAdjustmentDateTime = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelActivityAdjustmentDescription = new Label { VerticalOptions = LayoutOptions.Center };
-
-                labelActivityAdjustmentStringFKRefno.SetBinding(Label.TextProperty, new Binding("ActivityAdjustmentStringFKRefno"));
-                labelActivityAdjustmentDateTime.SetBinding(Label.TextProperty, new Binding("ActivityAdjustmentDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
-                labelActivityAdjustmentDescription.SetBinding(Label.TextProperty, new Binding("ActivityAdjustmentDescription"));
-
-                gridData.Children.Add(labelActivityAdjustmentStringFKRefno, 0, 0);
-                gridData.Children.Add(labelActivityAdjustmentDateTime, 0, 0);
-                gridData.Children.Add(labelActivityAdjustmentDescription, 0, 0);
-
-                Grid.SetColumn(labelActivityAdjustmentStringFKRefno, 0);
-                Grid.SetColumn(labelActivityAdjustmentDateTime, 1);
-                Grid.SetColumn(labelActivityAdjustmentDescription, 2);
-
-                return new ViewCell { View = gridData };
-            });
-
-            dataGridMainActivity.ItemTemplate = dataTemplate;
+            dataGridMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplate"];
 
             return observableCollection;
         }

@@ -16,6 +16,14 @@ namespace dMobile.Controller
 
     public class TransferActItem : ActItem
     {
+        private double columnWidth0 = 0;
+        private double columnWidth1 = 0;
+        private double columnWidth2 = 0;
+        private double columnWidth3 = 0;
+        private double columnWidth4 = 0;
+        private double columnWidth5 = 0;
+        private ResourceDictionary resourceDictionary = new ResourceDictionary();
+
         #region Constructors
 
         /// <summary>
@@ -29,6 +37,56 @@ namespace dMobile.Controller
             this.IsAllowAddItem = this.SysEnv.SysSettings.AllowAddProd2Trans;
             this.IsAskCreateNewItem = !this.SysEnv.SysSettings.IsTransCreateNewItemNoAsk;
             this.ActSubType = activity.ActSubType;
+
+            // Data grid
+            DataTemplate dataTemplate = new DataTemplate(() =>
+            {
+                Grid gridData = new Grid
+                {
+                    Padding = new Thickness(5),
+                    ColumnDefinitions =
+                    {
+                            new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
+                            new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
+                            new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) },
+                            new ColumnDefinition { Width = new GridLength(columnWidth3, GridUnitType.Absolute) },
+                            new ColumnDefinition { Width = new GridLength(columnWidth4, GridUnitType.Absolute) },
+                            new ColumnDefinition { Width = new GridLength(columnWidth5, GridUnitType.Absolute) }
+                    }
+                };
+
+                Label labelProductID = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelBC = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelUnitCode = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelRequired = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelQty = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelWhs = new Label { VerticalOptions = LayoutOptions.Center };
+
+                labelProductID.SetBinding(Label.TextProperty, new Binding("ProductCode"));
+                labelBC.SetBinding(Label.TextProperty, new Binding("ProductUnitBC"));
+                labelUnitCode.SetBinding(Label.TextProperty, new Binding("UnitCode"));
+                labelRequired.SetBinding(Label.TextProperty, new Binding("ActivityItemTransferRequiredQuantity", BindingMode.Default, null, null, "{0:F3}"));
+                labelQty.SetBinding(Label.TextProperty, new Binding("ActivityItemTransferQuantity", BindingMode.Default, null, null, "{0:F3}"));
+                labelWhs.SetBinding(Label.TextProperty, new Binding("LocationCode"));
+
+                gridData.Children.Add(labelProductID);
+                gridData.Children.Add(labelBC);
+                gridData.Children.Add(labelUnitCode);
+                gridData.Children.Add(labelRequired);
+                gridData.Children.Add(labelQty);
+                gridData.Children.Add(labelWhs);
+
+                Grid.SetColumn(labelProductID, 0);
+                Grid.SetColumn(labelBC, 1);
+                Grid.SetColumn(labelUnitCode, 2);
+                Grid.SetColumn(labelRequired, 3);
+                Grid.SetColumn(labelQty, 4);
+                Grid.SetColumn(labelWhs, 5);
+
+                return new ViewCell { View = gridData };
+            });
+
+            this.resourceDictionary.Add("dataTemplate", dataTemplate);
         }
 
         #endregion
@@ -332,12 +390,12 @@ namespace dMobile.Controller
             Label labelQtyHeader = new Label { Text = "Qty", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             Label labelWhsHeader = new Label { Text = "Whs", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
 
-            double columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelProductIDHeader.Text);
-            double columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelBCHeader.Text);
-            double columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelUnitCodeHeader.Text);
-            double columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelRequiredHeader.Text);
-            double columnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelQtyHeader.Text);
-            double columnWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(labelWhsHeader.Text);
+            columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelProductIDHeader.Text);
+            columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelBCHeader.Text);
+            columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelUnitCodeHeader.Text);
+            columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelRequiredHeader.Text);
+            columnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelQtyHeader.Text);
+            columnWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(labelWhsHeader.Text);
             double detailWidth0 = 0;
             double detailWidth1 = 0;
             double detailWidth2 = 0;
@@ -450,55 +508,7 @@ namespace dMobile.Controller
                 }
             }
 
-            // Data grid
-            DataTemplate dataTemplate = new DataTemplate(() =>
-            {
-                Grid gridData = new Grid
-                {
-                    Padding = new Thickness(5),
-                    ColumnDefinitions =
-                    {
-                            new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
-                            new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
-                            new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) },
-                            new ColumnDefinition { Width = new GridLength(columnWidth3, GridUnitType.Absolute) },
-                            new ColumnDefinition { Width = new GridLength(columnWidth4, GridUnitType.Absolute) },
-                            new ColumnDefinition { Width = new GridLength(columnWidth5, GridUnitType.Absolute) }
-                    }
-                };
-
-                Label labelProductID = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelBC = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelUnitCode = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelRequired = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelQty = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelWhs = new Label { VerticalOptions = LayoutOptions.Center };
-
-                labelProductID.SetBinding(Label.TextProperty, new Binding("ProductCode"));
-                labelBC.SetBinding(Label.TextProperty, new Binding("ProductUnitBC"));
-                labelUnitCode.SetBinding(Label.TextProperty, new Binding("UnitCode"));
-                labelRequired.SetBinding(Label.TextProperty, new Binding("ActivityItemTransferRequiredQuantity", BindingMode.Default, null, null, "{0:F3}"));
-                labelQty.SetBinding(Label.TextProperty, new Binding("ActivityItemTransferQuantity", BindingMode.Default, null, null, "{0:F3}"));
-                labelWhs.SetBinding(Label.TextProperty, new Binding("LocationCode"));
-
-                gridData.Children.Add(labelProductID);
-                gridData.Children.Add(labelBC);
-                gridData.Children.Add(labelUnitCode);
-                gridData.Children.Add(labelRequired);
-                gridData.Children.Add(labelQty);
-                gridData.Children.Add(labelWhs);
-
-                Grid.SetColumn(labelProductID, 0);
-                Grid.SetColumn(labelBC, 1);
-                Grid.SetColumn(labelUnitCode, 2);
-                Grid.SetColumn(labelRequired, 3);
-                Grid.SetColumn(labelQty, 4);
-                Grid.SetColumn(labelWhs, 5);
-
-                return new ViewCell { View = gridData };
-            });
-
-            dataGridMainActivity.ItemTemplate = dataTemplate;
+            dataGridMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplate"];
 
             return observableCollection;
         }

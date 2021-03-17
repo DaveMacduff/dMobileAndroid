@@ -14,6 +14,14 @@ namespace dMobile.Controller
 
     public class MoveInventoryActDetail : ActDetail
     {
+        private double columnWidth0 = 0;
+        private double columnWidth1 = 0;
+        private double columnWidth2 = 0;
+        private double columnWidth3 = 0;
+        private double columnWidth4 = 0;
+        private double columnWidth5 = 0;
+        private ResourceDictionary resourceDictionary = new ResourceDictionary();
+
         #region Constructors
 
         /// <summary>
@@ -24,6 +32,56 @@ namespace dMobile.Controller
           : base(activityItem)
         {
             this.FullClassName = typeof(MoveInventoryActDetail).FullName;
+
+            // Data grid
+            DataTemplate dataTemplate = new DataTemplate(() =>
+            {
+                Grid gridData = new Grid
+                {
+                    Padding = new Thickness(5),
+                    ColumnDefinitions =
+                    {
+                        new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth3, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth4, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth5, GridUnitType.Absolute) }
+                    }
+                };
+
+                Label labelCode = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                Label labelBC = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                Label labelUnitCode = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                Label labelQuantity = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                Label labelWeight = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                Label labelSchemeID = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+
+                labelCode.SetBinding(Label.TextProperty, new Binding("ProductCode"));
+                labelBC.SetBinding(Label.TextProperty, new Binding("ProductUnitBC"));
+                labelUnitCode.SetBinding(Label.TextProperty, new Binding("UnitCode"));
+                labelQuantity.SetBinding(Label.TextProperty, new Binding("ActivityDetailQuantity", BindingMode.Default, null, null, "{0:F3}"));
+                labelWeight.SetBinding(Label.TextProperty, new Binding("ActivityDetailWeightQuantity", BindingMode.Default, null, null, "{0:F3}"));
+                labelSchemeID.SetBinding(Label.TextProperty, new Binding("ActivityDetailSchemeID"));
+
+                gridData.Children.Add(labelCode);
+                gridData.Children.Add(labelBC);
+                gridData.Children.Add(labelUnitCode);
+                gridData.Children.Add(labelQuantity);
+                gridData.Children.Add(labelWeight);
+                gridData.Children.Add(labelSchemeID);
+
+                Grid.SetColumn(labelCode, 0);
+                Grid.SetColumn(labelBC, 1);
+                Grid.SetColumn(labelUnitCode, 2);
+                Grid.SetColumn(labelQuantity, 3);
+                Grid.SetColumn(labelWeight, 4);
+                Grid.SetColumn(labelSchemeID, 5);
+
+                return new ViewCell { View = gridData };
+            });
+
+            this.resourceDictionary.Add("dataTemplate", dataTemplate);
         }
 
         #endregion
@@ -272,12 +330,12 @@ namespace dMobile.Controller
             Label labelWeightHeader = new Label { Text = "Weight", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
             Label labelSchemeIDHeader = new Label { Text = "Scheme ID", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
 
-            double columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelCodeHeader.Text);
-            double columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelBCHeader.Text);
-            double columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelUnitCodeHeader.Text);
-            double columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelQuantityHeader.Text);
-            double columnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelWeightHeader.Text);
-            double columnWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(labelSchemeIDHeader.Text);
+            columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelCodeHeader.Text);
+            columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelBCHeader.Text);
+            columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelUnitCodeHeader.Text);
+            columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelQuantityHeader.Text);
+            columnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelWeightHeader.Text);
+            columnWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(labelSchemeIDHeader.Text);
 
             // Header grid
             Grid gridHeader = new Grid
@@ -360,55 +418,7 @@ namespace dMobile.Controller
                 }
             }
 
-            // Data grid
-            DataTemplate dataTemplate = new DataTemplate(() =>
-            {
-                Grid gridData = new Grid
-                {
-                    Padding = new Thickness(5),
-                    ColumnDefinitions =
-                    {
-                        new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth3, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth4, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth5, GridUnitType.Absolute) }
-                    }
-                };
-
-                Label labelCode = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-                Label labelBC = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-                Label labelUnitCode = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-                Label labelQuantity = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-                Label labelWeight = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-                Label labelSchemeID = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-
-                labelCode.SetBinding(Label.TextProperty, new Binding("ProductCode"));
-                labelBC.SetBinding(Label.TextProperty, new Binding("ProductUnitBC"));
-                labelUnitCode.SetBinding(Label.TextProperty, new Binding("UnitCode"));
-                labelQuantity.SetBinding(Label.TextProperty, new Binding("ActivityDetailQuantity", BindingMode.Default, null, null, "{0:F3}"));
-                labelWeight.SetBinding(Label.TextProperty, new Binding("ActivityDetailWeightQuantity", BindingMode.Default, null, null, "{0:F3}"));
-                labelSchemeID.SetBinding(Label.TextProperty, new Binding("ActivityDetailSchemeID"));
-
-                gridData.Children.Add(labelCode);
-                gridData.Children.Add(labelBC);
-                gridData.Children.Add(labelUnitCode);
-                gridData.Children.Add(labelQuantity);
-                gridData.Children.Add(labelWeight);
-                gridData.Children.Add(labelSchemeID);
-
-                Grid.SetColumn(labelCode, 0);
-                Grid.SetColumn(labelBC, 1);
-                Grid.SetColumn(labelUnitCode, 2);
-                Grid.SetColumn(labelQuantity, 3);
-                Grid.SetColumn(labelWeight, 4);
-                Grid.SetColumn(labelSchemeID, 5);
-
-                return new ViewCell { View = gridData };
-            });
-
-            dataGridMainActivity.ItemTemplate = dataTemplate;
+            dataGridMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplate"];
 
             return observableCollection;
         }

@@ -15,6 +15,11 @@ namespace dMobile.Controller
     public class TransferActivity : Activity
     {
         private TransferSettings transSettings;
+        private double columnWidth0 = 0;
+        private double columnWidth1 = 0;
+        private double columnWidth2 = 0;
+        private double columnWidth3 = 0;
+        private ResourceDictionary resourceDictionary = new ResourceDictionary();
 
         #region Constructors
 
@@ -26,6 +31,46 @@ namespace dMobile.Controller
         {
             this.FullClassName = typeof(TransferActivity).FullName;
             this.TransSettings = new TransferSettings().LoadData();
+
+            // Data grid
+            DataTemplate dataTemplate = new DataTemplate(() =>
+            {
+                Grid gridData = new Grid
+                {
+                    Padding = new Thickness(5),
+                    ColumnDefinitions =
+                    {
+                        new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth3, GridUnitType.Absolute) }
+                    }
+                };
+
+                Label labelTransferNumber = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelWhs = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelDate = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelArrived = new Label { VerticalOptions = LayoutOptions.Center };
+
+                labelTransferNumber.SetBinding(Label.TextProperty, new Binding("ActivityTransferStringFKRefno"));
+                labelWhs.SetBinding(Label.TextProperty, new Binding("LocationMapWarehouseFKRefno"));
+                labelDate.SetBinding(Label.TextProperty, new Binding("ActivityTransferDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
+                labelArrived.SetBinding(Label.TextProperty, new Binding("ActivityTransferArrivalDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
+
+                gridData.Children.Add(labelTransferNumber);
+                gridData.Children.Add(labelWhs);
+                gridData.Children.Add(labelDate);
+                gridData.Children.Add(labelArrived);
+
+                Grid.SetColumn(labelTransferNumber, 0);
+                Grid.SetColumn(labelWhs, 1);
+                Grid.SetColumn(labelDate, 2);
+                Grid.SetColumn(labelArrived, 3);
+
+                return new ViewCell { View = gridData };
+            });
+
+            this.resourceDictionary.Add("dataTemplate", dataTemplate);
         }
 
         #endregion
@@ -100,10 +145,10 @@ namespace dMobile.Controller
             Label labelDateHeader = new Label { Text = "Date", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             Label labelArrivedHeader = new Label { Text = "Arrived", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             
-            double columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelTransferNumberHeader.Text);
-            double columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelWhsHeader.Text);
-            double columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelDateHeader.Text);
-            double columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelArrivedHeader.Text);
+            columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelTransferNumberHeader.Text);
+            columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelWhsHeader.Text);
+            columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelDateHeader.Text);
+            columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelArrivedHeader.Text);
 
             // Create header data template
             Grid gridHeader = new Grid
@@ -166,45 +211,7 @@ namespace dMobile.Controller
                 }
             }
 
-            // Data grid
-            DataTemplate dataTemplate = new DataTemplate(() =>
-            {
-                Grid gridData = new Grid
-                {
-                    Padding = new Thickness(5),
-                    ColumnDefinitions =
-                    {
-                        new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth3, GridUnitType.Absolute) }
-                    }
-                };
-
-                Label labelTransferNumber = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelWhs = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelDate = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelArrived = new Label { VerticalOptions = LayoutOptions.Center };
-
-                labelTransferNumber.SetBinding(Label.TextProperty, new Binding("ActivityTransferStringFKRefno"));
-                labelWhs.SetBinding(Label.TextProperty, new Binding("LocationMapWarehouseFKRefno"));
-                labelDate.SetBinding(Label.TextProperty, new Binding("ActivityTransferDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
-                labelArrived.SetBinding(Label.TextProperty, new Binding("ActivityTransferArrivalDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
-
-                gridData.Children.Add(labelTransferNumber);
-                gridData.Children.Add(labelWhs);
-                gridData.Children.Add(labelDate);
-                gridData.Children.Add(labelArrived);
-
-                Grid.SetColumn(labelTransferNumber, 0);
-                Grid.SetColumn(labelWhs, 1);
-                Grid.SetColumn(labelDate, 2);
-                Grid.SetColumn(labelArrived, 3);
-
-                return new ViewCell { View = gridData };
-            });
-
-            dataGridMainActivity.ItemTemplate = dataTemplate;
+            dataGridMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplate"];
 
             return observableCollection;
         }

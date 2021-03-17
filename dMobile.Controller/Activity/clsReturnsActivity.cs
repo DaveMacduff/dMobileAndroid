@@ -14,6 +14,11 @@ namespace dMobile.Controller
 
     public class ReturnsActivity : Activity
     {
+        private double columnWidth0 = 0;
+        private double columnWidth1 = 0;
+        private double columnWidth2 = 0;
+        private ResourceDictionary resourceDictionary = new ResourceDictionary();
+
         #region Constructors
 
         /// <summary>
@@ -23,6 +28,41 @@ namespace dMobile.Controller
           : base()
         {
             this.FullClassName = typeof(ReturnsActivity).FullName;
+
+            // Data grid
+            DataTemplate dataTemplate = new DataTemplate(() =>
+            {
+                Grid gridData = new Grid
+                {
+                    Padding = new Thickness(5),
+                    ColumnDefinitions =
+                    {
+                        new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) }
+                    }
+                };
+
+                Label labelActivityReturnsStringFKRefno = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelActivityReturnsOrderedDateTime = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelActivityReturnsDeliveryDateTime = new Label { VerticalOptions = LayoutOptions.Center };
+
+                labelActivityReturnsStringFKRefno.SetBinding(Label.TextProperty, new Binding("ActivityReturnsStringFKRefno"));
+                labelActivityReturnsOrderedDateTime.SetBinding(Label.TextProperty, new Binding("ActivityReturnsOrderedDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
+                labelActivityReturnsDeliveryDateTime.SetBinding(Label.TextProperty, new Binding("ActivityReturnsDeliveryDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
+
+                gridData.Children.Add(labelActivityReturnsStringFKRefno);
+                gridData.Children.Add(labelActivityReturnsOrderedDateTime);
+                gridData.Children.Add(labelActivityReturnsDeliveryDateTime);
+
+                Grid.SetColumn(labelActivityReturnsStringFKRefno, 0);
+                Grid.SetColumn(labelActivityReturnsOrderedDateTime, 1);
+                Grid.SetColumn(labelActivityReturnsDeliveryDateTime, 2);
+
+                return new ViewCell { View = gridData };
+            });
+
+            this.resourceDictionary.Add("dataTemplate", dataTemplate);
         }
 
         #endregion
@@ -78,9 +118,9 @@ namespace dMobile.Controller
             Label labelReturnEntered = new Label { Text = "Entered", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             Label labelReturnReturned = new Label { Text = "Returned", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             
-            double columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelReturnNumber.Text);
-            double columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelReturnEntered.Text);
-            double columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelReturnReturned.Text);
+            columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelReturnNumber.Text);
+            columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelReturnEntered.Text);
+            columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelReturnReturned.Text);
 
             Grid gridHeader = new Grid
             {
@@ -132,40 +172,7 @@ namespace dMobile.Controller
                 }
             }
 
-            // Data grid
-            DataTemplate dataTemplateReturns = new DataTemplate(() =>
-            {
-                Grid gridData = new Grid
-                {
-                    Padding = new Thickness(5),
-                    ColumnDefinitions =
-                    {
-                        new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) }
-                    }
-                };
-
-                Label labelActivityReturnsStringFKRefno = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelActivityReturnsOrderedDateTime = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelActivityReturnsDeliveryDateTime = new Label { VerticalOptions = LayoutOptions.Center };
-
-                labelActivityReturnsStringFKRefno.SetBinding(Label.TextProperty, new Binding("ActivityReturnsStringFKRefno"));
-                labelActivityReturnsOrderedDateTime.SetBinding(Label.TextProperty, new Binding("ActivityReturnsOrderedDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
-                labelActivityReturnsDeliveryDateTime.SetBinding(Label.TextProperty, new Binding("ActivityReturnsDeliveryDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
-
-                gridData.Children.Add(labelActivityReturnsStringFKRefno);
-                gridData.Children.Add(labelActivityReturnsOrderedDateTime);
-                gridData.Children.Add(labelActivityReturnsDeliveryDateTime);
-
-                Grid.SetColumn(labelActivityReturnsStringFKRefno, 0);
-                Grid.SetColumn(labelActivityReturnsOrderedDateTime, 1);
-                Grid.SetColumn(labelActivityReturnsDeliveryDateTime, 2);
-
-                return new ViewCell { View = gridData };
-            });
-
-            dataGridMainActivity.ItemTemplate = dataTemplateReturns;
+            dataGridMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplate"];
 
             return observableCollection;
         }

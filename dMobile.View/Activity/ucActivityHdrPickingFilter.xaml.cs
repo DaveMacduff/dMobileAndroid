@@ -955,9 +955,8 @@ namespace dMobile.View.Activity
             if (!this.IsControlLoaded)
             {
                 // Reload PickSettings because intial values will be scewed because of SelectedIndexChanged events firing
-                this.LoadData();
-
-                this.DisplayData();
+                await Task.Run(() => this.LoadData());
+                await Device.InvokeOnMainThreadAsync(() => this.DisplayData());
 
                 this.ReqCancelEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                 this.ReqSaveEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());

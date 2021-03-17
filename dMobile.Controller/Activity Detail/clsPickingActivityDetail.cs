@@ -15,6 +15,13 @@ namespace dMobile.Controller
 
     public class PickingActDetail : ActDetail
     {
+        private double columnWidth0 = 0;
+        private double columnWidth1 = 0;
+        private double columnWidth2 = 0;
+        private double columnWidth3 = 0;
+        private double columnWidth4 = 0;
+        private ResourceDictionary resourceDictionary = new ResourceDictionary();
+
         #region Constructors
 
         /// <summary>
@@ -26,6 +33,59 @@ namespace dMobile.Controller
           : base(actItem)
         {
             this.FullClassName = typeof(PickingActDetail).FullName;
+
+            // Data grid
+            DataTemplate dataTemplate = new DataTemplate(() =>
+            {
+                Grid gridData = new Grid
+                {
+                    Padding = new Thickness(5),
+                    ColumnDefinitions =
+                    {
+                        new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth3, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth4, GridUnitType.Absolute) }
+                    }
+                };
+
+                Label labelPickingDetailConfirmed = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                Label labelPickingQuantity = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                Label labelPickingWeightQuantity = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                Label labelPickingUnitCode = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                Label labelPickingSchemeID = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+
+                labelPickingDetailConfirmed.SetBinding(Label.TextProperty, new Binding("ActivityDetailIsConfirmedString"));
+                labelPickingQuantity.SetBinding(Label.TextProperty, new Binding("ActivityDetailQuantity", BindingMode.Default, null, null, "{0:F3}"));
+                labelPickingWeightQuantity.SetBinding(Label.TextProperty, new Binding("ActivityDetailWeightQuantity", BindingMode.Default, null, null, "{0:F3}"));
+                labelPickingUnitCode.SetBinding(Label.TextProperty, new Binding("UnitCode"));
+                labelPickingSchemeID.SetBinding(Label.TextProperty, new Binding("ActivityDetailSchemeID"));
+
+                if (this.SysEnv.SysSettings.IsPickConfirmDet)
+                {
+                    gridData.Children.Add(labelPickingDetailConfirmed);
+                }
+
+                gridData.Children.Add(labelPickingQuantity);
+                gridData.Children.Add(labelPickingWeightQuantity);
+                gridData.Children.Add(labelPickingUnitCode);
+                gridData.Children.Add(labelPickingSchemeID);
+
+                if (this.SysEnv.SysSettings.IsPickConfirmDet)
+                {
+                    Grid.SetColumn(labelPickingDetailConfirmed, 0);
+                }
+
+                Grid.SetColumn(labelPickingQuantity, 1);
+                Grid.SetColumn(labelPickingWeightQuantity, 2);
+                Grid.SetColumn(labelPickingUnitCode, 3);
+                Grid.SetColumn(labelPickingSchemeID, 4);
+
+                return new ViewCell { View = gridData };
+            });
+
+            this.resourceDictionary.Add("dataTemplate", dataTemplate);
         }
 
         #endregion
@@ -89,7 +149,7 @@ namespace dMobile.Controller
 
                             this.ActItem.FKRefno = this.NewItemFKRefno;
                             string oldSort = this.ActItem.DataViewItems.Sort;
-                            this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
+                            this.ActItem.DataViewItems.Sort = "ActivityItemRefno";  
                             var rowIdx = this.ActItem.DataViewItems.Find(new object[] { this.ActItem.Refno });
 
                             if (rowIdx != -1)
@@ -838,11 +898,11 @@ namespace dMobile.Controller
             Label labelPickingUnitCodeHeader = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
             Label labelPickingSchemeIDHeader = new Label { Text = "Scheme ID", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
 
-            double columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPickingDetailConfirmedHeader.Text);
-            double columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPickingQuantityHeader.Text);
-            double columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPickingWeightQuantityHeader.Text);
-            double columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPickingUnitCodeHeader.Text);
-            double columnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPickingSchemeIDHeader.Text);
+            columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPickingDetailConfirmedHeader.Text);
+            columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPickingQuantityHeader.Text);
+            columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPickingWeightQuantityHeader.Text);
+            columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPickingUnitCodeHeader.Text);
+            columnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPickingSchemeIDHeader.Text);
 
             // Header grid
             Grid gridHeader = new Grid
@@ -931,58 +991,7 @@ namespace dMobile.Controller
                 }
             }
 
-            // Data grid
-            DataTemplate dataTemplatePicking = new DataTemplate(() =>
-            {
-                Grid gridData = new Grid
-                {
-                    Padding = new Thickness(5),
-                    ColumnDefinitions =
-                    {
-                        new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth3, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth4, GridUnitType.Absolute) }
-                    }
-                };
-
-                Label labelPickingDetailConfirmed = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-                Label labelPickingQuantity = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-                Label labelPickingWeightQuantity = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-                Label labelPickingUnitCode = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-                Label labelPickingSchemeID = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-
-                labelPickingDetailConfirmed.SetBinding(Label.TextProperty, new Binding("ActivityDetailIsConfirmedString"));
-                labelPickingQuantity.SetBinding(Label.TextProperty, new Binding("ActivityDetailQuantity", BindingMode.Default, null, null, "{0:F3}"));
-                labelPickingWeightQuantity.SetBinding(Label.TextProperty, new Binding("ActivityDetailWeightQuantity", BindingMode.Default, null, null, "{0:F3}"));
-                labelPickingUnitCode.SetBinding(Label.TextProperty, new Binding("UnitCode"));
-                labelPickingSchemeID.SetBinding(Label.TextProperty, new Binding("ActivityDetailSchemeID"));
-
-                if (this.SysEnv.SysSettings.IsPickConfirmDet)
-                {
-                    gridData.Children.Add(labelPickingDetailConfirmed);
-                }
-
-                gridData.Children.Add(labelPickingQuantity);
-                gridData.Children.Add(labelPickingWeightQuantity);
-                gridData.Children.Add(labelPickingUnitCode);
-                gridData.Children.Add(labelPickingSchemeID);
-
-                if (this.SysEnv.SysSettings.IsPickConfirmDet)
-                {
-                    Grid.SetColumn(labelPickingDetailConfirmed, 0);
-                }
-
-                Grid.SetColumn(labelPickingQuantity, 1);
-                Grid.SetColumn(labelPickingWeightQuantity, 2);
-                Grid.SetColumn(labelPickingUnitCode, 3);
-                Grid.SetColumn(labelPickingSchemeID, 4);
-
-                return new ViewCell { View = gridData };
-            });
-
-            dataGridMainActivity.ItemTemplate = dataTemplatePicking;
+            dataGridMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplate"];
 
             return observableCollection;
         }

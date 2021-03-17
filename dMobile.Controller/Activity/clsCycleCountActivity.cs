@@ -14,12 +14,52 @@ namespace dMobile.Controller
 
     public class CycleActivity : Activity
     {
+        private double columnWidth0 = 0;
+        private double columnWidth1 = 0;
+        private double columnWidth2 = 0;
+        private ResourceDictionary resourceDictionary = new ResourceDictionary();
+
         #region Constructors
 
         public CycleActivity()
             : base()
         {
             this.FullClassName = typeof(CycleActivity).FullName;
+
+            // Data grid
+            DataTemplate dataTemplate = new DataTemplate(() =>
+            {
+                Grid gridData = new Grid
+                {
+                    Padding = new Thickness(5),
+                    ColumnDefinitions =
+                    {
+                        new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) }
+                    }
+                };
+
+                Label labelActivityRefno = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelActivityCountDateTime = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelActivityCountTypeDescription = new Label { VerticalOptions = LayoutOptions.Center };
+
+                labelActivityRefno.SetBinding(Label.TextProperty, new Binding("ActivityCountStringFKRefno"));
+                labelActivityCountDateTime.SetBinding(Label.TextProperty, new Binding("ActivityCountDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
+                labelActivityCountTypeDescription.SetBinding(Label.TextProperty, new Binding("ActivityCountTypeDescription"));
+
+                gridData.Children.Add(labelActivityRefno, 0, 0);
+                gridData.Children.Add(labelActivityCountDateTime, 0, 0);
+                gridData.Children.Add(labelActivityCountTypeDescription, 0, 0);
+
+                Grid.SetColumn(labelActivityRefno, 0);
+                Grid.SetColumn(labelActivityCountDateTime, 1);
+                Grid.SetColumn(labelActivityCountTypeDescription, 2);
+
+                return new ViewCell { View = gridData };
+            });
+
+            resourceDictionary.Add("dataTemplate", dataTemplate);
         }
 
         #endregion
@@ -57,9 +97,9 @@ namespace dMobile.Controller
             Label labelCountType = new Label { Text = "Count Type", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
 
             // Calculate text size
-            double columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelCountNumber.Text);
-            double columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelCountDate.Text);
-            double columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelCountType.Text);
+            columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelCountNumber.Text);
+            columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelCountDate.Text);
+            columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelCountType.Text);
             double dataColumnWidth0 = 0;
             double dataColumnWidth1 = 0;
             double dataColumnWidth2 = 0;
@@ -131,40 +171,7 @@ namespace dMobile.Controller
                 }
             }
 
-            // Data grid
-            DataTemplate dataTemplateCount = new DataTemplate(() =>
-            {
-                Grid gridData = new Grid
-                {
-                    Padding = new Thickness(5),
-                    ColumnDefinitions =
-                    {
-                        new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) }
-                    }
-                };
-
-                Label labelActivityRefno = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelActivityCountDateTime = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelActivityCountTypeDescription = new Label { VerticalOptions = LayoutOptions.Center };
-
-                labelActivityRefno.SetBinding(Label.TextProperty, new Binding("ActivityCountStringFKRefno"));
-                labelActivityCountDateTime.SetBinding(Label.TextProperty, new Binding("ActivityCountDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
-                labelActivityCountTypeDescription.SetBinding(Label.TextProperty, new Binding("ActivityCountTypeDescription"));
-
-                gridData.Children.Add(labelActivityRefno, 0, 0);
-                gridData.Children.Add(labelActivityCountDateTime, 0, 0);
-                gridData.Children.Add(labelActivityCountTypeDescription, 0, 0);
-
-                Grid.SetColumn(labelActivityRefno, 0);
-                Grid.SetColumn(labelActivityCountDateTime, 1);
-                Grid.SetColumn(labelActivityCountTypeDescription, 2);
-
-                return new ViewCell { View = gridData };
-            });
-
-            dataGridMainActivity.ItemTemplate = dataTemplateCount;
+            dataGridMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplate"];
 
             return observableCollection;
         }

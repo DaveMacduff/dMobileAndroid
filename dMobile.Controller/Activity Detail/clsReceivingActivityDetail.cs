@@ -15,6 +15,12 @@ namespace dMobile.Controller
 
     public class RecvActDetail : ActDetail
     {
+        private double columnWidth0 = 0;
+        private double columnWidth1 = 0;
+        private double columnWidth2 = 0;
+        private double columnWidth3 = 0;
+        private ResourceDictionary resourceDictionary = new ResourceDictionary();
+
         #region Constructors
 
         /// <summary>
@@ -25,6 +31,46 @@ namespace dMobile.Controller
           : base(activityItem)
         {
             this.FullClassName = typeof(RecvActDetail).FullName;
+
+            // Data grid
+            DataTemplate dataTemplate = new DataTemplate(() =>
+            {
+                Grid gridData = new Grid
+                {
+                    Padding = new Thickness(5),
+                    ColumnDefinitions =
+                    {
+                        new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth3, GridUnitType.Absolute) }
+                    }
+                };
+
+                Label labelActivityDetailQuantityReceiveDetail = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                Label labelActivityDetailWeightQuantityReceiveDetail = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                Label labelUnitCodeReceiveDetail = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                Label labelActivityDetailSchemeIDReceiveDetail = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+
+                labelActivityDetailQuantityReceiveDetail.SetBinding(Label.TextProperty, new Binding("ActivityDetailQuantity", BindingMode.Default, null, null, "{0:F3}"));
+                labelActivityDetailWeightQuantityReceiveDetail.SetBinding(Label.TextProperty, new Binding("ActivityDetailWeightQuantity", BindingMode.Default, null, null, "{0:F3}"));
+                labelUnitCodeReceiveDetail.SetBinding(Label.TextProperty, new Binding("UnitCode"));
+                labelActivityDetailSchemeIDReceiveDetail.SetBinding(Label.TextProperty, new Binding("ActivityDetailSchemeID"));
+
+                gridData.Children.Add(labelActivityDetailQuantityReceiveDetail);
+                gridData.Children.Add(labelActivityDetailWeightQuantityReceiveDetail);
+                gridData.Children.Add(labelUnitCodeReceiveDetail);
+                gridData.Children.Add(labelActivityDetailSchemeIDReceiveDetail);
+
+                Grid.SetColumn(labelActivityDetailQuantityReceiveDetail, 0);
+                Grid.SetColumn(labelActivityDetailWeightQuantityReceiveDetail, 1);
+                Grid.SetColumn(labelUnitCodeReceiveDetail, 2);
+                Grid.SetColumn(labelActivityDetailSchemeIDReceiveDetail, 3);
+
+                return new ViewCell { View = gridData };
+            });
+
+            this.resourceDictionary.Add("dataTemplate", dataTemplate);
         }
 
         #endregion
@@ -879,10 +925,10 @@ namespace dMobile.Controller
             Label labelUnitCodeReceiveDetailHeader = new Label { Text = " ", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
             Label labelActivityDetailSchemeIDReceiveDetailHeader = new Label { Text = "Scheme ID", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
 
-            double columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelActivityDetailQuantityReceiveDetailHeader.Text);
-            double columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelActivityDetailWeightQuantityReceiveDetailHeader.Text);
-            double columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelUnitCodeReceiveDetailHeader.Text);
-            double columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelActivityDetailSchemeIDReceiveDetailHeader.Text);
+            columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelActivityDetailQuantityReceiveDetailHeader.Text);
+            columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelActivityDetailWeightQuantityReceiveDetailHeader.Text);
+            columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelUnitCodeReceiveDetailHeader.Text);
+            columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelActivityDetailSchemeIDReceiveDetailHeader.Text);
 
             // Header grid
             Grid gridHeaderReceiving = new Grid
@@ -945,45 +991,7 @@ namespace dMobile.Controller
                 }
             }
 
-            // Data grid
-            DataTemplate dataTemplateReceiving = new DataTemplate(() =>
-            {
-                Grid gridData = new Grid
-                {
-                    Padding = new Thickness(5),
-                    ColumnDefinitions =
-                    {
-                        new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth3, GridUnitType.Absolute) }
-                    }
-                };
-
-                Label labelActivityDetailQuantityReceiveDetail = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-                Label labelActivityDetailWeightQuantityReceiveDetail = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-                Label labelUnitCodeReceiveDetail = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-                Label labelActivityDetailSchemeIDReceiveDetail = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-
-                labelActivityDetailQuantityReceiveDetail.SetBinding(Label.TextProperty, new Binding("ActivityDetailQuantity", BindingMode.Default, null, null, "{0:F3}"));
-                labelActivityDetailWeightQuantityReceiveDetail.SetBinding(Label.TextProperty, new Binding("ActivityDetailWeightQuantity", BindingMode.Default, null, null, "{0:F3}"));
-                labelUnitCodeReceiveDetail.SetBinding(Label.TextProperty, new Binding("UnitCode"));
-                labelActivityDetailSchemeIDReceiveDetail.SetBinding(Label.TextProperty, new Binding("ActivityDetailSchemeID"));
-
-                gridData.Children.Add(labelActivityDetailQuantityReceiveDetail);
-                gridData.Children.Add(labelActivityDetailWeightQuantityReceiveDetail);
-                gridData.Children.Add(labelUnitCodeReceiveDetail);
-                gridData.Children.Add(labelActivityDetailSchemeIDReceiveDetail);
-
-                Grid.SetColumn(labelActivityDetailQuantityReceiveDetail, 0);
-                Grid.SetColumn(labelActivityDetailWeightQuantityReceiveDetail, 1);
-                Grid.SetColumn(labelUnitCodeReceiveDetail, 2);
-                Grid.SetColumn(labelActivityDetailSchemeIDReceiveDetail, 3);
-
-                return new ViewCell { View = gridData };
-            });
-
-            dataGridMainActivity.ItemTemplate = dataTemplateReceiving;
+            dataGridMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplate"];
 
             return observableCollection;
         }

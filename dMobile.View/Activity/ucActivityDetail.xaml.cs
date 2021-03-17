@@ -1752,6 +1752,11 @@ namespace dMobile.View.Activity
         /// <param name="scanArgs"></param>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
+            if (this.Loading || scanArgs == null)
+            {
+                return;
+            }
+
             this.Loading = true;
 
             int prodUnitRefno = 0;

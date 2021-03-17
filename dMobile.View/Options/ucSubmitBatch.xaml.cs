@@ -827,7 +827,6 @@ namespace dMobile.View.Options
                 XDocument xmlDoc = form.DisplayControlData;
                 this.SubmitBatchSettings = this.SubmitBatchSettings.LoadData();
                 this.ItemsList.Clear();
-                await this.LoadData();
             }
 
             this.ReqCancelEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());

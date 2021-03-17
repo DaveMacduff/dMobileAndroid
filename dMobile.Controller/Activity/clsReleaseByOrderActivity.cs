@@ -16,6 +16,13 @@ namespace dMobile.Controller
 
     public class ReleaseByOrderActivity : Activity
     {
+        private double columnWidth0 = 0;
+        private double columnWidth1 = 0;
+        private double columnWidth2 = 0;
+        private double columnWidth3 = 0;
+        private double columnWidth4 = 0;
+        private ResourceDictionary resourceDictionary = new ResourceDictionary();
+
         #region Constructors
 
         /// <summary>
@@ -25,6 +32,49 @@ namespace dMobile.Controller
           : base()
         {
             this.FullClassName = typeof(ReleaseByOrderActivity).FullName;
+
+            // Data grid
+            DataTemplate dataTemplate = new DataTemplate(() =>
+            {
+                // Header grid
+                Grid gridData = new Grid()
+                {
+                    Padding = new Thickness(5),
+                    ColumnDefinitions =
+                    {
+                        new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth3, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth4, GridUnitType.Absolute) }
+                    }
+                };
+
+                Label labelQty = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelWeight = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelUnitCode = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelSchemeID = new Label { VerticalOptions = LayoutOptions.Center };
+
+                labelQty.SetBinding(Label.TextProperty, new Binding("ActivityPickingStringFKRefno"));
+                labelWeight.SetBinding(Label.TextProperty, new Binding("ActivityPickingOrderedDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
+                labelUnitCode.SetBinding(Label.TextProperty, new Binding("ActivityPickingDeliveryDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
+                labelSchemeID.SetBinding(Label.TextProperty, new Binding("RouteCode"));
+                labelSchemeID.SetBinding(Label.TextProperty, new Binding("RouteStop"));
+
+                gridData.Children.Add(labelQty);
+                gridData.Children.Add(labelWeight);
+                gridData.Children.Add(labelUnitCode);
+                gridData.Children.Add(labelSchemeID);
+
+                Grid.SetColumn(labelQty, 0);
+                Grid.SetColumn(labelWeight, 1);
+                Grid.SetColumn(labelUnitCode, 2);
+                Grid.SetColumn(labelSchemeID, 3);
+
+                return new ViewCell { View = gridData };
+            });
+
+            this.resourceDictionary.Add("dataTemplate", dataTemplate);
         }
 
         #endregion
@@ -152,11 +202,11 @@ namespace dMobile.Controller
             Label labelRouteHeader = new Label { Text = "Route", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             Label labelStopHeader = new Label { Text = "Stop", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
 
-            double columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelOrderNumberHeader.Text);
-            double columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelOrderDateHeader.Text);
-            double columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelDeliveryDateHeader.Text);
-            double columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelRouteHeader.Text);
-            double columnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelStopHeader.Text);
+            columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelOrderNumberHeader.Text);
+            columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelOrderDateHeader.Text);
+            columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelDeliveryDateHeader.Text);
+            columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelRouteHeader.Text);
+            columnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelStopHeader.Text);
 
             // Header grid
             Grid gridHeader = new Grid
@@ -229,48 +279,7 @@ namespace dMobile.Controller
                 }
             }
 
-            // Data grid
-            DataTemplate dataTemplate = new DataTemplate(() =>
-            {
-                // Header grid
-                Grid gridData = new Grid()
-                {
-                    Padding = new Thickness(5),
-                    ColumnDefinitions =
-                    {
-                        new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth3, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth4, GridUnitType.Absolute) }
-                    }
-                };
-
-                Label labelQty = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelWeight = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelUnitCode = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelSchemeID = new Label { VerticalOptions = LayoutOptions.Center };
-
-                labelQty.SetBinding(Label.TextProperty, new Binding("ActivityPickingStringFKRefno"));
-                labelWeight.SetBinding(Label.TextProperty, new Binding("ActivityPickingOrderedDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
-                labelUnitCode.SetBinding(Label.TextProperty, new Binding("ActivityPickingDeliveryDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
-                labelSchemeID.SetBinding(Label.TextProperty, new Binding("RouteCode"));
-                labelSchemeID.SetBinding(Label.TextProperty, new Binding("RouteStop"));
-
-                gridData.Children.Add(labelQty);
-                gridData.Children.Add(labelWeight);
-                gridData.Children.Add(labelUnitCode);
-                gridData.Children.Add(labelSchemeID);
-
-                Grid.SetColumn(labelQty, 0);
-                Grid.SetColumn(labelWeight, 1);
-                Grid.SetColumn(labelUnitCode, 2);
-                Grid.SetColumn(labelSchemeID, 3);
-
-                return new ViewCell { View = gridData };
-            });
-
-            dataGridMainActivity.ItemTemplate = dataTemplate;
+            dataGridMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplate"];
 
             return observableCollection;
         }

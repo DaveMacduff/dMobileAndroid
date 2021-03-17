@@ -2619,8 +2619,8 @@
                 return;
             }
 
-            this.ScannerDisable();
             this.Loading = true;
+            this.ScannerDisable();
 
             int prodUnitRefno = 0;
             int currRowIdx = this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem);
@@ -2772,7 +2772,8 @@
                         else
                         {
                             // TODO: Resource strings
-                            throw new Exceptions.MessageOnlyException("Scanning a line item bar code is not supported here!");
+                            throw new Exceptions.MessageOnlyException("" +
+                                "Scanning a line item bar code is not supported here!");
                         }
                     }
 

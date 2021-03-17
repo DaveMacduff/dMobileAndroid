@@ -13,7 +13,6 @@ namespace dMobile.Controller
 
     public class ConvertProductActDetail : ActDetail
     {
-
         #region Fields
 
         int _ID;
@@ -23,6 +22,15 @@ namespace dMobile.Controller
             get { return _ID; }
             set { _ID = value; }
         }
+
+        private double columnWidth0 = 0;
+        private double columnWidth1 = 0;
+        private double columnWidth2 = 0;
+        private double columnWidth3 = 0;
+        private double columnWidth4 = 0;
+        private double columnWidth5 = 0;
+        private double columnWidth6 = 0;
+        private ResourceDictionary resourceDictionary = new ResourceDictionary();
 
         #endregion
 
@@ -38,6 +46,82 @@ namespace dMobile.Controller
         {
             ID = 0;
             this.FullClassName = typeof(ConvertProductActDetail).FullName;
+
+            // Data grid
+            DataTemplate dataTemplate = new DataTemplate(() =>
+            {
+                // Header grid
+                Grid gridData = new Grid()
+                {
+                    Padding = new Thickness(5),
+                    ColumnDefinitions =
+                    {
+                        new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth3, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth4, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth5, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth6, GridUnitType.Absolute) },
+                    }
+                };
+
+                Label labelQty = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelWeight = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelSerialNo = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelProdDate = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelBBSBDate = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelLot = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelVariant = new Label { VerticalOptions = LayoutOptions.Center };
+
+                labelQty.SetBinding(Label.TextProperty, new Binding("ActivityDetailQuantity", BindingMode.Default, null, null, "{0:F3}"));
+                labelWeight.SetBinding(Label.TextProperty, new Binding("ActivityDetailWeightQuantity", BindingMode.Default, null, null, "{0:F3}"));
+                labelSerialNo.SetBinding(Label.TextProperty, new Binding("ActivityDetailSingleTradeItemSerialNumber"));
+                labelProdDate.SetBinding(Label.TextProperty, new Binding("ActivityDetailLogisticUnitProductionDate", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
+                labelBBSBDate.SetBinding(Label.TextProperty, new Binding("ActivityDetailLogisticUnitBestBeforeSellByDate", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
+                labelLot.SetBinding(Label.TextProperty, new Binding("ActivityDetailLogisticUnitBatchLotNumber"));
+                labelVariant.SetBinding(Label.TextProperty, new Binding("ProductSchemeVariantCode"));
+
+                gridData.Children.Add(labelQty);
+                gridData.Children.Add(labelWeight);
+
+                Grid.SetColumn(labelQty, 0);
+                Grid.SetColumn(labelWeight, 1);
+
+                if (this.ActItem.ProdInfo.Scheme.IsSerialTracked)
+                {
+                    gridData.Children.Add(labelSerialNo);
+                    Grid.SetColumn(labelSerialNo, 2);
+                }
+
+                if (this.ActItem.ProdInfo.Scheme.IsProductionDateTracked)
+                {
+                    gridData.Children.Add(labelProdDate);
+                    Grid.SetColumn(labelProdDate, 3);
+                }
+
+                if (this.ActItem.ProdInfo.Scheme.IsBestBeforeDateTracked)
+                {
+                    gridData.Children.Add(labelBBSBDate);
+                    Grid.SetColumn(labelBBSBDate, 4);
+                }
+
+                if (this.ActItem.ProdInfo.Scheme.IsLotTracked)
+                {
+                    gridData.Children.Add(labelLot);
+                    Grid.SetColumn(labelLot, 5);
+                }
+
+                if (this.ActItem.ProdInfo.Scheme.IsVariantTracked)
+                {
+                    gridData.Children.Add(labelVariant);
+                    Grid.SetColumn(labelVariant, 6);
+                }
+
+                return new ViewCell { View = gridData };
+            });
+
+            this.resourceDictionary.Add("dataTemplate", dataTemplate);
         }
 
         #endregion
@@ -234,13 +318,13 @@ namespace dMobile.Controller
             Label labelLotHeader = new Label { Text = "Lot", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             Label labelVariantHeader = new Label { Text = "Variant", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
 
-            double columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelQtyHeader.Text);
-            double columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelWeightHeader.Text);
-            double columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelSerialNoHeader.Text);
-            double columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelProdDateHeader.Text);
-            double columnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelBBSBDateHeader.Text);
-            double columnWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(labelLotHeader.Text);
-            double columnWidth6 = DependencyService.Get<IGridService>().CalculateTextWidth(labelVariantHeader.Text);
+            columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelQtyHeader.Text);
+            columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelWeightHeader.Text);
+            columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelSerialNoHeader.Text);
+            columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelProdDateHeader.Text);
+            columnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelBBSBDateHeader.Text);
+            columnWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(labelLotHeader.Text);
+            columnWidth6 = DependencyService.Get<IGridService>().CalculateTextWidth(labelVariantHeader.Text);
 
             // Header grid
             Grid gridHeader = new Grid
@@ -393,81 +477,7 @@ namespace dMobile.Controller
                 }
             }
 
-            // Data grid
-            DataTemplate dataTemplate = new DataTemplate(() =>
-            {
-                // Header grid
-                Grid gridData = new Grid()
-                {
-                    Padding = new Thickness(5),
-                    ColumnDefinitions =
-                    {
-                        new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth3, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth4, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth5, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth6, GridUnitType.Absolute) },
-                    }
-                };
-
-                Label labelQty = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelWeight = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelSerialNo = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelProdDate = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelBBSBDate = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelLot = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelVariant = new Label { VerticalOptions = LayoutOptions.Center };
-
-                labelQty.SetBinding(Label.TextProperty, new Binding("ActivityDetailQuantity", BindingMode.Default, null, null, "{0:F3}"));
-                labelWeight.SetBinding(Label.TextProperty, new Binding("ActivityDetailWeightQuantity", BindingMode.Default, null, null, "{0:F3}"));
-                labelSerialNo.SetBinding(Label.TextProperty, new Binding("ActivityDetailSingleTradeItemSerialNumber"));
-                labelProdDate.SetBinding(Label.TextProperty, new Binding("ActivityDetailLogisticUnitProductionDate", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
-                labelBBSBDate.SetBinding(Label.TextProperty, new Binding("ActivityDetailLogisticUnitBestBeforeSellByDate", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
-                labelLot.SetBinding(Label.TextProperty, new Binding("ActivityDetailLogisticUnitBatchLotNumber"));
-                labelVariant.SetBinding(Label.TextProperty, new Binding("ProductSchemeVariantCode"));
-
-                gridData.Children.Add(labelQty);
-                gridData.Children.Add(labelWeight);
-
-                Grid.SetColumn(labelQty, 0);
-                Grid.SetColumn(labelWeight, 1);
-
-                if (this.ActItem.ProdInfo.Scheme.IsSerialTracked)
-                {
-                    gridHeader.Children.Add(labelSerialNo);
-                    Grid.SetColumn(labelSerialNo, 2);
-                }
-
-                if (this.ActItem.ProdInfo.Scheme.IsProductionDateTracked)
-                {
-                    gridData.Children.Add(labelProdDate);
-                    Grid.SetColumn(labelProdDate, 3);
-                }
-
-                if (this.ActItem.ProdInfo.Scheme.IsBestBeforeDateTracked)
-                {
-                    gridData.Children.Add(labelBBSBDate);
-                    Grid.SetColumn(labelBBSBDate, 4);
-                }
-
-                if (this.ActItem.ProdInfo.Scheme.IsLotTracked)
-                {
-                    gridHeader.Children.Add(labelLot);
-                    Grid.SetColumn(labelLot, 5);
-                }
-
-                if (this.ActItem.ProdInfo.Scheme.IsVariantTracked)
-                {
-                    gridData.Children.Add(labelVariant);
-                    Grid.SetColumn(labelVariant, 6);
-                }
-
-                return new ViewCell { View = gridData };
-            });
-
-            dataGridMainActivity.ItemTemplate = dataTemplate;
+            dataGridMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplate"];
 
             return observableCollection;
         }

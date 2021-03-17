@@ -932,7 +932,7 @@
         /// <remarks></remarks>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
-            if (this.Loading)
+            if (this.Loading || scanArgs == null)
             {
                 return;
             }

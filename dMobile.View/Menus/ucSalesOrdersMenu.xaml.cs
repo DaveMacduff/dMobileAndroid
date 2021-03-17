@@ -89,7 +89,7 @@
                     this.DisableControls();
                     //this.CallingControl = new ucActivityHdrReleaseByOrder(SysCommon.ActSubTypes.ReleaseByOrder);
 
-                    ucActivityHdr releaseByOrder = new ucActivityHdr(SysCommon.ActSubTypes.ReleaseByOrder);
+                    ucActivityHdrReleaseByOrder releaseByOrder = new ucActivityHdrReleaseByOrder(SysCommon.ActSubTypes.ReleaseByOrder);
                     await releaseByOrder.Show();
 
                     this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());

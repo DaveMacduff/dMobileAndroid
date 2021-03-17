@@ -16,6 +16,14 @@ namespace dMobile.Controller
 
     public class RecvActItem : ActItem
     {
+        private double columnWidth0 = 0;
+        private double columnWidth1 = 0;
+        private double columnWidth2 = 0;
+        private double columnWidth3 = 0;
+        private double columnWidth4 = 0;
+        private double columnWidth5 = 0;
+        private ResourceDictionary resourceDictionary = new ResourceDictionary();
+
         #region Constructors
 
         /// <summary>
@@ -28,6 +36,56 @@ namespace dMobile.Controller
             this.FullClassName = typeof(RecvActItem).FullName;
             this.IsAllowAddItem = this.SysEnv.SysSettings.AllowAddProduct2Receiving;
             this.IsAskCreateNewItem = !this.SysEnv.SysSettings.IsReceivingCreateNewItemNoAsk;
+
+            // Data grid
+            DataTemplate dataTemplate = new DataTemplate(() =>
+            {
+                Grid gridData = new Grid
+                {
+                    Padding = new Thickness(5),
+                    ColumnDefinitions =
+                    {
+                        new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth3, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth4, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth5, GridUnitType.Absolute) }
+                    }
+                };
+
+                Label labelIsActivityItemReceivingCommentItem = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                Label labelProductCodeItem = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                Label labelProductUnitBCItem = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                Label labelUnitCodeItem = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                Label labelActivityItemReceivingQuantityOrderedItem = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                Label labelActivityItemReceivingQuantityReceivedItem = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+
+                labelIsActivityItemReceivingCommentItem.SetBinding(Label.TextProperty, new Binding("IsActivityItemReceivingCommentString"));
+                labelProductCodeItem.SetBinding(Label.TextProperty, new Binding("ProductCode"));
+                labelProductUnitBCItem.SetBinding(Label.TextProperty, new Binding("ProductUnitBC"));
+                labelUnitCodeItem.SetBinding(Label.TextProperty, new Binding("UnitCode"));
+                labelActivityItemReceivingQuantityOrderedItem.SetBinding(Label.TextProperty, new Binding("ActivityItemReceivingQuantityOrdered", BindingMode.Default, null, null, "{0:F3}"));
+                labelActivityItemReceivingQuantityReceivedItem.SetBinding(Label.TextProperty, new Binding("ActivityItemReceivingQuantityReceived", BindingMode.Default, null, null, "{0:F3}"));
+
+                gridData.Children.Add(labelIsActivityItemReceivingCommentItem);
+                gridData.Children.Add(labelProductCodeItem);
+                gridData.Children.Add(labelProductUnitBCItem);
+                gridData.Children.Add(labelUnitCodeItem);
+                gridData.Children.Add(labelActivityItemReceivingQuantityOrderedItem);
+                gridData.Children.Add(labelActivityItemReceivingQuantityReceivedItem);
+
+                Grid.SetColumn(labelIsActivityItemReceivingCommentItem, 0);
+                Grid.SetColumn(labelProductCodeItem, 1);
+                Grid.SetColumn(labelProductUnitBCItem, 2);
+                Grid.SetColumn(labelUnitCodeItem, 3);
+                Grid.SetColumn(labelActivityItemReceivingQuantityOrderedItem, 4);
+                Grid.SetColumn(labelActivityItemReceivingQuantityReceivedItem, 5);
+
+                return new ViewCell { View = gridData };
+            });
+
+            this.resourceDictionary.Add("dataTemplate", dataTemplate);
         }
 
         #endregion
@@ -301,12 +359,12 @@ namespace dMobile.Controller
             Label labelActivityItemReceivingQuantityOrderedReceiving = new Label { Text = "Ordered", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
             Label labelActivityItemReceivingQuantityReceivedReceiving = new Label { Text = "Received", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
 
-            double columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelIsActivityItemReceivingCommentReceiving.Text);
-            double columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelProductCodeReceiving.Text);
-            double columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelProductUnitBCReceiving.Text);
-            double columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelUnitCodeReceiving.Text);
-            double columnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelActivityItemReceivingQuantityOrderedReceiving.Text);
-            double columnWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(labelActivityItemReceivingQuantityReceivedReceiving.Text);
+            columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelIsActivityItemReceivingCommentReceiving.Text);
+            columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelProductCodeReceiving.Text);
+            columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelProductUnitBCReceiving.Text);
+            columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelUnitCodeReceiving.Text);
+            columnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelActivityItemReceivingQuantityOrderedReceiving.Text);
+            columnWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(labelActivityItemReceivingQuantityReceivedReceiving.Text);
 
             // Header grid
             Grid gridHeaderReceiving = new Grid
@@ -389,55 +447,7 @@ namespace dMobile.Controller
                 }
             }
 
-            // Data grid
-            DataTemplate dataTemplateReceiving = new DataTemplate(() =>
-            {
-                Grid gridData = new Grid
-                {
-                    Padding = new Thickness(5),
-                    ColumnDefinitions =
-                    {
-                        new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth3, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth4, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth5, GridUnitType.Absolute) }
-                    }
-                };
-
-                Label labelIsActivityItemReceivingCommentItem = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-                Label labelProductCodeItem = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-                Label labelProductUnitBCItem = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-                Label labelUnitCodeItem = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-                Label labelActivityItemReceivingQuantityOrderedItem = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-                Label labelActivityItemReceivingQuantityReceivedItem = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-
-                labelIsActivityItemReceivingCommentItem.SetBinding(Label.TextProperty, new Binding("IsActivityItemReceivingCommentString"));
-                labelProductCodeItem.SetBinding(Label.TextProperty, new Binding("ProductCode"));
-                labelProductUnitBCItem.SetBinding(Label.TextProperty, new Binding("ProductUnitBC"));
-                labelUnitCodeItem.SetBinding(Label.TextProperty, new Binding("UnitCode"));
-                labelActivityItemReceivingQuantityOrderedItem.SetBinding(Label.TextProperty, new Binding("ActivityItemReceivingQuantityOrdered", BindingMode.Default, null, null, "{0:F3}"));
-                labelActivityItemReceivingQuantityReceivedItem.SetBinding(Label.TextProperty, new Binding("ActivityItemReceivingQuantityReceived", BindingMode.Default, null, null, "{0:F3}"));
-
-                gridData.Children.Add(labelIsActivityItemReceivingCommentItem);
-                gridData.Children.Add(labelProductCodeItem);
-                gridData.Children.Add(labelProductUnitBCItem);
-                gridData.Children.Add(labelUnitCodeItem);
-                gridData.Children.Add(labelActivityItemReceivingQuantityOrderedItem);
-                gridData.Children.Add(labelActivityItemReceivingQuantityReceivedItem);
-
-                Grid.SetColumn(labelIsActivityItemReceivingCommentItem, 0);
-                Grid.SetColumn(labelProductCodeItem, 1);
-                Grid.SetColumn(labelProductUnitBCItem, 2);
-                Grid.SetColumn(labelUnitCodeItem, 3);
-                Grid.SetColumn(labelActivityItemReceivingQuantityOrderedItem, 4);
-                Grid.SetColumn(labelActivityItemReceivingQuantityReceivedItem, 5);
-
-                return new ViewCell { View = gridData };
-            });
-
-            dataGridMainActivity.ItemTemplate = dataTemplateReceiving;
+            dataGridMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplate"];
 
             return observableCollection;
         }

@@ -16,6 +16,13 @@ namespace dMobile.Controller
 
     public class TicketFinishedActItem : ActItem
     {
+        private double columnWidth0 = 0;
+        private double columnWidth1 = 0;
+        private double columnWidth2 = 0;
+        private double columnWidth3 = 0;
+        private double columnWidth4 = 0;
+        private ResourceDictionary resourceDictionary = new ResourceDictionary();
+
         #region Constructors
 
         public TicketFinishedActItem(Activity activity)
@@ -24,6 +31,54 @@ namespace dMobile.Controller
             this.FullClassName = typeof(TicketFinishedActItem).FullName;
             this.IsAllowAddItem = this.SysEnv.SysSettings.AllowAddProduct2TicketFinished;
             this.IsAskCreateNewItem = false;
+
+            // Create item template
+            DataTemplate dataTemplate = new DataTemplate(() =>
+            {
+                Grid gridData = new Grid
+                {
+                    Padding = new Thickness(5),
+                    ColumnDefinitions =
+                    {
+                        new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth3, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth4, GridUnitType.Absolute) }
+                    }
+                };
+
+                Label labelCode = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelBC = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelUnit = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelQty = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelExpQty = new Label { VerticalOptions = LayoutOptions.Center };
+
+                // Set label bindings
+                labelCode.SetBinding(Label.TextProperty, new Binding("ProductCode"));
+                labelBC.SetBinding(Label.TextProperty, new Binding("ProductUnitBC"));
+                labelUnit.SetBinding(Label.TextProperty, new Binding("BaseUnitCode"));
+                labelQty.SetBinding(Label.TextProperty, new Binding("ActivityItemProductionBaseQuantity", BindingMode.Default, null, null, "{0:F3}"));
+                labelExpQty.SetBinding(Label.TextProperty, new Binding("ActivityItemProductionBaseQuantityExpected", BindingMode.Default, null, null, "{0:F3}"));
+
+                // Add labels to grid
+                gridData.Children.Add(labelCode);
+                gridData.Children.Add(labelBC);
+                gridData.Children.Add(labelUnit);
+                gridData.Children.Add(labelQty);
+                gridData.Children.Add(labelExpQty);
+
+                // Set label columns
+                Grid.SetColumn(labelCode, 0);
+                Grid.SetColumn(labelBC, 1);
+                Grid.SetColumn(labelUnit, 2);
+                Grid.SetColumn(labelQty, 3);
+                Grid.SetColumn(labelExpQty, 4);
+
+                return new ViewCell { View = gridData };
+            });
+
+            this.resourceDictionary.Add("dataTemplate", dataTemplate);
         }
 
         #endregion
@@ -355,11 +410,11 @@ namespace dMobile.Controller
             Label labelQtyHeader = new Label { Text = "Qty", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             Label labelExpQtyHeader = new Label { Text = "Exp Qty", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
 
-            double columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelCodeHeader.Text);
-            double columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelBCHeader.Text);
-            double columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelUnitHeader.Text);
-            double columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelQtyHeader.Text);
-            double columnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelExpQtyHeader.Text);
+            columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelCodeHeader.Text);
+            columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelBCHeader.Text);
+            columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelUnitHeader.Text);
+            columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelQtyHeader.Text);
+            columnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelExpQtyHeader.Text);
 
             Grid gridHeader = new Grid
             {
@@ -433,53 +488,7 @@ namespace dMobile.Controller
                 }
             }
 
-            // Create item template
-            DataTemplate dataTemplateCount = new DataTemplate(() =>
-            {
-                Grid gridData = new Grid
-                {
-                    Padding = new Thickness(5),
-                    ColumnDefinitions =
-                    {
-                        new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth3, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth4, GridUnitType.Absolute) }
-                    }
-                };
-
-                Label labelCode = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelBC = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelUnit = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelQty = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelExpQty = new Label { VerticalOptions = LayoutOptions.Center };
-
-                // Set label bindings
-                labelCode.SetBinding(Label.TextProperty, new Binding("ProductCode"));
-                labelBC.SetBinding(Label.TextProperty, new Binding("ProductUnitBC"));
-                labelUnit.SetBinding(Label.TextProperty, new Binding("BaseUnitCode"));
-                labelQty.SetBinding(Label.TextProperty, new Binding("ActivityItemProductionBaseQuantity", BindingMode.Default, null, null, "{0:F3}"));
-                labelExpQty.SetBinding(Label.TextProperty, new Binding("ActivityItemProductionBaseQuantityExpected", BindingMode.Default, null, null, "{0:F3}"));
-
-                // Add labels to grid
-                gridData.Children.Add(labelCode);
-                gridData.Children.Add(labelBC);
-                gridData.Children.Add(labelUnit);
-                gridData.Children.Add(labelQty);
-                gridData.Children.Add(labelExpQty);
-
-                // Set label columns
-                Grid.SetColumn(labelCode, 0);
-                Grid.SetColumn(labelBC, 1);
-                Grid.SetColumn(labelUnit, 2);
-                Grid.SetColumn(labelQty, 3);
-                Grid.SetColumn(labelExpQty, 4);
-
-                return new ViewCell { View = gridData };
-            });
-
-            dataGridMainActivity.ItemTemplate = dataTemplateCount;
+            dataGridMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplate"];
 
             return observableCollection;
         }

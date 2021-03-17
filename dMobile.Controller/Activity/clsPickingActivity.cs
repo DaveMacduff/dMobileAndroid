@@ -19,6 +19,13 @@ namespace dMobile.Controller
     /// </summary>
     public class PickingActivity : Activity
     {
+        double columnWidth0 = 0;
+        double columnWidth1 = 0;
+        double columnWidth2 = 0;
+        double columnWidth3 = 0;
+        double columnWidth4 = 0;
+        private ResourceDictionary resourceDictionary = new ResourceDictionary();
+
         #region Constructors
 
         /// <summary>
@@ -28,6 +35,61 @@ namespace dMobile.Controller
           : base()
         {
             this.FullClassName = typeof(PickingActivity).FullName;
+
+            // Data grid
+            DataTemplate dataTemplatePicking = new DataTemplate(() =>
+            {
+                Grid gridData = new Grid
+                {
+                    Padding = new Thickness(5),
+                    ColumnDefinitions =
+                    {
+                        new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth3, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth4, GridUnitType.Absolute) }
+                    }
+                };
+
+                Label labelActivityPickingStringFKRefno = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelActivityPickingDeliveryDateTime = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelActivityPickingRouteCode = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelActivityPickingRouteStop = new Label { VerticalOptions = LayoutOptions.Center };
+                Label labelActivityPickingCustomerShipToInfo = new Label { VerticalOptions = LayoutOptions.Center };
+
+                labelActivityPickingStringFKRefno.SetBinding(Label.TextProperty, new Binding("ActivityPickingStringFKRefno"));
+                labelActivityPickingDeliveryDateTime.SetBinding(Label.TextProperty, new Binding("ActivityPickingDeliveryDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
+                labelActivityPickingRouteCode.SetBinding(Label.TextProperty, new Binding("RouteCode"));
+                labelActivityPickingRouteStop.SetBinding(Label.TextProperty, new Binding("RouteStop"));
+                labelActivityPickingCustomerShipToInfo.SetBinding(Label.TextProperty, new Binding("ActivityPickingCustomerShipToInfo"));
+
+                gridData.Children.Add(labelActivityPickingStringFKRefno);
+                gridData.Children.Add(labelActivityPickingDeliveryDateTime);
+
+                if (!this.SysEnv.SysSettings.IsPickHideRouteCol)
+                {
+                    gridData.Children.Add(labelActivityPickingRouteCode);
+                    gridData.Children.Add(labelActivityPickingRouteStop);
+                }
+
+                gridData.Children.Add(labelActivityPickingCustomerShipToInfo);
+
+                Grid.SetColumn(labelActivityPickingStringFKRefno, 0);
+                Grid.SetColumn(labelActivityPickingDeliveryDateTime, 1);
+
+                if (!this.SysEnv.SysSettings.IsPickHideRouteCol)
+                {
+                    Grid.SetColumn(labelActivityPickingRouteCode, 2);
+                    Grid.SetColumn(labelActivityPickingRouteStop, 3);
+                }
+
+                Grid.SetColumn(labelActivityPickingCustomerShipToInfo, 4);
+
+                return new ViewCell { View = gridData };
+            });
+
+            resourceDictionary.Add("dataTemplatePicking", dataTemplatePicking);
         }
 
         #endregion
@@ -587,11 +649,11 @@ namespace dMobile.Controller
             Label labelPickingStop = new Label { Text = "Stop", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             Label labelPickingShipTo = new Label { Text = "Ship To", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
 
-            double columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPickingOrderNumber.Text);
-            double columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPickingDelDate.Text);
-            double columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPickingRoute.Text);
-            double columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPickingStop.Text);
-            double columnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPickingShipTo.Text);
+            columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPickingOrderNumber.Text);
+            columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPickingDelDate.Text);
+            columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPickingRoute.Text);
+            columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPickingStop.Text);
+            columnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPickingShipTo.Text);
             double detailWidth0 = 0;
             double detailWidth1 = 0;
             double detailWidth2 = 0;
@@ -711,64 +773,10 @@ namespace dMobile.Controller
                 }
             }
 
-            // Data grid
-            DataTemplate dataTemplatePicking = new DataTemplate(() =>
-            {
-                Grid gridData = new Grid
-                {
-                    Padding = new Thickness(5),
-                    ColumnDefinitions =
-                    {
-                        new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth3, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth4, GridUnitType.Absolute) }
-                    }
-                };
-
-                Label labelActivityPickingStringFKRefno = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelActivityPickingDeliveryDateTime = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelActivityPickingRouteCode = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelActivityPickingRouteStop = new Label { VerticalOptions = LayoutOptions.Center };
-                Label labelActivityPickingCustomerShipToInfo = new Label { VerticalOptions = LayoutOptions.Center };
-
-                labelActivityPickingStringFKRefno.SetBinding(Label.TextProperty, new Binding("ActivityPickingStringFKRefno"));
-                labelActivityPickingDeliveryDateTime.SetBinding(Label.TextProperty, new Binding("ActivityPickingDeliveryDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
-                labelActivityPickingRouteCode.SetBinding(Label.TextProperty, new Binding("RouteCode"));
-                labelActivityPickingRouteStop.SetBinding(Label.TextProperty, new Binding("RouteStop"));
-                labelActivityPickingCustomerShipToInfo.SetBinding(Label.TextProperty, new Binding("ActivityPickingCustomerShipToInfo"));
-
-                gridData.Children.Add(labelActivityPickingStringFKRefno);
-                gridData.Children.Add(labelActivityPickingDeliveryDateTime);
-
-                if (!this.SysEnv.SysSettings.IsPickHideRouteCol)
-                {
-                    gridData.Children.Add(labelActivityPickingRouteCode);
-                    gridData.Children.Add(labelActivityPickingRouteStop);
-                }
-
-                gridData.Children.Add(labelActivityPickingCustomerShipToInfo);
-
-                Grid.SetColumn(labelActivityPickingStringFKRefno, 0);
-                Grid.SetColumn(labelActivityPickingDeliveryDateTime, 1);
-
-                if (!this.SysEnv.SysSettings.IsPickHideRouteCol)
-                {
-                    Grid.SetColumn(labelActivityPickingRouteCode, 2);
-                    Grid.SetColumn(labelActivityPickingRouteStop, 3);
-                }
-
-                Grid.SetColumn(labelActivityPickingCustomerShipToInfo, 4);
-
-                return new ViewCell { View = gridData };
-            });
-
-            dataGridMainActivity.ItemTemplate = dataTemplatePicking;
+            dataGridMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplatePicking"];
 
             return observableCollection;
         }
-
 
         //    /// <summary>
         //    ///

@@ -20,6 +20,10 @@ namespace dMobile.Controller
 
         private bool isUpdateView = true;
         private int newActItemFKRefno = 0;
+        private double columnWidth0 = 0;
+        private double columnWidth1 = 0;
+        private double columnWidth2 = 0;
+        private ResourceDictionary resourceDictionary = new ResourceDictionary();
 
         #endregion
 
@@ -36,8 +40,42 @@ namespace dMobile.Controller
 
             // Always allow adding product
             this.IsAllowAddItem = true;
-
             this.IsAskCreateNewItem = !this.SysEnv.SysSettings.IsPOWorkSheetCreateNewItemNoAsk;
+
+            // Data grid
+            DataTemplate dataTemplate = new DataTemplate(() =>
+            {
+                Grid gridData = new Grid
+                {
+                    Padding = new Thickness(5),
+                    ColumnDefinitions =
+                    {
+                        new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
+                        new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) }
+                    }
+                };
+
+                Label labelActivityPOProductID = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                Label labelActivityPOOrdered = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                Label labelActivityPOWeight = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+
+                labelActivityPOProductID.SetBinding(Label.TextProperty, new Binding("ProductCode"));
+                labelActivityPOOrdered.SetBinding(Label.TextProperty, new Binding("ActivityItemPurchaseOrderWorkSheetQuantityOrdered", BindingMode.Default, null, null, "{0:F3}"));
+                labelActivityPOWeight.SetBinding(Label.TextProperty, new Binding("ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered", BindingMode.Default, null, null, "{0:F3}"));
+
+                gridData.Children.Add(labelActivityPOProductID);
+                gridData.Children.Add(labelActivityPOOrdered);
+                gridData.Children.Add(labelActivityPOWeight);
+
+                Grid.SetColumn(labelActivityPOProductID, 0);
+                Grid.SetColumn(labelActivityPOOrdered, 1);
+                Grid.SetColumn(labelActivityPOWeight, 2);
+
+                return new ViewCell { View = gridData };
+            });
+
+            this.resourceDictionary.Add("dataTemplate", dataTemplate);
         }
 
         #endregion
@@ -585,9 +623,9 @@ namespace dMobile.Controller
             Label labelOrdered = new Label { Text = "Ordered", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
             Label labelWeight = new Label { Text = "Weight", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
 
-            double columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelProductID.Text);
-            double columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelOrdered.Text);
-            double columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelWeight.Text);
+            columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelProductID.Text);
+            columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelOrdered.Text);
+            columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelWeight.Text);
 
             // Header grid
             Grid gridHeader = new Grid
@@ -640,40 +678,7 @@ namespace dMobile.Controller
                 }
             }
 
-            // Data grid
-            DataTemplate dataTemplateReceiving = new DataTemplate(() =>
-            {
-                Grid gridData = new Grid
-                {
-                    Padding = new Thickness(5),
-                    ColumnDefinitions =
-                    {
-                        new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) }
-                    }
-                };
-
-                Label labelActivityPOProductID = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-                Label labelActivityPOOrdered = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-                Label labelActivityPOWeight = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-
-                labelActivityPOProductID.SetBinding(Label.TextProperty, new Binding("ProductCode"));
-                labelActivityPOOrdered.SetBinding(Label.TextProperty, new Binding("ActivityItemPurchaseOrderWorkSheetQuantityOrdered", BindingMode.Default, null, null, "{0:F3}"));
-                labelActivityPOWeight.SetBinding(Label.TextProperty, new Binding("ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered", BindingMode.Default, null, null, "{0:F3}"));
-
-                gridData.Children.Add(labelActivityPOProductID);
-                gridData.Children.Add(labelActivityPOOrdered);
-                gridData.Children.Add(labelActivityPOWeight);
-
-                Grid.SetColumn(labelActivityPOProductID, 0);
-                Grid.SetColumn(labelActivityPOOrdered, 1);
-                Grid.SetColumn(labelActivityPOWeight, 2);
-
-                return new ViewCell { View = gridData };
-            });
-
-            dataGridMainActivity.ItemTemplate = dataTemplateReceiving;
+            dataGridMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplate"];
 
             return observableCollection;
         }
