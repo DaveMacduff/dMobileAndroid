@@ -46,7 +46,6 @@
         private ObservableCollection<object> dataGridMainActivityItemsList = new ObservableCollection<object>();
         private int selectedIndex;
         private List<string> optionsMenuItems = new List<string>();
-        private object lockObject = new object();
 
         // For handling double click on listview item
         private int numTaps = 0;
@@ -85,6 +84,8 @@
         public ucActivityItem(Activity activity, SysCommon.ActSubTypes actSubTypes)
         {
             this.InitializeComponent();
+
+            this.Loading = false;
 
             // TODO: Resource strings
             this.CmdLocationText = "Set Location";
@@ -194,7 +195,7 @@
             base.OnAppearing();
 
             this.lstDisplay.ItemsSource = this.ItemsList;
-            this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
+            //this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
             this.dataGridMainActivity.ItemTapped += this.DataGridMainActivity_ItemTapped;
 
             MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
@@ -277,17 +278,12 @@
 
             try
             {
-                this.Loading = true;
                 await this.ucActivityItem_GotFocus(this, new EventArgs());
             }
             catch (Exception ex)
             {
                 // TODO: Resource strings
                 await DisplayAlert("Error", "this.ucActivityItem_GotFocus threw an error " + ex, "OK");
-            }
-            finally
-            {
-                this.Loading = false;
             }
         }
 
@@ -1548,6 +1544,11 @@
         /// <remarks></remarks>
         private async Task ucActivityItem_GotFocus(object sender, EventArgs e)
         {
+            if (this.Loading)
+            {
+                return;
+            }
+
             await Task.Run(async () =>
             {
                 try
@@ -3249,9 +3250,15 @@
         /// <remarks></remarks>
         private async Task RefreshData()
         {
+            if (this.Loading)
+            {
+                Console.WriteLine("_________ LOADING, REFRESH PREVENTED");
+                return;
+            }
+
             try
             {
-                //this.Loading = true;
+                this.Loading = true;
 
                 //this.pbarStatus.Visible = true;
                 //this.lstDisplay.Items.Clear();
@@ -3297,6 +3304,7 @@
             finally
             {
                 this.ActItem.UnregLayerListenerProgOut(this);
+                this.Loading = false;
             }
         }
 

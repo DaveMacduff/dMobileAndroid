@@ -937,15 +937,13 @@
                 return;
             }
 
+            this.ScannerDisable();
             this.Loading = true;
 
             string message = string.Empty;
             //int currRowIdx = this.dataGridMainActivity.CurrentRowIndex;
             string savedViewSort = string.Empty;
             this.BarParse = scanArgs.ParseInfo;
-
-
-            this.ScannerDisable();
 
             try
             {

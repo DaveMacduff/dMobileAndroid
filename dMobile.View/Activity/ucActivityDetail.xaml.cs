@@ -1757,6 +1757,7 @@ namespace dMobile.View.Activity
                 return;
             }
 
+            this.ScannerDisable();
             this.Loading = true;
 
             int prodUnitRefno = 0;
@@ -1766,8 +1767,6 @@ namespace dMobile.View.Activity
             try
             {
                 this.Parse = scanArgs.ParseInfo;
-
-                this.ScannerDisable();
 
                 if (!string.IsNullOrEmpty(this.Parse.LocationIdentifier))
                 {

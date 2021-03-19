@@ -35,7 +35,7 @@
     <EnableLLVM>false</EnableLLVM>
     <BundleAssemblies>false</BundleAssemblies>
     <AndroidUseSharedRuntime>true</AndroidUseSharedRuntime>
-    <EmbedAssembliesIntoApk>false</EmbedAssembliesIntoApk>
+    <EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
     <UseVSHostingProcess>false</UseVSHostingProcess>
     <AndroidDexTool>d8</AndroidDexTool>
   </PropertyGroup>

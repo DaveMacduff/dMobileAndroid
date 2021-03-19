@@ -493,7 +493,7 @@ namespace dMobile.Controller
                 if (details.Table.Columns.Contains("ActivityDetailExtra5Date"))
                 {
                     // Check for DBNull because extra detail is in a child table, left join from the dataview query.
-                    if (details[idx]["ActivityDetailExtra5Date"] != DBNull.Value)
+                    if (details[idx]["ActivityDetailExtra5Date"] != DBNull.Value && !string.IsNullOrEmpty(Convert.ToString(details[idx]["ActivityDetailExtra5Date"])))
                     {
                         this.ActExtra.DateTime5 = Convert.ToDateTime(details[idx]["ActivityDetailExtra5Date"]);
                     }

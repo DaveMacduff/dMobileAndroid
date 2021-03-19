@@ -4,5 +4,6 @@
 	<uses-permission android:name="android.permission.SET_TIME" />
 	<uses-permission android:name="android.permission.READ_PHONE_STATE" />
 	<uses-permission android:name="com.honeywell.decode.permission.DECODE" />
-	<application android:label="dMobile"></application>
+	<application android:label="dMobile" />
+	<application android:hardwareAccelerated="false" />
 </manifest>
