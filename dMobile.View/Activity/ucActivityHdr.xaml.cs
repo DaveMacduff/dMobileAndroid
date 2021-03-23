@@ -169,7 +169,7 @@
             try
             {
                 this.Loading = true;
-                this.ucActivityHdr_GotFocus(this, new EventArgs());
+                await this.ucActivityHdr_GotFocus(this, new EventArgs());
                 await this.tmrActivityLoaded_Tick(this, new EventArgs());
             }
             catch (Exception ex)
@@ -186,11 +186,11 @@
         /// <summary>
         /// The OnDisappearing
         /// </summary>
-        protected override void OnDisappearing()
+        protected override async void OnDisappearing()
         {
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
             this.dataGridMainActivity.ItemTapped -= this.DataGridMainActivity_ItemTapped;
-            this.ScannerDisable();
+            await this.ScannerDisable();
 
             base.OnDisappearing();
         }
@@ -477,12 +477,12 @@
         /// Unregister the bar code scan event handler and disable the scanner.
         /// </summary>
         /// <remarks></remarks>
-        public void ScannerDisable()
+        public async Task ScannerDisable()
         {
             if (this.IsBarCodeHandlerRegistered && this.BarScanner != null)
             {
                 this.BarScanner.BarCodeScan -= new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
-                this.BarScanner.Stop();
+                await this.BarScanner.Stop();
                 this.IsBarCodeHandlerRegistered = false;
             }
         }
@@ -491,12 +491,12 @@
         /// Registers the bar code scan event handler and enables the scanner.
         /// </summary>
         /// <remarks></remarks>
-        public void ScannerEnable()
+        public async Task ScannerEnable()
         {
             if (!this.IsBarCodeHandlerRegistered)
             {
                 this.IsBarCodeHandlerRegistered = true;
-                this.BarScanner.Start();
+                await this.BarScanner.Start();
                 this.BarScanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
             }
         }
@@ -555,7 +555,7 @@
                         await Device.InvokeOnMainThreadAsync(async () =>
                         {
                             // TODO: Resource strings
-                            await DisplayAlert(this.GetControlDescription(), "Confirm exit?", "Yes", "No").ContinueWith(result =>
+                            await DisplayAlert(this.GetControlDescription(), "Confirm exit?", "Yes", "No").ContinueWith(async (result) =>
                             {
                                 if (!result.Result)
                                 {
@@ -569,7 +569,7 @@
                                     // All user controls that initalize a bar code need this code.
                                     // The parent form (not a user control) will call scanner.terminate and dispose
                                     // of the scanner instance upon exiting dMobile.
-                                    this.ScannerDisable();
+                                    await this.ScannerDisable();
                                 }
                             });
                         });
@@ -937,7 +937,7 @@
                 return;
             }
 
-            this.ScannerDisable();
+            await this.ScannerDisable();
             this.Loading = true;
 
             string message = string.Empty;
@@ -1038,7 +1038,7 @@
             {
                 this.Loading = false;
                 this.ActHdr.DataViewHdrs.Sort = savedViewSort;
-                this.ScannerEnable();
+                await this.ScannerEnable();
             }
         }
 
@@ -1147,11 +1147,11 @@
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        private void ucActivityHdr_GotFocus(object sender, EventArgs e)
+        private async Task ucActivityHdr_GotFocus(object sender, EventArgs e)
         {
             if (!SysEnvironment.GetInstance().IsApplicationExitInvoked)
             {
-                this.ScannerEnable();
+                await this.ScannerEnable();
             }
         }
 
@@ -1176,7 +1176,7 @@
                     if ((this.ActSubType == SysCommon.ActSubTypes.Picking || this.ActSubType == SysCommon.ActSubTypes.PickingSingle) && this.SysEnv.SysSettings.IsPrePickCrit && this.firstOnAppearing)
                     {
                         this.firstOnAppearing = false;
-                        this.ScannerDisable();
+                        await this.ScannerDisable();
                         int sectFKRefno = 0;
 
                         // Scanning in the picking selection criteria form is possible, which means the
@@ -1207,7 +1207,7 @@
                             performRefreshData = false;
                         }
 
-                        this.ScannerEnable();
+                        await this.ScannerEnable();
                     }
 
                     if (performRefreshData)
@@ -1527,7 +1527,7 @@
                 {
                     FormDialogContainer.EDialogTypes dlgType = 0;
 
-                    this.ScannerDisable();
+                    await this.ScannerDisable();
 
                     switch (this.ActSubType)
                     {
@@ -1603,7 +1603,7 @@
                         }
                     }
 
-                    this.ScannerEnable();
+                    await this.ScannerEnable();
                 }
                 catch (Exceptions.MessageOnlyException ex)
                 {
@@ -1695,7 +1695,7 @@
                         this.ReqCancelDisableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                         this.ReqSaveDisableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
 
-                        this.ScannerDisable();
+                        await this.ScannerDisable();
                         this.ActHdr.Refno = this.ActHdr.GetRefnoFromRowIdx(Convert.ToInt32(this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem)));
 
                         if (this.SysEnv.SysSettings.IsPickSingleProd && this.ActSubType == SysCommon.ActSubTypes.PickingSingle)
@@ -1754,7 +1754,7 @@
                     }
                     finally
                     {
-                        this.ScannerEnable();
+                        await this.ScannerEnable();
 
                         this.ReqCancelEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                         this.ReqSaveEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
@@ -1798,7 +1798,7 @@
                     if (await Device.InvokeOnMainThreadAsync(async () => await this.ActHdr.ChangeStatus(Convert.ToInt32(this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem)))))
                     {
                         // Print labels after release
-                        this.ScannerDisable();
+                        await this.ScannerDisable();
 
                         // Lekker Foods wants to be ask to print labels after the order has been released.
                         // There is no opportunity to reprint after the release.
@@ -1843,7 +1843,7 @@
                             }
                         }
 
-                        this.ScannerEnable();
+                        await this.ScannerEnable();
                     }
                 }
                 catch (Exceptions.MessageOnlyException ex)

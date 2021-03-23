@@ -119,7 +119,7 @@ namespace dMobile.View.Activity
                     }
                     else if (keycode == Keycode.Del || keycode == Keycode.Clear || keycode == Keycode.Back)
                     {
-                        this.ScannerDisable();
+                        await this.ScannerDisable();
 
                         // Instead of deleting the ActDetail, we are going to prompt the user how many boxes to remove.
                         // They remove all of them? Then delete the skid.
@@ -164,8 +164,8 @@ namespace dMobile.View.Activity
 
             try
             {
-                this.ucActivityDetail_GotFocus(this, new EventArgs());
-                this.tmrActivityDetailLoaded_Tick(this, new EventArgs());
+                await this.ucActivityDetail_GotFocus(this, new EventArgs());
+                await this.tmrActivityDetailLoaded_Tick(this, new EventArgs());
             }
             catch (Exception ex)
             {
@@ -177,10 +177,10 @@ namespace dMobile.View.Activity
         /// <summary>
         /// The OnDisappearing
         /// </summary>
-        protected override void OnDisappearing()
+        protected override async void OnDisappearing()
         {
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
-            this.ScannerDisable();
+            await this.ScannerDisable();
 
             base.OnDisappearing();
         }
@@ -511,12 +511,12 @@ namespace dMobile.View.Activity
         /// Unregister the bar code scan event handler and disable the scanner.
         /// </summary>
         /// <remarks></remarks>
-        public void ScannerDisable()
+        public async Task ScannerDisable()
         {
             if (this.IsBarCodeHandlerRegistered)
             {
                 this.Scanner.BarCodeScan -= new BarCodeScanner.BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
-                this.Scanner.Stop();
+                await this.Scanner.Stop();
                 this.IsBarCodeHandlerRegistered = false;
             }
         }
@@ -525,12 +525,12 @@ namespace dMobile.View.Activity
         /// Registers the bar code scan event handler and enables the scanner.
         /// </summary>
         /// <remarks></remarks>
-        public void ScannerEnable()
+        public async Task ScannerEnable()
         {
             if (!this.IsBarCodeHandlerRegistered)
             {
                 this.IsBarCodeHandlerRegistered = true;
-                this.Scanner.Start();
+                await this.Scanner.Start();
                 this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
             }
         }
@@ -549,7 +549,7 @@ namespace dMobile.View.Activity
             // of the scanner instance upon exiting dMobile.
             if (this.Scanner != null)
             {
-                this.ScannerDisable();
+                await this.ScannerDisable();
             }
 
             return true;
@@ -858,7 +858,7 @@ namespace dMobile.View.Activity
             {
                 this.Parse = scanArgs.ParseInfo;
 
-                this.ScannerDisable();
+                await this.ScannerDisable();
 
                 if (this.CallingActSubType != SysCommon.ActSubTypes.SkidInfo)
                 {
@@ -983,7 +983,7 @@ namespace dMobile.View.Activity
             }
             finally
             {
-                this.ScannerEnable();
+                await this.ScannerEnable();
             }
         }
 
@@ -1098,9 +1098,9 @@ namespace dMobile.View.Activity
         ///
         /// </summary>
         /// <remarks></remarks>
-        private void RefreshData()
+        private async Task RefreshData()
         {
-            this.ScannerDisable();
+            await this.ScannerDisable();
 
             this.DataViewActivityDetails = this.ActDetail.GetDataView(false);
             this.DataGridMainActivityItemsList = this.ActDetail.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
@@ -1113,7 +1113,7 @@ namespace dMobile.View.Activity
             catch (Exception ex)
             {
                 // TODO: Resource strings
-                DisplayAlert(this.GetControlDescription(), ex.Message, "OK");
+                await DisplayAlert(this.GetControlDescription(), ex.Message, "OK");
             }
 
             this.ItemsList.Clear();
@@ -1124,7 +1124,7 @@ namespace dMobile.View.Activity
                 this.ActDetail.SelectDetail(0);
             }
 
-            this.ScannerEnable();
+            await this.ScannerEnable();
             this.DisplaySummaryData();
         }
 
@@ -1134,11 +1134,11 @@ namespace dMobile.View.Activity
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        private void ucActivityDetail_GotFocus(object sender, EventArgs e)
+        private async Task ucActivityDetail_GotFocus(object sender, EventArgs e)
         {
             if (!SysEnvironment.GetInstance().IsApplicationExitInvoked)
             {
-                this.ScannerEnable();
+                await this.ScannerEnable();
 
                 //savedKeyPreviewState = (this.TopLevelControl as Form).KeyPreview;
                 //(this.TopLevelControl as Form).KeyPreview = true;
@@ -1184,7 +1184,7 @@ namespace dMobile.View.Activity
                         WeightQuantity = 0
                     };
 
-                    UpdateQty(fillQty, false);
+                    await UpdateQty(fillQty, false);
                 }
             }
             else
@@ -1203,7 +1203,7 @@ namespace dMobile.View.Activity
                         WeightQuantity = decimal.Parse(xmlDoc.Root.Element("wt_qty").Value)
                     };
 
-                    UpdateQty(fillQty, true);
+                    await UpdateQty(fillQty, true);
                 }
             }
         }
@@ -1212,7 +1212,7 @@ namespace dMobile.View.Activity
         /// Removes the quantity from a line.
         /// </summary>
         /// <param name="fillQty"></param>
-        private void UpdateQty(SysCommon.SFillQuantity fillQty, bool modifyQuantity)
+        private async Task UpdateQty(SysCommon.SFillQuantity fillQty, bool modifyQuantity)
         {
             XDocument data = new XDocument();
             string xmlReq = this.ActDetail.CreateDeleteXML(data);
@@ -1249,14 +1249,14 @@ namespace dMobile.View.Activity
                 }
             }
 
-            ShowUpdateOnGrid(fillQty);
+            await ShowUpdateOnGrid(fillQty);
         }
 
         /// <summary>
         /// Updates the grid to show the updated values.
         /// </summary>
         /// <param name="fillQty"></param>
-        private void ShowUpdateOnGrid(SysCommon.SFillQuantity fillQty)
+        private async Task ShowUpdateOnGrid(SysCommon.SFillQuantity fillQty)
         {
             //if (fillQty.Quantity == 0)
             //{
@@ -1282,7 +1282,7 @@ namespace dMobile.View.Activity
 
             //this.dataGridMainActivity.Update();
             //this.dataGridMainActivity.Select(this.dataGridMainActivity.CurrentRowIndex);
-            this.RefreshData();
+            await this.RefreshData();
             this.DisplaySummaryData();
         }
 
@@ -1309,9 +1309,9 @@ namespace dMobile.View.Activity
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        private void tmrActivityDetailLoaded_Tick(object sender, EventArgs e)
+        private async Task tmrActivityDetailLoaded_Tick(object sender, EventArgs e)
         {
-            this.RefreshData();
+            await this.RefreshData();
 
             if (this.CallingActSubType == SysCommon.ActSubTypes.SkidInfo)
             {
@@ -1351,7 +1351,7 @@ namespace dMobile.View.Activity
             // Pass 0 as the current selected row on an add, true forces it as an add not an edit
             this.ActDetail = this.ActDetail.GetInfo(0, true);
 
-            this.ScannerDisable();
+            await this.ScannerDisable();
 
             try
             {
@@ -1418,7 +1418,7 @@ namespace dMobile.View.Activity
             }
             finally
             {
-                this.ScannerEnable();
+                await this.ScannerEnable();
             }
         }
 

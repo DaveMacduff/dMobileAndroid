@@ -118,10 +118,10 @@ namespace dMobile.View.Options
         /// <summary>
         /// The OnDisappearing
         /// </summary>
-        protected override void OnDisappearing()
+        protected override async void OnDisappearing()
         {
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
-            this.ScannerDisable();
+            await this.ScannerDisable();
 
             base.OnDisappearing();
         }
@@ -381,7 +381,7 @@ namespace dMobile.View.Options
         /// Unregister the bar code scan event handler and disable the scanner.
         /// </summary>
         /// <remarks></remarks>
-        public void ScannerDisable()
+        public async Task ScannerDisable()
         {
         }
 
@@ -389,7 +389,7 @@ namespace dMobile.View.Options
         /// Registers the bar code scan event handler and enables the scanner.
         /// </summary>
         /// <remarks></remarks>
-        public void ScannerEnable()
+        public async Task ScannerEnable()
         {
         }
 
@@ -449,7 +449,7 @@ namespace dMobile.View.Options
                     // All user controls that initalize a bar code need this code.
                     // The parent form (not a user control) will call scanner.terminate and dispose
                     // of the scanner instance upon exiting dMobile.
-                    this.ScannerDisable();
+                    await this.ScannerDisable();
                 }
             }
             catch (Exceptions.MessageOnlyException ex)

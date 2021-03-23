@@ -193,62 +193,70 @@ namespace dMobile.Controller
         /// <param name="data"></param>
         public override void Insert(XDocument data)
         {
-            this.FillActDetailObjFromXML(data);
-
-            if (this.SysEnv.SysSettings.IsDisconnectedMode)
+            try
             {
-                int actDetailRefno = this.InsertDetailDisconnected();
 
-                using (SQLiteCommand cmndDetailAdj = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                this.FillActDetailObjFromXML(data);
+
+                if (this.SysEnv.SysSettings.IsDisconnectedMode)
                 {
-                    cmndDetailAdj.CommandText = "INSERT INTO tActivityDetailCount (ActivityDetailRefno, ActivityDetailCountFKRefno) VALUES (@activityDetailRefno, @activityDetailCountFKRefno)";
-                    cmndDetailAdj.CommandType = CommandType.Text;
-                    //cmndDetailAdj.IndexName = "UQ_ActivityDetailCountOnActivityDetailCountFKRefno";
-                    cmndDetailAdj.Parameters.Add(new SQLiteParameter("@activityDetailRefno", Convert.ToInt32(actDetailRefno)));
-                    cmndDetailAdj.Parameters.Add(new SQLiteParameter("@activityDetailCountFKRefno", Convert.ToInt32(this.FKRefno)));
+                    int actDetailRefno = this.InsertDetailDisconnected();
 
-                    cmndDetailAdj.ExecuteNonQuery();
+                    using (SQLiteCommand cmndDetailAdj = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                    {
+                        cmndDetailAdj.CommandText = "INSERT INTO tActivityDetailCount (ActivityDetailRefno, ActivityDetailCountFKRefno) VALUES (@activityDetailRefno, @activityDetailCountFKRefno)";
+                        cmndDetailAdj.CommandType = CommandType.Text;
+                        //cmndDetailAdj.IndexName = "UQ_ActivityDetailCountOnActivityDetailCountFKRefno";
+                        cmndDetailAdj.Parameters.Add(new SQLiteParameter("@activityDetailRefno", Convert.ToInt32(actDetailRefno)));
+                        cmndDetailAdj.Parameters.Add(new SQLiteParameter("@activityDetailCountFKRefno", Convert.ToInt32(this.FKRefno)));
 
-                    //recDetail.SetInt32((int)SysCommon.ActDetailAdjFields.ActDetailRefno, actDetailRefno);
-                    //recDetail.SetInt32((int)SysCommon.ActDetailAdjFields.FKRefno, this.FKRefno);
-                    //rsDetail.Insert(recDetail);
+                        cmndDetailAdj.ExecuteNonQuery();
 
-                    this.IsUpdateView = true;
+                        //recDetail.SetInt32((int)SysCommon.ActDetailAdjFields.ActDetailRefno, actDetailRefno);
+                        //recDetail.SetInt32((int)SysCommon.ActDetailAdjFields.FKRefno, this.FKRefno);
+                        //rsDetail.Insert(recDetail);
+
+                        this.IsUpdateView = true;
+                    }
                 }
+                else
+                {
+                    if (this.InsertDetail(this.CreateSubmitXML(XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"))))
+                    {
+                        using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                        {
+                            cmndItem.CommandType = CommandType.Text;
+                            cmndItem.CommandText = "UPDATE tActivityItemCount "
+                                + "SET ActivityItemCountStringFKRefno = \'" + this.NewItemFKRefno + "\',"
+                                + "ActivityItemCountFKRefno = " + this.NewItemFKRefno
+                                + " WHERE ActivityItemRefno = " + this.ActItem.Refno;
+                            cmndItem.ExecuteNonQuery();
+                        }
+
+                        string oldSort = this.ActItem.DataViewItems.Sort;
+                        this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
+
+                        int rowIdx = this.ActItem.DataViewItems.Find(new object[] { this.ActItem.Refno });
+
+                        if (rowIdx != -1)
+                        {
+                            DataRowView rowView = this.ActItem.DataViewItems[rowIdx];
+                            rowView.BeginEdit();
+                            rowView["ActivityItemCountFKRefno"] = this.NewItemFKRefno;
+                            rowView["ActivityItemCountStringFKRefno"] = this.NewItemFKRefno.ToString();
+                            rowView.EndEdit();
+                        }
+
+                        this.ActItem.DataViewItems.Sort = oldSort;
+                    }
+                }
+
+                this.InsertUpdateDataViewDetail("ActivityDetailCountFKRefno", "ActivityDetailCountFKRefno");
             }
-            else
+            catch (Exception ex)
             {
-                if (this.InsertDetail(this.CreateSubmitXML(XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"))))
-                {
-                    using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                    {
-                        cmndItem.CommandType = CommandType.Text;
-                        cmndItem.CommandText = "UPDATE tActivityItemCount "
-                            + "SET ActivityItemCountStringFKRefno = \'" + this.NewItemFKRefno + "\',"
-                            + "ActivityItemCountFKRefno = " + this.NewItemFKRefno
-                            + " WHERE ActivityItemRefno = " + this.ActItem.Refno;
-                        cmndItem.ExecuteNonQuery();
-                    }
-
-                    string oldSort = this.ActItem.DataViewItems.Sort;
-                    this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
-
-                    int rowIdx = this.ActItem.DataViewItems.Find(new object[] { this.ActItem.Refno });
-
-                    if (rowIdx != -1)
-                    {
-                        DataRowView rowView = this.ActItem.DataViewItems[rowIdx];
-                        rowView.BeginEdit();
-                        rowView["ActivityItemCountFKRefno"] = this.NewItemFKRefno;
-                        rowView["ActivityItemCountStringFKRefno"] = this.NewItemFKRefno.ToString();
-                        rowView.EndEdit();
-                    }
-
-                    this.ActItem.DataViewItems.Sort = oldSort;
-                }
+                Console.WriteLine(ex);
             }
-
-            this.InsertUpdateDataViewDetail("ActivityDetailCountFKRefno", "ActivityDetailCountFKRefno");
         }
 
         /// <summary>

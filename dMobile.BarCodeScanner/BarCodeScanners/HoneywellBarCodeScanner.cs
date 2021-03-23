@@ -23,7 +23,7 @@
         /// <summary>
         /// Defines the mUIContext
         /// </summary>
-        private SynchronizationContext mUIContext = SynchronizationContext.Current;
+        //private SynchronizationContext mUIContext;
         private IHoneywellScannerService honeywellScannerService = DependencyService.Get<IHoneywellScannerService>();
         private EventHandler profileDataHandler = null;
         private bool symbologySettingsSet = false;
@@ -139,17 +139,11 @@
         /// </summary>
         /// <param name="sender">The sender<see cref="object"/></param>
         /// <param name="e">The e<see cref="BarcodeDataArgs"/></param>
-        private void HoneywellReader_BarcodeDataReady(object sender, BarcodeDataArgs e)
+        private async void HoneywellReader_BarcodeDataReady(object sender, BarcodeDataArgs e)
         {
             try
             {
-                if (this.mUIContext == null)
-                {
-                    SynchronizationContext.SetSynchronizationContext(new SynchronizationContext());
-                    this.mUIContext = SynchronizationContext.Current;
-                }
-
-                this.mUIContext.Post(_ => { this.OnBarCodeScan(new BarCodeScannerEventArgs(e.Data)); }, null);
+                await this.OnBarCodeScan(new BarCodeScannerEventArgs(e.Data));
             }
             catch (Exception ex)
             {

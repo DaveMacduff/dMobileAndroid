@@ -241,7 +241,7 @@ namespace dMobile.View.Activity
             try
             {
                 await this.ucActivityItem_GotFocus(this, new EventArgs());
-                this.tmrActivityItemLoaded_Tick(this, new EventArgs());
+                await this.tmrActivityItemLoaded_Tick(this, new EventArgs());
             }
             catch (Exception ex)
             {
@@ -257,10 +257,10 @@ namespace dMobile.View.Activity
         /// <summary>
         /// The OnDisappearing
         /// </summary>
-        protected override void OnDisappearing()
+        protected override async void OnDisappearing()
         {
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
-            this.ScannerDisable();
+            await this.ScannerDisable();
 
             base.OnDisappearing();
         }
@@ -608,12 +608,12 @@ namespace dMobile.View.Activity
         /// Unregister the bar code scan event handler and disable the scanner.
         /// </summary>
         /// <remarks></remarks>
-        public void ScannerDisable()
+        public async Task ScannerDisable()
         {
             if (this.IsBarCodeHandlerRegistered && this.Scanner != null)
             {
                 this.Scanner.BarCodeScan -= new BarCodeScanner.BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
-                this.Scanner.Stop();
+                await this.Scanner.Stop();
                 this.IsBarCodeHandlerRegistered = false;
             }
         }
@@ -622,12 +622,12 @@ namespace dMobile.View.Activity
         /// Registers the bar code scan event handler and enables the scanner.
         /// </summary>
         /// <remarks></remarks>
-        public void ScannerEnable()
+        public async Task ScannerEnable()
         {
             if (!this.IsBarCodeHandlerRegistered)
             {
                 this.IsBarCodeHandlerRegistered = true;
-                this.Scanner.Start();
+                await this.Scanner.Start();
                 this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
             }
         }
@@ -740,7 +740,7 @@ namespace dMobile.View.Activity
             // of the scanner instance upon exiting dMobile.
             try
             {
-                this.ScannerDisable();
+                await this.ScannerDisable();
             }
             catch (Exception ex)
             {
@@ -754,7 +754,7 @@ namespace dMobile.View.Activity
             }
             finally
             {
-                this.ScannerEnable();
+                await this.ScannerEnable();
             }
 
             // Lekker requirement to check reviewed even though we are cancelling / closing.
@@ -1357,7 +1357,7 @@ namespace dMobile.View.Activity
 
             try
             {
-                this.ScannerDisable();
+                await this.ScannerDisable();
 
                 barCodeParse = scanArgs.ParseInfo;
 
@@ -1801,7 +1801,7 @@ namespace dMobile.View.Activity
             }
             finally
             {
-                this.ScannerEnable();
+                await this.ScannerEnable();
             }
         }
 
@@ -2185,7 +2185,7 @@ namespace dMobile.View.Activity
         ///
         /// </summary>
         /// <remarks></remarks>
-        private void RefreshData()
+        private async Task RefreshData()
         {
             this.ItemsList.Clear();
 
@@ -2196,7 +2196,7 @@ namespace dMobile.View.Activity
             catch (Exception ex)
             {
                 // TODO: Resource strings
-                DisplayAlert(this.GetControlDescription(), ex.Message, "OK");
+                await DisplayAlert(this.GetControlDescription(), ex.Message, "OK");
 
             }
 
@@ -2235,7 +2235,7 @@ namespace dMobile.View.Activity
                 if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
                 {
                     string currentReadableLocation = LocationMapTasks.GetCurrentReadableLocation();
-                    Device.BeginInvokeOnMainThread(() => this.cmdLocationText = "Location: " + Environment.NewLine + currentReadableLocation);
+                    await Device.InvokeOnMainThreadAsync(() => this.cmdLocationText = "Location: " + Environment.NewLine + currentReadableLocation);
                 }
                 else
                 {
@@ -2255,7 +2255,7 @@ namespace dMobile.View.Activity
             }
 
             this.DisplayData();
-            this.ScannerEnable();
+            await this.ScannerEnable();
         }
 
         /// <summary>
@@ -2268,7 +2268,7 @@ namespace dMobile.View.Activity
         {
             if (!SysEnvironment.GetInstance().IsApplicationExitInvoked)
             {
-                this.ScannerEnable();
+                await this.ScannerEnable();
 
                 this.updnBarCodeModifier1.SelectedItem = this.SysEnv.CurrentBarCodeModifier1;
 
@@ -2314,11 +2314,11 @@ namespace dMobile.View.Activity
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        private void tmrActivityItemLoaded_Tick(object sender, EventArgs e)
+        private async Task tmrActivityItemLoaded_Tick(object sender, EventArgs e)
         {
             if (this.IsEnabled)
             {
-                this.RefreshData();
+                await this.RefreshData();
                 this.cmdLocationIsEnabled = true;
                 this.cmdSelectSkidIsEnabled = this.SysEnv.SysSettings.IsSkidTrackingModule;
                 this.cmdAddProductIsEnabled = this.ActItem.IsAllowAddItem;
@@ -2355,7 +2355,7 @@ namespace dMobile.View.Activity
             {
                 try
                 {
-                    this.ScannerDisable();
+                    await this.ScannerDisable();
 
                     // if cycle by slot
                     FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucSelectLocationMap, SysCommon.ActSubTypes.NotApplicable);
@@ -2388,7 +2388,7 @@ namespace dMobile.View.Activity
                 }
                 finally
                 {
-                    this.ScannerEnable();
+                    await this.ScannerEnable();
                 }
             }
         }
@@ -2405,7 +2405,7 @@ namespace dMobile.View.Activity
             {
                 try
                 {
-                    this.ScannerDisable();
+                    await this.ScannerDisable();
 
                     FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucSkidInfo, this.ActItem, this.ActSubType);
                     {
@@ -2453,7 +2453,7 @@ namespace dMobile.View.Activity
                 }
                 finally
                 {
-                    this.ScannerEnable();
+                    await this.ScannerEnable();
                 }
             }
         }
@@ -2474,7 +2474,7 @@ namespace dMobile.View.Activity
                     int prodUnitRefno = 0;
                     int foundRowIdx = 0;
 
-                    this.ScannerDisable();
+                    await this.ScannerDisable();
 
                     // Not allowed to count individual boxes on a skid. Skids must be
                     // scanned as a whole unit or built in skid maintenance.
@@ -2675,7 +2675,7 @@ namespace dMobile.View.Activity
 
                         default:
                             // Performing a refresh data will remove and partially added new items or quantity.
-                            this.RefreshData();
+                            await this.RefreshData();
                             break;
                     }
                 }
@@ -2701,14 +2701,14 @@ namespace dMobile.View.Activity
 
                         default:
                             // Performing a refresh data will remove and partially added new items or quantity.
-                            this.RefreshData();
+                            await this.RefreshData();
                             break;
                     }
                 }
                 finally
                 {
                     DisplayData();
-                    this.ScannerEnable();
+                    await this.ScannerEnable();
                 }
             }
         }
@@ -2730,7 +2730,7 @@ namespace dMobile.View.Activity
                     int foundRowIdx = 0;
                     string message = string.Empty;
 
-                    this.ScannerDisable();
+                    await this.ScannerDisable();
 
                     // TODO: Resource strings
                     if (await DisplayAlert("Skid", "Add the ENTIRE skid to this activity?", "Yes", "No"))
@@ -2826,7 +2826,7 @@ namespace dMobile.View.Activity
                 }
                 finally
                 {
-                    this.ScannerEnable();
+                    await this.ScannerEnable();
                 }
             }
         }
@@ -2843,7 +2843,7 @@ namespace dMobile.View.Activity
             {
                 try
                 {
-                    this.ScannerDisable();
+                    await this.ScannerDisable();
                     this.ActItem.SelectItem(this.ActItem.CurrRowIdx);
 
                     if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
@@ -2903,7 +2903,7 @@ namespace dMobile.View.Activity
                 }
                 finally
                 {
-                    this.ScannerEnable();
+                    await this.ScannerEnable();
                 }
             }
         }
@@ -3112,7 +3112,7 @@ namespace dMobile.View.Activity
                 this.ReqCancelDisableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                 this.ReqSaveDisableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
 
-                this.ScannerDisable();
+                await this.ScannerDisable();
 
                 if (0 > this.ActItem.CurrRowIdx)
                 {
@@ -3142,7 +3142,7 @@ namespace dMobile.View.Activity
             }
             finally
             {
-                this.ScannerEnable();
+                await this.ScannerEnable();
 
                 this.ReqCancelEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                 this.ReqSaveEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
@@ -3161,7 +3161,7 @@ namespace dMobile.View.Activity
                 this.ReqCancelDisableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                 this.ReqSaveDisableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
 
-                this.ScannerDisable();
+                await this.ScannerDisable();
 
                 string msg = this.ActItem.GetTotalQuantity();
 
@@ -3185,7 +3185,7 @@ namespace dMobile.View.Activity
             }
             finally
             {
-                this.ScannerEnable();
+                await this.ScannerEnable();
 
                 this.ReqCancelEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                 this.ReqSaveEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());

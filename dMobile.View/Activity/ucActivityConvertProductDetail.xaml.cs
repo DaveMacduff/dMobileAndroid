@@ -135,7 +135,7 @@ namespace dMobile.View.Activity
 
             try
             {
-                this.ucActivityConvertProductDetail_GotFocus(this, new EventArgs());
+                await this.ucActivityConvertProductDetail_GotFocus(this, new EventArgs());
             }
             catch (Exception ex)
             {
@@ -147,10 +147,10 @@ namespace dMobile.View.Activity
         /// <summary>
         /// The OnDisappearing
         /// </summary>
-        protected override void OnDisappearing()
+        protected override async void OnDisappearing()
         {
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
-            this.ScannerDisable();
+            await this.ScannerDisable();
 
             base.OnDisappearing();
         }
@@ -484,12 +484,12 @@ namespace dMobile.View.Activity
         /// Unregister the bar code scan event handler and disable the scanner.
         /// </summary>
         /// <remarks></remarks>
-        public void ScannerDisable()
+        public async Task ScannerDisable()
         {
             if (this.IsBarCodeHandlerRegistered)
             {
                 this.Scanner.BarCodeScan -= new BarCodeScanner.BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
-                this.Scanner.Stop();
+                await this.Scanner.Stop();
                 this.IsBarCodeHandlerRegistered = false;
             }
         }
@@ -498,12 +498,12 @@ namespace dMobile.View.Activity
         /// Registers the bar code scan event handler and enables the scanner.
         /// </summary>
         /// <remarks></remarks>
-        public void ScannerEnable()
+        public async Task ScannerEnable()
         {
             if (!this.IsBarCodeHandlerRegistered)
             {
                 this.IsBarCodeHandlerRegistered = true;
-                this.Scanner.Start();
+                await this.Scanner.Start();
                 this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
             }
         }
@@ -563,7 +563,7 @@ namespace dMobile.View.Activity
                     // All user controls that initalize a bar code need this code.
                     // The parent form (not a user control) will call scanner.terminate and dispose
                     // of the scanner instance upon exiting dMobile.
-                    this.ScannerDisable();
+                    await this.ScannerDisable();
                 }
             }
             catch (Exceptions.MessageOnlyException ex)
@@ -843,7 +843,7 @@ namespace dMobile.View.Activity
 
             try
             {
-                this.ScannerDisable();
+                await this.ScannerDisable();
 
                 SActItemSchemeData tempItemProdSchemeData = new SActItemSchemeData();
                 parse = scanArgs.ParseInfo;
@@ -925,7 +925,7 @@ namespace dMobile.View.Activity
             }
             finally
             {
-                this.ScannerEnable();
+                await this.ScannerEnable();
             }
         }
 
@@ -1257,11 +1257,11 @@ namespace dMobile.View.Activity
             await AddManually();
         }
 
-        private void ucActivityConvertProductDetail_GotFocus(object sender, EventArgs e)
+        private async Task ucActivityConvertProductDetail_GotFocus(object sender, EventArgs e)
         {
             if (!SysEnvironment.GetInstance().IsApplicationExitInvoked)
             {
-                this.ScannerEnable();
+                await this.ScannerEnable();
 
                 if (!this.IsControlLoaded)
                 {

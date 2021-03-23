@@ -226,10 +226,10 @@
         /// <summary>
         /// The OnDisappearing
         /// </summary>
-        protected override void OnDisappearing()
+        protected override async void OnDisappearing()
         {
-            this.ucSetLocationMap_LostFocus(this, new EventArgs());
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
+            await this.ucSetLocationMap_LostFocus(this, new EventArgs());
 
             base.OnDisappearing();
         }
@@ -638,12 +638,12 @@
         /// Unregister the bar code scan event handler and disable the scanner.
         /// </summary>
         /// <remarks></remarks>
-        public void ScannerDisable()
+        public async Task ScannerDisable()
         {
             if (this.IsBarCodeHandlerRegistered && this.Scanner != null)
             {
                 this.Scanner.BarCodeScan -= new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
-                this.Scanner.Stop();
+                await this.Scanner.Stop();
                 this.IsBarCodeHandlerRegistered = false;
             }
         }
@@ -652,12 +652,12 @@
         /// Registers the bar code scan event handler and enables the scanner.
         /// </summary>
         /// <remarks></remarks>
-        public void ScannerEnable()
+        public async Task ScannerEnable()
         {
             if (!this.IsBarCodeHandlerRegistered)
             {
                 this.IsBarCodeHandlerRegistered = true;
-                this.Scanner.Start();
+                await this.Scanner.Start();
                 this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
             }
         }
@@ -708,7 +708,7 @@
 
                 if (isReadyToClose)
                 {
-                    this.ScannerDisable();
+                    await this.ScannerDisable();
                 }
             }
             catch (Exceptions.MessageOnlyException ex)
@@ -964,7 +964,7 @@
             {
                 if (!this.IsControlLoaded)
                 {
-                    this.ScannerEnable();
+                    await this.ScannerEnable();
                     this.LoadData();
                     this.SelectWarehouse();
 
@@ -1217,11 +1217,11 @@
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        private void ucSetLocationMap_LostFocus(object sender, EventArgs e)
+        private async Task ucSetLocationMap_LostFocus(object sender, EventArgs e)
         {
             if (this.Scanner != null)
             {
-                this.ScannerDisable();
+                await this.ScannerDisable();
             }
         }
 

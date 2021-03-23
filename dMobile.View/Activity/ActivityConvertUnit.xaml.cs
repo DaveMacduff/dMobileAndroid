@@ -181,7 +181,7 @@ namespace dMobile.View.Activity
 
             try
             {
-                this.ucActivityConvertUnit_GotFocus(this, new EventArgs());
+                await this.ucActivityConvertUnit_GotFocus(this, new EventArgs());
             }
             catch (Exception ex)
             {
@@ -567,12 +567,12 @@ namespace dMobile.View.Activity
         /// Unregister the bar code scan event handler and disable the scanner.
         /// </summary>
         /// <remarks></remarks>
-        public void ScannerDisable()
+        public async Task ScannerDisable()
         {
             if (this.IsBarCodeHandlerRegistered)
             {
                 this.Scanner.BarCodeScan -= new BarCodeScanner.BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
-                this.Scanner.Stop();
+                await this.Scanner.Stop();
                 this.IsBarCodeHandlerRegistered = false;
             }
         }
@@ -581,12 +581,12 @@ namespace dMobile.View.Activity
         /// Registers the bar code scan event handler and enables the scanner.
         /// </summary>
         /// <remarks></remarks>
-        public void ScannerEnable()
+        public async Task ScannerEnable()
         {
             if (!this.IsBarCodeHandlerRegistered)
             {
                 this.IsBarCodeHandlerRegistered = true;
-                this.Scanner.Start();
+                await this.Scanner.Start();
                 this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
             }
         }
@@ -664,7 +664,7 @@ namespace dMobile.View.Activity
                 // of the scanner instance upon exiting dMobile.
                 if (this.Scanner != null)
                 {
-                    this.ScannerDisable();
+                    await this.ScannerDisable();
                 }
             }
             catch (Exceptions.MessageOnlyException ex)
@@ -1042,7 +1042,7 @@ namespace dMobile.View.Activity
 
                 try
                 {
-                    this.ScannerDisable();
+                    await this.ScannerDisable();
 
                     parse = scanArgs.ParseInfo;
 
@@ -1170,7 +1170,7 @@ namespace dMobile.View.Activity
                 }
                 finally
                 {
-                    this.ScannerEnable();
+                    await this.ScannerEnable();
                     this.Loading = false;
                 }
             });
@@ -1443,7 +1443,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         private async void cmdLocation_Click(object sender, EventArgs e)
         {
-            this.ScannerDisable();
+            await this.ScannerDisable();
             FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucSelectLocationMap, SysCommon.ActSubTypes.NotApplicable);
 
             if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
@@ -1459,7 +1459,7 @@ namespace dMobile.View.Activity
                 }
             }
 
-            this.ScannerEnable();
+            await this.ScannerEnable();
         }
 
         /// <summary>
@@ -1471,7 +1471,7 @@ namespace dMobile.View.Activity
         private async void cmdSelectFromUnit_Click(object sender, EventArgs e)
         {
             this.cmdSelectFromUnit.IsEnabled = false;
-            this.ScannerDisable();
+            await this.ScannerDisable();
 
             if (!LocationMapTasks.IsCompleteLocMapRefno(this.LocMap.CurrLocMapRefno))
             {
@@ -1574,7 +1574,7 @@ namespace dMobile.View.Activity
                 //this.cmdSelectToUnit.Refresh();
             }
 
-            this.ScannerEnable();
+            await this.ScannerEnable();
 
             this.cmdSelectFromUnit.IsEnabled = true;
         }
@@ -1591,7 +1591,7 @@ namespace dMobile.View.Activity
             {
                 // Needed to check if the enter key was pressed last, because it seems that 
                 // SelectNextControl causes a click event to fire if it is the next control
-                this.ScannerDisable();
+                await this.ScannerDisable();
 
                 if (!LocationMapTasks.IsCompleteLocMapRefno(this.LocMap.CurrLocMapRefno))
                 {
@@ -1759,7 +1759,7 @@ namespace dMobile.View.Activity
             }
             finally
             {
-                this.ScannerEnable();
+                await this.ScannerEnable();
             }
         }
 
@@ -1900,11 +1900,11 @@ namespace dMobile.View.Activity
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        private void ucActivityConvertUnit_GotFocus(object sender, EventArgs e)
+        private async Task ucActivityConvertUnit_GotFocus(object sender, EventArgs e)
         {
             if (!SysEnvironment.GetInstance().IsApplicationExitInvoked)
             {
-                this.ScannerEnable();
+                await this.ScannerEnable();
 
                 if (!this.IsControlLoaded)
                 {

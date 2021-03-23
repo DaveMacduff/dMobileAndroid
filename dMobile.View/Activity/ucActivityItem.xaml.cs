@@ -290,11 +290,11 @@
         /// <summary>
         /// The OnDisappearing
         /// </summary>
-        protected override void OnDisappearing()
+        protected override async void OnDisappearing()
         {
             this.dataGridMainActivity.ItemTapped -= this.DataGridMainActivity_ItemTapped;
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
-            this.ScannerDisable();
+            await this.ScannerDisable();
 
             base.OnDisappearing();
         }
@@ -679,12 +679,12 @@
         /// Unregister the bar code scan event handler and disable the scanner.
         /// </summary>
         /// <remarks></remarks>
-        public void ScannerDisable()
+        public async Task ScannerDisable()
         {
             if (this.IsBarCodeHandlerRegistered && this.Scanner != null)
             {
                 this.Scanner.BarCodeScan -= new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
-                this.Scanner.Stop();
+                await this.Scanner.Stop();
                 this.IsBarCodeHandlerRegistered = false;
             }
         }
@@ -693,12 +693,12 @@
         /// Registers the bar code scan event handler and enables the scanner.
         /// </summary>
         /// <remarks></remarks>
-        public void ScannerEnable()
+        public async Task ScannerEnable()
         {
             if (!this.IsBarCodeHandlerRegistered)
             {
                 this.IsBarCodeHandlerRegistered = true;
-                this.Scanner.Start();
+                await this.Scanner.Start();
                 this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
             }
         }
@@ -784,7 +784,7 @@
             // of the scanner instance upon exiting dMobile.
             try
             {
-                this.ScannerDisable();
+                await this.ScannerDisable();
             }
             catch (Exception ex)
             {
@@ -798,7 +798,7 @@
             }
             finally
             {
-                this.ScannerEnable();
+               await this.ScannerEnable();
             }
 
             ////// Lekker requirement to check reviewed even though we are cancelling / closing.
@@ -1556,7 +1556,7 @@
                     //This prevents UI lag when pushing modal into view
                     //await Task.Delay(500);
 
-                    this.ScannerEnable();
+                    await this.ScannerEnable();
 
                     await Device.InvokeOnMainThreadAsync(() => this.updnBarCodeModifier1.SelectedItem = this.SysEnv.CurrentBarCodeModifier1);
 
@@ -1619,11 +1619,11 @@
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        private void ucActivityItem_LostFocus(object sender, EventArgs e)
+        private async Task ucActivityItem_LostFocus(object sender, EventArgs e)
         {
             //if (this.tmrActivityItemLoaded.Enabled == false)
             //{
-            this.ScannerDisable();
+            await this.ScannerDisable();
             //}
         }
 
@@ -1661,7 +1661,7 @@
             {
                 try
                 {
-                    this.ScannerDisable();
+                    await this.ScannerDisable();
 
                     FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucSelectLocationMap, SysCommon.ActSubTypes.NotApplicable);
 
@@ -1695,7 +1695,7 @@
                 finally
                 {
                     DisplayData();
-                    this.ScannerEnable();
+                    await this.ScannerEnable();
                     this.dataGridMainActivity.Focus();
                 }
             }
@@ -1714,7 +1714,7 @@
                 // Needed to check if the enter key was pressed last, because it seems that 
                 // SelectNextControl in the keypress event causes a click event to fire
                 // if a command button is the next control rather than just giving the button focus.
-                this.ScannerDisable();
+                await this.ScannerDisable();
 
                 FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucSkidInfo, this.ActItem, this.ActSubType);
 
@@ -1750,7 +1750,7 @@
                 }
 
                 this.DisplayData();
-                this.ScannerEnable();
+                await this.ScannerEnable();
                 //this.dataGridMainActivity.Focus();
             }
         }
@@ -1775,7 +1775,7 @@
 
                 try
                 {
-                    this.ScannerDisable();
+                    await this.ScannerDisable();
 
                     // Not allowed to count individual boxes on a skid. Skids must be
                     // scanned as a whole unit or built in skid maintenance.
@@ -1988,7 +1988,7 @@
                 finally
                 {
                     DisplayData();
-                    this.ScannerEnable();
+                    await this.ScannerEnable();
                     //this.dataGridMainActivity.Focus();
                 }
             }
@@ -2013,7 +2013,7 @@
 
                 try
                 {
-                    this.ScannerDisable();
+                    await this.ScannerDisable();
 
                     //if (MessageBox.Show("Add the ENTIRE skid to this activity?", "Add Skid", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
                     if (await DisplayAlert("Add Skid", "Add the ENTIRE skid to this activity?", "Yes", "No"))
@@ -2093,7 +2093,7 @@
                 finally
                 {
                     DisplayData();
-                    this.ScannerEnable();
+                    await this.ScannerEnable();
                     //this.dataGridMainActivity.Focus();
                 }
             }
@@ -2127,7 +2127,7 @@
                     this.ReqCancelDisableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     this.ReqSaveDisableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
 
-                    this.ScannerDisable();
+                    await this.ScannerDisable();
 
                     if (0 < this.ActItem.DataViewItems.Count)
                     {
@@ -2179,7 +2179,7 @@
                         this.DisplayData();
                     });
 
-                    this.ScannerEnable();
+                    await this.ScannerEnable();
 
                     this.ReqCancelEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     this.ReqSaveEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
@@ -2199,7 +2199,7 @@
                 this.ReqCancelDisableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                 this.ReqSaveDisableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
 
-                this.ScannerDisable();
+                await this.ScannerDisable();
 
                 if (this.ActItem.ActHdr.SkidInfo != null)
                 {
@@ -2233,7 +2233,7 @@
             finally
             {
                 this.dataGridMainActivity.IsEnabled = true;
-                this.ScannerEnable();
+                await this.ScannerEnable();
 
                 this.ReqCancelEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                 this.ReqSaveEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
@@ -2329,7 +2329,7 @@
         //    {
         //        if (e.KeyCode == Keys.Enter || e.KeyValue == 134)
         //        {
-        //            this.ScannerDisable();
+        //            await this.ScannerDisable();
 
         //            FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucSkidInfo, this.ActItem, this.ActSubType);
         //            await form.DisplayControl.ShowDialog();
@@ -2343,7 +2343,7 @@
         //            }
 
         //            this.DisplayData();
-        //            this.ScannerEnable();
+        //            await this.ScannerEnable();
         //            this.dataGridMainActivity.Focus();
         //        }
         //        else if (e.KeyCode == Keys.Escape)
@@ -2447,7 +2447,7 @@
             {
                 this.Loading = false;
                 this.dataGridMainActivity.IsEnabled = true;
-                this.ScannerEnable();
+                await this.ScannerEnable();
 
                 this.ReqCancelEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                 this.ReqSaveEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
@@ -2462,12 +2462,12 @@
                 throw new Exceptions.MessageOnlyException("Inventory Inquiry Summary is unavailable in disconnected mode.");
             }
 
-            this.ScannerDisable();
+            await this.ScannerDisable();
 
             FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucActivityInventoryInquirySummary, this.ActItem, this.ActSubType);
             await Device.InvokeOnMainThreadAsync(async () => await form.DisplayControl.ShowDialog());
 
-            this.ScannerEnable();
+            await this.ScannerEnable();
         }
 
         /// <summary>
@@ -2484,7 +2484,7 @@
                 this.ReqCancelDisableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                 this.ReqSaveDisableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
 
-                this.ScannerDisable();
+                await this.ScannerDisable();
 
                 //if (0 > this.dataGridMainActivity.CurrentRowIndex)
                 if (this.dataGridMainActivity.SelectedItem != null && 0 > this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem))
@@ -2518,7 +2518,7 @@
             finally
             {
                 this.dataGridMainActivity.IsEnabled = true;
-                this.ScannerEnable();
+                await this.ScannerEnable();
 
                 this.ReqCancelEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                 this.ReqSaveEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
@@ -2537,7 +2537,7 @@
                 this.ReqCancelDisableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                 this.ReqSaveDisableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
 
-                this.ScannerDisable();
+                await this.ScannerDisable();
 
                 string msg = this.ActItem.GetTotalQuantity();
 
@@ -2564,7 +2564,7 @@
             }
             finally
             {
-                this.ScannerEnable();
+                await this.ScannerEnable();
 
                 this.ReqCancelEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                 this.ReqSaveEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
@@ -2621,7 +2621,7 @@
             }
 
             this.Loading = true;
-            this.ScannerDisable();
+            await this.ScannerDisable();
 
             int prodUnitRefno = 0;
             int currRowIdx = this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem);
@@ -3213,7 +3213,7 @@
             finally
             {
                 this.Loading = false;
-                this.ScannerEnable();
+                await this.ScannerEnable();
             }
         }
 
@@ -3250,11 +3250,11 @@
         /// <remarks></remarks>
         private async Task RefreshData()
         {
-            if (this.Loading)
-            {
-                Console.WriteLine("_________ LOADING, REFRESH PREVENTED");
-                return;
-            }
+            //if (this.Loading)
+            //{
+            //    Console.WriteLine("_________ LOADING, REFRESH PREVENTED");
+            //    return;
+            //}
 
             try
             {

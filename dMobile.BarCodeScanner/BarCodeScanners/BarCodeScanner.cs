@@ -2,6 +2,7 @@
 {
     using System;
     using System.Threading.Tasks;
+    using Xamarin.Forms;
 
     /// <summary>
     /// This is the abstract barcode scanner class.
@@ -44,7 +45,7 @@
         /// <summary>
         /// Event that calls the delegate.
         /// </summary>
-        public virtual async void OnBarCodeScan(BarCodeScannerEventArgs e)
+        public virtual async Task OnBarCodeScan(BarCodeScannerEventArgs e)
         {
             await this.BarCodeScan?.Invoke(this, e);
         }

@@ -105,7 +105,7 @@
         /// <summary>
         /// The OnAppearing
         /// </summary>
-        protected override void OnAppearing()
+        protected override async void OnAppearing()
         {
             base.OnAppearing();
 
@@ -133,7 +133,7 @@
 
             try
             {
-                this.AssignDefaultLocation_GotFocus(this, new EventArgs());
+                await this.AssignDefaultLocation_GotFocus(this, new EventArgs());
             }
             catch (Exception ex)
             {
@@ -145,10 +145,11 @@
         /// <summary>
         /// The OnDisappearing
         /// </summary>
-        protected override void OnDisappearing()
+        protected override async void OnDisappearing()
         {
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
-            this.AssignDefaultLocation_LostFocus(this, new EventArgs());
+            await this.AssignDefaultLocation_LostFocus(this, new EventArgs());
+
             base.OnDisappearing();
         }
 
@@ -520,12 +521,12 @@
         /// Unregister the bar code scan event handler and disable the scanner.
         /// </summary>
         /// <remarks></remarks>
-        public void ScannerDisable()
+        public async Task ScannerDisable()
         {
             if (this.IsBarCodeHandlerRegistered && this.Scanner != null)
             {
                 this.Scanner.BarCodeScan -= new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
-                this.Scanner.Stop();
+                await this.Scanner.Stop();
                 this.IsBarCodeHandlerRegistered = false;
             }
         }
@@ -534,12 +535,12 @@
         /// Registers the bar code scan event handler and enables the scanner.
         /// </summary>
         /// <remarks></remarks>
-        public void ScannerEnable()
+        public async Task ScannerEnable()
         {
             if (!this.IsBarCodeHandlerRegistered)
             {
                 this.IsBarCodeHandlerRegistered = true;
-                this.Scanner.Start();
+                await this.Scanner.Start();
                 this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
             }
         }
@@ -662,7 +663,7 @@
             // All user controls that initalize a bar code need this code.
             // The parent form (not a user control) will call scanner.terminate and dispose
             // of the scanner instance upon exiting dMobile.
-            this.ScannerDisable();
+            await this.ScannerDisable();
 
             return !this.ChangesMade;
         }
@@ -1009,7 +1010,7 @@
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        private void AssignDefaultLocation_GotFocus(object sender, EventArgs e)
+        private async Task AssignDefaultLocation_GotFocus(object sender, EventArgs e)
         {
             if (!SysEnvironment.GetInstance().IsApplicationExitInvoked)
             {
@@ -1020,7 +1021,7 @@
                 this.ReqCancelEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                 this.ReqSaveEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
 
-                this.ScannerEnable();
+                await this.ScannerEnable();
             }
         }
 
@@ -1066,7 +1067,7 @@
         /// <remarks></remarks>
         private async void cmdLocation_Click(object sender, EventArgs e)
         {
-            this.ScannerDisable();
+            await this.ScannerDisable();
 
             FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucSelectLocationMap, SysCommon.ActSubTypes.NotApplicable);
 
@@ -1104,7 +1105,7 @@
             }
 
             this.DisplayData();
-            this.ScannerEnable();
+            await this.ScannerEnable();
         }
 
         /// <summary>
@@ -1115,7 +1116,7 @@
         /// <remarks></remarks>
         private async void cmdProduct_Click(object sender, EventArgs e)
         {
-            this.ScannerDisable();
+            await this.ScannerDisable();
 
             FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucSelectProduct, SysCommon.ActSubTypes.NotApplicable);
 
@@ -1143,7 +1144,7 @@
                 this.DisplayData();
             }
 
-            this.ScannerEnable();
+            await this.ScannerEnable();
         }
 
         /// <summary>
@@ -1161,7 +1162,7 @@
             {
                 try
                 {
-                    this.ScannerDisable();
+                    await this.ScannerDisable();
 
                     parse = scanArgs.ParseInfo;
 
@@ -1264,7 +1265,7 @@
                 }
                 finally
                 {
-                    this.ScannerEnable();
+                    await this.ScannerEnable();
                 }
             });
         }
@@ -1335,11 +1336,11 @@
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void AssignDefaultLocation_LostFocus(object sender, EventArgs e)
+        private async Task AssignDefaultLocation_LostFocus(object sender, EventArgs e)
         {
             if (this.Scanner != null)
             {
-                this.ScannerDisable();
+                await this.ScannerDisable();
             }
         }
 

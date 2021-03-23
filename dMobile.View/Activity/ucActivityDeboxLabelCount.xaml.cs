@@ -190,11 +190,11 @@ namespace dMobile.View.Activity
 
         #region IAppArea Members
 
-        public void ScannerDisable()
+        public async Task ScannerDisable()
         {
         }
 
-        public void ScannerEnable()
+        public async Task ScannerEnable()
         {
         }
 

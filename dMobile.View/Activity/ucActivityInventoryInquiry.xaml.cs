@@ -211,7 +211,7 @@ namespace dMobile.View.Activity
 
             try
             {
-                this.ucActivityInventoryInquiry_GotFocus(this, new EventArgs());
+                await this.ucActivityInventoryInquiry_GotFocus(this, new EventArgs());
             }
             catch (Exception ex)
             {
@@ -223,10 +223,10 @@ namespace dMobile.View.Activity
         /// <summary>
         /// The OnDisappearing
         /// </summary>
-        protected override void OnDisappearing()
+        protected override async void OnDisappearing()
         {
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
-            this.ScannerDisable();
+            await this.ScannerDisable();
 
             base.OnDisappearing();
         }
@@ -571,12 +571,12 @@ namespace dMobile.View.Activity
         /// Unregister the bar code scan event handler and disable the scanner.
         /// </summary>
         /// <remarks></remarks>
-        public void ScannerDisable()
+        public async Task ScannerDisable()
         {
             if (this.IsBarCodeHandlerRegistered)
             {
                 this.Scanner.BarCodeScan -= new BarCodeScanner.BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
-                this.Scanner.Stop();
+                await this.Scanner.Stop();
                 this.IsBarCodeHandlerRegistered = false;
             }
         }
@@ -585,12 +585,12 @@ namespace dMobile.View.Activity
         /// Registers the bar code scan event handler and enables the scanner.
         /// </summary>
         /// <remarks></remarks>
-        public void ScannerEnable()
+        public async Task ScannerEnable()
         {
             if (!this.IsBarCodeHandlerRegistered)
             {
                 this.IsBarCodeHandlerRegistered = true;
-                this.Scanner.Start();
+                await this.Scanner.Start();
                 this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
             }
         }
@@ -658,7 +658,7 @@ namespace dMobile.View.Activity
                 // of the scanner instance upon exiting dMobile.
                 if (this.Scanner != null)
                 {
-                    this.ScannerDisable();
+                    await this.ScannerDisable();
                 }
             }
 
@@ -674,7 +674,7 @@ namespace dMobile.View.Activity
         {
             try
             {
-                this.ScannerDisable();
+                await this.ScannerDisable();
 
                 FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucActivityInventoryInquirySummary, this.ActItem, this.ActSubType);
                 await form.DisplayControl.ShowDialog();
@@ -689,7 +689,7 @@ namespace dMobile.View.Activity
             }
             finally
             {
-                this.ScannerEnable();
+                await this.ScannerEnable();
             }
 
             return false;
@@ -749,7 +749,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public async void cmdLocation_Click(object sender, EventArgs e)
         {
-            this.ScannerDisable();
+            await this.ScannerDisable();
 
             FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucSelectLocationMap, SysCommon.ActSubTypes.NotApplicable);
 
@@ -775,7 +775,7 @@ namespace dMobile.View.Activity
             //this.dataGridMain.DataSource = null;
             //this.dataGridMain.Refresh();
 
-            this.ScannerEnable();
+            await this.ScannerEnable();
         }
 
         /// <summary>
@@ -786,7 +786,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public async void cmdSelectProduct_Click(object sender, EventArgs e)
         {
-            this.ScannerDisable();
+            await this.ScannerDisable();
 
             ProductInfo prodInfo = new ProductInfo();
             FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucSelectProduct, SysCommon.ActSubTypes.NotApplicable);
@@ -808,7 +808,7 @@ namespace dMobile.View.Activity
             //this.dataGridMain.DataSource = null;
             //this.dataGridMain.Refresh();
 
-            this.ScannerEnable();
+            await this.ScannerEnable();
         }
 
         /// <summary>
@@ -938,7 +938,7 @@ namespace dMobile.View.Activity
         {
             this.BarParse = scanArgs.ParseInfo;
 
-            this.ScannerDisable();
+            await this.ScannerDisable();
 
             try
             {
@@ -1007,7 +1007,7 @@ namespace dMobile.View.Activity
             }
             finally
             {
-                this.ScannerEnable();
+                await this.ScannerEnable();
             }
         }
 
@@ -1016,11 +1016,11 @@ namespace dMobile.View.Activity
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void ucActivityInventoryInquiry_GotFocus(object sender, EventArgs e)
+        private async Task ucActivityInventoryInquiry_GotFocus(object sender, EventArgs e)
         {
             if (!SysEnvironment.GetInstance().IsApplicationExitInvoked)
             {
-                this.ScannerEnable();
+                await this.ScannerEnable();
                 this.tmrActivityInventoryInquiry_Tick(sender, e);
             }
         }

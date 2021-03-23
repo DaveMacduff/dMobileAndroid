@@ -154,7 +154,7 @@ namespace dMobile.View.Activity
         /// <summary>
         /// The OnAppearing
         /// </summary>
-        protected override void OnAppearing()
+        protected override async void OnAppearing()
         {
             base.OnAppearing();
 
@@ -204,12 +204,12 @@ namespace dMobile.View.Activity
 
             try
             {
-                this.ucActivitySkidPutAway_GotFocus(this, new EventArgs());
+                await this.ucActivitySkidPutAway_GotFocus(this, new EventArgs());
             }
             catch (Exception ex)
             {
                 // TODO: Resource strings
-                DisplayAlert("Error", "this.ucActivitySkidPutAway_GotFocus threw an error " + ex, "OK");
+                await DisplayAlert("Error", "this.ucActivitySkidPutAway_GotFocus threw an error " + ex, "OK");
             }
         }
 
@@ -218,8 +218,8 @@ namespace dMobile.View.Activity
         /// </summary>
         protected override void OnDisappearing()
         {
-            base.OnDisappearing();
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
+            base.OnDisappearing();
         }
 
 
@@ -565,12 +565,12 @@ namespace dMobile.View.Activity
         /// Unregister the bar code scan event handler and disable the scanner.
         /// </summary>
         /// <remarks></remarks>
-        public void ScannerDisable()
+        public async Task ScannerDisable()
         {
             if (this.IsBarCodeHandlerRegistered)
             {
                 this.Scanner.BarCodeScan -= new BarCodeScanner.BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
-                this.Scanner.Stop();
+                await this.Scanner.Stop();
                 this.IsBarCodeHandlerRegistered = false;
             }
         }
@@ -579,12 +579,12 @@ namespace dMobile.View.Activity
         /// Registers the bar code scan event handler and enables the scanner.
         /// </summary>
         /// <remarks></remarks>
-        public void ScannerEnable()
+        public async Task ScannerEnable()
         {
             if (!this.IsBarCodeHandlerRegistered)
             {
                 this.IsBarCodeHandlerRegistered = true;
-                this.Scanner.Start();
+                await this.Scanner.Start();
                 this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
             }
         }
@@ -599,7 +599,7 @@ namespace dMobile.View.Activity
         {
             try
             {
-                this.ScannerDisable();
+                await this.ScannerDisable();
                 FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucSkidInfo, this.Activity, this.ActSubType);
 
                 if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
@@ -663,7 +663,7 @@ namespace dMobile.View.Activity
             }
             finally
             {
-                this.ScannerEnable();
+                await this.ScannerEnable();
             }
         }
 
@@ -673,11 +673,11 @@ namespace dMobile.View.Activity
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        public void ucActivitySkidPutAway_GotFocus(object sender, EventArgs e)
+        public async Task ucActivitySkidPutAway_GotFocus(object sender, EventArgs e)
         {
             if (!SysEnvironment.GetInstance().IsApplicationExitInvoked)
             {
-                this.ScannerEnable();
+                await this.ScannerEnable();
 
                 this.updnBarCodeModifier1.SelectedItem = this.SysEnv.CurrentBarCodeModifier1;
 
@@ -708,7 +708,7 @@ namespace dMobile.View.Activity
         {
             if (this.Activity.SkidInfo.CurrSkid.SkidFKRefno != 0)
             {
-                this.ScannerDisable();
+                await this.ScannerDisable();
                 this.ActItem.ProdInfo = this.OrigProdInfoOnSkid;
 
                 //DialogResult dlgResult = MessageBox.Show("Select a different unit of measure?", "Select UOM",MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2);
@@ -749,7 +749,7 @@ namespace dMobile.View.Activity
                 this.ActDetail.ActExtra.DateTime5 = new DateTime(1900,1,1);
 
                 await this.InsertActivityDetail(this.ActDetail);
-                this.ScannerEnable();
+                await this.ScannerEnable();
             }
         }
 
@@ -761,7 +761,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public async void cmdLocation_Click(object sender, EventArgs e)
         {
-            this.ScannerDisable();
+            await this.ScannerDisable();
 
             FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucSelectLocationMap, this.ActItem.ActHdr.SkidInfo.CurrSkid.LocMap.WhsLocMapRefno, true);
             await form.DisplayControl.ShowDialog();
@@ -800,7 +800,7 @@ namespace dMobile.View.Activity
                 }
             }
 
-            this.ScannerEnable();
+            await this.ScannerEnable();
         }
 
         /// <summary>
@@ -822,7 +822,7 @@ namespace dMobile.View.Activity
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool IsReadyToClose()
+        public async Task<bool> IsReadyToClose()
         {
             // NOTE: This code is needed to clean up the scanner driver.
             // Symbol had threading issues without this call when dMobile was terminating.
@@ -831,7 +831,7 @@ namespace dMobile.View.Activity
             // of the scanner instance upon exiting dMobile.
             if (this.Scanner != null)
             {
-                this.ScannerDisable();
+                await this.ScannerDisable();
             }
 
             return true;
@@ -859,7 +859,7 @@ namespace dMobile.View.Activity
             try
             {
                 // IsReadyToClose checks if any changes where made.
-                if (this.IsReadyToClose())
+                if (await this.IsReadyToClose())
                 {
                     // Expect the control to close.
                     // Clear any properties.
@@ -1056,7 +1056,7 @@ namespace dMobile.View.Activity
                     if (await DisplayAlert("Skid Put Away", "Do you wish to put away any more skids?", "Yes", "No"))
                     {
                         saveComplete = false;
-                        this.ScannerEnable();
+                        await this.ScannerEnable();
                     }
                 }
                 else
@@ -1524,7 +1524,7 @@ namespace dMobile.View.Activity
             {
                 this.BarCodeParse = scanArgs.ParseInfo;
 
-                this.ScannerDisable();
+                await this.ScannerDisable();
 
                 if (!string.IsNullOrEmpty(this.BarCodeParse.LocationIdentifier))
                 {
@@ -1738,7 +1738,7 @@ namespace dMobile.View.Activity
             }
             finally
             {
-                this.ScannerEnable();
+                await this.ScannerEnable();
             }
         }
 

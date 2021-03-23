@@ -85,7 +85,7 @@ namespace dMobile.View.Activity
         /// <summary>
         /// The OnAppearing
         /// </summary>
-        protected override void OnAppearing()
+        protected override async void OnAppearing()
         {
             base.OnAppearing();
 
@@ -115,12 +115,12 @@ namespace dMobile.View.Activity
 
             try
             {
-                this.ucActivityMoveSkid_GotFocus(this, new EventArgs());
+                await this.ucActivityMoveSkid_GotFocus(this, new EventArgs());
             }
             catch (Exception ex)
             {
                 // TODO: Resource strings
-                DisplayAlert("Error", "this.ucActivityMoveSkid_GotFocus threw an error " + ex, "OK");
+                await DisplayAlert("Error", "this.ucActivityMoveSkid_GotFocus threw an error " + ex, "OK");
             }
         }
 
@@ -512,12 +512,12 @@ namespace dMobile.View.Activity
         /// Unregister the bar code scan event handler and disable the scanner.
         /// </summary>
         /// <remarks></remarks>
-        public void ScannerDisable()
+        public async Task ScannerDisable()
         {
             if (this.IsBarCodeHandlerRegistered)
             {
                 this.Scanner.BarCodeScan -= new BarCodeScanner.BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
-                this.Scanner.Stop();
+                await this.Scanner.Stop();
                 this.IsBarCodeHandlerRegistered = false;
             }
         }
@@ -526,12 +526,12 @@ namespace dMobile.View.Activity
         /// Registers the bar code scan event handler and enables the scanner.
         /// </summary>
         /// <remarks></remarks>
-        public void ScannerEnable()
+        public async Task ScannerEnable()
         {
             if (!this.IsBarCodeHandlerRegistered)
             {
                 this.IsBarCodeHandlerRegistered = true;
-                this.Scanner.Start();
+                await this.Scanner.Start();
                 this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
             }
         }
@@ -560,7 +560,7 @@ namespace dMobile.View.Activity
         {
             if (this.Scanner != null)
             {
-                this.ScannerDisable();
+                await this.ScannerDisable();
             }
 
             return true;
@@ -747,11 +747,11 @@ namespace dMobile.View.Activity
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        public void ucActivityMoveSkid_GotFocus(object sender, EventArgs e)
+        public async Task ucActivityMoveSkid_GotFocus(object sender, EventArgs e)
         {
             if (!SysEnvironment.GetInstance().IsApplicationExitInvoked)
             {
-                this.ScannerEnable();
+                await this.ScannerEnable();
 
                 this.ReqCancelEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                 this.ReqSaveEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
@@ -766,7 +766,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public async void cmdToLocation_Click(object sender, EventArgs e)
         {
-            this.ScannerDisable();
+            await this.ScannerDisable();
 
             FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucSelectLocationMap, SysCommon.ActSubTypes.NotApplicable);
 
@@ -783,7 +783,7 @@ namespace dMobile.View.Activity
                 }
             }
 
-            this.ScannerEnable();
+            await this.ScannerEnable();
         }
 
         #region IAppPublisher Members
@@ -900,7 +900,7 @@ namespace dMobile.View.Activity
                 {
                     this.Loading = true;
 
-                    this.ScannerDisable();
+                    await this.ScannerDisable();
 
                     parse = scanArgs.ParseInfo;
 
@@ -975,7 +975,7 @@ namespace dMobile.View.Activity
                 }
                 finally
                 {
-                    this.ScannerEnable();
+                    await this.ScannerEnable();
                     this.Loading = false;
                 }
             });

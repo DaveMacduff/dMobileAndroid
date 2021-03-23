@@ -161,7 +161,7 @@ namespace dMobile.View.Activity
 
             try
             {
-                this.ucActivityHdrPickingSelectCriteria_GotFocus(this, new EventArgs());
+                await this.ucActivityHdrPickingSelectCriteria_GotFocus(this, new EventArgs());
             }
             catch (Exception ex)
             {
@@ -199,10 +199,10 @@ namespace dMobile.View.Activity
         /// <summary>
         /// The OnDisappearing
         /// </summary>
-        protected override void OnDisappearing()
+        protected override async void OnDisappearing()
         {
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
-            this.ScannerDisable();
+            await this.ScannerDisable();
 
             base.OnDisappearing();
         }
@@ -511,12 +511,12 @@ namespace dMobile.View.Activity
         /// Unregister the bar code scan event handler and disable the scanner.
         /// </summary>
         /// <remarks></remarks>
-        public void ScannerDisable()
+        public async Task ScannerDisable()
         {
             if (this.IsBarCodeHandlerRegistered && this.Scanner != null)
             {
                 this.Scanner.BarCodeScan -= new BarCodeScanner.BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
-                this.Scanner.Stop();
+                await this.Scanner.Stop();
                 this.IsBarCodeHandlerRegistered = false;
             }
         }
@@ -525,12 +525,12 @@ namespace dMobile.View.Activity
         /// Registers the bar code scan event handler and enables the scanner.
         /// </summary>
         /// <remarks></remarks>
-        public void ScannerEnable()
+        public async Task ScannerEnable()
         {
             if (!this.IsBarCodeHandlerRegistered)
             {
                 this.IsBarCodeHandlerRegistered = true;
-                this.Scanner.Start();
+                await this.Scanner.Start();
                 this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
             }
         }
@@ -904,9 +904,9 @@ namespace dMobile.View.Activity
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        public void ucSetLocationMap_LostFocus(object sender, EventArgs e)
+        public async Task ucSetLocationMap_LostFocus(object sender, EventArgs e)
         {
-            this.ScannerDisable();
+            await this.ScannerDisable();
         }
 
         /// <summary>
@@ -915,13 +915,13 @@ namespace dMobile.View.Activity
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        public void ucActivityHdrPickingSelectCriteria_GotFocus(object sender, EventArgs e)
+        public async Task ucActivityHdrPickingSelectCriteria_GotFocus(object sender, EventArgs e)
         {
             if (!SysEnvironment.GetInstance().IsApplicationExitInvoked)
             {
                 if (!this.IsControlLoaded)
                 {
-                    this.ScannerEnable();
+                    await this.ScannerEnable();
                     this.LoadData();
                     this.SelectWarehouse();
                     this.UpdateLocationDisplay();

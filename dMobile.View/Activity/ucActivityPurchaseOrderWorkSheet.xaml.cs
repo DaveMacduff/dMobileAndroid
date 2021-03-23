@@ -170,10 +170,10 @@
         /// <summary>
         /// The OnDisappearing
         /// </summary>
-        protected override void OnDisappearing()
+        protected override async void OnDisappearing()
         {
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
-            this.ucActivityHdr_LostFocus(this, new EventArgs());
+            await this.ucActivityHdr_LostFocus(this, new EventArgs());
 
             base.OnDisappearing();
         }
@@ -507,7 +507,7 @@
 
                 this.BarParse = scanArgs.ParseInfo;
 
-                this.ScannerDisable();
+                await this.ScannerDisable();
 
                 try
                 {
@@ -704,7 +704,7 @@
                 }
                 finally
                 {
-                    ScannerEnable();
+                    await ScannerEnable();
                     this.Loading = false;
                 }
             });
@@ -856,12 +856,12 @@
         /// Unregister the bar code scan event handler and disable the scanner.
         /// </summary>
         /// <remarks></remarks>
-        public void ScannerDisable()
+        public async Task ScannerDisable()
         {
             if (isBarCodeRegistered)
             {
                 Scanner.BarCodeScan -= new BarCodeScanner.BarCodeScanEventHandler(BarCodeHandler);
-                Scanner.Stop();
+                await Scanner.Stop();
                 isBarCodeRegistered = false;
             }
         }
@@ -870,12 +870,12 @@
         /// Registers the bar code scan event handler and enables the scanner.
         /// </summary>
         /// <remarks></remarks>
-        public void ScannerEnable()
+        public async Task ScannerEnable()
         {
             if (!isBarCodeRegistered)
             {
                 isBarCodeRegistered = true;
-                Scanner.Start();
+                await Scanner.Start();
                 Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(BarCodeHandler);
             }
         }
@@ -906,7 +906,7 @@
             // of the scanner instance upon exiting dMobile.
             if (Scanner != null)
             {
-                ScannerDisable();
+                await ScannerDisable();
             }
             return true;
         }
@@ -1009,7 +1009,7 @@
         {
             if (!SysEnvironment.GetInstance().IsApplicationExitInvoked)
             {
-                ScannerEnable();
+                await ScannerEnable();
 
                 await Device.InvokeOnMainThreadAsync(() => updnBarCodeModifier1.SelectedItem = SysEnv.CurrentBarCodeModifier1);
 
@@ -1057,13 +1057,13 @@
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        public void ucActivityHdr_LostFocus(object sender, EventArgs e)
+        public async Task ucActivityHdr_LostFocus(object sender, EventArgs e)
         {
             //if (tmrActivityLoaded.Enabled == false)
             //{
             if (Scanner != null)
             {
-                ScannerDisable();
+                await ScannerDisable();
             }
             //}
         }
@@ -1083,7 +1083,7 @@
             string strProductUnitBarCodeCode = string.Empty;
             string strBarCodeSymbologyPrefix = string.Empty;
 
-            ScannerDisable();
+            await ScannerDisable();
 
             try
             {
@@ -1177,7 +1177,7 @@
                 await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Activity Work Sheet", ex.Message, "OK"));
             }
 
-            ScannerEnable();
+            await ScannerEnable();
         }
 
         #endregion

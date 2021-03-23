@@ -42,12 +42,7 @@
         {
             base.OnResume();
 
-            Task startup = Task.Run(() =>
-            {
-                StartActivity(new Intent(Application.Context, typeof(MainActivity)));
-            });
-
-            startup.Wait();
+            StartActivity(new Intent(Application.Context, typeof(MainActivity)));
         }
 
         //private bool Install()

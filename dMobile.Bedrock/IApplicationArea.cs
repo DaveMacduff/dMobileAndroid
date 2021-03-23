@@ -9,13 +9,13 @@ namespace dMobile.Bedrock
         /// Unregister the bar code scan event handler and disable the scanner.
         /// </summary>
         /// <remarks></remarks>
-        void ScannerDisable();
+        Task ScannerDisable();
 
         /// <summary>
         /// Registers the bar code scan event handler and enables the scanner.
         /// </summary>
         /// <remarks></remarks>
-        void ScannerEnable();
+        Task ScannerEnable();
 
         /// <summary>
         /// Indicates whether the underlying control is in a state where the 

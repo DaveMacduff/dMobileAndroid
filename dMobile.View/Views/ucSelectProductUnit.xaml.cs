@@ -165,10 +165,10 @@
         /// <summary>
         /// The OnDisappearing
         /// </summary>
-        protected override void OnDisappearing()
+        protected override async void OnDisappearing()
         {
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
-            this.ScannerDisable();
+            await this.ScannerDisable();
             
             base.OnDisappearing();
         }
@@ -628,7 +628,7 @@
                 // All user controls that initalize a bar code need this code.
                 // The parent form (not a user control) will call scanner.terminate and dispose
                 // of the scanner instance upon exiting dMobile.
-                this.ScannerDisable();
+                await this.ScannerDisable();
             }
             catch (Exception ex)
             {
@@ -732,7 +732,7 @@
                     this.IsChangesMade = false;
 
                     // Re-enable the scanner, IsReadToClose calls this.ScannerDisable().
-                    this.ScannerEnable();
+                    await this.ScannerEnable();
                 }
             }
             catch (Exception ex)
@@ -779,12 +779,12 @@
         /// Unregister the bar code scan event handler and disable the scanner.
         /// </summary>
         /// <remarks></remarks>
-        public void ScannerDisable()
+        public async Task ScannerDisable()
         {
             if (this.IsBarCodeHandlerRegistered && this.Scanner != null)
             {
                 this.Scanner.BarCodeScan -= new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
-                this.Scanner.Stop();
+                await this.Scanner.Stop();
                 this.IsBarCodeHandlerRegistered = false;
             }
         }
@@ -793,17 +793,15 @@
         /// Registers the bar code scan event handler and enables the scanner.
         /// </summary>
         /// <remarks></remarks>
-        public void ScannerEnable()
+        public async Task ScannerEnable()
         {
             if (!this.IsBarCodeHandlerRegistered)
             {
                 this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
-                this.Scanner.Start();
+                await this.Scanner.Start();
                 this.IsBarCodeHandlerRegistered = true;
             }
         }
-
-
 
         /// <summary>
         /// 
@@ -905,7 +903,7 @@
         {
             if (!SysEnvironment.GetInstance().IsApplicationExitInvoked)
             {
-                this.ScannerEnable();
+                await this.ScannerEnable();
 
                 this.Loading = true;
                 await Task.Run(async () => { await this.LoadData(); });
@@ -1127,7 +1125,7 @@
 
             try
             {
-                this.ScannerDisable();
+                await this.ScannerDisable();
 
                 parse = scanArgs.ParseInfo;
 
@@ -1191,7 +1189,7 @@
             }
             finally
             {
-                this.ScannerEnable();
+                await this.ScannerEnable();
             }
         }
 

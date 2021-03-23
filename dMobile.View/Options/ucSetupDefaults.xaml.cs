@@ -88,7 +88,7 @@ namespace dMobile.View.Options
         {
             base.OnAppearing();
 
-            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), (keyPressed) =>
+            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
             {
                 // TODO: Verify keycodes
                 Enum.TryParse(keyPressed, out Keycode keycode);
@@ -104,7 +104,7 @@ namespace dMobile.View.Options
                 }
                 else if (keycode == Keycode.Escape)
                 {
-                    if (this.CancelChanges())
+                    if (await this.CancelChanges())
                     {
                         this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     }
@@ -346,7 +346,7 @@ namespace dMobile.View.Options
         /// Unregister the bar code scan event handler and disable the scanner.
         /// </summary>
         /// <remarks></remarks>
-        public void ScannerDisable()
+        public async Task ScannerDisable()
         {
         }
 
@@ -354,7 +354,7 @@ namespace dMobile.View.Options
         /// Registers the bar code scan event handler and enables the scanner.
         /// </summary>
         /// <remarks></remarks>
-        public void ScannerEnable()
+        public async Task ScannerEnable()
         {
         }
 
@@ -395,7 +395,7 @@ namespace dMobile.View.Options
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool IsReadyToClose()
+        public async Task<bool> IsReadyToClose()
         {
             bool isReadyToClose = true;
 
@@ -414,7 +414,7 @@ namespace dMobile.View.Options
                     // All user controls that initalize a bar code need this code.
                     // The parent form (not a user control) will call scanner.terminate and dispose
                     // of the scanner instance upon exiting dMobile.
-                    this.ScannerDisable();
+                    await this.ScannerDisable();
                 }
             }
             catch (Exceptions.MessageOnlyException ex)
@@ -428,7 +428,7 @@ namespace dMobile.View.Options
                 // We do not want to get caught not being able to 'escape' the control.
                 isReadyToClose = true;
 
-                Device.BeginInvokeOnMainThread(async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex);
                     await errRpt.ShowDialog();
@@ -579,14 +579,14 @@ namespace dMobile.View.Options
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public bool CancelChanges()
+        public async Task<bool> CancelChanges()
         {
             bool cancelChanges = true;
 
             try
             {
                 // IsReadyToClose checks if any changes where made.
-                if (this.IsReadyToClose())
+                if (await this.IsReadyToClose())
                 {
                     // Expect the control to close.
                 }

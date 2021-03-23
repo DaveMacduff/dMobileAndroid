@@ -90,7 +90,7 @@ namespace dMobile.View.Activity
                         {
                             if (this.ActSubType == SysCommon.ActSubTypes.Picking || this.ActSubType == SysCommon.ActSubTypes.PickingSingle)
                             {
-                                this.ScannerDisable();
+                                await this.ScannerDisable();
 
                                 // SHIPPING LABELS
                                 if (this.SysEnv.SysSettings.CanPrintShippingLabel && !this.SysEnv.SysSettings.IsDisconnectedMode)
@@ -125,7 +125,7 @@ namespace dMobile.View.Activity
                                     this.Activity.DataViewHdrs.Delete(this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem));
                                 }
 
-                                this.ScannerEnable();
+                                await this.ScannerEnable();
                             }
                         }
                         catch (Exception ex)
@@ -162,10 +162,10 @@ namespace dMobile.View.Activity
         /// <summary>
         /// The OnDisappearing
         /// </summary>
-        protected override void OnDisappearing()
+        protected override async void OnDisappearing()
         {
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
-            this.ucActivityHdrReleaseByOrder_LostFocus(this, new EventArgs());
+            await this.ucActivityHdrReleaseByOrder_LostFocus(this, new EventArgs());
 
             base.OnDisappearing();
         }
@@ -420,12 +420,12 @@ namespace dMobile.View.Activity
         /// Unregister the bar code scan event handler and disable the scanner.
         /// </summary>
         /// <remarks></remarks>
-        public void ScannerDisable()
+        public async Task ScannerDisable()
         {
             if (this.IsBarCodeHandlerRegistered)
             {
                 this.Scanner.BarCodeScan -= new BarCodeScanner.BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
-                this.Scanner.Stop();
+                await this.Scanner.Stop();
                 this.IsBarCodeHandlerRegistered = false;
             }
         }
@@ -434,12 +434,12 @@ namespace dMobile.View.Activity
         /// Registers the bar code scan event handler and enables the scanner.
         /// </summary>
         /// <remarks></remarks>
-        public void ScannerEnable()
+        public async Task ScannerEnable()
         {
             if (!this.IsBarCodeHandlerRegistered)
             {
                 this.IsBarCodeHandlerRegistered = true;
-                this.Scanner.Start();
+                await this.Scanner.Start();
                 this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
             }
         }
@@ -468,7 +468,7 @@ namespace dMobile.View.Activity
                 // All user controls that initalize a bar code need this code.
                 // The parent form (not a user control) will call scanner.terminate and dispose
                 // of the scanner instance upon exiting dMobile.
-                this.ScannerDisable();
+                await this.ScannerDisable();
             }
 
             return true;
@@ -577,7 +577,7 @@ namespace dMobile.View.Activity
         {
             if (!SysEnvironment.GetInstance().IsApplicationExitInvoked)
             {
-                this.ScannerEnable();
+                await this.ScannerEnable();
                 this.ReqCancelEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                 this.ReqSaveEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
 
@@ -621,7 +621,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public async void cmdFilter_Click(object sender, EventArgs e)
         {
-            this.ScannerDisable();
+            await this.ScannerDisable();
 
             FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucActivityHdrPickingFilter, this.ActSubType);
             
@@ -644,7 +644,7 @@ namespace dMobile.View.Activity
                 }
             }
 
-            this.ScannerEnable();
+            await this.ScannerEnable();
         }
 
         ///// <summary>
@@ -672,13 +672,13 @@ namespace dMobile.View.Activity
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        public void ucActivityHdrReleaseByOrder_LostFocus(object sender, EventArgs e)
+        public async Task ucActivityHdrReleaseByOrder_LostFocus(object sender, EventArgs e)
         {
             //if (this.tmrActivityLoaded.Enabled == false)
             //{
             if (this.Scanner != null)
             {
-                this.ScannerDisable();
+                await this.ScannerDisable();
             }
             //}
         }
@@ -823,7 +823,7 @@ namespace dMobile.View.Activity
 
             this.Parse = scanArgs.ParseInfo;
 
-            this.ScannerDisable();
+            await this.ScannerDisable();
 
             if (!string.IsNullOrEmpty(this.Parse.ActFKRefno))
             {
@@ -910,7 +910,7 @@ namespace dMobile.View.Activity
                 await DisplayAlert(this.GetControlDescription(), "Scanned bar code type is not supported here.", "OK");
             }
 
-            this.ScannerEnable();
+            await this.ScannerEnable();
         }
 
         /// <summary>

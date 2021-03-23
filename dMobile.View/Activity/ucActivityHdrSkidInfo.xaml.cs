@@ -319,7 +319,7 @@ namespace dMobile.View.Activity
         /// <summary>
         /// The OnAppearing
         /// </summary>
-        protected override void OnAppearing()
+        protected override async void OnAppearing()
         {
             base.OnAppearing();
 
@@ -341,7 +341,7 @@ namespace dMobile.View.Activity
                     }
                     else if (keycode == Keycode.F5)
                     {
-                        this.ScannerDisable();
+                        await this.ScannerDisable();
                         // TODO: Resource strings
                         if (await DisplayAlert(this.GetControlDescription(), "Do you wish to break this skid?", "Yes", "No"))
                         {
@@ -368,19 +368,19 @@ namespace dMobile.View.Activity
                             }
                         }
 
-                        this.ScannerEnable();
+                        await this.ScannerEnable();
                     }
                 }
             });
 
             try
             {    
-                this.ucActivityHdrSkidInfo_GotFocus(this, new EventArgs());
+                await this.ucActivityHdrSkidInfo_GotFocus(this, new EventArgs());
             }
             catch (Exception ex)
             {
                 // TODO: Resource strings
-                DisplayAlert("Error", "this.ucActivityHdrSkidInfo_GotFocus threw an error " + ex, "OK");
+                await DisplayAlert("Error", "this.ucActivityHdrSkidInfo_GotFocus threw an error " + ex, "OK");
             }
         }
 
@@ -814,12 +814,12 @@ namespace dMobile.View.Activity
         /// Unregister the bar code scan event handler and disable the scanner
         /// </summary>
         /// <remarks></remarks>
-        public void ScannerDisable()
+        public async Task ScannerDisable()
         {
             if (this.IsBarCodeHandlerRegistered && this.Scanner != null)
             {
                 this.Scanner.BarCodeScan -= new BarCodeScanner.BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
-                this.Scanner.Stop();
+                await this.Scanner.Stop();
                 this.IsBarCodeHandlerRegistered = false;
             }
         }
@@ -828,12 +828,12 @@ namespace dMobile.View.Activity
         /// Registers the bar code scan event handler and enables the scanner
         /// </summary>
         /// <remarks></remarks>
-        public void ScannerEnable()
+        public async Task ScannerEnable()
         {
             if (!this.IsBarCodeHandlerRegistered)
             {
                 this.IsBarCodeHandlerRegistered = true;
-                this.Scanner.Start();
+                await this.Scanner.Start();
                 this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
             }
         }
@@ -930,7 +930,7 @@ namespace dMobile.View.Activity
                     // All user controls that initalize a bar code need this code.
                     // The parent form (not a user control) will call scanner.terminate and dispose
                     // of the scanner instance upon exiting dMobile.
-                    this.ScannerDisable();
+                    await this.ScannerDisable();
                 }
             }
             catch (Exceptions.MessageOnlyException ex)
@@ -1289,7 +1289,7 @@ namespace dMobile.View.Activity
 
             try
             {
-                this.ScannerDisable();
+                await this.ScannerDisable();
 
                 codeParse = scanArgs.ParseInfo;
 
@@ -1410,7 +1410,7 @@ namespace dMobile.View.Activity
             }
             finally
             {
-                this.ScannerEnable();
+                await this.ScannerEnable();
             }
         }
 
@@ -1639,13 +1639,13 @@ namespace dMobile.View.Activity
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        private void ucActivityHdrSkidInfo_GotFocus(object sender, EventArgs e)
+        private async Task ucActivityHdrSkidInfo_GotFocus(object sender, EventArgs e)
         {
             if (!SysEnvironment.GetInstance().IsApplicationExitInvoked)
             {
                 this.updnBarCodeModifier1.SelectedItem = this.SysEnv.CurrentBarCodeModifier1;
 
-                this.ScannerEnable();
+                await this.ScannerEnable();
 
                 this.txtSkidCode.Focus();
 
@@ -1693,7 +1693,7 @@ namespace dMobile.View.Activity
         {
             if (this.SkidInfo.CurrSkid.SkidFKRefno != 0)
             {
-                this.ScannerDisable();
+                await this.ScannerDisable();
                 Controller.Activity activity = ActivityFacade.GetActivity(SysCommon.ActSubTypes.SkidInfo);
                 activity.FKRefno = this.SkidInfo.CurrSkid.SkidFKRefno;
                 activity.Refno = this.SkidInfo.CurrSkid.SkidFKRefno;
@@ -1720,7 +1720,7 @@ namespace dMobile.View.Activity
                     }
                 }
          
-                this.ScannerEnable();
+                await this.ScannerEnable();
                 this.DisplayData();
             }
         }

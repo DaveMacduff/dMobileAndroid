@@ -109,7 +109,7 @@ namespace dMobile.View.Activity
                             this.ReqCancelDisableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                             this.ReqSaveDisableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
 
-                            this.ScannerDisable();
+                            await this.ScannerDisable();
                             int currentIndex = this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem);
 
                             if (currentIndex < 0)
@@ -139,7 +139,7 @@ namespace dMobile.View.Activity
                         {
                             this.ActItem.ProdInfo = svdProdInfo;
 
-                            this.ScannerEnable();
+                            await this.ScannerEnable();
 
                             this.IsEnabled = true;
 
@@ -163,7 +163,7 @@ namespace dMobile.View.Activity
 
             try
             {
-                this.ActItemInventoryInquiry_GotFocus(this, new EventArgs());
+                await this.ActItemInventoryInquiry_GotFocus(this, new EventArgs());
                 await this.RefreshData();
             }
             catch (Exception ex)
@@ -175,10 +175,10 @@ namespace dMobile.View.Activity
         /// <summary>
         /// The OnDisappearing
         /// </summary>
-        protected override void OnDisappearing()
+        protected override async void OnDisappearing()
         {
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
-            this.ScannerDisable();
+            await this.ScannerDisable();
             base.OnDisappearing();
         }
 
@@ -472,12 +472,12 @@ namespace dMobile.View.Activity
         /// Unregister the bar code scan event handler and disable the scanner.
         /// </summary>
         /// <remarks></remarks>
-        public void ScannerDisable()
+        public async Task ScannerDisable()
         {
             if (this.IsBarCodeHandlerRegistered)
             {
                 this.BarScanner.BarCodeScan -= new BarCodeScanner.BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
-                this.BarScanner.Stop();
+                await this.BarScanner.Stop();
                 this.IsBarCodeHandlerRegistered = false;
             }
         }
@@ -486,12 +486,12 @@ namespace dMobile.View.Activity
         /// Registers the bar code scan event handler and enables the scanner.
         /// </summary>
         /// <remarks></remarks>
-        public void ScannerEnable()
+        public async Task ScannerEnable()
         {
             if (!this.IsBarCodeHandlerRegistered)
             {
                 this.IsBarCodeHandlerRegistered = true;
-                this.BarScanner.Start();
+                await this.BarScanner.Start();
                 this.BarScanner.BarCodeScan += new BarCodeScanner.BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
             }
         }
@@ -560,7 +560,7 @@ namespace dMobile.View.Activity
                 // of the scanner instance upon exiting dMobile.
                 if (this.BarScanner != null)
                 {
-                    this.ScannerDisable();
+                    await this.ScannerDisable();
                 }
             }
 
@@ -588,7 +588,7 @@ namespace dMobile.View.Activity
             }
             finally
             {
-                this.ScannerEnable();
+                await this.ScannerEnable();
 
                 this.ReqCancelEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                 this.ReqSaveEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
@@ -651,7 +651,7 @@ namespace dMobile.View.Activity
         {
             this.Loading = true;
 
-            this.ScannerDisable();
+            await this.ScannerDisable();
             this.ItemsList.Clear();
 
             try
@@ -689,7 +689,7 @@ namespace dMobile.View.Activity
             }
 
             DisplaySummaryData();
-            this.ScannerEnable();
+            await this.ScannerEnable();
 
             this.Loading = false;
         }
@@ -870,11 +870,11 @@ namespace dMobile.View.Activity
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void ActItemInventoryInquiry_GotFocus(object sender, EventArgs e)
+        private async Task ActItemInventoryInquiry_GotFocus(object sender, EventArgs e)
         {
             if (!SysEnvironment.GetInstance().IsApplicationExitInvoked)
             {
-                this.ScannerEnable();
+                await this.ScannerEnable();
             }
         }
 
@@ -904,7 +904,7 @@ namespace dMobile.View.Activity
         {
             this.BarParse = scanArgs.ParseInfo;
 
-            this.ScannerDisable();
+            await this.ScannerDisable();
 
             try
             {
@@ -949,7 +949,7 @@ namespace dMobile.View.Activity
             }
             finally
             {
-                this.ScannerEnable();
+                await this.ScannerEnable();
             }
         }
 

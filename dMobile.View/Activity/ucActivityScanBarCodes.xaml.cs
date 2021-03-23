@@ -142,12 +142,12 @@ namespace dMobile.View.Activity
         /// <summary>
         /// The OnDisappearing
         /// </summary>
-        protected override void OnDisappearing()
+        protected override async void OnDisappearing()
         {
-            base.OnDisappearing();
-            this.ScannerDisable();
-
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
+            await this.ScannerDisable();
+
+            base.OnDisappearing();
         }
 
         #endregion
@@ -479,12 +479,12 @@ namespace dMobile.View.Activity
         /// Unregister the bar code scan event handler and disable the scanner.
         /// </summary>
         /// <remarks></remarks>
-        public void ScannerDisable()
+        public async Task ScannerDisable()
         {
             if (this.IsRegistered && this.Scanner != null)
             {
                 this.Scanner.BarCodeScan -= new BarCodeScanner.BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
-                this.Scanner.Stop();
+                await this.Scanner.Stop();
                 this.IsRegistered = false;
             }
         }
@@ -493,12 +493,12 @@ namespace dMobile.View.Activity
         /// Registers the bar code scan event handler and enables the scanner.
         /// </summary>
         /// <remarks></remarks>
-        public void ScannerEnable()
+        public async Task ScannerEnable()
         {
             if (!this.IsRegistered)
             {
                 this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
-                this.Scanner.Start();
+                await this.Scanner.Start();
                 this.IsRegistered = true;
             }
         }
@@ -551,7 +551,7 @@ namespace dMobile.View.Activity
                 // All user controls that initalize a bar code need this code.
                 // The parent form (not a user control) will call scanner.terminate and dispose
                 // of the scanner instance upon exiting dMobile.
-                this.ScannerDisable();
+                await this.ScannerDisable();
             }
             catch (Exceptions.MessageOnlyException ex)
             {
@@ -855,7 +855,7 @@ namespace dMobile.View.Activity
 
                 try
                 {
-                    this.ScannerDisable();
+                    await this.ScannerDisable();
 
                     this.Parse = scanArgs.ParseInfo;
 
@@ -1480,7 +1480,7 @@ namespace dMobile.View.Activity
                 finally
                 {
                     this.Loading = false;
-                    this.ScannerEnable();
+                    await this.ScannerEnable();
                 }
             });
         }
@@ -1563,14 +1563,14 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         private async void cmdAssignProduct_Click(object sender, EventArgs e)
         {
-            this.ScannerDisable();
+            await this.ScannerDisable();
 
             if (this.Parse != null)
             {
                 await this.AssignProduct(sender);
             }
 
-            this.ScannerEnable();
+            await this.ScannerEnable();
         }
 
         /// <summary>
@@ -1581,11 +1581,11 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         private async Task ucActivityScanBarCodes_GotFocus(object sender, EventArgs e)
         {
-            await Task.Run(() =>
+            await Task.Run(async () =>
             {
                 if (!SysEnvironment.GetInstance().IsApplicationExitInvoked)
                 {
-                    this.ScannerEnable();
+                    await this.ScannerEnable();
                     this.updnBarCodeModifier1.SelectedItem = this.SysEnv.CurrentBarCodeModifier1;
 
                     if (this.IsEnabled)
@@ -1781,7 +1781,7 @@ namespace dMobile.View.Activity
         //{
         //    if (!this.tmrActivityLoaded.Enabled)
         //    {
-        //        this.ScannerDisable();
+        //        await this.ScannerDisable();
         //    }
         //}
 
