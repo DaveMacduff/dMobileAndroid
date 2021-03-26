@@ -1468,114 +1468,125 @@ namespace dMobile.View.Activity
         {
             await Task.Run(async () =>
             {
-                this.Loading = true;
-
-                if (!SysEnvironment.GetInstance().IsApplicationExitInvoked)
+                try
                 {
-                    if (!this.IsControlLoaded)
+                    this.Loading = true;
+
+                    if (!SysEnvironment.GetInstance().IsApplicationExitInvoked)
                     {
-                        ProductInfo prodInfo = this.ActDetail.ActItem.ProdInfo;
-                        ProdScheme scheme = prodInfo.Scheme;
-
-                        await Device.InvokeOnMainThreadAsync(() =>
+                        if (!this.IsControlLoaded)
                         {
-                            this.lblUnit.Text = prodInfo.UnitCode;
-                            this.lblWtUnit.Text = prodInfo.WeightUnitCode;
-                        });
+                            ProductInfo prodInfo = this.ActDetail.ActItem.ProdInfo;
+                            ProdScheme scheme = prodInfo.Scheme;
 
-                        if (!scheme.IsBestBeforeDateTracked)
-                        {
-                            await Device.InvokeOnMainThreadAsync(() => this.dtBestBeforeDate.IsEnabled = false);
-                        }
-
-                        if (!scheme.IsProductionDateTracked)
-                        {
-                            await Device.InvokeOnMainThreadAsync(() => this.dtProductionDate.IsEnabled = false);
-                        }
-
-                        if (!scheme.IsLotTracked)
-                        {
-                            await Device.InvokeOnMainThreadAsync(() => this.cboLotNo.IsEnabled = false);
-                        }
-
-                        if (!scheme.IsSerialTracked)
-                        {
-                            await Device.InvokeOnMainThreadAsync(() => this.cboSerialNo.IsEnabled = false);
-                        }
-
-                        if (!scheme.IsVariantTracked)
-                        {
-                            await Device.InvokeOnMainThreadAsync(() => this.cboVariantCode.IsEnabled = false);
-                        }
-
-                        if (!prodInfo.IsCatchWeight || (prodInfo.UnitCode == "LB" || prodInfo.UnitCode == "KG"))
-                        {
-                            await Device.InvokeOnMainThreadAsync(() => this.txtWtQty.IsEnabled = false);
-                        }
-
-                        if (scheme.Extra1Type == (int)SysCommon.SchemeExtraTypes.Disabled)
-                        {
-                            await Device.InvokeOnMainThreadAsync(() => this.txtExtraDetail1.IsEnabled = false);
-                        }
-
-                        if (scheme.Extra2Type == (int)SysCommon.SchemeExtraTypes.Disabled)
-                        {
-                            await Device.InvokeOnMainThreadAsync(() => this.txtExtraDetail2.IsEnabled = false);
-                        }
-
-                        if (scheme.Extra3Type == (int)SysCommon.SchemeExtraTypes.Disabled)
-                        {
-                            await Device.InvokeOnMainThreadAsync(() => this.txtExtraDetail3.IsEnabled = false);
-                        }
-
-                        if (scheme.Extra4Type == (int)SysCommon.SchemeExtraTypes.Disabled)
-                        {
-                            await Device.InvokeOnMainThreadAsync(() => this.txtExtraDetail4.IsEnabled = false);
-                        }
-
-                        if (scheme.Extra5Type == (int)SysCommon.SchemeExtraTypes.Disabled)
-                        {
-                            await Device.InvokeOnMainThreadAsync(() => this.dtExtraDetail5.IsEnabled = false);
-                        }
-
-                        await Device.InvokeOnMainThreadAsync(() =>
-                        {
-                            this.LoadData();
-                            this.ShowProductInfo();
-
-                            this.GetProductVariantList(prodInfo.Refno);
-                            this.GetSerialNumberList(prodInfo.Refno);
-                            this.GetLotNumberList(prodInfo.Refno);
-                        });
-
-                        if (this.SysEnv.SysSettings.IsDetailEditScreenSetFocus2CatchWeight)
-                        {
-                            if (prodInfo.IsCatchWeight)
+                            await Device.InvokeOnMainThreadAsync(() =>
                             {
-                                //this.txtWtQty.Focus();
+                                this.lblUnit.Text = prodInfo.UnitCode;
+                                this.lblWtUnit.Text = prodInfo.WeightUnitCode;
+                            });
+
+                            if (!scheme.IsBestBeforeDateTracked)
+                            {
+                                await Device.InvokeOnMainThreadAsync(() => this.dtBestBeforeDate.IsEnabled = false);
+                            }
+
+                            if (!scheme.IsProductionDateTracked)
+                            {
+                                await Device.InvokeOnMainThreadAsync(() => this.dtProductionDate.IsEnabled = false);
+                            }
+
+                            if (!scheme.IsLotTracked)
+                            {
+                                await Device.InvokeOnMainThreadAsync(() => this.cboLotNo.IsEnabled = false);
+                            }
+
+                            if (!scheme.IsSerialTracked)
+                            {
+                                await Device.InvokeOnMainThreadAsync(() => this.cboSerialNo.IsEnabled = false);
+                            }
+
+                            if (!scheme.IsVariantTracked)
+                            {
+                                await Device.InvokeOnMainThreadAsync(() => this.cboVariantCode.IsEnabled = false);
+                            }
+
+                            if (!prodInfo.IsCatchWeight || (prodInfo.UnitCode == "LB" || prodInfo.UnitCode == "KG"))
+                            {
+                                await Device.InvokeOnMainThreadAsync(() => this.txtWtQty.IsEnabled = false);
+                            }
+
+                            if (scheme.Extra1Type == (int)SysCommon.SchemeExtraTypes.Disabled)
+                            {
+                                await Device.InvokeOnMainThreadAsync(() => this.txtExtraDetail1.IsEnabled = false);
+                            }
+
+                            if (scheme.Extra2Type == (int)SysCommon.SchemeExtraTypes.Disabled)
+                            {
+                                await Device.InvokeOnMainThreadAsync(() => this.txtExtraDetail2.IsEnabled = false);
+                            }
+
+                            if (scheme.Extra3Type == (int)SysCommon.SchemeExtraTypes.Disabled)
+                            {
+                                await Device.InvokeOnMainThreadAsync(() => this.txtExtraDetail3.IsEnabled = false);
+                            }
+
+                            if (scheme.Extra4Type == (int)SysCommon.SchemeExtraTypes.Disabled)
+                            {
+                                await Device.InvokeOnMainThreadAsync(() => this.txtExtraDetail4.IsEnabled = false);
+                            }
+
+                            if (scheme.Extra5Type == (int)SysCommon.SchemeExtraTypes.Disabled)
+                            {
+                                await Device.InvokeOnMainThreadAsync(() => this.dtExtraDetail5.IsEnabled = false);
+                            }
+
+                            await Device.InvokeOnMainThreadAsync(() =>
+                            {
+                                this.LoadData();
+                                this.ShowProductInfo();
+
+                                this.GetProductVariantList(prodInfo.Refno);
+                                this.GetSerialNumberList(prodInfo.Refno);
+                                this.GetLotNumberList(prodInfo.Refno);
+                            });
+
+                            if (this.SysEnv.SysSettings.IsDetailEditScreenSetFocus2CatchWeight)
+                            {
+                                if (prodInfo.IsCatchWeight)
+                                {
+                                    //this.txtWtQty.Focus();
+                                }
+                                else
+                                {
+                                    //this.txtAltQty.Focus();
+                                }
                             }
                             else
                             {
-                                //this.txtAltQty.Focus();
+                                if (scheme.IsSerialTracked && prodInfo.IsCatchWeight)
+                                {
+                                    //this.txtWtQty.Focus();
+                                }
+                                else
+                                {
+                                    //this.txtAltQty.Focus();
+                                }
                             }
                         }
-                        else
-                        {
-                            if (scheme.IsSerialTracked && prodInfo.IsCatchWeight)
-                            {
-                                //this.txtWtQty.Focus();
-                            }
-                            else
-                            {
-                                //this.txtAltQty.Focus();
-                            }
-                        }
+
+                        this.ReqCancelEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                        this.ReqSaveEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+
+                        this.IsControlLoaded = true;
                     }
 
-                    this.ReqCancelEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-                    this.ReqSaveEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-
-                    this.IsControlLoaded = true;
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
+                finally
+                {
                     this.Loading = false;
                 }
             });

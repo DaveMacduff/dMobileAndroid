@@ -1137,6 +1137,13 @@
             finally
             {
                 //this.Loading = false;
+                await Task.Run(() =>
+                {
+                    // Explicit GC, Xamarin forms not disposing of objects properly
+                    GC.Collect();
+                    GC.WaitForPendingFinalizers();
+                });
+
                 this.isRefreshing = false;
             }
         }

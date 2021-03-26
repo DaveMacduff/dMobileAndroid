@@ -69,6 +69,7 @@ namespace dMobile.View.Activity
             this.lblSerialNo.Text = "Serial No";
             this.cmdSelectProduct.Text = "Select Product";
             this.lblQuantity.Text = "Quantity";
+            this.cmdSave.Text = "Save";
 
             this.SysEnv = SysEnvironment.GetInstance();
             Controller.Activity act = ActivityFacade.GetActivity(this.ActSubType);
@@ -96,6 +97,7 @@ namespace dMobile.View.Activity
             this.lblSerialNo.Text = "Serial No";
             this.cmdSelectProduct.Text = "Select Product";
             this.lblQuantity.Text = "Quantity";
+            this.cmdSave.Text = "Save";
 
             this.SysEnv = SysEnvironment.GetInstance();
 
@@ -138,7 +140,7 @@ namespace dMobile.View.Activity
 
                 if (!this.Loading)
                 {
-                    if (keycode == Keycode.F1)
+                    if (keycode == Keycode.F1 || keycode == Keycode.Enter)
                     {
                         if (await this.SaveChanges())
                         {
@@ -1036,8 +1038,8 @@ namespace dMobile.View.Activity
                     this.ActDetailEdit.SchemeData = schemeData;
                 }
 
-                this.cboSerialNo.SelectedItem = this.ActDetailEdit.SchemeData.SingleTradeItemSerialNumber;
-                
+                this.cboSerialNo.Text = this.ActDetailEdit.SchemeData.SingleTradeItemSerialNumber;
+
                 //if (this.cboSerialNo.SelectedIndex < 0)
                 //{
                 //    this.cboSerialNo.SelectedItem = this.ActDetailEdit.SchemeData.SingleTradeItemSerialNumber;
@@ -1047,7 +1049,7 @@ namespace dMobile.View.Activity
             if (scheme.IsLotTracked || scheme.LabelInfo.IsLotTracked)
             {
                 this.cboLotNo.SelectedItem = this.ActDetailEdit.SchemeData.LogisticUnitBatchLotNumber;
-                
+
                 //if (this.cboLotNo.SelectedIndex < 0)
                 //{
                 //    this.cboLotNo.Text = this.ActDetailEdit.SchemeData.LogisticUnitBatchLotNumber;
@@ -1057,7 +1059,7 @@ namespace dMobile.View.Activity
             if (scheme.IsVariantTracked || scheme.LabelInfo.IsVariantTracked)
             {
                 this.cboVariantCode.SelectedItem = this.ActDetailEdit.SchemeData.VariantNumber;
-                
+
                 //if (this.cboVariantCode.SelectedIndex < 0)
                 //{
                 //    this.cboVariantCode.Text = this.ActDetailEdit.SchemeData.VariantNumber.ToString();
@@ -1181,7 +1183,7 @@ namespace dMobile.View.Activity
 
             this.cboVariantCode.ItemDisplayBinding = new Binding("ProductSchemeVariantDisplay");
             this.cboVariantCode.ItemsSource = productVariantList;
-            
+
             //this.cboVariantCode.ValueMember = "ProductSchemeVariantNo";
             //this.cboVariantCode.DisplayMember = "ProductSchemeVariantDisplay";
         }
@@ -1207,7 +1209,7 @@ namespace dMobile.View.Activity
 
             this.cboLotNo.ItemDisplayBinding = new Binding("ActivityDetailLogisticUnitBatchLotNumber");
             this.cboLotNo.ItemsSource = lotNumberList;
-            
+
             //this.cboLotNo.ValueMember = "ActivityDetailLogisticUnitBatchLotNumber";
             //this.cboLotNo.DisplayMember = "ActivityDetailLogisticUnitBatchLotNumber";
         }
@@ -1220,12 +1222,12 @@ namespace dMobile.View.Activity
         {
             this.DataViewSerialNumbers = this.ActDetailEdit.GetSerialNumberDataView(prodRefno);
             ObservableCollection<SerialNumber> serialNumberList = new ObservableCollection<SerialNumber>();
-            object selectedSerialNumberItem = this.cboSerialNo.SelectedItem;
+            string selectedSerialNumberItem = this.cboSerialNo.Text;
             SerialNumber selectedSerialNumber = new SerialNumber();
 
             if (selectedSerialNumberItem != null)
             {
-                selectedSerialNumber.ActivityDetailSingleTradeItemSerialNumber = Convert.ToString(selectedSerialNumberItem); 
+                selectedSerialNumber.ActivityDetailSingleTradeItemSerialNumber = Convert.ToString(selectedSerialNumberItem);
                 serialNumberList.Add(selectedSerialNumber);
             }
 
@@ -1233,7 +1235,7 @@ namespace dMobile.View.Activity
             {
                 SerialNumber serialNumber = new SerialNumber()
                 {
-                     ActivityDetailSingleTradeItemSerialNumber = Convert.ToString(row["ActivityDetailSingleTradeItemSerialNumber"] != DBNull.Value ? row["ActivityDetailSingleTradeItemSerialNumber"] : null)
+                    ActivityDetailSingleTradeItemSerialNumber = Convert.ToString(row["ActivityDetailSingleTradeItemSerialNumber"] != DBNull.Value ? row["ActivityDetailSingleTradeItemSerialNumber"] : null)
                 };
 
                 serialNumberList.Add(serialNumber);
@@ -1244,7 +1246,7 @@ namespace dMobile.View.Activity
 
             if (selectedSerialNumber.ActivityDetailSingleTradeItemSerialNumber != null)
             {
-                this.cboSerialNo.SelectedItem = selectedSerialNumber;
+                this.cboSerialNo.Text = selectedSerialNumber.ActivityDetailSingleTradeItemSerialNumber;
             }
 
             //this.cboSerialNo.ValueMember = "ActivityDetailSingleTradeItemSerialNumber";
@@ -1260,13 +1262,9 @@ namespace dMobile.View.Activity
         {
             bool isRetVal = true;
             ProdScheme scheme = this.ActDetail.ActItem.ProdInfo.Scheme;
-
             SProductSchemeData s = this.ActDetailEdit.SchemeData;
-            SerialNumber serialNumber = this.cboSerialNo.SelectedItem != null ? this.cboSerialNo.SelectedItem as SerialNumber : null;
-            LotNumber lotNumber = this.cboLotNo.SelectedItem != null ? this.cboLotNo.SelectedItem as LotNumber : null; 
-
-            s.SingleTradeItemSerialNumber = serialNumber != null ? serialNumber.ActivityDetailSingleTradeItemSerialNumber : string.Empty;
-            s.LogisticUnitBatchLotNumber = lotNumber != null ? lotNumber.ActivityDetailLogisticUnitBatchLotNumber : string.Empty;
+            s.SingleTradeItemSerialNumber = this.cboSerialNo.Text;
+            s.LogisticUnitBatchLotNumber = this.cboLotNo.Text;
 
             if (scheme.IsVariantTracked || scheme.LabelInfo.IsVariantTracked)
             {
@@ -1280,7 +1278,7 @@ namespace dMobile.View.Activity
             this.ActDetailEdit.SchemeData = s;
 
             this.ActDetailEdit.Quantity = decimal.Parse(this.txtAltQuantity.Text);
-            
+
             if (this.ActDetailEdit.Quantity == 0)
             {
                 // TODO: Resource strings
@@ -1296,23 +1294,23 @@ namespace dMobile.View.Activity
             //}
             //else
             //{
-                this.ActDetailEdit.WeightQuantity = decimal.Parse(this.txtWtQty.Text);
+            this.ActDetailEdit.WeightQuantity = decimal.Parse(this.txtWtQty.Text);
 
-                if (this.ActDetail.ActItem.ProdInfo.BaseUnitCode == "LB" || this.ActDetail.ActItem.ProdInfo.BaseUnitCode == "KG")
+            if (this.ActDetail.ActItem.ProdInfo.BaseUnitCode == "LB" || this.ActDetail.ActItem.ProdInfo.BaseUnitCode == "KG")
+            {
+                this.ActDetailEdit.BaseQuantity = this.ActDetailEdit.WeightQuantity;
+            }
+            else
+            {
+                if (this.ActDetailEdit.Quantity != 0 && this.ActDetail.ActItem.ProdInfo.Unit2BaseUnitFactor != 0)
                 {
-                    this.ActDetailEdit.BaseQuantity = this.ActDetailEdit.WeightQuantity;
+                    this.ActDetailEdit.BaseQuantity = this.ActDetailEdit.Quantity * this.ActDetail.ActItem.ProdInfo.Unit2BaseUnitFactor;
                 }
                 else
                 {
-                    if (this.ActDetailEdit.Quantity != 0 && this.ActDetail.ActItem.ProdInfo.Unit2BaseUnitFactor != 0)
-                    {
-                        this.ActDetailEdit.BaseQuantity = this.ActDetailEdit.Quantity * this.ActDetail.ActItem.ProdInfo.Unit2BaseUnitFactor;
-                    }
-                    else
-                    {
-                        this.ActDetailEdit.BaseQuantity = this.ActDetailEdit.Quantity;
-                    }
+                    this.ActDetailEdit.BaseQuantity = this.ActDetailEdit.Quantity;
                 }
+            }
             //}
 
             ////if (decimal.Parse(this.txtWtQty.Text) == 0)
@@ -1333,7 +1331,7 @@ namespace dMobile.View.Activity
             if (isRetVal)
             {
                 if ((scheme.IsLotTracked || scheme.LabelInfo.IsLotTracked) && this.ActDetailEdit.SchemeData.LogisticUnitBatchLotNumber == string.Empty)
-                {   
+                {
                     // TODO: Resource strings
                     await DisplayAlert(this.GetControlDescription(), "Lot number required.", "OK");
                     isRetVal = false;
@@ -1360,7 +1358,7 @@ namespace dMobile.View.Activity
             {
                 DateTime lower = DateTime.Now.AddYears(this.SysEnv.SysSettings.DetailDateMinMaxValidYearRange * -1);
                 DateTime upper = DateTime.Now.AddYears(this.SysEnv.SysSettings.DetailDateMinMaxValidYearRange);
-                
+
                 if (this.dtBestBeforeDate.Date < lower || this.dtBestBeforeDate.Date > upper)
                 {
                     // TODO: Resource strings
@@ -1378,7 +1376,7 @@ namespace dMobile.View.Activity
             {
                 DateTime lower = DateTime.Now.AddYears(this.SysEnv.SysSettings.DetailDateMinMaxValidYearRange * -1);
                 DateTime upper = DateTime.Now.AddYears(this.SysEnv.SysSettings.DetailDateMinMaxValidYearRange);
-                
+
                 if (this.dtProductionDate.Date < lower || this.dtProductionDate.Date > upper)
                 {
                     // TODO: Resource strings
@@ -1444,7 +1442,7 @@ namespace dMobile.View.Activity
                 {
                     XDocument xmlDoc = form.DisplayControlData;
                     int prodUnitRefno = int.Parse(xmlDoc.Root.Element("ProductUnitRefno").Value);
-                    
+
                     if (prodUnitRefno != 0)
                     {
                         ProductInfo prodInfo = ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
@@ -1463,7 +1461,7 @@ namespace dMobile.View.Activity
             this.IsChangesMade = true;
 
             decimal qtyEntered = 0;
-            
+
             try
             {
                 if (!string.IsNullOrEmpty(this.txtAltQuantity.Text))
@@ -1488,6 +1486,16 @@ namespace dMobile.View.Activity
             }
 
             this.txtWtQty.Text = Math.Round(wtQty, 3).ToString();
+        }
+
+        private async void cmdSave_Clicked(object sender, EventArgs e)
+        {
+            if (await this.SaveChanges())
+            {
+                this.DialogResult = DialogResult.OK;
+                this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                await this.Close();
+            }
         }
     }
 }

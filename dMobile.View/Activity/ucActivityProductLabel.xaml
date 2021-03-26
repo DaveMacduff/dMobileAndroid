@@ -71,7 +71,10 @@
                 </Frame>
                 
                 <!--Row 2-->
-                <Button x:Name="cmdSelectProduct" Grid.Row="2" />
+                <Grid Grid.Row="2">
+                    <Button x:Name="cmdSave" Grid.Row="0" Grid.Column="0" Clicked="cmdSave_Clicked"/>
+                    <Button x:Name="cmdSelectProduct" Grid.Row="0" Grid.Column="1"/>
+                </Grid>
             </Grid>
 
             <ActivityIndicator IsVisible="{Binding Loading}" IsRunning="{Binding Loading}" AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0.5,0.5,0.3,0.3"/>

@@ -46,6 +46,8 @@
         private ObservableCollection<object> dataGridMainActivityItemsList = new ObservableCollection<object>();
         private int selectedIndex;
         private List<string> optionsMenuItems = new List<string>();
+        private bool firstLoad = true;
+
 
         // For handling double click on listview item
         private int numTaps = 0;
@@ -104,7 +106,6 @@
             this.CmdAddSkidIsEnabled = false;
 
 
-
             if (!DesignMode.IsDesignModeEnabled)
             {
                 this.LocMap = LocationMap.GetInstance();
@@ -142,8 +143,6 @@
 
                 this.updnBarCodeModifier1.SelectedItem = this.SysEnv.CurrentBarCodeModifier1;
                 this.Scanner = BarCodeSingleton.GetInstance().Scanner;
-
-                this.ActItem.Refresh(this.ActItem.ActHdr.XMLDataCriteria);
             }
         }
 
@@ -195,7 +194,7 @@
             base.OnAppearing();
 
             this.lstDisplay.ItemsSource = this.ItemsList;
-            //this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
+            this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
             this.dataGridMainActivity.ItemTapped += this.DataGridMainActivity_ItemTapped;
 
             MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
@@ -292,9 +291,9 @@
         /// </summary>
         protected override async void OnDisappearing()
         {
-            this.dataGridMainActivity.ItemTapped -= this.DataGridMainActivity_ItemTapped;
-            MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
             await this.ScannerDisable();
+            MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
+            this.dataGridMainActivity.ItemTapped -= this.DataGridMainActivity_ItemTapped;
 
             base.OnDisappearing();
         }
@@ -1553,10 +1552,18 @@
             {
                 try
                 {
+                    this.Loading = true;
+                    await this.ScannerDisable();
+
+                    if (this.firstLoad)
+                    {
+                        Console.WriteLine("this.ActItem.Refresh");
+                        this.firstLoad = false;
+                        this.ActItem.Refresh(this.ActItem.ActHdr.XMLDataCriteria);
+                    }
+
                     //This prevents UI lag when pushing modal into view
                     //await Task.Delay(500);
-
-                    await this.ScannerEnable();
 
                     await Device.InvokeOnMainThreadAsync(() => this.updnBarCodeModifier1.SelectedItem = this.SysEnv.CurrentBarCodeModifier1);
 
@@ -1604,12 +1611,15 @@
                     {
                         this.ActItem.UnregLayerListenerProgOut(this);
                     }
+
+                    this.ReqCancelEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                    this.ReqSaveEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+
+                    await this.ScannerEnable();
+                    this.Loading = false;
+
+                    this.IsControlLoaded = true;
                 }
-
-                this.ReqCancelEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-                this.ReqSaveEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-
-                this.IsControlLoaded = true;
             });
         }
 
@@ -2616,12 +2626,12 @@
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
             if (this.Loading || scanArgs == null)
-            {
+            {                
                 return;
             }
 
-            this.Loading = true;
             await this.ScannerDisable();
+            this.Loading = true;
 
             int prodUnitRefno = 0;
             int currRowIdx = this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem);
@@ -3212,8 +3222,8 @@
             }
             finally
             {
-                this.Loading = false;
                 await this.ScannerEnable();
+                this.Loading = false;
             }
         }
 
@@ -3250,33 +3260,18 @@
         /// <remarks></remarks>
         private async Task RefreshData()
         {
-            //if (this.Loading)
-            //{
-            //    Console.WriteLine("_________ LOADING, REFRESH PREVENTED");
-            //    return;
-            //}
-
             try
-            {
-                this.Loading = true;
-
-                //this.pbarStatus.Visible = true;
-                //this.lstDisplay.Items.Clear();
-                //this.ItemsList.Clear();
-
-                // TODO: Resource strings
-
+            {                
                 this.ActItem.RegLayerListenerProgOut(this);
-                //this.pbarStatus.Minimum = 0;
-                //this.pbarStatus.Maximum = new GridLength.Star;
-                //this.pbarStatus.Value = 0;
-                //this.ActItem.Refresh(this.ActItem.ActHdr.XMLDataCriteria);
 
-                //this.pbarStatus.Visible = false;
+                this.ActItem.DataViewItems = null;
                 this.ActItem.DataViewItems = this.ActItem.GetDataView(false);
 
                 await Device.InvokeOnMainThreadAsync(() =>
                 {
+                    this.DataGridMainActivityItemsList = null;
+                    this.dataGridMainActivity.ItemsSource = null;
+
                     this.DataGridMainActivityItemsList = this.ActItem.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
                     this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
 
@@ -3304,6 +3299,14 @@
             finally
             {
                 this.ActItem.UnregLayerListenerProgOut(this);
+
+                await Task.Run(() =>
+                {
+                    // Explicit GC, Xamarin forms not disposing of objects properly
+                    GC.Collect();
+                    GC.WaitForPendingFinalizers();
+                });
+
                 this.Loading = false;
             }
         }
@@ -3772,6 +3775,9 @@
         private void TxtSearchItem_TextChanged(object sender, TextChangedEventArgs e)
         {
             this.IsChangesMade = true;
+            this.DataGridMainActivityItemsList = null;
+            this.dataGridMainActivity.ItemsSource = null;
+
             this.DataGridMainActivityItemsList = this.ActItem.Search(this.txtSearchItem.Text);
             this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
         }

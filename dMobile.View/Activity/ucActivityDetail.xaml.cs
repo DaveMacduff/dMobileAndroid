@@ -258,8 +258,8 @@ namespace dMobile.View.Activity
         /// </summary>
         protected override async void OnDisappearing()
         {
-            MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
             await this.ScannerDisable();
+            MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
 
             base.OnDisappearing();
         }
@@ -1339,61 +1339,75 @@ namespace dMobile.View.Activity
         {
             await Task.Run(async () =>
             {
-                if (!SysEnvironment.GetInstance().IsApplicationExitInvoked)
+                try
                 {
-                    //// This prevents UI lag when pushing modal into view
-                    //await Task.Delay(500);
+                    this.Loading = true;
+
+                    if (!SysEnvironment.GetInstance().IsApplicationExitInvoked)
+                    {
+                        //// This prevents UI lag when pushing modal into view
+                        //await Task.Delay(500);
+                        await this.ScannerDisable();
+
+                        if (this.IsControlLoaded == false)
+                        {
+                            if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
+                            {
+                                string getReadableLocation = LocationMapTasks.GetCurrentReadableLocation();
+                                await Device.InvokeOnMainThreadAsync(() => this.CmdLocationText = "Location: " + Environment.NewLine + getReadableLocation);
+                            }
+                            else
+                            {
+                                // TODO: Resource strings
+                                await Device.InvokeOnMainThreadAsync(() => this.CmdLocationText = "Set Location");
+                            }
+
+                            if (this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
+                            {
+                                // TODO: Resource strings
+                                await Device.InvokeOnMainThreadAsync(() => this.CmdSelectSkidText = "Skid# " + this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode);
+                            }
+                            else
+                            {
+                                // TODO: Resource strings
+                                await Device.InvokeOnMainThreadAsync(() => this.CmdSelectSkidText = "Select Skid");
+                            }
+                        }
+                    }
+
+                    await this.RefreshData();
+
+                    await Device.InvokeOnMainThreadAsync(() =>
+                    {
+                        if (this.actDetail.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno == 0)
+                        {
+                            this.CmdLocationIsEnabled = true;
+                        }
+                        else
+                        {
+                            CmdLocationIsEnabled = false;
+                        }
+
+                        this.CmdSelectSkidIsEnabled = this.SysEnv.SysSettings.IsSkidTrackingModule;
+                        this.cmdAddDetail.IsEnabled = true;
+
+                    });
+
+                    this.ReqCancelEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                    this.ReqSaveEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
 
                     await this.ScannerEnable();
 
-                    if (this.IsControlLoaded == false)
-                    {
-                        if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
-                        {
-                            string getReadableLocation = LocationMapTasks.GetCurrentReadableLocation();
-                            await Device.InvokeOnMainThreadAsync(() => this.CmdLocationText = "Location: " + Environment.NewLine + getReadableLocation);
-                        }
-                        else
-                        {
-                            // TODO: Resource strings
-                            await Device.InvokeOnMainThreadAsync(() => this.CmdLocationText = "Set Location");
-                        }
-
-                        if (this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
-                        {
-                            // TODO: Resource strings
-                            await Device.InvokeOnMainThreadAsync(() => this.CmdSelectSkidText = "Skid# " + this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode);
-                        }
-                        else
-                        {
-                            // TODO: Resource strings
-                            await Device.InvokeOnMainThreadAsync(() => this.CmdSelectSkidText = "Select Skid");
-                        }
-                    }
+                    this.IsControlLoaded = true;
                 }
-
-                await this.RefreshData();
-
-                await Device.InvokeOnMainThreadAsync(() =>
+                catch (Exception ex)
                 {
-                    if (this.actDetail.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno == 0)
-                    {
-                        this.CmdLocationIsEnabled = true;
-                    }
-                    else
-                    {
-                        CmdLocationIsEnabled = false;
-                    }
-
-                    this.CmdSelectSkidIsEnabled = this.SysEnv.SysSettings.IsSkidTrackingModule;
-                    this.cmdAddDetail.IsEnabled = true;
-
-                });
-
-                this.ReqCancelEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-                this.ReqSaveEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-
-                this.IsControlLoaded = true;
+                    await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "Error refreshing detail data." + Environment.NewLine + ex.Message, "OK"));
+                }
+                finally
+                {
+                    this.Loading = false;
+                }
             });
         }
 
@@ -2090,46 +2104,53 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         private async Task RefreshData()
         {
-            this.Loading = true;
-            await this.ScannerDisable();
-
             try
             {
                 this.ActDetail.Refresh();
+
+                this.ActDetail.DataViewDetails = null;
+                this.ActDetail.DataViewDetails = this.ActDetail.GetDataView(false);
+
+                await Device.InvokeOnMainThreadAsync(() =>
+                {
+                    this.ItemsList.Clear();
+
+                    this.DataGridMainActivityItemsList = null;
+                    this.dataGridMainActivity.ItemsSource = null;
+
+                    this.DataGridMainActivityItemsList = this.ActDetail.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
+                    this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
+
+                    if (this.ActDetail.DataViewDetails.Count > 0 && this.DataGridMainActivityItemsList.Count > 0)
+                    {
+                        this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[0];
+                    //this.ActDetail.SelectDetail(this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem));
+                    //this.DisplayData();
+                }
+                    else if (this.DataGridMainActivityItemsList.Count > this.SelectedIndex)
+                    {
+                        this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[this.SelectedIndex];
+                    }
+
+                });
             }
             catch (Exception ex)
             {
-                this.Loading = false;
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
                     await errRpt.ShowDialog();
                 });
             }
-
-            await Device.InvokeOnMainThreadAsync(() =>
+            finally
             {
-                this.ItemsList.Clear();
-                this.ActDetail.DataViewDetails = this.ActDetail.GetDataView(false);
-
-                this.DataGridMainActivityItemsList = this.ActDetail.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
-                this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
-
-                if (this.ActDetail.DataViewDetails.Count > 0 && this.DataGridMainActivityItemsList.Count > 0)
+                await Task.Run(() =>
                 {
-                    this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[0];
-                    //this.ActDetail.SelectDetail(this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem));
-                    //this.DisplayData();
-                }
-                else if (this.DataGridMainActivityItemsList.Count > this.SelectedIndex)
-                {
-                    this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[this.SelectedIndex];
-                }
-
-            });
-
-            await this.ScannerEnable();
-            this.Loading = false;
+                    // Explicit GC, Xamarin forms not disposing of objects properly
+                    GC.Collect();
+                    GC.WaitForPendingFinalizers();
+                });
+            }
         }
 
         /// <summary>
