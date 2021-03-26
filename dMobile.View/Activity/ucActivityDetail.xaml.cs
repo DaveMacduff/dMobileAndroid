@@ -194,18 +194,18 @@ namespace dMobile.View.Activity
                             await this.dataGridMainActivity_KeyUpDelete(this, new EventArgs());
                         }
                     }
-                    else if (keycode == Keycode.Escape || keycode == Keycode.Back)
-                    {
-                        if (await this.SaveChanges())
-                        {
-                            this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-                        }
-                        else
-                        {
-                            await this.CancelChanges();
-                            this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-                        }
-                    }
+                    //else if (keycode == Keycode.Escape || keycode == Keycode.Back)
+                    //{
+                    //    if (await this.SaveChanges())
+                    //    {
+                    //        this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                    //    }
+                    //    else
+                    //    {
+                    //        await this.CancelChanges();
+                    //        this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                    //    }
+                    //}
                     else if (keycode == Keycode.F1)
                     {
                         if (await this.SaveChanges())
@@ -262,6 +262,26 @@ namespace dMobile.View.Activity
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
 
             base.OnDisappearing();
+        }
+
+        protected override bool OnBackButtonPressed()
+        {
+            Device.BeginInvokeOnMainThread(async () =>
+            {
+                if (await this.SaveChanges())
+                {
+                    this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                }
+                else
+                {
+                    await this.CancelChanges();
+                    this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                }
+
+                await this.Close();
+            });
+
+            return true;
         }
 
         #region Delegates
@@ -708,6 +728,7 @@ namespace dMobile.View.Activity
             {
                 if (this.ActDetail.DataViewDetails.Count > 0)
                 {
+                    // TODO: Resource strings
                     if (await DisplayAlert("Print Label", "Print Product Labels", "Yes", "No"))
                     {
                         await this.PrintBatchedProductLabels();

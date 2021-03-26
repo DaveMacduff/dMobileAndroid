@@ -123,13 +123,13 @@
                     {
                         await this.DataGridMainActivity_KeyUpEnter();
                     }
-                    else if (keycode == Keycode.Escape)
-                    {
-                        if (await this.CancelChanges())
-                        {
-                            this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-                        }
-                    }
+                    //else if (keycode == Keycode.Escape)
+                    //{
+                    //    if (await this.CancelChanges())
+                    //    {
+                    //        this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                    //    }
+                    //}
                     else if (keycode == Keycode.F1)
                     {
                         if (await this.SaveChanges())
@@ -193,6 +193,21 @@
             await this.ScannerDisable();
 
             base.OnDisappearing();
+        }
+
+        protected override bool OnBackButtonPressed()
+        {
+            Device.BeginInvokeOnMainThread(async () =>
+            {
+                if (await this.CancelChanges())
+                {
+                    base.OnBackButtonPressed();
+                    this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                    await this.Close();
+                }
+            });
+
+            return true;
         }
 
         /// <summary>
