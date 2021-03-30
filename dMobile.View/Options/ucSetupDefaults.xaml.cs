@@ -1024,7 +1024,10 @@ namespace dMobile.View.Options
 
         private async void BtnSave_Clicked(object sender, EventArgs e)
         {
-            await this.SaveChanges();
+            if (await this.SaveChanges())
+            {
+                this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+            }
         }
 
         private void ThemePicker_SelectedIndexChanged(object sender, EventArgs e)

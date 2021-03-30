@@ -128,7 +128,7 @@ namespace dMobile.Controller
                     + "FROM tProductUnitBarCode "
                     + "WHERE ProductUnitBarCodeCode = @productUnitBarCodeCode "
                     + "AND ProductUnitBarCodeModifier1 = @productUnitBarCodeModifier1";
-                cmndProdUnitBarCode.Parameters.Add(new SQLiteParameter("@productUnitBarCodeCode", prodIdentifier.PadRight(20)));
+                cmndProdUnitBarCode.Parameters.Add(new SQLiteParameter("@productUnitBarCodeCode", prodIdentifier));
                 cmndProdUnitBarCode.Parameters.Add(new SQLiteParameter("@productUnitBarCodeModifier1", data.Root.Element("ProductUnitBarCodeModifier1").Value));
 
                 using (SQLiteDataReader drProdUnitBarCode = cmndProdUnitBarCode.ExecuteReader())
@@ -216,6 +216,8 @@ namespace dMobile.Controller
 
                         cmndItemBarCode.ExecuteNonQuery();
 
+                        transaction.Commit();
+
                         data = XDocument.Parse(
                             "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                             + "<params>"
@@ -255,8 +257,6 @@ namespace dMobile.Controller
                                 }
                             }
                         }
-
-                        transaction.Commit();
                     }
                     catch (SQLiteException ex)
                     {

@@ -775,18 +775,21 @@ namespace dMobile.View.Options
                         for (int curExNdx = 0; curExNdx < ex.Data.Count; curExNdx++)
                         {
                             // TODO: Resource strings
-                            await DisplayAlert("Submit Batch", Convert.ToString("Error " + ex.Data[curExNdx].ToString() + '\r'), "OK");
+                            await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Submit Batch", Convert.ToString("Error " + ex.Data[curExNdx].ToString() + '\r'), "OK"));
                         }
                     }
                     catch (Exception ex)
                     {
-                        await DisplayAlert("Error", "Submit Batch", ex.Message, "OK");
+                        await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "Submit Batch", ex.Message, "OK"));
                     }
 
                     this.Activity.DataViewHdrs = this.Activity.GetDataView(true);
 
-                    this.DataGridMainActivityItemsList = this.Activity.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
-                    this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
+                    await Device.InvokeOnMainThreadAsync(() =>
+                    {
+                        this.DataGridMainActivityItemsList = this.Activity.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
+                        this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
+                    });
 
                     if (Activity.DataViewHdrs.Count > 0)
                     {
@@ -799,7 +802,7 @@ namespace dMobile.View.Options
                 catch (Exception ex)
                 {
                     // TODO: Resource strings
-                    await DisplayAlert("Error", ex.Message, "OK");
+                    await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", ex.Message, "OK"));
                 }
                 finally
                 {
@@ -847,256 +850,263 @@ namespace dMobile.View.Options
             ActDetail actDetail = null;
             LocationMap locMap = LocationMap.GetInstance();
 
-            try
+            await Task.Run(async () =>
             {
-                this.Loading = true;
-                this.cmdSubmit.IsEnabled = false;
-                //this.pbarStatus.Visible = true;
-
-                if (this.Activity.DataViewHdrs.Count > 0)
+                try
                 {
-                    for (int actRow = 0; actRow <= this.Activity.DataViewHdrs.Count - 1; actRow++)
+                    this.Loading = true;
+                    await Device.InvokeOnMainThreadAsync(() => this.cmdSubmit.IsEnabled = false);
+                    //this.pbarStatus.Visible = true;
+
+                    if (this.Activity.DataViewHdrs.Count > 0)
                     {
-                        actRefno = this.Activity.GetRefnoFromRowIdx(actRow);
-
-                        if (actItem == null)
+                        for (int actRow = 0; actRow <= this.Activity.DataViewHdrs.Count - 1; actRow++)
                         {
-                            switch (this.SubmitBatchSettings.eActivitySubType)
+                            actRefno = this.Activity.GetRefnoFromRowIdx(actRow);
+
+                            if (actItem == null)
                             {
-                                case SysCommon.ActSubTypes.Receiving:
-                                    actItem = ActItemFacade.GetActItem(this.Activity, SysCommon.ActSubTypes.Receiving);
-                                    break;
+                                switch (this.SubmitBatchSettings.eActivitySubType)
+                                {
+                                    case SysCommon.ActSubTypes.Receiving:
+                                        actItem = ActItemFacade.GetActItem(this.Activity, SysCommon.ActSubTypes.Receiving);
+                                        break;
 
-                                case SysCommon.ActSubTypes.Picking:
-                                    actItem = ActItemFacade.GetActItem(this.Activity, SysCommon.ActSubTypes.Picking);
-                                    break;
+                                    case SysCommon.ActSubTypes.Picking:
+                                        actItem = ActItemFacade.GetActItem(this.Activity, SysCommon.ActSubTypes.Picking);
+                                        break;
 
-                                case SysCommon.ActSubTypes.Returns:
-                                    actItem = ActItemFacade.GetActItem(this.Activity, SysCommon.ActSubTypes.Returns);
-                                    break;
+                                    case SysCommon.ActSubTypes.Returns:
+                                        actItem = ActItemFacade.GetActItem(this.Activity, SysCommon.ActSubTypes.Returns);
+                                        break;
 
-                                case SysCommon.ActSubTypes.TransferFrom:
-                                    actItem = ActItemFacade.GetActItem(this.Activity, SysCommon.ActSubTypes.TransferFrom);
-                                    break;
+                                    case SysCommon.ActSubTypes.TransferFrom:
+                                        actItem = ActItemFacade.GetActItem(this.Activity, SysCommon.ActSubTypes.TransferFrom);
+                                        break;
 
-                                case SysCommon.ActSubTypes.CycleCounts:
-                                    actItem = ActItemFacade.GetActItem(this.Activity, SysCommon.ActSubTypes.CycleCounts);
-                                    break;
+                                    case SysCommon.ActSubTypes.CycleCounts:
+                                        actItem = ActItemFacade.GetActItem(this.Activity, SysCommon.ActSubTypes.CycleCounts);
+                                        break;
 
-                                case SysCommon.ActSubTypes.PhysicalCounts:
-                                    actItem = ActItemFacade.GetActItem(this.Activity, SysCommon.ActSubTypes.PhysicalCounts);
-                                    break;
+                                    case SysCommon.ActSubTypes.PhysicalCounts:
+                                        actItem = ActItemFacade.GetActItem(this.Activity, SysCommon.ActSubTypes.PhysicalCounts);
+                                        break;
 
-                                case SysCommon.ActSubTypes.BarCodeAssociation:
-                                    actItem = ActItemFacade.GetActItem(this.Activity, SysCommon.ActSubTypes.BarCodeAssociation);
-                                    break;
+                                    case SysCommon.ActSubTypes.BarCodeAssociation:
+                                        actItem = ActItemFacade.GetActItem(this.Activity, SysCommon.ActSubTypes.BarCodeAssociation);
+                                        break;
 
-                                case SysCommon.ActSubTypes.Adjustment:
-                                    actItem = ActItemFacade.GetActItem(this.Activity, SysCommon.ActSubTypes.Adjustment);
-                                    break;
+                                    case SysCommon.ActSubTypes.Adjustment:
+                                        actItem = ActItemFacade.GetActItem(this.Activity, SysCommon.ActSubTypes.Adjustment);
+                                        break;
 
-                                case SysCommon.ActSubTypes.TicketFinished:
-                                    actItem = ActItemFacade.GetActItem(this.Activity, SysCommon.ActSubTypes.TicketFinished);
-                                    break;
+                                    case SysCommon.ActSubTypes.TicketFinished:
+                                        actItem = ActItemFacade.GetActItem(this.Activity, SysCommon.ActSubTypes.TicketFinished);
+                                        break;
 
-                                case SysCommon.ActSubTypes.TicketMaterial:
-                                    actItem = ActItemFacade.GetActItem(this.Activity, SysCommon.ActSubTypes.TicketMaterial);
-                                    break;
+                                    case SysCommon.ActSubTypes.TicketMaterial:
+                                        actItem = ActItemFacade.GetActItem(this.Activity, SysCommon.ActSubTypes.TicketMaterial);
+                                        break;
 
-                                case SysCommon.ActSubTypes.TicketAddProduct:
-                                    actItem = ActItemFacade.GetActItem(this.Activity, SysCommon.ActSubTypes.TicketAddProduct);
-                                    break;
+                                    case SysCommon.ActSubTypes.TicketAddProduct:
+                                        actItem = ActItemFacade.GetActItem(this.Activity, SysCommon.ActSubTypes.TicketAddProduct);
+                                        break;
 
-                                case SysCommon.ActSubTypes.PurchaseOrderWorkSheet:
-                                    actItem = ActItemFacade.GetActItem(this.Activity, SysCommon.ActSubTypes.PurchaseOrderWorkSheet);
-                                    break;
+                                    case SysCommon.ActSubTypes.PurchaseOrderWorkSheet:
+                                        actItem = ActItemFacade.GetActItem(this.Activity, SysCommon.ActSubTypes.PurchaseOrderWorkSheet);
+                                        break;
 
-                                default:
-                                    throw new NotSupportedException("Unhandled activity sub type.");
+                                    default:
+                                        throw new NotSupportedException("Unhandled activity sub type.");
+                                }
                             }
-                        }
 
-                        actItem.DataViewItems = actItem.GetDataView(true);
-                        //GC.Collect();
-                        //GC.WaitForPendingFinalizers();
+                            actItem.DataViewItems = actItem.GetDataView(true);
+                            //GC.Collect();
+                            //GC.WaitForPendingFinalizers();
 
-                        if (actItem.DataViewItems.Count > 0)
-                        {
-                            for (int itemIdx = 0; itemIdx <= actItem.DataViewItems.Count - 1; itemIdx++)
+                            if (actItem.DataViewItems.Count > 0)
                             {
-                                actItem.SelectItem(itemIdx);
-                                actItemRefno = actItem.Refno;
-
-                                if (actDetail == null
-                                    && this.SubmitBatchSettings.eActivitySubType != SysCommon.ActSubTypes.BarCodeAssociation)
+                                for (int itemIdx = 0; itemIdx <= actItem.DataViewItems.Count - 1; itemIdx++)
                                 {
-                                    switch (this.SubmitBatchSettings.eActivitySubType)
+                                    actItem.SelectItem(itemIdx);
+                                    actItemRefno = actItem.Refno;
+
+                                    if (actDetail == null
+                                            && this.SubmitBatchSettings.eActivitySubType != SysCommon.ActSubTypes.BarCodeAssociation)
                                     {
-                                        case SysCommon.ActSubTypes.Receiving:
-                                            actDetail = ActDetailFacade.GetActDetail(actItem, SysCommon.ActSubTypes.Receiving);
-                                            break;
-
-                                        case SysCommon.ActSubTypes.Picking:
-                                            actDetail = ActDetailFacade.GetActDetail(actItem, SysCommon.ActSubTypes.Picking);
-                                            break;
-
-                                        case SysCommon.ActSubTypes.Returns:
-                                            actDetail = ActDetailFacade.GetActDetail(actItem, SysCommon.ActSubTypes.Returns);
-                                            break;
-
-                                        case SysCommon.ActSubTypes.TransferFrom:
-                                            actDetail = ActDetailFacade.GetActDetail(actItem, SysCommon.ActSubTypes.TransferFrom);
-                                            break;
-
-                                        case SysCommon.ActSubTypes.CycleCounts:
-                                            actDetail = ActDetailFacade.GetActDetail(actItem, SysCommon.ActSubTypes.CycleCounts);
-                                            break;
-
-                                        case SysCommon.ActSubTypes.PhysicalCounts:
-                                            actDetail = ActDetailFacade.GetActDetail(actItem, SysCommon.ActSubTypes.PhysicalCounts);
-                                            break;
-
-                                        case SysCommon.ActSubTypes.Adjustment:
-                                            actDetail = ActDetailFacade.GetActDetail(actItem, SysCommon.ActSubTypes.Adjustment);
-                                            break;
-
-                                        case SysCommon.ActSubTypes.TicketFinished:
-                                            actDetail = ActDetailFacade.GetActDetail(actItem, SysCommon.ActSubTypes.TicketFinished);
-                                            break;
-
-                                        case SysCommon.ActSubTypes.TicketMaterial:
-                                            actDetail = ActDetailFacade.GetActDetail(actItem, SysCommon.ActSubTypes.TicketMaterial);
-                                            break;
-
-                                        case SysCommon.ActSubTypes.TicketAddProduct:
-                                            actDetail = ActDetailFacade.GetActDetail(actItem, SysCommon.ActSubTypes.TicketAddProduct);
-                                            break;
-
-                                        case SysCommon.ActSubTypes.PurchaseOrderWorkSheet:
-                                            actDetail = ActDetailFacade.GetActDetail(actItem, SysCommon.ActSubTypes.PurchaseOrderWorkSheet);
-                                            break;
-
-                                        default:
-                                            throw new NotSupportedException("Unhandled activity sub type.");
-                                    }
-                                }
-
-                                if (this.SubmitBatchSettings.eActivitySubType == SysCommon.ActSubTypes.BarCodeAssociation)
-                                {
-                                    SysCommon.BarCodeSymbologies i = (SysCommon.BarCodeSymbologies)Convert.ToInt32(actItem.DataViewItems[itemIdx]["ProductUnitBarCodeSymbologyEnum"]);
-                                    string symbologyPrefix = SysCommon.GetSymbologyPrefixFromSymbologyEnum(i);
-
-                                    XDocument xmlParams = XDocument.Parse(
-                                        "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                                        + "<params>"
-                                        + "<ProductUnitBarCodeRefno>" + actItem.DataViewItems[itemIdx]["ProductUnitBarCodeRefno"]
-                                        + "</ProductUnitBarCodeRefno>"
-                                        + "<ProductUnitRefno>" + actItem.DataViewItems[itemIdx]["ProductUnitRefno"]
-                                        + "</ProductUnitRefno>"
-                                        + "<ProductUnitBarCodeSymbologyPrefix>" + symbologyPrefix
-                                        + "</ProductUnitBarCodeSymbologyPrefix>"
-                                        + "<ProductUnitBarCodeCode>" + actItem.DataViewItems[itemIdx]["ProductUnitBarCodeCode"]
-                                        + "</ProductUnitBarCodeCode>"
-                                        + "<ProductUnitIsBC>" + actItem.DataViewItems[itemIdx]["ProductUnitIsBC"]
-                                        + "</ProductUnitIsBC>"
-                                        + "<ProductCode>" + actItem.DataViewItems[itemIdx]["ProductCode"] + "</ProductCode>"
-                                        + "<UnitCode>" + actItem.DataViewItems[itemIdx]["UnitCode"] + "</UnitCode>"
-                                        + "<ProductUnitBarCodeModifier1>"
-                                        + actItem.DataViewItems[itemIdx]["ProductUnitBarCodeModifier1"]
-                                        + "</ProductUnitBarCodeModifier1>"
-                                        + "</params>");
-
-                                    actItem.Submit(xmlParams, itemIdx);
-                                }
-                                else if (this.SubmitBatchSettings.eActivitySubType == SysCommon.ActSubTypes.PurchaseOrderWorkSheet)
-                                {
-                                    XDocument xmlParams = XDocument.Parse(
-                                        "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                                        + "<params>"
-                                        + "<ProductUnitRefno>" + actItem.DataViewItems[itemIdx]["ProductUnitRefno"]
-                                        + "</ProductUnitRefno>"
-                                        + "<ProductCode>" + actItem.DataViewItems[itemIdx]["ProductCode"] + "</ProductCode>"
-                                        + "<UnitCode>" + actItem.DataViewItems[itemIdx]["UnitCode"] + "</UnitCode>"
-                                        + "<ProductUnitBarCodeCode></ProductUnitBarCodeCode>"
-                                        + "<ProductUnitIsBC>" + false + "</ProductUnitIsBC>"
-                                        + "<ProductUnitBarCodeSymbologyPrefix></ProductUnitBarCodeSymbologyPrefix>"
-                                        + "<alt_qty>"
-                                        + actItem.DataViewItems[itemIdx]["ActivityItemPurchaseOrderWorkSheetQuantityOrdered"]
-                                        + "</alt_qty>"
-                                        + "<base_qty>"
-                                        + actItem.DataViewItems[itemIdx]["ActivityItemPurchaseOrderWorkSheetBaseQuantityOrdered"]
-                                        + "</base_qty>"
-                                        + "<wt_qty>"
-                                        + actItem.DataViewItems[itemIdx]["ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered"]
-                                        + "</wt_qty>"
-                                        + "<whs_id>" + actItem.DataViewItems[itemIdx]["LocationCode"] + "</whs_id>"
-                                        + "<refno>" + actItem.DataViewItems[itemIdx]["ActivityItemPurchaseOrderWorkSheetFKRefno"]
-                                        + "</refno>"
-                                        + "<itm_refno>" + actItem.DataViewItems[itemIdx]["ActivityItemPurchaseOrderWorkSheetFKRefno"]
-                                        + "</itm_refno>"
-                                        + "<alt_unit>" + actItem.DataViewItems[itemIdx]["UnitCode"] + "</alt_unit>"
-                                        + "<base_unit>" + actItem.ProdInfo.BaseUnitCode + "</base_unit>"
-                                        + "<wt_unit>" + actItem.ProdInfo.WeightUnitCode + "</wt_unit>"
-                                        + "</params>");
-
-                                    actItem.Submit(xmlParams, itemIdx);
-                                    //GC.Collect();
-                                    //GC.WaitForPendingFinalizers();
-                                    break;
-                                }
-                                else
-                                {
-                                    actDetail.DataViewDetails = actDetail.GetDataView(true);
-
-                                    if (actDetail.DataViewDetails.Count > 0)
-                                    {
-                                        //this.pbarStatus.Maximum = actDetail.DataViewDetails.Count;
-                                        //this.pbarStatus.Minimum = 0;
-
-                                        for (int detailIdx = 0; detailIdx <= actDetail.DataViewDetails.Count - 1; detailIdx++)
+                                        switch (this.SubmitBatchSettings.eActivitySubType)
                                         {
-                                            actDetail.GetInfo(detailIdx, false);
-                                            actDetail.Submit(detailIdx, null);
+                                            case SysCommon.ActSubTypes.Receiving:
+                                                actDetail = ActDetailFacade.GetActDetail(actItem, SysCommon.ActSubTypes.Receiving);
+                                                break;
 
-                                            //if (detailIdx % 100 == 0)
-                                            //{
-                                            //    this.pbarStatus.Value = detailIdx;
-                                            //}
+                                            case SysCommon.ActSubTypes.Picking:
+                                                actDetail = ActDetailFacade.GetActDetail(actItem, SysCommon.ActSubTypes.Picking);
+                                                break;
+
+                                            case SysCommon.ActSubTypes.Returns:
+                                                actDetail = ActDetailFacade.GetActDetail(actItem, SysCommon.ActSubTypes.Returns);
+                                                break;
+
+                                            case SysCommon.ActSubTypes.TransferFrom:
+                                                actDetail = ActDetailFacade.GetActDetail(actItem, SysCommon.ActSubTypes.TransferFrom);
+                                                break;
+
+                                            case SysCommon.ActSubTypes.CycleCounts:
+                                                actDetail = ActDetailFacade.GetActDetail(actItem, SysCommon.ActSubTypes.CycleCounts);
+                                                break;
+
+                                            case SysCommon.ActSubTypes.PhysicalCounts:
+                                                actDetail = ActDetailFacade.GetActDetail(actItem, SysCommon.ActSubTypes.PhysicalCounts);
+                                                break;
+
+                                            case SysCommon.ActSubTypes.Adjustment:
+                                                actDetail = ActDetailFacade.GetActDetail(actItem, SysCommon.ActSubTypes.Adjustment);
+                                                break;
+
+                                            case SysCommon.ActSubTypes.TicketFinished:
+                                                actDetail = ActDetailFacade.GetActDetail(actItem, SysCommon.ActSubTypes.TicketFinished);
+                                                break;
+
+                                            case SysCommon.ActSubTypes.TicketMaterial:
+                                                actDetail = ActDetailFacade.GetActDetail(actItem, SysCommon.ActSubTypes.TicketMaterial);
+                                                break;
+
+                                            case SysCommon.ActSubTypes.TicketAddProduct:
+                                                actDetail = ActDetailFacade.GetActDetail(actItem, SysCommon.ActSubTypes.TicketAddProduct);
+                                                break;
+
+                                            case SysCommon.ActSubTypes.PurchaseOrderWorkSheet:
+                                                actDetail = ActDetailFacade.GetActDetail(actItem, SysCommon.ActSubTypes.PurchaseOrderWorkSheet);
+                                                break;
+
+                                            default:
+                                                throw new NotSupportedException("Unhandled activity sub type.");
                                         }
                                     }
-                                }
 
-                                //GC.Collect();
-                                //GC.WaitForPendingFinalizers();
+                                    if (this.SubmitBatchSettings.eActivitySubType == SysCommon.ActSubTypes.BarCodeAssociation)
+                                    {
+                                        SysCommon.BarCodeSymbologies i = (SysCommon.BarCodeSymbologies)Convert.ToInt32(actItem.DataViewItems[itemIdx]["ProductUnitBarCodeSymbologyEnum"]);
+                                        string symbologyPrefix = SysCommon.GetSymbologyPrefixFromSymbologyEnum(i);
+
+                                        XDocument xmlParams = XDocument.Parse(
+                                                "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
+                                                + "<params>"
+                                                + "<ProductUnitBarCodeRefno>" + actItem.DataViewItems[itemIdx]["ProductUnitBarCodeRefno"]
+                                                + "</ProductUnitBarCodeRefno>"
+                                                + "<ProductUnitRefno>" + actItem.DataViewItems[itemIdx]["ProductUnitRefno"]
+                                                + "</ProductUnitRefno>"
+                                                + "<ProductUnitBarCodeSymbologyPrefix>" + symbologyPrefix
+                                                + "</ProductUnitBarCodeSymbologyPrefix>"
+                                                + "<ProductUnitBarCodeCode>" + actItem.DataViewItems[itemIdx]["ProductUnitBarCodeCode"]
+                                                + "</ProductUnitBarCodeCode>"
+                                                + "<ProductUnitIsBC>" + actItem.DataViewItems[itemIdx]["ProductUnitIsBC"]
+                                                + "</ProductUnitIsBC>"
+                                                + "<ProductCode>" + actItem.DataViewItems[itemIdx]["ProductCode"] + "</ProductCode>"
+                                                + "<UnitCode>" + actItem.DataViewItems[itemIdx]["UnitCode"] + "</UnitCode>"
+                                                + "<ProductUnitBarCodeModifier1>"
+                                                + actItem.DataViewItems[itemIdx]["ProductUnitBarCodeModifier1"]
+                                                + "</ProductUnitBarCodeModifier1>"
+                                                + "</params>");
+
+                                        actItem.Submit(xmlParams, itemIdx);
+                                    }
+                                    else if (this.SubmitBatchSettings.eActivitySubType == SysCommon.ActSubTypes.PurchaseOrderWorkSheet)
+                                    {
+                                        XDocument xmlParams = XDocument.Parse(
+                                                "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
+                                                + "<params>"
+                                                + "<ProductUnitRefno>" + actItem.DataViewItems[itemIdx]["ProductUnitRefno"]
+                                                + "</ProductUnitRefno>"
+                                                + "<ProductCode>" + actItem.DataViewItems[itemIdx]["ProductCode"] + "</ProductCode>"
+                                                + "<UnitCode>" + actItem.DataViewItems[itemIdx]["UnitCode"] + "</UnitCode>"
+                                                + "<ProductUnitBarCodeCode></ProductUnitBarCodeCode>"
+                                                + "<ProductUnitIsBC>" + false + "</ProductUnitIsBC>"
+                                                + "<ProductUnitBarCodeSymbologyPrefix></ProductUnitBarCodeSymbologyPrefix>"
+                                                + "<alt_qty>"
+                                                + actItem.DataViewItems[itemIdx]["ActivityItemPurchaseOrderWorkSheetQuantityOrdered"]
+                                                + "</alt_qty>"
+                                                + "<base_qty>"
+                                                + actItem.DataViewItems[itemIdx]["ActivityItemPurchaseOrderWorkSheetBaseQuantityOrdered"]
+                                                + "</base_qty>"
+                                                + "<wt_qty>"
+                                                + actItem.DataViewItems[itemIdx]["ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered"]
+                                                + "</wt_qty>"
+                                                + "<whs_id>" + actItem.DataViewItems[itemIdx]["LocationCode"] + "</whs_id>"
+                                                + "<refno>" + actItem.DataViewItems[itemIdx]["ActivityItemPurchaseOrderWorkSheetFKRefno"]
+                                                + "</refno>"
+                                                + "<itm_refno>" + actItem.DataViewItems[itemIdx]["ActivityItemPurchaseOrderWorkSheetFKRefno"]
+                                                + "</itm_refno>"
+                                                + "<alt_unit>" + actItem.DataViewItems[itemIdx]["UnitCode"] + "</alt_unit>"
+                                                + "<base_unit>" + actItem.ProdInfo.BaseUnitCode + "</base_unit>"
+                                                + "<wt_unit>" + actItem.ProdInfo.WeightUnitCode + "</wt_unit>"
+                                                + "</params>");
+
+                                        actItem.Submit(xmlParams, itemIdx);
+                                        //GC.Collect();
+                                        //GC.WaitForPendingFinalizers();
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        actDetail.DataViewDetails = actDetail.GetDataView(true);
+
+                                        if (actDetail.DataViewDetails.Count > 0)
+                                        {
+                                            //this.pbarStatus.Maximum = actDetail.DataViewDetails.Count;
+                                            //this.pbarStatus.Minimum = 0;
+
+                                            for (int detailIdx = 0; detailIdx <= actDetail.DataViewDetails.Count - 1; detailIdx++)
+                                            {
+                                                actDetail.GetInfo(detailIdx, false);
+                                                actDetail.Submit(detailIdx, null);
+
+                                                //if (detailIdx % 100 == 0)
+                                                //{
+                                                //    this.pbarStatus.Value = detailIdx;
+                                                //}
+                                            }
+                                        }
+                                    }
+
+                                    //GC.Collect();
+                                    //GC.WaitForPendingFinalizers();
+                                }
                             }
                         }
                     }
+
+                    // TODO: Resource strings
+                    await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Submit Batch", "Submission Complete.", "OK"));
                 }
+                catch (Exceptions.MessageOnlyException ex)
+                {
+                    await Device.InvokeOnMainThreadAsync(() => ex.Show(SysCommon.ActSubTypes.SubmitBatch));
+                }
+                catch (Exception ex)
+                {
+                    // TODO: Resource strings
+                    await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Submit Batch", ex.Message, "OK"));
+                }
+                finally
+                {
+                    //this.pbarStatus.Maximum = 100;
+                    //this.pbarStatus.Visible = false;
+                    this.Loading = false;
+                    await this.LoadData();
 
-                // TODO: Resource strings
-                await DisplayAlert("Submit Batch", "Submission Complete.", "OK");
-            }
-            catch (Exceptions.MessageOnlyException ex)
-            {
-                ex.Show(SysCommon.ActSubTypes.SubmitBatch);
-            }
-            catch (Exception ex)
-            {
-                // TODO: Resource strings
-                await DisplayAlert("Submit Batch", ex.Message, "OK");
-            }
-            finally
-            {
-                //this.pbarStatus.Maximum = 100;
-                //this.pbarStatus.Visible = false;
-                this.Loading = false;
-                this.ItemsList.Clear();
-                await this.LoadData();
-                this.cmdSubmit.IsEnabled = true;
+                    await Device.InvokeOnMainThreadAsync(() =>
+                    {
+                        this.ItemsList.Clear();
+                        this.cmdSubmit.IsEnabled = true;
+                    });
 
-                //GC.Collect();
-                //GC.WaitForPendingFinalizers();
-            }
+                    //GC.Collect();
+                    //GC.WaitForPendingFinalizers();
+                }
+            });
         }
 
         /// <summary>

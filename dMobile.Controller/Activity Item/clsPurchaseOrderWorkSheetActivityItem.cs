@@ -551,15 +551,6 @@ namespace dMobile.Controller
                             + " WHERE ActivityItemRefno = " + this.Refno;
                         cmndItem.ExecuteNonQuery();
                     }
-
-                    using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                    {
-                        cmndItem.CommandType = CommandType.Text;
-                        cmndItem.CommandText = "UPDATE tActivityItem "
-                            + "SET tActivityItem.ActivityItemStatus = " + (int)SysCommon.ActStatus.NoChange
-                            + " WHERE ActivityItemRefno = " + this.Refno;
-                        cmndItem.ExecuteNonQuery();
-                    }
                 }
             }
         }

@@ -873,7 +873,7 @@ namespace dMobile.View.Activity
 
                     if (!string.IsNullOrEmpty(scanArgs.ParseInfo.ProductIdentifier))
                     {
-                        string prodIdentifier = scanArgs.ParseInfo.ProductIdentifier.PadRight(20);
+                        string prodIdentifier = scanArgs.ParseInfo.ProductIdentifier;
 
                         using (SQLiteCommand cmndProdBCUnit = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
                         {

@@ -129,8 +129,8 @@ namespace dMobile.View.Options
                     {
                         if (await this.SaveChanges())
                         {
-                            this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                             this.DialogResult = DialogResult.OK;
+                            this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                             await this.Close();
                         }
                     }
@@ -138,8 +138,8 @@ namespace dMobile.View.Options
                     {
                         if (await this.CancelChanges())
                         {
-                            this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                             this.DialogResult = DialogResult.None;
+                            this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                         }
                     }
                 }
@@ -754,8 +754,8 @@ namespace dMobile.View.Options
         {
             if (await this.SaveChanges())
             {
-                this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                 this.DialogResult = DialogResult.OK;
+                this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                 await this.Close();
             }
         }
@@ -764,8 +764,8 @@ namespace dMobile.View.Options
         {
             if (await this.CancelChanges())
             {
-                this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                 this.DialogResult = DialogResult.None;
+                this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                 await this.Close();
             }
         }

@@ -1814,7 +1814,6 @@
 
                         if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
                         {
-                            await form.SaveChanges(this, new EventArgs());
                             xmlDoc = form.DisplayControlData;
                             prodUnitRefno = Convert.ToInt32(xmlDoc.Root.Element("ProductUnitRefno").Value);
                         }
