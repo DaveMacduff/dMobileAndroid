@@ -36,6 +36,9 @@ namespace dMobile.Bedrock
         [NonSerialized]
         private string fileASCIIZ = string.Empty;
 
+        [NonSerialized]
+        private static readonly object lockObject = new object();
+
         /// <summary>
         /// Contains adjustment settings file name.
         /// </summary>
@@ -293,11 +296,11 @@ namespace dMobile.Bedrock
             }
 
             // Create a FileStream to read with.
-            FileStream reader = new FileStream(fullPathToMyFile, FileMode.Open);
-
-            // Deserialize the stream to the object, and close the TextReader
-            adjustmentSettings = (AdjustmentSettings)serializer.Deserialize(reader);
-            reader.Close();
+            using (FileStream reader = new FileStream(fullPathToMyFile, FileMode.Open))
+            {
+                // Deserialize the stream to the object, and close the TextReader
+                adjustmentSettings = (AdjustmentSettings)serializer.Deserialize(reader);
+            }
 
             return adjustmentSettings;
         }
@@ -312,24 +315,27 @@ namespace dMobile.Bedrock
             XmlSerializer serializer = new XmlSerializer(typeof(AdjustmentSettings));
             bool saveComplete = false;
 
-            try
+            lock (lockObject)
             {
-                // use relection to get the current assembly path for the database
-                string appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-                string fullPathToMyFile = Path.Combine(appDir, this.FileName);
+                try
+                {
+                    // use relection to get the current assembly path for the database
+                    string appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+                    string fullPathToMyFile = Path.Combine(appDir, this.FileName);
 
-                // Create a FileStream to write with.
-                FileStream writer = new FileStream(fullPathToMyFile, FileMode.Create);
+                    // Create a FileStream to write with.
+                    using (FileStream writer = new FileStream(fullPathToMyFile, FileMode.Create))
+                    {
+                        // Serialize the object, and close the TextWriter
+                        serializer.Serialize(writer, adjustmentSettings);
+                    }
 
-                // Serialize the object, and close the TextWriter
-                serializer.Serialize(writer, adjustmentSettings);
-                writer.Close();
-
-                saveComplete = true;
-            }
-            catch
-            {
-                saveComplete = false;
+                    saveComplete = true;
+                }
+                catch
+                {
+                    saveComplete = false;
+                }
             }
 
             return saveComplete;

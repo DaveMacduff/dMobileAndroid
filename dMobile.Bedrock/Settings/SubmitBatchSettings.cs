@@ -16,6 +16,8 @@
 		private string m_strFileASCIIZ = string.Empty;
 		[NonSerialized()]
 		private string m_strFileName = "dMobileSubmitBatchSettings.xml";
+		[NonSerialized]
+		private static readonly object lockObject = new object();
 		private Int32 m_iActivityStatusIdx = 0;
 		private SysCommon.ActStatus m_eActivityStatus = SysCommon.ActStatus.NoChange;
 		private Int32 m_iActivitySubTypeIdx = 0;
@@ -95,10 +97,11 @@
 			}
 
 			// Create a FileStream to read with.
-			FileStream reader = new FileStream(strFullPathToMyFile, FileMode.Open);
-			// Deserialize the stream to the object, and close the TextReader
-			oSubmitBatchSettings = (SubmitBatchSettings)serializer.Deserialize(reader);
-			reader.Close();
+			using (FileStream reader = new FileStream(strFullPathToMyFile, FileMode.Open))
+            {
+				// Deserialize the stream to the object, and close the TextReader
+				oSubmitBatchSettings = (SubmitBatchSettings)serializer.Deserialize(reader);
+            }
 
 			return oSubmitBatchSettings;
 		}
@@ -114,24 +117,26 @@
 			XmlSerializer serializer = new XmlSerializer(typeof(SubmitBatchSettings));
 			bool bSaveComplete = false;
 
-			try
+			lock (lockObject)
 			{
-				// use relection to get the current assembly path for the database
-				string strAppDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-				string strFullPathToMyFile = Path.Combine(strAppDir, m_strFileName);
+				try
+				{
+					// use relection to get the current assembly path for the database
+					string strAppDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+					string strFullPathToMyFile = Path.Combine(strAppDir, m_strFileName);
 
-				// Create a FileStream to write with.
-				FileStream writer = new FileStream(strFullPathToMyFile, FileMode.Create);
-				// Serialize the object, and close the TextWriter
-				serializer.Serialize(writer, oSubmitBatchSettings);
-				writer.Close();
+					// Create a FileStream to write with.
+					using (FileStream writer = new FileStream(strFullPathToMyFile, FileMode.Create))
+                    {
+						serializer.Serialize(writer, oSubmitBatchSettings);
+                    }
 
-				bSaveComplete = true;
-
-			}
-			catch
-			{
-				bSaveComplete = false;
+					bSaveComplete = true;
+				}
+				catch
+				{
+					bSaveComplete = false;
+				}
 			}
 
 			return bSaveComplete;

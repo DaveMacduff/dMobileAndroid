@@ -17,12 +17,19 @@ namespace dMobile.Bedrock
         //VARIABLES
         [NonSerialized()]
         private string m_strFullClassName = "dMobile.CycleCountSettings";
+
         [NonSerialized()]
         private string m_strFilePath = string.Empty;
+
         [NonSerialized()]
         private string m_strFileASCIIZ = string.Empty;
+
         [NonSerialized()]
         private string m_strFileName = "dMobileCycleCountSettings.xml";
+
+        [NonSerialized]
+        private static readonly object lockObject = new object();
+
         private Int32 m_iSortBy1Index = 0;
         private string m_strSortBy1Value = "ActivityCountFKRefno ASC";
         private Int32 m_iSortBy2Index = -1;
@@ -130,10 +137,10 @@ namespace dMobile.Bedrock
             }
 
             // Create a FileStream to read with.
-            FileStream reader = new FileStream(strFullPathToMyFile, FileMode.Open);
-            // Deserialize the stream to the object, and close the TextReader
-            oCycleCountSettings = (CycleCountSettings)serializer.Deserialize(reader);
-            reader.Close();
+            using (FileStream reader = new FileStream(strFullPathToMyFile, FileMode.Open))
+            {
+                oCycleCountSettings = (CycleCountSettings)serializer.Deserialize(reader);
+            }
 
             return oCycleCountSettings;
         }
@@ -149,24 +156,27 @@ namespace dMobile.Bedrock
             XmlSerializer serializer = new XmlSerializer(typeof(CycleCountSettings));
             bool bSaveComplete = false;
 
-            try
+            lock (lockObject)
             {
-                // use relection to get the current assembly path for the database
-                string strAppDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-                string strFullPathToMyFile = Path.Combine(strAppDir, m_strFileName);
+                try
+                {
+                    // use relection to get the current assembly path for the database
+                    string strAppDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+                    string strFullPathToMyFile = Path.Combine(strAppDir, m_strFileName);
 
-                // Create a FileStream to write with.
-                FileStream writer = new FileStream(strFullPathToMyFile, FileMode.Create);
-                // Serialize the object, and close the TextWriter
-                serializer.Serialize(writer, oCycleCountSettings);
-                writer.Close();
+                    // Create a FileStream to write with.
+                    using (FileStream writer = new FileStream(strFullPathToMyFile, FileMode.Create))
+                    {
+                        serializer.Serialize(writer, oCycleCountSettings);
+                    }
 
-                bSaveComplete = true;
+                    bSaveComplete = true;
 
-            }
-            catch
-            {
-                bSaveComplete = false;
+                }
+                catch
+                {
+                    bSaveComplete = false;
+                }
             }
 
             return bSaveComplete;

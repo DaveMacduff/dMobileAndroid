@@ -64,6 +64,8 @@ namespace dMobile.View.Activity
             this.lblUnit.Text = "Bx";
             this.lblWeight.Text = "Weight";
             this.lblQty.Text = "Quantity";
+            this.btnSave.Text = "Save";
+            this.btnCancel.Text = "Cancel";
 
             if (!DesignMode.IsDesignModeEnabled)
             {
@@ -103,33 +105,19 @@ namespace dMobile.View.Activity
 
                 if (!this.Loading)
                 {
-                    if (keycode == Keycode.F1)
+                    if (keycode == Keycode.F1 || keycode == Keycode.Enter)
                     {
                         if (await this.SaveChanges())
                         {
                             this.DialogResult = DialogResult.OK;
                             this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                            await this.Close();
                         }
-                        else
-                        {
-                            this.DialogResult = DialogResult.None;
-                            await this.CancelChanges();
-                        }
-
-                        await this.Close();
                     }
                     else if (keycode == Keycode.Escape)
                     {
-                        if (await this.SaveChanges())
-                        {
-                            this.DialogResult = DialogResult.OK;
-                            this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-                        }
-                        else
-                        {
-                            this.DialogResult = DialogResult.None;
-                            await this.CancelChanges();
-                        }
+                        this.DialogResult = DialogResult.None;
+                        await this.CancelChanges();
                     }
                 }
             });
@@ -1023,6 +1011,22 @@ namespace dMobile.View.Activity
                 this.txtWtQty.CursorPosition = 0;
                 this.txtWtQty.SelectionLength = this.txtWtQty.Text.Length;
             }
+        }
+
+        private async void btnSave_Clicked(object sender, EventArgs e)
+        {
+            if (await this.SaveChanges())
+            {
+                this.DialogResult = DialogResult.OK;
+                this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                await this.Close();
+            }
+        }
+
+        private async void btnCancel_Clicked(object sender, EventArgs e)
+        {
+            this.DialogResult = DialogResult.None;
+            await this.CancelChanges();
         }
     }
 }

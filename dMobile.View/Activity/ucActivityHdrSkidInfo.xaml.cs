@@ -98,8 +98,6 @@ namespace dMobile.View.Activity
             }
 
             this.updnBarCodeModifier1.SelectedItem = this.SysEnv.CurrentBarCodeModifier1;
-
-            this.DisplayData();
         }
 
         /// <summary>
@@ -156,44 +154,7 @@ namespace dMobile.View.Activity
             }
 
             this.updnBarCodeModifier1.SelectedItem = this.SysEnv.CurrentBarCodeModifier1;
-
             this.IsNewSkid = true;
-
-            if (activity.SkidInfo != null && activity.SkidInfo.CurrSkid.SkidFKRefno != 0)
-            {
-                try
-                {
-                    this.IsNewSkid = false;
-                    this.SavedSkidInfo = activity.SkidInfo;
-
-                    // Update the skid info from dtec. e.g. Bucket totals may have been updated.
-                    this.SkidInfo = SysSkidInfo.GetSkidInfoFromBarCodeOrCode(activity.SkidInfo.CurrSkid.SkidCode.TrimEnd());
-
-                    // Update the saved skid, to reflect dtec changes after the call GetSkidInfoFromBarCodeOrCode.
-                    // The changes in dtec are valid.
-                    this.SavedSkidInfo = activity.SkidInfo;
-                    this.EnableControls();
-                }
-                catch (Exceptions.MessageOnlyException ex)
-                {
-                    this.SkidInfo = activity.SkidInfo;
-                    ex.Show(SysCommon.ActSubTypes.SkidInfo);
-                }
-                catch (Exception ex)
-                {
-                    this.SkidInfo = activity.SkidInfo;
-                    FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.SkidInfo, ex);
-                    errRpt.ShowDialog();
-                }
-
-                if (activity.SkidInfo == null || activity.SkidInfo.CurrSkid.SkidFKRefno != 0)
-                {
-                    this.LocMap.CurrLocMap = this.SkidInfo.CurrSkid.LocMap;
-                    this.ProdUnitRefno = this.SkidInfo.CurrSkid.ProdInfo.UnitRefno;
-                }
-            }
-
-            this.DisplayData();
         }
 
         /// <summary>
@@ -251,7 +212,6 @@ namespace dMobile.View.Activity
             }
 
             this.updnBarCodeModifier1.SelectedItem = this.SysEnv.CurrentBarCodeModifier1;
-
             this.IsNewSkid = true;
 
             // No active skid selected
@@ -312,8 +272,6 @@ namespace dMobile.View.Activity
                     this.ProdUnitRefno = this.SkidInfo.CurrSkid.ProdInfo.UnitRefno;
                 }
             }
-
-            this.DisplayData();
         }
 
         /// <summary>
@@ -322,6 +280,8 @@ namespace dMobile.View.Activity
         protected override async void OnAppearing()
         {
             base.OnAppearing();
+
+            this.lstDisplay.ItemsSource = this.ItemsList;
 
             MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
             {
@@ -387,11 +347,12 @@ namespace dMobile.View.Activity
         /// <summary>
         /// The OnDisappearing
         /// </summary>
-        protected override void OnDisappearing()
+        protected override async void OnDisappearing()
         {
-            base.OnDisappearing();
-
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
+            await this.ScannerDisable();
+
+            base.OnDisappearing();
         }
 
         protected override bool OnBackButtonPressed()
@@ -422,7 +383,6 @@ namespace dMobile.View.Activity
 
             return true;
         }
-
 
         public delegate void ReqCloseHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
         public delegate void ReqCancelDisableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
@@ -1645,9 +1605,13 @@ namespace dMobile.View.Activity
             {
                 this.updnBarCodeModifier1.SelectedItem = this.SysEnv.CurrentBarCodeModifier1;
 
-                await this.ScannerEnable();
+                if (!string.IsNullOrEmpty(this.txtSkidCode.Text))
+                {                    
+                    SetupNewSkidFromSkidCode();
+                }
 
-                this.txtSkidCode.Focus();
+                await this.ScannerEnable();
+                this.DisplayData();
 
                 this.ReqCancelEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                 this.ReqSaveEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
@@ -1691,38 +1655,55 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         private async void cmdDetail_Click(object sender, EventArgs e)
         {
-            if (this.SkidInfo.CurrSkid.SkidFKRefno != 0)
+            await Task.Run(async () =>
             {
-                await this.ScannerDisable();
-                Controller.Activity activity = ActivityFacade.GetActivity(SysCommon.ActSubTypes.SkidInfo);
-                activity.FKRefno = this.SkidInfo.CurrSkid.SkidFKRefno;
-                activity.Refno = this.SkidInfo.CurrSkid.SkidFKRefno;
-                activity.SkidInfo = this.SkidInfo;
-                ActItem actItem = ActItemFacade.GetActItem(activity, SysCommon.ActSubTypes.SkidInfo);
-                actItem.FKRefno = this.SkidInfo.CurrSkid.SkidFKRefno;
-                actItem.Refno = this.SkidInfo.CurrSkid.SkidFKRefno;
-                actItem.LocMap = this.LocMap;
-                actItem.ProdInfo = this.SkidInfo.CurrSkid.ProdInfo;
-                actItem.ProdInfo.Unit2BaseUnitFactor = ProductInfoTasks.GetUnitRelationFactor(actItem.ProdInfo);
-
-                FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucActivityDetailSkid, actItem, SysCommon.ActSubTypes.SkidInfo, this.callingActSubType);
-
-                if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
+                try
                 {
-                    XDocument xmlDoc = form.DisplayControlData;
+                    this.Loading = true;
+                    await this.ScannerDisable();
 
-                    if (this.SkidInfo.CurrSkid.IsConsumed)
+                    if (this.SkidInfo.CurrSkid.SkidFKRefno != 0)
                     {
-                        this.SkidInfo = new SysSkidInfo();
-                        this.ProdUnitRefno = 0;
-                        this.LocMap.CurrLocMap = this.SavedLocMap;
-                        this.IsNewSkid = true;
+                        Controller.Activity activity = ActivityFacade.GetActivity(SysCommon.ActSubTypes.SkidInfo);
+                        activity.FKRefno = this.SkidInfo.CurrSkid.SkidFKRefno;
+                        activity.Refno = this.SkidInfo.CurrSkid.SkidFKRefno;
+                        activity.SkidInfo = this.SkidInfo;
+                        ActItem actItem = ActItemFacade.GetActItem(activity, SysCommon.ActSubTypes.SkidInfo);
+                        actItem.FKRefno = this.SkidInfo.CurrSkid.SkidFKRefno;
+                        actItem.Refno = this.SkidInfo.CurrSkid.SkidFKRefno;
+                        actItem.LocMap = this.LocMap;
+                        actItem.ProdInfo = this.SkidInfo.CurrSkid.ProdInfo;
+                        actItem.ProdInfo.Unit2BaseUnitFactor = ProductInfoTasks.GetUnitRelationFactor(actItem.ProdInfo);
+
+                        FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucActivityDetailSkid, actItem, SysCommon.ActSubTypes.SkidInfo, this.callingActSubType);
+
+                        if (await Device.InvokeOnMainThreadAsync(async () => await form.DisplayControl.ShowDialog() == DialogResult.OK))
+                        {
+                            XDocument xmlDoc = form.DisplayControlData;
+
+                            if (this.SkidInfo.CurrSkid.IsConsumed)
+                            {
+                                this.SkidInfo = new SysSkidInfo();
+                                this.ProdUnitRefno = 0;
+                                this.LocMap.CurrLocMap = this.SavedLocMap;
+                                this.IsNewSkid = true;
+                            }
+                        }
+
+                        await Device.InvokeOnMainThreadAsync(() => this.DisplayData());
                     }
                 }
-         
-                await this.ScannerEnable();
-                this.DisplayData();
-            }
+                catch (Exception ex)
+                {
+                    // TODO: Resource strings
+                    await DisplayAlert("Error", "Error loading detail" + Environment.NewLine + ex.Message, "OK");
+                }
+                finally
+                {
+                    await this.ScannerEnable();
+                    this.Loading = false;
+                }
+            });
         }
 
         /// <summary>

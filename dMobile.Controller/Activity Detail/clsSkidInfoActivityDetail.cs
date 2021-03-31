@@ -293,33 +293,33 @@ namespace dMobile.Controller
                     cmndProdSchemeVar.CommandType = CommandType.Text;
                     //cmndProdSchemeVar.IndexName = "UQ_ProductSchemeVariantOnProductSchemeVariantNo";
 
-                    using (SQLiteDataReader drProdSchemeVar = cmndProdSchemeVar.ExecuteReader())
+                    foreach (DataRow drow in ds.Tables["cskiddetail"].Rows)
                     {
-                        foreach (DataRow drow in ds.Tables["cskiddetail"].Rows)
+                        // NOTE: The drow data is all strings because it was filled from xml data in SysSkidInfo.GetSkidDetail.
+                        // Need to do a data type conversion not just a cast.
+                        this.ActItem.ActHdr.FKRefno = Convert.ToInt32(drow["ActivityFKRefno"]);
+                        this.ActItem.ActHdr.Refno = Convert.ToInt32(drow["ActivityFKRefno"]);
+                        this.ActItem.FKRefno = Convert.ToInt32(drow["ActivityItemFKRefno"]);
+                        this.ActItem.Refno = Convert.ToInt32(drow["ActivityItemFKRefno"]);
+                        this.FKRefno = Convert.ToInt32(drow["ActivityDetailFKRefno"]);
+                        this.Refno = Convert.ToInt32(drow["ActivityDetailFKRefno"]);
+                        this.SchemeID = Convert.ToString(drow["ActivityDetailSchemeID"]);
+                        this.UniqueSchemeID = Convert.ToString(drow["ActivityDetailUniqueSchemeID"]);
+                        this.Quantity = Convert.ToDecimal(drow["ActivityDetailQuantity"]);
+                        this.BaseQuantity = Convert.ToDecimal(drow["ActivityDetailBaseQuantity"]);
+                        this.WeightQuantity = Convert.ToDecimal(drow["ActivityDetailWeightQuantity"]);
+
+                        SProductSchemeData tempSchemeData = this.SchemeData;
+                        tempSchemeData.LogisticUnitBatchLotNumber = Convert.ToString(drow["ActivityDetailLogisticUnitBatchLotNumber"]);
+                        tempSchemeData.SingleTradeItemSerialNumber = Convert.ToString(drow["ActivityDetailSingleTradeItemSerialNumber"]);
+                        tempSchemeData.LogisticUnitSkidNumber = ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno.ToString();
+                        tempSchemeData.VariantNumber = Convert.ToInt32(drow["ProductSchemeVariantNo"]);
+                        cmndProdSchemeVar.Parameters.Add(new SQLiteParameter("@productSchemeVariantNo", tempSchemeData.VariantNumber));
+
+                        //if (drProdSchemeVar.Seek(DbSeekOptions.FirstEqual, new object[] { tempSchemeData.VariantNumber }))
+                        //{
+                        using (SQLiteDataReader drProdSchemeVar = cmndProdSchemeVar.ExecuteReader())
                         {
-                            // NOTE: The drow data is all strings because it was filled from xml data in SysSkidInfo.GetSkidDetail.
-                            // Need to do a data type conversion not just a cast.
-                            this.ActItem.ActHdr.FKRefno = Convert.ToInt32(drow["ActivityFKRefno"]);
-                            this.ActItem.ActHdr.Refno = Convert.ToInt32(drow["ActivityFKRefno"]);
-                            this.ActItem.FKRefno = Convert.ToInt32(drow["ActivityItemFKRefno"]);
-                            this.ActItem.Refno = Convert.ToInt32(drow["ActivityItemFKRefno"]);
-                            this.FKRefno = Convert.ToInt32(drow["ActivityDetailFKRefno"]);
-                            this.Refno = Convert.ToInt32(drow["ActivityDetailFKRefno"]);
-                            this.SchemeID = Convert.ToString(drow["ActivityDetailSchemeID"]);
-                            this.UniqueSchemeID = Convert.ToString(drow["ActivityDetailUniqueSchemeID"]);
-                            this.Quantity = Convert.ToDecimal(drow["ActivityDetailQuantity"]);
-                            this.BaseQuantity = Convert.ToDecimal(drow["ActivityDetailBaseQuantity"]);
-                            this.WeightQuantity = Convert.ToDecimal(drow["ActivityDetailWeightQuantity"]);
-
-                            SProductSchemeData tempSchemeData = this.SchemeData;
-                            tempSchemeData.LogisticUnitBatchLotNumber = Convert.ToString(drow["ActivityDetailLogisticUnitBatchLotNumber"]);
-                            tempSchemeData.SingleTradeItemSerialNumber = Convert.ToString(drow["ActivityDetailSingleTradeItemSerialNumber"]);
-                            tempSchemeData.LogisticUnitSkidNumber = ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno.ToString();
-                            tempSchemeData.VariantNumber = Convert.ToInt32(drow["ProductSchemeVariantNo"]);
-                            cmndProdSchemeVar.Parameters.Add(new SQLiteParameter("@productSchemeVariantNo", tempSchemeData.VariantNumber));
-
-                            //if (drProdSchemeVar.Seek(DbSeekOptions.FirstEqual, new object[] { tempSchemeData.VariantNumber }))
-                            //{
                             if (drProdSchemeVar.Read())
                             {
                                 tempSchemeData.VariantCode = drProdSchemeVar.GetString(Convert.ToInt32(SysCommon.ProdSchemeVariantFields.Code));
@@ -327,60 +327,59 @@ namespace dMobile.Controller
                             }
                             else
                             {
-                                throw new Exception(string.Format("Unable to locate the product scheme variant no {0} in tProductSchemeVariant", tempSchemeData.VariantNumber));
+                                // throw new Exception(string.Format("Unable to locate the product scheme variant no {0} in tProductSchemeVariant", tempSchemeData.VariantNumber));
                             }
-                            //}
-
-                            string newDate = "01-01-1900";
-
-                            if (string.IsNullOrEmpty(drow["ActivityDetailLogisticUnitBestBeforeSellByDate"].ToString()))
-                            {
-                                tempSchemeData.LogisticUnitBestBeforeSellByDate = DateTime.Parse(newDate);
-                            }
-                            else
-                            {
-                                tempSchemeData.LogisticUnitBestBeforeSellByDate = Convert.ToDateTime(drow["ActivityDetailLogisticUnitBestBeforeSellByDate"]);
-                            }
-
-                            if (string.IsNullOrEmpty(drow["ActivityDetailLogisticUnitExpiryUseByDate"].ToString()))
-                            {
-                                tempSchemeData.LogisticUnitExpiryUseByDate = DateTime.Parse(newDate);
-                            }
-                            else
-                            {
-                                tempSchemeData.LogisticUnitExpiryUseByDate = Convert.ToDateTime(drow["ActivityDetailLogisticUnitExpiryUseByDate"]);
-                            }
-
-                            if (string.IsNullOrEmpty(drow["ActivityDetailLogisticUnitProductionDate"].ToString()))
-                            {
-                                tempSchemeData.LogisticUnitProductionDate = DateTime.Parse(newDate);
-                            }
-                            else
-                            {
-                                tempSchemeData.LogisticUnitProductionDate = Convert.ToDateTime(drow["ActivityDetailLogisticUnitProductionDate"]);
-                            }
-
-                            if (string.IsNullOrEmpty(drow["ActivityDetailLogisticUnitDueDate"].ToString()))
-                            {
-                                tempSchemeData.LogisticUnitDueDate = DateTime.Parse(newDate);
-                            }
-                            else
-                            {
-                                tempSchemeData.LogisticUnitDueDate = Convert.ToDateTime(drow["ActivityDetailLogisticUnitDueDate"]);
-                            }
-
-                            if (string.IsNullOrEmpty(drow["ActivityDetailLogisticUnitPackagingDate"].ToString()))
-                            {
-                                tempSchemeData.LogisticUnitPackagingDate = DateTime.Parse(newDate);
-                            }
-                            else
-                            {
-                                tempSchemeData.LogisticUnitPackagingDate = Convert.ToDateTime(drow["ActivityDetailLogisticUnitPackagingDate"]);
-                            }
-
-                            this.SchemeData = tempSchemeData;
-                            this.FillDataView();
                         }
+
+                        string newDate = "01-01-1900";
+
+                        if (string.IsNullOrEmpty(drow["ActivityDetailLogisticUnitBestBeforeSellByDate"].ToString()))
+                        {
+                            tempSchemeData.LogisticUnitBestBeforeSellByDate = DateTime.Parse(newDate);
+                        }
+                        else
+                        {
+                            tempSchemeData.LogisticUnitBestBeforeSellByDate = Convert.ToDateTime(drow["ActivityDetailLogisticUnitBestBeforeSellByDate"]);
+                        }
+
+                        if (string.IsNullOrEmpty(drow["ActivityDetailLogisticUnitExpiryUseByDate"].ToString()))
+                        {
+                            tempSchemeData.LogisticUnitExpiryUseByDate = DateTime.Parse(newDate);
+                        }
+                        else
+                        {
+                            tempSchemeData.LogisticUnitExpiryUseByDate = Convert.ToDateTime(drow["ActivityDetailLogisticUnitExpiryUseByDate"]);
+                        }
+
+                        if (string.IsNullOrEmpty(drow["ActivityDetailLogisticUnitProductionDate"].ToString()))
+                        {
+                            tempSchemeData.LogisticUnitProductionDate = DateTime.Parse(newDate);
+                        }
+                        else
+                        {
+                            tempSchemeData.LogisticUnitProductionDate = Convert.ToDateTime(drow["ActivityDetailLogisticUnitProductionDate"]);
+                        }
+
+                        if (string.IsNullOrEmpty(drow["ActivityDetailLogisticUnitDueDate"].ToString()))
+                        {
+                            tempSchemeData.LogisticUnitDueDate = DateTime.Parse(newDate);
+                        }
+                        else
+                        {
+                            tempSchemeData.LogisticUnitDueDate = Convert.ToDateTime(drow["ActivityDetailLogisticUnitDueDate"]);
+                        }
+
+                        if (string.IsNullOrEmpty(drow["ActivityDetailLogisticUnitPackagingDate"].ToString()))
+                        {
+                            tempSchemeData.LogisticUnitPackagingDate = DateTime.Parse(newDate);
+                        }
+                        else
+                        {
+                            tempSchemeData.LogisticUnitPackagingDate = Convert.ToDateTime(drow["ActivityDetailLogisticUnitPackagingDate"]);
+                        }
+
+                        this.SchemeData = tempSchemeData;
+                        this.FillDataView();
                     }
                 }
             }
@@ -471,9 +470,9 @@ namespace dMobile.Controller
                     ActivityDetailSingleTradeItemSerialNumber = Convert.ToString(row["ActivityDetailSingleTradeItemSerialNumber"] != DBNull.Value ? row["ActivityDetailSingleTradeItemSerialNumber"] : null),
                     ActivityDetailLogisticUnitBatchLotNumber = Convert.ToString(row["ActivityDetailLogisticUnitBatchLotNumber"] != DBNull.Value ? row["ActivityDetailLogisticUnitBatchLotNumber"] : null),
                     ActivityDetailLogisticUnitProductionDate = Convert.ToDateTime(row["ActivityDetailLogisticUnitProductionDate"] != DBNull.Value ? row["ActivityDetailLogisticUnitProductionDate"] : null),
-                    ActivityDetailFKRefno = Convert.ToInt32(row["LocationCode"] != DBNull.Value ? row["LocationCode"] : null),
-                    ProductSchemeVariantCode = Convert.ToString(row["LocationCode"] != DBNull.Value ? row["LocationCode"] : null),
-                    ProductUnitRefno = Convert.ToInt32(row["LocationCode"] != DBNull.Value ? row["LocationCode"] : null),
+                    ActivityDetailFKRefno = Convert.ToInt32(row["ActivityDetailFKRefno"] != DBNull.Value ? row["ActivityDetailFKRefno"] : null),
+                    ProductSchemeVariantCode = Convert.ToString(row["ProductSchemeVariantCode"] != DBNull.Value ? row["ProductSchemeVariantCode"] : null),
+                    ProductUnitRefno = Convert.ToInt32(row["ProductUnitRefno"] != DBNull.Value ? row["ProductUnitRefno"] : null),
                     ProductSchemeVariantNo = Convert.ToInt32(row["ProductSchemeVariantNo"] != DBNull.Value ? row["ProductSchemeVariantNo"] : null),
                     BaseUnitCode = Convert.ToString(row["BaseUnitCode"] != DBNull.Value ? row["BaseUnitCode"] : null),
                     ProductUnitIsBC = Convert.ToBoolean(row["ProductUnitIsBC"] != DBNull.Value ? row["ProductUnitIsBC"] : null),
@@ -640,7 +639,7 @@ namespace dMobile.Controller
         /// <param name="idx"></param>
         public override void SelectDetail(int idx)
         {
-            if (idx >= 0)
+            if (idx >= 0 && this.DataViewDetails != null && this.DataViewDetails.Count > 0)
             {
                 DataRowView drow = this.DataViewDetails[idx];
                 this.FKRefno = Convert.ToInt32(drow["ActivityDetailFKRefno"]);

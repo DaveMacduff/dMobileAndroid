@@ -844,7 +844,7 @@ namespace dMobile.Controller
                     ActivityDetailExtra4Text = Convert.ToString(row["ActivityDetailExtra4Text"] != DBNull.Value ? row["ActivityDetailExtra4Text"] : null)
                 };
 
-                if (DateTime.TryParse(Convert.ToString(row["ActivityDetailExtra5Date"]), out DateTime _))
+                if (!string.IsNullOrEmpty(Convert.ToString(row["ActivityDetailExtra5Date"])) && DateTime.TryParse(Convert.ToString(row["ActivityDetailExtra5Date"]), out DateTime _))
                 {
                     adjustmentDetail.ActivityDetailExtra5Date = Convert.ToDateTime(row["ActivityDetailExtra5Date"] != DBNull.Value ? row["ActivityDetailExtra5Date"] : null);
                 }
@@ -1049,7 +1049,7 @@ namespace dMobile.Controller
                     ActivityDetailExtra4Text = Convert.ToString(row["ActivityDetailExtra4Text"] != DBNull.Value ? row["ActivityDetailExtra4Text"] : null)
                 };
 
-                if (DateTime.TryParse(Convert.ToString(row["ActivityDetailExtra5Date"]), out DateTime _))
+                if (!string.IsNullOrEmpty(Convert.ToString(row["ActivityDetailExtra5Date"])) && DateTime.TryParse(Convert.ToString(row["ActivityDetailExtra5Date"]), out DateTime _))
                 {
                     adjustmentDetail.ActivityDetailExtra5Date = Convert.ToDateTime(row["ActivityDetailExtra5Date"] != DBNull.Value ? row["ActivityDetailExtra5Date"] : null);
                 }
@@ -1086,7 +1086,7 @@ namespace dMobile.Controller
                 this.ActExtra.Text3 = Convert.ToString(DataViewDetails[idx]["ActivityDetailExtra3Text"]);
                 this.ActExtra.Text4 = Convert.ToString(DataViewDetails[idx]["ActivityDetailExtra4Text"]);
                 
-                if (DateTime.TryParse(Convert.ToString(DataViewDetails[idx]["ActivityDetailExtra5Date"]), out DateTime _))
+                if (!string.IsNullOrEmpty(Convert.ToString(DataViewDetails[idx]["ActivityDetailExtra5Date"])) && DateTime.TryParse(Convert.ToString(DataViewDetails[idx]["ActivityDetailExtra5Date"]), out DateTime _))
                 {    
                     this.ActExtra.DateTime5 = Convert.ToDateTime(DataViewDetails[idx]["ActivityDetailExtra5Date"]);
                 }

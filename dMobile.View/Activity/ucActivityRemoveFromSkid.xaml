@@ -8,8 +8,9 @@
         <AbsoluteLayout VerticalOptions="Center">
             <Grid Padding="10" AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0,0,1,1">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="80*"/>
+                    <RowDefinition Height="65*"/>
                     <RowDefinition Height="20*"/>
+                    <RowDefinition Height="15*"/>
                 </Grid.RowDefinitions>
 
                 <Grid Grid.Row="0" HorizontalOptions="CenterAndExpand" VerticalOptions="CenterAndExpand">
@@ -23,14 +24,13 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
-                    <Label x:Name="lblQty" Grid.Row="0" Grid.Column="0"/>
-                    <Entry x:Name="txtAltQty" Grid.Row="0" Grid.Column="1" Keyboard="Numeric" TextChanged="txtAltQty_TextChanged" Focused="txtAltQty_Focused"/>
-                    <Label x:Name="lblUnit" Grid.Row="0" Grid.Column="2"/>
+                    <Label x:Name="lblQty" Grid.Row="0" Grid.Column="0" VerticalOptions="Center"/>
+                    <Entry x:Name="txtAltQty" Grid.Row="0" Grid.Column="1" Keyboard="Numeric" TextChanged="txtAltQty_TextChanged" Focused="txtAltQty_Focused" VerticalOptions="Center"/>
+                    <Label x:Name="lblUnit" Grid.Row="0" Grid.Column="2" VerticalOptions="Center"/>
 
-                    <Label x:Name="lblWeight" Grid.Row="1" Grid.Column="0"/>
-                    <Entry x:Name="txtWtQty" Grid.Row="1" Grid.Column="1" Keyboard="Numeric" TextChanged="txtWtQty_TextChanged" Focused="txtWtQty_Focused"/>
-                    <Label x:Name="lblWtUnit" Grid.Row="1" Grid.Column="2"/>
-
+                    <Label x:Name="lblWeight" Grid.Row="1" Grid.Column="0" VerticalOptions="Center"/>
+                    <Entry x:Name="txtWtQty" Grid.Row="1" Grid.Column="1" Keyboard="Numeric" TextChanged="txtWtQty_TextChanged" Focused="txtWtQty_Focused" VerticalOptions="Center"/>
+                    <Label x:Name="lblWtUnit" Grid.Row="1" Grid.Column="2" VerticalOptions="Center"/>
                 </Grid>
 
                 <Frame Grid.Row="1" OutlineColor="{DynamicResource BorderColor}">
@@ -46,6 +46,11 @@
                         </ListView.ItemTemplate>
                     </ListView>
                 </Frame>
+
+                <Grid Grid.Row="2">
+                    <Button x:Name="btnSave" Text="Save" Grid.Row="0" Grid.Column="0" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" Clicked="btnSave_Clicked"/>
+                    <Button x:Name="btnCancel" Text="Cancel" Grid.Row="0" Grid.Column="1" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" Clicked="btnCancel_Clicked"/>
+                </Grid>
             </Grid>
 
             <ActivityIndicator IsVisible="{Binding Loading}" 

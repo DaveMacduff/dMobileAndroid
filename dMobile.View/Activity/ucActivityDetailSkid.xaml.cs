@@ -117,7 +117,7 @@ namespace dMobile.View.Activity
                             await this.CancelChanges();
                         }
                     }
-                    else if (keycode == Keycode.Del || keycode == Keycode.Clear || keycode == Keycode.Back)
+                    else if (keycode == Keycode.Del || keycode == Keycode.Clear)
                     {
                         await this.ScannerDisable();
 
@@ -159,6 +159,25 @@ namespace dMobile.View.Activity
                     {
                         ToggleScannerMode();
                     }
+
+                    // TODO: Add arrow key navigation. Window focus keeps dropping in this view for some reason, will figure out in a later build
+                    //else if (keycode == Keycode.DpadDown)
+                    //{
+                    //    if (this.dataGridMainActivity.SelectedItem != null && Convert.ToInt32(this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem)) < this.DataGridMainActivityItemsList.Count - 1)
+                    //    {
+                    //        this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem) + 1];
+                    //        this.dataGridMainActivity.ScrollTo(this.dataGridMainActivity.SelectedItem, ScrollToPosition.MakeVisible, true);
+                    //    }
+                    //}
+                    //else if (keycode == Keycode.DpadUp)
+                    //{
+                    //    this.dataGridMainActivity.Focus();
+                    //    if (this.dataGridMainActivity.SelectedItem != null && Convert.ToInt32(this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem)) > 0)
+                    //    {
+                    //        this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem) - 1];
+                    //        this.dataGridMainActivity.ScrollTo(this.dataGridMainActivity.SelectedItem, ScrollToPosition.MakeVisible, true);
+                    //    }
+                    //}
                 }
             });
 
@@ -1100,32 +1119,34 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         private async Task RefreshData()
         {
-            await this.ScannerDisable();
-
-            this.DataViewActivityDetails = this.ActDetail.GetDataView(false);
-            this.DataGridMainActivityItemsList = this.ActDetail.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
-            this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
-
             try
             {
+                await this.ScannerDisable();
+
+                this.DataViewActivityDetails = this.ActDetail.GetDataView(false);
                 this.ActDetail.Refresh();
+                this.DataGridMainActivityItemsList = this.ActDetail.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
+                this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
+
+                this.ItemsList.Clear();
+
+                if (this.DataViewActivityDetails.Count > 0 && this.DataGridMainActivityItemsList.Count > 0)
+                {
+                    this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[0];
+                    this.ActDetail.SelectDetail(0);
+                }
+
+                this.DisplaySummaryData();
             }
             catch (Exception ex)
             {
                 // TODO: Resource strings
                 await DisplayAlert(this.GetControlDescription(), ex.Message, "OK");
             }
-
-            this.ItemsList.Clear();
-
-            if (this.DataViewActivityDetails.Count > 0 && this.DataGridMainActivityItemsList.Count > 0)
+            finally
             {
-                this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[0];
-                this.ActDetail.SelectDetail(0);
+                await this.ScannerEnable();
             }
-
-            await this.ScannerEnable();
-            this.DisplaySummaryData();
         }
 
         /// <summary>
@@ -1138,8 +1159,6 @@ namespace dMobile.View.Activity
         {
             if (!SysEnvironment.GetInstance().IsApplicationExitInvoked)
             {
-                await this.ScannerEnable();
-
                 //savedKeyPreviewState = (this.TopLevelControl as Form).KeyPreview;
                 //(this.TopLevelControl as Form).KeyPreview = true;
                 //(this.TopLevelControl as Form).KeyUp += new KeyEventHandler(ucActivityDetailSkid_KeyUp);
@@ -1176,15 +1195,23 @@ namespace dMobile.View.Activity
             {
                 if (await DisplayAlert(this.GetControlDescription(), "Do You Wish To Remove This Record From This Skid?", "Yes", "No"))
                 {
-                    // special case: only 1, so remove!
-                    SysCommon.SFillQuantity fillQty = new SysCommon.SFillQuantity
+                    try
                     {
-                        Quantity = 0,
-                        BaseQuantity = 0,
-                        WeightQuantity = 0
-                    };
+                        // special case: only 1, so remove!
+                        SysCommon.SFillQuantity fillQty = new SysCommon.SFillQuantity
+                        {
+                            Quantity = 0,
+                            BaseQuantity = 0,
+                            WeightQuantity = 0
+                        };
 
-                    await UpdateQty(fillQty, false);
+                        await UpdateQty(fillQty, false);
+                    }
+                    catch (Exception ex)
+                    {
+                        // TODO: Resource strings
+                        await DisplayAlert("Error", "Error removing record from skid." + Environment.NewLine + ex.Message, "OK");
+                    }
                 }
             }
             else
@@ -1193,17 +1220,25 @@ namespace dMobile.View.Activity
 
                 if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
                 {
-                    XDocument xmlDoc = form.DisplayControlData;
-
-                    // Create an activity detail for it now
-                    SysCommon.SFillQuantity fillQty = new SysCommon.SFillQuantity
+                    try
                     {
-                        Quantity = decimal.Parse(xmlDoc.Root.Element("alt_qty").Value),
-                        BaseQuantity = decimal.Parse(xmlDoc.Root.Element("base_qty").Value),
-                        WeightQuantity = decimal.Parse(xmlDoc.Root.Element("wt_qty").Value)
-                    };
+                        XDocument xmlDoc = form.DisplayControlData;
 
-                    await UpdateQty(fillQty, true);
+                        // Create an activity detail for it now
+                        SysCommon.SFillQuantity fillQty = new SysCommon.SFillQuantity
+                        {
+                            Quantity = decimal.Parse(xmlDoc.Root.Element("alt_qty").Value),
+                            BaseQuantity = decimal.Parse(xmlDoc.Root.Element("base_qty").Value),
+                            WeightQuantity = decimal.Parse(xmlDoc.Root.Element("wt_qty").Value)
+                        };
+
+                        await UpdateQty(fillQty, true);
+                    }
+                    catch (Exception ex)
+                    {
+                        // TODO: Resource strings
+                        await DisplayAlert("Error", "Error removing record from skid." + Environment.NewLine + ex.Message, "OK");
+                    }
                 }
             }
         }

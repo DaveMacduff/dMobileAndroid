@@ -42,6 +42,9 @@ namespace dMobile.Bedrock
         [NonSerialized]
         private string fileName = "dMobilePrinterSettings.xml";
 
+        [NonSerialized]
+        private static readonly object lockObject = new object();
+
         /// <summary>
         /// Enables shipping label printer.
         /// </summary>
@@ -351,7 +354,7 @@ namespace dMobile.Bedrock
             PrinterSettings prnSettings = new PrinterSettings();
 
             // use relection to get the current assembly path for the database
-            string appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal); ;
+            string appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
             string fullPathToMyFile = Path.Combine(appDir, this.fileName);
 
             if (!File.Exists(fullPathToMyFile))
@@ -360,11 +363,11 @@ namespace dMobile.Bedrock
             }
 
             // Create a FileStream to read with.
-            FileStream reader = new FileStream(fullPathToMyFile, FileMode.Open);
-
-            // Deserialize the stream to the object, and close the TextReader
-            prnSettings = (PrinterSettings)serializer.Deserialize(reader);
-            reader.Close();
+            using (FileStream reader = new FileStream(fullPathToMyFile, FileMode.Open))
+            {
+                // Deserialize the stream to the object, and close the TextReader
+                prnSettings = (PrinterSettings)serializer.Deserialize(reader);
+            }
 
             return prnSettings;
         }
@@ -379,24 +382,26 @@ namespace dMobile.Bedrock
             XmlSerializer serializer = new XmlSerializer(typeof(PrinterSettings));
             bool saveComplete = false;
 
-            try
+            lock (lockObject)
             {
-                // use relection to get the current assembly path for the database
-                string appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-                string fullPathToMyFile = Path.Combine(appDir, this.fileName);
+                try
+                {
+                    // use relection to get the current assembly path for the database
+                    string appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+                    string fullPathToMyFile = Path.Combine(appDir, this.fileName);
 
-                // Create a FileStream to write with.
-                FileStream writer = new FileStream(fullPathToMyFile, FileMode.Create);
+                    // Create a FileStream to write with.
+                    using (FileStream writer = new FileStream(fullPathToMyFile, FileMode.Create))
+                    {
+                        serializer.Serialize(writer, prnSettings);
+                    }
 
-                // Serialize the object, and close the TextWriter
-                serializer.Serialize(writer, prnSettings);
-                writer.Close();
-
-                saveComplete = true;
-            }
-            catch
-            {
-                saveComplete = false;
+                    saveComplete = true;
+                }
+                catch
+                {
+                    saveComplete = false;
+                }
             }
 
             return saveComplete;

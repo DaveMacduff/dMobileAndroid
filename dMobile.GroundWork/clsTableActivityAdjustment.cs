@@ -352,8 +352,8 @@ namespace dMobile.GroundWork
 
                                 cmndAdj.Parameters.Add(new SQLiteParameter("@warehouseLocationMapRefno", whsLocMapRefno));
                                 cmndAdj.Parameters.Add(new SQLiteParameter("@activityAdjustmentDateTime", DateTime.Parse(dt.ToShortDateString())));
-                                cmndAdj.Parameters.Add(new SQLiteParameter("@activityAdjustmentDescription", actAdjTypeDesc));
-                                cmndAdj.Parameters.Add(new SQLiteParameter("@activityAdjustmentTypeDescription", drow["ActivityAdjustmentDescription"].ToString()));
+                                cmndAdj.Parameters.Add(new SQLiteParameter("@activityAdjustmentDescription", drow["ActivityAdjustmentDescription"].ToString()));
+                                cmndAdj.Parameters.Add(new SQLiteParameter("@activityAdjustmentTypeDescription", actAdjTypeDesc));
 
                                 cmndAdj.ExecuteNonQuery();
 

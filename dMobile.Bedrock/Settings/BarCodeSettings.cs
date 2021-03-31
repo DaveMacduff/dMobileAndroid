@@ -46,6 +46,9 @@ namespace dMobile.Bedrock
         [NonSerialized]
         private string fileASCIIZ = string.Empty;
 
+        [NonSerialized]
+        private static readonly object lockObject = new object();
+
         /// <summary>
         /// Rule: Sometimes a bar code is fully EAN/UCC 128 Symbol parsable EXCEPT the actual symbology is Code 128
         /// </summary>
@@ -1603,38 +1606,32 @@ namespace dMobile.Bedrock
             }
         }
 
-        private static object lockObject = new object();
-
         /// <summary>
         /// Load and object of type BarCodeSettings from a serialized xml file.
         /// </summary>
         /// <returns>Object of type BarCodeSettings</returns>
         public SysBarCodeSettings LoadData()
         {
-            lock (lockObject)
+            XmlSerializer serializer = new XmlSerializer(typeof(SysBarCodeSettings));
+            SysBarCodeSettings barCodeSettings = new SysBarCodeSettings();
+
+            // use relection to get the current assembly path for the database
+            string appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+            string fullPathToMyFile = Path.Combine(appDir, this.FileName);
+
+            if (!File.Exists(fullPathToMyFile))
             {
-                XmlSerializer serializer = new XmlSerializer(typeof(SysBarCodeSettings));
-                SysBarCodeSettings barCodeSettings = new SysBarCodeSettings();
-
-                // use relection to get the current assembly path for the database
-                string appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-                string fullPathToMyFile = Path.Combine(appDir, this.FileName);
-
-                if (!File.Exists(fullPathToMyFile))
-                {
-                    this.SaveData(ref barCodeSettings);
-                }
-
-                // Create a FileStream to read with.
-                using (FileStream reader = new FileStream(fullPathToMyFile, FileMode.Open))
-                {
-                    // Deserialize the stream to the object, and close the TextReader
-                    barCodeSettings = (SysBarCodeSettings)serializer.Deserialize(reader);
-                    reader.Close();
-                }
-
-                return barCodeSettings;
+                this.SaveData(ref barCodeSettings);
             }
+
+            // Create a FileStream to read with.
+            using (FileStream reader = new FileStream(fullPathToMyFile, FileMode.Open))
+            {
+                // Deserialize the stream to the object, and close the TextReader
+                barCodeSettings = (SysBarCodeSettings)serializer.Deserialize(reader);
+            }
+
+            return barCodeSettings;
         }
 
         /// <summary>
@@ -1647,25 +1644,27 @@ namespace dMobile.Bedrock
             XmlSerializer serializer = new XmlSerializer(typeof(SysBarCodeSettings));
             bool isSaveComplete = false;
 
-            try
+            lock (lockObject)
             {
-                // use relection to get the current assembly path for the database
-                string appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-                string fullPathToMyFile = Path.Combine(appDir, this.FileName);
-
-                // Create a FileStream to write with.
-                using (FileStream writer = new FileStream(fullPathToMyFile, FileMode.Create))
+                try
                 {
-                    // Serialize the object, and close the TextWriter
-                    serializer.Serialize(writer, barCodeSettings);
-                    writer.Close();
-                }
+                    // use relection to get the current assembly path for the database
+                    string appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+                    string fullPathToMyFile = Path.Combine(appDir, this.FileName);
 
-                isSaveComplete = true;
-            }
-            catch
-            {
-                isSaveComplete = false;
+                    // Create a FileStream to write with.
+                    using (FileStream writer = new FileStream(fullPathToMyFile, FileMode.Create))
+                    {
+                        // Serialize the object, and close the TextWriter
+                        serializer.Serialize(writer, barCodeSettings);
+                    }
+
+                    isSaveComplete = true;
+                }
+                catch
+                {
+                    isSaveComplete = false;
+                }
             }
 
             return isSaveComplete;

@@ -16,6 +16,8 @@
         private string m_strFileASCIIZ = string.Empty;
         [NonSerialized()]
         private string m_strFileName = "dMobileReturnsSettings.xml";
+        [NonSerialized]
+        private static readonly object lockObject = new object();
         private Int32 m_iSortBy1Index = 0;
         private string m_strSortBy1Value = "ActivityReturnsFKRefno ASC";
         private Int32 m_iSortBy2Index = -1;
@@ -151,10 +153,11 @@
             }
 
             // Create a FileStream to read with.
-            FileStream reader = new FileStream(strFullPathToMyFile, FileMode.Open);
-            // Deserialize the stream to the object, and close the TextReader
-            oReturnsSettings = (ReturnsSettings)serializer.Deserialize(reader);
-            reader.Close();
+            using (FileStream reader = new FileStream(strFullPathToMyFile, FileMode.Open))
+            {
+                // Deserialize the stream to the object, and close the TextReader
+                oReturnsSettings = (ReturnsSettings)serializer.Deserialize(reader);
+            }
 
             return oReturnsSettings;
         }
@@ -170,24 +173,27 @@
             XmlSerializer serializer = new XmlSerializer(typeof(ReturnsSettings));
             bool bSaveComplete = false;
 
-            try
+            lock (lockObject)
             {
-                // use relection to get the current assembly path for the database
-                string strAppDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-                string strFullPathToMyFile = Path.Combine(strAppDir, m_strFileName);
+                try
+                {
+                    // use relection to get the current assembly path for the database
+                    string strAppDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+                    string strFullPathToMyFile = Path.Combine(strAppDir, m_strFileName);
 
-                // Create a FileStream to write with.
-                FileStream writer = new FileStream(strFullPathToMyFile, FileMode.Create);
-                // Serialize the object, and close the TextWriter
-                serializer.Serialize(writer, oReturnsSettings);
-                writer.Close();
+                    // Create a FileStream to write with.
+                    using (FileStream writer = new FileStream(strFullPathToMyFile, FileMode.Create))
+                    {
+                        // Serialize the object, and close the TextWriter
+                        serializer.Serialize(writer, oReturnsSettings);
+                    }
 
-                bSaveComplete = true;
-
-            }
-            catch
-            {
-                bSaveComplete = false;
+                    bSaveComplete = true;
+                }
+                catch
+                {
+                    bSaveComplete = false;
+                }
             }
 
             return bSaveComplete;
