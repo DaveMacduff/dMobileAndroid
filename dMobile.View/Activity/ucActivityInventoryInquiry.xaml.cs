@@ -936,79 +936,84 @@ namespace dMobile.View.Activity
         /// <param name="scanArgs"></param>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
-            this.BarParse = scanArgs.ParseInfo;
-
-            await this.ScannerDisable();
-
-            try
+            await Task.Run(async () =>
             {
-                if (!string.IsNullOrEmpty(this.BarParse.ActFKRefno))
-                {
-                    // TODO: Resource strings
-                    throw new Exception("Scanning an activity reference # is not supported here.");
-                }
-                else if (!string.IsNullOrEmpty(this.BarParse.ActItemFKRefno))
-                {
-                    // TODO: Resource strings
-                    throw new Exception("Scanning an activity item reference # is not supported here.");
-                }
-                else if (!string.IsNullOrEmpty(this.BarParse.ProductIdentifier))
-                {
-                    int prodUnitRefno = 0;
-                    prodUnitRefno = await SysShared.IdentifyProductScanned(this.ActSubType, this.BarParse, prodUnitRefno);
+                this.Loading = true;
+                this.BarParse = scanArgs.ParseInfo;
 
-                    if (prodUnitRefno != 0)
+                await this.ScannerDisable();
+
+                try
+                {
+                    if (!string.IsNullOrEmpty(this.BarParse.ActFKRefno))
                     {
-                        ProductInfo tempProdInfo = new ProductInfo();
-                        tempProdInfo = ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
-                        this.ActItem.ProdInfo = tempProdInfo;
-                        //<issue="13609" author="RD" date="2016/02/22"/>
-                        SysShared.AssertSuppressedErrorsAgainstScheme(this.ActItem.ProdInfo, this.BarParse);
-                        this.cmdSelectProduct.Text = this.ActItem.ProdInfo.Code;
+                        // TODO: Resource strings
+                        throw new Exception("Scanning an activity reference # is not supported here.");
+                    }
+                    else if (!string.IsNullOrEmpty(this.BarParse.ActItemFKRefno))
+                    {
+                        // TODO: Resource strings
+                        throw new Exception("Scanning an activity item reference # is not supported here.");
+                    }
+                    else if (!string.IsNullOrEmpty(this.BarParse.ProductIdentifier))
+                    {
+                        int prodUnitRefno = 0;
+                        prodUnitRefno = await SysShared.IdentifyProductScanned(this.ActSubType, this.BarParse, prodUnitRefno);
+
+                        if (prodUnitRefno != 0)
+                        {
+                            ProductInfo tempProdInfo = new ProductInfo();
+                            tempProdInfo = ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
+                            this.ActItem.ProdInfo = tempProdInfo;
+                            //<issue="13609" author="RD" date="2016/02/22"/>
+                            SysShared.AssertSuppressedErrorsAgainstScheme(this.ActItem.ProdInfo, this.BarParse);
+                            await Device.InvokeOnMainThreadAsync(() => this.cmdSelectProduct.Text = this.ActItem.ProdInfo.Code);
+                        }
+                        else
+                        {
+                            // TODO: Resource strings
+                            await Device.InvokeOnMainThreadAsync(() => this.cmdSelectProduct.Text = "Select Product");
+                        }
+                    }
+                    else if (!string.IsNullOrEmpty(this.BarParse.SSCC18))
+                    {
+                        // TODO: Resource strings
+                        throw new Exception("Scanning a shipping container bar code is not supported here.");
+                    }
+                    else if (!string.IsNullOrEmpty(this.BarParse.LocationIdentifier))
+                    {
+                        this.LocMap.CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(this.BarParse.LocationIdentifier));
+
+                        if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
+                        {
+                            await Device.InvokeOnMainThreadAsync(() => this.cmdLocation.Text = LocationMapTasks.GetCurrentReadableLocation());
+                        }
+                        else
+                        {
+                            // TODO: Resource strings
+                            await Device.InvokeOnMainThreadAsync(() => this.cmdLocation.Text = "Set Location");
+                        }
                     }
                     else
                     {
                         // TODO: Resource strings
-                        this.cmdSelectProduct.Text = "Select Product";
+                        throw new Exception("Scanned bar code type is not supported here.");
                     }
                 }
-                else if (!string.IsNullOrEmpty(this.BarParse.SSCC18))
+                catch (Exception ex)
                 {
-                    // TODO: Resource strings
-                    throw new Exception("Scanning a shipping container bar code is not supported here.");
-                }
-                else if (!string.IsNullOrEmpty(this.BarParse.LocationIdentifier))
-                {
-                    this.LocMap.CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(this.BarParse.LocationIdentifier));
-
-                    if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
+                    await Device.InvokeOnMainThreadAsync(async () =>
                     {
-                        this.cmdLocation.Text = LocationMapTasks.GetCurrentReadableLocation();
-                    }
-                    else
-                    {
-                        // TODO: Resource strings
-                        this.cmdLocation.Text = "Set Location";
-                    }
+                        FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                        await errRpt.ShowDialog();
+                    });
                 }
-                else
+                finally
                 {
-                    // TODO: Resource strings
-                    throw new Exception("Scanned bar code type is not supported here.");
+                    await this.ScannerEnable();
+                    this.Loading = false;
                 }
-            }
-            catch (Exception ex)
-            {
-                await Device.InvokeOnMainThreadAsync(async () =>
-                {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
-                    await errRpt.ShowDialog();
-                });
-            }
-            finally
-            {
-                await this.ScannerEnable();
-            }
+            });
         }
 
         /// <summary>
@@ -1020,8 +1025,8 @@ namespace dMobile.View.Activity
         {
             if (!SysEnvironment.GetInstance().IsApplicationExitInvoked)
             {
-                await this.ScannerEnable();
                 this.tmrActivityInventoryInquiry_Tick(sender, e);
+                await this.ScannerEnable();
             }
         }
 
@@ -1522,42 +1527,59 @@ namespace dMobile.View.Activity
         /// </summary>
         private async Task DisplayLocationDefaults()
         {
-            try
+            await Task.Run(async () =>
             {
-                if (0 < this.ActItem.ProdInfo.Refno)
+                try
                 {
-                    this.ActItem.DataViewItems = this.GetDataViewLocationOnly();
-                    this.DesignDataGridLocationOnly();
-                    this.dataGridMain.ItemsSource = this.DataGridMainItemsList;
-                }
-                else
-                {
-                    // A warehouse only query will result in to much data. Restrict it to at least a section.
-                    if (0 >= this.LocMap.CurrLocMap.WhsLocMapRefno)
-                    {
-                        // TODO: Resource strings
-                        throw new Exception("The set location must have a warehouse selected.");
-                    }
+                    this.Loading = true;
 
-                    if (this.LocMap.CurrLocMap.IsSectionTracked && 0 >= this.LocMap.CurrLocMap.SectLocMapRefno)
+                    if (0 < this.ActItem.ProdInfo.Refno)
                     {
-                        // TODO: Resource strings
-                        throw new Exception("The set location must have a section selected.");
-                    }
+                        this.ActItem.DataViewItems = this.GetDataViewLocationOnly();
 
-                    this.ActItem.DataViewItems = this.GetDataViewProductOnly();
-                    this.DesignDataGridProductOnly();
-                    this.dataGridMain.ItemsSource = this.DataGridMainItemsList;
+                        await Device.InvokeOnMainThreadAsync(() =>
+                        {
+                            this.DesignDataGridLocationOnly();
+                            this.dataGridMain.ItemsSource = this.DataGridMainItemsList;
+                        });
+                    }
+                    else
+                    {
+                        // A warehouse only query will result in to much data. Restrict it to at least a section.
+                        if (0 >= this.LocMap.CurrLocMap.WhsLocMapRefno)
+                        {
+                            // TODO: Resource strings
+                            throw new Exception("The set location must have a warehouse selected.");
+                        }
+
+                        if (this.LocMap.CurrLocMap.IsSectionTracked && 0 >= this.LocMap.CurrLocMap.SectLocMapRefno)
+                        {
+                            // TODO: Resource strings
+                            throw new Exception("The set location must have a section selected.");
+                        }
+
+                        this.ActItem.DataViewItems = this.GetDataViewProductOnly();
+
+                        await Device.InvokeOnMainThreadAsync(() =>
+                        {
+                            this.DesignDataGridProductOnly();
+                            this.dataGridMain.ItemsSource = this.DataGridMainItemsList;
+                        });
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                await Device.InvokeOnMainThreadAsync(async () =>
+                catch (Exception ex)
                 {
-                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
-                    await errRpt.ShowDialog();
-                });
-            }
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                    {
+                        FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                        await errRpt.ShowDialog();
+                    });
+                }
+                finally
+                {
+                    this.Loading = false;
+                }
+            });
         }
 
         #endregion
