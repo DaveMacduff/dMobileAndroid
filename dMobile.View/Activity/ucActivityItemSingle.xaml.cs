@@ -246,7 +246,7 @@ namespace dMobile.View.Activity
             catch (Exception ex)
             {
                 // TODO: Resource strings
-                await DisplayAlert("Error", "this.ucActivityItem_GotFocus threw an error " + ex, "OK");
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "this.ucActivityItem_GotFocus threw an error " + ex, "OK"));
             }
             finally
             {
@@ -687,7 +687,7 @@ namespace dMobile.View.Activity
                         {
                             case SysCommon.ActPickingQtyUnderValLevels.ValidateWarnAndContinue:
                                 // TODO: Resource strings
-                                if (!await DisplayAlert("Quantity Validation", ex.Message + Environment.NewLine + "Continue?", "Yes", "No"))
+                                if (await Device.InvokeOnMainThreadAsync(async () => !await DisplayAlert("Quantity Validation", ex.Message + Environment.NewLine + "Continue?", "Yes", "No")))
                                 {
                                     isReadyToSave = false;
                                     this.IsShowDataValidMsg = false;
@@ -698,7 +698,7 @@ namespace dMobile.View.Activity
                             case SysCommon.ActPickingQtyUnderValLevels.ValidateWarnAndStop:
                                 //MessageBox.Show(ex.Message,"Quantity Validation",MessageBoxButtons.OK,MessageBoxIcon.Hand, MessageBoxDefaultButton.Button1);
                                 // TOOD: Resource strings
-                                await DisplayAlert("Quantity Validation", ex.Message, "OK");
+                                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Quantity Validation", ex.Message, "OK"));
                                 isReadyToSave = false;
                                 this.IsShowDataValidMsg = false;
 
@@ -806,7 +806,7 @@ namespace dMobile.View.Activity
                         {
                             case SysCommon.ActPickingQtyUnderValLevels.ValidateWarnAndContinue:
                                 // TODO: Resource strings
-                                if (!await DisplayAlert("Quantity Validation", ex.Message + Environment.NewLine + "Continue?", "Yes", "No"))
+                                if (await Device.InvokeOnMainThreadAsync(async () => !await DisplayAlert("Quantity Validation", ex.Message + Environment.NewLine + "Continue?", "Yes", "No")))
                                 {
                                     isReadyToClose = false;
                                     this.IsShowDataValidMsg = false;
@@ -816,7 +816,7 @@ namespace dMobile.View.Activity
 
                             case SysCommon.ActPickingQtyUnderValLevels.ValidateWarnAndStop:
                                 // TODO: Resource strings
-                                await DisplayAlert("Quantity Validation", ex.Message, "OK");
+                                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Quantity Validation", ex.Message, "OK"));
                                 isReadyToClose = false;
                                 this.IsShowDataValidMsg = false;
 
@@ -986,7 +986,7 @@ namespace dMobile.View.Activity
                         if (!await ((PickingActivity)ActHdr).ClearSalesOrderBeingPicked(true))
                         {
                             // TODO: Resource strings
-                            await DisplayAlert("Clear Picker", "Unable to clear the current picker.", "OK");
+                            await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Clear Picker", "Unable to clear the current picker.", "OK"));
                         }
                     }
 
@@ -1090,7 +1090,7 @@ namespace dMobile.View.Activity
                         if (!await ((PickingActivity)ActHdr).ClearSalesOrderBeingPicked(true))
                         {
                             // TODO: Resource strings
-                            await DisplayAlert("Clear Picker", "Unable to clear the current picker.", "OK");
+                            await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Clear Picker", "Unable to clear the current picker.", "OK"));
                         }
                     }
 
@@ -1292,7 +1292,7 @@ namespace dMobile.View.Activity
             if (this.ActSubType == SysCommon.ActSubTypes.Receiving && !this.SysEnv.SysSettings.IsDisconnectedMode && this.SysEnv.SysSettings.IsSkidTrackingModule && this.SysEnv.SysSettings.AskRecvPrintAllSkidLabelsUponSave)
             {
                 // TODO: Resource strings
-                if (await DisplayAlert("Skid Labels", "Do you wish to print all skid label(s)?", "Yes", "No"))
+                if (await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Skid Labels", "Do you wish to print all skid label(s)?", "Yes", "No")))
                 {
                     StringBuilder xmlString = new StringBuilder();
                     XmlWriter xml = XmlWriter.Create(xmlString);
@@ -1446,10 +1446,13 @@ namespace dMobile.View.Activity
                                     //    MessageBoxButtons.YesNo,
                                     //    MessageBoxIcon.Question,
                                     //    MessageBoxDefaultButton.Button2) == DialogResult.Yes)
-                                    if (await DisplayAlert(this.GetControlDescription(),
-                                        string.Format("A line item does not exist for this warehouse {0} and product \'{1}.\'"
-                                        + Environment.NewLine + "Do you wish to create one?", this.LocMap.CurrLocMap.WhsCode, ProductInfoTasks.GetCurrReadableProdBCUnit(tempProdInfo)),
-                                        "Yes", "No"))
+                                    if (await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(
+                                        this.GetControlDescription(),
+                                        string.Format("A line item does not exist for this warehouse {0} and product \'{1}.\'" + Environment.NewLine + "Do you wish to create one?",
+                                        this.LocMap.CurrLocMap.WhsCode,
+                                        ProductInfoTasks.GetCurrReadableProdBCUnit(tempProdInfo)),
+                                        "Yes",
+                                        "No")))
                                     {
                                         isAddNewItem = true;
                                     }
@@ -1465,7 +1468,6 @@ namespace dMobile.View.Activity
 
                                     // This is a little dangerous we assume that the new row idx will be the last one.
                                     foundRowIdx = this.ActItem.DataViewItems.Count - 1;
-
                                     actItemFoundRefno = this.ActItem.Refno;
                                 }
                                 else
@@ -1813,19 +1815,25 @@ namespace dMobile.View.Activity
         {
             if (0 < this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno)
             {
-                this.cmdAddSkidIsEnabled = true;
-                this.cmdLocationIsEnabled = false;
+                Device.InvokeOnMainThreadAsync(() =>
+                {
+                    this.cmdAddSkidIsEnabled = true;
+                    this.cmdLocationIsEnabled = false;
 
-                // TODO: Resource strings
-                this.cmdSelectSkidText = "Skid# " + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode;
+                    // TODO: Resource strings
+                    this.cmdSelectSkidText = "Skid# " + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode;
+                });
             }
             else
             {
-                this.cmdLocationIsEnabled = true;
-                this.cmdAddSkidIsEnabled = false;
+                Device.InvokeOnMainThreadAsync(() =>
+                {
+                    this.cmdLocationIsEnabled = true;
+                    this.cmdAddSkidIsEnabled = false;
 
-                // TODO: Resource strings
-                this.cmdSelectSkidText = "Select Skid";
+                    // TODO: Resource strings
+                    this.cmdSelectSkidText = "Select Skid";
+                });
             }
 
             if (0 < this.LocMap.CurrLocMap.WhsLocMapRefno)
@@ -1836,11 +1844,11 @@ namespace dMobile.View.Activity
             else
             {
                 // TODO: Resource strings
-                this.cmdLocationText = "Set Location";
+                Device.BeginInvokeOnMainThread(() => this.cmdLocationText = "Set Location");
             }
 
             // TODO: Resource strings
-            this.lblProductBCUnit.Text = "Product: " + ProductInfoTasks.GetCurrReadableProdBCUnit(this.ActItem.ProdInfo);
+            Device.BeginInvokeOnMainThread(() => this.lblProductBCUnit.Text = "Product: " + ProductInfoTasks.GetCurrReadableProdBCUnit(this.ActItem.ProdInfo));
 
             ////lstDisplay.Items.Clear()
 
@@ -1853,21 +1861,21 @@ namespace dMobile.View.Activity
                 decimal ordWtQty = Convert.ToDecimal(items[idx]["ActivityItemPickingWeightQuantityOrdered"]);
 
                 // TODO: Resource strings
-                this.lblOrderedQuantity.Text = "Ordered: " + SysCommon.NiceQuantityReadableString(this.ActItem.ProdInfo, ordQty, ordWtQty);
+                Device.BeginInvokeOnMainThread(() => this.lblOrderedQuantity.Text = "Ordered: " + SysCommon.NiceQuantityReadableString(this.ActItem.ProdInfo, ordQty, ordWtQty));
 
                 decimal shpQty = Convert.ToDecimal(this.ActItem.DataViewItems[idx]["ActivityItemPickingQuantityShipped"]);
                 decimal shpWtQty = Convert.ToDecimal(this.ActItem.DataViewItems[idx]["ActivityItemPickingWeightQuantityShipped"]);
 
                 // TODO: Resource strings
-                this.lblShippedQuantity.Text = "Shipped: " + SysCommon.NiceQuantityReadableString(this.ActItem.ProdInfo, shpQty, shpWtQty);
+                Device.BeginInvokeOnMainThread(() => this.lblShippedQuantity.Text = "Shipped: " + SysCommon.NiceQuantityReadableString(this.ActItem.ProdInfo, shpQty, shpWtQty));
 
                 if (Convert.ToString(items[idx]["IsActivityItemPickingComment"]) == "*")
                 {
-                    this.lblIsItemComment.Text = "C";
+                    Device.InvokeOnMainThreadAsync(() => this.lblIsItemComment.Text = "C");
                 }
                 else
                 {
-                    this.lblIsItemComment.Text = string.Empty;
+                    Device.BeginInvokeOnMainThread(() => this.lblIsItemComment.Text = string.Empty);
                 }
 
                 items[idx].BeginEdit();
@@ -1885,8 +1893,7 @@ namespace dMobile.View.Activity
                     if (Convert.ToString(items[idx]["IsActivityItemPickingComment"]) == "*")
                     {
                         // TODO: Resource strings
-                        DisplayAlert("Comment", this.ActItem.GetComment(this.ActItem.Refno), "OK");
-
+                        Device.BeginInvokeOnMainThread(() => DisplayAlert("Comment", this.ActItem.GetComment(this.ActItem.Refno), "OK"));
                     }
                 }
 
@@ -1896,29 +1903,32 @@ namespace dMobile.View.Activity
                 string prodUnitSizeDesc = Convert.ToString(items[idx]["ProductUnitSizeDescription"]);
                 string prodBrandDesc = Convert.ToString(items[idx]["ProductBrandDescription"]);
 
-                // TODO: Resource strings
-                this.ItemsList.Clear();
-                this.ItemsList.Add("DESC: " + prodDesc.Trim());
-                this.ItemsList.Add("SIZE: " + prodUnitSizeDesc.Trim() + ", " + prodBrandDesc.Trim());
-                this.ItemsList.Add("LOCATION: " + locCode.Trim() + " " + locName.Trim());
+                Device.InvokeOnMainThreadAsync(() =>
+                {
+                    // TODO: Resource strings
+                    this.ItemsList.Clear();
+                    this.ItemsList.Add("DESC: " + prodDesc.Trim());
+                    this.ItemsList.Add("SIZE: " + prodUnitSizeDesc.Trim() + ", " + prodBrandDesc.Trim());
+                    this.ItemsList.Add("LOCATION: " + locCode.Trim() + " " + locName.Trim());
+                });
             }
 
             if (idx == items.Count - 1)
             {
-                this.cmdNext.IsEnabled = false;
+                Device.BeginInvokeOnMainThread(() => this.cmdNext.IsEnabled = false);
             }
             else
             {
-                this.cmdNext.IsEnabled = true;
+                Device.BeginInvokeOnMainThread(() => this.cmdNext.IsEnabled = true);
             }
 
             if (idx == 0 || items.Count <= 0)
             {
-                this.cmdPrevious.IsEnabled = false;
+                Device.BeginInvokeOnMainThread(() => this.cmdPrevious.IsEnabled = false);
             }
             else
             {
-                this.cmdPrevious.IsEnabled = true;
+                Device.BeginInvokeOnMainThread(() => this.cmdPrevious.IsEnabled = true);
             }
         }
 
@@ -2187,7 +2197,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         private async Task RefreshData()
         {
-            this.ItemsList.Clear();
+            await Device.InvokeOnMainThreadAsync(() => this.ItemsList.Clear());
 
             try
             {
@@ -2196,7 +2206,7 @@ namespace dMobile.View.Activity
             catch (Exception ex)
             {
                 // TODO: Resource strings
-                await DisplayAlert(this.GetControlDescription(), ex.Message, "OK");
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), ex.Message, "OK"));
 
             }
 
@@ -2240,18 +2250,23 @@ namespace dMobile.View.Activity
                 else
                 {
                     // TODO: Resource strings
-                    this.cmdLocationText = "Set Location";
+                    await Device.InvokeOnMainThreadAsync(() => this.cmdLocationText = "Set Location");
                 }
 
-                this.cmdPrevious.IsEnabled = true;
-                this.cmdNext.IsEnabled = true;
+                await Device.InvokeOnMainThreadAsync(() =>
+                {
+                    this.cmdPrevious.IsEnabled = true;
+                    this.cmdNext.IsEnabled = true;
+                });
             }
             else
             {
-                this.cmdPrevious.IsEnabled = false;
-                this.cmdNext.IsEnabled = false;
-
-                this.ItemsList.Clear();
+                await Device.InvokeOnMainThreadAsync(() =>
+                {
+                    this.cmdPrevious.IsEnabled = false;
+                    this.cmdNext.IsEnabled = false;
+                    this.ItemsList.Clear();
+                });
             }
 
             this.DisplayData();
@@ -2733,7 +2748,7 @@ namespace dMobile.View.Activity
                     await this.ScannerDisable();
 
                     // TODO: Resource strings
-                    if (await DisplayAlert("Skid", "Add the ENTIRE skid to this activity?", "Yes", "No"))
+                    if (await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Skid", "Add the ENTIRE skid to this activity?", "Yes", "No")))
                     {
                         prodUnitRefno = this.ActHdr.SkidInfo.CurrSkid.ProdInfo.UnitRefno;
                         actItemFoundRefno = this.ActItem.GetRefnoFromProdUnitRefno(prodUnitRefno);
@@ -2936,7 +2951,7 @@ namespace dMobile.View.Activity
                                 {
                                     case SysCommon.ActPickingQtyUnderValLevels.ValidateWarnAndContinue:
                                         // TODO: Resource strings
-                                        if (!await DisplayAlert("Quantity Validation", ex.Message + Environment.NewLine + "Continue?", "Yes", "No"))
+                                        if (await Device.InvokeOnMainThreadAsync(async () => !await DisplayAlert("Quantity Validation", ex.Message + Environment.NewLine + "Continue?", "Yes", "No")))
                                         {
                                             isValid = false;
                                         }
@@ -2945,7 +2960,7 @@ namespace dMobile.View.Activity
 
                                     case SysCommon.ActPickingQtyUnderValLevels.ValidateWarnAndStop:
                                         // TODO: Resource strings
-                                        await DisplayAlert("Quantity Validation", ex.Message, "OK");
+                                        await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Quantity Validation", ex.Message, "OK"));
                                         isValid = false;
 
                                         break;
@@ -2955,7 +2970,7 @@ namespace dMobile.View.Activity
                         else
                         {
                             // TODO: Resource strings
-                            await DisplayAlert(this.GetControlDescription(), "Last Item", "OK");
+                            await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Last Item", "OK"));
                         }
                     }
 
@@ -3034,7 +3049,7 @@ namespace dMobile.View.Activity
                             {
                                 case SysCommon.ActPickingQtyUnderValLevels.ValidateWarnAndContinue:
                                     // TODO: Resource strings
-                                    if (!await DisplayAlert("Quantity Validation", ex.Message + Environment.NewLine + "Continue?", "Yes", "No"))
+                                    if (await Device.InvokeOnMainThreadAsync(async () => !await DisplayAlert("Quantity Validation", ex.Message + Environment.NewLine + "Continue?", "Yes", "No")))
                                     {
                                         isValid = false;
                                     }
@@ -3043,7 +3058,7 @@ namespace dMobile.View.Activity
 
                                 case SysCommon.ActPickingQtyUnderValLevels.ValidateWarnAndStop:
                                     // TODO: Resource strings
-                                    await DisplayAlert("Quantity Validation", ex.Message, "OK");
+                                    await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Quantity Validation", ex.Message, "OK"));
 
                                     isValid = false;
                                     break;
@@ -3125,7 +3140,7 @@ namespace dMobile.View.Activity
                 if (!string.IsNullOrEmpty(comment))
                 {
                     // TODO: Resource strings
-                    await DisplayAlert("Item Comment", comment, "OK");
+                    await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Item Comment", comment, "OK"));
                 }
             }
             catch (Exceptions.MessageOnlyException ex)
@@ -3168,7 +3183,7 @@ namespace dMobile.View.Activity
                 if (!string.IsNullOrEmpty(msg))
                 {
                     // TODO: Resource strings
-                    await DisplayAlert(this.GetControlDescription(), msg, "OK");
+                    await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), msg, "OK"));
                 }
             }
             catch (Exceptions.MessageOnlyException ex)

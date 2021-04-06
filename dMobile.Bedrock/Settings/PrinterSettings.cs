@@ -43,7 +43,10 @@ namespace dMobile.Bedrock
         private string fileName = "dMobilePrinterSettings.xml";
 
         [NonSerialized]
-        private static readonly object lockObject = new object();
+        private readonly object writeLockObject = new object();
+
+        [NonSerialized]
+        private readonly object readLockObject = new object();
 
         /// <summary>
         /// Enables shipping label printer.
@@ -350,26 +353,29 @@ namespace dMobile.Bedrock
         /// <returns>Object of type PrinterSettings</returns>
         public PrinterSettings LoadData()
         {
-            XmlSerializer serializer = new XmlSerializer(typeof(PrinterSettings));
-            PrinterSettings prnSettings = new PrinterSettings();
-
-            // use relection to get the current assembly path for the database
-            string appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-            string fullPathToMyFile = Path.Combine(appDir, this.fileName);
-
-            if (!File.Exists(fullPathToMyFile))
+            lock (readLockObject)
             {
-                this.SaveData(ref prnSettings);
-            }
+                XmlSerializer serializer = new XmlSerializer(typeof(PrinterSettings));
+                PrinterSettings prnSettings = new PrinterSettings();
 
-            // Create a FileStream to read with.
-            using (FileStream reader = new FileStream(fullPathToMyFile, FileMode.Open))
-            {
-                // Deserialize the stream to the object, and close the TextReader
-                prnSettings = (PrinterSettings)serializer.Deserialize(reader);
-            }
+                // use relection to get the current assembly path for the database
+                string appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+                string fullPathToMyFile = Path.Combine(appDir, this.fileName);
 
-            return prnSettings;
+                if (!File.Exists(fullPathToMyFile))
+                {
+                    this.SaveData(ref prnSettings);
+                }
+
+                // Create a FileStream to read with.
+                using (FileStream reader = new FileStream(fullPathToMyFile, FileMode.Open))
+                {
+                    // Deserialize the stream to the object, and close the TextReader
+                    prnSettings = (PrinterSettings)serializer.Deserialize(reader);
+                }
+
+                return prnSettings;
+            }
         }
 
         /// <summary>
@@ -379,11 +385,11 @@ namespace dMobile.Bedrock
         /// <returns>True if save was successful else false</returns>
         public bool SaveData(ref PrinterSettings prnSettings)
         {
-            XmlSerializer serializer = new XmlSerializer(typeof(PrinterSettings));
-            bool saveComplete = false;
-
-            lock (lockObject)
+            lock (writeLockObject)
             {
+                XmlSerializer serializer = new XmlSerializer(typeof(PrinterSettings));
+                bool saveComplete = false;
+
                 try
                 {
                     // use relection to get the current assembly path for the database
@@ -402,9 +408,9 @@ namespace dMobile.Bedrock
                 {
                     saveComplete = false;
                 }
-            }
 
-            return saveComplete;
+                return saveComplete;
+            }
         }
 
         #region IPrinterSettingsEventPublisher Members

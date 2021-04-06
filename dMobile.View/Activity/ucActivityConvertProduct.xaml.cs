@@ -173,7 +173,7 @@ namespace dMobile.View.Activity
             catch (Exception ex)
             {
                 // TODO: Resource strings
-                await DisplayAlert("Error", "this.ucActivityConvertUnit_GotFocus threw an error " + ex, "OK");
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "this.ucActivityConvertUnit_GotFocus threw an error " + ex, "OK"));
             }
         }
 

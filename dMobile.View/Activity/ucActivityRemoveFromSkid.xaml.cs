@@ -129,7 +129,7 @@ namespace dMobile.View.Activity
             catch (Exception ex)
             {
                 // TODO: Resource strings
-                await DisplayAlert("Error", "this.ucActivityRemoveFromSkid_GotFocus threw an error " + ex, "OK");
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "this.ucActivityRemoveFromSkid_GotFocus threw an error " + ex, "OK"));
             }
         }
 
@@ -600,12 +600,12 @@ namespace dMobile.View.Activity
             {
                 if (await this.IsReadyToSave())
                 {
-                    saveComplete = this.IsValidData();
+                    saveComplete = await this.IsValidData();
                     this.IsChangesMade = false;
                 }
                 else
                 {
-                    await DisplayAlert(this.GetControlDescription(), "Data failed validation. Check your data.", "OK");
+                    await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Data failed validation. Check your data.", "OK"));
                 }
             }
             catch (Exception ex)
@@ -780,7 +780,7 @@ namespace dMobile.View.Activity
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        private bool IsValidData()
+        private async Task<bool> IsValidData()
         {
             bool isRetVal = false;
 
@@ -823,17 +823,17 @@ namespace dMobile.View.Activity
             }
             else if (qty > lineQty)
             {
-                DisplayAlert(this.GetControlDescription(), "Cannot remove more than exists on skid!", "OK");
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Cannot remove more than exists on skid!", "OK"));
             }
             else if (qty < 0)
             {
-                DisplayAlert(this.GetControlDescription(), "Cannot remove negative quantity!", "OK");
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Cannot remove negative quantity!", "OK"));
             }
             else
             {
                 if (Convert.ToInt32(qty) != qty)
                 {
-                    DisplayAlert(this.GetControlDescription(), "Cannot remove partial boxes!", "OK");
+                    await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Cannot remove partial boxes!", "OK"));
                 }
                 else
                 {
@@ -851,14 +851,14 @@ namespace dMobile.View.Activity
         private async Task PromptConsumeSkid()
         {
             // TODO: Resource strings
-            if (await DisplayAlert(this.GetControlDescription(), "Do You Wish To Consume This Entire Skid?", "Yes", "No"))
+            if (await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Do You Wish To Consume This Entire Skid?", "Yes", "No")))
             {
                 this.ActDetail.Delete();
 
                 if (this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid.IsConsumed)
                 {
                     // TODO: Resource strings
-                    await DisplayAlert(this.GetControlDescription(), "This skid is now consumed.", "OK");
+                    await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "This skid is now consumed.", "OK"));
 
                     if (await this.SaveChanges())
                     {

@@ -37,7 +37,10 @@ namespace dMobile.Bedrock
         private string fileASCIIZ = string.Empty;
 
         [NonSerialized]
-        private static readonly object lockObject = new object();
+        private readonly object writeLockObject = new object();
+
+        [NonSerialized]
+        private readonly object readLockObject = new object();
 
         /// <summary>
         /// Contains adjustment settings file name.
@@ -283,26 +286,29 @@ namespace dMobile.Bedrock
         /// <returns>Object of AdjustmentSettings</returns>
         public AdjustmentSettings LoadData()
         {
-            XmlSerializer serializer = new XmlSerializer(typeof(AdjustmentSettings));
-            AdjustmentSettings adjustmentSettings = new AdjustmentSettings();
-
-            // use relection to get the current assembly path for the database
-            string appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-            string fullPathToMyFile = Path.Combine(appDir, this.FileName);
-
-            if (!File.Exists(fullPathToMyFile))
+            lock (readLockObject)
             {
-                this.SaveData(ref adjustmentSettings);
-            }
+                XmlSerializer serializer = new XmlSerializer(typeof(AdjustmentSettings));
+                AdjustmentSettings adjustmentSettings = new AdjustmentSettings();
 
-            // Create a FileStream to read with.
-            using (FileStream reader = new FileStream(fullPathToMyFile, FileMode.Open))
-            {
-                // Deserialize the stream to the object, and close the TextReader
-                adjustmentSettings = (AdjustmentSettings)serializer.Deserialize(reader);
-            }
+                // use relection to get the current assembly path for the database
+                string appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+                string fullPathToMyFile = Path.Combine(appDir, this.FileName);
 
-            return adjustmentSettings;
+                if (!File.Exists(fullPathToMyFile))
+                {
+                    this.SaveData(ref adjustmentSettings);
+                }
+
+                // Create a FileStream to read with.
+                using (FileStream reader = new FileStream(fullPathToMyFile, FileMode.Open))
+                {
+                    // Deserialize the stream to the object, and close the TextReader
+                    adjustmentSettings = (AdjustmentSettings)serializer.Deserialize(reader);
+                }
+
+                return adjustmentSettings;
+            }
         }
 
         /// <summary>
@@ -312,11 +318,11 @@ namespace dMobile.Bedrock
         /// <returns>True if save was successful else false</returns>
         public bool SaveData(ref AdjustmentSettings adjustmentSettings)
         {
-            XmlSerializer serializer = new XmlSerializer(typeof(AdjustmentSettings));
-            bool saveComplete = false;
-
-            lock (lockObject)
+            lock (writeLockObject)
             {
+                XmlSerializer serializer = new XmlSerializer(typeof(AdjustmentSettings));
+                bool saveComplete = false;
+
                 try
                 {
                     // use relection to get the current assembly path for the database
@@ -336,9 +342,9 @@ namespace dMobile.Bedrock
                 {
                     saveComplete = false;
                 }
-            }
 
-            return saveComplete;
+                return saveComplete;
+            }
         }
     }
 }

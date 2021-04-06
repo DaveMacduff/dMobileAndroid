@@ -141,7 +141,7 @@ namespace dMobile.View.Activity
                         if (this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid.IsConsumed)
                         {
                             // TODO: Resource strings
-                            await DisplayAlert(this.GetControlDescription(), "This skid is now consumed.", "OK");
+                            await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "This skid is now consumed.", "OK"));
 
                             if (await this.SaveChanges())
                             {
@@ -189,7 +189,7 @@ namespace dMobile.View.Activity
             catch (Exception ex)
             {
                 // TODO: Resource strings
-                await DisplayAlert("Error", "this.ucActivityDetail_GotFocus/tmrActivityDetailLoaded_Tick threw an error " + ex, "OK");
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "this.ucActivityDetail_GotFocus/tmrActivityDetailLoaded_Tick threw an error " + ex, "OK"));
             }
         }
 
@@ -1141,7 +1141,7 @@ namespace dMobile.View.Activity
             catch (Exception ex)
             {
                 // TODO: Resource strings
-                await DisplayAlert(this.GetControlDescription(), ex.Message, "OK");
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), ex.Message, "OK"));
             }
             finally
             {
@@ -1193,7 +1193,7 @@ namespace dMobile.View.Activity
                 this.CallingActSubType == SysCommon.ActSubTypes.Picking ||
                 this.CallingActSubType == SysCommon.ActSubTypes.PickingSingle)
             {
-                if (await DisplayAlert(this.GetControlDescription(), "Do You Wish To Remove This Record From This Skid?", "Yes", "No"))
+                if (await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Do You Wish To Remove This Record From This Skid?", "Yes", "No")))
                 {
                     try
                     {
@@ -1210,7 +1210,7 @@ namespace dMobile.View.Activity
                     catch (Exception ex)
                     {
                         // TODO: Resource strings
-                        await DisplayAlert("Error", "Error removing record from skid." + Environment.NewLine + ex.Message, "OK");
+                        await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "Error removing record from skid." + Environment.NewLine + ex.Message, "OK"));
                     }
                 }
             }
@@ -1218,7 +1218,7 @@ namespace dMobile.View.Activity
             {
                 FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucActivityRemoveFromSkid, actDetail, actDetail.ActSubType);
 
-                if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
+                if (await Device.InvokeOnMainThreadAsync(async () => await form.DisplayControl.ShowDialog() == DialogResult.OK))
                 {
                     try
                     {
@@ -1237,7 +1237,7 @@ namespace dMobile.View.Activity
                     catch (Exception ex)
                     {
                         // TODO: Resource strings
-                        await DisplayAlert("Error", "Error removing record from skid." + Environment.NewLine + ex.Message, "OK");
+                        await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "Error removing record from skid." + Environment.NewLine + ex.Message, "OK"));
                     }
                 }
             }

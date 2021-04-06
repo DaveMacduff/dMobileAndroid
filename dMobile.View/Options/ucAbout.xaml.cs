@@ -572,7 +572,7 @@
         /// <remarks></remarks>
         private async void cmdShowMemory_Click(object sender, EventArgs e)
         {
-            await DisplayAlert("Memory Usage", SysCommon.ShowMemory(), "OK");
+            await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Memory Usage", SysCommon.ShowMemory(), "OK"));
         }
 
         /// <summary>
@@ -602,7 +602,7 @@
                 bedrockAssemblyVersion);
 
             // TODO: Resource strings
-            await DisplayAlert("Assembly Versions", message, "OK");
+            await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Assembly Versions", message, "OK"));
         }
 
 

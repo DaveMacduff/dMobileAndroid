@@ -225,7 +225,7 @@ namespace dMobile.Controller
             catch (Exception ex)
             {
                 // TODO: Resource strings
-                Application.Current.MainPage.DisplayAlert(this.ActHdr.GetControlDescription(), string.Format("Get full unit label quantity failed." + Environment.NewLine + " {0}", ex.Message), "OK");
+                Device.BeginInvokeOnMainThread(() => Application.Current.MainPage.DisplayAlert(this.ActHdr.GetControlDescription(), string.Format("Get full unit label quantity failed." + Environment.NewLine + " {0}", ex.Message), "OK"));
             }
 
             return labelQty;
@@ -285,7 +285,7 @@ namespace dMobile.Controller
                 {
                     // TODO: Resource strings
                     string msg = "Item is outside of expected weight.";
-                    await Application.Current.MainPage.DisplayAlert("Weight Range Check", msg, "OK");
+                    await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert("Weight Range Check", msg, "OK"));
                 }
             }
 
@@ -302,7 +302,7 @@ namespace dMobile.Controller
                     {
                         case SysCommon.ActPickingQtyOverValLevels.ValidateWarnAndContinue:
                             // TODO: Resource strings
-                            if (await Application.Current.MainPage.DisplayAlert("Quantity Over", ex.Message + Environment.NewLine + "Continue?", "Yes", "No"))
+                            if (await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert("Quantity Over", ex.Message + Environment.NewLine + "Continue?", "Yes", "No")))
                             {
                                 throw new IsReadyToApplyException(ex.Message, true, true);
                             }

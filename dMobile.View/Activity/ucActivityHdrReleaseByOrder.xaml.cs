@@ -131,7 +131,7 @@ namespace dMobile.View.Activity
                         catch (Exception ex)
                         {
                             // TODO: Resource strings
-                            await DisplayAlert("Change Status", ex.Message, "OK");
+                            await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Change Status", ex.Message, "OK"));
                         }
                     }
                     else if (keycode == Keycode.Escape)
@@ -155,7 +155,7 @@ namespace dMobile.View.Activity
             catch (Exception ex)
             {
                 // TODO: Resource strings
-                await DisplayAlert("Error", "this.ucActivityHdrReleaseByOrder_GotFocus threw an error " + ex, "OK");
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "this.ucActivityHdrReleaseByOrder_GotFocus threw an error " + ex, "OK"));
             }
         }
 
@@ -816,101 +816,111 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
-            string message = string.Empty;
-            //int currRowIdx = this.dataGridMainActivity.CurrentRowIndex;
-            int currRowIdx = this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem);
-            string savedViewSort = string.Empty;
-
-            this.Parse = scanArgs.ParseInfo;
-
-            await this.ScannerDisable();
-
-            if (!string.IsNullOrEmpty(this.Parse.ActFKRefno))
+            try
             {
-                // this.Parse.ActivityFKRefno e.g. format is 'OE:12345678' start at 4th pos for the fk refno
-                string actStringFKRefno = this.Parse.ActFKRefno;
+                string message = string.Empty;
+                //int currRowIdx = this.dataGridMainActivity.CurrentRowIndex;
+                int currRowIdx = this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem);
+                string savedViewSort = string.Empty;
 
-                if (!string.IsNullOrEmpty(actStringFKRefno))
+                this.Parse = scanArgs.ParseInfo;
+
+                await this.ScannerDisable();
+
+                if (!string.IsNullOrEmpty(this.Parse.ActFKRefno))
                 {
-                    savedViewSort = this.Activity.DataViewHdrs.Sort;
-                    this.Activity.DataViewHdrs.Sort = this.Activity.GetFKRefnoIdx();
+                    // this.Parse.ActivityFKRefno e.g. format is 'OE:12345678' start at 4th pos for the fk refno
+                    string actStringFKRefno = this.Parse.ActFKRefno;
 
-                    //if (this.Activity.DataViewHdrs.Count > 0)
-                    //{
-                    //    this.dataGridMainActivity.UnSelect(currRowIdx);
-                    //}
-
-                    int rowIdx = this.Activity.DataViewHdrs.Find(actStringFKRefno);
-                    this.Activity.DataViewHdrs.Sort = savedViewSort;
-
-                    if (rowIdx >= 0)
+                    if (!string.IsNullOrEmpty(actStringFKRefno))
                     {
-                        //this.dataGridMainActivity.CurrentRowIndex = rowIdx;
-                        this.Activity.GetRefnoFromRowIdx(rowIdx);
+                        savedViewSort = this.Activity.DataViewHdrs.Sort;
+                        this.Activity.DataViewHdrs.Sort = this.Activity.GetFKRefnoIdx();
 
-                        FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucActivityItem, this.Activity, this.ActSubType);
-                        await form.DisplayControl.ShowDialog();
+                        //if (this.Activity.DataViewHdrs.Count > 0)
+                        //{
+                        //    this.dataGridMainActivity.UnSelect(currRowIdx);
+                        //}
+
+                        int rowIdx = this.Activity.DataViewHdrs.Find(actStringFKRefno);
+                        this.Activity.DataViewHdrs.Sort = savedViewSort;
+
+                        if (rowIdx >= 0)
+                        {
+                            //this.dataGridMainActivity.CurrentRowIndex = rowIdx;
+                            this.Activity.GetRefnoFromRowIdx(rowIdx);
+
+                            FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucActivityItem, this.Activity, this.ActSubType);
+                            await Device.InvokeOnMainThreadAsync(async () => await form.DisplayControl.ShowDialog());
+                        }
+                        else
+                        {
+                            this.Activity.FKRefno = 0;
+                            this.Activity.Refno = 0;
+
+                            // TODO: Resource strings
+                            message = string.Format("Unable To Find Reference# {0}", actStringFKRefno);
+                            //MessageBox.Show(message, this.GetControlDescription(), MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
+
+                            // TODO: Resource strings
+                            await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), message, "OK"));
+                        }
                     }
                     else
                     {
-                        this.Activity.FKRefno = 0;
-                        this.Activity.Refno = 0;
-
                         // TODO: Resource strings
-                        message = string.Format("Unable To Find Reference# {0}", actStringFKRefno);
+                        message = string.Format("Unable To Parse Reference# {0}", actStringFKRefno);
                         //MessageBox.Show(message, this.GetControlDescription(), MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
 
                         // TODO: Resource strings
-                        await DisplayAlert(this.GetControlDescription(), message, "OK");
+                        await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), message, "OK"));
                     }
+                }
+                else if (!string.IsNullOrEmpty(this.Parse.ActItemFKRefno))
+                {
+                    //MessageBox.Show("Scanning an activity item reference # is not supported here.", this.GetControlDescription(), MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
+
+                    // TODO: Resource strings
+                    await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Scanning an activity item reference # is not supported here.", "OK"));
+                }
+                else if (!string.IsNullOrEmpty(this.Parse.ProductIdentifier))
+                {
+                    //MessageBox.Show("Scanning a product bar code is not supported here.", this.GetControlDescription(), MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
+
+                    // TODO: Resource strings
+                    await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Scanning a product bar code is not supported here.", "OK"));
+                }
+                else if (!string.IsNullOrEmpty(this.Parse.SSCC18))
+                {
+                    //MessageBox.Show("Scanning a shipping container bar code is not supported here!", this.GetControlDescription(), MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
+
+                    // TODO: Resource strings
+                    await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Scanning a shipping container bar code is not supported here!", "OK"));
+                }
+                else if (!string.IsNullOrEmpty(this.Parse.LocationIdentifier))
+                {
+                    //MessageBox.Show("Scanning a location identifier bar code is not supported here.", this.GetControlDescription(), MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
+
+                    // TODO: Resource strings
+                    await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Scanning a location identifier bar code is not supported here.", "OK"));
                 }
                 else
                 {
-                    // TODO: Resource strings
-                    message = string.Format("Unable To Parse Reference# {0}", actStringFKRefno);
-                    //MessageBox.Show(message, this.GetControlDescription(), MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
+                    //MessageBox.Show("Scanned bar code type is not supported here.", this.GetControlDescription(), MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
 
                     // TODO: Resource strings
-                    await DisplayAlert(this.GetControlDescription(), message, "OK");
+                    await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Scanned bar code type is not supported here.", "OK"));
                 }
             }
-            else if (!string.IsNullOrEmpty(this.Parse.ActItemFKRefno))
+            catch (Exception ex)
             {
-                //MessageBox.Show("Scanning an activity item reference # is not supported here.", this.GetControlDescription(), MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
-
                 // TODO: Resource strings
-                await DisplayAlert(this.GetControlDescription(), "Scanning an activity item reference # is not supported here.", "OK");
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error scanning barcode", ex.Message, "OK"));
             }
-            else if (!string.IsNullOrEmpty(this.Parse.ProductIdentifier))
+            finally
             {
-                //MessageBox.Show("Scanning a product bar code is not supported here.", this.GetControlDescription(), MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
-
-                // TODO: Resource strings
-                await DisplayAlert(this.GetControlDescription(), "Scanning a product bar code is not supported here.", "OK");
+                await this.ScannerEnable();
             }
-            else if (!string.IsNullOrEmpty(this.Parse.SSCC18))
-            {
-                //MessageBox.Show("Scanning a shipping container bar code is not supported here!", this.GetControlDescription(), MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
-
-                // TODO: Resource strings
-                await DisplayAlert(this.GetControlDescription(), "Scanning a shipping container bar code is not supported here!", "OK");
-            }
-            else if (!string.IsNullOrEmpty(this.Parse.LocationIdentifier))
-            {
-                //MessageBox.Show("Scanning a location identifier bar code is not supported here.", this.GetControlDescription(), MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
-
-                // TODO: Resource strings
-                await DisplayAlert(this.GetControlDescription(), "Scanning a location identifier bar code is not supported here.", "OK");
-            }
-            else
-            {
-                //MessageBox.Show("Scanned bar code type is not supported here.", this.GetControlDescription(), MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
-
-                // TODO: Resource strings
-                await DisplayAlert(this.GetControlDescription(), "Scanned bar code type is not supported here.", "OK");
-            }
-
-            await this.ScannerEnable();
         }
 
         /// <summary>

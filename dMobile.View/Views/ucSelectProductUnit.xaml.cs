@@ -1248,7 +1248,7 @@
             catch (Exception ex)
             {
                 // TODO: Logging
-                await DisplayAlert("SelectProdUnit", ex.Message, "OK");
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("SelectProdUnit", ex.Message, "OK"));
             }
         }
 

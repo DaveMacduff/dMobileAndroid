@@ -271,7 +271,7 @@ namespace dMobile.Controller
                 Console.WriteLine(ex);
 
                 // TODO: Resource strings
-                Application.Current.MainPage.DisplayAlert(this.GetControlDescription(), "Get full unit label quantity failed." + Environment.NewLine + ex.Message, "OK");
+                Device.BeginInvokeOnMainThread(() => Application.Current.MainPage.DisplayAlert(this.GetControlDescription(), "Get full unit label quantity failed." + Environment.NewLine + ex.Message, "OK"));
             }
 
             return labelQty;
@@ -322,9 +322,9 @@ namespace dMobile.Controller
                 {
                     isBeingPicked = true;
                     string errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
-                    
+
                     // TODO: Resource strings
-                    await Application.Current.MainPage.DisplayAlert(this.GetControlDescription(), errorDetail, "OK");
+                    await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(this.GetControlDescription(), errorDetail, "OK"));
                 }
             }
 
@@ -381,9 +381,9 @@ namespace dMobile.Controller
                     if (reqData.Contains("<message>ERROR</message>"))
                     {
                         string errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
-                        
+
                         // TODO: Resource strings
-                        await Application.Current.MainPage.DisplayAlert(this.GetControlDescription(), errorDetail, "OK");
+                        await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(this.GetControlDescription(), errorDetail, "OK"));
                     }
                     else
                     {
@@ -404,7 +404,7 @@ namespace dMobile.Controller
             bool isReleased = false;
 
             // TODO: Resource Strings
-            if (await Application.Current.MainPage.DisplayAlert(this.GetControlDescription(), string.Format("Release order# {0} ?", this.FKRefno), "Yes", "No"))
+            if (await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(this.GetControlDescription(), string.Format("Release order# {0} ?", this.FKRefno), "Yes", "No")))
             {
                 string reqResult = string.Empty;
                 StringBuilder xmlString = new StringBuilder();
@@ -581,7 +581,7 @@ namespace dMobile.Controller
                         {
                             case SysCommon.ActPickingQtyUnderValLevels.ValidateWarnAndContinue:
                                 // TODO: Resource strings
-                                if (await Application.Current.MainPage.DisplayAlert(this.GetControlDescription(), ex.Message + Environment.NewLine + "Continue?", "Yes", "No"))
+                                if (await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(this.GetControlDescription(), ex.Message + Environment.NewLine + "Continue?", "Yes", "No")))
                                 {
                                     isResult = true;
                                 }
@@ -590,7 +590,7 @@ namespace dMobile.Controller
 
                             case SysCommon.ActPickingQtyUnderValLevels.ValidateWarnAndStop:
                                 // TODO: Resource strings
-                                await Application.Current.MainPage.DisplayAlert(this.GetControlDescription(), ex.Message, "OK");
+                                await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(this.GetControlDescription(), ex.Message, "OK"));
                                 isResult = false;
                                 break;
                         }
@@ -1274,7 +1274,7 @@ namespace dMobile.Controller
             //    MessageBoxButtons.YesNo,
             //    MessageBoxIcon.Question,
             //    MessageBoxDefaultButton.Button2) == DialogResult.Yes)
-            if (await Application.Current.MainPage.DisplayAlert(this.GetControlDescription(), msg, "Yes", "No"))
+            if (await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(this.GetControlDescription(), msg, "Yes", "No")))
             {
                 string reqData = string.Empty;
                 StringBuilder xmlString = new StringBuilder();

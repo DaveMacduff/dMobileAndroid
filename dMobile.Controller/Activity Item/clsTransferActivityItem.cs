@@ -150,7 +150,7 @@ namespace dMobile.Controller
                             //if (MessageBox.Show(ex.Message + Environment.NewLine + "Continue?", "Quantity Over", MessageBoxButtons.YesNo, MessageBoxIcon.Question, sMessageBoxDefaultButton.Button2) == DialogResult.No)
                             //{
                             // TODO: Resource strings
-                            if (!await Application.Current.MainPage.DisplayAlert("Quantity Over", ex.Message + Environment.NewLine + "Continue?", "Yes", "No"))
+                            if (await Device.InvokeOnMainThreadAsync(async () => !await Application.Current.MainPage.DisplayAlert("Quantity Over", ex.Message + Environment.NewLine + "Continue?", "Yes", "No")))
                             {
                                 throw new IsReadyToApplyException(ex.Message, true, false);
 

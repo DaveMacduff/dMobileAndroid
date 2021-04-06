@@ -53,7 +53,7 @@
         /// <summary>
         /// The OnAppearing
         /// </summary>
-        protected override void OnAppearing()
+        protected override async void OnAppearing()
         {
             base.OnAppearing();
 
@@ -104,7 +104,7 @@
             catch (Exception ex)
             {
                 // TODO: Resource strings
-                DisplayAlert("Error", "this.ucSalesOrdersMenu_GotFocus threw an error " + ex, "OK");
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "this.ucSalesOrdersMenu_GotFocus threw an error " + ex, "OK"));
             }
         }
 

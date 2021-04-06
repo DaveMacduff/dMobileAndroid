@@ -50,8 +50,6 @@
                         throw new Exception(string.Format("Unable To Locate Global Location Identifier '{0}' In {1}", globalLocationIdentifier, cmndLocMap.CommandText));
                     }
                 }
-
-                drLocMap.Close();
             }
 
             if (secondAttempt)
@@ -98,8 +96,6 @@
                             throw new Exception(string.Format("Unable To Locate Global Location Identifier '{0}' In {1}", globalLocationIdentifier, cmndLocMap.CommandText));
                         }
                     }
-
-                    drLocMap.Close();
                 }
 
                 if (secondAttempt)
@@ -143,8 +139,6 @@
                             throw new Exception(string.Format("Unable To Locate Global Location Identifier '{0}' In {1}", globalLocationIdentifier, cmndLocMap.CommandText));
                         }
                     }
-
-                    drLocMap.Close();
                 }
 
                 if (secondAttempt)
@@ -495,12 +489,11 @@
                     }
                     else
                     {
-                        // throw new Exception(string.Format(
-                        //    "Unable to locate location map refno {0} in tLocationMap",
-                        //    locationMapRefno));
+                        ////throw new Exception(string.Format(
+                        ////   "Unable to locate location map refno {0} in tLocationMap",
+                        ////   locMapRefno));
                     }
 
-                    drLocMap.Close();
                 }
             }
 
@@ -680,8 +673,6 @@
                     {
                         locMapSubType = (SysCommon.LocMapSubTypes)Convert.ToInt32(drLocMap["LocationMapSubType"]);
                     }
-
-                    drLocMap.Close();
                 }
 
                 if (locMapSubType == SysCommon.LocMapSubTypes.Slot)

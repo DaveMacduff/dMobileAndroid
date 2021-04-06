@@ -134,7 +134,7 @@ namespace dMobile.View.Activity
                 if (keycode == Keycode.Del || keycode == Keycode.Clear || keycode == Keycode.Back)
                 {
                     // TODO: Resource strings
-                    if (this.dataGridMainActivity.SelectedItem != null && this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem) != -1 && await DisplayAlert(this.GetControlDescription(), "Do you wish to delete this record?", "Yes", "No"))
+                    if (this.dataGridMainActivity.SelectedItem != null && this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem) != -1 && await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Do you wish to delete this record?", "Yes", "No")))
                     {
                         this.ActDetail.DataViewDetails[this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem)].Delete();
                     }
@@ -159,7 +159,7 @@ namespace dMobile.View.Activity
             catch (Exception ex)
             {
                 // TODO: Resource strings
-                await DisplayAlert("Error", "this.ucActivityMoveInventory_GotFocus threw an error " + ex, "OK");
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "this.ucActivityMoveInventory_GotFocus threw an error " + ex, "OK"));
             }
         }
 
@@ -612,9 +612,9 @@ namespace dMobile.View.Activity
                 if (!LocationMapTasks.IsCompleteLocMapRefno(SelFromLocMap))
                 {
                     isReadyToSave = false;
-                    
+
                     // TODO: Resource strings
-                    await DisplayAlert("Send Moves", "Invalid Move \'From\' Location", "OK");
+                    await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Send Moves", "Invalid Move \'From\' Location", "OK"));
 
                 }
                 else if (!LocationMapTasks.IsCompleteLocMapRefno(SelToLocMap))
@@ -622,7 +622,7 @@ namespace dMobile.View.Activity
                     isReadyToSave = false;
 
                     // TODO: Resource strings
-                    await DisplayAlert("Send Moves", "Invalid Move \'To\' Location", "OK");
+                    await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Send Moves", "Invalid Move \'To\' Location", "OK"));
 
                 }
                 else if (SelFromLocMap.WhsLocMapRefno != SelToLocMap.WhsLocMapRefno)
@@ -630,7 +630,7 @@ namespace dMobile.View.Activity
                     isReadyToSave = false;
 
                     // TODO: Resource strings
-                    await DisplayAlert("Send Moves", "The \'From\' And \'To\' Warehouse(s) Must Be The Same", "OK");
+                    await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Send Moves", "The \'From\' And \'To\' Warehouse(s) Must Be The Same", "OK"));
                 }
             }
 
@@ -721,7 +721,7 @@ namespace dMobile.View.Activity
                             catch (Exception ex)
                             {
                                 // TODO: Resource strings
-                                bool result = await DisplayAlert("Move Submission", Convert.ToString("Submit Move Failed" + Environment.NewLine + ex.Message), "Abort", "Retry");
+                                bool result = await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Move Submission", Convert.ToString("Submit Move Failed" + Environment.NewLine + ex.Message), "Abort", "Retry"));
 
                                 if (result)
                                 {
@@ -748,7 +748,7 @@ namespace dMobile.View.Activity
                         else
                         {
                             // TODO: Resource strings
-                            if (await DisplayAlert("Move Submission", "Finished Moves?", "Yes", "No"))
+                            if (await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Move Submission", "Finished Moves?", "Yes", "No")))
                             {
                                 bSaveComplete = true;
                             }
@@ -758,7 +758,7 @@ namespace dMobile.View.Activity
                 else
                 {
                     // TODO: Resource strings
-                    await DisplayAlert("Validation", "Data Failed Validation. Check Your Data.", "OK");
+                    await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Validation", "Data Failed Validation. Check Your Data.", "OK"));
                 }
 
             }

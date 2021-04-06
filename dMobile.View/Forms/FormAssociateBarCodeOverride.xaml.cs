@@ -44,6 +44,7 @@
         /// </summary>
         public FormAssociateBarCodeOverride()
         {
+            // TODO: Test this form
             InitializeComponent();
 
             this.lblLoginID.Text = Resource.LoginID;
@@ -172,7 +173,7 @@
 
             if (isValidData && this.IsAllowedAssocBarCode)
             {
-                Device.BeginInvokeOnMainThread(async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     this.DialogResult = DialogResult.OK;
                     await this.Close();
@@ -180,7 +181,7 @@
             }
             else
             {
-                await DisplayAlert(Resource.BarCodeAssociation, Resource.PermissionDenied, Resource.OK);
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(Resource.BarCodeAssociation, Resource.PermissionDenied, Resource.OK));
             }
         }
 
@@ -284,7 +285,7 @@
             {
                 e.Cancel = true;
 
-                await DisplayAlert(Resource.Barcode, ex.Message, Resource.OK);
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(Resource.Barcode, ex.Message, Resource.OK));
             }
             catch (SQLiteException ex)
             {

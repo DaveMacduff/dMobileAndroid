@@ -59,7 +59,7 @@ namespace dMobile.View.Options
                 }
                 catch (Exception ex)
                 {
-                    DisplayAlert("Error", "ucSetupDefaults_GotFocus exception: " + ex.Message, "OK");
+                    Device.BeginInvokeOnMainThread(() => DisplayAlert("Error", "ucSetupDefaults_GotFocus exception: " + ex.Message, "OK"));
                 }
             }
 

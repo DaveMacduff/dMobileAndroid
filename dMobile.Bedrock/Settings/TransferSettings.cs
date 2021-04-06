@@ -17,7 +17,9 @@
         [NonSerialized()]
         private string m_strFileName = "dMobileTransferSettings.xml";
         [NonSerialized]
-        private static readonly object lockObject = new object();
+        private readonly object writeLockObject = new object();
+        [NonSerialized]
+        private readonly object readLockObject = new object();
         private Int32 m_iSortBy1Index = 0;
         private string m_strSortBy1Value = "ActivityTransferFKRefno ASC";
         private Int32 m_iSortBy2Index = -1;
@@ -144,26 +146,29 @@
         /// <remarks></remarks>
         public TransferSettings LoadData()
         {
-            XmlSerializer serializer = new XmlSerializer(typeof(TransferSettings));
-            TransferSettings oTransferSettings = new TransferSettings();
-
-            // use relection to get the current assembly path for the database
-            string strAppDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-            string strFullPathToMyFile = Path.Combine(strAppDir, m_strFileName);
-
-            if (!File.Exists(strFullPathToMyFile))
+            lock (readLockObject)
             {
-                SaveData(ref oTransferSettings);
-            }
+                XmlSerializer serializer = new XmlSerializer(typeof(TransferSettings));
+                TransferSettings oTransferSettings = new TransferSettings();
 
-            // Create a FileStream to read with.
-            using (FileStream reader = new FileStream(strFullPathToMyFile, FileMode.Open))
-            {
-                // Deserialize the stream to the object, and close the TextReader
-                oTransferSettings = (TransferSettings)serializer.Deserialize(reader);
-            }
+                // use relection to get the current assembly path for the database
+                string strAppDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+                string strFullPathToMyFile = Path.Combine(strAppDir, m_strFileName);
 
-            return oTransferSettings;
+                if (!File.Exists(strFullPathToMyFile))
+                {
+                    SaveData(ref oTransferSettings);
+                }
+
+                // Create a FileStream to read with.
+                using (FileStream reader = new FileStream(strFullPathToMyFile, FileMode.Open))
+                {
+                    // Deserialize the stream to the object, and close the TextReader
+                    oTransferSettings = (TransferSettings)serializer.Deserialize(reader);
+                }
+
+                return oTransferSettings;
+            }
         }
 
         /// <summary>
@@ -174,11 +179,11 @@
         /// <remarks></remarks>
         public bool SaveData(ref TransferSettings oTransferSettings)
         {
-            XmlSerializer serializer = new XmlSerializer(typeof(TransferSettings));
-            bool bSaveComplete = false;
-
-            lock (lockObject)
+            lock (writeLockObject)
             {
+                XmlSerializer serializer = new XmlSerializer(typeof(TransferSettings));
+                bool bSaveComplete = false;
+
                 try
                 {
                     // use relection to get the current assembly path for the database
@@ -197,9 +202,9 @@
                 {
                     bSaveComplete = false;
                 }
-            }
 
-            return bSaveComplete;
+                return bSaveComplete;
+            }
         }
     }
 }

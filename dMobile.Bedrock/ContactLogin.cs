@@ -588,7 +588,7 @@ namespace dMobile.Bedrock
                         docError.LoadXml(reqData);
 
                         // TODO: Resource Strings
-                        Application.Current.MainPage.DisplayAlert("Login Error", "Submit contact login error" + Environment.NewLine + docError.DocumentElement["detail"].InnerText, "OK");
+                        Device.BeginInvokeOnMainThread(() => Application.Current.MainPage.DisplayAlert("Login Error", "Submit contact login error" + Environment.NewLine + docError.DocumentElement["detail"].InnerText, "OK"));
                         docError = null;
                     }
                 }
@@ -668,7 +668,7 @@ namespace dMobile.Bedrock
                         string errorDetail = docError.DocumentElement["detail"].InnerText;
 
                         // TODO: Resource Strings
-                        Application.Current.MainPage.DisplayAlert("Logout Error", "Submit contact logout error" + Environment.NewLine + errorDetail, "OK");
+                        Device.BeginInvokeOnMainThread(() => Application.Current.MainPage.DisplayAlert("Logout Error", "Submit contact logout error" + Environment.NewLine + errorDetail, "OK"));
                         docError = null;
                     }
                 }

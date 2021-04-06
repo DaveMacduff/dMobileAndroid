@@ -184,17 +184,20 @@ namespace dMobile.View.Activity
                         if (this.DataGridMainActivityItemsList.Count > 0 && this.dataGridMainActivity.SelectedItem != null)
                         {
                             //DialogResult result = MessageBox.Show("Do you wish yo delete this record?", "Put Away", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
-                            if (await DisplayAlert("Put Away", "Do you wish yo delete this record?", "Yes", "No"))
+                            if (await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Put Away", "Do you wish yo delete this record?", "Yes", "No")))
                             {
                                 this.ActDetail.DataViewDetails[this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem)].Delete();
 
                                 // Delete needs to rebind the the grid to the proper dataview depending on the record count
                                 if (this.ActDetail.DataViewDetails.Count == 0)
                                 {
-                                    this.DataGridMainActivityItemsList = this.ActDetailOnSkid.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
-                                    this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
-                                    //this.dataGridMainActivity.ForeColor = Color.Orange;
-                                    //this.dataGridMainActivity.Refresh();
+                                    await Device.InvokeOnMainThreadAsync(() =>
+                                    {
+                                        this.DataGridMainActivityItemsList = this.ActDetailOnSkid.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
+                                        this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
+                                        //this.dataGridMainActivity.ForeColor = Color.Orange;
+                                        //this.dataGridMainActivity.Refresh();
+                                    });
                                 }
                             }
                         }
@@ -209,7 +212,7 @@ namespace dMobile.View.Activity
             catch (Exception ex)
             {
                 // TODO: Resource strings
-                await DisplayAlert("Error", "this.ucActivitySkidPutAway_GotFocus threw an error " + ex, "OK");
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "this.ucActivitySkidPutAway_GotFocus threw an error " + ex, "OK"));
             }
         }
 
@@ -714,11 +717,11 @@ namespace dMobile.View.Activity
                 //DialogResult dlgResult = MessageBox.Show("Select a different unit of measure?", "Select UOM",MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2);
                 //if (dlgResult == DialogResult.Yes)
                 // TODO: Resource strings
-                if (await DisplayAlert("Select UOM", "Select a different unit of measure?", "Yes", "No"))
+                if (await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Select UOM", "Select a different unit of measure?", "Yes", "No")))
                 {
                     FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucSelectProductUnitFilterToProduct, this.ActItem, this.ActSubType);
 
-                    if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
+                    if (await Device.InvokeOnMainThreadAsync(async () => await form.DisplayControl.ShowDialog() == DialogResult.OK))
                     {
                         XDocument xmlDoc = form.DisplayControlData;
                         int prodUnitRefno = int.Parse(xmlDoc.Root.Element("ProductUnitRefno").Value);
@@ -764,13 +767,13 @@ namespace dMobile.View.Activity
             await this.ScannerDisable();
 
             FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucSelectLocationMap, this.ActItem.ActHdr.SkidInfo.CurrSkid.LocMap.WhsLocMapRefno, true);
-            await form.DisplayControl.ShowDialog();
+            await Device.InvokeOnMainThreadAsync(async () => await form.DisplayControl.ShowDialog());
 
             if (form.DialogResult == DialogResult.OK)
             {
                 if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
                 {
-                    this.cmdLocation.Text = LocationMapTasks.GetCurrentReadableLocation();
+                    await Device.InvokeOnMainThreadAsync(() => this.cmdLocation.Text = LocationMapTasks.GetCurrentReadableLocation());
                     
                     if (this.ActDetail.DataViewDetails.Count > 0)
                     {
@@ -796,7 +799,7 @@ namespace dMobile.View.Activity
                 else
                 {
                     // TODO: Resource strings
-                    this.cmdLocation.Text = "Set Location";
+                    await Device.InvokeOnMainThreadAsync(() => this.cmdLocation.Text = "Set Location");
                 }
             }
 
@@ -866,7 +869,7 @@ namespace dMobile.View.Activity
                     if (this.Activity.SkidInfo.CurrSkid.SkidFKRefno != 0)
                     {
                         //if (MessageBox.Show("Do you wish to put away another skid?", "Skid Put Away",
-                        if (await DisplayAlert("Skid Put Away", "Do you wish to put away another skid?", "Yes", "No"))
+                        if (await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Skid Put Away", "Do you wish to put away another skid?", "Yes", "No")))
                         {
                             this.ClearContents();
                             cancelChanges = false;
@@ -979,7 +982,7 @@ namespace dMobile.View.Activity
 
                             //if (MessageBox.Show(msg, "Skid Put Away", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.No)
                             // TODO: Resource strings
-                            if (!await DisplayAlert("Skid Put Away", msg, "Yes", "No"))
+                            if (await Device.InvokeOnMainThreadAsync(async () => !await DisplayAlert("Skid Put Away", msg, "Yes", "No")))
                             {
                                 isReadyToSave = false;
                             }
@@ -1043,7 +1046,7 @@ namespace dMobile.View.Activity
                         else
                         {
                             //MessageBox.Show("Skid put away complete!", "Skid Put Away", MessageBoxButtons.OK, MessageBoxIcon.None, MessageBoxDefaultButton.Button1);
-                            await DisplayAlert("Skid Put Away", "Skid put away complete!", "Ok");
+                            await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Skid Put Away", "Skid put away complete!", "Ok"));
                         }
 
                         this.ClearContents();
@@ -1053,7 +1056,7 @@ namespace dMobile.View.Activity
 
                     //if (MessageBox.Show("Do you wish to put away any more skids?", "Skid Put Away", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
                     // TODO: Resource strings
-                    if (await DisplayAlert("Skid Put Away", "Do you wish to put away any more skids?", "Yes", "No"))
+                    if (await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Skid Put Away", "Do you wish to put away any more skids?", "Yes", "No")))
                     {
                         saveComplete = false;
                         await this.ScannerEnable();
@@ -1063,7 +1066,7 @@ namespace dMobile.View.Activity
                 {
                     //MessageBox.Show("Data Failed Validation. Check Your Data.");
                     // TODO: Resource strings
-                    await DisplayAlert("Skid Put Away", "Data Failed Validation. Check Your Data.", "OK");
+                    await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Skid Put Away", "Data Failed Validation. Check Your Data.", "OK"));
                 }
             }
             catch (Exceptions.MessageOnlyException ex)

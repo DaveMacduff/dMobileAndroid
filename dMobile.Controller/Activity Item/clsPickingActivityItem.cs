@@ -205,7 +205,7 @@ namespace dMobile.Controller
                     {
                         case SysCommon.ActPickingQtyOverValLevels.ValidateWarnAndContinue:
                             // TODO: Resource strings
-                            if (await Application.Current.MainPage.DisplayAlert("Quantity Over", ex.Message + Environment.NewLine + "Continue?", "Yes", "No"))
+                            if (await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert("Quantity Over", ex.Message + Environment.NewLine + "Continue?", "Yes", "No")))
                             {
                                 throw new IsReadyToApplyException(ex.Message, true, true);
                             }
@@ -424,7 +424,7 @@ namespace dMobile.Controller
                 if (foundActItemRefno > 0 && askToInsertAsNewItem)
                 {
                     // TODO: Resource strings
-                    if (await Application.Current.MainPage.DisplayAlert("New Item", "A line item already exists for this location and product." + Environment.NewLine + "Do you wish to create one?", "Yes", "No"))
+                    if (await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert("New Item", "A line item already exists for this location and product." + Environment.NewLine + "Do you wish to create one?", "Yes", "No")))
                     {
                         result = true;
                     }

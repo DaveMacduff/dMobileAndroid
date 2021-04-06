@@ -682,7 +682,7 @@
         {
             if (this.IsBarCodeHandlerRegistered && this.Scanner != null)
             {
-                this.Scanner.BarCodeScan -= new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                this.Scanner.BarCodeScan -= this.BarCodeHandler;
                 await this.Scanner.Stop();
                 this.IsBarCodeHandlerRegistered = false;
             }
@@ -698,7 +698,7 @@
             {
                 this.IsBarCodeHandlerRegistered = true;
                 await this.Scanner.Start();
-                this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                this.Scanner.BarCodeScan += this.BarCodeHandler;
             }
         }
 
@@ -729,7 +729,7 @@
                             case SysCommon.ActPickingQtyUnderValLevels.ValidateWarnAndContinue:
                                 //if (MessageBox.Show(ex.Message + Environment.NewLine + "Continue?", "Quantity Validation", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.No)
                                 // TODO: Resource strings
-                                if (await DisplayAlert("Quantity Validation", "Continue?", "Yes", "No") == false)
+                                if (await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Quantity Validation", "Continue?", "Yes", "No") == false))
                                 {
                                     isReadyToSave = false;
                                     this.IsShowDataValidMsg = false;
@@ -740,7 +740,7 @@
                             case SysCommon.ActPickingQtyUnderValLevels.ValidateWarnAndStop:
                                 //MessageBox.Show(ex.Message, "Quantity Validation", MessageBoxButtons.OK, MessageBoxIcon.Hand, MessageBoxDefaultButton.Button1);
                                 // TODO: Resource strings
-                                await DisplayAlert("Quantity Validation", ex.Message, "OK");
+                                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Quantity Validation", ex.Message, "OK"));
                                 isReadyToSave = false;
                                 this.IsShowDataValidMsg = false;
 
@@ -2782,8 +2782,7 @@
                         else
                         {
                             // TODO: Resource strings
-                            throw new Exceptions.MessageOnlyException("" +
-                                "Scanning a line item bar code is not supported here!");
+                            throw new Exceptions.MessageOnlyException("Scanning a line item bar code is not supported here!");
                         }
                     }
 

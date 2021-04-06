@@ -216,7 +216,7 @@ namespace dMobile.View.Activity
             catch (Exception ex)
             {
                 // TODO: Resource strings
-                await DisplayAlert("Error", "this.ucActivityInventoryInquiry_GotFocus threw an error " + ex, "OK");
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "this.ucActivityInventoryInquiry_GotFocus threw an error " + ex, "OK"));
             }
         }
 
@@ -634,7 +634,7 @@ namespace dMobile.View.Activity
                 isReadyToSave = false;
 
                 // TODO: Resource strings
-                await DisplayAlert("Inventory Inquiry", "Quantity inquiry is not supported in disconnected mode.", "OK");
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Inventory Inquiry", "Quantity inquiry is not supported in disconnected mode.", "OK"));
             }
 
             return isReadyToSave;

@@ -189,7 +189,7 @@ namespace dMobile.Controller
                     string msg = "A line item already exists for this location and product." + Environment.NewLine + "Do you wish to create one?";
 
                     // TODO: Resource strings
-                    if (await Application.Current.MainPage.DisplayAlert("New Item", msg, "Yes", "No"))
+                    if (await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert("New Item", msg, "Yes", "No")))
                     {
                         result = true;
                     }

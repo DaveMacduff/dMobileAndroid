@@ -157,7 +157,7 @@ namespace dMobile.View.Activity
                                 if (!this.SysEnv.SysSettings.IsPrintProductLabelsAsBatch)
                                 {
                                     // TODO: Resource strings
-                                    if (await DisplayAlert(this.GetControlDescription(), "Print product labels?", "Yes", "No"))
+                                    if (await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Print product labels?", "Yes", "No")))
                                     {
                                         try
                                         {
@@ -197,7 +197,7 @@ namespace dMobile.View.Activity
             catch (Exception ex)
             {
                 // TODO: Resource strings
-                await DisplayAlert("Error", "this.ucActivityDetailEdit_GotFocus threw an error " + ex, "OK");
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "this.ucActivityDetailEdit_GotFocus threw an error " + ex, "OK"));
             }
         }
 
@@ -1644,7 +1644,7 @@ namespace dMobile.View.Activity
                     if (!this.SysEnv.SysSettings.IsPrintProductLabelsAsBatch)
                     {
                         // TODO: Resource strings
-                        if (await DisplayAlert(this.GetControlDescription(), "Print product labels?", "Yes", "No"))
+                        if (await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Print product labels?", "Yes", "No")))
                         {
                             try
                             {

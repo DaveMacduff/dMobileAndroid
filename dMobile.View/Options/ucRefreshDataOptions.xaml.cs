@@ -47,7 +47,7 @@
                 catch (Exception ex)
                 {
                     // TODO: Resource strings
-                    DisplayAlert("Error", "ucRefreshDataOptions_GotFocus exception: " + ex.Message, "OK");
+                    Device.BeginInvokeOnMainThread(() => DisplayAlert("Error", "ucRefreshDataOptions_GotFocus exception: " + ex.Message, "OK"));
                 }
             }
 
@@ -479,7 +479,7 @@
                             {
                                 Application.Current.MainPage = new NavigationPage(new SplashStartup());
                                 // TODO: Resource strings
-                                await DisplayAlert(this.GetControlDescription(), "Please log back in for changes to be made in effect.", "OK");
+                                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Please log back in for changes to be made in effect.", "OK"));
                             }
                         }
                     }
@@ -487,7 +487,7 @@
                     {
                         Application.Current.MainPage = new NavigationPage(new SplashStartup());
                         // TODO: Resource strings
-                        await DisplayAlert(this.GetControlDescription(), "Please log back in for changes to be made in effect.", "OK");
+                        await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Please log back in for changes to be made in effect.", "OK"));
                     }
                 }
             }
@@ -744,15 +744,15 @@
 
             if (this.SysEnv.SysSettings.IsDisconnectedMode && SysCommon.CheckForUnSubmittedData())
             {
-                if (await DisplayAlert(this.GetControlDescription(), Resource.WarningUnsubmittedDataExistsAndWillBeLostContinueWithRefreshData, Resource.Yes, Resource.No))
+                if (await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), Resource.WarningUnsubmittedDataExistsAndWillBeLostContinueWithRefreshData, Resource.Yes, Resource.No)))
                 {
-                    if (await DisplayAlert(this.GetControlDescription(), Resource.ConfirmRefreshData, Resource.Yes, Resource.No))
+                    if (await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), Resource.ConfirmRefreshData, Resource.Yes, Resource.No)))
                     {
                         isContinueRefresh = true;
                     }
                 }
             }
-            else if (await DisplayAlert(this.GetControlDescription(), "Confirm refresh data?", Resource.Yes, Resource.No))
+            else if (await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Confirm refresh data?", Resource.Yes, Resource.No)))
             {
                 isContinueRefresh = true;
             }

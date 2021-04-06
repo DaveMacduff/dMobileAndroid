@@ -183,7 +183,7 @@ namespace dMobile.Controller
                 if (foundActItemRefno > 0)
                 {
                     // TODO: Resource strings
-                    dlgResult = await Application.Current.MainPage.DisplayAlert("New Item", "A line item already exists for this location and product." + Environment.NewLine + "Do you wish to create one?", "Yes", "No");
+                    dlgResult = await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert("New Item", "A line item already exists for this location and product." + Environment.NewLine + "Do you wish to create one?", "Yes", "No"));
                 }
                 else
                 {

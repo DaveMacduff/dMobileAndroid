@@ -126,7 +126,7 @@
             catch (Exception ex)
             {
                 // TODO: Resource strings
-                await DisplayAlert("Error", "this.ucActivityHdr_GotFocus threw an error " + ex, "OK");
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "this.ucActivityHdr_GotFocus threw an error " + ex, "OK"));
             }
         }
 
@@ -474,7 +474,7 @@
             if (!decimal.TryParse(txtAltQty.Text, out _))
             {
                 // TODO: Resource strings
-                DisplayAlert("Error", "Invalid Quantity!", "OK");
+                Device.BeginInvokeOnMainThread(() => DisplayAlert("Error", "Invalid Quantity!", "OK"));
 
                 IsRetVal = false;
             }
@@ -615,7 +615,7 @@
                 else
                 {
                     //MessageBox.Show("Data Failed Validation. Check Your Data.");
-                    await DisplayAlert("Data Validation", "Data Failed Validation. Check Your Data.", "OK");
+                    await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Data Validation", "Data Failed Validation. Check Your Data.", "OK"));
                 }
             }
             catch (Exception Ex)

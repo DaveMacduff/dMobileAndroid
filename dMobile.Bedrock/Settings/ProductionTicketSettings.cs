@@ -17,7 +17,9 @@
         [NonSerialized()]
         private string m_strFileName = "dMobileProductionTicketSettings.xml";
         [NonSerialized]
-        private static readonly object lockObject = new object();
+        private readonly object writeLockObject = new object();
+        [NonSerialized]
+        private readonly object readLockObject = new object();
         private Int32 m_iSortBy1Index = 0;
         private string m_strSortBy1Value = "ActivityProductionFKRefno ASC";
         private Int32 m_iSortBy2Index = -1;
@@ -124,26 +126,29 @@
         /// <remarks></remarks>
         public ProductionTicketSettings LoadData()
         {
-            XmlSerializer serializer = new XmlSerializer(typeof(ProductionTicketSettings));
-            ProductionTicketSettings oProductionTicketSettings = new ProductionTicketSettings();
-
-            // use relection to get the current assembly path for the database
-            string strAppDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-            string strFullPathToMyFile = Path.Combine(strAppDir, m_strFileName);
-
-            if (!File.Exists(strFullPathToMyFile))
+            lock (readLockObject)
             {
-                SaveData(ref oProductionTicketSettings);
-            }
+                XmlSerializer serializer = new XmlSerializer(typeof(ProductionTicketSettings));
+                ProductionTicketSettings oProductionTicketSettings = new ProductionTicketSettings();
 
-            // Create a FileStream to read with.
-            using (FileStream reader = new FileStream(strFullPathToMyFile, FileMode.Open))
-            {
-                // Deserialize the stream to the object, and close the TextReader
-                oProductionTicketSettings = (ProductionTicketSettings)serializer.Deserialize(reader);
-            }
+                // use relection to get the current assembly path for the database
+                string strAppDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+                string strFullPathToMyFile = Path.Combine(strAppDir, m_strFileName);
 
-            return oProductionTicketSettings;
+                if (!File.Exists(strFullPathToMyFile))
+                {
+                    SaveData(ref oProductionTicketSettings);
+                }
+
+                // Create a FileStream to read with.
+                using (FileStream reader = new FileStream(strFullPathToMyFile, FileMode.Open))
+                {
+                    // Deserialize the stream to the object, and close the TextReader
+                    oProductionTicketSettings = (ProductionTicketSettings)serializer.Deserialize(reader);
+                }
+
+                return oProductionTicketSettings;
+            }
         }
 
         /// <summary>
@@ -154,11 +159,11 @@
         /// <remarks></remarks>
         public bool SaveData(ref ProductionTicketSettings oProductionTicketSettings)
         {
-            XmlSerializer serializer = new XmlSerializer(typeof(ProductionTicketSettings));
-            bool bSaveComplete = false;
-
-            lock (lockObject)
+            lock (writeLockObject)
             {
+                XmlSerializer serializer = new XmlSerializer(typeof(ProductionTicketSettings));
+                bool bSaveComplete = false;
+
                 try
                 {
                     // use relection to get the current assembly path for the database
@@ -178,9 +183,9 @@
                 {
                     bSaveComplete = false;
                 }
-            }
 
-            return bSaveComplete;
+                return bSaveComplete;
+            }
         }
     }
 }

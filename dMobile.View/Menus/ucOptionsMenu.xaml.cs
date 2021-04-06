@@ -53,7 +53,7 @@
         /// <summary>
         /// The OnAppearing
         /// </summary>
-        protected override void OnAppearing()
+        protected override async void OnAppearing()
         {
             base.OnAppearing();
 
@@ -65,7 +65,7 @@
             }
             catch (Exception ex)
             {
-                DisplayAlert("Error", "ucOptionsMenu_GotFocus exception: " + ex.Message, "OK");
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "ucOptionsMenu_GotFocus exception: " + ex.Message, "OK"));
             }
 
             MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>

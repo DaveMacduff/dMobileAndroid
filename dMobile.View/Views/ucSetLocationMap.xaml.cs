@@ -773,7 +773,7 @@
                 else
                 {
                     // TODO: Resource strings
-                    await DisplayAlert("Data Validation", "Data failed validation. Check your data.", "OK");
+                    await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Data Validation", "Data failed validation. Check your data.", "OK"));
                 }
             }
             catch (Exceptions.MessageOnlyException ex)
@@ -1144,7 +1144,7 @@
             {
                 if (this.DataViewWhs == null || this.LocMapInfo.WhsLocMapRefno == 0)
                 {
-                    await DisplayAlert(this.GetControlDescription(), "Select the warehouse first!", "OK");
+                    await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Select the warehouse first!", "OK"));
                 }
                 else
                 {
@@ -1166,7 +1166,7 @@
 
                 if (this.DataViewSections == null || this.LocMapInfo.SectLocMapRefno == 0)
                 {
-                    await DisplayAlert(this.GetControlDescription(), "Select the section first!", "OK");
+                    await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Select the section first!", "OK"));
                 }
                 else
                 {
@@ -1654,28 +1654,28 @@
                 //MessageBox.Show("Scanning an header reference # is not supported here!", this.GetControlDescription(), MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
 
                 // TODO: Resource strings
-                await DisplayAlert(this.GetControlDescription(), "Scanning an header reference # is not supported here!", "OK");
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Scanning an header reference # is not supported here!", "OK"));
             }
             else if (!string.IsNullOrEmpty(this.Parse.ActItemFKRefno))
             {
                 //MessageBox.Show("Scanning an item reference # is not supported here!", this.GetControlDescription(), MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
 
                 // TODO: Resource strings
-                await DisplayAlert(this.GetControlDescription(), "Scanning an item reference # is not supported here!", "OK");
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Scanning an item reference # is not supported here!", "OK"));
             }
             else if (!string.IsNullOrEmpty(this.Parse.ProductIdentifier))
             {
                 //MessageBox.Show("Scanning a product bar code is not supported here!", this.GetControlDescription(), MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
 
                 // TODO: Resource strings
-                await DisplayAlert(this.GetControlDescription(), "Scanning a product bar code is not supported here!", "OK");
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Scanning a product bar code is not supported here!", "OK"));
             }
             else if (!string.IsNullOrEmpty(this.Parse.SSCC18))
             {
                 //MessageBox.Show("Scanning a shipping container bar code is not supported here!", this.GetControlDescription(), MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
 
                 // TODO: Resource strings
-                await DisplayAlert(this.GetControlDescription(), "Scanning a shipping container bar code is not supported here!", "OK");
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Scanning a shipping container bar code is not supported here!", "OK"));
             }
             else if (!string.IsNullOrEmpty(this.Parse.LocationIdentifier))
             {
@@ -1690,7 +1690,7 @@
                 //MessageBox.Show("Scanned bar code type is not supported here!", this.GetControlDescription(), MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
 
                 // TODO: Resource strings
-                await DisplayAlert(this.GetControlDescription(), "Scanned bar code type is not supported here!", "OK");
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Scanned bar code type is not supported here!", "OK"));
             }
         }
 

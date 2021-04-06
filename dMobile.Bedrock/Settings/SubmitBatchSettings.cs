@@ -17,7 +17,9 @@
 		[NonSerialized()]
 		private string m_strFileName = "dMobileSubmitBatchSettings.xml";
 		[NonSerialized]
-		private static readonly object lockObject = new object();
+		private readonly object writeLockObject = new object();
+		[NonSerialized]
+		private readonly object readLockObject = new object();
 		private Int32 m_iActivityStatusIdx = 0;
 		private SysCommon.ActStatus m_eActivityStatus = SysCommon.ActStatus.NoChange;
 		private Int32 m_iActivitySubTypeIdx = 0;
@@ -84,26 +86,29 @@
 		/// <remarks></remarks>
 		public SubmitBatchSettings LoadData()
 		{
-			XmlSerializer serializer = new XmlSerializer(typeof(SubmitBatchSettings));
-			SubmitBatchSettings oSubmitBatchSettings = new SubmitBatchSettings();
-
-			// use relection to get the current assembly path for the database
-			string strAppDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-			string strFullPathToMyFile = Path.Combine(strAppDir, m_strFileName);
-
-			if (!File.Exists(strFullPathToMyFile))
+			lock (readLockObject)
 			{
-				SaveData(ref oSubmitBatchSettings);
+				XmlSerializer serializer = new XmlSerializer(typeof(SubmitBatchSettings));
+				SubmitBatchSettings oSubmitBatchSettings = new SubmitBatchSettings();
+
+				// use relection to get the current assembly path for the database
+				string strAppDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+				string strFullPathToMyFile = Path.Combine(strAppDir, m_strFileName);
+
+				if (!File.Exists(strFullPathToMyFile))
+				{
+					SaveData(ref oSubmitBatchSettings);
+				}
+
+				// Create a FileStream to read with.
+				using (FileStream reader = new FileStream(strFullPathToMyFile, FileMode.Open))
+				{
+					// Deserialize the stream to the object, and close the TextReader
+					oSubmitBatchSettings = (SubmitBatchSettings)serializer.Deserialize(reader);
+				}
+
+				return oSubmitBatchSettings;
 			}
-
-			// Create a FileStream to read with.
-			using (FileStream reader = new FileStream(strFullPathToMyFile, FileMode.Open))
-            {
-				// Deserialize the stream to the object, and close the TextReader
-				oSubmitBatchSettings = (SubmitBatchSettings)serializer.Deserialize(reader);
-            }
-
-			return oSubmitBatchSettings;
 		}
 
 		/// <summary>
@@ -114,11 +119,11 @@
 		/// <remarks></remarks>
 		public bool SaveData(ref SubmitBatchSettings oSubmitBatchSettings)
 		{
-			XmlSerializer serializer = new XmlSerializer(typeof(SubmitBatchSettings));
-			bool bSaveComplete = false;
-
-			lock (lockObject)
+			lock (writeLockObject)
 			{
+				XmlSerializer serializer = new XmlSerializer(typeof(SubmitBatchSettings));
+				bool bSaveComplete = false;
+
 				try
 				{
 					// use relection to get the current assembly path for the database
@@ -127,9 +132,9 @@
 
 					// Create a FileStream to write with.
 					using (FileStream writer = new FileStream(strFullPathToMyFile, FileMode.Create))
-                    {
+					{
 						serializer.Serialize(writer, oSubmitBatchSettings);
-                    }
+					}
 
 					bSaveComplete = true;
 				}
@@ -137,9 +142,9 @@
 				{
 					bSaveComplete = false;
 				}
-			}
 
-			return bSaveComplete;
+				return bSaveComplete;
+			}
 		}
 	}
 }

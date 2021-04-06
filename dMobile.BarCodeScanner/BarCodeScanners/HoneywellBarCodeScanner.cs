@@ -79,11 +79,10 @@
                 {
                     this.SetSymbologySettings();
                     this.HoneywellReader.BarcodeDataReady += HoneywellReader_BarcodeDataReady;
-                    await this.HoneywellReader.EnableAsync(true);
                 }
                 else
                 {
-                    Console.WriteLine("Error", "OpenAsync failed, Code:" + result.Code + " Message:" + result.Message, "OK");
+                    Log.Error("HoneywellBarcodeScanner", "OpenAsync failed, Code:" + result.Code + " Message:" + result.Message);
                 }
             }
         }
@@ -101,11 +100,10 @@
                 if (result.Code == BarcodeReader.Result.Codes.SUCCESS)
                 {
                     this.HoneywellReader.BarcodeDataReady -= HoneywellReader_BarcodeDataReady;
-                    await this.HoneywellReader.EnableAsync(false);
                 }
                 else
                 {
-                    Console.WriteLine("Error", "CloseAsync failed, Code:" + result.Code + " Message:" + result.Message, "OK");
+                    Log.Error("HoneywellBarcodeScanner", "CloseAsync failed, Code:" + result.Code + " Message:" + result.Message);
                 }
             }
         }
@@ -172,7 +170,7 @@
 
                             if (result.Code != BarcodeReader.Result.Codes.SUCCESS)
                             {
-                                await Application.Current.MainPage.DisplayAlert("Error", "Could not set symbology settings " + result.Message, "OK");
+                                await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert("Error", "Could not set symbology settings " + result.Message, "OK"));
                             }
                             else
                             {

@@ -18,7 +18,9 @@
 		[NonSerialized()]
 		private string m_strFileName = "dMobilePickingSettings.xml";
 		[NonSerialized]
-		private static readonly object lockObject = new object();
+		private readonly object writeLockObject = new object();
+		[NonSerialized]
+		private readonly object readLockObject = new object();
 		private Int32 m_iSortBy1Index = 0;
 		private string m_strSortBy1Value = "ActivityPickingFKRefno ASC";
 		private Int32 m_iSortBy2Index = -1;
@@ -196,26 +198,29 @@
 		/// <remarks></remarks>
 		public PickingSettings LoadData()
 		{
-			XmlSerializer serializer = new XmlSerializer(typeof(PickingSettings));
-			PickingSettings oPickingSettings = new PickingSettings();
-
-			// use relection to get the current assembly path for the database
-			string strAppDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-			string strFullPathToMyFile = Path.Combine(strAppDir, m_strFileName);
-
-			if (!File.Exists(strFullPathToMyFile))
+			lock (readLockObject)
 			{
-				SaveData(ref oPickingSettings);
+				XmlSerializer serializer = new XmlSerializer(typeof(PickingSettings));
+				PickingSettings oPickingSettings = new PickingSettings();
+
+				// use relection to get the current assembly path for the database
+				string strAppDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+				string strFullPathToMyFile = Path.Combine(strAppDir, m_strFileName);
+
+				if (!File.Exists(strFullPathToMyFile))
+				{
+					SaveData(ref oPickingSettings);
+				}
+
+				// Create a FileStream to read with.
+				using (FileStream reader = new FileStream(strFullPathToMyFile, FileMode.Open))
+				{
+					// Deserialize the stream to the object, and close the TextReader
+					oPickingSettings = (PickingSettings)serializer.Deserialize(reader);
+				}
+
+				return oPickingSettings;
 			}
-
-			// Create a FileStream to read with.
-			using (FileStream reader = new FileStream(strFullPathToMyFile, FileMode.Open))
-            {
-				// Deserialize the stream to the object, and close the TextReader
-				oPickingSettings = (PickingSettings)serializer.Deserialize(reader);
-            }
-
-			return oPickingSettings;
 		}
 
 		/// <summary>
@@ -226,11 +231,11 @@
 		/// <remarks></remarks>
 		public bool SaveData(ref PickingSettings oPickingSettings)
 		{
-			XmlSerializer serializer = new XmlSerializer(typeof(PickingSettings));
-			bool bSaveComplete = false;
-
-			lock (lockObject)
+			lock (writeLockObject)
 			{
+				XmlSerializer serializer = new XmlSerializer(typeof(PickingSettings));
+				bool bSaveComplete = false;
+
 				try
 				{
 					// use relection to get the current assembly path for the database
@@ -239,10 +244,10 @@
 
 					// Create a FileStream to write with.
 					using (FileStream writer = new FileStream(strFullPathToMyFile, FileMode.Create))
-                    {
+					{
 						// Serialize the object, and close the TextWriter
 						serializer.Serialize(writer, oPickingSettings);
-                    }
+					}
 
 					bSaveComplete = true;
 				}
@@ -250,9 +255,9 @@
 				{
 					bSaveComplete = false;
 				}
-			}
 
-			return bSaveComplete;
+				return bSaveComplete;
+			}
 		}
 	}
 }

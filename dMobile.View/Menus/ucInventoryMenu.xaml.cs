@@ -61,7 +61,7 @@ namespace dMobile.View.Menus
         /// <summary>
         /// The OnAppearing
         /// </summary>
-        protected override void OnAppearing()
+        protected override async void OnAppearing()
         {
             base.OnAppearing();
 
@@ -153,7 +153,7 @@ namespace dMobile.View.Menus
             catch (Exception ex)
             {
                 // TODO: Resource strings
-                DisplayAlert("Error", "this.ucInventoryMenu_GotFocus threw an error " + ex, "OK");
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "this.ucInventoryMenu_GotFocus threw an error " + ex, "OK"));
             }
         }
 

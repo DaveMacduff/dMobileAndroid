@@ -303,7 +303,7 @@ namespace dMobile.View.Activity
                     {
                         await this.ScannerDisable();
                         // TODO: Resource strings
-                        if (await DisplayAlert(this.GetControlDescription(), "Do you wish to break this skid?", "Yes", "No"))
+                        if (await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Do you wish to break this skid?", "Yes", "No")))
                         {
                             try
                             {
@@ -311,7 +311,7 @@ namespace dMobile.View.Activity
 
                                 //MessageBox.Show("This skid is now broken.", this.GetControlDescription(), MessageBoxButtons.OK, MessageBoxIcon.None, MessageBoxDefaultButton.Button1);
                                 // TODO: Resource strings
-                                await DisplayAlert(this.GetControlDescription(), "This skid is now broken.", "OK");
+                                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "This skid is now broken.", "OK"));
 
                                 this.SkidInfo = new SysSkidInfo();
                                 this.ProdUnitRefno = 0;
@@ -340,7 +340,7 @@ namespace dMobile.View.Activity
             catch (Exception ex)
             {
                 // TODO: Resource strings
-                await DisplayAlert("Error", "this.ucActivityHdrSkidInfo_GotFocus threw an error " + ex, "OK");
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "this.ucActivityHdrSkidInfo_GotFocus threw an error " + ex, "OK"));
             }
         }
 
@@ -1109,7 +1109,7 @@ namespace dMobile.View.Activity
                     {
                         //if (MessageBox.Show("Do you wish to exit?", "Skid Info", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
                         // TODO: Resource strings
-                        if (await DisplayAlert("Skid Info", "Do you wish to exit?", "Yes", "No"))
+                        if (await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Skid Info", "Do you wish to exit?", "Yes", "No")))
                         {
                             saveComplete = true;
                         }
@@ -1312,7 +1312,7 @@ namespace dMobile.View.Activity
                         this.LocMap.CurrLocMap = this.SavedLocMap;
                         //MessageBox.Show(ex.Message + Environment.NewLine + "A new skid will be created upon saving.", this.GetControlDescription(), MessageBoxButtons.OK, MessageBoxIcon.Hand, MessageBoxDefaultButton.Button1);
                         // TODO: Resource strings
-                        await DisplayAlert(this.GetControlDescription(), ex.Message + Environment.NewLine + "A new skid will be created upon saving.", "OK");
+                        await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), ex.Message + Environment.NewLine + "A new skid will be created upon saving.", "OK"));
                         this.SkidInfo = new SysSkidInfo();
                         SSkidInfo tempSkidInfo = this.SkidInfo.CurrSkid;
                         tempSkidInfo.LocMapRefno = this.SavedLocMapRefno;
@@ -1390,7 +1390,7 @@ namespace dMobile.View.Activity
 
                     //if (MessageBox.Show("Print skid label?", this.GetControlDescription(), MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
                     // TODO: Resource strings
-                    if (await DisplayAlert(this.GetControlDescription(), "Print skid label?", "Yes", "No"))
+                    if (await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Print skid label?", "Yes", "No")))
                     {
                         SysSkidInfo.PrintLabel(this.SkidInfo);
                     }
@@ -1696,7 +1696,7 @@ namespace dMobile.View.Activity
                 catch (Exception ex)
                 {
                     // TODO: Resource strings
-                    await DisplayAlert("Error", "Error loading detail" + Environment.NewLine + ex.Message, "OK");
+                    await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "Error loading detail" + Environment.NewLine + ex.Message, "OK"));
                 }
                 finally
                 {
@@ -1726,7 +1726,7 @@ namespace dMobile.View.Activity
                 //this.Loading = false;
                 //MessageBox.Sho;w("Skid completed.", this.GetControlDescription(), MessageBoxButtons.OK, MessageBoxIcon.None, MessageBoxDefaultButton.Button1);
                 // TODO: Resource strings
-                await DisplayAlert(this.GetControlDescription(), "Skid completed.", "OK");
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Skid completed.", "OK"));
             }
             catch (Exception ex)
             {
@@ -2004,7 +2004,7 @@ namespace dMobile.View.Activity
                         e.Cancel = true;
 
                         // TODO: Resource strings 
-                        DisplayAlert(this.GetControlDescription(), "Cube value must be greater than or equal to zero.", "OK");
+                        Device.BeginInvokeOnMainThread(() => DisplayAlert(this.GetControlDescription(), "Cube value must be greater than or equal to zero.", "OK"));
                     }
                 }
 
@@ -2267,7 +2267,7 @@ namespace dMobile.View.Activity
 
                 //MessageBox.Show(ex.Message + Environment.NewLine + "A new Skid will be created upon saving.", this.GetControlDescription(), MessageBoxButtons.OK, MessageBoxIcon.Hand, MessageBoxDefaultButton.Button1);
                 // TODO: Resource strings
-                DisplayAlert(this.GetControlDescription(), ex.Message + Environment.NewLine + "A new Skid will be created upon saving.", "OK");
+                Device.BeginInvokeOnMainThread(() => DisplayAlert(this.GetControlDescription(), ex.Message + Environment.NewLine + "A new Skid will be created upon saving.", "OK"));
 
                 this.EnableControls();
                 this.SkidInfo = new SysSkidInfo();

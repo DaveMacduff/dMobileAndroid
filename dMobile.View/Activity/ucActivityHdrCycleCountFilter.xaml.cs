@@ -132,7 +132,7 @@ namespace dMobile.View.Activity
             catch (Exception ex)
             {
                 // TODO: Resource strings
-                await DisplayAlert("Error", "this.ucActivityHdrCycleCountFilter_GotFocus threw an error " + ex, "OK");
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "this.ucActivityHdrCycleCountFilter_GotFocus threw an error " + ex, "OK"));
             }
         }
 
@@ -517,7 +517,7 @@ namespace dMobile.View.Activity
                 else
                 {
                     // TODO: Resource strings
-                    await DisplayAlert(this.GetControlDescription(), "Data failed validation. Check your data.", "OK");
+                    await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Data failed validation. Check your data.", "OK"));
                 }
             }
             catch (Exception ex)

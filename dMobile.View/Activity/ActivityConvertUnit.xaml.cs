@@ -125,13 +125,16 @@ namespace dMobile.View.Activity
                 this.ActDetail.GetDataView(false);
             }
 
-            this.DataGridMainActivityItemsList = this.ActDetail.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dgUnitWeight);
-            this.dgUnitWeight.ItemsSource = this.DataGridMainActivityItemsList;
-
-            if (this.DataGridMainActivityItemsList.Count > 0)
+            Device.BeginInvokeOnMainThread(() =>
             {
-                this.dgUnitWeight.SelectedItem = this.DataGridMainActivityItemsList[0];
-            }
+                this.DataGridMainActivityItemsList = this.ActDetail.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dgUnitWeight);
+                this.dgUnitWeight.ItemsSource = this.DataGridMainActivityItemsList;
+
+                if (this.DataGridMainActivityItemsList.Count > 0)
+                {
+                    this.dgUnitWeight.SelectedItem = this.DataGridMainActivityItemsList[0];
+                }
+            });
         }
 
         #endregion
@@ -186,7 +189,7 @@ namespace dMobile.View.Activity
             catch (Exception ex)
             {
                 // TODO: Resource strings
-                await DisplayAlert("Error", "this.ucActivityConvertUnit_GotFocus threw an error " + ex, "OK");
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "this.ucActivityConvertUnit_GotFocus threw an error " + ex, "OK"));
             }
         }
 
@@ -747,7 +750,7 @@ namespace dMobile.View.Activity
                                 if (this.SysEnv.SysSettings.CanPrintProductLabelConvertUnits)
                                 {
                                     //if (MessageBox.Show("Unit conversion complete." + Environment.NewLine + "Do you wish to print product labels?", "Unit Conversion", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
-                                    if (await DisplayAlert("Unit Conversion", "Unit conversion complete." + Environment.NewLine + "Do you wish to print product labels?", "Yes", "No"))
+                                    if (await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Unit Conversion", "Unit conversion complete." + Environment.NewLine + "Do you wish to print product labels?", "Yes", "No")))
                                     {
                                         for (int idx = 0; idx < ActDetail.DataViewDetails.Count; idx++)
                                         {
@@ -773,7 +776,7 @@ namespace dMobile.View.Activity
                                 else
                                 {
                                     // TODO: Resource strings
-                                    await DisplayAlert("Unit Conversion", "Unit conversion complete.", "OK");
+                                    await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Unit Conversion", "Unit conversion complete.", "OK"));
                                 }
                             }
 
@@ -785,7 +788,7 @@ namespace dMobile.View.Activity
 
                         //if (MessageBox.Show("Do you wish to convert any more unit(s)?", "Convert Unit(s)", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
                         // TODO: Resource strings
-                        if (await DisplayAlert("Convert Unit(s)", "Do you wish to convert any more unit(s)?", "Yes", "No"))
+                        if (await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Convert Unit(s)", "Do you wish to convert any more unit(s)?", "Yes", "No")))
                         {
                             saveComplete = false;
                         }
@@ -797,21 +800,21 @@ namespace dMobile.View.Activity
                             //MessageBox.Show("Location must be set.", "Convert Unit(s)", MessageBoxButtons.OK, MessageBoxIcon.Hand, MessageBoxDefaultButton.Button1);
 
                             // TODO: Resource strings
-                            await DisplayAlert("Convert Unit(s)", "Location must be set.", "OK");
+                            await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Convert Unit(s)", "Location must be set.", "OK"));
                         }
                         else if (this.ActItem.DataViewItems.Count == 0)
                         {
                             //MessageBox.Show("Convert from unit must be set.", "Convert Unit(s)", MessageBoxButtons.OK, MessageBoxIcon.Hand,MessageBoxDefaultButton.Button1);
 
                             // TODO: Resource strings
-                            await DisplayAlert("Convert Unit(s)", "Convert from unit must be set.", "OK");
+                            await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Convert Unit(s)", "Convert from unit must be set.", "OK"));
                         }
                         else if (this.ActDetail.DataViewDetails.Count == 0)
                         {
                             //MessageBox.Show("Convert to unit(s) must be set.", "Convert Unit(s)", MessageBoxButtons.OK, MessageBoxIcon.Hand, MessageBoxDefaultButton.Button1);
 
                             // TODO: Resource strings
-                            await DisplayAlert("Convert Unit(s)", "Convert to unit(s) must be set.", "OK");
+                            await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Convert Unit(s)", "Convert to unit(s) must be set.", "OK"));
                         }
                     }
                 }
@@ -1478,16 +1481,15 @@ namespace dMobile.View.Activity
                 //MessageBox.Show("Your location must be set.", this.GetControlDescription(), MessageBoxButtons.OK, MessageBoxIcon.Hand, MessageBoxDefaultButton.Button1);
 
                 // TODO: Resource strings
-                await DisplayAlert(this.GetControlDescription(), "Your location must be set.", "OK");
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Your location must be set.", "OK"));
             }
             else
             {
                 FormDialogContainer frmSelectProduct = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucSelectProductUnit, SysCommon.ActSubTypes.ConvertUnit);
 
-                if (await frmSelectProduct.DisplayControl.ShowDialog() == DialogResult.OK)
+                if (await Device.InvokeOnMainThreadAsync(async () => await frmSelectProduct.DisplayControl.ShowDialog() == DialogResult.OK))
                 {
                     await this.ClearContents();
-                    await frmSelectProduct.SaveChanges(sender, e);
                     XDocument xmlDocProduct = frmSelectProduct.DisplayControlData;
                     this.FromProdUnitRefno = int.Parse(xmlDocProduct.Root.Element("ProductUnitRefno").Value);
 
@@ -1598,14 +1600,14 @@ namespace dMobile.View.Activity
                     //MessageBox.Show("Your location must be set.", this.GetControlDescription(), MessageBoxButtons.OK, MessageBoxIcon.Hand, MessageBoxDefaultButton.Button1);
 
                     // TODO: Resource strings
-                    await DisplayAlert(this.GetControlDescription(), "Your location must be set.", "OK");
+                    await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Your location must be set.", "OK"));
                 }
                 else if (this.FromProdUnitRefno == 0 || this.ActItem.DataViewItems.Count <= 0)
                 {
                     //MessageBox.Show("Please set the from product unit first.", this.GetControlDescription(), MessageBoxButtons.OK, MessageBoxIcon.Hand, MessageBoxDefaultButton.Button1);
 
                     // TODO: Resource strings
-                    await DisplayAlert(this.GetControlDescription(), "Please set the from product unit first.", "OK");
+                    await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Please set the from product unit first.", "OK"));
                 }
                 else
                 {
@@ -1616,10 +1618,9 @@ namespace dMobile.View.Activity
 
                     FormDialogContainer frmSelectProduct = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucSelectProductUnitFilterToProduct, this.ActItem, SysCommon.ActSubTypes.ConvertUnit);
 
-                    if (await frmSelectProduct.DisplayControl.ShowDialog() == DialogResult.OK)
+                    if (await Device.InvokeOnMainThreadAsync(async () => await frmSelectProduct.DisplayControl.ShowDialog() == DialogResult.OK))
                     {
                         XDocument xmlDocProduct = frmSelectProduct.DisplayControlData;
-
                         this.ToProdUnitRefno = int.Parse(xmlDocProduct.Root.Element("ProductUnitRefno").Value);
 
                         if (this.ToProdUnitRefno != 0)

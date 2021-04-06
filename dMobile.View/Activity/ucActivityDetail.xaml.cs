@@ -249,7 +249,7 @@ namespace dMobile.View.Activity
             catch (Exception ex)
             {
                 // TODO: Resource strings
-                await DisplayAlert("Error", "this.ucActivityDetail_GotFocus/tmrActivityDetailLoaded_Tick threw an error " + ex, "OK");
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "this.ucActivityDetail_GotFocus/tmrActivityDetailLoaded_Tick threw an error " + ex, "OK"));
             }
         }
 
@@ -729,7 +729,7 @@ namespace dMobile.View.Activity
                 if (this.ActDetail.DataViewDetails.Count > 0)
                 {
                     // TODO: Resource strings
-                    if (await DisplayAlert("Print Label", "Print Product Labels", "Yes", "No"))
+                    if (await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Print Label", "Print Product Labels", "Yes", "No")))
                     {
                         await this.PrintBatchedProductLabels();
                     }
@@ -979,7 +979,7 @@ namespace dMobile.View.Activity
                         {
                             //DialogResult result = MessageBox.Show(errDetail, "Printing Label(s)", MessageBoxButtons.AbortRetryIgnore, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
                             // TODO: Resource strings
-                            if (await DisplayAlert("Printing Label(s)", errDetail, "Retry", "Abort"))
+                            if (await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Printing Label(s)", errDetail, "Retry", "Abort")))
                             {
                                 rowIdx--;
                             }
@@ -993,7 +993,7 @@ namespace dMobile.View.Activity
                     {
                         // TODO: Resource strings
                         //MessageBox.Show("Print product label(s) failed. " + Environment.NewLine + ex.Message, "Print Label(s)", MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
-                        await DisplayAlert("Print Label(s)", "Print product label(s) failed. " + Environment.NewLine + ex.Message, "OK");
+                        await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Print Label(s)", "Print product label(s) failed. " + Environment.NewLine + ex.Message, "OK"));
                     }
                 }
             }
@@ -1112,7 +1112,7 @@ namespace dMobile.View.Activity
                         {
                             // TODO: Resource strings
                             //MessageBox.Show("Skid product must match the selected line item product.", "Skid", MessageBoxButtons.OK, MessageBoxIcon.Hand, MessageBoxDefaultButton.Button1);
-                            await DisplayAlert("Skid", "Skid product must match the selected line item product.", "Ok");
+                            await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Skid", "Skid product must match the selected line item product.", "Ok"));
 
                             // TODO: Resource strings
                             this.ActDetail.ActItem.ActHdr.SkidInfo = new SysSkidInfo();
@@ -1259,7 +1259,7 @@ namespace dMobile.View.Activity
             catch (Exception ex)
             {
                 // TODO: Resource strings
-                await DisplayAlert("Error", ex.Message, "OK");
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", ex.Message, "OK"));
             }
             finally
             {
@@ -1308,7 +1308,7 @@ namespace dMobile.View.Activity
                     if (isAllowedAddManualDetail)
                     {
                         //if (MessageBox.Show("Add the ENTIRE skid?", this.GetControlDescription(), MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
-                        if (await DisplayAlert(this.GetControlDescription(), "Add the ENTIRE skid?", "Yes", "No"))
+                        if (await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Add the ENTIRE skid?", "Yes", "No")))
                         {
                             if (this.ActDetail.DataViewDetails.Count > 0)
                             {
@@ -1478,7 +1478,7 @@ namespace dMobile.View.Activity
                     //DialogResult result = MessageBox.Show("Do you wish to delete this record?", this.GetControlDescription(), MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
 
                     // TODO: Resource strings
-                    if (await DisplayAlert(this.GetControlDescription(), "Do you wish to delete this record?", "Yes", "No"))
+                    if (await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Do you wish to delete this record?", "Yes", "No")))
                     {
                         int actDetailFKRefno = this.ActDetail.GetFKRefno(this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem));
 
@@ -1509,7 +1509,7 @@ namespace dMobile.View.Activity
                         SysSkidInfo skidInfo = SysSkidInfo.GetSkidInfoFromBarCodeOrCode(Convert.ToString(this.ActDetail.DataViewDetails[currIdx]["ActivityDetailLogisticUnitSkidNumber"]));
                         //DialogResult result = MessageBox.Show(string.Format("Do you wish to delete this entire skid \'{0}\'?", skidInfo.CurrSkid.SkidCode), this.GetControlDescription(), MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
 
-                        if (await DisplayAlert(this.GetControlDescription(), string.Format("Do you wish to delete this entire skid \'{0}\'?", skidInfo.CurrSkid.SkidCode), "Yes", "No"))
+                        if (await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), string.Format("Do you wish to delete this entire skid \'{0}\'?", skidInfo.CurrSkid.SkidCode), "Yes", "No")))
                         {
                             this.ActDetail.DeleteSkid(skidInfo);
                             SysCommon.SFillQuantity fillQty = this.ActDetail.GetDataViewTotalQuantity();
@@ -1756,7 +1756,7 @@ namespace dMobile.View.Activity
                 {
                     // TODO: Resource strings
                     //MessageBox.Show(msg, this.GetControlDescription(), MessageBoxButtons.OK, MessageBoxIcon.None, MessageBoxDefaultButton.Button1);
-                    await DisplayAlert(this.GetControlDescription(), msg, "Ok");
+                    await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), msg, "Ok"));
                 }
             }
             catch (Exceptions.MessageOnlyException ex)

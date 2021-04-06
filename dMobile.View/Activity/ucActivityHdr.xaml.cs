@@ -175,7 +175,7 @@
             catch (Exception ex)
             {
                 // TODO: Resource strings
-                await DisplayAlert("Error", "this.ucActivityHdr_GotFocus threw an error " + ex, "OK");
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "this.ucActivityHdr_GotFocus threw an error " + ex, "OK"));
             }
             finally
             {
@@ -1147,7 +1147,7 @@
             {
                 // TODO: logging
                 // TODO: Resource strings
-                await DisplayAlert("Error", "An error occurred while refreshing data: " + ex.Message, "OK");
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "An error occurred while refreshing data: " + ex.Message, "OK"));
             }
             finally
             {

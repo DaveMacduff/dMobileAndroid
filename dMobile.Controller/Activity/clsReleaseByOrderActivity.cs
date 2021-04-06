@@ -95,7 +95,7 @@ namespace dMobile.Controller
                 //if (MessageBox.Show(string.Format("Release Order# {0} To Invoice Status?", this.FKRefno), "Release Order", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
 
                 // TODO: Resource Strings
-                if (await Application.Current.MainPage.DisplayAlert("Release Order", string.Format("Release Order# {0} To Invoice Status?", this.FKRefno), "Yes", "No"))
+                if (await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert("Release Order", string.Format("Release Order# {0} To Invoice Status?", this.FKRefno), "Yes", "No")))
                 {
                     //GC.Collect();
                     //GC.WaitForPendingFinalizers();

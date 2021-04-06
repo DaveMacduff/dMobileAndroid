@@ -47,7 +47,10 @@ namespace dMobile.Bedrock
         private string fileASCIIZ = string.Empty;
 
         [NonSerialized]
-        private static readonly object lockObject = new object();
+        private readonly object writeLockObject = new object();
+
+        [NonSerialized]
+        private readonly object readLockObject = new object();
 
         /// <summary>
         /// Rule: Sometimes a bar code is fully EAN/UCC 128 Symbol parsable EXCEPT the actual symbology is Code 128
@@ -1612,26 +1615,29 @@ namespace dMobile.Bedrock
         /// <returns>Object of type BarCodeSettings</returns>
         public SysBarCodeSettings LoadData()
         {
-            XmlSerializer serializer = new XmlSerializer(typeof(SysBarCodeSettings));
-            SysBarCodeSettings barCodeSettings = new SysBarCodeSettings();
-
-            // use relection to get the current assembly path for the database
-            string appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-            string fullPathToMyFile = Path.Combine(appDir, this.FileName);
-
-            if (!File.Exists(fullPathToMyFile))
+            lock (readLockObject)
             {
-                this.SaveData(ref barCodeSettings);
-            }
+                XmlSerializer serializer = new XmlSerializer(typeof(SysBarCodeSettings));
+                SysBarCodeSettings barCodeSettings = new SysBarCodeSettings();
 
-            // Create a FileStream to read with.
-            using (FileStream reader = new FileStream(fullPathToMyFile, FileMode.Open))
-            {
-                // Deserialize the stream to the object, and close the TextReader
-                barCodeSettings = (SysBarCodeSettings)serializer.Deserialize(reader);
-            }
+                // use relection to get the current assembly path for the database
+                string appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+                string fullPathToMyFile = Path.Combine(appDir, this.FileName);
 
-            return barCodeSettings;
+                if (!File.Exists(fullPathToMyFile))
+                {
+                    this.SaveData(ref barCodeSettings);
+                }
+
+                // Create a FileStream to read with.
+                using (FileStream reader = new FileStream(fullPathToMyFile, FileMode.Open))
+                {
+                    // Deserialize the stream to the object, and close the TextReader
+                    barCodeSettings = (SysBarCodeSettings)serializer.Deserialize(reader);
+                }
+
+                return barCodeSettings;
+            }
         }
 
         /// <summary>
@@ -1641,11 +1647,11 @@ namespace dMobile.Bedrock
         /// <returns>True if save was successful else false</returns>
         public bool SaveData(ref SysBarCodeSettings barCodeSettings)
         {
-            XmlSerializer serializer = new XmlSerializer(typeof(SysBarCodeSettings));
-            bool isSaveComplete = false;
-
-            lock (lockObject)
+            lock (writeLockObject)
             {
+                XmlSerializer serializer = new XmlSerializer(typeof(SysBarCodeSettings));
+                bool isSaveComplete = false;
+
                 try
                 {
                     // use relection to get the current assembly path for the database
@@ -1665,9 +1671,9 @@ namespace dMobile.Bedrock
                 {
                     isSaveComplete = false;
                 }
-            }
 
-            return isSaveComplete;
+                return isSaveComplete;
+            }
         }
 
         #region IBarCodeSettingsEventPublisher Members

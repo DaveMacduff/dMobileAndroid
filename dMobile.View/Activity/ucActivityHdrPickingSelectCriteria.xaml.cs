@@ -166,7 +166,7 @@ namespace dMobile.View.Activity
             catch (Exception ex)
             {
                 // TODO: Resource strings
-                await DisplayAlert("Error", "this.ucActivityHdrPickingSelectCriteria_GotFocus threw an error " + ex, "OK");
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "this.ucActivityHdrPickingSelectCriteria_GotFocus threw an error " + ex, "OK"));
             }
 
             try
@@ -176,7 +176,7 @@ namespace dMobile.View.Activity
             catch (Exception ex)
             {
                 // TODO: Resource strings
-                await DisplayAlert("Error", "this.tabLocation_GotFocus threw an error " + ex, "OK");
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "this.tabLocation_GotFocus threw an error " + ex, "OK"));
             }
         }
 
@@ -679,7 +679,7 @@ namespace dMobile.View.Activity
                 {
                     if (!this.SysEnv.SysSettings.IsPickingModuleDisallowLoadingAllOrders)
                     {
-                        if (!await DisplayAlert(this.GetControlDescription(), "All orders for all sections will be loaded. Continue?", "Yes", "No"))
+                        if (await Device.InvokeOnMainThreadAsync(async () => !await DisplayAlert(this.GetControlDescription(), "All orders for all sections will be loaded. Continue?", "Yes", "No")))
                         {
                             cancelChanges = false;
                             this.IsChangesMade = false;

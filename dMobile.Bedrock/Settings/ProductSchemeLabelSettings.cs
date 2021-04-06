@@ -42,7 +42,10 @@ namespace dMobile.Bedrock
         private string fileName = "dMobileProductSchemeLabelSettings.xml";
 
         [NonSerialized]
-        private static readonly object lockObject = new object();
+        private readonly object writeLockObject = new object();
+
+        [NonSerialized]
+        private readonly object readLockObject = new object();
 
         /// <summary>
         /// arraylist of product scheme label definitions of type SchemeInfo
@@ -223,26 +226,29 @@ namespace dMobile.Bedrock
         /// <returns>Object of type ProductSchemeLabelSettings</returns>
         public ProdSchemeLabelSettings LoadData()
         {
-            XmlSerializer serializer = new XmlSerializer(typeof(ProdSchemeLabelSettings));
-            ProdSchemeLabelSettings settings = new ProdSchemeLabelSettings();
-
-            // use relection to get the current assembly path for the database
-            string appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-            string fullPathToMyFile = Path.Combine(appDir, this.fileName);
-
-            if (!File.Exists(fullPathToMyFile))
+            lock (readLockObject)
             {
-                this.SaveData(ref settings);
-            }
+                XmlSerializer serializer = new XmlSerializer(typeof(ProdSchemeLabelSettings));
+                ProdSchemeLabelSettings settings = new ProdSchemeLabelSettings();
 
-            // Create a FileStream to read with.
-            using (FileStream reader = new FileStream(fullPathToMyFile, FileMode.Open))
-            {
-                // Deserialize the stream to the object, and close the TextReader
-                settings = (ProdSchemeLabelSettings)serializer.Deserialize(reader);
-            }
+                // use relection to get the current assembly path for the database
+                string appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+                string fullPathToMyFile = Path.Combine(appDir, this.fileName);
 
-            return settings;
+                if (!File.Exists(fullPathToMyFile))
+                {
+                    this.SaveData(ref settings);
+                }
+
+                // Create a FileStream to read with.
+                using (FileStream reader = new FileStream(fullPathToMyFile, FileMode.Open))
+                {
+                    // Deserialize the stream to the object, and close the TextReader
+                    settings = (ProdSchemeLabelSettings)serializer.Deserialize(reader);
+                }
+
+                return settings;
+            }
         }
 
         /// <summary>
@@ -252,11 +258,11 @@ namespace dMobile.Bedrock
         /// <returns>True if save was successful else false</returns>
         public bool SaveData(ref ProdSchemeLabelSettings settings)
         {
-            XmlSerializer serializer = new XmlSerializer(typeof(ProdSchemeLabelSettings));
-            bool saveComplete = false;
-
-            lock (lockObject)
+            lock (writeLockObject)
             {
+                XmlSerializer serializer = new XmlSerializer(typeof(ProdSchemeLabelSettings));
+                bool saveComplete = false;
+
                 try
                 {
                     // use relection to get the current assembly path for the database
@@ -276,9 +282,9 @@ namespace dMobile.Bedrock
                 {
                     saveComplete = false;
                 }
-            }
 
-            return saveComplete;
+                return saveComplete;
+            }
         }
 
         /// <summary>

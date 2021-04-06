@@ -93,7 +93,7 @@ namespace dMobile.View.Activity
             catch (Exception ex)
             {
                 // TODO: logging
-                await DisplayAlert("Error", "ucActivityDetailInventoryInquiry_GotFocus/tmrActivityItemInventoryInquiry_Tick error: " + ex.Message, "OK");
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "ucActivityDetailInventoryInquiry_GotFocus/tmrActivityItemInventoryInquiry_Tick error: " + ex.Message, "OK"));
             }
         }
 

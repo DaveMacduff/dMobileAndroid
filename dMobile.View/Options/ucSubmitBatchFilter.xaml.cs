@@ -152,7 +152,7 @@ namespace dMobile.View.Options
             catch (Exception ex)
             {
                 // TODO: Resource strings
-                await DisplayAlert("Error", "this.ucSubmitBatchFilter_GotFocus threw an error " + ex, "OK");
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "this.ucSubmitBatchFilter_GotFocus threw an error " + ex, "OK"));
             }
         }
 

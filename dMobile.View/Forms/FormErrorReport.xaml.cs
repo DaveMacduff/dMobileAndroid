@@ -252,7 +252,7 @@
 
             Log.Error(this.FullClassName, msg);
 
-            if (await Application.Current.MainPage.DisplayAlert(this.Title, msg, this.buttonContinue.Text, this.buttonSendReport.Text))
+            if (await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(this.Title, msg, this.buttonContinue.Text, this.buttonSendReport.Text)))
             {
                 this.buttonContinue_Click(this, new EventArgs());
             }
@@ -408,7 +408,7 @@
         private async void ButtonSendReport_Clicked(object sender, EventArgs e)
         {
             // TODO: Send error report
-            await Application.Current.MainPage.DisplayAlert("Error", "Not Implemented", "OK");
+            await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert("Error", "Not Implemented", "OK"));
         }
     }
 }

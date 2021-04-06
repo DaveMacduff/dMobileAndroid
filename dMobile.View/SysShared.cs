@@ -88,162 +88,171 @@ namespace dMobile.View
         /// <param name="productUnitRefno"></param>
         public static async Task<int> IdentifyProductScanned(SysCommon.ActSubTypes actSubType, BarCodeParse barCodeParse, int prodUnitRefno)
         {
-            int prodUnitBarCodeRefno = 0;
-            Controller.Activity actBarCode = ActivityFacade.GetActivity(SysCommon.ActSubTypes.BarCodeAssociation);
-            ActItem actItemBarCode = ActItemFacade.GetActItem(actBarCode, SysCommon.ActSubTypes.BarCodeAssociation);
-            ActDetail actDetailBarCode = ActDetailFacade.GetActDetail(actItemBarCode, SysCommon.ActSubTypes.BarCodeAssociation);
-            SysEnvironment sysEnv = SysEnvironment.GetInstance();
-
-            // Initialize by reference parameter variables
-            prodUnitRefno = 0;
-
-            // Attempt to find the product in local database.
-            using (SQLiteCommand cmndProdUnitBarCode = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+            try
             {
-                // Do not look up gtin in barcode database for this rule, product will be identified by a range
-                // of fixed weights.
-                if (sysEnv.BarCodeSettings.IsRuleEnabled_ParseSumwaFarmFedWholeDuck_UseWeightRangeToIDProduct && barCodeParse.ProductIdentifier == "90695955110022")
-                {
-                    BarCodeRuleParseSumwaFarmFedWholeDuckUseWeightRangeToIDProduct(barCodeParse);
+                int prodUnitBarCodeRefno = 0;
+                Controller.Activity actBarCode = ActivityFacade.GetActivity(SysCommon.ActSubTypes.BarCodeAssociation);
+                ActItem actItemBarCode = ActItemFacade.GetActItem(actBarCode, SysCommon.ActSubTypes.BarCodeAssociation);
+                ActDetail actDetailBarCode = ActDetailFacade.GetActDetail(actItemBarCode, SysCommon.ActSubTypes.BarCodeAssociation);
+                SysEnvironment sysEnv = SysEnvironment.GetInstance();
 
-                    ProductInfo prodInfo = ProductInfoTasks.GetInfoFromCodeBCUnit(barCodeParse.ProductIdentifier, string.Empty, "CS");
-                    prodUnitBarCodeRefno = 0;
-                    prodUnitRefno = prodInfo.UnitRefno;
-                }
-                else
-                {
-                    cmndProdUnitBarCode.CommandType = CommandType.Text;
-                    cmndProdUnitBarCode.CommandText = "SELECT ProductUnitBarCodeRefno, ProductUnitRefno "
-                        + "FROM tProductUnitBarCode "
-                        + "WHERE ProductUnitBarCodeCode = @productUnitBarCodeCode "
-                        + "AND ProductUnitBarCodeModifier1 = @productUnitBarCodeModifier1";
-                    cmndProdUnitBarCode.Parameters.Add(new SQLiteParameter("@productUnitBarCodeCode", barCodeParse.ProductIdentifier));
-                    cmndProdUnitBarCode.Parameters.Add(new SQLiteParameter("@productUnitBarCodeModifier1", sysEnv.CurrentBarCodeModifier1));
+                // Initialize by reference parameter variables
+                prodUnitRefno = 0;
 
-                    using (SQLiteDataReader prodUnitBarCodeReader = cmndProdUnitBarCode.ExecuteReader())
+                // Attempt to find the product in local database.
+                using (SQLiteCommand cmndProdUnitBarCode = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                {
+                    // Do not look up gtin in barcode database for this rule, product will be identified by a range
+                    // of fixed weights.
+                    if (sysEnv.BarCodeSettings.IsRuleEnabled_ParseSumwaFarmFedWholeDuck_UseWeightRangeToIDProduct && barCodeParse.ProductIdentifier == "90695955110022")
                     {
-                        if (prodUnitBarCodeReader.Read())
+                        BarCodeRuleParseSumwaFarmFedWholeDuckUseWeightRangeToIDProduct(barCodeParse);
+
+                        ProductInfo prodInfo = ProductInfoTasks.GetInfoFromCodeBCUnit(barCodeParse.ProductIdentifier, string.Empty, "CS");
+                        prodUnitBarCodeRefno = 0;
+                        prodUnitRefno = prodInfo.UnitRefno;
+                    }
+                    else
+                    {
+                        cmndProdUnitBarCode.CommandType = CommandType.Text;
+                        cmndProdUnitBarCode.CommandText = "SELECT ProductUnitBarCodeRefno, ProductUnitRefno "
+                            + "FROM tProductUnitBarCode "
+                            + "WHERE ProductUnitBarCodeCode = @productUnitBarCodeCode "
+                            + "AND ProductUnitBarCodeModifier1 = @productUnitBarCodeModifier1";
+                        cmndProdUnitBarCode.Parameters.Add(new SQLiteParameter("@productUnitBarCodeCode", barCodeParse.ProductIdentifier));
+                        cmndProdUnitBarCode.Parameters.Add(new SQLiteParameter("@productUnitBarCodeModifier1", sysEnv.CurrentBarCodeModifier1));
+
+                        using (SQLiteDataReader prodUnitBarCodeReader = cmndProdUnitBarCode.ExecuteReader())
                         {
-                            prodUnitBarCodeRefno = Convert.ToInt32(prodUnitBarCodeReader["ProductUnitBarCodeRefno"]);
-                            prodUnitRefno = Convert.ToInt32(prodUnitBarCodeReader["ProductUnitRefno"]);
+                            if (prodUnitBarCodeReader.Read())
+                            {
+                                prodUnitBarCodeRefno = Convert.ToInt32(prodUnitBarCodeReader["ProductUnitBarCodeRefno"]);
+                                prodUnitRefno = Convert.ToInt32(prodUnitBarCodeReader["ProductUnitRefno"]);
+                            }
                         }
                     }
-                }
 
-                // If product was not found in the database ask the comm server if it can identify it.
-                // Deli PLU's will be handled by the comm server also.
-                // <issue="13440" date="2016/02/18" author="RD"> - Added the condition for prodUnitRefno == 0 to fix Sumwa farms scanning
-                // issue where it was bringing in the avg weight instead of barcode parsed weight.
-                // This prevents the found prodInfo from being overwritten.</issue>
-                if (prodUnitBarCodeRefno == 0 && prodUnitRefno == 0)
-                {
-                    if (!sysEnv.SysSettings.IsDisconnectedMode)
+                    // If product was not found in the database ask the comm server if it can identify it.
+                    // Deli PLU's will be handled by the comm server also.
+                    // <issue="13440" date="2016/02/18" author="RD"> - Added the condition for prodUnitRefno == 0 to fix Sumwa farms scanning
+                    // issue where it was bringing in the avg weight instead of barcode parsed weight.
+                    // This prevents the found prodInfo from being overwritten.</issue>
+                    if (prodUnitBarCodeRefno == 0 && prodUnitRefno == 0)
                     {
-                        try
+                        if (!sysEnv.SysSettings.IsDisconnectedMode)
                         {
-                            ProductInfo prod = new ProductInfo();
-                            decimal deliScaleWeight = 0;
-                            string deliScaleWeightUnit = string.Empty;
-                            prodUnitRefno = ProductInfoTasks.GetUnitRefnoFromBarCode(
-                                barCodeParse.ProductIdentifier,
-                                sysEnv.CurrentBarCodeModifier1,
-                                barCodeParse.Symbology,
-                                barCodeParse.DeliScaleAmount,
-                                ref deliScaleWeight,
-                                ref deliScaleWeightUnit,
-                                ref prod);
+                            try
+                            {
+                                ProductInfo prod = new ProductInfo();
+                                decimal deliScaleWeight = 0;
+                                string deliScaleWeightUnit = string.Empty;
+                                prodUnitRefno = ProductInfoTasks.GetUnitRefnoFromBarCode(
+                                    barCodeParse.ProductIdentifier,
+                                    sysEnv.CurrentBarCodeModifier1,
+                                    barCodeParse.Symbology,
+                                    barCodeParse.DeliScaleAmount,
+                                    ref deliScaleWeight,
+                                    ref deliScaleWeightUnit,
+                                    ref prod);
 
-                            if (deliScaleWeightUnit == "LB")
-                            {
-                                barCodeParse.NetWeightNonMetricLB = deliScaleWeight;
-                                barCodeParse.NetWeightMetricKG = Convert.ToDecimal(SysCommon.ConvertLB2KG(Convert.ToDouble(barCodeParse.NetWeightNonMetricLB)));
+                                if (deliScaleWeightUnit == "LB")
+                                {
+                                    barCodeParse.NetWeightNonMetricLB = deliScaleWeight;
+                                    barCodeParse.NetWeightMetricKG = Convert.ToDecimal(SysCommon.ConvertLB2KG(Convert.ToDouble(barCodeParse.NetWeightNonMetricLB)));
+                                }
+                                else if (deliScaleWeightUnit == "KG")
+                                {
+                                    barCodeParse.NetWeightMetricKG = deliScaleWeight;
+                                    barCodeParse.NetWeightNonMetricLB = Convert.ToDecimal(SysCommon.ConvertKG2LB(Convert.ToDouble(barCodeParse.NetWeightMetricKG)));
+                                }
+                                else
+                                {
+                                    deliScaleWeight = 0;
+                                    deliScaleWeightUnit = string.Empty;
+                                }
                             }
-                            else if (deliScaleWeightUnit == "KG")
+                            catch (Exception ex)
                             {
-                                barCodeParse.NetWeightMetricKG = deliScaleWeight;
-                                barCodeParse.NetWeightNonMetricLB = Convert.ToDecimal(SysCommon.ConvertKG2LB(Convert.ToDouble(barCodeParse.NetWeightMetricKG)));
-                            }
-                            else
-                            {
-                                deliScaleWeight = 0;
-                                deliScaleWeightUnit = string.Empty;
+                                // TODO: Resource strings
+                                await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert("Identify Product", ex.Message, "OK"));
                             }
                         }
-                        catch (Exception ex)
+
+                        // If 'yes' to join bar code to a product
+                        if (prodUnitRefno == 0)
                         {
                             // TODO: Resource strings
-                            await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert("Identify Product", ex.Message, "OK"));
-                        }
-                    }
+                            string msg = "Scanned product bar code is not associated to a product." + Environment.NewLine + "Do you wish to associate it now? ";
+                            bool selectedYes = false;
 
-                    // If 'yes' to join bar code to a product
-                    if (prodUnitRefno == 0)
-                    {
-                        // TODO: Resource strings
-                        string msg = "Scanned product bar code is not associated to a product." + Environment.NewLine + "Do you wish to associate it now? ";
-                        bool selectedYes = false;
-
-                        // TODO: Resource strings
-                        if (await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert("Activity Item", msg, "Yes", "No")))
-                        {
-                            selectedYes = true;
-                        };
-
-                        // Changed functionality to disallow product scanning everywhere.
-                        // However, always prompt for password if not allowed to associate.
-                        bool isAllowedAssocProdBarCode = sysEnv.ContactLog.IsAllowedAssociateProductBarCode;
-
-                        if (selectedYes)
-                        {
-                            if (!isAllowedAssocProdBarCode)
+                            // TODO: Resource strings
+                            if (await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert("Activity Item", msg, "Yes", "No")))
                             {
-                                // Prompt for password
-                                FormAssociateBarCodeOverride formAssociateBarCodeOverride = new FormAssociateBarCodeOverride();
+                                selectedYes = true;
+                            };
 
-                                await formAssociateBarCodeOverride.ShowDialog();
+                            // Changed functionality to disallow product scanning everywhere.
+                            // However, always prompt for password if not allowed to associate.
+                            bool isAllowedAssocProdBarCode = sysEnv.ContactLog.IsAllowedAssociateProductBarCode;
 
-                                if (formAssociateBarCodeOverride.DialogResult == DialogResult.OK)
-                                {
-                                    isAllowedAssocProdBarCode = true;
-                                }
-                            }
-
-                            if (isAllowedAssocProdBarCode)
+                            if (selectedYes)
                             {
-                                bool continueAssocBarCode = false;
-
-                                FormDialogContainer frmSelectProduct = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucSelectProductUnit, actSubType);
-
-                                if (await Device.InvokeOnMainThreadAsync(async () => await frmSelectProduct.DisplayControl.ShowDialog() == DialogResult.OK))
+                                if (!isAllowedAssocProdBarCode)
                                 {
-                                    continueAssocBarCode = true;
-                                }
+                                    // Prompt for password
+                                    FormAssociateBarCodeOverride formAssociateBarCodeOverride = new FormAssociateBarCodeOverride();
 
-                                if (continueAssocBarCode)
-                                {
-                                    XDocument xmlDoc = frmSelectProduct.DisplayControlData;
-                                    prodUnitRefno = int.Parse(xmlDoc.Root.Element("ProductUnitRefno").Value);
+                                    await formAssociateBarCodeOverride.ShowDialog();
 
-                                    // If a product was selected, create the xml for the bar code
-                                    // the activity insert
-                                    if (prodUnitRefno != 0)
+                                    if (formAssociateBarCodeOverride.DialogResult == DialogResult.OK)
                                     {
-                                        xmlDoc = XDocument.Parse(
-                                            "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                                            + "<params>"
-                                            + ("<ProductUnitRefno>" + prodUnitRefno.ToString() + "</ProductUnitRefno>")
-                                            + ("<ProductUnitBarCodeRefno>" + prodUnitBarCodeRefno.ToString()
-                                            + "</ProductUnitBarCodeRefno>")
-                                            + ("<ProductIdentifier>" + barCodeParse.ProductIdentifier + "</ProductIdentifier>")
-                                            + ("<ProductUnitBarCodeModifier1>" + sysEnv.CurrentBarCodeModifier1
-                                            + "</ProductUnitBarCodeModifier1>")
-                                            + ("<RawData>" + barCodeParse.Raw + "</RawData>")
-                                            + ("<enumBarCodeSymbology>" + Convert.ToInt32(barCodeParse.Symbology))
-                                            + "</enumBarCodeSymbology>"
-                                            + ("<BarCodeSymbologyPrefix>" + barCodeParse.SymbologyPrefix + "</BarCodeSymbologyPrefix>")
-                                            + "</params>");
+                                        isAllowedAssocProdBarCode = true;
+                                    }
+                                }
 
-                                        await actItemBarCode.Insert(xmlDoc, false);
+                                if (isAllowedAssocProdBarCode)
+                                {
+                                    bool continueAssocBarCode = false;
+
+                                    FormDialogContainer frmSelectProduct = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucSelectProductUnit, actSubType);
+
+                                    if (await Device.InvokeOnMainThreadAsync(async () => await frmSelectProduct.DisplayControl.ShowDialog() == DialogResult.OK))
+                                    {
+                                        continueAssocBarCode = true;
+                                    }
+
+                                    if (continueAssocBarCode)
+                                    {
+                                        XDocument xmlDoc = frmSelectProduct.DisplayControlData;
+                                        prodUnitRefno = int.Parse(xmlDoc.Root.Element("ProductUnitRefno").Value);
+
+                                        // If a product was selected, create the xml for the bar code
+                                        // the activity insert
+                                        if (prodUnitRefno != 0)
+                                        {
+                                            xmlDoc = XDocument.Parse(
+                                                "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
+                                                + "<params>"
+                                                + ("<ProductUnitRefno>" + prodUnitRefno.ToString() + "</ProductUnitRefno>")
+                                                + ("<ProductUnitBarCodeRefno>" + prodUnitBarCodeRefno.ToString()
+                                                + "</ProductUnitBarCodeRefno>")
+                                                + ("<ProductIdentifier>" + barCodeParse.ProductIdentifier + "</ProductIdentifier>")
+                                                + ("<ProductUnitBarCodeModifier1>" + sysEnv.CurrentBarCodeModifier1
+                                                + "</ProductUnitBarCodeModifier1>")
+                                                + ("<RawData>" + barCodeParse.Raw + "</RawData>")
+                                                + ("<enumBarCodeSymbology>" + Convert.ToInt32(barCodeParse.Symbology))
+                                                + "</enumBarCodeSymbology>"
+                                                + ("<BarCodeSymbologyPrefix>" + barCodeParse.SymbologyPrefix + "</BarCodeSymbologyPrefix>")
+                                                + "</params>");
+
+                                            await actItemBarCode.Insert(xmlDoc, false);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        // TODO: Resource strings
+                                        Exception ex = new Exception("Product not identified.");
+                                        throw ex;
                                     }
                                 }
                                 else
@@ -253,21 +262,19 @@ namespace dMobile.View
                                     throw ex;
                                 }
                             }
-                            else
-                            {
-                                // TODO: Resource strings
-                                Exception ex = new Exception("Product not identified.");
-                                throw ex;
-                            }
+                        }
+                        else
+                        {
+                            // TODO: Resource strings
+                            //Exception ex = new Exception("Product not identified.");
+                            //throw ex;
                         }
                     }
-                    else
-                    {
-                        // TODO: Resource strings
-                        //Exception ex = new Exception("Product not identified.");
-                        //throw ex;
-                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert("Error", "Error identifying product scanned." + Environment.NewLine + ex.Message, "OK"));
             }
 
             return prodUnitRefno;

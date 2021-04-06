@@ -120,7 +120,7 @@ namespace dMobile.View.Activity
             catch (Exception ex)
             {
                 // TODO: Resource strings
-                await DisplayAlert("Error", "this.ucActivityMoveSkid_GotFocus threw an error " + ex, "OK");
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "this.ucActivityMoveSkid_GotFocus threw an error " + ex, "OK"));
             }
         }
 
@@ -709,7 +709,7 @@ namespace dMobile.View.Activity
 
                     //if (MessageBox.Show("Do you wish to move any more skid(s)?", this.GetControlDescription(), MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.No)
                     // TODO: Resource strings
-                    if (!await DisplayAlert(this.GetControlDescription(), "Do you wish to move any more skid(s)?", "Yes", "No"))
+                    if (await Device.InvokeOnMainThreadAsync(async () => !await DisplayAlert(this.GetControlDescription(), "Do you wish to move any more skid(s)?", "Yes", "No")))
                     {
                         saveComplete = true;
                     }
@@ -719,7 +719,7 @@ namespace dMobile.View.Activity
             {
                 //MessageBox.Show(ex.Message, this.GetControlDescription(), MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
                 // TODO: Resource strings
-                await DisplayAlert(this.GetControlDescription(), ex.Message, "OK");
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), ex.Message, "OK"));
             }
 
             return saveComplete;
@@ -1036,22 +1036,22 @@ namespace dMobile.View.Activity
                     this.LocMap.CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(this.SkidInfo.CurrSkid.LocMapRefno);
                 }
 
-                this.DisplaySkidInfo();
+                await Device.InvokeOnMainThreadAsync(() => this.DisplaySkidInfo());
             }
             catch (Exception ex)
             {
                 // TODO: Resource strings
-                await DisplayAlert(this.GetControlDescription(), ex.Message, "OK");
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), ex.Message, "OK"));
             }
 
             if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
             {
-                this.cmdToLocation.Text = LocationMapTasks.GetCurrentReadableLocation();
+                await Device.InvokeOnMainThreadAsync(() => this.cmdToLocation.Text = LocationMapTasks.GetCurrentReadableLocation());
             }
             else
             {
                 // TODO: Resource strings
-                this.cmdToLocation.Text = "Set Location";
+                await Device.InvokeOnMainThreadAsync(() => this.cmdToLocation.Text = "Set Location");
             }
         }
 

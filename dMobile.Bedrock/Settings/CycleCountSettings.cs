@@ -28,7 +28,10 @@ namespace dMobile.Bedrock
         private string m_strFileName = "dMobileCycleCountSettings.xml";
 
         [NonSerialized]
-        private static readonly object lockObject = new object();
+        private readonly object writeLockObject = new object();
+
+        [NonSerialized]
+        private readonly object readLockObject = new object();
 
         private Int32 m_iSortBy1Index = 0;
         private string m_strSortBy1Value = "ActivityCountFKRefno ASC";
@@ -124,25 +127,28 @@ namespace dMobile.Bedrock
         /// <remarks></remarks>
         public CycleCountSettings LoadData()
         {
-            XmlSerializer serializer = new XmlSerializer(typeof(CycleCountSettings));
-            CycleCountSettings oCycleCountSettings = new CycleCountSettings();
-
-            // use relection to get the current assembly path for the database
-            string strAppDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-            string strFullPathToMyFile = Path.Combine(strAppDir, m_strFileName);
-
-            if (!File.Exists(strFullPathToMyFile))
+            lock (readLockObject)
             {
-                SaveData(ref oCycleCountSettings);
-            }
+                XmlSerializer serializer = new XmlSerializer(typeof(CycleCountSettings));
+                CycleCountSettings oCycleCountSettings = new CycleCountSettings();
 
-            // Create a FileStream to read with.
-            using (FileStream reader = new FileStream(strFullPathToMyFile, FileMode.Open))
-            {
-                oCycleCountSettings = (CycleCountSettings)serializer.Deserialize(reader);
-            }
+                // use relection to get the current assembly path for the database
+                string strAppDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+                string strFullPathToMyFile = Path.Combine(strAppDir, m_strFileName);
 
-            return oCycleCountSettings;
+                if (!File.Exists(strFullPathToMyFile))
+                {
+                    SaveData(ref oCycleCountSettings);
+                }
+
+                // Create a FileStream to read with.
+                using (FileStream reader = new FileStream(strFullPathToMyFile, FileMode.Open))
+                {
+                    oCycleCountSettings = (CycleCountSettings)serializer.Deserialize(reader);
+                }
+
+                return oCycleCountSettings;
+            }
         }
 
         /// <summary>
@@ -153,11 +159,11 @@ namespace dMobile.Bedrock
         /// <remarks></remarks>
         public bool SaveData(ref CycleCountSettings oCycleCountSettings)
         {
-            XmlSerializer serializer = new XmlSerializer(typeof(CycleCountSettings));
-            bool bSaveComplete = false;
-
-            lock (lockObject)
+            lock (writeLockObject)
             {
+                XmlSerializer serializer = new XmlSerializer(typeof(CycleCountSettings));
+                bool bSaveComplete = false;
+
                 try
                 {
                     // use relection to get the current assembly path for the database
@@ -177,9 +183,9 @@ namespace dMobile.Bedrock
                 {
                     bSaveComplete = false;
                 }
-            }
 
-            return bSaveComplete;
+                return bSaveComplete;
+            }
         }
     }
 }

@@ -140,7 +140,7 @@ namespace dMobile.View.Activity
             catch (Exception ex)
             {
                 // TODO: Resource strings
-                await DisplayAlert("Error", "this.ucActivityConvertProductDetail_GotFocus threw an error " + ex, "OK");
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "this.ucActivityConvertProductDetail_GotFocus threw an error " + ex, "OK"));
             }
         }
 
@@ -629,7 +629,7 @@ namespace dMobile.View.Activity
                         // weren't allowed to print on add or scan, so print now
 
                         // TODO: Resource strings
-                        if (await DisplayAlert("Print Label", "Print Product Labels?", "Yes", "No"))
+                        if (await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Print Label", "Print Product Labels?", "Yes", "No")))
                         {
                             await PrintBatchProductLabels();
                         }
@@ -643,7 +643,7 @@ namespace dMobile.View.Activity
                     //MessageBox.Show("Data failed validation. Check your data.");
 
                     // TODO: Resource strings
-                    await DisplayAlert("Data Validation", "Data failed validation. Check your data.", "OK");
+                    await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Data Validation", "Data failed validation. Check your data.", "OK"));
                 }
             }
             catch (Exception ex)
@@ -1047,7 +1047,7 @@ namespace dMobile.View.Activity
                 {
                     // TODO: logging
                     // TODO: Resource strings
-                    await DisplayAlert("Error", ex.Message, "OK");
+                    await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", ex.Message, "OK"));
                 }
                 finally
                 {

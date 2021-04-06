@@ -167,7 +167,7 @@ namespace dMobile.View.Activity
             catch (Exception ex)
             {
                 // TODO: Resource strings
-                await DisplayAlert("Error", "this.ucActivityProductLabel_GotFocus threw an error " + ex, "OK");
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "this.ucActivityProductLabel_GotFocus threw an error " + ex, "OK"));
             }
         }
 
@@ -639,7 +639,7 @@ namespace dMobile.View.Activity
                 if (await this.IsReadyToSave())
                 {
                     // TODO: Resource strings
-                    if (await DisplayAlert(this.GetControlDescription(), "Print product labels?", "Yes", "No"))
+                    if (await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Print product labels?", "Yes", "No")))
                     {
                         string sendReq = this.ActDetail.CreateSubmitProductLabelXML(this.GetXML());
                         string strData = SysCommon.SubmitComm(sendReq);
@@ -1282,7 +1282,7 @@ namespace dMobile.View.Activity
             if (this.ActDetailEdit.Quantity == 0)
             {
                 // TODO: Resource strings
-                await DisplayAlert(this.GetControlDescription(), "Invalid Quantity.", "OK");
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Invalid Quantity.", "OK"));
                 isRetVal = false;
             }
 
@@ -1323,7 +1323,7 @@ namespace dMobile.View.Activity
                 if ((scheme.IsSerialTracked || scheme.LabelInfo.IsSerialTracked) && this.ActDetailEdit.SchemeData.SingleTradeItemSerialNumber == string.Empty)
                 {
                     // TODO: Resource strings
-                    await DisplayAlert(this.GetControlDescription(), "Serial number required.", "OK");
+                    await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Serial number required.", "OK"));
                     isRetVal = false;
                 }
             }
@@ -1333,7 +1333,7 @@ namespace dMobile.View.Activity
                 if ((scheme.IsLotTracked || scheme.LabelInfo.IsLotTracked) && this.ActDetailEdit.SchemeData.LogisticUnitBatchLotNumber == string.Empty)
                 {
                     // TODO: Resource strings
-                    await DisplayAlert(this.GetControlDescription(), "Lot number required.", "OK");
+                    await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Lot number required.", "OK"));
                     isRetVal = false;
                 }
             }
@@ -1343,7 +1343,7 @@ namespace dMobile.View.Activity
                 if ((scheme.IsVariantTracked || scheme.LabelInfo.IsVariantTracked) && this.ActDetailEdit.SchemeData.VariantCode == string.Empty)
                 {
                     // TODO: Resource strings
-                    await DisplayAlert(this.GetControlDescription(), "Variant code required.", "OK");
+                    await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Variant code required.", "OK"));
                     isRetVal = false;
                 }
             }

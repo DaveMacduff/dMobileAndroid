@@ -414,8 +414,8 @@ namespace dMobile.View.Forms
         /// <param name="e"></param>
         public void FormDialogContainer_Load(object sender, EventArgs e)
         {
-            try
-            {
+            //try
+            //{
                 //int platform = (int)SysPlatformDetector.GetPlatform();
 
                 ////adjust the form size and pnlMain location depending on the OS
@@ -442,9 +442,9 @@ namespace dMobile.View.Forms
                 //    this.mainMenu.MenuItems[0].Text = "    Save    ";
                 //    this.mainMenu.MenuItems[1].Text = "   Cancel   ";
                 //}
-            }
-            catch (Exception ex)
-            {
+            //}
+            //catch (Exception ex)
+            //{
                 //MessageBox.Show(
                 //  ex.Message,
                 //  "dMobile",
@@ -452,8 +452,8 @@ namespace dMobile.View.Forms
                 //  MessageBoxIcon.Exclamation,
                 //  MessageBoxDefaultButton.Button1);
 
-                DisplayAlert("dMobile", ex.Message, Resource.OK);
-            }
+                //DisplayAlert("dMobile", ex.Message, Resource.OK);
+            //}
         }
 
         /// <summary>

@@ -351,7 +351,7 @@ namespace dMobile.View
             }
             catch (Exception ex)
             {
-                await DisplayAlert(Resource.Error, "LoginStartup_GotFocus threw an error: " + ex.Message, Resource.OK);
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(Resource.Error, "LoginStartup_GotFocus threw an error: " + ex.Message, Resource.OK));
             }
         }
 
@@ -985,7 +985,7 @@ namespace dMobile.View
             }
             catch (Exception ex)
             {
-                await DisplayAlert(Resource.Error, ex.Message, Resource.OK);
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(Resource.Error, ex.Message, Resource.OK));
             }
 
             this.Loading = false;
@@ -1039,7 +1039,7 @@ namespace dMobile.View
                 this.IsEnableAllModuleBypassLicense = true;
             }
 
-            await DisplayAlert(Resource.DMobile, Resource.AllModulesEnabledBypassingDeviceLicenses, Resource.OK);
+            await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(Resource.DMobile, Resource.AllModulesEnabledBypassingDeviceLicenses, Resource.OK));
         }
 
         public string GetControlDescription()

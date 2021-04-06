@@ -159,7 +159,7 @@
             catch (Exception ex)
             {
                 // TODO: Resource strings
-                await DisplayAlert("Error", "this.ucActivityHdr_GotFocus threw an error " + ex, "OK");
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "this.ucActivityHdr_GotFocus threw an error " + ex, "OK"));
             }
             finally
             {
@@ -1091,14 +1091,13 @@
                 if (LocMap.CurrLocMap.WhsFKRefno == 0 && !SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
                 {
                     //MessageBox.Show("You Have To Set Location!");
-                    await DisplayAlert("Set Location", "Location Must Be Set!", "OK");
+                    await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Set Location", "Location Must Be Set!", "OK"));
                 }
                 else
                 {
                     FormDialogContainer formSelectProd = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucSelectProductUnit, SysCommon.ActSubTypes.PurchaseOrderWorkSheet);
 
-                    dialogResult = await formSelectProd.DisplayControl.ShowDialog();
-                    await formSelectProd.SaveChanges(this, new EventArgs());
+                    await Device.InvokeOnMainThreadAsync(async () => dialogResult = await formSelectProd.DisplayControl.ShowDialog());
 
                     if (dialogResult == DialogResult.OK)
                     {

@@ -189,7 +189,7 @@ namespace dMobile.View.Forms
             else
             {
                 // TODO: Resource strings
-                await DisplayAlert("Add Manual Detail Override", "Permission denied.", "OK");
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Add Manual Detail Override", "Permission denied.", "OK"));
             }
 
             await this.Close();
@@ -293,7 +293,7 @@ namespace dMobile.View.Forms
                 //MessageBox.Show(ex.Message,"Add Manual Detail Override",MessageBoxButtons.OK,MessageBoxIcon.Exclamation,MessageBoxDefaultButton.Button1);
 
                 // TODO: Resource strings
-                await DisplayAlert("Add Manual Detail Override", ex.Message, "OK");
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Add Manual Detail Override", ex.Message, "OK"));
             }
             catch (SQLiteException ex)
             {

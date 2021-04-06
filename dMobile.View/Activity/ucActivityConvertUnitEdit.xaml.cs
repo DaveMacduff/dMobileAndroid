@@ -92,7 +92,7 @@ namespace dMobile.View.Activity
         /// <summary>
         /// The OnAppearing
         /// </summary>
-        protected override void OnAppearing()
+        protected override async void OnAppearing()
         {
             base.OnAppearing();
 
@@ -123,7 +123,7 @@ namespace dMobile.View.Activity
             catch (Exception ex)
             {
                 // TODO: Resource strings
-                DisplayAlert("Error", "this.ucActivityDetailEdit_GotFocus threw an error " + ex, "OK");
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "this.ucActivityDetailEdit_GotFocus threw an error " + ex, "OK"));
             }
         }
 
@@ -623,7 +623,7 @@ namespace dMobile.View.Activity
                 else
                 {
                     // TODO: Resource strings
-                    await DisplayAlert("Data Validation", "Data failed validation. Check your data.", "OK");
+                    await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Data Validation", "Data failed validation. Check your data.", "OK"));
                 }
             }
             catch (Exception ex)
