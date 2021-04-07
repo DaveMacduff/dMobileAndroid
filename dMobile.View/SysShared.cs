@@ -189,7 +189,7 @@ namespace dMobile.View
                             if (await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert("Activity Item", msg, "Yes", "No")))
                             {
                                 selectedYes = true;
-                            };
+                            }
 
                             // Changed functionality to disallow product scanning everywhere.
                             // However, always prompt for password if not allowed to associate.
