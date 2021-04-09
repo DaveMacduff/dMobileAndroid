@@ -48,7 +48,6 @@
         private List<string> optionsMenuItems = new List<string>();
         private bool firstLoad = true;
 
-
         // For handling double click on listview item
         private int numTaps = 0;
         private object previousSender;
@@ -211,13 +210,13 @@
                             await this.DataGridMainActivity_KeyUpEnter();
                         }
                     }
-                    else if (keycode == Keycode.Escape)
-                    {
-                        if (await this.CancelChanges())
-                        {
-                            this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-                        }
-                    }
+                    //else if (keycode == Keycode.Escape)
+                    //{
+                    //    if (await this.CancelChanges())
+                    //    {
+                    //        this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                    //    }
+                    //}
                     else if (keycode == Keycode.Grave)
                     {
                         if (await this.CancelChanges())
@@ -296,6 +295,21 @@
             this.dataGridMainActivity.ItemTapped -= this.DataGridMainActivity_ItemTapped;
 
             base.OnDisappearing();
+        }
+
+        protected override bool OnBackButtonPressed()
+        {
+            Device.BeginInvokeOnMainThread(async () =>
+            {
+                if (await this.CancelChanges())
+                {
+                    base.OnBackButtonPressed();
+                    this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                    await this.Close();
+                }
+            });
+
+            return true;
         }
 
         /// <summary>
@@ -697,8 +711,8 @@
             if (!this.IsBarCodeHandlerRegistered)
             {
                 this.IsBarCodeHandlerRegistered = true;
-                await this.Scanner.Start();
                 this.Scanner.BarCodeScan += this.BarCodeHandler;
+                await this.Scanner.Start();
             }
         }
 
@@ -852,7 +866,7 @@
                             case SysCommon.ActPickingQtyUnderValLevels.ValidateWarnAndContinue:
                                 //if (MessageBox.Show(ex.Message + Environment.NewLine + "Continue?", "Quantity Validation", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.No)
                                 // TODO: Resource strings
-                                if (await DisplayAlert("Quantity Validation", ex.Message + Environment.NewLine + "Continue?", "Yes", "No") == false)
+                                if (await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Quantity Validation", ex.Message + Environment.NewLine + "Continue?", "Yes", "No") == false))
                                 {
                                     isReadyToClose = false;
                                     this.IsShowDataValidMsg = false;
@@ -863,7 +877,7 @@
                             case SysCommon.ActPickingQtyUnderValLevels.ValidateWarnAndStop:
                                 //MessageBox.Show(ex.Message, "Quantity Validation", MessageBoxButtons.OK, MessageBoxIcon.Hand, MessageBoxDefaultButton.Button1);
                                 // TODO: Resource strings
-                                await DisplayAlert("Quantity Validation", ex.Message, "OK");
+                                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Quantity Validation", ex.Message, "OK"));
                                 isReadyToClose = false;
                                 this.IsShowDataValidMsg = false;
 

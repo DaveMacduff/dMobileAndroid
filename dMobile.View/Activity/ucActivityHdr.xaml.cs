@@ -496,7 +496,7 @@
         {
             if (this.IsBarCodeHandlerRegistered && this.BarScanner != null)
             {
-                this.BarScanner.BarCodeScan -= new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                this.BarScanner.BarCodeScan -= this.BarCodeHandler;
                 await this.BarScanner.Stop();
                 this.IsBarCodeHandlerRegistered = false;
             }
@@ -511,8 +511,8 @@
             if (!this.IsBarCodeHandlerRegistered)
             {
                 this.IsBarCodeHandlerRegistered = true;
+                this.BarScanner.BarCodeScan += this.BarCodeHandler;
                 await this.BarScanner.Start();
-                this.BarScanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
             }
         }
 
@@ -958,10 +958,10 @@
             string message = string.Empty;
             //int currRowIdx = this.dataGridMainActivity.CurrentRowIndex;
             string savedViewSort = string.Empty;
-            this.BarParse = scanArgs.ParseInfo;
 
             try
             {
+                this.BarParse = scanArgs.ParseInfo;
                 savedViewSort = this.ActHdr.DataViewHdrs.Sort;
 
                 if (!string.IsNullOrEmpty(this.BarParse.ActFKRefno))
@@ -1228,8 +1228,6 @@
                         {
                             performRefreshData = false;
                         }
-
-                        await this.ScannerEnable();
                     }
 
                     if (performRefreshData)
@@ -1251,6 +1249,8 @@
                 }
                 finally
                 {
+                    await this.ScannerEnable();
+
                     this.ReqCancelEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     this.ReqSaveEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
 
