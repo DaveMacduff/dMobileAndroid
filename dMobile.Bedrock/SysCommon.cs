@@ -3,8 +3,7 @@ namespace dMobile.Bedrock
     using System;
     using System.Collections.Generic;
     using System.Data;
-    using System.Data.SQLite;
-    using System.Diagnostics;
+    using SQLite;
     using System.IO;
     using System.Net.Sockets;
     using System.Reflection;
@@ -12,6 +11,7 @@ namespace dMobile.Bedrock
     using System.Text;
     using System.Xml;
     using System.Xml.Schema;
+    using System.Threading.Tasks;
 
     public struct SProductSchemeData
     {
@@ -1861,7 +1861,7 @@ namespace dMobile.Bedrock
         /// </summary>
         /// <returns>True or false if data unsubmitted data exists</returns>
         /// <remarks></remarks>
-        public static bool CheckForUnSubmittedData()
+        public static async Task<bool> CheckForUnSubmittedData()
         {
             bool isDataExists = false;
 
@@ -1881,15 +1881,9 @@ namespace dMobile.Bedrock
             sql.Append("INNER JOIN tActivityDetail ON tActivityDetail.ActivityItemRefno = tActivityItem.ActivityItemRefno ");
             sql.AppendFormat("WHERE tActivityDetail.ActivityDetailStatus <> {0}", Convert.ToInt32(ActStatus.NoChange));
 
-            using (SQLiteCommand cmndDetail = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+            if (await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(sql.ToString()) != 0)
             {
-                cmndDetail.CommandText = sql.ToString();
-                cmndDetail.CommandType = CommandType.Text;
-
-                if (cmndDetail.ExecuteNonQuery() != 0)
-                {
-                    isDataExists = true;
-                }
+                isDataExists = true;
             }
 
             return isDataExists;

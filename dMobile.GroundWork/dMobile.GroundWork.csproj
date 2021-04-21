@@ -10,12 +10,6 @@
     <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System.Data.SQLite">
-      <HintPath Condition="Exists('..\sqlite-netFx-source-1.0.111.0\bin\2017\Debug\bin\System.Data.SQLite.dll')">..\sqlite-netFx-source-1.0.111.0\bin\2017\Debug\bin\System.Data.SQLite.dll</HintPath>
-      <HintPath Condition="Exists('..\sqlite-netFx-source-1.0.111.0\2017\Debug\bin\System.Data.SQLite.dll')">..\sqlite-netFx-source-1.0.111.0\2017\Debug\bin\System.Data.SQLite.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\dMobile.Bedrock\dMobile.Bedrock.csproj" />
     <ProjectReference Include="..\dMobile.Resources\dMobile.Resources.csproj" />
   </ItemGroup>

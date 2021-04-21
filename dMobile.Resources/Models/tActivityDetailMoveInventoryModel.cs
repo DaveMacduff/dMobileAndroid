@@ -1,0 +1,36 @@
+﻿using System;
+using SQLite;
+using SQLiteNetExtensions.Attributes;
+
+namespace dMobile.Resources.Models
+{
+    //string sqlTable = "CREATE TABLE IF NOT EXISTS tActivityDetailMoveInventory"
+    //+ "("
+    //+ "ActivityDetailRefno INTEGER NOT NULL CONSTRAINT PK_ActivityDetailMoveInventoryOnActivityDetailRefno PRIMARY KEY,"
+    //+ "ActivityDetailMoveInventoryFKRefno INTEGER NOT NULL "
+    //+ ")";
+
+    //if (this.OnNubStatOut != null)
+    //{
+    //    this.MsgEventArgs.StatusOutMsg = "Creating detail move inventory table.";
+    //    this.OnNubStatOut(this, this.MsgEventArgs);
+    //}
+
+    //await this.RunDDLCommand(sqlTable);
+
+    //string sqlNdx = "CREATE UNIQUE NONCLUSTERED INDEX UQ_ActivityDetailMoveInventoryOnActivityDetailMoveInventoryFKRefno ON tActivityDetailMoveInventory(ActivityDetailMoveInventoryFKRefno ASC)";
+    //await this.RunDDLCommand(sqlNdx);
+
+    //string alterTable = "ALTER TABLE tActivityDetailMoveInventory ADD CONSTRAINT ActivityDetailMoveInventoryTactDetailOnActivityDetailRefno FOREIGN KEY (ActivityDetailRefno) REFERENCES tActivityDetail(ActivityDetailRefno) ON DELETE CASCADE ON UPDATE CASCADE";
+    //await this.RunDDLCommand(alterTable);
+
+    [Table("tActivityDetailMoveInventory")]
+    public class tActivityDetailMoveInventoryModel
+    {
+        [PrimaryKey, NotNull, ForeignKey(typeof(tActivityDetailModel)), OneToOne(CascadeOperations = CascadeOperation.All)]
+        public int ActivityDetailRefno { get; set; }
+
+        [NotNull, Indexed(Name = "UQ_ActivityDetailMoveInventoryOnActivityDetailMoveInventoryFKRefno", Order = 1, Unique = true)]
+        public int ActivityDetailMoveInventoryFKRefno { get; set; }
+    }
+}

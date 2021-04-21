@@ -3,12 +3,15 @@ namespace dMobile.Bedrock
     using System;
     using System.Collections;
     using System.Data;
-    using System.Data.SQLite;
+    using SQLite;
     using System.IO;
     using System.Text;
     using System.Xml;
     using System.Xml.Linq;
     using System.Xml.Serialization;
+    using System.Threading.Tasks;
+    using dMobile.Resources.Models;
+    using System.Collections.Generic;
 
     /// <summary>
     /// Printer Settings Class
@@ -375,7 +378,7 @@ namespace dMobile.Bedrock
         /// Process the xml data from the communication server and store it.
         /// </summary>
         /// <param name="xmlData"> Xml data received from the communication server</param>
-        private void Save(string xmlData)
+        private async Task Save(string xmlData)
         {
             ProdSchemeLabelSettingsEventArgs msgArg = new ProdSchemeLabelSettingsEventArgs();
             string schemeCode = string.Empty;
@@ -423,67 +426,57 @@ namespace dMobile.Bedrock
                             this.OnProdSchemeLabelSettingsProgressOut(this, msgArg);
                         }
 
-                        using (SQLiteCommand cmndScheme = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                        this.AllProdSchemeLabel.Clear();
+                        int progValue = 0;
+                        ProdSchemeLabelInfo schemeLblInfo = new ProdSchemeLabelInfo();
+
+                        foreach (DataRow drow in ds.Tables["seg"].Rows)
                         {
-                            cmndScheme.CommandText = "SELECT * FROM tProductScheme WHERE ProductSchemeCode = @productSchemeCode";
-                            cmndScheme.CommandType = CommandType.Text;
-                            //cmndScheme.IndexName = "UQ_ProductSchemeOnProductSchemeCode";
+                            schemeCode = Convert.ToString(drow["ProductSchemeCode"]);
+                            errMsg = "Scheme code \'" + errMsg + "\'";
 
-                            this.AllProdSchemeLabel.Clear();
-                            int progValue = 0;
-                            ProdSchemeLabelInfo schemeLblInfo = new ProdSchemeLabelInfo();
+                            List<tProductSchemeModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tProductSchemeModel>("SELECT * FROM tProductScheme WHERE ProductSchemeCode = ?", schemeCode);
 
-                            foreach (DataRow drow in ds.Tables["seg"].Rows)
+                            //if (!drScheme.Seek(DbSeekOptions.FirstEqual, new object[] { schemeCode }))
+                            //{
+                            //    throw new Exception("Unable to locate the product scheme code in tProductScheme."
+                            //        + Environment.NewLine + errMsg);
+                            //}
+
+                            //if (!drScheme.Read())
+                            if (results == null || results.Count <= 0)
                             {
-                                schemeCode = Convert.ToString(drow["ProductSchemeCode"]);
-                                errMsg = "Scheme code \'" + errMsg + "\'";
-
-                                cmndScheme.Parameters.Add(new SQLiteParameter("@productSchemeCode", schemeCode));
-
-                                using (SQLiteDataReader drScheme = cmndScheme.ExecuteReader())
-                                {
-                                    //if (!drScheme.Seek(DbSeekOptions.FirstEqual, new object[] { schemeCode }))
-                                    //{
-                                    //    throw new Exception("Unable to locate the product scheme code in tProductScheme."
-                                    //        + Environment.NewLine + errMsg);
-                                    //}
-
-                                    if (!drScheme.Read())
-                                    {
-                                        // TODO: Resource strings
-                                        throw new Exception("drProdScheme.Read() failed." + Environment.NewLine + errMsg);
-                                    }
-
-                                    schemeLblInfo.SchemeRefno = Convert.ToInt32(drScheme.GetValue(Convert.ToInt32(SysCommon.ProdSchemeFields.Refno)));
-                                    schemeLblInfo.IsBestBeforeDateTracked = Convert.ToBoolean(drow["ProductSchemeLabelIsBestBeforeDateTracked"]);
-                                    schemeLblInfo.IsLotTracked = Convert.ToBoolean(drow["ProductSchemeLabelIsLotTracked"]);
-                                    schemeLblInfo.IsProductionDateTracked = Convert.ToBoolean(drow["ProductSchemeLabelIsProductionDateTracked"]);
-                                    schemeLblInfo.IsSerialTracked = Convert.ToBoolean(drow["ProductSchemeLabelIsSerialTracked"]);
-                                    schemeLblInfo.IsVariantTracked = Convert.ToBoolean(drow["ProductSchemeLabelIsVariantTracked"]);
-
-                                    this.AllProdSchemeLabel.Add(schemeLblInfo);
-
-                                    progValue += 1;
-
-                                    if (this.OnProdSchemeLabelSettingsProgressOut != null)
-                                    {
-                                        msgArg.CurrentValue = progValue;
-                                        msgArg.MinValue = 0;
-                                        msgArg.MaxValue = progMax;
-                                        this.OnProdSchemeLabelSettingsProgressOut(this, msgArg);
-                                    }
-
-                                    drScheme.Close();
-                                }
-
-                                if (this.OnProdSchemeLabelSettingsProgressOut != null)
-                                {
-                                    msgArg.CurrentValue = progMax;
-                                    msgArg.MinValue = 0;
-                                    msgArg.MaxValue = progMax;
-                                    this.OnProdSchemeLabelSettingsProgressOut(this, msgArg);
-                                }
+                                // TODO: Resource strings
+                                throw new Exception("drProdScheme.Read() failed." + Environment.NewLine + errMsg);
                             }
+
+                            //schemeLblInfo.SchemeRefno = Convert.ToInt32(drScheme.GetValue(Convert.ToInt32(SysCommon.ProdSchemeFields.Refno)));
+                            schemeLblInfo.SchemeRefno = Convert.ToInt32(results[0].ProductSchemeRefno);
+                            schemeLblInfo.IsBestBeforeDateTracked = Convert.ToBoolean(drow["ProductSchemeLabelIsBestBeforeDateTracked"]);
+                            schemeLblInfo.IsLotTracked = Convert.ToBoolean(drow["ProductSchemeLabelIsLotTracked"]);
+                            schemeLblInfo.IsProductionDateTracked = Convert.ToBoolean(drow["ProductSchemeLabelIsProductionDateTracked"]);
+                            schemeLblInfo.IsSerialTracked = Convert.ToBoolean(drow["ProductSchemeLabelIsSerialTracked"]);
+                            schemeLblInfo.IsVariantTracked = Convert.ToBoolean(drow["ProductSchemeLabelIsVariantTracked"]);
+
+                            this.AllProdSchemeLabel.Add(schemeLblInfo);
+
+                            progValue += 1;
+
+                            if (this.OnProdSchemeLabelSettingsProgressOut != null)
+                            {
+                                msgArg.CurrentValue = progValue;
+                                msgArg.MinValue = 0;
+                                msgArg.MaxValue = progMax;
+                                this.OnProdSchemeLabelSettingsProgressOut(this, msgArg);
+                            }
+                        }
+
+                        if (this.OnProdSchemeLabelSettingsProgressOut != null)
+                        {
+                            msgArg.CurrentValue = progMax;
+                            msgArg.MinValue = 0;
+                            msgArg.MaxValue = progMax;
+                            this.OnProdSchemeLabelSettingsProgressOut(this, msgArg);
                         }
                     }
 

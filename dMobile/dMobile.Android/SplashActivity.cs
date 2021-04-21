@@ -3,21 +3,8 @@
     using Android.App;
     using Android.Content;
     using Android.Content.PM;
-    using Android.Net;
     using Android.OS;
     using Android.Support.V7.App;
-    using Android.Util;
-    using Android.Widget;
-    //using System;
-    using System.Net;
-    using System.Linq;
-    using System.Threading.Tasks;
-    using System.Xml;
-    using Android.Text;
-    using static Android.Icu.Text.IDNA;
-    using System.IO;
-    using Android.Support.V4.Content;
-    using System;
 
     /// <summary>
     /// Defines the <see cref="SplashActivity" />

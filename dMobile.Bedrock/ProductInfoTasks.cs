@@ -7,7 +7,8 @@
     using System.Xml;
     using System.Xml.Linq;
     using System.Data;
-    using System.Data.SQLite;
+    using SQLite;
+    using System.Threading.Tasks;
 
     public static class ProductInfoTasks
     {
@@ -64,7 +65,7 @@
         /// <param name="productUnitBC"></param>
         /// <param name="unitCode"></param>
         /// <returns></returns>
-        public static ProductInfo GetInfoFromCodeBCUnit(string productCode, string productUnitBC, string unitCode)
+        public static async Task<ProductInfo> GetInfoFromCodeBCUnit(string productCode, string productUnitBC, string unitCode)
         {
             ProductInfo prodInfo = new ProductInfo();
             StringBuilder sql = new StringBuilder();
@@ -72,44 +73,36 @@
             // Private this.m_decProductUnit2ProductBaseUnitFactor As Decimal = 0
             if (unitCode == "SK")
             {
-                using (SQLiteCommand cmndProdInfo = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                string query = "SELECT tProduct.ProductFKRefno, " +
+                "tProduct.ProductRefno, " +
+                "tProduct.ProductCode, " +
+                "tProduct.ProductDescription, " +
+                "tProduct.ProductIsCatchCount, " +
+                "tProduct.ProductIsCatchWeight, " +
+                "tProduct.ProductIsCatchAsk, " +
+                "tProduct.ProductIsCatchAskZero, " +
+                "tProduct.ProductBrandDescription, " +
+                "tProduct.ProductAllowConvertProduct " +
+                "FROM tProduct " +
+                "WHERE tProduct.ProductCode = ?";
+
+                List<object> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<object>(query, productCode);
+
+                if (results != null && results.Count > 0)
                 {
-                    cmndProdInfo.CommandType = CommandType.Text;
-                    cmndProdInfo.CommandText = "SELECT tProduct.ProductFKRefno, " +
-                    "tProduct.ProductRefno, " +
-                    "tProduct.ProductCode, " +
-                    "tProduct.ProductDescription, " +
-                    "tProduct.ProductIsCatchCount, " +
-                    "tProduct.ProductIsCatchWeight, " +
-                    "tProduct.ProductIsCatchAsk, " +
-                    "tProduct.ProductIsCatchAskZero, " +
-                    "tProduct.ProductBrandDescription, " +
-                    "tProduct.ProductAllowConvertProduct " +
-                    "FROM tProduct " +
-                    "WHERE tProduct.ProductCode = @productCode";
-                    cmndProdInfo.Parameters.Add(new SQLiteParameter("@productCode", productCode));
-
-                    using (SQLiteDataReader drProdInfo = cmndProdInfo.ExecuteReader())
-                    {
-                        if (drProdInfo.Read())  
-                        {
-                            prodInfo.Refno = Convert.ToInt32(drProdInfo["ProductRefno"]);
-                            prodInfo.FKRefno = Convert.ToInt32(drProdInfo["ProductFKRefno"]);
-                            prodInfo.Code = Convert.ToString(drProdInfo["ProductCode"]);
-                            prodInfo.Desc = Convert.ToString(drProdInfo["ProductDescription"]);
-                            prodInfo.UnitIsBC = Convert.ToBoolean(string.IsNullOrEmpty(productUnitBC) ? false : true);
-                            prodInfo.UnitBC = productUnitBC;
-                            prodInfo.UnitCode = unitCode;
-                            prodInfo.IsCatchAsk = Convert.ToBoolean(drProdInfo["ProductIsCatchAsk"]);
-                            prodInfo.IsCatchAskZero = Convert.ToBoolean(drProdInfo["ProductIsCatchAskZero"]);
-                            prodInfo.IsAllowConvertProduct = Convert.ToBoolean(drProdInfo["ProductAllowConvertProduct"]);
-                            prodInfo.IsCatchCount = Convert.ToBoolean(drProdInfo["ProductIsCatchCount"]);
-                            prodInfo.IsCatchWeight = Convert.ToBoolean(drProdInfo["ProductIsCatchWeight"]);
-                            prodInfo.BrandDesc = Convert.ToString(drProdInfo["ProductBrandDescription"]);
-                        }
-
-                        drProdInfo.Close();
-                    }
+                    prodInfo.Refno = Convert.ToInt32(drProdInfo["ProductRefno"]);
+                    prodInfo.FKRefno = Convert.ToInt32(drProdInfo["ProductFKRefno"]);
+                    prodInfo.Code = Convert.ToString(drProdInfo["ProductCode"]);
+                    prodInfo.Desc = Convert.ToString(drProdInfo["ProductDescription"]);
+                    prodInfo.UnitIsBC = Convert.ToBoolean(string.IsNullOrEmpty(productUnitBC) ? false : true);
+                    prodInfo.UnitBC = productUnitBC;
+                    prodInfo.UnitCode = unitCode;
+                    prodInfo.IsCatchAsk = Convert.ToBoolean(drProdInfo["ProductIsCatchAsk"]);
+                    prodInfo.IsCatchAskZero = Convert.ToBoolean(drProdInfo["ProductIsCatchAskZero"]);
+                    prodInfo.IsAllowConvertProduct = Convert.ToBoolean(drProdInfo["ProductAllowConvertProduct"]);
+                    prodInfo.IsCatchCount = Convert.ToBoolean(drProdInfo["ProductIsCatchCount"]);
+                    prodInfo.IsCatchWeight = Convert.ToBoolean(drProdInfo["ProductIsCatchWeight"]);
+                    prodInfo.BrandDesc = Convert.ToString(drProdInfo["ProductBrandDescription"]);
                 }
             }
             else

@@ -1,8 +1,11 @@
 ﻿namespace dMobile.Bedrock
 {
     using System;
+    using System.Collections.Generic;
     using System.Data;
-    using System.Data.SQLite;
+    using System.Threading.Tasks;
+    using dMobile.Resources.Models;
+    using SQLite;
 
     /// <summary>
     /// Defines the <see cref="LocationMapTasks" />
@@ -14,7 +17,7 @@
         /// </summary>
         /// <param name="globalLocationIdentifier">The globalLocationIdentifier<see cref="string"/></param>
         /// <returns>Found LocationMapRefno</returns>
-        public static int GetLocMapRefnoFromBarCodeGlobalLocIdentifier(string globalLocationIdentifier)
+        public static async Task<int> GetLocMapRefnoFromBarCodeGlobalLocIdentifier(string globalLocationIdentifier)
         {
             int locMapRefno = 0;
             SysBarCodeSettings barCodeSettings = new SysBarCodeSettings().LoadData();
@@ -24,45 +27,25 @@
             // So this will be a little slower, plus the extra parsing rules to include.
 
             // first attempt to find the location as a complete SLOT bar code
-            SQLiteCommand cmndLocMap = DatabaseConnection.GetInstance().SQLConn.CreateCommand();
-            cmndLocMap.CommandType = CommandType.Text;
-            cmndLocMap.CommandText = "SELECT LocationMapRefno FROM tLocationMapSlot WHERE LocationMapRefno = @globalLocationIdentifier";
-            cmndLocMap.Parameters.Add(new SQLiteParameter("@globalLocationIdentifier", globalLocationIdentifier));
+            List<tLocationMapSlotModel> locationMapRefnoResults = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tLocationMapSlotModel>("SELECT LocationMapRefno FROM tLocationMapSlot WHERE LocationMapRefno = ?", globalLocationIdentifier);
 
-            using (SQLiteDataReader drLocMap = cmndLocMap.ExecuteReader())
+            if (locationMapRefnoResults != null && locationMapRefnoResults.Count > 0)
             {
-                if (drLocMap.HasRows)
+                locMapRefno = Convert.ToInt32(locationMapRefnoResults[0].LocationMapRefno);
+            }
+            else
+            {
+                if (!secondAttempt)
                 {
-                    if (drLocMap.Read())
-                    {
-                        locMapRefno = Convert.ToInt32(drLocMap["LocationMapRefno"]);
-                    }
-                    else
-                    {
-                        throw new Exception("drLocMap.Read() failed.");
-                    }
-                }
-                else
-                {
-                    if (!secondAttempt)
-                    {
-                        // TODO: Resource strings
-                        throw new Exception(string.Format("Unable To Locate Global Location Identifier '{0}' In {1}", globalLocationIdentifier, cmndLocMap.CommandText));
-                    }
+                    // TODO: Resource strings
+                    throw new Exception(string.Format("Unable To Locate Global Location Identifier '{0}' In {1}", globalLocationIdentifier, "SELECT LocationMapRefno FROM tLocationMapSlot WHERE LocationMapRefno = ? "));
                 }
             }
 
             if (secondAttempt)
             {
                 string barCode = globalLocationIdentifier.Substring(0, globalLocationIdentifier.TrimEnd().Length - 1);
-
-                cmndLocMap.CommandType = CommandType.Text;
-                cmndLocMap.CommandText = "SELECT tLocationMapSlot.LocationMapRefno "
-                        + "FROM tLocationMapSlot "
-                        + "WHERE LocationMapSlotBarCode LIKE @barcode%";
-                cmndLocMap.Parameters.Add(new SQLiteParameter("@barCode", barCode));
-
-                locMapRefno = Convert.ToInt32(cmndLocMap.ExecuteScalar());
+                locMapRefno = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.QueryScalarsAsync<tLocationMapSlotModel>("SELECT LocationMapRefno FROM tLocationMapSlot WHERE LocationMapSlotBarCode LIKE ?%", barCode));
             }
 
 
@@ -71,90 +54,84 @@
             {
                 secondAttempt = false;
 
-                cmndLocMap.CommandType = CommandType.Text;
-                cmndLocMap.CommandText = "SELECT LocationMapRefno FROM tLocationMapSection WHERE LocationMapRefno = @globalLocationIdentifier";
-                cmndLocMap.Parameters.Add(new SQLiteParameter("@globalLocationIdentifier", globalLocationIdentifier));
+                //cmndLocMap.CommandText = "SELECT LocationMapRefno FROM tLocationMapSection WHERE LocationMapRefno = @globalLocationIdentifier";
+                //cmndLocMap.Parameters.Add(new SQLiteParameter("@globalLocationIdentifier", globalLocationIdentifier));
 
-                using (SQLiteDataReader drLocMap = cmndLocMap.ExecuteReader())
+                List<tLocationMapSectionModel> tLocationMapSectionModelResults = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tLocationMapSectionModel>("SELECT LocationMapRefno FROM tLocationMapSection WHERE LocationMapRefno = ?", globalLocationIdentifier);
+
+                if (tLocationMapSectionModelResults != null && tLocationMapSectionModelResults.Count > 0)
                 {
-                    if (drLocMap.HasRows)
+                    //if (drLocMap.Read())
+                    //{
+                    locMapRefno = Convert.ToInt32(tLocationMapSectionModelResults[0].LocationMapRefno);
+                    //}
+                    //else
+                    //{
+                    //    throw new Exception("drLocMap.Read() failed.");
+                    //}
+                }
+                else
+                {
+                    if (!secondAttempt)
                     {
-                        if (drLocMap.Read())
-                        {
-                            locMapRefno = Convert.ToInt32(drLocMap["LocationMapRefno"]);
-                        }
-                        else
-                        {
-                            throw new Exception("drLocMap.Read() failed.");
-                        }
-                    }
-                    else
-                    {
-                        if (!secondAttempt)
-                        {
-                            // TODO: Resource strings
-                            throw new Exception(string.Format("Unable To Locate Global Location Identifier '{0}' In {1}", globalLocationIdentifier, cmndLocMap.CommandText));
-                        }
+                        // TODO: Resource strings
+                        throw new Exception(string.Format("Unable To Locate Global Location Identifier '{0}' In {1}", globalLocationIdentifier, "SELECT LocationMapRefno FROM tLocationMapSection WHERE LocationMapRefno = ?"));
                     }
                 }
 
                 if (secondAttempt)
                 {
                     string barCode = globalLocationIdentifier.Substring(0, globalLocationIdentifier.TrimEnd().Length - 1);
-                    cmndLocMap.CommandType = CommandType.Text;
+                    //cmndLocMap.CommandType = CommandType.Text;
                     //cmndLocMap.IndexName = string.Empty;
-                    cmndLocMap.CommandText = "SELECT tLocationMapSection.LocationMapRefno "
-                        + "FROM tLocationMapSection "
-                        + "WHERE tLocationMapSection.LocationMapSectionBarCode LIKE \'" + barCode + "%\'";
-                }
+                    //cmndLocMap.CommandText = "SELECT tLocationMapSection.LocationMapRefno FROM tLocationMapSection WHERE tLocationMapSection.LocationMapSectionBarCode LIKE ?%";
 
-                locMapRefno = Convert.ToInt32(cmndLocMap.ExecuteScalar());
+                    locMapRefno = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.QueryScalarsAsync<tLocationMapSectionModel>("SELECT tLocationMapSection.LocationMapRefno FROM tLocationMapSection WHERE tLocationMapSection.LocationMapSectionBarCode LIKE ?%", barCode));
+                }
             }
 
             // third attempt to find the location as a complete WAREHOUSE bar code
             if (locMapRefno == 0)
             {
                 secondAttempt = false;
-                cmndLocMap.CommandText = "SELECT LocationMapRefno FROM tLocationMapWarehouse WHERE LocationMapRefno = @globalLocationIdentifier";
-                cmndLocMap.Parameters.Add(new SQLiteParameter("@globalLocationIdentifier", globalLocationIdentifier));
 
-                using (SQLiteDataReader drLocMap = cmndLocMap.ExecuteReader())
+                //cmndLocMap.CommandText = "SELECT LocationMapRefno FROM tLocationMapWarehouse WHERE LocationMapRefno = @globalLocationIdentifier";
+                //cmndLocMap.Parameters.Add(new SQLiteParameter("@globalLocationIdentifier", globalLocationIdentifier));
+
+                List<tLocationMapWarehouseModel> tLocationMapWarehouseModelResults = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tLocationMapWarehouseModel>("SELECT LocationMapRefno FROM tLocationMapWarehouse WHERE LocationMapRefno = ?", globalLocationIdentifier);
+
+                if (tLocationMapWarehouseModelResults != null && tLocationMapWarehouseModelResults.Count > 0)
                 {
-                    if (drLocMap.HasRows)
+                    locMapRefno = Convert.ToInt32(tLocationMapWarehouseModelResults[0].LocationMapRefno);
+
+                    //if (drLocMap.Read())
+                    //{
+                    //locMapRefno = Convert.ToInt32(drLocMap["LocationMapRefno"]);
+                    //}
+                    //else
+                    //{
+                    //    throw new Exception("drLocMap.Read() failed.");
+                    //}
+                }
+                else
+                {
+                    if (!secondAttempt)
                     {
-                        if (drLocMap.Read())
-                        {
-                            locMapRefno = Convert.ToInt32(drLocMap["LocationMapRefno"]);
-                        }
-                        else
-                        {
-                            throw new Exception("drLocMap.Read() failed.");
-                        }
-                    }
-                    else
-                    {
-                        if (!secondAttempt)
-                        {
-                            // TODO: Resource strings
-                            throw new Exception(string.Format("Unable To Locate Global Location Identifier '{0}' In {1}", globalLocationIdentifier, cmndLocMap.CommandText));
-                        }
+                        // TODO: Resource strings
+                        throw new Exception(string.Format("Unable To Locate Global Location Identifier '{0}' In {1}", globalLocationIdentifier, "SELECT LocationMapRefno FROM tLocationMapWarehouse WHERE LocationMapRefno = ?"));
                     }
                 }
 
                 if (secondAttempt)
                 {
                     string barCode = globalLocationIdentifier.Substring(0, globalLocationIdentifier.TrimEnd().Length - 1);
-                    cmndLocMap.CommandType = CommandType.Text;
+
                     //cmndLocMap.IndexName = string.Empty;
-                    cmndLocMap.CommandText = "SELECT tLocationMapWarehouse.LocationMapRefno "
-                        + "FROM tLocationMapWarehouse "
-                        + "WHERE tLocationMapWarehouse.LocationMapWarehouseBarCode LIKE \'" + barCode + "%\'";
+                    //cmndLocMap.CommandText = "SELECT tLocationMapWarehouse.LocationMapRefno FROM tLocationMapWarehouse WHERE tLocationMapWarehouse.LocationMapWarehouseBarCode LIKE ?%";
+                    locMapRefno = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.QueryScalarsAsync<tLocationMapWarehouseModel>("SELECT tLocationMapWarehouse.LocationMapRefno FROM tLocationMapWarehouse WHERE tLocationMapWarehouse.LocationMapWarehouseBarCode LIKE ?%", barCode));
                 }
 
-                locMapRefno = Convert.ToInt32(cmndLocMap.ExecuteScalar());
             }
-
-            cmndLocMap.Dispose();
 
             return locMapRefno;
         }

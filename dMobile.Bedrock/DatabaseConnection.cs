@@ -2,9 +2,9 @@
 {
     using System.Data;
     using System.IO;
-    using System.Reflection;
     using System;
-    using System.Data.SQLite;
+    using SQLite;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// Defines the <see cref="DatabaseConnection" />
@@ -19,7 +19,7 @@
         /// <summary>
         /// Defines the sqlConn
         /// </summary>
-        private static SQLiteConnection sqlConn = null;
+        private static SQLiteAsyncConnection sqlConn = null;
 
         /// <summary>
         /// Defines the dbPath
@@ -45,7 +45,7 @@
         /// <summary>
         /// Defines the connString
         /// </summary>
-        private static string connString = string.Empty;
+        private static SQLiteConnectionString connString;
 
         /// <summary>
         /// Prevents a default instance of the <see cref="DatabaseConnection"/> class from being created.
@@ -73,7 +73,7 @@
         /// <summary>
         /// Gets or sets the ConnString
         /// </summary>
-        public string ConnString
+        public SQLiteConnectionString ConnString
         {
             get
             {
@@ -143,7 +143,7 @@
         /// <summary>
         /// Gets the SQLConn
         /// </summary>
-        public SQLiteConnection SQLConn
+        public SQLiteAsyncConnection SQLConn
         {
             get
             {
@@ -161,8 +161,9 @@
             {
                 dataConnUniq = new DatabaseConnection();
                 dbASCIIZ = Path.Combine(dbPath, dbName);
+                connString = new SQLiteConnectionString(dbASCIIZ);
                 // foreign keys=true HAS to be specified or SQLite will not enforce foreign key constraints
-                connString = "Data Source = '" + dbASCIIZ + "'; foreign keys=true;";
+                //connString = "Data Source = '" + dbASCIIZ + "'; foreign keys=true;";
                 //connString = "Data Source = '" + dbPath + dbName + "'; Password = " + dbPassword;
             }
 
@@ -178,16 +179,16 @@
         {
             if (File.Exists(dbASCIIZ) & sqlConn == null)
             {
-                sqlConn = new SQLiteConnection(connString);
+                sqlConn = new SQLiteAsyncConnection(connString);
             }
 
-            if (sqlConn != null)
-            {
-                if (sqlConn.State == ConnectionState.Closed)
-                {
-                    sqlConn.Open();
-                }
-            }
+            //if (sqlConn != null)
+            //{
+            //    if (sqlConn.State == ConnectionState.Closed)
+            //    {
+            //        sqlConn.Open();
+            //    }
+            //}
         }
 
         /// <summary>   
@@ -197,43 +198,43 @@
         {
             if (sqlConn != null)
             {
-                if (sqlConn.State == ConnectionState.Closed)
-                {
-                    sqlConn.Dispose();
-                    sqlConn = null;
-                    dataConnUniq = null;
-                }
+                //if (sqlConn.State == ConnectionState.Closed)
+                //{
+                //sqlConn.Dispose();
+                sqlConn = null;
+                dataConnUniq = null;
+                //}
             }
         }
 
         /// <summary>
         /// The CloseDataBaseConnection
         /// </summary>
-        public static void CloseDataBaseConnection()
+        public static async Task CloseDataBaseConnection()
         {
             if (sqlConn != null)
             {
-                if (sqlConn.State == ConnectionState.Open)
-                {
-                    sqlConn.Close();
-                }
+                //if (sqlConn.State == ConnectionState.Open)
+                //{
+                await sqlConn.CloseAsync();
+                //}
             }
         }
 
-        /// <summary>
-        /// The IsDataBaseConnectionOpen
-        /// </summary>
-        /// <returns>The <see cref="bool"/></returns>
-        public static bool IsDataBaseConnectionOpen()
-        {
-            bool isConnOpen = false;
+        ///// <summary>
+        ///// The IsDataBaseConnectionOpen
+        ///// </summary>
+        ///// <returns>The <see cref="bool"/></returns>
+        //public static bool IsDataBaseConnectionOpen()
+        //{
+        //    bool isConnOpen = false;
 
-            if (!(sqlConn.State == ConnectionState.Open))
-            {
-                isConnOpen = true;
-            }
+        //    if (!(sqlConn.State == ConnectionState.Open))
+        //    {
+        //        isConnOpen = true;
+        //    }
 
-            return isConnOpen;
-        }
+        //    return isConnOpen;
+        //}
     }
 }
