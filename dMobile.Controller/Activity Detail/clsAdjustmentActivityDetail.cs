@@ -5,6 +5,7 @@ namespace dMobile.Controller
     using System.Data;
     using System.Data.SQLite;
     using System.Text;
+    using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
     using dMobile.Bedrock;
@@ -412,7 +413,7 @@ namespace dMobile.Controller
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
 
                 adjDetail.RegisterDataAccessListenerProgressOut((AdjActDetail)this);
-                await adjDetail.Request(this.ActItem.Refno);
+                adjDetail.Request(this.ActItem.Refno);
                 adjDetail.UnregisterDataAccessListenerProgressOut((AdjActDetail)this);
             }
         }

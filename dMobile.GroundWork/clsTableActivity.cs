@@ -1,9 +1,11 @@
 namespace dMobile.GroundWork
 {
+    using dMobile.Bedrock;
+    using dMobile.Resources.Models;
+    using SQLite;
     using System;
     using System.Data;
-    using System.Data.SQLite;
-    using dMobile.Bedrock;
+    using System.Threading.Tasks;
 
     public class TableActivity : TableBase
     {
@@ -23,20 +25,15 @@ namespace dMobile.GroundWork
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override void Purge(SysCommon.ActSubTypes actSubType)
+        public override async Task Purge(SysCommon.ActSubTypes actSubType)
         {
             try
             {
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging activity.", true);
 
-                using (SQLiteCommand cmndPurgeActivity = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                {
-                    cmndPurgeActivity.CommandText = "DELETE FROM tActivity WHERE tActivity.ActivitySubType = @activitySubType";
-                    cmndPurgeActivity.CommandType = CommandType.Text;
-                    cmndPurgeActivity.Parameters.Add(new SQLiteParameter("@activitySubType", Convert.ToInt32(actSubType)));
-                    cmndPurgeActivity.ExecuteNonQuery();
-                }
+                string query = "DELETE FROM tActivity WHERE tActivity.ActivitySubType = ?";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(actSubType));
 
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging activity complete.", true);
