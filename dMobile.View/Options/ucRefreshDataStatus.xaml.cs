@@ -1726,7 +1726,7 @@ namespace dMobile.View.Options
                 {
                     try
                     {
-                        this.DataStatus();
+                        await this.DataStatus();
                     }
                     catch (Exception ex)
                     {
@@ -1889,7 +1889,7 @@ namespace dMobile.View.Options
         {
             this.RefreshDataBarCodeAssociation();
             await this.RefreshDataAdjustments();
-            this.RefreshDataCounts();
+            await this.RefreshDataCounts();
             await this.RefreshDataProduction();
             this.RefreshDataReceiving();
             this.RefreshDataPurchaseOrderWorkSheet();
@@ -1973,7 +1973,7 @@ namespace dMobile.View.Options
         ///
         /// </summary>
         /// <remarks></remarks>
-        private void DataStatus()
+        private async Task DataStatus()
         {
             this.SysEnv.RefreshOpt = this.SysEnv.RefreshOpt.LoadData();
 
@@ -2007,7 +2007,7 @@ namespace dMobile.View.Options
                 this.DataStatusPicking();
                 this.DataStatusReturns();
                 this.DataStatusTransfers();
-                this.DataStatusCounts();
+                await this.DataStatusCounts();
                 this.DataStatusTickets();
 
                 this.PurchaseOrderWorkSheetItem.RegisterDataAccessListenerProgressOut(this);
@@ -2423,11 +2423,11 @@ namespace dMobile.View.Options
         /// <summary>
         /// 
         /// </summary>
-        private void DataStatusCounts()
+        private async Task DataStatusCounts()
         {
             this.CycleCount.RegisterDataAccessListenerProgressOut(this);
             this.CycleCount.RegisterDataAccessListenerStatusOut(this);
-            this.CycleCount.DataStatus();
+            await this.CycleCount.DataStatus();
             this.CycleCount.UnregisterDataAccessListenerStatusOut(this);
             this.CycleCount.UnregisterDataAccessListenerProgressOut(this);
 
@@ -2583,7 +2583,7 @@ namespace dMobile.View.Options
         /// <summary>
         /// 
         /// </summary>
-        private void RefreshDataCounts()
+        private async Task RefreshDataCounts()
         {
             if (this.SysEnv.RefreshOpt.Counts || this.ActSubType == SysCommon.ActSubTypes.PurgeActivityData)
             {
@@ -2635,7 +2635,7 @@ namespace dMobile.View.Options
                 this.CycleCountItem.UnregisterDataAccessListenerStatusOut(this);
 
                 this.CycleCount.RegisterDataAccessListenerStatusOut(this);
-                this.CycleCount.Purge();
+                await this.CycleCount.Purge();
                 this.CycleCount.UnregisterDataAccessListenerStatusOut(this);
 
                 if (this.ActSubType != SysCommon.ActSubTypes.PurgeActivityData)
