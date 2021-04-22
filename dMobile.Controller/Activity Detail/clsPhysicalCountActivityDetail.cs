@@ -6,6 +6,7 @@ namespace dMobile.Controller
     using System.Data;
     using System.Data.SQLite;
     using System.Text;
+    using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
     using dMobile.Bedrock;
@@ -397,7 +398,7 @@ namespace dMobile.Controller
         /// <summary>
         /// 
         /// </summary>
-        public override void Refresh()
+        public override async Task Refresh()
         {
             if (this.SysEnv.SysSettings.IsDisconnectedMode)
             {
@@ -412,7 +413,7 @@ namespace dMobile.Controller
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
 
                 tableCountDet.RegisterDataAccessListenerProgressOut((PhysicalCountActDetail)this);
-                tableCountDet.Request(this.ActItem.Refno);
+                await tableCountDet.Request(this.ActItem.Refno);
                 tableCountDet.UnregisterDataAccessListenerProgressOut((PhysicalCountActDetail)this);
             }
         }

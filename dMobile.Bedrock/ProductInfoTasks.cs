@@ -851,23 +851,16 @@
         /// </summary>
         /// <param name="uniqueSchemeID"></param>
         /// <returns></returns>
-        public static bool IsDuplicateUniqueSchemeID(string unqSchemeID)
+        public static async Task<bool> IsDuplicateUniqueSchemeID(string unqSchemeID)
         {
             bool isDuplicate = false;
 
-            using (SQLiteCommand cmnd = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-            {
-                cmnd.CommandText = "SELECT ActivityDetailUniqueSchemeID FROM tActivityDetail WHERE ActivityDetailUniqueSchemeID = @activityDetailUniqueSchemeID";
-                cmnd.CommandType = CommandType.Text;
-                cmnd.Parameters.Add(new SQLiteParameter("@activityDetailUniqueSchemeID", unqSchemeID));
+            string query = "SELECT ActivityDetailUniqueSchemeID FROM tActivityDetail WHERE ActivityDetailUniqueSchemeID = ?";
+            List<tActivityDetailModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityDetailModel>(query, unqSchemeID);
 
-                using (SQLiteDataReader dr = cmnd.ExecuteReader())
-                {
-                    if (dr.Read())
-                    {
-                        isDuplicate = true;
-                    }
-                }
+            if (results != null && results.Count > 0)
+            {
+                isDuplicate = true;
             }
 
             return isDuplicate;

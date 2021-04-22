@@ -1,10 +1,13 @@
 namespace dMobile.GroundWork
 {
     using dMobile.Bedrock;
+    using dMobile.Resources.Models;
     using System;
+    using System.Collections.Generic;
     using System.Data;
-    using System.Data.SQLite;
+    using SQLite;
     using System.Text;
+    using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
 
@@ -26,7 +29,7 @@ namespace dMobile.GroundWork
         /// The Request
         /// </summary>
         /// <param name="actItemRefno"></param>
-        public override void Request(int actItemRefno)
+        public override async Task Request(int actItemRefno)
         {
             string reqData = string.Empty;
 
@@ -40,33 +43,24 @@ namespace dMobile.GroundWork
 
                 if (actItemRefno == 0)
                 {
-                    using (SQLiteCommand cmndActItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                    string query = "SELECT ActivityItemRefno FROM tActivityItem WHERE ActivityItemSubType = ?";
+                    List<tActivityItemModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityItemModel>(query, Convert.ToInt32(SysCommon.ActSubTypes.TicketAddProduct));
+
+                    if (results != null && results.Count > 0)
                     {
-                        cmndActItem.CommandType = CommandType.Text;
-                        cmndActItem.CommandText = "SELECT ActivityItemRefno FROM tActivityItem WHERE ActivityItemSubType = @activityItemSubType";
-                        cmndActItem.Parameters.Add(new SQLiteParameter("@activityItemSubType", Convert.ToInt32(SysCommon.ActSubTypes.TicketAddProduct)));
+                        actItemRefno = Convert.ToInt32(results[0].ActivityItemRefno);
+                        reqData = this.Send(actItemRefno);
 
-                        using (SQLiteDataReader drActItem = cmndActItem.ExecuteReader())
+                        if (0 < reqData.Length)
                         {
-                            while (drActItem.Read())
+                            if (reqData.Contains("<message>ERROR</message>"))
                             {
-                                actItemRefno = Convert.ToInt32(drActItem["ActivityItemRefno"]);
-                                reqData = this.Send(actItemRefno);
-
-                                if (0 < reqData.Length)
-                                {
-                                    if (reqData.Contains("<message>ERROR</message>"))
-                                    {
-                                        XmlDocument reqErr = new XmlDocument();
-                                        reqErr.LoadXml(reqData);
-                                        throw new Exception(reqErr.DocumentElement["detail"].InnerText);
-                                    }
-
-                                    this.Save(reqData, actItemRefno);
-                                }
+                                XmlDocument reqErr = new XmlDocument();
+                                reqErr.LoadXml(reqData);
+                                throw new Exception(reqErr.DocumentElement["detail"].InnerText);
                             }
 
-                            drActItem.Close();
+                            this.Save(reqData, actItemRefno);
                         }
                     }
                 }
@@ -113,23 +107,17 @@ namespace dMobile.GroundWork
         /// The DataStatus
         /// </summary>
         /// <returns>The <see cref="int"/></returns>
-        public override int DataStatus()
+        public override async Task<int> DataStatus()
         {
             int rowsAffected = 0;
 
             try
             {
-                using (SQLiteCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                {
-                    cmndStatus.CommandType = CommandType.Text;
-                    cmndStatus.CommandText = "SELECT COUNT(ActivityDetailRefno) FROM tActivityDetail WHERE ActivityDetailSubType = @activityDetailSubType";
-                    cmndStatus.Parameters.Add(new SQLiteParameter("@activityDetailSubType", Convert.ToInt32(SysCommon.ActSubTypes.TicketAddProduct)));
+                string query = "SELECT COUNT(ActivityDetailRefno) FROM tActivityDetail WHERE ActivityDetailSubType = ?";
+                rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>(query, Convert.ToInt32(SysCommon.ActSubTypes.TicketAddProduct));
 
-                    rowsAffected = Convert.ToInt32(cmndStatus.ExecuteScalar());
-
-                    // TODO: Resource strings
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} ticket add-product details.", rowsAffected), true);
-                }
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} ticket add-product details.", rowsAffected), true);
             }
             catch (SQLiteException ex)
             {
@@ -143,42 +131,36 @@ namespace dMobile.GroundWork
         /// <summary>
         /// The Purge
         /// </summary>
-        public override void Purge()
+        public override async Task Purge()
         {
             // TODO: Resource strings
             this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging ticket add-product details.", true);
 
             try
             {
-                using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                {
-                    cmndPurge.CommandType = CommandType.Text;
-                    cmndPurge.Parameters.Add(new SQLiteParameter("@activityDetailSubType", Convert.ToInt32(SysCommon.ActSubTypes.TicketAddProduct)));
+                string query = "DELETE FROM tActivityDetailProductSchemeVariantXRef"
+                    + " WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno IN"
+                    + " (SELECT tActivityDetail.ActivityDetailRefno"
+                    + " FROM tActivityDetail"
+                    + " WHERE tActivityDetail.ActivityDetailSubType = ?)";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.TicketAddProduct));
 
-                    cmndPurge.CommandText = "DELETE FROM tActivityDetailProductSchemeVariantXRef"
-                        + " WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno IN"
-                        + " (SELECT tActivityDetail.ActivityDetailRefno"
-                        + " FROM tActivityDetail"
-                        + " WHERE tActivityDetail.ActivityDetailSubType = @activityDetailSubType)";
-                    cmndPurge.ExecuteNonQuery();
+                query = "DELETE FROM tActivityDetailProductionByProduct"
+                    + " WHERE tActivityDetailProductionByProduct.ActivityDetailRefno IN "
+                    + "(SELECT tActivityDetail.ActivityDetailRefno"
+                    + " FROM tActivityDetail"
+                    + " WHERE tActivityDetail.ActivityDetailSubType = ?)";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.TicketAddProduct));
 
-                    cmndPurge.CommandText = "DELETE FROM tActivityDetailProductionByProduct"
-                        + " WHERE tActivityDetailProductionByProduct.ActivityDetailRefno IN "
-                        + "(SELECT tActivityDetail.ActivityDetailRefno"
-                        + " FROM tActivityDetail"
-                        + " WHERE tActivityDetail.ActivityDetailSubType = @activityDetailSubType)";
-                    cmndPurge.ExecuteNonQuery();
-
-                    cmndPurge.CommandText = "DELETE FROM tActivityDetailExtra"
+                query = "DELETE FROM tActivityDetailExtra"
                         + " WHERE tActivityDetailExtra.ActivityDetailRefno IN "
                         + "(SELECT tActivityDetail.ActivityDetailRefno"
                         + " FROM tActivityDetail"
-                        + " WHERE tActivityDetail.ActivityDetailSubType = @activityDetailSubType)";
-                    cmndPurge.ExecuteNonQuery();
+                        + " WHERE tActivityDetail.ActivityDetailSubType = ?)";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.TicketAddProduct));
 
-                    cmndPurge.CommandText = "DELETE FROM tActivityDetail WHERE tActivityDetail.ActivityDetailSubType = @activityDetailSubType";
-                    cmndPurge.ExecuteNonQuery();
-                }
+                query = "DELETE FROM tActivityDetail WHERE tActivityDetail.ActivityDetailSubType = ?";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.TicketAddProduct)));
 
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging ticket add-product details complete.", true);
@@ -199,40 +181,26 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="actItemRefno"></param>
         /// <returns></returns>
-        protected override string Send(int actItemRefno)
+        protected override async Task<string> Send(int actItemRefno)
         {
-            int actItemFKRefno = 0;
-
-            using (SQLiteCommand cmndItemByProduct = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+            try
             {
-                cmndItemByProduct.CommandText = "SELECT * FROM tActivityItemProductionByProduct WHERE ActivityItemRefno = @activityItemRefno";
-                cmndItemByProduct.CommandType = CommandType.Text;
-                //cmndItemByProduct.IndexName = "PK_ActivityItemProductionByProductOnActivityItemRefno";
-                cmndItemByProduct.Parameters.Add(new SQLiteParameter("@activityItemRefno", actItemRefno));
+                int actItemFKRefno = 0;
 
-                using (SQLiteDataReader drItemByProduct = cmndItemByProduct.ExecuteReader())
+                string query = "SELECT * FROM tActivityItemProductionByProduct WHERE ActivityItemRefno = ?";
+                List<tActivityItemProductionByProductModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityItemProductionByProductModel>(query, actItemRefno);
+
+                if (results != null && results.Count > 0)
                 {
-                    //if (drItemByProduct.Seek(DbSeekOptions.FirstEqual, new object[] { actItemRefno }))
-                    //{
-                    if (drItemByProduct.Read())
-                    {
-                        actItemFKRefno = drItemByProduct.GetInt32((int)SysCommon.ActItemProdByProductFields.FKRefno);
-                    }
-                    else
-                    {
-                        // TODO: Resource strings
-                        throw new Exception("drItemFinished.Read() failed.");
-                    }
-                    //}
-                    //else
-                    //{
-                    //    // TODO: Resource strings
-                    //    throw new Exception(string.Format("Unable to locate the activity item ticket finished {0} in tActivityItemProductionFinished.", actItemRefno));
-                    //}
+                    actItemRefno = results[0].ActivityItemProductionByProductFKRefno;
                 }
-            }
 
-            return this.SendComm(this.Create(actItemFKRefno));
+                return this.SendComm(this.Create(actItemFKRefno));
+            }
+            catch (SQLiteException ex)
+            {
+                throw new Exception("Database Exception occurred. tActivityItemProductionByProductModel Send. ", ex);
+            }
         }
 
         /// <summary>
