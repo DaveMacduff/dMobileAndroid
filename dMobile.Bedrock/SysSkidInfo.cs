@@ -4,9 +4,11 @@
     using System.Data;
     using System.IO;
     using System.Text;
+    using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
     using System.Xml.Serialization;
+    using static dMobile.Bedrock.LocationMapTasks;
 
     [Serializable]
     public class SysSkidInfo : ICloneable
@@ -42,13 +44,13 @@
         /// <param name="data"></param>
         /// <returns>New instance of SSkidInfo</returns>
         /// <remarks></remarks>
-        public static SSkidInfo Fill(XDocument data)
+        public static async Task<SSkidInfo> Fill(XDocument data)
         {
             SSkidInfo skid = new SSkidInfo();
             skid.LogisticUnitSkidCode = data.Root.Element("logistic_unit_skid_code").Value;
             skid.SkidCode = data.Root.Element("skid_code").Value;
             int locMapRefno = int.Parse(data.Root.Element("location_map_refno").Value);
-            skid.LocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
+            skid.LocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
             int prodUnitRefno = int.Parse(data.Root.Element("product_unit_refno").Value);
             skid.ProdInfo = ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
             skid.ProdInfo.Scheme = ProductInfoTasks.GetSchemeComponentsFromRefno(skid.ProdInfo.Refno);
@@ -133,11 +135,11 @@
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public static SysSkidInfo GetSkidInfoFromXML(XDocument data)
+        public static async Task<SysSkidInfo> GetSkidInfoFromXML(XDocument data)
         {
             SysSkidInfo skid = new SysSkidInfo();
 
-            skid.CurrSkid = Fill(data);
+            skid.CurrSkid = await Fill(data);
 
             return skid;
         }
@@ -147,7 +149,7 @@
         /// </summary>
         /// <param name="SkidInfo"></param>
         /// <remarks></remarks>
-        public static SysSkidInfo Move(SysSkidInfo skid, SLocMap moveToLocMap)
+        public static async Task<SysSkidInfo> Move(SysSkidInfo skid, SLocMap moveToLocMap)
         {
             SysEnvironment sysEnv = SysEnvironment.GetInstance();
             string recvData = string.Empty;
@@ -197,13 +199,9 @@
                 {
                     int newLocMapRefno = skid.CurrSkid.LocMapRefno;
                     SSkidInfo tempSkidInfo = skid.CurrSkid;
-                    tempSkidInfo.LocMap = LocationMapTasks.GetSLocMapFromLocMapFKRefno(
-                        moveToLocMap.WhsFKRefno,
-                        moveToLocMap.SectFKRefno,
-                        moveToLocMap.SlotFKRefno,
-                        ref newLocMapRefno);
-
-                    tempSkidInfo.LocMapRefno = newLocMapRefno;
+                    SLocMapAndRefno sLocMapAndRefno = await LocationMapTasks.GetSLocMapFromLocMapFKRefno(moveToLocMap.WhsFKRefno, moveToLocMap.SectFKRefno, moveToLocMap.SlotFKRefno, newLocMapRefno);
+                    tempSkidInfo.LocMap = sLocMapAndRefno.SLocMap;
+                    tempSkidInfo.LocMapRefno = sLocMapAndRefno.LocMapRefno;
                     newSkid.CurrSkid = tempSkidInfo;
                 }
             }
@@ -554,7 +552,7 @@
         /// <completed>SkidInfo.CurrSkidInfo.IsCompleted</completed>
         /// <putaway>SkidInfo.CurrSkidInfo.IsPutAway</putaway>
         /// </remarks>
-        public static SysSkidInfo Create(XDocument skidData)
+        public static async Task<SysSkidInfo> Create(XDocument skidData)
         {
             SysSkidInfo skid = new SysSkidInfo();
             SysEnvironment sysEnv = SysEnvironment.GetInstance();
@@ -568,8 +566,7 @@
             ProductInfo prodInfo = ProductInfoTasks.GetInfoFromUnitRefno(
                 int.Parse(skidData.Document.Root.Element("product_unit_refno").Value));
 
-            SLocMap skidLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(
-                int.Parse(skidData.Document.Root.Element("location_map_refno").Value));
+            SLocMap skidLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(int.Parse(skidData.Document.Root.Element("location_map_refno").Value));
 
             XDocument request = new XDocument(
                 new XDeclaration("1.0", "utf-16", "yes"),
@@ -625,7 +622,7 @@
                 }
                 else
                 {
-                    skid = SysSkidInfo.GetSkidInfoFromXML(skidData);
+                    skid = await SysSkidInfo.GetSkidInfoFromXML(skidData);
                     SSkidInfo tempSkidInfo = skid.CurrSkid;
                     tempSkidInfo.SkidFKRefno = int.Parse(result.DocumentElement["skid_fk_refno"].InnerText);
                     tempSkidInfo.SkidCode = result.DocumentElement["skid_code"].InnerText;
@@ -702,7 +699,7 @@
         /// <param name="skidData"></param>
         /// <returns></returns>
         /// <remarks></remarks>
-        public static SysSkidInfo GetSkidInfoFromBarCodeOrCode(string skidData)
+        public static async Task<SysSkidInfo> GetSkidInfoFromBarCodeOrCode(string skidData)
         {
             SysEnvironment sysEnv = SysEnvironment.GetInstance();
             StringBuilder xmlString = new StringBuilder();
@@ -729,7 +726,7 @@
             xml.Flush();
             xml.Close();
 
-            return RequestGetSkidInfo(request);
+            return await RequestGetSkidInfo(request);
         }
 
         /// <summary>
@@ -777,7 +774,7 @@
         /// </summary>
         /// <param name="xmlRequest"></param>
         /// <returns></returns>
-        private static SysSkidInfo RequestGetSkidInfo(XDocument request)
+        private static async Task<SysSkidInfo> RequestGetSkidInfo(XDocument request)
         {
             SysSkidInfo skid = new SysSkidInfo();
             string recvData = SysCommon.SubmitComm(request.ToString());
@@ -804,16 +801,17 @@
 
                 int locMapRefno = 0;
 
-                tmpInfo.LocMap = LocationMapTasks.GetSLocMapFromLocMapFKRefno(
+                SLocMapAndRefno sLocMapAndRefno = await LocationMapTasks.GetSLocMapFromLocMapFKRefno(
                     int.Parse(result.SelectSingleNode("/VFPData/cskidinfo/locationmapwarehousefkrefno").InnerText),
                     int.Parse(result.SelectSingleNode("/VFPData/cskidinfo/locationmapsectionfkrefno").InnerText),
                     int.Parse(result.SelectSingleNode("/VFPData/cskidinfo/locationmapslotfkrefno").InnerText),
-                    ref locMapRefno);
+                    locMapRefno);
 
-                tmpInfo.LocMapRefno = locMapRefno;
+                tmpInfo.LocMap = sLocMapAndRefno.SLocMap;
+                tmpInfo.LocMapRefno = sLocMapAndRefno.LocMapRefno;
 
                 tmpInfo.ProdInfo = new ProductInfo();
-                tmpInfo.ProdInfo = ProductInfoTasks.GetInfoFromCodeBCUnit(
+                tmpInfo.ProdInfo = await ProductInfoTasks.GetInfoFromCodeBCUnit(
                     result.SelectSingleNode("/VFPData/cskidinfo/productcode").InnerText,
                     result.SelectSingleNode("/VFPData/cskidinfo/productunitbc").InnerText,
                     result.SelectSingleNode("/VFPData/cskidinfo/unitcode").InnerText);
