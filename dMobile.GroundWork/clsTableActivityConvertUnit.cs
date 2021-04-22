@@ -1,9 +1,9 @@
 namespace dMobile.GroundWork
 {
-    using System;
-    using System.Data;
-    using System.Data.SQLite;
     using dMobile.Bedrock;
+    using SQLite;
+    using System;
+    using System.Threading.Tasks;
 
     public class TableActivityConvertUnit : TableBase
     {
@@ -22,24 +22,18 @@ namespace dMobile.GroundWork
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override void Purge()
+        public override async Task Purge()
         {
             try
             {
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging convert units.", true);
 
-                using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                {
-                    cmndPurge.CommandType = CommandType.Text;
-                    cmndPurge.Parameters.Add(new SQLiteParameter("@activitySubType", Convert.ToInt32(SysCommon.ActSubTypes.ConvertUnit)));
+                string query = "DELETE FROM tActivityConvertUnit WHERE tActivityConvertUnit.ActivitySubType = ?";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.ConvertUnit));
 
-                    cmndPurge.CommandText = "DELETE FROM tActivityConvertUnit WHERE tActivityConvertUnit.ActivitySubType = @activitySubType";
-                    cmndPurge.ExecuteNonQuery();
-
-                    cmndPurge.CommandText = "DELETE FROM tActivity WHERE tActivity.ActivitySubType = @activitySubType";
-                    cmndPurge.ExecuteNonQuery();
-                }
+                query = "DELETE FROM tActivity WHERE tActivity.ActivitySubType = ?";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.ConvertUnit));
 
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging convert units complete.", true);
