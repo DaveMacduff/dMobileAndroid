@@ -1,13 +1,13 @@
 namespace dMobile.Controller
 {
+    using dMobile.Bedrock;
+    using dMobile.GroundWork;
+    using SQLite;
     using System;
     using System.Collections.ObjectModel;
     using System.Data;
-    using System.Data.SQLite;
     using System.Threading.Tasks;
     using System.Xml.Linq;
-    using dMobile.Bedrock;
-    using dMobile.GroundWork;
     using Xamarin.Forms;
 
     public abstract class Activity : IDataLayerEventPublisher, IDataAccessEventListener
@@ -272,7 +272,7 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="pbProgressBar"></param>
         /// <param name="xmlParam"></param>
-        public abstract void Refresh(XDocument data);
+        public abstract Task Refresh(XDocument data);
 
         /// <summary>
         /// 
@@ -336,7 +336,7 @@ namespace dMobile.Controller
         /// <summary>
         /// 
         /// </summary>
-        public abstract void Purge();
+        public abstract Task Purge();
 
         /// <summary>
         ///

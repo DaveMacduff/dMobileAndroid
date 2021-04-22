@@ -1888,7 +1888,7 @@ namespace dMobile.View.Options
         private async Task RefreshData()
         {
             this.RefreshDataBarCodeAssociation();
-            this.RefreshDataAdjustments();
+            await this.RefreshDataAdjustments();
             this.RefreshDataCounts();
             await this.RefreshDataProduction();
             this.RefreshDataReceiving();
@@ -2535,7 +2535,7 @@ namespace dMobile.View.Options
         /// <summary>
         /// 
         /// </summary>
-        private void RefreshDataAdjustments()
+        private async Task RefreshDataAdjustments()
         {
             if (this.SysEnv.RefreshOpt.Adjustments || this.ActSubType == SysCommon.ActSubTypes.PurgeActivityData)
             {
@@ -2548,14 +2548,14 @@ namespace dMobile.View.Options
                 this.AdjustmentItem.UnregisterDataAccessListenerStatusOut(this);
 
                 this.Adjustment.RegisterDataAccessListenerStatusOut(this);
-                this.Adjustment.Purge();
+                await this.Adjustment.Purge();
                 this.Adjustment.UnregisterDataAccessListenerStatusOut(this);
 
                 if (this.ActSubType != SysCommon.ActSubTypes.PurgeActivityData)
                 {
                     this.Adjustment.RegisterDataAccessListenerProgressOut(this);
                     this.Adjustment.RegisterDataAccessListenerStatusOut(this);
-                    this.Adjustment.Request();
+                    await this.Adjustment.Request();
                     this.Adjustment.UnregisterDataAccessListenerStatusOut(this);
                     this.Adjustment.UnregisterDataAccessListenerProgressOut(this);
                     this.StatusOut(this, EventArgs.Empty, string.Empty);

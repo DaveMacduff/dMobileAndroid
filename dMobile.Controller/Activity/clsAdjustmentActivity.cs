@@ -1,18 +1,17 @@
 namespace dMobile.Controller
 {
-    using System;
-    using System.Data;
-    using System.Data.SQLite;
-    using System.Text;
-    using System.Xml.Linq;
     using dMobile.Bedrock;
     using dMobile.GroundWork;
-    using System.Xml;
-    using System.Threading.Tasks;
-    using System.Collections.ObjectModel;
-    using Xamarin.Forms;
-    using dMobile.Resources.Types;
     using dMobile.Resources.Services;
+    using dMobile.Resources.Types;
+    using System;
+    using System.Collections.ObjectModel;
+    using System.Data;
+    using System.Text;
+    using System.Threading.Tasks;
+    using System.Xml;
+    using System.Xml.Linq;
+    using Xamarin.Forms;
 
     /// <summary>
     /// 
@@ -98,7 +97,7 @@ namespace dMobile.Controller
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override void Purge()
+        public override async Task Purge()
         {
             TableActivityAdjustment adj = new TableActivityAdjustment();
             TableActivityAdjustmentItem adjItem = new TableActivityAdjustmentItem();
@@ -106,7 +105,7 @@ namespace dMobile.Controller
 
             adjDetail.Purge();
             adjItem.Purge();
-            adj.Purge();
+            await adj.Purge();
         }
 
         /// <summary>
@@ -467,7 +466,7 @@ namespace dMobile.Controller
         /// 
         /// </summary>
         /// <param name="data"></param>
-        public override void Refresh(XDocument data)
+        public override async Task Refresh(XDocument data)
         {
             if (this.SysEnv.SysSettings.IsDisconnectedMode)
             {
@@ -482,7 +481,7 @@ namespace dMobile.Controller
 
                 TableActivityAdjustment adj = new TableActivityAdjustment();
                 adj.RegisterDataAccessListenerProgressOut((IDataAccessEventListener)this);
-                adj.Request();
+                await adj.Request();
                 adj.UnregisterDataAccessListenerProgressOut((IDataAccessEventListener)this);
             }
         }
