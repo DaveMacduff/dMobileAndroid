@@ -1,14 +1,14 @@
 namespace dMobile.Controller
 {
-    using System;
-    using System.Data;
-    using System.Data.SQLite;
-    using System.Xml;
-    using System.Xml.Linq;
     using dMobile.Bedrock;
     using dMobile.GroundWork;
-    using System.Text;
+    using SQLite;
+    using System;
     using System.Collections.ObjectModel;
+    using System.Data;
+    using System.Threading.Tasks;
+    using System.Xml;
+    using System.Xml.Linq;
     using Xamarin.Forms;
 
     /// <summary>
@@ -356,7 +356,7 @@ namespace dMobile.Controller
 
         public abstract void Delete();
 
-        public abstract void Refresh();
+        public abstract Task Refresh();
 
         public abstract string CreateSubmitXML(XDocument data);
 

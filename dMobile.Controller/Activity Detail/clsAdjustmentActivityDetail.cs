@@ -395,7 +395,7 @@ namespace dMobile.Controller
         /// <summary>
         /// 
         /// </summary>
-        public override void Refresh()
+        public override async Task Refresh()
         {
             if (this.SysEnv.SysSettings.IsDisconnectedMode)
             {
@@ -412,7 +412,7 @@ namespace dMobile.Controller
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
 
                 adjDetail.RegisterDataAccessListenerProgressOut((AdjActDetail)this);
-                adjDetail.Request(this.ActItem.Refno);
+                await adjDetail.Request(this.ActItem.Refno);
                 adjDetail.UnregisterDataAccessListenerProgressOut((AdjActDetail)this);
             }
         }

@@ -3,8 +3,9 @@ namespace dMobile.GroundWork
     using dMobile.Bedrock;
     using System;
     using System.Data;
-    using System.Data.SQLite;
+    using SQLite;
     using System.Xml.Linq;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// Defines the <see cref="TableBase" />
@@ -113,7 +114,7 @@ namespace dMobile.GroundWork
         /// <summary>
         /// The Request
         /// </summary>
-        public virtual void Request()
+        public virtual async Task Request()
         {
             throw new NotImplementedException();
         }
@@ -122,7 +123,7 @@ namespace dMobile.GroundWork
         /// The Request
         /// </summary>
         /// <param name="actRefno"></param>
-        public virtual void Request(int actRefno)
+        public virtual async Task Request(int actRefno)
         {
             throw new NotImplementedException();
         }
@@ -149,7 +150,7 @@ namespace dMobile.GroundWork
         /// <summary>
         /// The Purge
         /// </summary>
-        public virtual void Purge()
+        public virtual async Task Purge()
         {
             throw new NotImplementedException();
         }
@@ -176,7 +177,7 @@ namespace dMobile.GroundWork
         /// The DataStatus
         /// </summary>
         /// <returns></returns>
-        public virtual int DataStatus()
+        public virtual async Task<int> DataStatus()
         {
             throw new NotImplementedException();
         }
@@ -299,7 +300,7 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="actRefno"></param>
         /// <returns></returns>
-        protected virtual string Send(int actRefno)
+        protected virtual async Task<string> Send(int actRefno)
         {
             throw new NotImplementedException();
         }
@@ -308,7 +309,7 @@ namespace dMobile.GroundWork
         /// The Send
         /// </summary>
         /// <returns></returns>
-        protected virtual string Send()
+        protected virtual async Task<string> Send()
         {
             throw new NotImplementedException();
         }
@@ -318,7 +319,7 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="tableName"></param>
         /// <returns></returns>
-        protected virtual string Send(string tableName)
+        protected virtual async Task<string> Send(string tableName)
         {
             return this.SendComm(this.Create());
         }
@@ -328,7 +329,7 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="criteria">The criteria<see cref="XDocument"/></param>
         /// <returns></returns>
-        protected virtual string SendRequest(XDocument criteria)
+        protected virtual async Task<string> SendRequest(XDocument criteria)
         {
             throw new NotImplementedException();
         }
@@ -339,7 +340,7 @@ namespace dMobile.GroundWork
         /// <param name="actRefno"></param>
         /// <param name="criteria"></param>
         /// <returns></returns>
-        protected virtual string SendRequest(int actRefno, XDocument criteria)
+        protected virtual async Task<string> SendRequest(int actRefno, XDocument criteria)
         {
             throw new NotImplementedException();
         }

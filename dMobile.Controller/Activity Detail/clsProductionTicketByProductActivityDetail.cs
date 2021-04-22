@@ -3,8 +3,9 @@ namespace dMobile.Controller
     using System;
     using System.Collections.ObjectModel;
     using System.Data;
-    using System.Data.SQLite;
+    using SQLite;
     using System.Text;
+    using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
     using dMobile.Bedrock;
@@ -388,7 +389,7 @@ namespace dMobile.Controller
         /// <summary>
         /// 
         /// </summary>
-        public override void Refresh()
+        public override async Task Refresh()
         {
             if (this.SysEnv.SysSettings.IsDisconnectedMode)
             {
@@ -399,12 +400,12 @@ namespace dMobile.Controller
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 2);
 
                 TableActivityProductionTicketByProductDetail tableTicketDetail = new TableActivityProductionTicketByProductDetail();
-                tableTicketDetail.Purge();
+                await tableTicketDetail.Purge();
 
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
 
                 tableTicketDetail.RegisterDataAccessListenerProgressOut((TicketByProdActDetail)this);
-                tableTicketDetail.Request(this.ActItem.Refno);
+                await tableTicketDetail.Request(this.ActItem.Refno);
                 tableTicketDetail.UnregisterDataAccessListenerProgressOut((TicketByProdActDetail)this);
             }
         }

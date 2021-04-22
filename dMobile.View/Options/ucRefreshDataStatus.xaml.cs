@@ -1775,7 +1775,7 @@ namespace dMobile.View.Options
                             this.RefreshSystemData();
                         }
 
-                        this.RefreshData();
+                        await this.RefreshData();
 
                         if (this.ActSubType == SysCommon.ActSubTypes.PurgeActivityData)
                         {
@@ -1885,12 +1885,12 @@ namespace dMobile.View.Options
         ///
         /// </summary>
         /// <remarks></remarks>
-        private void RefreshData()
+        private async Task RefreshData()
         {
             this.RefreshDataBarCodeAssociation();
             this.RefreshDataAdjustments();
             this.RefreshDataCounts();
-            this.RefreshDataProduction();
+            await this.RefreshDataProduction();
             this.RefreshDataReceiving();
             this.RefreshDataPurchaseOrderWorkSheet();
             this.RefreshDataReplenishment();
@@ -2670,7 +2670,7 @@ namespace dMobile.View.Options
         /// <summary>
         /// 
         /// </summary>
-        private void RefreshDataProduction()
+        private async Task RefreshDataProduction()
         {
             if (this.SysEnv.RefreshOpt.ProductionTickets || this.ActSubType == SysCommon.ActSubTypes.PurgeActivityData)
             {
@@ -2772,7 +2772,7 @@ namespace dMobile.View.Options
 
                         this.TicketDetailByProduct.RegisterDataAccessListenerProgressOut(this);
                         this.TicketDetailByProduct.RegisterDataAccessListenerStatusOut(this);
-                        this.TicketDetailByProduct.Request(0);
+                        await this.TicketDetailByProduct.Request(0);
                         this.TicketDetailByProduct.UnregisterDataAccessListenerStatusOut(this);
                         this.TicketDetailByProduct.UnregisterDataAccessListenerProgressOut(this);
                         this.StatusOut(this, EventArgs.Empty, string.Empty);

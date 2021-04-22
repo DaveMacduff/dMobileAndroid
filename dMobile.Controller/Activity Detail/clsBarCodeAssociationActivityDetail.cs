@@ -3,6 +3,7 @@ namespace dMobile.Controller
     using System;
     using System.Collections.ObjectModel;
     using System.Data;
+    using System.Threading.Tasks;
     using System.Xml.Linq;
     using dMobile.Bedrock;
     using Xamarin.Forms;

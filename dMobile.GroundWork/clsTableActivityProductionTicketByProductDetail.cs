@@ -49,7 +49,7 @@ namespace dMobile.GroundWork
                     if (results != null && results.Count > 0)
                     {
                         actItemRefno = Convert.ToInt32(results[0].ActivityItemRefno);
-                        reqData = this.Send(actItemRefno);
+                        reqData = await this.Send(actItemRefno);
 
                         if (0 < reqData.Length)
                         {
@@ -66,7 +66,7 @@ namespace dMobile.GroundWork
                 }
                 else
                 {
-                    reqData = this.Send(actItemRefno);
+                    reqData = await this.Send(actItemRefno);
 
                     if (0 < reqData.Length)
                     {
@@ -160,7 +160,7 @@ namespace dMobile.GroundWork
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.TicketAddProduct));
 
                 query = "DELETE FROM tActivityDetail WHERE tActivityDetail.ActivityDetailSubType = ?";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.TicketAddProduct)));
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.TicketAddProduct));
 
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging ticket add-product details complete.", true);

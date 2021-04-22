@@ -349,7 +349,7 @@ namespace dMobile.Controller
         /// 
         /// </summary>
         /// <param name="data"></param>
-        public override void Refresh(XDocument data)
+        public override async Task Refresh(XDocument data)
         {
             if (this.SysEnv.SysSettings.IsDisconnectedMode)
             {
@@ -361,7 +361,7 @@ namespace dMobile.Controller
 
                 TableActivityProductionTicketByProductItem tableByProdItem = new TableActivityProductionTicketByProductItem();
                 TableActivityProductionTicketByProductDetail tableByProdDetail = new TableActivityProductionTicketByProductDetail();
-                tableByProdDetail.Purge();
+                await tableByProdDetail.Purge();
                 tableByProdItem.Purge();
 
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 5);

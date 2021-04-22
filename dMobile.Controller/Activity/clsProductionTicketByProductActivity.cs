@@ -5,6 +5,7 @@ namespace dMobile.Controller
     using System.Data;
     using System.Data.SQLite;
     using System.Text;
+    using System.Threading.Tasks;
     using System.Xml.Linq;
     using dMobile.Bedrock;
     using dMobile.GroundWork;
@@ -439,13 +440,13 @@ namespace dMobile.Controller
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override void Purge()
+        public override async Task Purge()
         {
             TableActivityProductionTicketByProduct tableActTicketByProduct = new TableActivityProductionTicketByProduct();
             TableActivityProductionTicketByProductItem tableActTicketByProductItem = new TableActivityProductionTicketByProductItem();
             TableActivityProductionTicketByProductDetail tableActTicketByProductDetail = new TableActivityProductionTicketByProductDetail();
 
-            tableActTicketByProductDetail.Purge();
+            await tableActTicketByProductDetail.Purge();
             tableActTicketByProductItem.Purge();
             tableActTicketByProduct.Purge();
         }
