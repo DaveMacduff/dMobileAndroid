@@ -2,9 +2,10 @@ namespace dMobile.Controller
 {
     using System;
     using System.Data;
-    using System.Data.SQLite;
+    using SQLite;
     using System.Text;
     using System.Xml.Linq;
+    using System.Linq;
     using dMobile.Bedrock;
     using dMobile.GroundWork;
     using System.Xml;
@@ -13,6 +14,8 @@ namespace dMobile.Controller
     using Xamarin.Forms;
     using dMobile.Resources.Types;
     using dMobile.Resources.Services;
+    using System.Collections.Generic;
+    using static dMobile.Bedrock.LocationMapTasks;
 
     /// <summary>
     /// 
@@ -98,7 +101,7 @@ namespace dMobile.Controller
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override void Purge()
+        public override async Task Purge()
         {
             TableActivityAdjustment adj = new TableActivityAdjustment();
             TableActivityAdjustmentItem adjItem = new TableActivityAdjustmentItem();
@@ -172,7 +175,7 @@ namespace dMobile.Controller
 
             dataGridMainActivityHeader.Children.Add(gridHeader);
 
-            foreach (DataRow row in this.DataViewHdrs.ToTable().Rows)
+            foreach (dynamic row in this.ListHdrs)
             {
                 Adjustment adjustment = new Adjustment
                 {
@@ -281,7 +284,7 @@ namespace dMobile.Controller
         /// <param name="isSubmitBatch"></param>
         /// <returns></returns>
         /// <remarks></remarks>
-        public override DataView GetDataView(bool isSubmitBatch)
+        public override async Task<List<object>> GetList(bool isSubmitBatch)
         {
             AdjustmentSettings adjSettings = new AdjustmentSettings().LoadData();
             StringBuilder sql = new StringBuilder();
@@ -361,20 +364,20 @@ namespace dMobile.Controller
                 sql.Append(" INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityAdjustment.ActivityRefno");
             }
 
-            using (SQLiteDataAdapter dataAdapterAdj = new SQLiteDataAdapter(sql.ToString(), DatabaseConnection.GetInstance().SQLConn))
-            {
-                using (DataSet dataSetAdj = new DataSet())
-                {
-                    dataAdapterAdj.Fill(dataSetAdj);
+            //using (SQLiteDataAdapter dataAdapterAdj = new SQLiteDataAdapter(sql.ToString(), DatabaseConnection.GetInstance().SQLConn))
+            //{
+            //    using (DataSet dataSetAdj = new DataSet())
+            //    {
+            //        dataAdapterAdj.Fill(dataSetAdj);
+            //        this.DataViewHdrs = dataSetAdj.Tables[0].DefaultView;
+            //        this.DataViewHdrs.Table.TableName = this.MainGridMappingName;
+            //        this.DataViewHdrs.Sort = adjSettings.GetDataViewSortBy();
+            //        this.DataViewHdrs.RowFilter = this.GetFilter();
+            //    }
+            //}
 
-                    this.DataViewHdrs = dataSetAdj.Tables[0].DefaultView;
-                    this.DataViewHdrs.Table.TableName = this.MainGridMappingName;
-                    this.DataViewHdrs.Sort = adjSettings.GetDataViewSortBy();
-                    this.DataViewHdrs.RowFilter = this.GetFilter();
-                }
-            }
-
-            return this.DataViewHdrs;
+            this.ListHdrs = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<object>(sql.ToString());
+            return this.ListHdrs;
         }
 
         /// <summary>
@@ -385,33 +388,37 @@ namespace dMobile.Controller
         /// <remarks></remarks>
         public override ObservableCollection<object> Search(string searchText)
         {
+            // TODO: Test search
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
             if (string.IsNullOrEmpty(this.ActFilter))
             {
-                this.DataViewHdrs.RowFilter = "ActivityAdjustmentStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
+                //this.DataViewHdrs.RowFilter = "ActivityAdjustmentStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
+                this.ListHdrs = (List<object>)this.ListHdrs.OfType<Adjustment>().Where(adj => (adj.ActivityAdjustmentStringFKRefno as string).Contains(searchText.Trim()));
+
             }
             else
             {
-                this.DataViewHdrs.RowFilter = this.ActFilter + " AND ActivityAdjustmentStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
+                //this.DataViewHdrs.RowFilter = this.ActFilter + " AND ActivityAdjustmentStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
+                this.ListHdrs = (List<object>)this.ListHdrs.OfType<Adjustment>().Where(adj => this.ActFilter.Contains(searchText.Trim()) && (adj.ActivityAdjustmentStringFKRefno as string).Contains(searchText.Trim()));
             }
 
-            foreach (DataRow row in this.DataViewHdrs.ToTable().Rows)
+            foreach (Adjustment adjustment in this.ListHdrs)
             {
-                Adjustment adjustment = new Adjustment
-                {
-                    ActivityRefno = Convert.ToInt32(row["ActivityRefno"] != DBNull.Value ? row["ActivityRefno"] : null),
-                    ActivityAdjustmentFKRefno = Convert.ToInt32(row["ActivityAdjustmentFKRefno"] != DBNull.Value ? row["ActivityAdjustmentFKRefno"] : null),
-                    ActivityAdjustmentType = Convert.ToInt32(row["ActivityAdjustmentType"] != DBNull.Value ? row["ActivityAdjustmentType"] : null),
-                    LocationMapWarehouseFKRefno = Convert.ToInt32(row["LocationMapWarehouseFKRefno"] != DBNull.Value ? row["LocationMapWarehouseFKRefno"] : null),
-                    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
-                    ActivityStatus = Convert.ToInt32(row["ActivityStatus"] != DBNull.Value ? row["ActivityStatus"] : null),
-                    ActivityAdjustmentStringFKRefno = Convert.ToString(row["ActivityAdjustmentStringFKRefno"] != DBNull.Value ? row["ActivityAdjustmentStringFKRefno"] : null),
-                    ActivityAdjustmentDescription = Convert.ToString(row["ActivityAdjustmentDescription"] != DBNull.Value ? row["ActivityAdjustmentDescription"] : null),
-                    ActivityAdjustmentTypeDescription = Convert.ToString(row["ActivityAdjustmentTypeDescription"] != DBNull.Value ? row["ActivityAdjustmentTypeDescription"] : null),
-                    LocationMapWarehouseName = Convert.ToString(row["LocationMapWarehouseName"] != DBNull.Value ? row["LocationMapWarehouseName"] : null),
-                    ActivityAdjustmentDateTime = Convert.ToDateTime(row["ActivityAdjustmentDateTime"] != DBNull.Value ? row["ActivityAdjustmentDateTime"] : null)
-                };
+                //Adjustment adjustment = new Adjustment
+                //{
+                //    ActivityRefno = Convert.ToInt32(row["ActivityRefno"] != DBNull.Value ? row["ActivityRefno"] : null),
+                //    ActivityAdjustmentFKRefno = Convert.ToInt32(row["ActivityAdjustmentFKRefno"] != DBNull.Value ? row["ActivityAdjustmentFKRefno"] : null),
+                //    ActivityAdjustmentType = Convert.ToInt32(row["ActivityAdjustmentType"] != DBNull.Value ? row["ActivityAdjustmentType"] : null),
+                //    LocationMapWarehouseFKRefno = Convert.ToInt32(row["LocationMapWarehouseFKRefno"] != DBNull.Value ? row["LocationMapWarehouseFKRefno"] : null),
+                //    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
+                //    ActivityStatus = Convert.ToInt32(row["ActivityStatus"] != DBNull.Value ? row["ActivityStatus"] : null),
+                //    ActivityAdjustmentStringFKRefno = Convert.ToString(row["ActivityAdjustmentStringFKRefno"] != DBNull.Value ? row["ActivityAdjustmentStringFKRefno"] : null),
+                //    ActivityAdjustmentDescription = Convert.ToString(row["ActivityAdjustmentDescription"] != DBNull.Value ? row["ActivityAdjustmentDescription"] : null),
+                //    ActivityAdjustmentTypeDescription = Convert.ToString(row["ActivityAdjustmentTypeDescription"] != DBNull.Value ? row["ActivityAdjustmentTypeDescription"] : null),
+                //    LocationMapWarehouseName = Convert.ToString(row["LocationMapWarehouseName"] != DBNull.Value ? row["LocationMapWarehouseName"] : null),
+                //    ActivityAdjustmentDateTime = Convert.ToDateTime(row["ActivityAdjustmentDateTime"] != DBNull.Value ? row["ActivityAdjustmentDateTime"] : null)
+                //};
 
                 observableCollection.Add(adjustment);
             }
@@ -425,27 +432,31 @@ namespace dMobile.Controller
         /// <param name="i"></param>
         /// <param name="lstDisplay"></param>
         /// <remarks></remarks>
-        public override void SelectHdr(int idx)
+        public override async Task SelectHdr(object selectedItem)
         {
-            this.FKRefno = Convert.ToInt32(this.DataViewHdrs[idx]["ActivityAdjustmentFKRefno"]);
-            this.Refno = Convert.ToInt32(this.DataViewHdrs[idx]["ActivityRefno"]);
-            this.SelectedIndex = idx;
-
-            // Set the selected warehouse to the activity header warehouse.
-            if (LocationMap.GetInstance().CurrLocMap.WhsLocMapRefno != Convert.ToInt32(this.DataViewHdrs[idx]["LocationMapRefno"]))
+            if (selectedItem is Adjustment adjustment)
             {
-                LocationMap.GetInstance().CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(this.DataViewHdrs[idx]["LocationMapRefno"]));
-            }
+                //this.FKRefno = Convert.ToInt32(this.DataViewHdrs[idx]["ActivityAdjustmentFKRefno"]);
+                //this.Refno = Convert.ToInt32(this.DataViewHdrs[idx]["ActivityRefno"]);
+                this.FKRefno = adjustment.ActivityAdjustmentFKRefno;
+                this.Refno = adjustment.ActivityRefno;
 
-            this.AdjSettings = this.AdjSettings.LoadData();
-            this.AdjSettings.AdjustmentType = (SysCommon.AdjTypes)Convert.ToInt32(this.DataViewHdrs[idx]["ActivityAdjustmentType"]);
+                // Set the selected warehouse to the activity header warehouse.
+                if (LocationMap.GetInstance().CurrLocMap.WhsLocMapRefno != Convert.ToInt32(adjustment.LocationMapRefno))
+                {
+                    LocationMap.GetInstance().CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(adjustment.LocationMapRefno));
+                }
 
-            if (!SysCommon.IsAllowedChangeNegateQuantityFromAdjType(this.AdjSettings.AdjustmentType))
-            {
-                this.AdjSettings.NegateScanQuantity = SysCommon.DefaultNegateQuantityFromAdjType(this.AdjSettings.AdjustmentType);
-                AdjustmentSettings tempAdjSettings = this.AdjSettings;
-                this.AdjSettings.SaveData(ref tempAdjSettings);
-                this.AdjSettings = tempAdjSettings;
+                this.AdjSettings = this.AdjSettings.LoadData();
+                this.AdjSettings.AdjustmentType = (SysCommon.AdjTypes)Convert.ToInt32(adjustment.ActivityAdjustmentType);
+
+                if (!SysCommon.IsAllowedChangeNegateQuantityFromAdjType(this.AdjSettings.AdjustmentType))
+                {
+                    this.AdjSettings.NegateScanQuantity = SysCommon.DefaultNegateQuantityFromAdjType(this.AdjSettings.AdjustmentType);
+                    AdjustmentSettings tempAdjSettings = this.AdjSettings;
+                    this.AdjSettings.SaveData(ref tempAdjSettings);
+                    this.AdjSettings = tempAdjSettings;
+                }
             }
         }
 
@@ -455,10 +466,13 @@ namespace dMobile.Controller
         /// <param name="i"></param>
         /// <returns></returns>
         /// <remarks></remarks>
-        public override int GetRefnoFromRowIdx(int idx)
+        public override int GetRefnoFromRowIdx(object selectedItem)
         {
-            this.FKRefno = Convert.ToInt32(this.DataViewHdrs[idx]["ActivityAdjustmentFKRefno"]);
-            this.Refno = Convert.ToInt32(this.DataViewHdrs[idx]["ActivityRefno"]);
+            if (selectedItem is Adjustment adjustment)
+            {
+                this.FKRefno = Convert.ToInt32(adjustment.ActivityAdjustmentFKRefno);
+                this.Refno = Convert.ToInt32(adjustment.ActivityRefno);
+            }
 
             return this.Refno;
         }
@@ -467,7 +481,7 @@ namespace dMobile.Controller
         /// 
         /// </summary>
         /// <param name="data"></param>
-        public override void Refresh(XDocument data)
+        public override async Task Refresh(XDocument data)
         {
             if (this.SysEnv.SysSettings.IsDisconnectedMode)
             {
@@ -476,7 +490,7 @@ namespace dMobile.Controller
             else
             {
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 2);
-                this.Purge();
+                await this.Purge();
 
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
 
@@ -601,16 +615,17 @@ namespace dMobile.Controller
             return filter;
         }
 
-        public override void PrintLabel(XDocument data)
+        public override async Task PrintLabel(XDocument data)
         {
             if (AdjSettings.AdjustmentType == SysCommon.AdjTypes.Debox && !SysEnv.SysSettings.IsDisconnectedMode)
             {
                 int locMapRefno = 0;
-                SLocMap locMap = LocationMapTasks.GetSLocMapFromLocMapFKRefno(
+                SLocMapAndRefno sLocMapAndRefno = await LocationMapTasks.GetSLocMapFromLocMapFKRefno(
                     int.Parse(this.XMLDataCriteria.Root.Element("whs_id").Value),
                     int.Parse(this.XMLDataCriteria.Root.Element("sect_refno").Value),
                     0,
-                    ref locMapRefno);
+                    locMapRefno);
+                SLocMap locMap = sLocMapAndRefno.SLocMap;
                 string reqData = string.Empty;
                 PrinterSettings prnSettings = new PrinterSettings().LoadData();
 

@@ -2,7 +2,7 @@
 
 namespace dMobile.Resources.Types
 {
-    public class Adjustment
+    public class Adjustment: object
     {
         private int activityRefno;
         private int activityAdjustmentFKRefno;

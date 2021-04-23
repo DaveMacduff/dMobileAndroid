@@ -1,8 +1,10 @@
 namespace dMobile.Controller
 {
     using System;
+    using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Data;
+    using System.Threading.Tasks;
     using System.Xml.Linq;
     using dMobile.Bedrock;
     using Xamarin.Forms;
@@ -28,7 +30,7 @@ namespace dMobile.Controller
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override void Purge()
+        public override async Task Purge()
         {
             throw new NotImplementedException();
         }
@@ -58,10 +60,10 @@ namespace dMobile.Controller
         /// 
         /// </summary>
         /// <param name="idx"></param>
-        public override void SelectHdr(int idx)
+        public override async Task SelectHdr(object selectedObject)
         {
-            this.FKRefno = Convert.ToInt32(this.DataViewHdrs[idx]["ActivityRefno"]);
-            this.Refno = Convert.ToInt32(this.DataViewHdrs[idx]["ActivityRefno"]);
+            this.FKRefno = Convert.ToInt32((selectedObject as dynamic).ActivityRefno);
+            this.Refno = Convert.ToInt32((selectedObject as dynamic).ActivityRefno);
         }
 
         /// <summary>
@@ -70,7 +72,7 @@ namespace dMobile.Controller
         /// <param name="i"></param>
         /// <returns></returns>
         /// <remarks></remarks>
-        public override int GetRefnoFromRowIdx(int idx)
+        public override int GetRefnoFromRowIdx(object selectedObject)
         {
             this.FKRefno = Convert.ToInt32(this.DataViewHdrs[idx]["ActivityRefno"]);
             this.Refno = Convert.ToInt32(this.DataViewHdrs[idx]["ActivityRefno"]);
@@ -84,7 +86,7 @@ namespace dMobile.Controller
         /// <param name="isSubmitBatch"></param>
         /// <returns></returns>
         /// <remarks></remarks>
-        public override DataView GetDataView(bool isSubmitBatch)
+        public override async Task<List<object>> GetList(bool isSubmitBatch)
         {
             throw new NotImplementedException();
         }

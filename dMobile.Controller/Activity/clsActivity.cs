@@ -3,19 +3,21 @@ namespace dMobile.Controller
     using System;
     using System.Collections.ObjectModel;
     using System.Data;
-    using System.Data.SQLite;
+    using SQLite;
     using System.Threading.Tasks;
     using System.Xml.Linq;
     using dMobile.Bedrock;
     using dMobile.GroundWork;
     using Xamarin.Forms;
+    using dMobile.Resources.Models;
+    using System.Collections.Generic;
 
     public abstract class Activity : IDataLayerEventPublisher, IDataAccessEventListener
     {
         #region Fields
 
         private string mainGridMappingName = "tActivity";
-        private DataView dataViewHdrs = null;
+        private List<object> listHdrs = null;
         private SysCommon.ActSubTypes actSubType;
         private int refno;
         private SysEnvironment sysEnv;
@@ -24,7 +26,6 @@ namespace dMobile.Controller
         private string actFilter = string.Empty;
         private XDocument xmlDataCriteria = null;
         private SysSkidInfo skidInfo = new SysSkidInfo();
-        private int selectedIndex = 0;
         private DataLayerEventArgs dataEventArgs = new DataLayerEventArgs();
         private string fullClassName = typeof(Activity).FullName;
 
@@ -68,22 +69,6 @@ namespace dMobile.Controller
             set
             {
                 this.fullClassName = value;
-            }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public int SelectedIndex
-        {
-            get
-            {
-                return this.selectedIndex;
-            }
-
-            set
-            {
-                this.selectedIndex = value;
             }
         }
 
@@ -170,16 +155,16 @@ namespace dMobile.Controller
         /// <summary>
         /// 
         /// </summary>
-        public DataView DataViewHdrs
+        public List<object> ListHdrs
         {
             get
             {
-                return this.dataViewHdrs;
+                return this.listHdrs;
             }
 
             set
             {
-                this.dataViewHdrs = value;
+                this.listHdrs = value;
             }
         }
 
@@ -272,7 +257,7 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="pbProgressBar"></param>
         /// <param name="xmlParam"></param>
-        public abstract void Refresh(XDocument data);
+        public abstract Task Refresh(XDocument data);
 
         /// <summary>
         /// 
@@ -286,7 +271,7 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="IsSubmitBatch"></param>
         /// <returns></returns>
-        public abstract DataView GetDataView(bool isSubmitBatch);
+        public abstract Task<List<object>> GetList(bool isSubmitBatch);
 
         /// <summary>
         /// 
@@ -299,14 +284,14 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="i"></param>
         /// <param name="lst"></param>
-        public abstract void SelectHdr(int idx);
+        public abstract Task SelectHdr(object selectedItem);
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="idx"></param>
         /// <returns></returns>
-        public abstract int GetRefnoFromRowIdx(int idx);
+        public abstract int GetRefnoFromRowIdx(object selectedItem);
 
         /// <summary>
         /// 
@@ -336,7 +321,7 @@ namespace dMobile.Controller
         /// <summary>
         /// 
         /// </summary>
-        public abstract void Purge();
+        public abstract Task Purge();
 
         /// <summary>
         ///
@@ -354,29 +339,22 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="actSubTypes"></param>
         /// <remarks></remarks>
-        public void Create(SysCommon.ActSubTypes actSubType)
+        public async Task Create(SysCommon.ActSubTypes actSubType)
         {
             try
             {
-                using (SQLiteCommand cmndAct = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                using (SQLiteCommand cmndID = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                {
-                    cmndAct.CommandText = "INSERT INTO tActivity (ActivityStatus, ActivitySubType) VALUES (@activityStatus, @activitySubType)";
-                    cmndAct.CommandType = CommandType.Text;
-                    cmndAct.Parameters.Add(new SQLiteParameter("@activityStatus", Convert.ToInt32(SysCommon.ActStatus.Inserted)));
-                    cmndAct.Parameters.Add(new SQLiteParameter("@activitySubType", Convert.ToInt32(actSubType)));
-
-                    cmndAct.ExecuteNonQuery();
-
-                    //recAct.SetInt32((int)SysCommon.ActFields.SubType, (int)actSubType);
-                    //recAct.SetInt32((int)SysCommon.ActFields.Status, (int)SysCommon.ActStatus.Inserted);
-                    //rsAct.Insert(recAct);
-
-                    cmndID.CommandText = "SELECT last_insert_rowid() FROM tActivity";
-                    cmndID.CommandType = CommandType.Text;
-
-                    this.Refno = Convert.ToInt32(cmndID.ExecuteScalar());
-                }
+                //cmndAct.CommandType = CommandType.Text;
+                //cmndAct.Parameters.Add(new SQLiteParameter("@activityStatus", Convert.ToInt32(SysCommon.ActStatus.Inserted)));
+                //cmndAct.Parameters.Add(new SQLiteParameter("@activitySubType", Convert.ToInt32(actSubType)));
+                //recAct.SetInt32((int)SysCommon.ActFields.SubType, (int)actSubType);
+                //recAct.SetInt32((int)SysCommon.ActFields.Status, (int)SysCommon.ActStatus.Inserted);
+                //rsAct.Insert(recAct);
+                
+                string sql = "INSERT INTO tActivity (ActivityStatus, ActivitySubType) VALUES (?, ?)";
+                await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityModel>(sql, Convert.ToInt32(SysCommon.ActStatus.Inserted), Convert.ToInt32(actSubType));
+                
+                string queryID = "SELECT last_insert_rowid() FROM tActivity";
+                this.Refno = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.QueryScalarsAsync<int>(queryID));
             }
             catch (SQLiteException ex)
             {
@@ -407,7 +385,7 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="xmlParams"></param>
         /// <remarks></remarks>
-        public virtual void Insert(XDocument xmlParams)
+        public virtual Task Insert(XDocument xmlParams)
         {
             throw new NotImplementedException();
         }
@@ -416,7 +394,7 @@ namespace dMobile.Controller
         ///
         /// </summary>
         /// <remarks></remarks>
-        public virtual void Delete()
+        public virtual Task Delete()
         {
             throw new NotImplementedException();
         }
@@ -425,7 +403,7 @@ namespace dMobile.Controller
         ///
         /// </summary>
         /// <remarks></remarks>
-        public virtual void PrintLabel(XDocument xmlParam)
+        public virtual Task PrintLabel(XDocument xmlParam)
         {
             throw new NotImplementedException();
         }
