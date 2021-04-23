@@ -2439,7 +2439,7 @@ namespace dMobile.View.Options
 
             this.CycleCountDetail.RegisterDataAccessListenerProgressOut(this);
             this.CycleCountDetail.RegisterDataAccessListenerStatusOut(this);
-            this.CycleCountDetail.DataStatus();
+            await this.CycleCountDetail.DataStatus();
             this.CycleCountDetail.UnregisterDataAccessListenerStatusOut(this);
             this.CycleCountDetail.UnregisterDataAccessListenerProgressOut(this);
 
