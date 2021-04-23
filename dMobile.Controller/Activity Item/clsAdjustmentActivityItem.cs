@@ -310,7 +310,7 @@ namespace dMobile.Controller
         /// 
         /// </summary>
         /// <param name="data"></param>
-        public override void Refresh(XDocument data)
+        public override async Task Refresh(XDocument data)
         {
             if (SysEnv.SysSettings.IsDisconnectedMode)
             {
@@ -322,7 +322,7 @@ namespace dMobile.Controller
 
                 TableActivityAdjustmentItem adjItem = new TableActivityAdjustmentItem();
                 TableActivityAdjustmentDetail adjDetail = new TableActivityAdjustmentDetail();
-                adjDetail.Purge();
+                await adjDetail.Purge();
                 adjItem.Purge();
 
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 5);

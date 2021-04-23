@@ -2571,7 +2571,7 @@ namespace dMobile.View.Options
                     {
                         this.AdjustmentDetail.RegisterDataAccessListenerProgressOut(this);
                         this.AdjustmentDetail.RegisterDataAccessListenerStatusOut(this);
-                        this.AdjustmentDetail.Request(0);
+                        await this.AdjustmentDetail.Request(0);
                         this.AdjustmentDetail.UnregisterDataAccessListenerStatusOut(this);
                         this.AdjustmentDetail.UnregisterDataAccessListenerProgressOut(this);
                         this.StatusOut(this, EventArgs.Empty, string.Empty);
