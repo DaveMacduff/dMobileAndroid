@@ -1,18 +1,17 @@
 namespace dMobile.Controller
 {
+    using dMobile.Bedrock;
+    using dMobile.GroundWork;
+    using dMobile.Resources.Services;
+    using dMobile.Resources.Types;
+    using SQLite;
     using System;
     using System.Collections.ObjectModel;
     using System.Data;
-    using System.Data.SQLite;
     using System.Text;
     using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
-    using dMobile.Bedrock;
-    using dMobile.GroundWork;
-    using dMobile.Resources.Enums;
-    using dMobile.Resources.Services;
-    using dMobile.Resources.Types;
     using Xamarin.Forms;
 
     public class CycleActItem : ActItem
@@ -335,7 +334,7 @@ namespace dMobile.Controller
         /// 
         /// </summary>
         /// <param name="data"></param>
-        public override void Refresh(XDocument data)
+        public override async Task Refresh(XDocument data)
         {
             if (this.SysEnv.SysSettings.IsDisconnectedMode)
             {
@@ -348,12 +347,12 @@ namespace dMobile.Controller
                 TableActivityCycleCountItem tableActCountItem = new TableActivityCycleCountItem();
                 TableActivityCycleCountDetail tableActCountDetail = new TableActivityCycleCountDetail();
                 tableActCountDetail.Purge();
-                tableActCountItem.Purge();
+                await tableActCountItem.Purge();
 
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
 
                 tableActCountItem.RegisterDataAccessListenerProgressOut((CycleActItem)this);
-                tableActCountItem.Request(this.ActHdr.Refno);
+                await tableActCountItem.Request(this.ActHdr.Refno);
                 tableActCountItem.UnregisterDataAccessListenerProgressOut((CycleActItem)this);
             }
         }

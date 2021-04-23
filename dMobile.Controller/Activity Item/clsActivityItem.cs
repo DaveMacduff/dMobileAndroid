@@ -525,7 +525,7 @@ namespace dMobile.Controller
         /// 
         /// </summary>
         /// <param name="data"></param>
-        public abstract void Refresh(XDocument data);
+        public abstract Task Refresh(XDocument data);
 
         /// <summary>
         /// 

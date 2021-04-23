@@ -5,6 +5,7 @@ namespace dMobile.Controller
     using System.Data;
     using System.Data.SQLite;
     using System.Text;
+    using System.Threading.Tasks;
     using System.Xml.Linq;
     using dMobile.Bedrock;
     using dMobile.GroundWork;
@@ -413,7 +414,7 @@ namespace dMobile.Controller
         /// 
         /// </summary>
         /// <param name="data"></param>
-        public override void Refresh(XDocument data)
+        public override async Task Refresh(XDocument data)
         {
             if (this.SysEnv.SysSettings.IsDisconnectedMode)
             {
@@ -422,7 +423,7 @@ namespace dMobile.Controller
             else
             {
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 2);
-                this.Purge();
+                await this.Purge();
 
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
 
@@ -437,14 +438,14 @@ namespace dMobile.Controller
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override void Purge()
+        public override async Task Purge()
         {
             TableActivityCycleCount cycleCount = new TableActivityCycleCount();
             TableActivityCycleCountItem cycleCountItem = new TableActivityCycleCountItem();
             TableActivityCycleCountDetail cycleCountDetail = new TableActivityCycleCountDetail();
 
             cycleCountDetail.Purge();
-            cycleCountItem.Purge();
+            await cycleCountItem.Purge();
             cycleCount.Purge();
         }
 

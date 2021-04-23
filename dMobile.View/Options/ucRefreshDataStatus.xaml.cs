@@ -2433,7 +2433,7 @@ namespace dMobile.View.Options
 
             this.CycleCountItem.RegisterDataAccessListenerProgressOut(this);
             this.CycleCountItem.RegisterDataAccessListenerStatusOut(this);
-            this.CycleCountItem.DataStatus();
+            await this.CycleCountItem.DataStatus();
             this.CycleCountItem.UnregisterDataAccessListenerStatusOut(this);
             this.CycleCountItem.UnregisterDataAccessListenerProgressOut(this);
 
@@ -2649,7 +2649,7 @@ namespace dMobile.View.Options
 
                     this.CycleCountItem.RegisterDataAccessListenerProgressOut(this);
                     this.CycleCountItem.RegisterDataAccessListenerStatusOut(this);
-                    this.CycleCountItem.Request(0);
+                    await this.CycleCountItem.Request(0);
                     this.CycleCountItem.UnregisterDataAccessListenerStatusOut(this);
                     this.CycleCountItem.UnregisterDataAccessListenerProgressOut(this);
                     this.StatusOut(this, EventArgs.Empty, string.Empty);
