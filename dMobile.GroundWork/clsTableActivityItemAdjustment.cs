@@ -1,10 +1,13 @@
 namespace dMobile.GroundWork
 {
     using dMobile.Bedrock;
+    using dMobile.Resources.Models;
+    using SQLite;
     using System;
+    using System.Collections.Generic;
     using System.Data;
-    using System.Data.SQLite;
     using System.Text;
+    using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
 
@@ -26,7 +29,7 @@ namespace dMobile.GroundWork
         /// The Request
         /// </summary>
         /// <param name="actRefno">The actRefno<see cref="int"/></param>
-        public override void Request(int actRefno)
+        public override async Task Request(int actRefno)
         {
             string reqData = string.Empty;
 
@@ -35,40 +38,32 @@ namespace dMobile.GroundWork
 
             try
             {
-
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding adjustment items.", true);
 
                 if (actRefno == 0)
                 {
-                    using (SQLiteCommand cmndActAdj = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                    {
-                        cmndActAdj.CommandType = CommandType.Text;
-                        cmndActAdj.CommandText = "SELECT tActivity.ActivityRefno "
+                    string query = "SELECT tActivity.ActivityRefno "
                             + "FROM tActivity "
-                            + "WHERE tActivity.ActivitySubType = " + (int)SysCommon.ActSubTypes.Adjustment;
+                            + "WHERE tActivity.ActivitySubType = ?";
 
-                        using (SQLiteDataReader drActAdj = cmndActAdj.ExecuteReader())
+                    List<tActivityModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityModel>(query, (int)SysCommon.ActSubTypes.Adjustment);
+
+                    if (results != null && results.Count > 0)
+                    {
+                        actRefno = results[0].ActivityRefno;
+                        reqData = this.Send(actRefno);
+
+                        if (0 < reqData.Length)
                         {
-                            while (drActAdj.Read())
+                            if (reqData.Contains("<message>ERROR</message>"))
                             {
-                                actRefno = Convert.ToInt32(drActAdj["ActivityRefno"]);
-                                reqData = this.Send(actRefno);
-
-                                if (0 < reqData.Length)
-                                {
-                                    if (reqData.Contains("<message>ERROR</message>"))
-                                    {
-                                        XmlDocument reqErr = new XmlDocument();
-                                        reqErr.LoadXml(reqData);
-                                        throw new Exception(reqErr.DocumentElement["detail"].InnerText);
-                                    }
-
-                                    this.Save(reqData, actRefno);
-                                }
+                                XmlDocument reqErr = new XmlDocument();
+                                reqErr.LoadXml(reqData);
+                                throw new Exception(reqErr.DocumentElement["detail"].InnerText);
                             }
 
-                            drActAdj.Close();
+                            this.Save(reqData, actRefno);
                         }
                     }
                 }
@@ -115,22 +110,17 @@ namespace dMobile.GroundWork
         /// The DataStatus
         /// </summary>
         /// <returns>The <see cref="int"/></returns>
-        public override int DataStatus()
+        public override async Task<int> DataStatus()
         {
             int rowsAffected = 0;
 
             try
             {
-                using (SQLiteCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                {
-                    cmndStatus.CommandText = "SELECT COUNT(tActivityItem.ActivityItemRefno) FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = " + (int)SysCommon.ActSubTypes.Adjustment;
-                    cmndStatus.CommandType = CommandType.Text;
+                string query = "SELECT COUNT(tActivityItem.ActivityItemRefno) FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?";
+                rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>(query, (int)SysCommon.ActSubTypes.Adjustment);
 
-                    rowsAffected = Convert.ToInt32(cmndStatus.ExecuteScalar());
-
-                    // TODO: Resource strings
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} adjustment items.", rowsAffected), true);
-                }
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} adjustment items.", rowsAffected), true);
             }
             catch (SQLiteException ex)
             {
