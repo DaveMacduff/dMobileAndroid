@@ -168,7 +168,7 @@ namespace dMobile.GroundWork
         /// The Purge
         /// </summary>
         /// <param name="actSubType"></param>
-        public virtual void Purge(SysCommon.ActSubTypes actSubType)
+        public virtual async Task Purge(SysCommon.ActSubTypes actSubType)
         {
             throw new NotImplementedException();
         }

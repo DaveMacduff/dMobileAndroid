@@ -1887,7 +1887,7 @@ namespace dMobile.View.Options
         /// <remarks></remarks>
         private async Task RefreshData()
         {
-            this.RefreshDataBarCodeAssociation();
+            await this.RefreshDataBarCodeAssociation();
             await this.RefreshDataAdjustments();
             await this.RefreshDataCounts();
             await this.RefreshDataProduction();
@@ -2513,7 +2513,7 @@ namespace dMobile.View.Options
         /// <summary>
         /// 
         /// </summary>
-        private void RefreshDataBarCodeAssociation()
+        private async Task RefreshDataBarCodeAssociation()
         {
             // Bar Code Association
             if (this.ActSubType == SysCommon.ActSubTypes.PurgeActivityData)
@@ -2523,7 +2523,7 @@ namespace dMobile.View.Options
                 this.ActItemBarCodeAssocXRef.UnregisterDataAccessListenerStatusOut(this);
 
                 this.ActivityItem.RegisterDataAccessListenerStatusOut(this);
-                this.ActivityItem.Purge(SysCommon.ActSubTypes.BarCodeAssociation);
+                await this.ActivityItem.Purge(SysCommon.ActSubTypes.BarCodeAssociation);
                 this.ActivityItem.UnregisterDataAccessListenerStatusOut(this);
 
                 this.Activity.RegisterDataAccessListenerStatusOut(this);
