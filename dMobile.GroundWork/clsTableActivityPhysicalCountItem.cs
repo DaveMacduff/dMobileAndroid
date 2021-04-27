@@ -2,11 +2,13 @@ namespace dMobile.GroundWork
 {
     using dMobile.Bedrock;
     using System;
-    using System.Data;
-    using System.Data.SQLite;
+    using SQLite;
     using System.Text;
     using System.Xml;
     using System.Xml.Linq;
+    using System.Threading.Tasks;
+    using System.Collections.Generic;
+    using dMobile.Resources.Models;
 
     /// <summary>
     /// Defines the <see cref="TableActivityPhysicalCountItem" />
@@ -26,7 +28,7 @@ namespace dMobile.GroundWork
         /// The Request
         /// </summary>
         /// <param name="actRefno"></param>
-        public override void Request(int actRefno)
+        public override async Task Request(int actRefno)
         {
             string reqData = string.Empty;
 
@@ -41,39 +43,30 @@ namespace dMobile.GroundWork
 
                 if (actRefno == 0)
                 {
-                    using (SQLiteCommand cmndCount = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                    string query = "SELECT tActivity.ActivityRefno FROM tActivity WHERE tActivity.ActivitySubType = ?";
+                    List<tActivityModel> results =  await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityModel>(query, Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts));
+
+                    if (results != null && results.Count > 0)
                     {
-                        cmndCount.CommandText = "SELECT tActivity.ActivityRefno FROM tActivity WHERE tActivity.ActivitySubType = @activitySubType";
-                        cmndCount.CommandType = CommandType.Text;
-                        cmndCount.Parameters.Add(new SQLiteParameter("@activitySubType", Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts)));
+                        actRefno = results[0].ActivityRefno;
+                        reqData = await this.Send(actRefno);
 
-                        using (SQLiteDataReader drActivityCount = cmndCount.ExecuteReader())
+                        if (0 < reqData.Length)
                         {
-                            while (drActivityCount.Read())
+                            if (reqData.Contains("<message>ERROR</message>"))
                             {
-                                actRefno = Convert.ToInt32(drActivityCount["ActivityRefno"]);
-                                reqData = this.Send(actRefno);
-
-                                if (0 < reqData.Length)
-                                {
-                                    if (reqData.Contains("<message>ERROR</message>"))
-                                    {
-                                        XmlDocument reqErr = new XmlDocument();
-                                        reqErr.LoadXml(reqData);
-                                        throw new Exception(reqErr.DocumentElement["detail"].InnerText);
-                                    }
-
-                                    this.Save(reqData, actRefno);
-                                }
+                                XmlDocument reqErr = new XmlDocument();
+                                reqErr.LoadXml(reqData);
+                                throw new Exception(reqErr.DocumentElement["detail"].InnerText);
                             }
 
-                            drActivityCount.Close();
+                            this.Save(reqData, actRefno);
                         }
                     }
                 }
                 else
                 {
-                    reqData = this.Send(actRefno);
+                    reqData = await this.Send(actRefno);
 
                     if (0 < reqData.Length)
                     {
@@ -114,23 +107,17 @@ namespace dMobile.GroundWork
         /// The DataStatus
         /// </summary>
         /// <returns>The <see cref="int"/></returns>
-        public override int DataStatus()
+        public override async Task<int> DataStatus()
         {
             int rowsAffected = 0;
 
             try
             {
-                using (SQLiteCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                {
-                    cmndStatus.CommandText = "SELECT COUNT(tActivityItem.ActivityItemRefno) FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = @activityItemSubType";
-                    cmndStatus.CommandType = CommandType.Text;
-                    cmndStatus.Parameters.Add(new SQLiteParameter("@activityItemSubType", Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts)));
+                string query = "SELECT COUNT(tActivityItem.ActivityItemRefno) FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?";
+                rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>(query, Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts));
 
-                    rowsAffected = Convert.ToInt32(cmndStatus.ExecuteScalar());
-
-                    // TODO: Resource strings
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} physical count items.", rowsAffected), true);
-                }
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} physical count items.", rowsAffected), true);
             }
             catch (SQLiteException ex)
             {
@@ -144,31 +131,25 @@ namespace dMobile.GroundWork
         /// <summary>
         /// The Purge
         /// </summary>
-        public override void Purge()
+        public override async Task Purge()
         {
             try
             {
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging physical count items.", true);
 
-                using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                {
-                    cmndPurge.CommandType = CommandType.Text;
-                    cmndPurge.Parameters.Add(new SQLiteParameter("@activityItemSubType", Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts)));
+                string query = "DELETE FROM tActivityItemBarCodeAssociationXRef "
+                    + "WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno IN "
+                    + "(SELECT tActivityItem.ActivityItemRefno "
+                    + "FROM tActivityItem "
+                    + "WHERE tActivityItem.ActivityItemSubType = ?)";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts));
 
-                    cmndPurge.CommandText = "DELETE FROM tActivityItemBarCodeAssociationXRef "
-                        + "WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno IN "
-                        + "(SELECT tActivityItem.ActivityItemRefno "
-                        + "FROM tActivityItem "
-                        + "WHERE tActivityItem.ActivityItemSubType = @activityItemSubType)";
-                    cmndPurge.ExecuteNonQuery();
+                query = "DELETE FROM tActivityItemCount WHERE tActivityItemCount.ActivityItemSubType = @activityItemSubType";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts));
 
-                    cmndPurge.CommandText = "DELETE FROM tActivityItemCount WHERE tActivityItemCount.ActivityItemSubType = @activityItemSubType";
-                    cmndPurge.ExecuteNonQuery();
-
-                    cmndPurge.CommandText = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = @activityItemSubType";
-                    cmndPurge.ExecuteNonQuery();
-                }
+                query = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = @activityItemSubType";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts));
 
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging physical count items complete.", true);
@@ -189,37 +170,16 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="actRefno">The actRefno<see cref="int"/></param>
         /// <returns></returns>
-        protected override string Send(int actRefno)
+        protected override async Task<string> Send(int actRefno)
         {
             int actCountFKRefno = 0;
 
-            using (SQLiteCommand cmndCount = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-            {
-                cmndCount.CommandText = "SELECT * FROM tActivityCount WHERE ActivityRefno = @activityRefno";
-                cmndCount.CommandType = CommandType.Text;
-                //cmndCount.IndexName = "PK_ActivityCountOnActivityRefno";
-                cmndCount.Parameters.Add(new SQLiteParameter("@activityRefno", actRefno));
+            string query = "SELECT * FROM tActivityCount WHERE ActivityRefno = @activityRefno";
+            List<tActivityCountModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityCountModel>(query, actRefno);
 
-                using (SQLiteDataReader drCount = cmndCount.ExecuteReader())
-                {
-                    //if (drCount.Seek(DbSeekOptions.FirstEqual, new object[] { actRefno }))
-                    //{
-                    if (drCount.Read())
-                    {
-                        actCountFKRefno = Convert.ToInt32(drCount.GetValue((int)SysCommon.ActCountFields.FKRefno));
-                    }
-                    else
-                    {
-                        // TODO: Resource strings
-                        throw new Exception("drCount.Read() failed.");
-                    }
-                    //}
-                    //else
-                    //{
-                    //    // TODO: Resource strings
-                    //    throw new Exception(string.Format("Unable to locate the physical count refno {0} in tActivityCount", actRefno));
-                    //}
-                }
+            if (results != null && results.Count > 0)
+            {
+                actCountFKRefno = results[0].ActivityCountFKRefno;
             }
 
             return this.SendComm(this.Create(actCountFKRefno));
