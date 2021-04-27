@@ -5,6 +5,7 @@ namespace dMobile.Controller
     using System.Data;
     using System.Data.SQLite;
     using System.Text;
+    using System.Threading.Tasks;
     using System.Xml.Linq;
     using dMobile.Bedrock;
     using dMobile.GroundWork;
@@ -82,11 +83,11 @@ namespace dMobile.Controller
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override void Purge()
+        public override async Task Purge()
         {
             TableActivityItemBarCodeAssociationXRef actBarCodeAssocXRef = new TableActivityItemBarCodeAssociationXRef();
 
-            actBarCodeAssocXRef.Purge();
+            await actBarCodeAssocXRef.Purge();
 
             try
             {

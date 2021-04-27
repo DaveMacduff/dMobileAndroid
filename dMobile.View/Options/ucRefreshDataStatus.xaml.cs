@@ -2519,7 +2519,7 @@ namespace dMobile.View.Options
             if (this.ActSubType == SysCommon.ActSubTypes.PurgeActivityData)
             {
                 this.ActItemBarCodeAssocXRef.RegisterDataAccessListenerStatusOut(this);
-                this.ActItemBarCodeAssocXRef.Purge();
+                await this.ActItemBarCodeAssocXRef.Purge();
                 this.ActItemBarCodeAssocXRef.UnregisterDataAccessListenerStatusOut(this);
 
                 this.ActivityItem.RegisterDataAccessListenerStatusOut(this);
