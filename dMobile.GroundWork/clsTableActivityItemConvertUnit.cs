@@ -3,7 +3,6 @@ namespace dMobile.GroundWork
     using dMobile.Bedrock;
     using SQLite;
     using System;
-    using System.Data;
     using System.Threading.Tasks;
 
     public class TableActivityConvertUnitItem : TableBase

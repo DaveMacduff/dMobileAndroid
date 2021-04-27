@@ -1,9 +1,9 @@
 namespace dMobile.GroundWork
 {
     using System;
-    using System.Data;
-    using System.Data.SQLite;
+    using SQLite;
     using dMobile.Bedrock;
+    using System.Threading.Tasks;
 
     public class TableActivityMoveInventoryItem : TableBase
     {
@@ -23,24 +23,18 @@ namespace dMobile.GroundWork
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override void Purge()
+        public override async Task Purge()
         {
             // TODO: Resource strings
             this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging move inventory items.", true);
 
             try
             {
-                using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                {
-                    cmndPurge.CommandType = CommandType.Text;
-                    cmndPurge.Parameters.Add(new SQLiteParameter("@activityItemSubType", Convert.ToInt32(SysCommon.ActSubTypes.MoveInventory)));
+                string query = "DELETE FROM tActivityItemMoveInventory WHERE tActivityItemMoveInventory.ActivityItemSubType = ?";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.MoveInventory));
 
-                    cmndPurge.CommandText = "DELETE FROM tActivityItemMoveInventory WHERE tActivityItemMoveInventory.ActivityItemSubType = @activityItemSubType";
-                    cmndPurge.ExecuteNonQuery();
-
-                    cmndPurge.CommandText = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = @activityItemSubType";
-                    cmndPurge.ExecuteNonQuery();
-                }
+                query = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.MoveInventory));
 
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging move inventory items complete.", true);
