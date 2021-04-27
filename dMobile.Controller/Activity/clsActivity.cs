@@ -413,7 +413,7 @@ namespace dMobile.Controller
         /// </summary>
         /// <returns>Structure containing the label quantities.</returns>
         /// <remarks>Currently picking is the only module needing this. Used for Shipping Labels.</remarks>
-        public virtual SysCommon.SLabelQuantity GetLabelQuantity()
+        public virtual Task<SysCommon.SLabelQuantity> GetLabelQuantity()
         {
             throw new NotImplementedException();
         }
@@ -424,7 +424,7 @@ namespace dMobile.Controller
         /// <param name="isRepackQuantityOnly"></param>
         /// <returns>Structure containing the label quantities.</returns>
         /// <remarks>Currently picking is the only module needing this. Used for Shipping Labels.</remarks>
-        public virtual SysCommon.SLabelQuantity GetLabelQuantity(bool isRepackQuantityOnly)
+        public virtual Task<SysCommon.SLabelQuantity> GetLabelQuantity(bool isRepackQuantityOnly)
         {
             throw new NotImplementedException();
         }
@@ -435,7 +435,7 @@ namespace dMobile.Controller
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public virtual async Task<bool> ChangeStatus(int selectedIndex)
+        public virtual async Task<bool> ChangeStatus(object selectedItem)
         {
             return true;
         }

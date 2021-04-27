@@ -3,7 +3,7 @@ namespace dMobile.Controller
     using System;
     using System.Collections.ObjectModel;
     using System.Data;
-    using System.Data.SQLite;
+    using SQLite;
     using System.Text;
     using System.Xml.Linq;
     using dMobile.Bedrock;
@@ -11,6 +11,9 @@ namespace dMobile.Controller
     using dMobile.Resources.Services;
     using dMobile.Resources.Types;
     using Xamarin.Forms;
+    using System.Threading.Tasks;
+    using System.Collections.Generic;
+    using System.Linq;
 
     public class RecvActivity : Activity
     {
@@ -94,14 +97,14 @@ namespace dMobile.Controller
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
             
-            foreach (DataRow row in this.DataViewHdrs.ToTable().Rows)
+            foreach (Receive receive in this.ListHdrs)
             {
-                Receive receive = new Receive
-                {
-                    ActivityReceivingPONumber = Convert.ToString(row["ActivityReceivingPONumber"]),
-                    ActivityReceivingIssuedDateTime = Convert.ToDateTime(row["ActivityReceivingIssuedDateTime"]),
-                    ActivityReceivingArrivalDateTime = Convert.ToDateTime(row["ActivityReceivingArrivalDateTime"])
-                };
+                //Receive receive = new Receive
+                //{
+                //    ActivityReceivingPONumber = Convert.ToString(row["ActivityReceivingPONumber"]),
+                //    ActivityReceivingIssuedDateTime = Convert.ToDateTime(row["ActivityReceivingIssuedDateTime"]),
+                //    ActivityReceivingArrivalDateTime = Convert.ToDateTime(row["ActivityReceivingArrivalDateTime"])
+                //};
 
                 observableCollection.Add(receive);
             }
@@ -238,7 +241,7 @@ namespace dMobile.Controller
         /// <param name="IsSubmitBatch"></param>
         /// <returns></returns>
         /// <remarks></remarks>
-        public override DataView GetDataView(bool isSubmitBatch)
+        public override async Task<List<object>> GetList(bool isSubmitBatch)
         {
             ReceivingSettings receiveSettings = new ReceivingSettings().LoadData();
             LocationMap locMap = LocationMap.GetInstance();
@@ -340,20 +343,22 @@ namespace dMobile.Controller
                 sql.AppendFormat("AND tActivity.ActivitySubType = {0}", Convert.ToInt32(SysCommon.ActSubTypes.Receiving));
             }
 
-            using (SQLiteDataAdapter da = new SQLiteDataAdapter(sql.ToString(), DatabaseConnection.GetInstance().SQLConn))
-            {
-                using (DataSet ds = new DataSet())
-                {
-                    da.Fill(ds);
+            //using (SQLiteDataAdapter da = new SQLiteDataAdapter(sql.ToString(), DatabaseConnection.GetInstance().SQLConn))
+            //{
+            //    using (DataSet ds = new DataSet())
+            //    {
+            //        da.Fill(ds);
 
-                    this.DataViewHdrs = ds.Tables[0].DefaultView;
-                    this.DataViewHdrs.Table.TableName = this.MainGridMappingName;
-                    this.DataViewHdrs.Sort = receiveSettings.GetDataViewSortBy();
-                    this.DataViewHdrs.RowFilter = this.GetFilter();
-                }
-            }
+            //        this.DataViewHdrs = ds.Tables[0].DefaultView;
+            //        this.DataViewHdrs.Table.TableName = this.MainGridMappingName;
+            //        // TODO: Fix sorting and filter
+            //        this.DataViewHdrs.Sort = receiveSettings.GetDataViewSortBy();
+            //        this.DataViewHdrs.RowFilter = this.GetFilter();
+            //    }
+            //}
 
-            return this.DataViewHdrs;
+            this.ListHdrs = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<object>(sql.ToString());
+            return this.ListHdrs;
         }
 
         /// <summary>
@@ -368,21 +373,23 @@ namespace dMobile.Controller
 
             if (string.IsNullOrEmpty(this.ActFilter))
             {
-                this.DataViewHdrs.RowFilter = "ActivityReceivingPONumber LIKE \'%" + searchText.Trim() + "%\'";
+                //this.DataViewHdrs.RowFilter = "ActivityReceivingPONumber LIKE \'%" + searchText.Trim() + "%\'";
+                this.ListHdrs = (List<object>)this.ListHdrs.OfType<Receive>().Where(receive => receive.ActivityReceivingPONumber.Contains(searchText.Trim()));
             }
             else
             {
-                this.DataViewHdrs.RowFilter = this.ActFilter + " AND ActivityReceivingPONumber LIKE \'%" + searchText.Trim() + "%\'";
+                // TODO: Fix filtering
+                //this.DataViewHdrs.RowFilter = this.ActFilter + " AND ActivityReceivingPONumber LIKE \'%" + searchText.Trim() + "%\'";
             }
 
-            foreach (DataRow row in this.DataViewHdrs.ToTable().Rows)
+            foreach (Receive receive in this.ListHdrs)
             {
-                Receive receive = new Receive
-                {
-                    ActivityReceivingPONumber = Convert.ToString(row["ActivityReceivingPONumber"]),
-                    ActivityReceivingIssuedDateTime = Convert.ToDateTime(row["ActivityReceivingIssuedDateTime"]),
-                    ActivityReceivingArrivalDateTime = Convert.ToDateTime(row["ActivityReceivingArrivalDateTime"])
-                };
+                //Receive receive = new Receive
+                //{
+                //    ActivityReceivingPONumber = Convert.ToString(row["ActivityReceivingPONumber"]),
+                //    ActivityReceivingIssuedDateTime = Convert.ToDateTime(row["ActivityReceivingIssuedDateTime"]),
+                //    ActivityReceivingArrivalDateTime = Convert.ToDateTime(row["ActivityReceivingArrivalDateTime"])
+                //};
 
                 observableCollection.Add(receive);
             }
@@ -394,18 +401,19 @@ namespace dMobile.Controller
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override void SelectHdr(int idx)
+        public override async Task SelectHdr(object selectedItem)
         {
-            this.FKRefno = Convert.ToInt32(this.DataViewHdrs[idx]["ActivityReceivingFKRefno"]);
-            this.Refno = Convert.ToInt32(this.DataViewHdrs[idx]["ActivityRefno"]);
-            this.PONO = Convert.ToString(this.DataViewHdrs[idx]["ActivityReceivingPONumber"]);
-
-            this.SelectedIndex = idx;
-
-            // Set the selected warehouse to the activity header warehouse.
-            if (LocationMap.GetInstance().CurrLocMap.WhsLocMapRefno != Convert.ToInt32(this.DataViewHdrs[idx]["LocationMapRefno"]))
+            if (selectedItem is Receive receive)
             {
-                LocationMap.GetInstance().CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(this.DataViewHdrs[idx]["LocationMapRefno"]));
+                this.FKRefno = Convert.ToInt32(receive.ActivityReceivingFKRefno);
+                this.Refno = Convert.ToInt32(receive.ActivityRefno);
+                this.PONO = Convert.ToString(receive.ActivityReceivingPONumber);
+
+                // Set the selected warehouse to the activity header warehouse.
+                if (LocationMap.GetInstance().CurrLocMap.WhsLocMapRefno != Convert.ToInt32(receive.WarehouseLocationMapRefno))
+                {
+                    LocationMap.GetInstance().CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(receive.WarehouseLocationMapRefno));
+                }
             }
         }
 
@@ -415,11 +423,14 @@ namespace dMobile.Controller
         /// <param name="i"></param>
         /// <returns></returns>
         /// <remarks></remarks>
-        public override int GetRefnoFromRowIdx(int idx)
+        public override int GetRefnoFromRowIdx(object selectedItem)
         {
-            this.FKRefno = Convert.ToInt32(DataViewHdrs[idx]["ActivityReceivingFKRefno"]);
-            this.Refno = Convert.ToInt32(DataViewHdrs[idx]["ActivityRefno"]);
-            this.PONO = Convert.ToString(DataViewHdrs[idx]["ActivityReceivingPONumber"]);
+            if (selectedItem is Receive receive)
+            {
+                this.FKRefno = Convert.ToInt32(receive.ActivityReceivingFKRefno);
+                this.Refno = Convert.ToInt32(receive.ActivityRefno);
+                this.PONO = Convert.ToString(receive.ActivityReceivingPONumber);
+            }
 
             return this.Refno;
         }
@@ -428,7 +439,7 @@ namespace dMobile.Controller
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override void Refresh(XDocument data)
+        public override async Task Refresh(XDocument data)
         {
             if (this.SysEnv.SysSettings.IsDisconnectedMode)
             {
@@ -437,7 +448,7 @@ namespace dMobile.Controller
             else
             {
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 2);
-                this.Purge();
+                await this.Purge();
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
 
                 TableActivityReceiving tableActReceiving = new TableActivityReceiving();
@@ -452,7 +463,7 @@ namespace dMobile.Controller
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override void Purge()
+        public override async Task Purge()
         {
             TableActivityReceiving tableActReceiving = new TableActivityReceiving();
             TableActivityRecevingItem tableActReceivingItem = new TableActivityRecevingItem();

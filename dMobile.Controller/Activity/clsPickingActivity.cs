@@ -3,7 +3,7 @@ namespace dMobile.Controller
     using System;
     using System.Collections.ObjectModel;
     using System.Data;
-    using System.Data.SQLite;
+    using SQLite;
     using System.Text;
     using System.Threading.Tasks;
     using System.Xml;
@@ -13,6 +13,9 @@ namespace dMobile.Controller
     using dMobile.Resources.Services;
     using dMobile.Resources.Types;
     using Xamarin.Forms;
+    using static dMobile.Bedrock.LocationMapTasks;
+    using System.Collections.Generic;
+    using System.Linq;
 
     /// <summary>
     /// 
@@ -100,10 +103,11 @@ namespace dMobile.Controller
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override void PrintLabel(XDocument data)
+        public override async Task PrintLabel(XDocument data)
         {
             int locMapRefno = 0;
-            SLocMap locMap = LocationMapTasks.GetSLocMapFromLocMapFKRefno(int.Parse(this.XMLDataCriteria.Root.Element("whs_id").Value), int.Parse(this.XMLDataCriteria.Root.Element("sect_refno").Value), 0, ref locMapRefno);
+            SLocMapAndRefno sLocMapAndRefno = await LocationMapTasks.GetSLocMapFromLocMapFKRefno(int.Parse(this.XMLDataCriteria.Root.Element("whs_id").Value), int.Parse(this.XMLDataCriteria.Root.Element("sect_refno").Value), 0, locMapRefno);
+            SLocMap locMap = sLocMapAndRefno.SLocMap;
             string reqData = string.Empty;
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);
@@ -164,7 +168,7 @@ namespace dMobile.Controller
                 xml.Close();
 
                 reqData = SysCommon.SubmitComm(xmlString.ToString());
-                
+
                 if (reqData.Length > 0)
                 {
                     // check if result is an error message
@@ -189,7 +193,7 @@ namespace dMobile.Controller
         /// </summary>
         /// <returns>Structure containing of number of labels to print</returns>
         /// <remarks></remarks>
-        public override SysCommon.SLabelQuantity GetLabelQuantity(bool isRepackQuantityOnly)
+        public override async Task<SysCommon.SLabelQuantity> GetLabelQuantity(bool isRepackQuantityOnly)
         {
             SysCommon.SLabelQuantity labelQty = new SysCommon.SLabelQuantity();
 
@@ -201,7 +205,8 @@ namespace dMobile.Controller
                 StringBuilder xmlString = new StringBuilder();
                 XmlWriter xml = XmlWriter.Create(xmlString);
                 XDocument request = null;
-                SLocMap locMap = LocationMapTasks.GetSLocMapFromLocMapFKRefno(int.Parse(this.XMLDataCriteria.Root.Element("whs_id").Value), int.Parse(this.XMLDataCriteria.Root.Element("sect_refno").Value), 0, ref locMapRefno);
+                SLocMapAndRefno sLocMapAndRefno = await LocationMapTasks.GetSLocMapFromLocMapFKRefno(int.Parse(this.XMLDataCriteria.Root.Element("whs_id").Value), int.Parse(this.XMLDataCriteria.Root.Element("sect_refno").Value), 0, locMapRefno);
+                SLocMap locMap = sLocMapAndRefno.SLocMap;
 
                 request = XDocument.Parse(
                     "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
@@ -220,7 +225,7 @@ namespace dMobile.Controller
 
                 sendReq = xmlString.ToString();
                 reqData = SysCommon.SubmitComm(sendReq);
-                
+
                 if (reqData.Length > 0)
                 {
                     XmlDocument xmlResult = new XmlDocument();
@@ -284,11 +289,8 @@ namespace dMobile.Controller
         public async Task<bool> IsSalesOrderBeingPicked()
         {
             int locMapRefno = 0;
-            SLocMap locMap = LocationMapTasks.GetSLocMapFromLocMapFKRefno(
-                int.Parse(this.XMLDataCriteria.Root.Element("whs_id").Value),
-                int.Parse(this.XMLDataCriteria.Root.Element("sect_refno").Value),
-                0,
-                ref locMapRefno);
+            SLocMapAndRefno sLocMapAndRefno = await LocationMapTasks.GetSLocMapFromLocMapFKRefno(int.Parse(this.XMLDataCriteria.Root.Element("whs_id").Value), int.Parse(this.XMLDataCriteria.Root.Element("sect_refno").Value), 0, locMapRefno);
+            SLocMap locMap = sLocMapAndRefno.SLocMap;
             string reqData = string.Empty;
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);
@@ -317,7 +319,7 @@ namespace dMobile.Controller
             {
                 XmlDocument xmlDoc = new XmlDocument();
                 xmlDoc.LoadXml(reqData);
-                
+
                 if (reqData.Contains("<message>ERROR</message>"))
                 {
                     isBeingPicked = true;
@@ -343,11 +345,8 @@ namespace dMobile.Controller
             if (!this.SysEnv.SysSettings.IsDisconnectedMode)
             {
                 int locMapRefno = 0;
-                SLocMap locMap = LocationMapTasks.GetSLocMapFromLocMapFKRefno(
-                    int.Parse(this.XMLDataCriteria.Root.Element("whs_id").Value),
-                    int.Parse(this.XMLDataCriteria.Root.Element("sect_refno").Value),
-                    0,
-                    ref locMapRefno);
+                SLocMapAndRefno sLocMapAndRefno = await LocationMapTasks.GetSLocMapFromLocMapFKRefno(int.Parse(this.XMLDataCriteria.Root.Element("whs_id").Value), int.Parse(this.XMLDataCriteria.Root.Element("sect_refno").Value), 0, locMapRefno);
+                SLocMap locMap = sLocMapAndRefno.SLocMap;
                 string reqData = string.Empty;
                 StringBuilder xmlString = new StringBuilder();
                 XmlWriter xml = XmlWriter.Create(xmlString);
@@ -372,12 +371,12 @@ namespace dMobile.Controller
                 xml.Close();
 
                 reqData = SysCommon.SubmitComm(xmlString.ToString());
-                
+
                 if (reqData.Length > 0)
                 {
                     XmlDocument xmlDoc = new XmlDocument();
                     xmlDoc.LoadXml(reqData);
-                    
+
                     if (reqData.Contains("<message>ERROR</message>"))
                     {
                         string errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
@@ -425,7 +424,7 @@ namespace dMobile.Controller
                 xml.Close();
 
                 reqResult = SysCommon.SubmitComm(xmlString.ToString());
-                
+
                 if (reqResult.Length > 0)
                 {
                     if (reqResult.Contains("<message>ERROR</message>"))
@@ -433,7 +432,7 @@ namespace dMobile.Controller
                         XmlDocument docError = new XmlDocument();
                         docError.LoadXml(reqResult);
                         string errorDetail = docError.DocumentElement["detail"].InnerText;
-                            
+
                         // TODO: Resource strings
                         throw new Exception(string.Format("Release order# {0} failed." + Environment.NewLine + errorDetail, this.FKRefno, null));
                     }
@@ -454,27 +453,23 @@ namespace dMobile.Controller
         ///
         /// </summary>
         /// <remarks></remarks>
-        public void PickingModuleQuantityUnderCheck()
+        public async Task PickingModuleQuantityUnderCheck()
         {
             if (this.SysEnv.SysSettings.IsDisconnectedMode)
             {
                 int rowsAffected = 0;
 
-                using (SQLiteCommand cmndItemPicking = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                {
-                    cmndItemPicking.CommandType = CommandType.Text;
-                    //cmndItemPicking.IndexName = string.Empty;
-                    cmndItemPicking.CommandText = "SELECT COUNT(tActivityItem.ActivityItemRefno) "
-                        + "FROM tActivityItem "
-                        + "INNER JOIN tActivityItemPicking ON tActivityItemPicking.ActivityItemRefno "
-                        + "= tActivityItem.ActivityItemRefno "
-                        + "WHERE tActivityItem.ActivityRefno = " + this.Refno + " "
-                        + "AND 0 < tActivityItemPicking.ActivityItemPickingBaseQuantityAvailable "
-                        + "AND tActivityItemPicking.ActivityItemPickingQuantityShipped "
-                        + "< tActivityItemPicking.ActivityItemPickingQuantityOrdered";
+                //cmndItemPicking.IndexName = string.Empty;
+                string query = "SELECT COUNT(tActivityItem.ActivityItemRefno) "
+                    + "FROM tActivityItem "
+                    + "INNER JOIN tActivityItemPicking ON tActivityItemPicking.ActivityItemRefno "
+                    + "= tActivityItem.ActivityItemRefno "
+                    + "WHERE tActivityItem.ActivityRefno = " + this.Refno + " "
+                    + "AND 0 < tActivityItemPicking.ActivityItemPickingBaseQuantityAvailable "
+                    + "AND tActivityItemPicking.ActivityItemPickingQuantityShipped "
+                    + "< tActivityItemPicking.ActivityItemPickingQuantityOrdered";
 
-                    rowsAffected = Convert.ToInt32(cmndItemPicking.ExecuteScalar());
-                }
+                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.QueryScalarsAsync<object>(query));
 
                 // Do not warn if product is out of stock WO# 12054
                 if (rowsAffected > 0)
@@ -507,7 +502,7 @@ namespace dMobile.Controller
                 xml.Close();
 
                 reqResult = SysCommon.SubmitComm(xmlString.ToString());
-                
+
                 if (reqResult.Length > 0)
                 {
                     if (reqResult.Contains("<message>ERROR</message>"))
@@ -515,7 +510,7 @@ namespace dMobile.Controller
                         XmlDocument docError = new XmlDocument();
                         docError.LoadXml(reqResult);
                         string errorDetail = docError.DocumentElement["detail"].InnerText;
-                        
+
                         // TODO: Resource strings
                         throw new Exception(string.Format("Order# {0} quantity under check failed." + Environment.NewLine + "{1}", this.FKRefno, errorDetail));
                     }
@@ -535,15 +530,15 @@ namespace dMobile.Controller
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public override async Task<bool> ChangeStatus(int idx)
+        public override async Task<bool> ChangeStatus(object selectedItem)
         {
             bool isResult = true;
 
             if (isResult)
             {
-                if (this.SysEnv.SysSettings.IsPickMustReviewItemsBeforeRel && idx >= 0)
+                if (this.SysEnv.SysSettings.IsPickMustReviewItemsBeforeRel && selectedItem is Picking picking)
                 {
-                    isResult = Convert.ToBoolean(this.DataViewHdrs[idx]["ActivityPickingIsReviewed"]);
+                    isResult = Convert.ToBoolean(picking.ActivityPickingIsReviewed);
                     if (this.SysEnv.SysSettings.IsPrePickCrit
                         && this.SysEnv.SysSettings.IsRelBySect
                         && !this.SysEnv.SysSettings.IsDisconnectedMode
@@ -573,7 +568,7 @@ namespace dMobile.Controller
                 {
                     try
                     {
-                        this.PickingModuleQuantityUnderCheck();
+                        await this.PickingModuleQuantityUnderCheck();
                     }
                     catch (Exception ex)
                     {
@@ -641,7 +636,7 @@ namespace dMobile.Controller
         public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity)
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
-            
+
             // TODO: Resource strings            
             Label labelPickingOrderNumber = new Label { Text = "Order #", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             Label labelPickingDelDate = new Label { Text = "Del Date", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
@@ -702,27 +697,27 @@ namespace dMobile.Controller
 
             dataGridMainActivityHeader.Children.Add(gridHeader);
 
-            foreach (DataRow row in this.DataViewHdrs.ToTable().Rows)
+            foreach (Picking picking in this.ListHdrs)
             {
-                Picking picking = new Picking
-                {
-                    ActivityRefno = Convert.ToInt32(row["ActivityRefno"] != DBNull.Value ? row["ActivityRefno"] : null),
-                    ActivityPickingFKRefno = Convert.ToInt32(row["ActivityPickingFKRefno"] != DBNull.Value ? row["ActivityPickingFKRefno"] : null),
-                    ActivityPickingStringFKRefno = Convert.ToString(row["ActivityPickingStringFKRefno"] != DBNull.Value ? row["ActivityPickingStringFKRefno"] : null),
-                    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
-                    LocationMapWarehouseFKRefno = Convert.ToInt32(row["LocationMapWarehouseFKRefno"] != DBNull.Value ? row["LocationMapWarehouseFKRefno"] : null),
-                    LocationMapWarehouseName = Convert.ToString(row["LocationMapWarehouseName"] != DBNull.Value ? row["LocationMapWarehouseName"] : null),
-                    ActivityPickingOrderedDateTime = Convert.ToDateTime(row["ActivityPickingOrderedDateTime"] != DBNull.Value ? row["ActivityPickingOrderedDateTime"] : null),
-                    ActivityPickingDeliveryDateTime = Convert.ToDateTime(row["ActivityPickingDeliveryDateTime"] != DBNull.Value ? row["ActivityPickingDeliveryDateTime"] : null),
-                    ActivityPickingCustomerContactName = Convert.ToString(row["ActivityPickingCustomerContactName"] != DBNull.Value ? row["ActivityPickingCustomerContactName"] : null),
-                    ActivityPickingCustomerShipToInfo = Convert.ToString(row["ActivityPickingCustomerShipToInfo"] != DBNull.Value ? row["ActivityPickingCustomerShipToInfo"] : null),
-                    RouteCode = Convert.ToString(row["RouteCode"] != DBNull.Value ? row["RouteCode"] : null),
-                    RouteDescription = Convert.ToString(row["RouteDescription"] != DBNull.Value ? row["RouteDescription"] : null),
-                    RouteDayOfWeek = Convert.ToString(row["RouteDayOfWeek"] != DBNull.Value ? row["RouteDayOfWeek"] : null),
-                    RouteStop = Convert.ToInt32(row["RouteStop"] != DBNull.Value ? row["RouteStop"] : null),
-                    ActivityStatus = Convert.ToInt32(row["ActivityStatus"] != DBNull.Value ? row["ActivityStatus"] : null),
-                    ActivityPickingIsReviewed = Convert.ToBoolean(row["ActivityPickingIsReviewed"] != DBNull.Value ? row["ActivityPickingIsReviewed"] : null),
-                };
+                //Picking picking = new Picking
+                //{
+                //    ActivityRefno = Convert.ToInt32(row["ActivityRefno"] != DBNull.Value ? row["ActivityRefno"] : null),
+                //    ActivityPickingFKRefno = Convert.ToInt32(row["ActivityPickingFKRefno"] != DBNull.Value ? row["ActivityPickingFKRefno"] : null),
+                //    ActivityPickingStringFKRefno = Convert.ToString(row["ActivityPickingStringFKRefno"] != DBNull.Value ? row["ActivityPickingStringFKRefno"] : null),
+                //    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
+                //    LocationMapWarehouseFKRefno = Convert.ToInt32(row["LocationMapWarehouseFKRefno"] != DBNull.Value ? row["LocationMapWarehouseFKRefno"] : null),
+                //    LocationMapWarehouseName = Convert.ToString(row["LocationMapWarehouseName"] != DBNull.Value ? row["LocationMapWarehouseName"] : null),
+                //    ActivityPickingOrderedDateTime = Convert.ToDateTime(row["ActivityPickingOrderedDateTime"] != DBNull.Value ? row["ActivityPickingOrderedDateTime"] : null),
+                //    ActivityPickingDeliveryDateTime = Convert.ToDateTime(row["ActivityPickingDeliveryDateTime"] != DBNull.Value ? row["ActivityPickingDeliveryDateTime"] : null),
+                //    ActivityPickingCustomerContactName = Convert.ToString(row["ActivityPickingCustomerContactName"] != DBNull.Value ? row["ActivityPickingCustomerContactName"] : null),
+                //    ActivityPickingCustomerShipToInfo = Convert.ToString(row["ActivityPickingCustomerShipToInfo"] != DBNull.Value ? row["ActivityPickingCustomerShipToInfo"] : null),
+                //    RouteCode = Convert.ToString(row["RouteCode"] != DBNull.Value ? row["RouteCode"] : null),
+                //    RouteDescription = Convert.ToString(row["RouteDescription"] != DBNull.Value ? row["RouteDescription"] : null),
+                //    RouteDayOfWeek = Convert.ToString(row["RouteDayOfWeek"] != DBNull.Value ? row["RouteDayOfWeek"] : null),
+                //    RouteStop = Convert.ToInt32(row["RouteStop"] != DBNull.Value ? row["RouteStop"] : null),
+                //    ActivityStatus = Convert.ToInt32(row["ActivityStatus"] != DBNull.Value ? row["ActivityStatus"] : null),
+                //    ActivityPickingIsReviewed = Convert.ToBoolean(row["ActivityPickingIsReviewed"] != DBNull.Value ? row["ActivityPickingIsReviewed"] : null),
+                //};
 
                 observableCollection.Add(picking);
 
@@ -817,10 +812,9 @@ namespace dMobile.Controller
         /// <param name="IsSubmitBatch"></param>
         /// <returns></returns>
         /// <remarks></remarks>
-        public override DataView GetDataView(bool isSubmitBatch)
+        public override async Task<List<object>> GetList(bool isSubmitBatch)
         {
             PickingSettings pickingSettings = new PickingSettings().LoadData();
-
             StringBuilder sql = new StringBuilder();
 
             if (isSubmitBatch)
@@ -931,20 +925,22 @@ namespace dMobile.Controller
                 sql.Append("LEFT JOIN tRoute ON tRoute.RouteRefno = tActivityPickingRoute.RouteRefno");
             }
 
-            using (SQLiteDataAdapter da = new SQLiteDataAdapter(sql.ToString(), DatabaseConnection.GetInstance().SQLConn))
-            {
-                using (DataSet ds = new DataSet())
-                {
-                    da.Fill(ds);
+            //using (SQLiteDataAdapter da = new SQLiteDataAdapter(sql.ToString(), DatabaseConnection.GetInstance().SQLConn))
+            //{
+            //    using (DataSet ds = new DataSet())
+            //    {
+            //        da.Fill(ds);
 
-                    this.DataViewHdrs = ds.Tables[0].DefaultView;
-                    this.DataViewHdrs.Table.TableName = this.MainGridMappingName;
-                    this.DataViewHdrs.Sort = pickingSettings.GetDataViewSortBy();
-                    this.DataViewHdrs.RowFilter = this.GetFilter();
-                }
-            }
+            //        this.DataViewHdrs = ds.Tables[0].DefaultView;
+            //        this.DataViewHdrs.Table.TableName = this.MainGridMappingName;
+            //        // TODO: Sorting and filtering
+            //        this.DataViewHdrs.Sort = pickingSettings.GetDataViewSortBy();
+            //        this.DataViewHdrs.RowFilter = this.GetFilter();
+            //    }
+            //}
 
-            return this.DataViewHdrs;
+            this.ListHdrs = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<object>(sql.ToString());
+            return this.ListHdrs;
         }
 
         /// <summary>
@@ -959,35 +955,36 @@ namespace dMobile.Controller
 
             if (string.IsNullOrEmpty(this.ActFilter))
             {
-                this.DataViewHdrs.RowFilter = "ActivityPickingStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
+                //this.DataViewHdrs.RowFilter = "ActivityPickingStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
+                this.ListHdrs = (List<object>)this.ListHdrs.OfType<Picking>().Where(pick => pick.ActivityPickingStringFKRefno.Contains(searchText.Trim()));
             }
             else
             {
-                this.DataViewHdrs.RowFilter = this.ActFilter + " AND ActivityPickingStringFKRefno LIKE \'%"
-                    + searchText.Trim() + "%\'";
+                // TODO: Fix filter
+                //this.DataViewHdrs.RowFilter = this.ActFilter + " AND ActivityPickingStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
             }
 
-            foreach (DataRow row in this.DataViewHdrs.ToTable().Rows)
+            foreach (Picking picking in this.ListHdrs)
             {
-                Picking picking = new Picking
-                {
-                    ActivityRefno = Convert.ToInt32(row["ActivityRefno"] != DBNull.Value ? row["ActivityRefno"] : null),
-                    ActivityPickingFKRefno = Convert.ToInt32(row["ActivityPickingFKRefno"] != DBNull.Value ? row["ActivityPickingFKRefno"] : null),
-                    ActivityPickingStringFKRefno = Convert.ToString(row["ActivityPickingStringFKRefno"] != DBNull.Value ? row["ActivityPickingStringFKRefno"] : null),
-                    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
-                    LocationMapWarehouseFKRefno = Convert.ToInt32(row["LocationMapWarehouseFKRefno"] != DBNull.Value ? row["LocationMapWarehouseFKRefno"] : null),
-                    LocationMapWarehouseName = Convert.ToString(row["LocationMapWarehouseName"] != DBNull.Value ? row["LocationMapWarehouseName"] : null),
-                    ActivityPickingOrderedDateTime = Convert.ToDateTime(row["ActivityPickingOrderedDateTime"] != DBNull.Value ? row["ActivityPickingOrderedDateTime"] : null),
-                    ActivityPickingDeliveryDateTime = Convert.ToDateTime(row["ActivityPickingDeliveryDateTime"] != DBNull.Value ? row["ActivityPickingDeliveryDateTime"] : null),
-                    ActivityPickingCustomerContactName = Convert.ToString(row["ActivityPickingCustomerContactName"] != DBNull.Value ? row["ActivityPickingCustomerContactName"] : null),
-                    ActivityPickingCustomerShipToInfo = Convert.ToString(row["ActivityPickingCustomerShipToInfo"] != DBNull.Value ? row["ActivityPickingCustomerShipToInfo"] : null),
-                    RouteCode = Convert.ToString(row["RouteCode"] != DBNull.Value ? row["RouteCode"] : null),
-                    RouteDescription = Convert.ToString(row["RouteDescription"] != DBNull.Value ? row["RouteDescription"] : null),
-                    RouteDayOfWeek = Convert.ToString(row["RouteDayOfWeek"] != DBNull.Value ? row["RouteDayOfWeek"] : null),
-                    RouteStop = Convert.ToInt32(row["RouteStop"] != DBNull.Value ? row["RouteStop"] : null),
-                    ActivityStatus = Convert.ToInt32(row["ActivityStatus"] != DBNull.Value ? row["ActivityStatus"] : null),
-                    ActivityPickingIsReviewed = Convert.ToBoolean(row["ActivityPickingIsReviewed"] != DBNull.Value ? row["ActivityPickingIsReviewed"] : null),
-                };
+                //Picking picking = new Picking
+                //{
+                //    ActivityRefno = Convert.ToInt32(row["ActivityRefno"] != DBNull.Value ? row["ActivityRefno"] : null),
+                //    ActivityPickingFKRefno = Convert.ToInt32(row["ActivityPickingFKRefno"] != DBNull.Value ? row["ActivityPickingFKRefno"] : null),
+                //    ActivityPickingStringFKRefno = Convert.ToString(row["ActivityPickingStringFKRefno"] != DBNull.Value ? row["ActivityPickingStringFKRefno"] : null),
+                //    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
+                //    LocationMapWarehouseFKRefno = Convert.ToInt32(row["LocationMapWarehouseFKRefno"] != DBNull.Value ? row["LocationMapWarehouseFKRefno"] : null),
+                //    LocationMapWarehouseName = Convert.ToString(row["LocationMapWarehouseName"] != DBNull.Value ? row["LocationMapWarehouseName"] : null),
+                //    ActivityPickingOrderedDateTime = Convert.ToDateTime(row["ActivityPickingOrderedDateTime"] != DBNull.Value ? row["ActivityPickingOrderedDateTime"] : null),
+                //    ActivityPickingDeliveryDateTime = Convert.ToDateTime(row["ActivityPickingDeliveryDateTime"] != DBNull.Value ? row["ActivityPickingDeliveryDateTime"] : null),
+                //    ActivityPickingCustomerContactName = Convert.ToString(row["ActivityPickingCustomerContactName"] != DBNull.Value ? row["ActivityPickingCustomerContactName"] : null),
+                //    ActivityPickingCustomerShipToInfo = Convert.ToString(row["ActivityPickingCustomerShipToInfo"] != DBNull.Value ? row["ActivityPickingCustomerShipToInfo"] : null),
+                //    RouteCode = Convert.ToString(row["RouteCode"] != DBNull.Value ? row["RouteCode"] : null),
+                //    RouteDescription = Convert.ToString(row["RouteDescription"] != DBNull.Value ? row["RouteDescription"] : null),
+                //    RouteDayOfWeek = Convert.ToString(row["RouteDayOfWeek"] != DBNull.Value ? row["RouteDayOfWeek"] : null),
+                //    RouteStop = Convert.ToInt32(row["RouteStop"] != DBNull.Value ? row["RouteStop"] : null),
+                //    ActivityStatus = Convert.ToInt32(row["ActivityStatus"] != DBNull.Value ? row["ActivityStatus"] : null),
+                //    ActivityPickingIsReviewed = Convert.ToBoolean(row["ActivityPickingIsReviewed"] != DBNull.Value ? row["ActivityPickingIsReviewed"] : null),
+                //};
 
                 observableCollection.Add(picking);
             }
@@ -999,16 +996,18 @@ namespace dMobile.Controller
         /// 
         /// </summary>
         /// <param name="idx"></param>
-        public override void SelectHdr(int idx)
+        public override async Task SelectHdr(object selectedItem)
         {
-            this.FKRefno = Convert.ToInt32(this.DataViewHdrs[idx]["ActivityPickingFKRefno"]);
-            this.Refno = Convert.ToInt32(this.DataViewHdrs[idx]["ActivityRefno"]);
-            this.SelectedIndex = idx;
-
-            // Set the selected warehouse to the activity header warehouse.
-            if (LocationMap.GetInstance().CurrLocMap.WhsLocMapRefno != Convert.ToInt32(this.DataViewHdrs[idx]["LocationMapRefno"]))
+            if (selectedItem is Picking picking)
             {
-                LocationMap.GetInstance().CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(this.DataViewHdrs[idx]["LocationMapRefno"]));
+                this.FKRefno = Convert.ToInt32(picking.ActivityPickingFKRefno);
+                this.Refno = Convert.ToInt32(picking.ActivityRefno);
+
+                // Set the selected warehouse to the activity header warehouse.
+                if (LocationMap.GetInstance().CurrLocMap.WhsLocMapRefno != Convert.ToInt32(picking.LocationMapRefno))
+                {
+                    LocationMap.GetInstance().CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(picking.LocationMapRefno));
+                }
             }
         }
 
@@ -1017,10 +1016,13 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="idx"></param>
         /// <returns></returns>
-        public override int GetRefnoFromRowIdx(int idx)
+        public override int GetRefnoFromRowIdx(object selectedItem)
         {
-            this.FKRefno = Convert.ToInt32(this.DataViewHdrs[idx]["ActivityPickingFKRefno"]);
-            this.Refno = Convert.ToInt32(this.DataViewHdrs[idx]["ActivityRefno"]);
+            if (selectedItem is Picking picking)
+            {
+                this.FKRefno = Convert.ToInt32(picking.ActivityPickingFKRefno);
+                this.Refno = Convert.ToInt32(picking.ActivityRefno);
+            }
 
             return this.Refno;
         }
@@ -1029,7 +1031,7 @@ namespace dMobile.Controller
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override void Refresh(XDocument data)
+        public override async Task Refresh(XDocument data)
         {
             if (this.SysEnv.SysSettings.IsDisconnectedMode)
             {
@@ -1038,7 +1040,7 @@ namespace dMobile.Controller
             else
             {
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 2);
-                this.Purge();
+                await this.Purge();
 
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
 
@@ -1063,7 +1065,7 @@ namespace dMobile.Controller
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override void Purge()
+        public override async Task Purge()
         {
             TableActivityPicking actPicking = new TableActivityPicking();
             TableActivityPickingRoute actPickingRoute = new TableActivityPickingRoute();
@@ -1262,7 +1264,8 @@ namespace dMobile.Controller
             bool isReleased = false;
 
             int locMapRefno = 0;
-            SLocMap locMap = LocationMapTasks.GetSLocMapFromLocMapFKRefno(int.Parse(this.XMLDataCriteria.Root.Element("whs_id").Value), int.Parse(this.XMLDataCriteria.Root.Element("sect_refno").Value), 0, ref locMapRefno);
+            SLocMapAndRefno sLocMapAndRefno = await LocationMapTasks.GetSLocMapFromLocMapFKRefno(int.Parse(this.XMLDataCriteria.Root.Element("whs_id").Value), int.Parse(this.XMLDataCriteria.Root.Element("sect_refno").Value), 0, locMapRefno);
+            SLocMap locMap = sLocMapAndRefno.SLocMap;
 
             // TODO: Resource strings                
             string msg = string.Format("Release order# {0} for warehouse {1}, section {2}?", this.FKRefno, locMap.WhsName, locMap.SectName);
@@ -1298,7 +1301,7 @@ namespace dMobile.Controller
                 xml.Close();
 
                 reqData = SysCommon.SubmitComm(xmlString.ToString());
-                
+
                 if (reqData.Length > 0)
                 {
                     if (reqData.Contains("<message>ERROR</message>"))
@@ -1306,7 +1309,7 @@ namespace dMobile.Controller
                         XmlDocument docError = new XmlDocument();
                         docError.LoadXml(reqData);
                         string errorDetail = docError.DocumentElement["detail"].InnerText;
-                        
+
                         // TODO: Resource strings
                         throw new Exception(string.Format("Release order# {0} by order item section {1} failed." + Environment.NewLine + errorDetail, this.FKRefno.ToString(), locMap.SectName));
                     }
