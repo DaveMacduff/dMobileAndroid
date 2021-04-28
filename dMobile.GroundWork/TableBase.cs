@@ -381,7 +381,7 @@ namespace dMobile.GroundWork
         /// The Save
         /// </summary>
         /// <param name="requestData"></param>
-        protected virtual void Save(string requestData)
+        protected virtual Task Save(string requestData)
         {
             throw new NotImplementedException();
         }
@@ -391,7 +391,7 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="requestData"></param>
         /// <param name="refno">The refno<see cref="int"/></param>
-        protected virtual void Save(string requestData, int refno)
+        protected virtual Task Save(string requestData, int refno)
         {
             throw new NotImplementedException();
         }
