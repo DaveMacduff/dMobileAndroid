@@ -2,7 +2,6 @@ namespace dMobile.Controller
 {
     using System;
     using System.Collections.ObjectModel;
-    using System.Data;
     using SQLite;
     using System.Threading.Tasks;
     using System.Xml.Linq;

@@ -3,8 +3,11 @@ namespace dMobile.GroundWork
     using dMobile.Bedrock;
     using System;
     using System.Data;
-    using System.Data.SQLite;
+    using SQLite;
+    using System.Threading.Tasks;
     using System.Xml.Linq;
+    using System.Collections.Generic;
+    using dMobile.Resources.Models;
 
     /// <summary>
     /// Defines the <see cref="TableBase" />
@@ -113,7 +116,7 @@ namespace dMobile.GroundWork
         /// <summary>
         /// The Request
         /// </summary>
-        public virtual void Request()
+        public virtual Task Request()
         {
             throw new NotImplementedException();
         }
@@ -122,7 +125,7 @@ namespace dMobile.GroundWork
         /// The Request
         /// </summary>
         /// <param name="actRefno"></param>
-        public virtual void Request(int actRefno)
+        public virtual Task Request(int actRefno)
         {
             throw new NotImplementedException();
         }
@@ -131,7 +134,7 @@ namespace dMobile.GroundWork
         /// The RequestData
         /// </summary>
         /// <param name="criteria"></param>
-        public virtual void RequestData(XDocument criteria)
+        public virtual Task RequestData(XDocument criteria)
         {
             throw new NotImplementedException();
         }
@@ -141,7 +144,7 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="actRefno"></param>
         /// <param name="criteria"></param>
-        public virtual void RequestData(int actRefno, XDocument criteria)
+        public virtual Task RequestData(int actRefno, XDocument criteria)
         {
             throw new NotImplementedException();
         }
@@ -149,7 +152,7 @@ namespace dMobile.GroundWork
         /// <summary>
         /// The Purge
         /// </summary>
-        public virtual void Purge()
+        public virtual Task Purge()
         {
             throw new NotImplementedException();
         }
@@ -158,7 +161,7 @@ namespace dMobile.GroundWork
         /// The PurgeData
         /// </summary>
         /// <param name="sectLocMapRefno"></param>
-        public virtual void PurgeData(int sectLocMapRefno)
+        public virtual Task PurgeData(int sectLocMapRefno)
         {
             throw new NotImplementedException();
         }
@@ -167,7 +170,7 @@ namespace dMobile.GroundWork
         /// The Purge
         /// </summary>
         /// <param name="actSubType"></param>
-        public virtual void Purge(SysCommon.ActSubTypes actSubType)
+        public virtual Task Purge(SysCommon.ActSubTypes actSubType)
         {
             throw new NotImplementedException();
         }
@@ -176,7 +179,7 @@ namespace dMobile.GroundWork
         /// The DataStatus
         /// </summary>
         /// <returns></returns>
-        public virtual int DataStatus()
+        public virtual Task<int> DataStatus()
         {
             throw new NotImplementedException();
         }
@@ -289,7 +292,7 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="familyCode"></param>
         /// <returns></returns>
-        protected virtual string SendRequest(string familyCode)
+        protected virtual Task<string> SendRequest(string familyCode)
         {
             throw new NotImplementedException();
         }
@@ -299,7 +302,7 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="actRefno"></param>
         /// <returns></returns>
-        protected virtual string Send(int actRefno)
+        protected virtual Task<string> Send(int actRefno)
         {
             throw new NotImplementedException();
         }
@@ -308,7 +311,7 @@ namespace dMobile.GroundWork
         /// The Send
         /// </summary>
         /// <returns></returns>
-        protected virtual string Send()
+        protected virtual Task<string> Send()
         {
             throw new NotImplementedException();
         }
@@ -318,7 +321,7 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="tableName"></param>
         /// <returns></returns>
-        protected virtual string Send(string tableName)
+        protected virtual Task<string> Send(string tableName)
         {
             return this.SendComm(this.Create());
         }
@@ -328,7 +331,7 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="criteria">The criteria<see cref="XDocument"/></param>
         /// <returns></returns>
-        protected virtual string SendRequest(XDocument criteria)
+        protected virtual Task<string> SendRequest(XDocument criteria)
         {
             throw new NotImplementedException();
         }
@@ -380,7 +383,7 @@ namespace dMobile.GroundWork
         /// The Save
         /// </summary>
         /// <param name="requestData"></param>
-        protected virtual void Save(string requestData)
+        protected virtual Task Save(string requestData)
         {
             throw new NotImplementedException();
         }
@@ -390,7 +393,7 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="requestData"></param>
         /// <param name="refno">The refno<see cref="int"/></param>
-        protected virtual void Save(string requestData, int refno)
+        protected virtual Task Save(string requestData, int refno)
         {
             throw new NotImplementedException();
         }
@@ -399,7 +402,7 @@ namespace dMobile.GroundWork
         /// The SaveData
         /// </summary>
         /// <param name="requestData"></param>
-        protected virtual void SaveData(ref string requestData)
+        protected virtual Task SaveData(ref string requestData)
         {
             throw new NotImplementedException();
         }
@@ -484,10 +487,9 @@ namespace dMobile.GroundWork
         /// <param name="actDetailRefno"></param>
         /// <param name="useFNo"></param>
         /// <returns></returns>
-        protected virtual bool SaveCommonDetailVariant(DataRow drow, ref SQLiteConnection conn, ref SQLiteCommand cmndSchemeVarXRef, int actDetailRefno, bool useFNo)
+        protected virtual void SaveCommonDetailVariant(DataRow drow, SQLiteConnection conn, int actDetailRefno, bool useFNo)
         {
             int schemeVariantNo = 0;
-            bool isNeedToSave = false;
 
             if (useFNo)
             {
@@ -498,38 +500,20 @@ namespace dMobile.GroundWork
                 schemeVariantNo = Convert.ToInt32(drow["ProductSchemeVariantNo"]);
             }
 
-            if (0 < schemeVariantNo)
+            if (schemeVariantNo > 0)
             {
-                using (SQLiteCommand cmndSchemeVar = conn.CreateCommand())
+                List<tProductSchemeVariantModel> results = conn.Query<tProductSchemeVariantModel>("SELECT * FROM tProductSchemeVariant WHERE ProductSchemeVariantNo = ?", Convert.ToInt32(schemeVariantNo));
+
+                if (results != null && results.Count > 0)
                 {
-                    cmndSchemeVar.CommandText = "SELECT * FROM tProductSchemeVariant WHERE ProductSchemeVariantNo = @productSchemeVariantNo";
-                    cmndSchemeVar.CommandType = CommandType.Text;
-                    cmndSchemeVar.Parameters.Add(new SQLiteParameter("@productSchemeVariantNo", Convert.ToInt32(schemeVariantNo)));
-
-                    using (SQLiteDataReader drSchemeVar = cmndSchemeVar.ExecuteReader())
-                    {
-                        if (drSchemeVar.Read())
-                        {
-                            cmndSchemeVarXRef.CommandText = "INSERT INTO tActivityDetailProductSchemeVariantXRef (ActivityDetailRefno, ProductSchemeVariantRefno) VALUES (@activityDetailRefno, @productSchemeVariantRefno)";
-                            cmndSchemeVarXRef.CommandType = CommandType.Text;
-                            cmndSchemeVarXRef.Parameters.Add(new SQLiteParameter("@activityDetailRefno", Convert.ToInt32(actDetailRefno)));
-                            cmndSchemeVarXRef.Parameters.Add(new SQLiteParameter("@productSchemeVariantRefno", drSchemeVar.GetInt32(Convert.ToInt32(SysCommon.ProdSchemeVariantFields.Refno))));
-
-                            //recSchemeVarXRef.SetInt32((int)SysCommon.ActDetailSchemeVariantXRefFields.ActDetailRefno, actDetailRefno);
-                            //recSchemeVarXRef.SetInt32((int)SysCommon.ActDetailSchemeVariantXRefFields.ProdSchemeVariantRefno, drSchemeVar.GetInt32((int)SysCommon.ProdSchemeVariantFields.Refno));
-
-                            isNeedToSave = true;
-                        }
-                        else
-                        {
-                            // TODO: Resource strings
-                            throw new Exception("drSchemeVar.Read() failed. " + string.Format("Unable to locate product scheme no {0} in tProductSchemeVariant", schemeVariantNo));
-                        }
-                    }
+                    conn.Execute("INSERT INTO tActivityDetailProductSchemeVariantXRef (ActivityDetailRefno, ProductSchemeVariantRefno) VALUES (?, ?)", Convert.ToInt32(actDetailRefno), results[0].ProductSchemeVariantRefno);
+                }
+                else
+                {
+                    // TODO: Resource strings
+                    throw new Exception("drSchemeVar.Read() failed. " + string.Format("Unable to locate product scheme no {0} in tProductSchemeVariant", schemeVariantNo));
                 }
             }
-
-            return isNeedToSave;
         }
 
         /// <summary>
@@ -539,15 +523,12 @@ namespace dMobile.GroundWork
         /// <param name="recExtra"></param>
         /// <param name="actDetailRefno"></param>
         /// <param name="useFNo"></param>
-        protected virtual void SaveDetailExtra(
-        DataRow drow,
-        ref SQLiteCommand cmndExtra,
-        int actDetailRefno,
-        bool useFNo)
+        protected virtual void SaveDetailExtra(DataRow drow, SQLiteConnection conn, int actDetailRefno, bool useFNo)
         {
             string emptyDate = "01-01-1900";
+            List<object> parameters = new List<object>();
 
-            cmndExtra.CommandText = "INSERT INTO tActivityDetailExtra (" +
+            string query = "INSERT INTO tActivityDetailExtra (" +
             "ActivityDetailRefno, " +
             "ActivityDetailSubType, " +
             "ActivityDetailExtra1Text, " +
@@ -556,68 +537,52 @@ namespace dMobile.GroundWork
             "ActivityDetailExtra4Text, " +
             "ActivityDetailExtra5Date" +
             ") VALUES (" +
-            "@activityDetailRefno, " +
-            "@activityDetailSubType, " +
-            "@activityDetailExtra1Text, " +
-            "@activityDetailExtra2Text, " +
-            "@activityDetailExtra3Text, " +
-            "@activityDetailExtra4Text, " +
-            "@activityDetailExtra5Date" +
+            "?, " +
+            "?, " +
+            "?, " +
+            "?, " +
+            "?, " +
+            "?, " +
+            "?" +
             ")";
-            cmndExtra.CommandType = CommandType.Text;
-            cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailRefno", actDetailRefno));
-            cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailSubType", Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts)));
 
-            //cmndExtra.SetInt32((int)SysCommon.ActDetailExtraFields.ActDetailRefno, actDetailRefno);
-            //cmndExtra.SetInt32((int)SysCommon.ActDetailExtraFields.ActDetailSubType, (int)SysCommon.ActSubTypes.CycleCounts);
+            parameters.Add(actDetailRefno);
+            parameters.Add(Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts));
 
             if (useFNo)
             {
-                cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra1Text", drow["f19"].ToString()));
-                cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra2Text", drow["f20"].ToString()));
-                cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra3Text", drow["f21"].ToString()));
-                cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra4Text", drow["f22"].ToString()));
-                
+                parameters.Add(drow["f19"].ToString());
+                parameters.Add(drow["f20"].ToString());
+                parameters.Add(drow["f21"].ToString());
+                parameters.Add(drow["f22"].ToString());
+
                 if (string.IsNullOrEmpty(drow["f23"].ToString()))
                 {
-                    cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra5Date", DateTime.Parse(emptyDate)));
+                    parameters.Add(DateTime.Parse(emptyDate));
                 }
                 else
                 {
-                    //recExtra.SetDateTime((int)SysCommon.ActDetailExtraFields.DateTime5, Convert.ToDateTime(drow["f23"]));
-                    cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra5Date", Convert.ToDateTime(drow["f23"])));
+                    parameters.Add(Convert.ToDateTime(drow["f23"]));
                 }
-
-                //cmndExtra.SetString((int)SysCommon.ActDetailExtraFields.Text1, drow["f19"].ToString());
-                //cmndExtra.SetString((int)SysCommon.ActDetailExtraFields.Text2, drow["f20"].ToString());
-                //cmndExtra.SetString((int)SysCommon.ActDetailExtraFields.Text3, drow["f21"].ToString());
-                //cmndExtra.SetString((int)SysCommon.ActDetailExtraFields.Text4, drow["f22"].ToString());
-                //cmndExtra.SetString((int)SysCommon.ActDetailExtraFields.Text5, drow["f23"].ToString());
             }
             else
             {
-                cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra1Text", drow["ActivityDetailExtra1"].ToString()));
-                cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra2Text", drow["ActivityDetailExtra2"].ToString()));
-                cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra3Text", drow["ActivityDetailExtra3"].ToString()));
-                cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra4Text", drow["ActivityDetailExtra4"].ToString()));
-                
+                parameters.Add(drow["ActivityDetailExtra1"].ToString());
+                parameters.Add(drow["ActivityDetailExtra2"].ToString());
+                parameters.Add(drow["ActivityDetailExtra3"].ToString());
+                parameters.Add(drow["ActivityDetailExtra4"].ToString());
+
                 if (string.IsNullOrEmpty(drow["ActivityDetailExtra5"].ToString()))
                 {
-                    cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra5Date", DateTime.Parse(emptyDate)));
+                    parameters.Add(DateTime.Parse(emptyDate));
                 }
                 else
                 {
-                    cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra5Date", Convert.ToDateTime(drow["ActivityDetailExtra5"])));
+                    parameters.Add(Convert.ToDateTime(drow["ActivityDetailExtra5"]));
                 }
-
-                //cmndExtra.SetString((int)SysCommon.ActDetailExtraFields.Text1, drow["ActivityDetailExtra1"].ToString());
-                //cmndExtra.SetString((int)SysCommon.ActDetailExtraFields.Text2, drow["ActivityDetailExtra2"].ToString());
-                //cmndExtra.SetString((int)SysCommon.ActDetailExtraFields.Text3, drow["ActivityDetailExtra3"].ToString());
-                //cmndExtra.SetString((int)SysCommon.ActDetailExtraFields.Text4, drow["ActivityDetailExtra4"].ToString());
-                //cmndExtra.SetString((int)SysCommon.ActDetailExtraFields.Text5, drow["ActivityDetailExtra5"].ToString());
             }
 
-            cmndExtra.ExecuteNonQuery();
+            conn.Execute(query, parameters);
         }
 
         /// <summary>
@@ -629,7 +594,7 @@ namespace dMobile.GroundWork
         /// <param name="drLocMapWhs"></param>
         /// <param name="recDetail"></param>
         /// <param name="useFNo"></param>
-        protected virtual void SaveDetailLocation(DataRow drow, ref SQLiteConnection conn, ref SQLiteCommand cmndDetail, bool useFNo)
+        protected virtual int SaveDetailLocation(DataRow drow, SQLiteConnection conn, bool useFNo)
         {
             int locMapRefno = 0;
             int locMapWhsFKRefno = 0;
@@ -651,55 +616,31 @@ namespace dMobile.GroundWork
 
             if (locMapRefno == 0)
             {
-                using (SQLiteCommand cmndLocMapSlot = conn.CreateCommand())
-                {
-                    cmndLocMapSlot.CommandText = "SELECT * FROM tLocationMapSlot WHERE LocationMapSlotFKRefno = @locationMapSlotFKRefno";
-                    cmndLocMapSlot.CommandType = CommandType.Text;
-                    cmndLocMapSlot.Parameters.Add(new SQLiteParameter("@locationMapSlotFKRefno", locMapSlotFKRefno));
+                List<tLocationMapSlotModel> results = conn.Query<tLocationMapSlotModel>("SELECT * FROM tLocationMapSlot WHERE LocationMapSlotFKRefno = ?", locMapSlotFKRefno);
 
-                    using (SQLiteDataReader drLocMapSlot = cmndLocMapSlot.ExecuteReader())
-                    {
-                        if (drLocMapSlot.Read())
-                        {
-                            locMapRefno = Convert.ToInt32(drLocMapSlot.GetValue(Convert.ToInt32(SysCommon.LocMapSlotFields.LocMapRefno)));
-                        }
-                    }
+                if (results != null && results.Count > 0)
+                {
+                    locMapRefno = results[0].LocationMapRefno;
                 }
             }
 
             if (locMapRefno == 0)
             {
-                using (SQLiteCommand cmndLocMapSect = conn.CreateCommand())
-                {
-                    cmndLocMapSect.CommandText = "SELECT * FROM tLocationMapSection WHERE LocationMapSectionFKRefno = @locationMapSectionFKRefno";
-                    cmndLocMapSect.CommandType = CommandType.Text;
-                    cmndLocMapSect.Parameters.Add(new SQLiteParameter("@locationMapSectionFKRefno", locMapSlotFKRefno));
+                List<tLocationMapSectionModel> results = conn.Query<tLocationMapSectionModel>("SELECT * FROM tLocationMapSection WHERE LocationMapSectionFKRefno = ?", locMapSectFKRefno);
 
-                    using (SQLiteDataReader drLocMapSection = cmndLocMapSect.ExecuteReader())
-                    {
-                        if (drLocMapSection.Read())
-                        {
-                            locMapRefno = Convert.ToInt32(drLocMapSection.GetValue(Convert.ToInt32(SysCommon.LocMapSectFields.LocMapRefno)));
-                        }
-                    }
+                if (results != null && results.Count > 0)
+                {
+                    locMapRefno = results[0].LocationMapRefno;
                 }
             }
 
             if (locMapRefno == 0)
             {
-                using (SQLiteCommand cmndLocMapWhs = conn.CreateCommand())
-                {
-                    cmndLocMapWhs.CommandText = "SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = @locationMapWarehouseFKRefno";
-                    cmndLocMapWhs.CommandType = CommandType.Text;
-                    cmndLocMapWhs.Parameters.Add(new SQLiteParameter("@locationMapWarehouseFKRefno", locMapWhsFKRefno));
+                List<tLocationMapWarehouseModel> results = conn.Query<tLocationMapWarehouseModel>("SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = ?", locMapWhsFKRefno);
 
-                    using (SQLiteDataReader drLocMapWhs = cmndLocMapWhs.ExecuteReader())
-                    {
-                        if (drLocMapWhs.Read())
-                        {
-                            locMapRefno = Convert.ToInt32(drLocMapWhs.GetValue(Convert.ToInt32(SysCommon.LocMapWhsFields.LocMapRefno)));
-                        }
-                    }
+                if (results != null && results.Count > 0)
+                {
+                    locMapRefno = results[0].LocationMapRefno;
                 }
             }
 
@@ -714,7 +655,7 @@ namespace dMobile.GroundWork
                     locMapSlotFKRefno));
             }
 
-            cmndDetail.Parameters.Add(new SQLiteParameter("@locationMapRefno", Convert.ToInt32(locMapRefno)));
+            return Convert.ToInt32(locMapRefno);
         }
 
         /// <summary>
@@ -723,99 +664,89 @@ namespace dMobile.GroundWork
         /// <param name="drow"></param>
         /// <param name="detail"></param>
         /// <param name="useFNo"></param>
-        protected virtual void SaveDetail(DataRow drow, ref SQLiteCommand detail, bool useFNo)
+        protected virtual List<object> SaveDetail(DataRow drow, SQLiteConnection detail, bool useFNo)
         {
             string emptyDate = "01-01-1900";
+            List<object> detailParameters = new List<object>();
 
-            detail.Parameters.Add(new SQLiteParameter("@activityDetailStatus", Convert.ToInt32(0)));
-            //detail.SetInt32((int)SysCommon.ActDetailFields.Status, 0);
+            detailParameters.Add(Convert.ToInt32(0));
 
             if (useFNo)
             {
-                detail.Parameters.Add(new SQLiteParameter("@activityDetailUniqueSchemeID", Convert.ToString(drow["f05"])));
-                detail.Parameters.Add(new SQLiteParameter("@activityDetailSchemeID", Convert.ToString(drow["f06"])));
-                detail.Parameters.Add(new SQLiteParameter("@activityDetailQuantity", Convert.ToDecimal(drow["f02"])));
-                detail.Parameters.Add(new SQLiteParameter("@activityDetailBaseQuantity", Convert.ToDecimal(drow["f03"])));
-                detail.Parameters.Add(new SQLiteParameter("@activityDetailWeightQuantity", Convert.ToDecimal(drow["f04"])));
-                detail.Parameters.Add(new SQLiteParameter("@activityDetailSingleTradeItemSerialNumber", Convert.ToString(drow["f10"])));
-                detail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitBatchLotNumber", Convert.ToString(drow["f11"])));
-                detail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitSkidNumber", Convert.ToString(drow["f18"])));
-
-                //detail.SetString((int)SysCommon.ActDetailFields.UniqueSchemeID, drow["f05"].ToString());
-                //detail.SetString((int)SysCommon.ActDetailFields.SchemeID, drow["f06"].ToString());
-                //detail.SetDecimal((int)SysCommon.ActDetailFields.Quantity, Convert.ToDecimal(drow["f02"]));
-                //detail.SetDecimal((int)SysCommon.ActDetailFields.BaseQuantity, Convert.ToDecimal(drow["f03"]));
-                //detail.SetDecimal((int)SysCommon.ActDetailFields.WeightQuantity, Convert.ToDecimal(drow["f04"]));
-                //detail.SetString((int)SysCommon.ActDetailFields.SingleTradeItemSerialNumber, drow["f10"].ToString());
-                //detail.SetString((int)SysCommon.ActDetailFields.LogisticUnitBatchLotNumber, drow["f11"].ToString());
-                //detail.SetString((int)SysCommon.ActDetailFields.LogisticUnitSkidNumber, drow["f18"].ToString());
+                detailParameters.Add(Convert.ToString(drow["f05"]));
+                detailParameters.Add(Convert.ToString(drow["f06"]));
+                detailParameters.Add(Convert.ToDecimal(drow["f02"]));
+                detailParameters.Add(Convert.ToDecimal(drow["f03"]));
+                detailParameters.Add(Convert.ToDecimal(drow["f04"]));
+                detailParameters.Add(Convert.ToString(drow["f10"]));
+                detailParameters.Add(Convert.ToString(drow["f11"]));
+                detailParameters.Add(Convert.ToString(drow["f18"]));
 
                 if (string.IsNullOrEmpty(Convert.ToString(drow["f13"])))
                 {
-                    detail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitBestBeforeSellByDate", DateTime.Parse(emptyDate)));
+                    detailParameters.Add(DateTime.Parse(emptyDate));
                     //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitBestBeforeSellByDate, DateTime.Parse(emptyDate));
                 }
                 else
                 {
-                    detail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitBestBeforeSellByDate", Convert.ToDateTime(drow["f13"])));
+                    detailParameters.Add(Convert.ToDateTime(drow["f13"]));
                     //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitBestBeforeSellByDate, Convert.ToDateTime(drow["f13"]));
                 }
 
                 if (string.IsNullOrEmpty(Convert.ToString(drow["f14"])))
                 {
-                    detail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitExpiryUseByDate", DateTime.Parse(emptyDate)));
+                    detailParameters.Add(DateTime.Parse(emptyDate));
                     //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitExpiryUseByDate, DateTime.Parse(emptyDate));
                 }
                 else
                 {
-                    detail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitExpiryUseByDate", Convert.ToDateTime(drow["f14"])));
+                    detailParameters.Add(Convert.ToDateTime(drow["f14"]));
                     //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitExpiryUseByDate, Convert.ToDateTime(drow["f14"]));
                 }
 
                 if (string.IsNullOrEmpty(Convert.ToString(drow["f12"])))
                 {
-                    detail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitProductionDate", DateTime.Parse(emptyDate)));
+                    detailParameters.Add(DateTime.Parse(emptyDate));
                     //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitProductionDate, DateTime.Parse(emptyDate));
                 }
                 else
                 {
-                    detail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitProductionDate", Convert.ToDateTime(drow["f12"])));
+                    detailParameters.Add(Convert.ToDateTime(drow["f12"]));
                     //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitProductionDate, Convert.ToDateTime(drow["f12"]));
                 }
 
                 if (string.IsNullOrEmpty(Convert.ToString(drow["f15"])))
                 {
-                    detail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitDueDate", DateTime.Parse(emptyDate)));
+                    detailParameters.Add(DateTime.Parse(emptyDate));
                     //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitDueDate, DateTime.Parse(emptyDate));
                 }
                 else
                 {
-                    detail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitDueDate", Convert.ToDateTime(drow["f15"])));
+                    detailParameters.Add(Convert.ToDateTime(drow["f15"]));
                     //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitDueDate, Convert.ToDateTime(drow["f15"]));
                 }
 
                 if (string.IsNullOrEmpty(Convert.ToString(drow["f16"])))
                 {
-                    detail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitPackagingDate", DateTime.Parse(emptyDate)));
+                    detailParameters.Add(DateTime.Parse(emptyDate));
                     //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitPackagingDate, DateTime.Parse(emptyDate));
                 }
                 else
                 {
-                    detail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitPackagingDate", Convert.ToDateTime(drow["f16"])));
+                    detailParameters.Add(Convert.ToDateTime(drow["f16"]));
                     //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitPackagingDate, Convert.ToDateTime(drow["f16"]));
                 }
             }
             else
             {
-                detail.Parameters.Add(new SQLiteParameter("@activityDetailUniqueSchemeID", Convert.ToString(drow["ActivityDetailUniqueSchemeID"])));
-                detail.Parameters.Add(new SQLiteParameter("@activityDetailSchemeID", Convert.ToString(drow["ActivityDetailSchemeID"])));
-                detail.Parameters.Add(new SQLiteParameter("@activityDetailQuantity", Convert.ToDecimal(drow["ActivityDetailQuantity"])));
-                detail.Parameters.Add(new SQLiteParameter("@activityDetailBaseQuantity", Convert.ToDecimal(drow["ActivityDetailBaseQuantity"])));
-                detail.Parameters.Add(new SQLiteParameter("@activityDetailWeightQuantity", Convert.ToDecimal(drow["ActivityDetailWeightQuantity"])));
-                detail.Parameters.Add(new SQLiteParameter("@activityDetailSingleTradeItemSerialNumber", Convert.ToString(drow["ActivityDetailSingleTradeItemSerialNumber"])));
-                detail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitBatchLotNumber", Convert.ToString(drow["ActivityDetailLogisticUnitBatchLotNumber"])));
-                detail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitSkidNumber", Convert.ToString(drow["ActivityDetailLogisticUnitSkidCode"])));
-
+                detailParameters.Add(Convert.ToString(drow["ActivityDetailUniqueSchemeID"]));
+                detailParameters.Add(Convert.ToString(drow["ActivityDetailSchemeID"]));
+                detailParameters.Add(Convert.ToDecimal(drow["ActivityDetailQuantity"]));
+                detailParameters.Add(Convert.ToDecimal(drow["ActivityDetailBaseQuantity"]));
+                detailParameters.Add(Convert.ToDecimal(drow["ActivityDetailWeightQuantity"]));
+                detailParameters.Add(Convert.ToString(drow["ActivityDetailSingleTradeItemSerialNumber"]));
+                detailParameters.Add(Convert.ToString(drow["ActivityDetailLogisticUnitBatchLotNumber"]));
+                detailParameters.Add(Convert.ToString(drow["ActivityDetailLogisticUnitSkidCode"]));
 
                 //detail.SetString((int)SysCommon.ActDetailFields.UniqueSchemeID, drow["ActivityDetailUniqueSchemeID"].ToString());
                 //detail.SetString((int)SysCommon.ActDetailFields.SchemeID, drow["ActivityDetailSchemeID"].ToString());
@@ -828,59 +759,61 @@ namespace dMobile.GroundWork
 
                 if (string.IsNullOrEmpty(Convert.ToString(drow["ActivityDetailLogisticUnitBestBeforeSellByDate"])))
                 {
-                    detail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitBestBeforeSellByDate", DateTime.Parse(emptyDate)));
+                    detailParameters.Add(DateTime.Parse(emptyDate));
                     //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitBestBeforeSellByDate, DateTime.Parse(emptyDate));
                 }
                 else
                 {
-                    detail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitBestBeforeSellByDate", Convert.ToDateTime(drow["ActivityDetailLogisticUnitBestBeforeSellByDate"])));
+                    detailParameters.Add(Convert.ToDateTime(drow["ActivityDetailLogisticUnitBestBeforeSellByDate"]));
                     //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitBestBeforeSellByDate, Convert.ToDateTime(drow["ActivityDetailLogisticUnitBestBeforeSellByDate"]));
                 }
 
                 if (string.IsNullOrEmpty(Convert.ToString(drow["ActivityDetailLogisticUnitExpiryUseByDate"])))
                 {
-                    detail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitExpiryUseByDate", DateTime.Parse(emptyDate)));
+                    detailParameters.Add(DateTime.Parse(emptyDate));
                     //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitExpiryUseByDate, DateTime.Parse(emptyDate));
                 }
                 else
                 {
-                    detail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitExpiryUseByDate", Convert.ToDateTime(drow["ActivityDetailLogisticUnitExpiryUseByDate"])));
+                    detailParameters.Add(Convert.ToDateTime(drow["ActivityDetailLogisticUnitExpiryUseByDate"]));
                     //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitExpiryUseByDate, Convert.ToDateTime(drow["ActivityDetailLogisticUnitExpiryUseByDate"]));
                 }
 
                 if (string.IsNullOrEmpty(Convert.ToString(drow["ActivityDetailLogisticUnitProductionDate"])))
                 {
-                    detail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitProductionDate", DateTime.Parse(emptyDate)));
+                    detailParameters.Add(DateTime.Parse(emptyDate));
                     //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitProductionDate, DateTime.Parse(emptyDate));
                 }
                 else
                 {
-                    detail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitProductionDate", Convert.ToDateTime(drow["ActivityDetailLogisticUnitProductionDate"])));
+                    detailParameters.Add(Convert.ToDateTime(drow["ActivityDetailLogisticUnitProductionDate"]));
                     //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitProductionDate, Convert.ToDateTime(drow["ActivityDetailLogisticUnitProductionDate"]));
                 }
 
                 if (string.IsNullOrEmpty(Convert.ToString(drow["ActivityDetailLogisticUnitDueDate"])))
                 {
-                    detail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitDueDate", DateTime.Parse(emptyDate)));
+                    detailParameters.Add(DateTime.Parse(emptyDate));
                     //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitDueDate, DateTime.Parse(emptyDate));
                 }
                 else
                 {
-                    detail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitDueDate", Convert.ToDateTime(drow["ActivityDetailLogisticUnitDueDate"])));
+                    detailParameters.Add(Convert.ToDateTime(drow["ActivityDetailLogisticUnitDueDate"]));
                     //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitDueDate, Convert.ToDateTime(drow["ActivityDetailLogisticUnitDueDate"]));
                 }
 
                 if (string.IsNullOrEmpty(Convert.ToString(drow["ActivityDetailLogisticUnitPackagingDate"])))
                 {
-                    detail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitPackagingDate", DateTime.Parse(emptyDate)));
+                    detailParameters.Add(DateTime.Parse(emptyDate));
                     //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitPackagingDate, DateTime.Parse(emptyDate));
                 }
                 else
                 {
-                    detail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitPackagingDate", Convert.ToDateTime(drow["ActivityDetailLogisticUnitPackagingDate"])));
+                    detailParameters.Add(Convert.ToDateTime(drow["ActivityDetailLogisticUnitPackagingDate"]));
                     //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitPackagingDate, Convert.ToDateTime(drow["ActivityDetailLogisticUnitPackagingDate"]));
                 }
             }
+
+            return detailParameters;
         }
 
         /// <summary>
@@ -888,7 +821,7 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="sendData"></param>
         /// <returns></returns>
-        protected virtual string SendComm(string sendData)
+        protected virtual async Task<string> SendComm(string sendData)
         {
             return SysCommon.SubmitComm(sendData);
         }
@@ -900,37 +833,35 @@ namespace dMobile.GroundWork
         /// <param name="errMsg"></param>
         /// <param name="drWhs"></param>
         /// <returns></returns>
-        protected virtual int GetWhsLocMapRefnoFromDataRow(DataRow drow, ref string errMsg, SQLiteCommand cmndLocMapWhs)
+        protected virtual int GetWhsLocMapRefnoFromDataRow(DataRow drow, ref string errMsg, SQLiteConnection conn)
         {
             int locMapRefno = 0;
             int locMapWhsFKRefno = Convert.ToInt32(drow["LocationMapWarehouseFKRefno"]);
             errMsg += Environment.NewLine + "Whs " + locMapWhsFKRefno;
 
-            cmndLocMapWhs.CommandText = "SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = @locationMapWarehouseFKRefno";
-            cmndLocMapWhs.CommandType = CommandType.Text;
+            //cmndLocMapWhs.CommandText = "SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = @locationMapWarehouseFKRefno";
+            //cmndLocMapWhs.CommandType = CommandType.Text;
             //cmndLocMapWhs.IndexName = "UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno";
-            cmndLocMapWhs.Parameters.Add(new SQLiteParameter("@locationMapWarehouseFKRefno", Convert.ToInt32(locMapWhsFKRefno)));
+            //cmndLocMapWhs.Parameters.Add(new SQLiteParameter("@locationMapWarehouseFKRefno", Convert.ToInt32(locMapWhsFKRefno)));
 
-            using (SQLiteDataReader drLocMapWhs = cmndLocMapWhs.ExecuteReader())
+            List<tLocationMapWarehouseModel> results = conn.Query<tLocationMapWarehouseModel>("SELECT LocationMapRefno FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = ?", Convert.ToInt32(locMapWhsFKRefno));
+
+            //if (drWhs.Seek(DbSeekOptions.FirstEqual, new object[] { locMapWhsFKRefno }))
+            if (results != null && results.Count > 0)
             {
-                //if (drWhs.Seek(DbSeekOptions.FirstEqual, new object[] { locMapWhsFKRefno }))
-                //{
-                if (drLocMapWhs.Read())
-                {
-                    locMapRefno = drLocMapWhs.GetInt32(Convert.ToInt32(SysCommon.LocMapWhsFields.LocMapRefno));
-                }
-                else
-                {
-                    // TODO: Resource String
-                    throw new Exception("drWhs.Read() failed." + Environment.NewLine + errMsg);
-                }
-                //}
+                //locMapRefno = drLocMapWhs.GetInt32(Convert.ToInt32(SysCommon.LocMapWhsFields.LocMapRefno));
+                locMapRefno = results[0].LocationMapRefno;
+            }
+            else
+            {
+                // TODO: Resource String
+                throw new Exception("drWhs.Read() failed." + Environment.NewLine + errMsg);
+            }
 
-                if (locMapRefno == 0)
-                {
-                    // TODO: Resource String
-                    throw new Exception("Unable to locate the location map refno." + Environment.NewLine + errMsg);
-                }
+            if (locMapRefno == 0)
+            {
+                // TODO: Resource String
+                throw new Exception("Unable to locate the location map refno." + Environment.NewLine + errMsg);
             }
 
             return locMapRefno;
@@ -946,91 +877,72 @@ namespace dMobile.GroundWork
         /// <param name="drProdUnit"></param>
         /// <param name="useFNo">The useFNo<see cref="bool"/></param>
         /// <returns></returns>
-        protected virtual int GetProductUnitRefnoFromDataRow(DataRow drow, ref SQLiteConnection conn, ref string errMsg, bool useFNo)
+        protected virtual int GetProductUnitRefnoFromDataRow(DataRow drow, SQLiteConnection conn, string errMsg, bool useFNo)
         {
-            using (SQLiteCommand cmndProdUnit = conn.CreateCommand())
-            using (SQLiteCommand cmndProd = conn.CreateCommand())
-            using (SQLiteCommand cmndUnit = conn.CreateCommand())
+            int prodRefno = 0;
+            int prodFKRefno = 0;
+            string unitCode = string.Empty;
+            int unitRefno = 0;
+            int prodUnitRefno = 0;
+            bool prodUnitIsBC = false;
+
+            if (useFNo)
             {
-                int prodRefno = 0;
-                int prodFKRefno = 0;
-                string unitCode = string.Empty;
-                int unitRefno = 0;
-                int prodUnitRefno = 0;
-                bool prodUnitIsBC = false;
-
-                if (useFNo)
-                {
-                    prodFKRefno = Convert.ToInt32(drow["f03"]);
-                    unitCode = Convert.ToString(drow["f05"]);
-                    prodUnitIsBC = Convert.ToBoolean(drow["f04"]);
-                }
-                else
-                {
-                    prodFKRefno = Convert.ToInt32(drow["ProductFKRefno"]);
-                    unitCode = Convert.ToString(drow["UnitCode"]);
-                    prodUnitIsBC = Convert.ToBoolean(drow["ProductUnitIsBC"]);
-                }
-
-                errMsg += Environment.NewLine + "Prod fk refno " + prodFKRefno;
-                errMsg += Environment.NewLine + "Unit \'" + unitCode + "\'";
-                errMsg += Environment.NewLine + "Is bc " + prodUnitIsBC;
-
-                cmndProd.CommandText = "SELECT * FROM tProduct WHERE ProductFKRefno = @productFKRefno";
-                cmndProd.CommandType = CommandType.Text;
-                cmndProd.Parameters.Add(new SQLiteParameter("@productFKRefno", Convert.ToInt32(prodFKRefno)));
-
-                using (SQLiteDataReader drProduct = cmndProd.ExecuteReader())
-                {
-                    if (drProduct.Read())
-                    {
-                        prodRefno = drProduct.GetInt32(Convert.ToInt32(SysCommon.ProductFields.Refno));
-                    }
-                    else
-                    {
-                        // TODO: Resource strings
-                        throw new Exception("drProduct.Read() failed. Unable to locate the product refno from the product fk refno in tProduct." + Environment.NewLine + errMsg);
-                    }
-                }
-
-                cmndUnit.CommandText = "SELECT * FROM tUnit WHERE UnitCode = @unitCode";
-                cmndUnit.CommandType = CommandType.Text;
-                cmndUnit.Parameters.Add(new SQLiteParameter("@unitCode", unitCode));
-
-                using (SQLiteDataReader drUnit = cmndUnit.ExecuteReader())
-                {
-                    if (drUnit.Read())
-                    {
-                        unitRefno = drUnit.GetInt32(Convert.ToInt32(SysCommon.UnitFields.UnitRefno));
-                    }
-                    else
-                    {
-                        // TODO: Resource strings
-                        throw new Exception("drUnit.Read() failed." + Environment.NewLine + errMsg);
-                    }
-                }
-
-                cmndProdUnit.CommandText = "SELECT * FROM tProductUnit WHERE ProductRefno = @productRefno AND UnitRefno = @unitRefno AND ProductUnitIsBC = @productUnitIsBC";
-                cmndProdUnit.CommandType = CommandType.Text;
-                cmndProdUnit.Parameters.Add(new SQLiteParameter("@productRefno", Convert.ToInt32(prodRefno)));
-                cmndProdUnit.Parameters.Add(new SQLiteParameter("@unitRefno", Convert.ToInt32(unitRefno)));
-                cmndProdUnit.Parameters.Add(new SQLiteParameter("@productUnitIsBC", Convert.ToBoolean(prodUnitIsBC)));
-
-                using (SQLiteDataReader drProductUnit = cmndProdUnit.ExecuteReader())
-                {
-                    if (drProductUnit.Read())
-                    {
-                        prodUnitRefno = drProductUnit.GetInt32(Convert.ToInt32(SysCommon.ProdUnitFields.Refno));
-                    }
-                    else
-                    {
-                        // TODO: Resource strings
-                        throw new Exception("drProdUnit.Read() failed. Unable to locate the product unit refno from the product fk refno, bc and unit code in tProductUnit." + Environment.NewLine + errMsg);
-                    }
-                }
-
-                return prodUnitRefno;
+                prodFKRefno = Convert.ToInt32(drow["f03"]);
+                unitCode = Convert.ToString(drow["f05"]);
+                prodUnitIsBC = Convert.ToBoolean(drow["f04"]);
             }
+            else
+            {
+                prodFKRefno = Convert.ToInt32(drow["ProductFKRefno"]);
+                unitCode = Convert.ToString(drow["UnitCode"]);
+                prodUnitIsBC = Convert.ToBoolean(drow["ProductUnitIsBC"]);
+            }
+
+            errMsg += Environment.NewLine + "Prod fk refno " + prodFKRefno;
+            errMsg += Environment.NewLine + "Unit \'" + unitCode + "\'";
+            errMsg += Environment.NewLine + "Is bc " + prodUnitIsBC;
+
+            List<tProductModel> productResults = conn.Query<tProductModel>("SELECT * FROM tProduct WHERE ProductFKRefno = ?", Convert.ToInt32(prodFKRefno));
+
+            if (productResults != null && productResults.Count > 0)
+            {
+                //prodRefno = drProduct.GetInt32(Convert.ToInt32(SysCommon.ProductFields.Refno));
+                prodRefno = Convert.ToInt32(productResults[0].ProductRefno);
+            }
+            else
+            {
+                // TODO: Resource strings
+                throw new Exception("drProduct.Read() failed. Unable to locate the product refno from the product fk refno in tProduct." + Environment.NewLine + errMsg);
+            }
+
+            List<tUnitModel> unitResults = conn.Query<tUnitModel>("SELECT * FROM tUnit WHERE UnitCode = ?", unitCode);
+
+            if (unitResults != null && unitResults.Count > 0)
+            {
+                //unitRefno = drUnit.GetInt32(Convert.ToInt32(SysCommon.UnitFields.UnitRefno));
+                unitRefno = Convert.ToInt32(unitResults[0].UnitRefno);
+            }
+            else
+            {
+                // TODO: Resource strings
+                throw new Exception("drUnit.Read() failed." + Environment.NewLine + errMsg);
+            }
+
+            List<tProductUnitModel> productUnitResults = conn.Query<tProductUnitModel>("SELECT * FROM tProductUnit WHERE ProductRefno = ? AND UnitRefno = ? AND ProductUnitIsBC = ?", Convert.ToInt32(prodRefno), Convert.ToInt32(unitRefno), Convert.ToBoolean(prodUnitIsBC));
+
+            if (productUnitResults != null && productUnitResults.Count > 0)
+            {
+                //prodUnitRefno = drProductUnit.GetInt32(Convert.ToInt32(SysCommon.ProdUnitFields.Refno));
+                prodUnitRefno = Convert.ToInt32(productUnitResults[0].ProductUnitRefno);
+            }
+            else
+            {
+                // TODO: Resource strings
+                throw new Exception("drProdUnit.Read() failed. Unable to locate the product unit refno from the product fk refno, bc and unit code in tProductUnit." + Environment.NewLine + errMsg);
+            }
+
+            return prodUnitRefno;
         }
     }
 }

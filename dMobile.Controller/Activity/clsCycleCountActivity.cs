@@ -3,7 +3,7 @@ namespace dMobile.Controller
     using System;
     using System.Collections.ObjectModel;
     using System.Data;
-    using System.Data.SQLite;
+    using SQLite;
     using System.Text;
     using System.Xml.Linq;
     using dMobile.Bedrock;
@@ -11,6 +11,9 @@ namespace dMobile.Controller
     using dMobile.Resources.Services;
     using dMobile.Resources.Types;
     using Xamarin.Forms;
+    using System.Threading.Tasks;
+    using System.Collections.Generic;
+    using System.Linq;
 
     public class CycleActivity : Activity
     {
@@ -129,22 +132,22 @@ namespace dMobile.Controller
 
             dataGridMainActivityHeader.Children.Add(gridHeader);
 
-            foreach (DataRow row in this.DataViewHdrs.ToTable().Rows)
+            foreach (Count count in this.ListHdrs)
             {
                 string description = string.Empty;
-                string[] descriptionSubstring = Convert.ToString(row["ActivityCountTypeDescription"]).Split();
+                string[] descriptionSubstring = Convert.ToString(count.ActivityCountTypeDescription).Split();
 
                 if (descriptionSubstring != null && descriptionSubstring.Length > 1)
                 {
                     description = descriptionSubstring[0] + " " + descriptionSubstring[1];
                 }
 
-                Count count = new Count
-                {
-                    ActivityCountStringFKRefno = Convert.ToString(row["ActivityCountStringFKRefno"] != DBNull.Value ? row["ActivityCountStringFKRefno"] : null),
-                    ActivityCountDateTime = Convert.ToDateTime(row["ActivityCountDateTime"] != DBNull.Value ? row["ActivityCountDateTime"] : null),
-                    ActivityCountTypeDescription = description,
-                };
+                //Count count = new Count
+                //{
+                //    ActivityCountStringFKRefno = Convert.ToString(row["ActivityCountStringFKRefno"] != DBNull.Value ? row["ActivityCountStringFKRefno"] : null),
+                //    ActivityCountDateTime = Convert.ToDateTime(row["ActivityCountDateTime"] != DBNull.Value ? row["ActivityCountDateTime"] : null),
+                //    ActivityCountTypeDescription = description,
+                //};
 
                 observableCollection.Add(count);
 
@@ -176,68 +179,68 @@ namespace dMobile.Controller
             return observableCollection;
         }
 
-//        /// <summary>
-//        /// 
-//        /// </summary>
-//        /// <param name="dataGridMain"></param>
-//        public override void DesignDataGrid(DataGrid dataGridMain)
-//        {
-//            int colWidthFactor = 1;
+        //        /// <summary>
+        //        /// 
+        //        /// </summary>
+        //        /// <param name="dataGridMain"></param>
+        //        public override void DesignDataGrid(DataGrid dataGridMain)
+        //        {
+        //            int colWidthFactor = 1;
 
-//            if (SysEnv.IsWindowsMobile6Device)
-//            {
-//                colWidthFactor = 2;
-//            }
+        //            if (SysEnv.IsWindowsMobile6Device)
+        //            {
+        //                colWidthFactor = 2;
+        //            }
 
-//            if (dataGridMain.TableStyles.Count > 0)
-//            {
-//                dataGridMain.TableStyles.Clear();
-//            }
+        //            if (dataGridMain.TableStyles.Count > 0)
+        //            {
+        //                dataGridMain.TableStyles.Clear();
+        //            }
 
-//            DataGridTableStyle dataGridStyle = new DataGridTableStyle();
-//            dataGridStyle.MappingName = this.MainGridMappingName;
+        //            DataGridTableStyle dataGridStyle = new DataGridTableStyle();
+        //            dataGridStyle.MappingName = this.MainGridMappingName;
 
-//            DataGridTextBoxColumn dataGridCol1 = new DataGridTextBoxColumn();
-//            dataGridCol1.MappingName = "ActivityCountStringFKRefno";
-//#if MULTILANGUAGE
-//            dataGridCol1.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Countz);
-//#else
-//            dataGridCol1.HeaderText = "Count#";
-//#endif
-//            dataGridCol1.Width = 50 * colWidthFactor;
-//            dataGridStyle.GridColumnStyles.Add(dataGridCol1);
+        //            DataGridTextBoxColumn dataGridCol1 = new DataGridTextBoxColumn();
+        //            dataGridCol1.MappingName = "ActivityCountStringFKRefno";
+        //#if MULTILANGUAGE
+        //            dataGridCol1.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Countz);
+        //#else
+        //            dataGridCol1.HeaderText = "Count#";
+        //#endif
+        //            dataGridCol1.Width = 50 * colWidthFactor;
+        //            dataGridStyle.GridColumnStyles.Add(dataGridCol1);
 
-//            DataGridTextBoxColumn dataGridCol2 = new DataGridTextBoxColumn();
-//            dataGridCol2.MappingName = "ActivityCountDateTime";
-//#if MULTILANGUAGE
-//            dataGridCol2.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Date);
-//#else
-//            dataGridCol2.HeaderText = "Date";
-//#endif
-//            dataGridCol2.Width = 58 * colWidthFactor;
-//            dataGridStyle.GridColumnStyles.Add(dataGridCol2);
+        //            DataGridTextBoxColumn dataGridCol2 = new DataGridTextBoxColumn();
+        //            dataGridCol2.MappingName = "ActivityCountDateTime";
+        //#if MULTILANGUAGE
+        //            dataGridCol2.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Date);
+        //#else
+        //            dataGridCol2.HeaderText = "Date";
+        //#endif
+        //            dataGridCol2.Width = 58 * colWidthFactor;
+        //            dataGridStyle.GridColumnStyles.Add(dataGridCol2);
 
-//            DataGridTextBoxColumn dataGridCol3 = new DataGridTextBoxColumn();
-//            dataGridCol3.MappingName = "ActivityCountTypeDescription";
-//#if MULTILANGUAGE
-//            dataGridCol3.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.CountType);
-//#else
-//            dataGridCol3.HeaderText = "Count Type";
-//#endif
-//            dataGridCol3.Width = 118 * colWidthFactor;
-//            dataGridStyle.GridColumnStyles.Add(dataGridCol3);
+        //            DataGridTextBoxColumn dataGridCol3 = new DataGridTextBoxColumn();
+        //            dataGridCol3.MappingName = "ActivityCountTypeDescription";
+        //#if MULTILANGUAGE
+        //            dataGridCol3.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.CountType);
+        //#else
+        //            dataGridCol3.HeaderText = "Count Type";
+        //#endif
+        //            dataGridCol3.Width = 118 * colWidthFactor;
+        //            dataGridStyle.GridColumnStyles.Add(dataGridCol3);
 
-//            dataGridMain.TableStyles.Add(dataGridStyle);
-//            dataGridMain.RowHeadersVisible = false;
-//            dataGridMain.ColumnHeadersVisible = true;
-//        }
+        //            dataGridMain.TableStyles.Add(dataGridStyle);
+        //            dataGridMain.RowHeadersVisible = false;
+        //            dataGridMain.ColumnHeadersVisible = true;
+        //        }
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="isSubmitBatch"></param>
         /// <returns></returns>
-        public override DataView GetDataView(bool isSubmitBatch)
+        public override async Task<List<object>> GetList(bool isSubmitBatch)
         {
             StringBuilder sql = new StringBuilder();
 
@@ -319,21 +322,23 @@ namespace dMobile.Controller
                 sql.AppendFormat("WHERE tActivityCount.ActivitySubType = {0}", Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts));
             }
 
-            using (SQLiteDataAdapter dataAdapterCycle = new SQLiteDataAdapter(sql.ToString(), DatabaseConnection.GetInstance().SQLConn))
-            {
-                using (DataSet dataSetCycle = new DataSet())
-                {
-                    dataAdapterCycle.Fill(dataSetCycle);
-                    this.DataViewHdrs = dataSetCycle.Tables[0].DefaultView;
-                    this.DataViewHdrs.Table.TableName = this.MainGridMappingName;
+            //using (SQLiteDataAdapter dataAdapterCycle = new SQLiteDataAdapter(sql.ToString(), DatabaseConnection.GetInstance().SQLConn))
+            //{
+            //    using (DataSet dataSetCycle = new DataSet())
+            //    {
+            //        dataAdapterCycle.Fill(dataSetCycle);
+            //        this.DataViewHdrs = dataSetCycle.Tables[0].DefaultView;
+            //        this.DataViewHdrs.Table.TableName = this.MainGridMappingName;
 
-                    CycleCountSettings cycleCountSettings = new CycleCountSettings().LoadData();
-                    this.DataViewHdrs.Sort = cycleCountSettings.GetDataViewSortBy();
-                    this.DataViewHdrs.RowFilter = this.GetFilter();
-                }
-            }
+            //        // TODO: Fix sorting and filter
+            //        CycleCountSettings cycleCountSettings = new CycleCountSettings().LoadData();
+            //        this.DataViewHdrs.Sort = cycleCountSettings.GetDataViewSortBy();
+            //        this.DataViewHdrs.RowFilter = this.GetFilter();
+            //    }
+            //}
 
-            return this.DataViewHdrs;
+            this.ListHdrs = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<object>(sql.ToString());
+            return this.ListHdrs;
         }
 
         /// <summary>
@@ -344,34 +349,37 @@ namespace dMobile.Controller
         /// <remarks></remarks>
         public override ObservableCollection<object> Search(string searchText)
         {
+            // TODO: verify filtering
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
             if (string.IsNullOrEmpty(this.ActFilter))
             {
-                this.DataViewHdrs.RowFilter = "ActivityCountStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
+                //this.DataViewHdrs.RowFilter = "ActivityCountStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
+                this.ListHdrs = (List<object>)this.ListHdrs.OfType<Count>().Where(count => count.ActivityCountStringFKRefno.Contains(searchText.Trim()));
             }
             else
             {
-                this.DataViewHdrs.RowFilter = this.ActFilter + " AND ActivityCountStringFKRefno LIKE \'%"
-                    + searchText.Trim() + "%\'";
+                //this.DataViewHdrs.RowFilter = this.ActFilter + " AND ActivityCountStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
+                //this.ListHdrs = (List<object>)this.ListHdrs.OfType<Count>().Where(count => this.ActFilter.Contains(searchText.Trim()) && count.ActivityCountStringFKRefno.Contains(searchText.Trim()));
             }
-            foreach (DataRow row in this.DataViewHdrs.ToTable().Rows)
+
+            foreach (Count count in this.ListHdrs)
             {
 
                 string description = string.Empty;
-                string[] descriptionSubstring = Convert.ToString(row["ActivityCountTypeDescription"]).Split();
+                string[] descriptionSubstring = Convert.ToString(count.ActivityCountTypeDescription).Split();
 
                 if (descriptionSubstring != null && descriptionSubstring.Length > 1)
                 {
                     description = descriptionSubstring[0] + " " + descriptionSubstring[1];
                 }
 
-                Count count = new Count
-                {
-                    ActivityCountStringFKRefno = Convert.ToString(row["ActivityCountStringFKRefno"] != DBNull.Value ? row["ActivityCountStringFKRefno"] : null),
-                    ActivityCountDateTime = Convert.ToDateTime(row["ActivityCountDateTime"] != DBNull.Value ? row["ActivityCountDateTime"] : null),
-                    ActivityCountTypeDescription = description,
-                };
+                //Count count = new Count
+                //{
+                //    ActivityCountStringFKRefno = Convert.ToString(row["ActivityCountStringFKRefno"] != DBNull.Value ? row["ActivityCountStringFKRefno"] : null),
+                //    ActivityCountDateTime = Convert.ToDateTime(row["ActivityCountDateTime"] != DBNull.Value ? row["ActivityCountDateTime"] : null),
+                //    ActivityCountTypeDescription = description,
+                //};
 
                 observableCollection.Add(count);
             }
@@ -383,16 +391,18 @@ namespace dMobile.Controller
         /// 
         /// </summary>
         /// <param name="idx"></param>
-        public override void SelectHdr(int idx)
+        public override async Task SelectHdr(object selectedItem)
         {
-            this.FKRefno = Convert.ToInt32(this.DataViewHdrs[idx]["ActivityCountFKRefno"]);
-            this.Refno = Convert.ToInt32(this.DataViewHdrs[idx]["ActivityRefno"]);
-            this.SelectedIndex = idx;
-
-            // Set the selected warehouse to the activity header warehouse.
-            if (LocationMap.GetInstance().CurrLocMap.WhsLocMapRefno != Convert.ToInt32(this.DataViewHdrs[idx]["LocationMapRefno"]))
+            if (selectedItem is Count count)
             {
-                LocationMap.GetInstance().CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(this.DataViewHdrs[idx]["LocationMapRefno"]));
+                this.FKRefno = Convert.ToInt32(count.ActivityCountFKRefno);
+                this.Refno = Convert.ToInt32(count.ActivityRefno);
+
+                // Set the selected warehouse to the activity header warehouse.
+                if (LocationMap.GetInstance().CurrLocMap.WhsLocMapRefno != Convert.ToInt32(count.WarehouseLocationMapRefno))
+                {
+                    LocationMap.GetInstance().CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(count.WarehouseLocationMapRefno));
+                }
             }
         }
 
@@ -401,11 +411,14 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="idx"></param>
         /// <returns></returns>
-        public override int GetRefnoFromRowIdx(int idx)
+        public override int GetRefnoFromRowIdx(object selectedItem)
         {
-            this.FKRefno = Convert.ToInt32(this.DataViewHdrs[idx]["ActivityCountFKRefno"]);
-            this.Refno = Convert.ToInt32(this.DataViewHdrs[idx]["ActivityRefno"]);
+            if (selectedItem is Count count)
+            {
+                this.FKRefno = Convert.ToInt32(count.ActivityCountFKRefno);
+                this.Refno = Convert.ToInt32(count.ActivityRefno);
 
+            }
             return this.Refno;
         }
 
@@ -413,7 +426,7 @@ namespace dMobile.Controller
         /// 
         /// </summary>
         /// <param name="data"></param>
-        public override void Refresh(XDocument data)
+        public override async Task Refresh(XDocument data)
         {
             if (this.SysEnv.SysSettings.IsDisconnectedMode)
             {
@@ -422,7 +435,7 @@ namespace dMobile.Controller
             else
             {
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 2);
-                this.Purge();
+                await this.Purge();
 
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
 
@@ -437,7 +450,7 @@ namespace dMobile.Controller
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override void Purge()
+        public override async Task Purge()
         {
             TableActivityCycleCount cycleCount = new TableActivityCycleCount();
             TableActivityCycleCountItem cycleCountItem = new TableActivityCycleCountItem();
@@ -467,21 +480,11 @@ namespace dMobile.Controller
                     // BETWEEN '2009-07-26 00:00:00.000' AND '2010-07-26 23:59:59.997'
                     if (string.IsNullOrEmpty(filter))
                     {
-                        filter = string.Format(
-                            "ActivityCountDateTime >= '{0}-{1}-{2} 00:00:00.000' "
-                            + "AND ActivityCountDateTime <= '{0}-{1}-{2} 23:59:59.997'",
-                            dt.Year,
-                            dt.Month,
-                            dt.Day);
+                        filter = string.Format("ActivityCountDateTime >= '{0}-{1}-{2} 00:00:00.000' AND ActivityCountDateTime <= '{0}-{1}-{2} 23:59:59.997'", dt.Year, dt.Month, dt.Day);
                     }
                     else
                     {
-                        filter += string.Format(
-                            " AND ActivityCountDateTime >= '{0}-{1}-{2} 00:00:00.000' "
-                            + " AND ActivityCountDateTime <= '{0}-{1}-{2} 23:59:59.997'",
-                            dt.Year,
-                            dt.Month,
-                            dt.Day);
+                        filter += string.Format(" AND ActivityCountDateTime >= '{0}-{1}-{2} 00:00:00.000' AND ActivityCountDateTime <= '{0}-{1}-{2} 23:59:59.997'", dt.Year, dt.Month, dt.Day);
                     }
                 }
             }

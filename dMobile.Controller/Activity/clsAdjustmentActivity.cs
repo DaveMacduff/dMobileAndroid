@@ -371,6 +371,7 @@ namespace dMobile.Controller
             //        dataAdapterAdj.Fill(dataSetAdj);
             //        this.DataViewHdrs = dataSetAdj.Tables[0].DefaultView;
             //        this.DataViewHdrs.Table.TableName = this.MainGridMappingName;
+            // TODO: Fix sorting
             //        this.DataViewHdrs.Sort = adjSettings.GetDataViewSortBy();
             //        this.DataViewHdrs.RowFilter = this.GetFilter();
             //    }

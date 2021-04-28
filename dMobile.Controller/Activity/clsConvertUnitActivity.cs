@@ -1,10 +1,11 @@
 namespace dMobile.Controller
 {
     using System;
+    using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Data;
+    using System.Threading.Tasks;
     using System.Xml.Linq;
-    using dMobile.Bedrock;
     using Xamarin.Forms;
 
     public class ConvertUnitActivity : Activity
@@ -51,7 +52,7 @@ namespace dMobile.Controller
         /// <param name="i"></param>
         /// <param name="lst"></param>
         /// <remarks></remarks>
-        public override void SelectHdr(int i)
+        public override Task SelectHdr(object selectedItem)
         {
             throw new NotImplementedException();
         }
@@ -61,7 +62,7 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="rowIdx"></param>
         /// <returns></returns>
-        public override int GetRefnoFromRowIdx(int rowIdx)
+        public override int GetRefnoFromRowIdx(object selectedItem)
         {
             return this.Refno;
         }
@@ -72,7 +73,7 @@ namespace dMobile.Controller
         /// <param name="isSubmitBatch"></param>
         /// <returns></returns>
         /// <remarks></remarks>
-        public override DataView GetDataView(bool isSubmitBatch)
+        public override Task<List<object>> GetList(bool isSubmitBatch)
         {
             throw new NotImplementedException();
         }
@@ -106,7 +107,7 @@ namespace dMobile.Controller
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override void Refresh(XDocument data)
+        public override Task Refresh(XDocument data)
         {
             throw new NotImplementedException();
         }
@@ -115,7 +116,7 @@ namespace dMobile.Controller
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override void Purge()
+        public override Task Purge()
         {
             throw new NotImplementedException();
         }
