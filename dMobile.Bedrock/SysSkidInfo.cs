@@ -52,8 +52,8 @@
             int locMapRefno = int.Parse(data.Root.Element("location_map_refno").Value);
             skid.LocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
             int prodUnitRefno = int.Parse(data.Root.Element("product_unit_refno").Value);
-            skid.ProdInfo = ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
-            skid.ProdInfo.Scheme = ProductInfoTasks.GetSchemeComponentsFromRefno(skid.ProdInfo.Refno);
+            skid.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
+            skid.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(skid.ProdInfo.Refno);
             skid.Quantity = decimal.Parse(data.Root.Element("quantity").Value);
             skid.BaseQuantity = decimal.Parse(data.Root.Element("base_quantity").Value);
             skid.WeightQuantity = decimal.Parse(data.Root.Element("weight_quantity").Value);
@@ -563,7 +563,7 @@
             string revDateTime = sysEnv.RefreshOpt.RefreshedDataLast.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
             string loginID = sysEnv.ContactLog.LoginID.ToString();
             string currDateTime = DateTime.Now.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
-            ProductInfo prodInfo = ProductInfoTasks.GetInfoFromUnitRefno(
+            ProductInfo prodInfo = await ProductInfoTasks.GetInfoFromUnitRefno(
                 int.Parse(skidData.Document.Root.Element("product_unit_refno").Value));
 
             SLocMap skidLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(int.Parse(skidData.Document.Root.Element("location_map_refno").Value));
@@ -816,7 +816,7 @@
                     result.SelectSingleNode("/VFPData/cskidinfo/productunitbc").InnerText,
                     result.SelectSingleNode("/VFPData/cskidinfo/unitcode").InnerText);
 
-                tmpInfo.ProdInfo.Scheme = ProductInfoTasks.GetSchemeComponentsFromRefno(tmpInfo.ProdInfo.Refno);
+                tmpInfo.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(tmpInfo.ProdInfo.Refno);
 
                 tmpInfo.Quantity = decimal.Parse(result.SelectSingleNode("/VFPData/cskidinfo/skidquantity").InnerText);
                 tmpInfo.BaseQuantity = decimal.Parse(result.SelectSingleNode("/VFPData/cskidinfo/skidbasequantity").InnerText);

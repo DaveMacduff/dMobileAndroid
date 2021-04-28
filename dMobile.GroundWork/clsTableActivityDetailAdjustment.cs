@@ -6,10 +6,14 @@ namespace dMobile.GroundWork
     using System;
     using System.Collections.Generic;
     using System.Data;
+    using SQLite;
     using System.Text;
     using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
+    using System.Threading.Tasks;
+    using System.Collections.Generic;
+    using dMobile.Resources.Models;
 
     /// <summary>
     /// Defines the <see cref="TableActivityAdjustmentDetail" />
@@ -41,24 +45,26 @@ namespace dMobile.GroundWork
 
             if (actItemRefno == 0)
             {
-                string query = "SELECT tActivityItem.ActivityItemRefno FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?";
-                List<tActivityItemModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityItemModel>(query, Convert.ToInt32(SysCommon.ActSubTypes.Adjustment));
+                List<tActivityItemModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityItemModel>("SELECT ActivityItemRefno FROM tActivityItem WHERE ActivityItemSubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.Adjustment));
 
                 if (results != null && results.Count > 0)
                 {
-                    actItemRefno = results[0].ActivityItemRefno;
-                    reqData = await this.Send(actItemRefno);
-
-                    if (0 < reqData.Length)
+                    foreach (tActivityItemModel activityItem in results)
                     {
-                        if (reqData.Contains("<message>ERROR</message>"))
-                        {
-                            XmlDocument reqErr = new XmlDocument();
-                            reqErr.LoadXml(reqData);
-                            throw new Exception(reqErr.DocumentElement["detail"].InnerText);
-                        }
+                        actItemRefno = Convert.ToInt32(activityItem.ActivityItemRefno);
+                        reqData = await this.Send(actItemRefno);
 
-                        this.Save(reqData, actItemRefno);
+                        if (0 < reqData.Length)
+                        {
+                            if (reqData.Contains("<message>ERROR</message>"))
+                            {
+                                XmlDocument reqErr = new XmlDocument();
+                                reqErr.LoadXml(reqData);
+                                throw new Exception(reqErr.DocumentElement["detail"].InnerText);
+                            }
+
+                            await this.Save(reqData, actItemRefno);
+                        }
                     }
                 }
             }
@@ -75,7 +81,7 @@ namespace dMobile.GroundWork
                         throw new Exception(reqErr.DocumentElement["detail"].InnerText);
                     }
 
-                    this.Save(reqData, actItemRefno);
+                    await this.Save(reqData, actItemRefno);
                 }
             }
 
@@ -90,6 +96,7 @@ namespace dMobile.GroundWork
         public override async Task<int> DataStatus()
         {
             int rowsAffected = 0;
+
             try
             {
                 string query = "SELECT COUNT(tActivityDetail.ActivityDetailRefno) FROM tActivityDetail WHERE tActivityDetail.ActivityDetailSubType = ?";
@@ -131,7 +138,7 @@ namespace dMobile.GroundWork
                         + "WHERE tActivityDetail.ActivityDetailSubType = ?)";
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.Adjustment)); 
 
-                query = "DELETE FROM tActivityDetailExtra "
+                    cmndPurge.CommandText = "DELETE FROM tActivityDetailExtra "
                         + "WHERE tActivityDetailExtra.ActivityDetailRefno IN "
                         + "(SELECT tActivityDetail.ActivityDetailRefno "
                         + "FROM tActivityDetail "
@@ -177,7 +184,7 @@ namespace dMobile.GroundWork
                 throw new Exception(string.Format("Unable to locate item adjustment {0} in tActivityItemAdjustment", actItemAdjRefno));
             }
 
-            return this.SendComm(this.Create(actItemAdjFKRefno));
+            return await this.SendComm(this.Create(actItemAdjFKRefno));
         }
 
         /// <summary>
@@ -185,22 +192,11 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="reqData"></param>
         /// <param name="actItemAdjRefno"></param>
-        protected override void Save(string reqData, int actItemAdjRefno)
+        protected override async Task Save(string reqData, int actItemAdjRefno)
         {
-            SQLiteConnection conn = DatabaseConnection.GetInstance().SQLConn;
             string errMsg = string.Empty;
 
-            using (SQLiteCommand cmndDetailAdj = conn.CreateCommand())
-            using (SQLiteCommand cmndDetail = conn.CreateCommand())
-            using (SQLiteCommand cmndExtra = conn.CreateCommand())
-            using (SQLiteCommand cmndItemAdj = conn.CreateCommand())
-            using (SQLiteCommand cmndLocMapSection = conn.CreateCommand())
-            using (SQLiteCommand cmndLocMapWhs = conn.CreateCommand())
-            using (SQLiteCommand cmndSchemeVar = conn.CreateCommand())
-            using (SQLiteCommand cmndDetailSchemeVarXRef = conn.CreateCommand())
-            using (SQLiteCommand cmndID = conn.CreateCommand())
-            using (SQLiteCommand cmndLocMapSlot = conn.CreateCommand())
-            using (SQLiteTransaction transaction = conn.BeginTransaction())
+            await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
             {
                 try
                 {
@@ -222,113 +218,18 @@ namespace dMobile.GroundWork
                             // TODO: Resource strings
                             this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
 
-                            //using (SQLiteCommand cmndDetailAdj = conn.CreateCommand())
-                            //{
-                            //cmndDetailAdj.CommandText = "tActivityDetailAdjustment";
-                            //cmndDetailAdj.CommandType = CommandType.Text;
-                            //cmndDetailAdj.IndexName = "UQ_ActivityDetailAdjustmentOnActivityDetailAdjustmentFKRefno";
-
-                            //using (SqlCeResultSet rsDetailAdj = cmndDetailAdj.ExecuteResultSet(ResultSetOptions.Updatable))
-                            //{
-                            //    SqlCeUpdatableRecord recDetailAdj = rsDetailAdj.CreateRecord();
-
-                            //using (SQLiteCommand cmndDetail = conn.CreateCommand())
-                            //{
-                            //cmndDetail.CommandText = "tActivityDetail";
-                            //cmndDetail.CommandType = CommandType.Text;
-                            //cmndDetail.IndexName = "PK_ActivityDetailOnActivityDetailRefno";
-
-                            //using (SqlCeResultSet rsDetail = cmndDetail.ExecuteResultSet(ResultSetOptions.Updatable))
-                            //{
-                            //SqlCeUpdatableRecord recDetail = rsDetail.CreateRecord();
-
-                            //using (SQLiteCommand cmndExtra = conn.CreateCommand())
-                            //{
-                            //cmndExtra.CommandText = "tActivityDetailExtra";
-                            //cmndExtra.CommandType = CommandType.Text;
-                            //cmndExtra.IndexName = "PK_ActivityDetailExtraOnActivityDetailRefno";
-
-                            //using (SqlCeResultSet rsExtra = cmndExtra.ExecuteResultSet(ResultSetOptions.Updatable))
-                            //{
-                            //SqlCeUpdatableRecord recExtra = rsExtra.CreateRecord();
-
-                            //using (SQLiteCommand cmndItemAdj = conn.CreateCommand())
-                            //{
-                            //cmndItemAdj.CommandText = "tActivityItemAdjustment";
-                            //cmndItemAdj.CommandType = CommandType.Text;
-                            //cmndItemAdj.IndexName = "PK_ActivityItemAdjustmentOnActivityItemRefno";
-
-                            //using (SQLiteDataReader drItemAdj = cmndItemAdj.ExecuteReader())
-                            //{
-                            //using (SQLiteCommand cmndLocMapSlot = conn.CreateCommand())
-                            //{
-                            //cmndLocMapSlot.CommandText = "tLocationMapSlot";
-                            //cmndLocMapSlot.CommandType = CommandType.Text;
-                            //cmndLocMapSlot.IndexName = "UQ_LocationMapSlotOnLocationMapSlotFKRefno";
-
-                            //using (SQLiteDataReader drLocMapSlot = cmndLocMapSlot.ExecuteReader())
-                            //{
-                            //using (SQLiteCommand cmndLocMapSection = conn.CreateCommand())
-                            //{
-                            //cmndLocMapSection.CommandText = "tLocationMapSection";
-                            //cmndLocMapSection.CommandType = CommandType.Text;
-                            //cmndLocMapSection.IndexName = "UQ_LocationMapSectionOnLocationMapSectionFKRefno";
-
-                            //using (SQLiteDataReader drLocMapSection = cmndLocMapSection.ExecuteReader())
-                            //{
-                            //using (SQLiteCommand cmndLocMapWhs = conn.CreateCommand())
-                            //{
-                            //cmndLocMapWhs.CommandText = "tLocationMapWarehouse";
-                            //cmndLocMapWhs.CommandType = CommandType.Text;
-                            //cmndLocMapWhs.IndexName = "UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno";
-
-                            //using (SQLiteDataReader drLocMapWhs = cmndLocMapWhs.ExecuteReader())
-                            //{
-                            //using (SQLiteCommand cmndSchemeVar = conn.CreateCommand())
-                            //{
-                            //cmndSchemeVar.CommandText = "tProductSchemeVariant";
-                            //cmndSchemeVar.CommandType = CommandType.Text;
-                            //cmndSchemeVar.IndexName = "UQ_ProductSchemeVariantOnProductSchemeVariantNo";
-
-                            //using (SQLiteDataReader drSchemeVar = cmndSchemeVar.ExecuteReader())
-                            //{
-                            //using (SQLiteCommand cmndDetailSchemeVarXRef = conn.CreateCommand())
-                            //{
-                            //cmndDetailSchemeVarXRef.CommandText = "tActivityDetailProductSchemeVariantXRef";
-                            //cmndDetailSchemeVarXRef.CommandType = CommandType.Text;
-                            //cmndDetailSchemeVarXRef.IndexName = "PK_ActivityDetailProductSchemeVariantXRefOnActivityDetailRefnoAndProductSchemeVariantRefno";
-
-                            //using (SqlCeResultSet rsDetailSchemeVarXRef = cmndDetailSchemeVarXRef.ExecuteResultSet(ResultSetOptions.Updatable))
-                            //{
-                            //SqlCeUpdatableRecord recDetailSchemeVarXRef = rsDetailSchemeVarXRef.CreateRecord();
-
-                            //using (SQLiteCommand cmndID = conn.CreateCommand())
-                            //{
                             int actDetailRefno = 0;
                             int progValue = 0;
                             int actDetailAdjFKRefno = 0;
 
                             this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
 
-                            cmndItemAdj.CommandText = "SELECT * FROM tActivityItemAdjustment WHERE ActivityItemRefno = @activityItemRefno";
-                            cmndItemAdj.CommandType = CommandType.Text;
-                            //cmndItemAdj.IndexName = "PK_ActivityItemAdjustmentOnActivityItemRefno";
-                            cmndItemAdj.Parameters.Add(new SQLiteParameter("@activityItemRefno", actItemAdjRefno));
+                                List<tActivityItemAdjustmentModel> adjustmentItemResults = transaction.Query<tActivityItemAdjustmentModel>("SELECT * FROM tActivityItemAdjustment WHERE ActivityItemRefno = ?", actItemAdjRefno);
 
-                            using (SQLiteDataReader drItemAdj = cmndItemAdj.ExecuteReader())
-                            {
-                                //if (drItemAdj.Seek(DbSeekOptions.FirstEqual, new object[] { actItemAdjRefno }))
-                                //{
-                                if (!drItemAdj.Read())
+                                if (adjustmentItemResults == null || adjustmentItemResults.Count == 0)
                                 {
                                     throw new Exception("drItemAdj.Read() failed.");
                                 }
-                                //}
-                                //else
-                                //{
-                                //    // TODO: Resource strings
-                                //    throw new Exception(string.Format("Unable to locate the item adjustment refno {0} in tActivityItemAdjustment", actItemAdjRefno));
-                                //}
 
                                 foreach (DataRow drow in ds.Tables["tActivityDetailAdjustment"].Rows)
                                 {
@@ -805,35 +706,7 @@ namespace dMobile.GroundWork
                                 this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
                             }
                         }
-                        //}
-
-                        //drSchemeVar.Close();
-                        //}
-                        //}
-
-                        //drLocMapWhs.Close();
-                        //}
-                        //}
-
-                        //drLocMapSection.Close();
-                        //}
-                        //}
-
-                        //drLocMapSlot.Close();
-                        //    }
-                        //}
-
-                        //drItemAdj.Close();
-                        //                                }
-                        //                            }
-                        //                        }
-                        //                    }
-                        //                }
-                        //            }
-                        //        }
-                        //    }
-                        //}
-
+ 
                         transaction.Commit();
 
                         // TODO: Resource strings
@@ -848,18 +721,10 @@ namespace dMobile.GroundWork
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving adjustment details failed.", true);
 
-                    //// Duplicate key violations
-                    //if (ex.NativeError == 25016)
-                    //{
-                    //    // TODO: Resource strings
-                    //    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Uniqueness violation.", false);
-                    //    throw new Exception("Uniqueness violation." + Environment.NewLine + errMsg, ex);
-                    //}
-
                     // TODO: Resource strings
                     throw new Exception("Database exception occurred. Saving adjustment details failed." + Environment.NewLine + errMsg, ex);
                 }
-            }
+            });
         }
 
         /// <summary>

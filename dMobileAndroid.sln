@@ -13,14 +13,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "dMobile.GroundWork", "dMobi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dMobile.Android", "dMobile\dMobile.Android\dMobile.Android.csproj", "{DFCCC3C0-5219-40F9-A52C-AECE73C0A7B8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dMobile.Resources", "dMobile.Resources\dMobile.Resources.csproj", "{40FA21C1-9078-4713-9DA0-66A15F03F5C8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "dMobile.Resources", "dMobile.Resources\dMobile.Resources.csproj", "{40FA21C1-9078-4713-9DA0-66A15F03F5C8}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "dMobile.View", "dMobile.View\dMobile.View.csproj", "{CCCAE296-5421-4C29-BFBA-8A1A72006E19}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{5A648B52-1821-48D3-BA16-3284CE33338D}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{27EE7385-4BB3-4D1F-9821-815C0AF5C6E6}"
 	ProjectSection(SolutionItems) = preProject
-		Nuget Packages\Honeywell.BarcodeReader.1.35.00.0017.nupkg = Nuget Packages\Honeywell.BarcodeReader.1.35.00.0017.nupkg
-		Nuget Packages\Honeywell.BarcodeReader.1.35.00.0001.nupkg = Nuget Packages\Honeywell.BarcodeReader.1.35.00.0001.nupkg
+		Honywell Packages\Honeywell.BarcodeReader.1.35.00.0017.nupkg = Honywell Packages\Honeywell.BarcodeReader.1.35.00.0017.nupkg
 	EndProjectSection
 EndProject
 Global

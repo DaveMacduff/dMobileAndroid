@@ -10,6 +10,7 @@
     using SQLite;
     using System.Threading.Tasks;
     using dMobile.Resources.Models;
+    using dMobile.Resources.Types;
 
     public static class ProductInfoTasks
     {
@@ -168,7 +169,7 @@
                     prodInfo.BoxCount = Convert.ToDecimal(results[0].ProductUnitBoxCount);
                 }
 
-                prodInfo.Unit2BaseUnitFactor = ProductInfoTasks.GetUnitRelationFactor(prodInfo);
+                prodInfo.Unit2BaseUnitFactor = await ProductInfoTasks.GetUnitRelationFactor(prodInfo);
                 prodInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(prodInfo.Refno);
             }
 
@@ -357,7 +358,7 @@
                 prodInfo.BoxCount = Convert.ToDecimal(results[0].ProductUnitBoxCount);
             }
 
-            prodInfo.Unit2BaseUnitFactor = ProductInfoTasks.GetUnitRelationFactor(prodInfo);
+            prodInfo.Unit2BaseUnitFactor = await ProductInfoTasks.GetUnitRelationFactor(prodInfo);
             prodInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(prodInfo.Refno);
 
             return prodInfo;
@@ -429,7 +430,7 @@
                 prodInfo.BoxCount = Convert.ToDecimal(results[0].ProductUnitBoxCount);
             }
 
-            prodInfo.Unit2BaseUnitFactor = ProductInfoTasks.GetUnitRelationFactor(prodInfo);
+            prodInfo.Unit2BaseUnitFactor = await ProductInfoTasks.GetUnitRelationFactor(prodInfo);
             prodInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(prodInfo.Refno);
 
             return prodInfo;
@@ -529,36 +530,31 @@
         /// </summary>
         /// <param name="productInfo"></param>
         /// <returns></returns>
-        public static decimal GetUnitRelationFactor(ProductInfo productInfo)
+        public static async Task<decimal> GetUnitRelationFactor(ProductInfo productInfo)
         {
             decimal prodUnitFactor = 0;
 
             if (productInfo.UnitRefno != 0)
             {
-                using (SQLiteCommand cmndProdUnitRelation = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                string query = "SELECT tProductUnitRelation.ProductUnitRelationFactor AS ProductUnitRelationFactor " +
+                "FROM tProductUnitRelation " +
+                "INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = tProductUnitRelation.ProductUnit1Refno " +
+                "INNER JOIN tProductUnit AS tProductBaseUnit ON tProductBaseUnit.ProductUnitRefno = tProductUnitRelation.ProductUnit2Refno " +
+                "INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno " +
+                "INNER JOIN tUnit AS tBaseUnit ON tBaseUnit.UnitRefno = tProductBaseUnit.BaseUnitRefno " +
+                "WHERE tProductUnit.ProductRefno = ? " +
+                "AND tUnit.UnitCode = ? " +
+                "AND tBaseUnit.UnitCode = ?";
+                //cmndProdUnitRelation.Parameters.Add(new SQLiteParameter("@refno", Convert.ToInt32(productInfo.Refno)));
+                //cmndProdUnitRelation.Parameters.Add(new SQLiteParameter("@unitCode", Convert.ToString(productInfo.UnitCode)));
+                //cmndProdUnitRelation.Parameters.Add(new SQLiteParameter("@baseUnitCode", Convert.ToString(productInfo.BaseUnitCode)));
+
+                prodUnitFactor = Convert.ToDecimal(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<decimal>(query, Convert.ToInt32(productInfo.Refno), Convert.ToString(productInfo.UnitCode), Convert.ToString(productInfo.BaseUnitCode)));
+
+                if (prodUnitFactor == 0)
                 {
-                    cmndProdUnitRelation.CommandType = CommandType.Text;
-                    cmndProdUnitRelation.CommandText = "SELECT tProductUnitRelation.ProductUnitRelationFactor AS ProductUnitRelationFactor " +
-                    "FROM tProductUnitRelation " +
-                    "INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = tProductUnitRelation.ProductUnit1Refno " +
-                    "INNER JOIN tProductUnit AS tProductBaseUnit ON tProductBaseUnit.ProductUnitRefno = tProductUnitRelation.ProductUnit2Refno " +
-                    "INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno " +
-                    "INNER JOIN tUnit AS tBaseUnit ON tBaseUnit.UnitRefno = tProductBaseUnit.BaseUnitRefno " +
-                    "WHERE tProductUnit.ProductRefno = @refno " +
-                    "AND tUnit.UnitCode = @unitCode " +
-                    "AND tBaseUnit.UnitCode = @baseUnitCode";
-                    cmndProdUnitRelation.Parameters.Add(new SQLiteParameter("@refno", Convert.ToInt32(productInfo.Refno)));
-                    cmndProdUnitRelation.Parameters.Add(new SQLiteParameter("@unitCode", Convert.ToString(productInfo.UnitCode)));
-                    cmndProdUnitRelation.Parameters.Add(new SQLiteParameter("@baseUnitCode", Convert.ToString(productInfo.BaseUnitCode)));
-
-                    //var test = cmndProdUnitRelation.ExecuteScalar();
-                    prodUnitFactor = Convert.ToDecimal(cmndProdUnitRelation.ExecuteScalar());
-
-                    if (prodUnitFactor == 0)
-                    {
-                        // TODO: Resource strings
-                        throw new Exception(string.Format("Unable to find product '{0}' unit relation factor between {1} and {2}", productInfo.Code, productInfo.UnitCode, productInfo.BaseUnitCode));
-                    }
+                    // TODO: Resource strings
+                    throw new Exception(string.Format("Unable to find product '{0}' unit relation factor between {1} and {2}", productInfo.Code, productInfo.UnitCode, productInfo.BaseUnitCode));
                 }
             }
 
@@ -572,33 +568,29 @@
         /// <param name="productUnit1Code"></param>
         /// <param name="productUnit2Code"></param>
         /// <returns></returns>
-        public static decimal GetUnitRelationFactor(int prodRefno, string prodUnit1Code, string prodUnit2Code)
+        public static async Task<decimal> GetUnitRelationFactor(int prodRefno, string prodUnit1Code, string prodUnit2Code)
         {
             decimal prodUnitFactor = 0;
 
-            using (SQLiteCommand cmndProdUnitRelation = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+            string query = "SELECT tProductUnitRelation.ProductUnitRelationFactor AS ProductUnitRelationFactor " +
+            "FROM tProductUnitRelation " +
+            "INNER JOIN tProductUnit AS aProductUnit1 ON aProductUnit1.ProductUnitRefno = tProductUnitRelation.ProductUnit1Refno " +
+            "INNER JOIN tProductUnit AS aProductUnit2 ON aProductUnit2.ProductUnitRefno = tProductUnitRelation.ProductUnit2Refno " +
+            "INNER JOIN tUnit AS aUnit1 ON aUnit1.UnitRefno = aProductUnit1.UnitRefno " +
+            "INNER JOIN tUnit AS aUnit2 ON aUnit2.UnitRefno = aProductUnit2.UnitRefno " +
+            "WHERE tProductUnit.ProductRefno = ? " +
+            "AND aUnit1.UnitCode = ? " +
+            "AND aUnit2.UnitCode = ?";
+            //cmndProdUnitRelation.Parameters.Add(new SQLiteParameter("@prodRefno", prodRefno));
+            //cmndProdUnitRelation.Parameters.Add(new SQLiteParameter("@prodUnit1Code", prodUnit1Code));
+            //cmndProdUnitRelation.Parameters.Add(new SQLiteParameter("@prodUnit2Code", prodUnit2Code));
+
+            prodUnitFactor = Convert.ToDecimal(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<decimal>(query, prodRefno, prodUnit1Code, prodUnit2Code));
+
+            if (prodUnitFactor == 0)
             {
-                cmndProdUnitRelation.CommandType = CommandType.Text;
-                cmndProdUnitRelation.CommandText = "SELECT tProductUnitRelation.ProductUnitRelationFactor AS ProductUnitRelationFactor " +
-                "FROM tProductUnitRelation " +
-                "INNER JOIN tProductUnit AS aProductUnit1 ON aProductUnit1.ProductUnitRefno = tProductUnitRelation.ProductUnit1Refno " +
-                "INNER JOIN tProductUnit AS aProductUnit2 ON aProductUnit2.ProductUnitRefno = tProductUnitRelation.ProductUnit2Refno " +
-                "INNER JOIN tUnit AS aUnit1 ON aUnit1.UnitRefno = aProductUnit1.UnitRefno " +
-                "INNER JOIN tUnit AS aUnit2 ON aUnit2.UnitRefno = aProductUnit2.UnitRefno " +
-                "WHERE tProductUnit.ProductRefno = @prodRefno " +
-                "AND aUnit1.UnitCode = @prodUnit1Code " +
-                "AND aUnit2.UnitCode = @prodUnit2Code";
-                cmndProdUnitRelation.Parameters.Add(new SQLiteParameter("@prodRefno", prodRefno));
-                cmndProdUnitRelation.Parameters.Add(new SQLiteParameter("@prodUnit1Code", prodUnit1Code));
-                cmndProdUnitRelation.Parameters.Add(new SQLiteParameter("@prodUnit2Code", prodUnit2Code));
-
-                prodUnitFactor = Convert.ToDecimal(cmndProdUnitRelation.ExecuteScalar());
-
-                if (prodUnitFactor == 0)
-                {
-                    // TODO: Resource strings
-                    throw new Exception(string.Format("Unable to find product '{0}' unit relation factor between {1} and {2}", prodRefno, prodUnit1Code, prodUnit2Code));
-                }
+                // TODO: Resource strings
+                throw new Exception(string.Format("Unable to find product '{0}' unit relation factor between {1} and {2}", prodRefno, prodUnit1Code, prodUnit2Code));
             }
 
             return prodUnitFactor;
@@ -652,8 +644,7 @@
                     XmlDocument xmlResult = new XmlDocument();
                     xmlResult.LoadXml(reqData);
 
-                    singleTradeItemSerialNumber = xmlResult.SelectSingleNode(
-                        "/VFPData/SingleTradeUnitSerialNumber").FirstChild.Value.PadRight(20);
+                    singleTradeItemSerialNumber = xmlResult.SelectSingleNode("/VFPData/SingleTradeUnitSerialNumber").FirstChild.Value.PadRight(20);
                 }
             }
 
@@ -664,7 +655,7 @@
         /// 
         /// </summary>
         /// <param name="dataTableProdUnit"></param>
-        public static void GetProductUnitList(ref DataTable dataTableProdUnit)
+        public static async Task<List<ProductUnit>> GetProductUnitList()
         {
             string sql = @"SELECT tProductUnit.ProductUnitRefno AS ProductUnitRefno,
                 tProduct.ProductCode AS ProductCode,
@@ -685,39 +676,43 @@
                 INNER JOIN tUnit AS aUnitBase ON aUnitBase.UnitRefno = tProductUnit.BaseUnitRefno
                 ORDER BY tProduct.ProductCode, tProductUnit.ProductUnitBC, tUnit.UnitCode";
 
-            using (SQLiteDataAdapter dataAdapterProdUnit = new SQLiteDataAdapter(sql, DatabaseConnection.GetInstance().SQLConn))
-            {
-                using (DataSet dataSetProdUnit = new DataSet())
-                {
-                    dataAdapterProdUnit.Fill(dataSetProdUnit);
-                    dataTableProdUnit = dataSetProdUnit.Tables[0];
-                }
-            }
+            //using (SQLiteDataAdapter dataAdapterProdUnit = new SQLiteDataAdapter(sql, DatabaseConnection.GetInstance().SQLConn))
+            //{
+            //    using (DataSet dataSetProdUnit = new DataSet())
+            //    {
+            //        dataAdapterProdUnit.Fill(dataSetProdUnit);
+            //        dataTableProdUnit = dataSetProdUnit.Tables[0];
+            //    }
+            //}
+
+            return await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ProductUnit>(sql);
         }
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="dataTableProd"></param>
-        public static void GetProductList(ref DataTable dataTableProd)
+        public static async Task<List<Product>> GetProductList()
         {
             string sql = @"SELECT ProductRefno, ProductCode, ProductDescription FROM tProduct ORDER BY ProductCode";
 
-            using (SQLiteDataAdapter dataAdapterProd = new SQLiteDataAdapter(sql, DatabaseConnection.GetInstance().SQLConn))
-            {
-                using (DataSet dataSetProd = new DataSet())
-                {
-                    dataAdapterProd.Fill(dataSetProd);
-                    dataTableProd = dataSetProd.Tables[0];
-                }
-            }
+            //using (SQLiteDataAdapter dataAdapterProd = new SQLiteDataAdapter(sql, DatabaseConnection.GetInstance().SQLConn))
+            //{
+            //    using (DataSet dataSetProd = new DataSet())
+            //    {
+            //        dataAdapterProd.Fill(dataSetProd);
+            //        dataTableProd = dataSetProd.Tables[0];
+            //    }
+            //}
+
+            return await DatabaseConnection.GetInstance().SQLConn.QueryAsync<Product>(sql);
         }
 
         /// <summary>
         /// Gets the product list with an extra column for ProductAllowConvertProduct flag.
         /// </summary>
         /// <param name="dataTableProd"></param>
-        public static void GetProductListAllowConvertProduct(ref DataTable dataTableProd)
+        public static async Task<List<Product>> GetProductListAllowConvertProduct()
         {
             string sql = "SELECT ProductRefno, " +
             "ProductCode, " +
@@ -727,15 +722,17 @@
             "WHERE ProductAllowConvertProduct = 1 " +
             "ORDER BY ProductCode";
 
-            DataSet ds = new DataSet();
-            using (SQLiteDataAdapter dataAdapterProd = new SQLiteDataAdapter(sql, DatabaseConnection.GetInstance().SQLConn))
-            {
-                using (DataSet dataSetProd = new DataSet())
-                {
-                    dataAdapterProd.Fill(dataSetProd);
-                    dataTableProd = dataSetProd.Tables[0];
-                }
-            }
+            //DataSet ds = new DataSet();
+            //using (SQLiteDataAdapter dataAdapterProd = new SQLiteDataAdapter(sql, DatabaseConnection.GetInstance().SQLConn))
+            //{
+            //    using (DataSet dataSetProd = new DataSet())
+            //    {
+            //        dataAdapterProd.Fill(dataSetProd);
+            //        dataTableProd = dataSetProd.Tables[0];
+            //    }
+            //}
+
+            return await DatabaseConnection.GetInstance().SQLConn.QueryAsync<Product>(sql);
         }
 
         /// <summary>

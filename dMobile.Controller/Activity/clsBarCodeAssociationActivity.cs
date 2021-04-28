@@ -3,7 +3,7 @@ namespace dMobile.Controller
     using System;
     using System.Collections.ObjectModel;
     using System.Data;
-    using System.Data.SQLite;
+    using SQLite;
     using System.Text;
     using System.Threading.Tasks;
     using System.Xml.Linq;
@@ -12,6 +12,9 @@ namespace dMobile.Controller
     using dMobile.Resources.Services;
     using dMobile.Resources.Types;
     using Xamarin.Forms;
+    using System.Threading.Tasks;
+    using System.Collections.Generic;
+    using System.Linq;
 
     public class BarCodeAssocActivity : Activity
     {
@@ -91,21 +94,8 @@ namespace dMobile.Controller
 
             try
             {
-                using (SQLiteCommand cmndPurgeActItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                {
-                    cmndPurgeActItem.CommandText = "DELETE FROM tActivityItem "
-                        + "WHERE tActivityItem.ActivityItemSubType = " + Convert.ToInt32(SysCommon.ActSubTypes.BarCodeAssociation);
-                    cmndPurgeActItem.CommandType = CommandType.Text;
-                    cmndPurgeActItem.ExecuteNonQuery();
-                }
-
-                using (SQLiteCommand cmndPurgeActivity = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                {
-                    cmndPurgeActivity.CommandText = "DELETE FROM tActivity "
-                        + "WHERE tActivity.ActivitySubType = " + Convert.ToInt32(SysCommon.ActSubTypes.BarCodeAssociation);
-                    cmndPurgeActivity.CommandType = CommandType.Text;
-                    cmndPurgeActivity.ExecuteNonQuery();
-                }
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("DELETE FROM tActivityItem WHERE ActivityItemSubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.BarCodeAssociation));
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("DELETE FROM tActivity WHERE ActivitySubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.BarCodeAssociation));
             }
             catch (SQLiteException ex)
             {
@@ -139,10 +129,10 @@ namespace dMobile.Controller
         /// 
         /// </summary>
         /// <param name="idx"></param>
-        public override void SelectHdr(int idx)
+        public override async Task SelectHdr(object selectedObject)
         {
-            this.FKRefno = Convert.ToInt32(this.DataViewHdrs[idx]["ActivityRefno"]);
-            this.Refno = Convert.ToInt32(this.DataViewHdrs[idx]["ActivityRefno"]);
+            this.FKRefno = Convert.ToInt32((selectedObject as dynamic).ActivityRefno);
+            this.Refno = Convert.ToInt32((selectedObject as dynamic).ActivityRefno);
         }
 
         /// <summary>
@@ -150,10 +140,10 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="idx"></param>
         /// <returns></returns>
-        public override int GetRefnoFromRowIdx(int idx)
+        public override int GetRefnoFromRowIdx(object selectedObject)
         {
-            this.FKRefno = Convert.ToInt32(this.DataViewHdrs[idx]["ActivityRefno"]);
-            this.Refno = Convert.ToInt32(this.DataViewHdrs[idx]["ActivityRefno"]);
+            this.FKRefno = Convert.ToInt32((selectedObject as dynamic).ActivityRefno);
+            this.Refno = Convert.ToInt32((selectedObject as dynamic).ActivityRefno);
 
             return this.Refno;
         }
@@ -164,7 +154,7 @@ namespace dMobile.Controller
         /// <param name="isSubmitBatch"></param>
         /// <returns></returns>
         /// <remarks></remarks>
-        public override DataView GetDataView(bool isSubmitBatch)
+        public override async Task<List<object>> GetList(bool isSubmitBatch)
         {
             StringBuilder sql = new StringBuilder();
 
@@ -204,7 +194,7 @@ namespace dMobile.Controller
                 sql.Append(" INNER JOIN tActivityItem ON tActivityItem.ActivityRefno = tActivity.ActivityRefno");
                 sql.Append(" INNER JOIN tActivityItemBarCodeAssociationXRef ON ");
                 sql.Append("tActivityItemBarCodeAssociationXRef.ActivityItemRefno = tActivityItem.ActivityItemRefno");
-                sql.Append(" INNER JOIN tProductUnitBarCode ON tProductUnitBarCode.ProductUnitBarCodeRefno = ");
+                sql.Append(" INNER JOIN tProductUnitBarCode ON tProductUnitBarCode.ProductUnitBarCodeRefno = ");    
                 sql.Append("tActivityItemBarCodeAssociationXRef.ProductUnitBarCodeRefno");
                 sql.Append(" INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = tProductUnitBarCode.ProductUnitRefno");
                 sql.Append(" INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno");
@@ -212,17 +202,8 @@ namespace dMobile.Controller
                 sql.AppendFormat(" AND tActivityItem.ActivityItemSubType = {0}", Convert.ToInt32(SysCommon.ActSubTypes.BarCodeAssociation));
             }
 
-            using (SQLiteDataAdapter dataAdapterBarCode = new SQLiteDataAdapter(sql.ToString(), DatabaseConnection.GetInstance().SQLConn))
-            {
-                using (DataSet dataSetBarCode = new DataSet())
-                {
-                    dataAdapterBarCode.Fill(dataSetBarCode);
-                    this.DataViewHdrs = dataSetBarCode.Tables[0].DefaultView;
-                    this.DataViewHdrs.Table.TableName = this.MainGridMappingName;
-                }
-            }
-
-            return this.DataViewHdrs;
+            this.ListHdrs = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<object>(sql.ToString());
+            return this.ListHdrs;
         }
 
         /// <summary>
@@ -235,26 +216,27 @@ namespace dMobile.Controller
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
-            this.DataViewHdrs.RowFilter = "ProductUnitBarCodeCode LIKE \'%" + searchText.Trim() + "%\'";
+            //this.DataViewHdrs.RowFilter = "ProductUnitBarCodeCode LIKE \'%" + searchText.Trim() + "%\'";
+            this.ListHdrs = (List<object>)this.ListHdrs.OfType<BarcodeAssociation>().Where(bca => bca.ProductUnitBarCodeCode.Contains(searchText.Trim()));
 
-            foreach (DataRow row in this.DataViewHdrs.ToTable().Rows)
+            foreach (BarcodeAssociation barcodeAssociation in this.ListHdrs)
             {
-                BarcodeAssociation barcodeAssociation = new BarcodeAssociation
-                {
-                    ActivityRefno = Convert.ToInt32(row["ActivityRefno"] != DBNull.Value ? row["ActivityRefno"] : null),
-                    ActivityStatus = Convert.ToInt32(row["ActivityRefno"] != DBNull.Value ? row["ActivityRefno"] : null),
-                    ProductUnitBarCodeCode = Convert.ToString(row["ProductUnitBarCodeCode"] != DBNull.Value ? row["ProductUnitBarCodeCode"] : null),
-                    ProductUnitBarCodeModifier1 = Convert.ToString(row["ProductUnitBarCodeModifier1"] != DBNull.Value ? row["ProductUnitBarCodeModifier1"] : null),
-                    ProductUnitBarCodeRefno = Convert.ToInt32(row["ProductUnitBarCodeRefno"] != DBNull.Value ? row["ProductUnitBarCodeRefno"] : null),
-                    ProductCode = Convert.ToString(row["ProductCode"] != DBNull.Value ? row["ProductCode"] : null),
-                    ProductUnitBC = Convert.ToString(row["ProductUnitBC"] != DBNull.Value ? row["ProductUnitBC"] : null),
-                    UnitCode = Convert.ToString(row["UnitCode"] != DBNull.Value ? row["UnitCode"] : null)
-                };
+                //BarcodeAssociation barcodeAssociation = new BarcodeAssociation
+                //{
+                //    ActivityRefno = Convert.ToInt32(row["ActivityRefno"] != DBNull.Value ? row["ActivityRefno"] : null),
+                //    ActivityStatus = Convert.ToInt32(row["ActivityRefno"] != DBNull.Value ? row["ActivityRefno"] : null),
+                //    ProductUnitBarCodeCode = Convert.ToString(row["ProductUnitBarCodeCode"] != DBNull.Value ? row["ProductUnitBarCodeCode"] : null),
+                //    ProductUnitBarCodeModifier1 = Convert.ToString(row["ProductUnitBarCodeModifier1"] != DBNull.Value ? row["ProductUnitBarCodeModifier1"] : null),
+                //    ProductUnitBarCodeRefno = Convert.ToInt32(row["ProductUnitBarCodeRefno"] != DBNull.Value ? row["ProductUnitBarCodeRefno"] : null),
+                //    ProductCode = Convert.ToString(row["ProductCode"] != DBNull.Value ? row["ProductCode"] : null),
+                //    ProductUnitBC = Convert.ToString(row["ProductUnitBC"] != DBNull.Value ? row["ProductUnitBC"] : null),
+                //    UnitCode = Convert.ToString(row["UnitCode"] != DBNull.Value ? row["UnitCode"] : null)
+                //};
 
                 observableCollection.Add(barcodeAssociation);
             }
 
-                return observableCollection;
+            return observableCollection;
         }
 
         public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity)
@@ -311,19 +293,19 @@ namespace dMobile.Controller
 
             dataGridMainActivityHeader.Children.Add(gridHeader);
 
-            foreach (DataRow row in this.DataViewHdrs.ToTable().Rows)
+            foreach (BarcodeAssociation barcodeAssociation in this.ListHdrs)
             {
-                BarcodeAssociation barcodeAssociation = new BarcodeAssociation
-                {
-                    ActivityRefno = Convert.ToInt32(row["ActivityRefno"] != DBNull.Value ? row["ActivityRefno"] : null),
-                    ActivityStatus = Convert.ToInt32(row["ActivityRefno"] != DBNull.Value ? row["ActivityRefno"] : null),
-                    ProductUnitBarCodeCode = Convert.ToString(row["ProductUnitBarCodeCode"] != DBNull.Value ? row["ProductUnitBarCodeCode"] : null),
-                    ProductUnitBarCodeModifier1 = Convert.ToString(row["ProductUnitBarCodeModifier1"] != DBNull.Value ? row["ProductUnitBarCodeModifier1"] : null),
-                    ProductUnitBarCodeRefno = Convert.ToInt32(row["ProductUnitBarCodeRefno"] != DBNull.Value ? row["ProductUnitBarCodeRefno"] : null),
-                    ProductCode = Convert.ToString(row["ProductCode"] != DBNull.Value ? row["ProductCode"] : null),
-                    ProductUnitBC = Convert.ToString(row["ProductUnitBC"] != DBNull.Value ? row["ProductUnitBC"] : null),
-                    UnitCode = Convert.ToString(row["UnitCode"] != DBNull.Value ? row["UnitCode"] : null)
-                };
+                //BarcodeAssociation barcodeAssociation = new BarcodeAssociation
+                //{
+                //    ActivityRefno = Convert.ToInt32(row["ActivityRefno"] != DBNull.Value ? row["ActivityRefno"] : null),
+                //    ActivityStatus = Convert.ToInt32(row["ActivityRefno"] != DBNull.Value ? row["ActivityRefno"] : null),
+                //    ProductUnitBarCodeCode = Convert.ToString(row["ProductUnitBarCodeCode"] != DBNull.Value ? row["ProductUnitBarCodeCode"] : null),
+                //    ProductUnitBarCodeModifier1 = Convert.ToString(row["ProductUnitBarCodeModifier1"] != DBNull.Value ? row["ProductUnitBarCodeModifier1"] : null),
+                //    ProductUnitBarCodeRefno = Convert.ToInt32(row["ProductUnitBarCodeRefno"] != DBNull.Value ? row["ProductUnitBarCodeRefno"] : null),
+                //    ProductCode = Convert.ToString(row["ProductCode"] != DBNull.Value ? row["ProductCode"] : null),
+                //    ProductUnitBC = Convert.ToString(row["ProductUnitBC"] != DBNull.Value ? row["ProductUnitBC"] : null),
+                //    UnitCode = Convert.ToString(row["UnitCode"] != DBNull.Value ? row["UnitCode"] : null)
+                //};
 
                 observableCollection.Add(barcodeAssociation);
 
@@ -373,11 +355,11 @@ namespace dMobile.Controller
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override void Refresh(XDocument data)
+        public override async Task Refresh(XDocument data)
         {
             if (!this.SysEnv.SysSettings.IsDisconnectedMode)
             {
-                this.Purge();
+                await this.Purge();
             }
         }
 

@@ -3,7 +3,7 @@ namespace dMobile.Controller
     using System;
     using System.Collections.ObjectModel;
     using System.Data;
-    using System.Data.SQLite;
+    using SQLite;
     using System.Text;
     using System.Xml.Linq;
     using dMobile.Bedrock;
@@ -11,6 +11,9 @@ namespace dMobile.Controller
     using dMobile.Resources.Services;
     using dMobile.Resources.Types;
     using Xamarin.Forms;
+    using System.Threading.Tasks;
+    using System.Collections.Generic;
+    using System.Linq;
 
     /// <summary>
     /// 
@@ -134,22 +137,22 @@ namespace dMobile.Controller
 
             dataGridMainActivityHeader.Children.Add(gridHeaderPhysicalCount);
 
-            foreach (DataRow row in this.DataViewHdrs.ToTable().Rows)
+            foreach (Count count in this.ListHdrs)
             {
                 string description = string.Empty;
-                string[] descriptionSubstring = Convert.ToString(row["ActivityCountTypeDescription"]).Split();
+                string[] descriptionSubstring = Convert.ToString(count.ActivityCountTypeDescription).Split();
 
                 if (descriptionSubstring != null && descriptionSubstring.Length > 1)
                 {
                     description = descriptionSubstring[0] + " " + descriptionSubstring[1];
                 }
 
-                Count count = new Count
-                {
-                    ActivityCountStringFKRefno = Convert.ToString(row["ActivityCountStringFKRefno"]),
-                    ActivityCountDateTime = Convert.ToDateTime(row["ActivityCountDateTime"]),
-                    ActivityCountTypeDescription = description,
-                };
+                //Count count = new Count
+                //{
+                //    ActivityCountStringFKRefno = Convert.ToString(row["ActivityCountStringFKRefno"]),
+                //    ActivityCountDateTime = Convert.ToDateTime(row["ActivityCountDateTime"]),
+                //    ActivityCountTypeDescription = description,
+                //};
 
                 observableCollection.Add(count);
 
@@ -187,7 +190,7 @@ namespace dMobile.Controller
         /// <param name="isSubmitBatch"></param>
         /// <returns></returns>
         /// <remarks></remarks>
-        public override DataView GetDataView(bool isSubmitBatch)
+        public override async Task<List<object>> GetList(bool isSubmitBatch)
         {
             StringBuilder sql = new StringBuilder();
 
@@ -270,21 +273,23 @@ namespace dMobile.Controller
                 sql.AppendFormat("WHERE tActivityCount.ActivitySubType = {0}", Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts));
             }
 
-            using (SQLiteDataAdapter dataAdapterPhysical = new SQLiteDataAdapter(sql.ToString(), DatabaseConnection.GetInstance().SQLConn))
-            {
-                using (DataSet dataSetPhysical = new DataSet())
-                {
-                    dataAdapterPhysical.Fill(dataSetPhysical);
+            //using (SQLiteDataAdapter dataAdapterPhysical = new SQLiteDataAdapter(sql.ToString(), DatabaseConnection.GetInstance().SQLConn))
+            //{
+            //    using (DataSet dataSetPhysical = new DataSet())
+            //    {
+            //        dataAdapterPhysical.Fill(dataSetPhysical);
 
-                    this.DataViewHdrs = dataSetPhysical.Tables[0].DefaultView;
-                    this.DataViewHdrs.Table.TableName = this.MainGridMappingName;
-                    PhysicalCountSettings countSettings = new PhysicalCountSettings().LoadData();
-                    this.DataViewHdrs.Sort = countSettings.GetDataViewSortBy();
-                    this.DataViewHdrs.RowFilter = this.GetFilter();
-                }
-            }
+            //        this.DataViewHdrs = dataSetPhysical.Tables[0].DefaultView;
+            //        this.DataViewHdrs.Table.TableName = this.MainGridMappingName;
+            //        // TODO: fid sorying and filter
+            //        PhysicalCountSettings countSettings = new PhysicalCountSettings().LoadData();
+            //        this.DataViewHdrs.Sort = countSettings.GetDataViewSortBy();
+            //        this.DataViewHdrs.RowFilter = this.GetFilter();
+            //    }
+            //}
 
-            return this.DataViewHdrs;
+            this.ListHdrs = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<object>(sql.ToString());
+            return this.ListHdrs;
         }
 
         /// <summary>
@@ -299,30 +304,31 @@ namespace dMobile.Controller
 
             if (string.IsNullOrEmpty(this.ActFilter))
             {
-                this.DataViewHdrs.RowFilter = "ActivityCountStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
+                //this.DataViewHdrs.RowFilter = "ActivityCountStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
+                this.ListHdrs = (List<object>)this.ListHdrs.OfType<Count>().Where(count => count.ActivityCountStringFKRefno.Contains(searchText.Trim()));
             }
             else
             {
-                this.DataViewHdrs.RowFilter = this.ActFilter + " AND ActivityCountStringFKRefno LIKE \'%"
-                    + searchText.Trim() + "%\'";
+                //this.DataViewHdrs.RowFilter = this.ActFilter + " AND ActivityCountStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
+                this.ListHdrs = (List<object>)this.ListHdrs.OfType<Count>().Where(count => this.ActFilter.Contains(searchText.Trim()) && count.ActivityCountStringFKRefno.Contains(searchText.Trim()));
             }
 
-            foreach (DataRow row in this.DataViewHdrs.ToTable().Rows)
+            foreach (Count count in this.ListHdrs)
             {
                 string description = string.Empty;
-                string[] descriptionSubstring = Convert.ToString(row["ActivityCountTypeDescription"]).Split();
+                string[] descriptionSubstring = Convert.ToString(count.ActivityCountTypeDescription).Split();
 
                 if (descriptionSubstring != null && descriptionSubstring.Length > 1)
                 {
                     description = descriptionSubstring[0] + " " + descriptionSubstring[1];
                 }
 
-                Count count = new Count
-                {
-                    ActivityRefno = Convert.ToInt32(row["ActivityCountStringFKRefno"]),
-                    ActivityCountDateTime = Convert.ToDateTime(row["ActivityCountDateTime"]),
-                    ActivityCountTypeDescription = description,
-                };
+                //Count count = new Count
+                //{
+                //    ActivityRefno = Convert.ToInt32(row["ActivityCountStringFKRefno"]),
+                //    ActivityCountDateTime = Convert.ToDateTime(row["ActivityCountDateTime"]),
+                //    ActivityCountTypeDescription = description,
+                //};
 
                 observableCollection.Add(count);
             }
@@ -334,16 +340,18 @@ namespace dMobile.Controller
         /// 
         /// </summary>
         /// <remarks></remarks>
-        public override void SelectHdr(int idx)
+        public override async Task SelectHdr(object selectedItem)
         {
-            this.FKRefno = Convert.ToInt32(this.DataViewHdrs[idx]["ActivityCountFKRefno"]);
-            this.Refno = Convert.ToInt32(this.DataViewHdrs[idx]["ActivityRefno"]);
-            this.SelectedIndex = idx;
-
-            // Set the selected warehouse to the activity header warehouse.
-            if (LocationMap.GetInstance().CurrLocMap.WhsLocMapRefno != Convert.ToInt32(this.DataViewHdrs[idx]["LocationMapRefno"]))
+            if (selectedItem is Count count)
             {
-                LocationMap.GetInstance().CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(this.DataViewHdrs[idx]["LocationMapRefno"]));
+                this.FKRefno = Convert.ToInt32(count.ActivityCountFKRefno);
+                this.Refno = Convert.ToInt32(count.ActivityRefno);
+
+                // Set the selected warehouse to the activity header warehouse.
+                if (LocationMap.GetInstance().CurrLocMap.WhsLocMapRefno != Convert.ToInt32(count.WarehouseLocationMapRefno))
+                {
+                    LocationMap.GetInstance().CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(count.WarehouseLocationMapRefno));
+                }
             }
         }
 
@@ -353,10 +361,13 @@ namespace dMobile.Controller
         /// <param name="i"></param>
         /// <returns></returns>
         /// <remarks></remarks>
-        public override int GetRefnoFromRowIdx(int idx)
+        public override int GetRefnoFromRowIdx(object selectedItem)
         {
-            this.FKRefno = Convert.ToInt32(this.DataViewHdrs[idx]["ActivityCountFKRefno"]);
-            this.Refno = Convert.ToInt32(this.DataViewHdrs[idx]["ActivityRefno"]);
+            if(selectedItem is Count count)
+            {
+                this.FKRefno = Convert.ToInt32(count.ActivityCountFKRefno);
+                this.Refno = Convert.ToInt32(count.ActivityRefno);
+            }
 
             return this.Refno;
         }
@@ -365,7 +376,7 @@ namespace dMobile.Controller
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override void Refresh(XDocument data)
+        public override async Task Refresh(XDocument data)
         {
             if (this.SysEnv.SysSettings.IsDisconnectedMode)
             {
@@ -374,7 +385,7 @@ namespace dMobile.Controller
             else
             {
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 2);
-                this.Purge();
+                await this.Purge();
 
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
                 TableActivityPhysicalCount tableActPhysicalCount = new TableActivityPhysicalCount();
@@ -389,7 +400,7 @@ namespace dMobile.Controller
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override void Purge()
+        public override async Task Purge()
         {
             TableActivityPhysicalCount tableActPhysicalCount = new TableActivityPhysicalCount();
             TableActivityPhysicalCountItem tableActPhysicalCountItem = new TableActivityPhysicalCountItem();

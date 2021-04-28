@@ -1,8 +1,10 @@
 ﻿namespace dMobile.Controller
 {
     using System;
+    using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Data;
+    using System.Threading.Tasks;
     using System.Xml.Linq;
     using Xamarin.Forms;
 
@@ -27,7 +29,7 @@
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override void Purge()
+        public override Task Purge()
         {
             throw new NotImplementedException();
         }
@@ -57,10 +59,15 @@
         /// 
         /// </summary>
         /// <param name="idx"></param>
-        public override void SelectHdr(int idx)
+        public override async Task SelectHdr(object selectedItem)
         {
-            this.FKRefno = Convert.ToInt32(this.DataViewHdrs[idx]["ActivityRefno"]);
-            this.Refno = Convert.ToInt32(this.DataViewHdrs[idx]["ActivityRefno"]);
+            dynamic inventoryInquiry = selectedItem as dynamic;
+
+            if (inventoryInquiry != null)
+            {
+                this.FKRefno = Convert.ToInt32(inventoryInquiry.ActivityRefno);
+                this.Refno = Convert.ToInt32(inventoryInquiry.ActivityRefno);
+            }
         }
 
         /// <summary>
@@ -69,10 +76,15 @@
         /// <param name="idx"></param>
         /// <returns></returns>
         /// <remarks></remarks>
-        public override int GetRefnoFromRowIdx(int idx)
+        public override int GetRefnoFromRowIdx(object selectedItem)
         {
-            this.FKRefno = Convert.ToInt32(this.DataViewHdrs[idx]["ActivityRefno"]);
-            this.Refno = Convert.ToInt32(this.DataViewHdrs[idx]["ActivityRefno"]);
+            dynamic inventoryInquiry = selectedItem as dynamic;
+
+            if (inventoryInquiry != null)
+            {
+                this.FKRefno = Convert.ToInt32(inventoryInquiry.ActivityRefno);
+                this.Refno = Convert.ToInt32(inventoryInquiry.ActivityRefno);
+            }
 
             return this.Refno;
         }
@@ -83,7 +95,7 @@
         /// <param name="isSubmitBatch"></param>
         /// <returns></returns>
         /// <remarks></remarks>
-        public override DataView GetDataView(bool isSubmitBatch)
+        public override Task<List<object>> GetList(bool isSubmitBatch)
         {
             throw new NotImplementedException();
         }
@@ -117,11 +129,11 @@
         /// 
         /// </summary>
         /// <param name="filterData"></param>
-        public override void Refresh(XDocument filterData)
+        public override async Task Refresh(XDocument filterData)
         {
             if (!this.SysEnv.SysSettings.IsDisconnectedMode)
             {
-                this.Purge();
+                await this.Purge();
             }
         }
 
