@@ -3,12 +3,13 @@ namespace dMobile.Controller
     using System;
     using System.Collections.ObjectModel;
     using System.Data;
-    using System.Data.SQLite;
+    using SQLite;
     using System.Threading.Tasks;
     using System.Xml.Linq;
     using dMobile.Bedrock;
     using dMobile.GroundWork;
     using Xamarin.Forms;
+    using System.Collections.Generic;
 
     /// <summary>
     /// Used as return value for GetActivityItemProductSchemeDataFromActivityDetailRefno
@@ -214,12 +215,13 @@ namespace dMobile.Controller
         #region Fields
 
         private string mainGridMappingName = "tActivityItem";
-        private DataView dataViewItems = null;
+        private List<object> listItems = null;
         private SysCommon.ActSubTypes actSubType;
         private int refno = 0;
         private int fkRefno = 0;
         private SysEnvironment sysEnv;
         private ProductInfo prodInfo = new ProductInfo();
+        private object selectedActivityItem;
 
         /// <summary>
         /// Used to store the currently selected line item location map.
@@ -228,7 +230,6 @@ namespace dMobile.Controller
         private Activity actHdr = null;
         private bool isAllowAddItem = false;
         private string actItemFilter = string.Empty;
-        private int currRowIdx = -1;
         private DataLayerEventArgs dataEventArgs = new DataLayerEventArgs();
         private string fullClassName = typeof(ActItem).FullName;
         private bool isAskCreateNewItem = true;
@@ -312,25 +313,6 @@ namespace dMobile.Controller
             set
             {
                 this.fullClassName = value;
-            }
-        }
-
-        /// <summary>
-        /// Used for determining which columns in a grid to create. See ucInventoryInquiry
-        /// </summary>
-        /// <value></value>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        public int CurrRowIdx
-        {
-            get
-            {
-                return this.currRowIdx;
-            }
-
-            set
-            {
-                this.currRowIdx = value;
             }
         }
 
@@ -433,16 +415,16 @@ namespace dMobile.Controller
         /// <summary>
         /// 
         /// </summary>
-        public DataView DataViewItems
+        public List<object> ListItems
         {
             get
             {
-                return this.dataViewItems;
+                return this.listItems;
             }
 
             set
             {
-                this.dataViewItems = value;
+                this.listItems = value;
             }
         }
 
@@ -510,6 +492,22 @@ namespace dMobile.Controller
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        public object SelectedActivityItem
+        {
+            get
+            {
+                return this.selectedActivityItem;
+            }
+
+            set
+            {
+                this.selectedActivityItem = value;
+            }
+        }
+
         #endregion
 
         #region Public Members
@@ -525,7 +523,7 @@ namespace dMobile.Controller
         /// 
         /// </summary>
         /// <param name="data"></param>
-        public abstract void Refresh(XDocument data);
+        public abstract Task Refresh(XDocument data);
 
         /// <summary>
         /// 
@@ -546,7 +544,7 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="isSubmitBatch"></param>
         /// <returns></returns>
-        public abstract DataView GetDataView(bool isSubmitBatch);
+        public abstract Task<List<object>> GetActivityItemList(bool isSubmitBatch);
 
         /// <summary>
         /// 
@@ -559,7 +557,7 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="prodUnitRefno"></param>
         /// <returns></returns>
-        public abstract int GetRefnoFromProdUnitRefno(int prodUnitRefno);
+        public abstract Task<int> GetRefnoFromProdUnitRefno(int prodUnitRefno);
 
         /// <summary>
         /// 
@@ -591,11 +589,7 @@ namespace dMobile.Controller
         /// <returns></returns>
         /// <remarks>Scanning a barcode that as all the required scheme data should just add the new quantity to 
         /// the existing.</remarks>
-        public abstract int UpdateDataViewQuantity(
-            int rowIdx,
-            decimal quantity,
-            decimal baseQuantity,
-            decimal weightQuantity);
+        public abstract void UpdateListItemQuantity(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity);
 
         /// <summary>
         /// Replaces the item dataview quantity. Does not add to the existing values.
@@ -606,11 +600,7 @@ namespace dMobile.Controller
         /// <param name="weightQuantity"></param>
         /// <remarks>Returning from the activity detail screen the xml will have the total quantity for 
         /// all details.</remarks>
-        public abstract void RefreshQuantity(
-            int idx,
-            decimal quantity,
-            decimal baseQuantity,
-            decimal weightQuantity);
+        public abstract void RefreshQuantity(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity);
 
         /// <summary>
         /// Update the activity line item quantity in the database from the line item dataview.
@@ -618,17 +608,23 @@ namespace dMobile.Controller
         /// <param name="idx"></param>
         /// <param name="actItemRefno"></param>
         /// <remarks></remarks>
-        public abstract void UpdateQuantityFromDataView(int idx, int actItemRefno);
+        public abstract Task UpdateQuantityFromActivityItemList(object selectedActivityItem, int actItemRefno);
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="idx"></param>
-        public virtual void SelectItem(int idx)
+        public virtual async Task SelectActivityItem(object selectedActivityItem)
         {
-            this.CurrRowIdx = idx;
-            this.Refno = Convert.ToInt32(DataViewItems[idx]["ActivityItemRefno"]);
-            this.ProdInfo = ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(DataViewItems[idx]["ProductUnitRefno"]));
+            dynamic item = selectedActivityItem;
+
+            if (selectedActivityItem == null || item == null)
+            {
+                return;
+            }
+
+            this.Refno = Convert.ToInt32(item.ActivityItemRefno);
+            this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(item.ProductUnitRefno));
 
             bool clearSkidFlag = SysEnv.SysSettings.DoesSelectingADifferentProductClearSkid;
             bool hasSkidData = this.ActHdr.SkidInfo.CurrSkid.SkidFKRefno > 0;
@@ -650,9 +646,9 @@ namespace dMobile.Controller
                 {
                     // Use a tmpLocMap to get the WarehouseLocationMapRefno. 
                     // The count LocationMapRefno could be a warehouse, section or slot location map refno.
-                    SLocMap tmpLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(this.DataViewItems[idx]["LocationMapRefno"]));
-                    int tmpDefaultLocMap = this.GetDefaultLocMapRefno(tmpLocMap.WhsLocMapRefno,Convert.ToInt32(this.DataViewItems[idx]["ProductRefno"]));
-                    this.LocMap.CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(tmpDefaultLocMap);
+                    SLocMap tmpLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(item.LocationMapRefno));
+                    int tmpDefaultLocMap = this.GetDefaultLocMapRefno(tmpLocMap.WhsLocMapRefno,Convert.ToInt32(item.ProductRefno));
+                    this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(tmpDefaultLocMap);
 
                     // clear the skid
                     if (clearSkidFlag)
@@ -675,7 +671,7 @@ namespace dMobile.Controller
             }
 
             // LocationMap.GetInstance().CurrLocMap needs to be set before call to GetSchemeComponentsFromRefno.
-            this.ProdInfo.Scheme = ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
+            this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
         }
 
         /// <summary>
@@ -687,10 +683,9 @@ namespace dMobile.Controller
         /// Location map refno.
         /// <remarks>Use the Current Warehouse Location Map Refno which should have be set from the selected 
         /// Activity Item</remarks>
-        public virtual int GetDefaultLocMapRefno(int whsLocMapRefno, int prodRefno)
+        public virtual async Task<int> GetDefaultLocMapRefno(int whsLocMapRefno, int prodRefno)
         {
-            int locMapRefno = LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(whsLocMapRefno, prodRefno, SysCommon.ProdLocMapTypes.Picking);
-
+            int locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(whsLocMapRefno, prodRefno, SysCommon.ProdLocMapTypes.Picking);
             return locMapRefno;
         }
 
@@ -750,7 +745,7 @@ namespace dMobile.Controller
 
                 if (string.Compare(actDetailUniqSchemeID, string.Empty) > 0)
                 {
-                    bool isDupSchemeID = ProductInfoTasks.IsDuplicateUniqueSchemeID(actDetailUniqSchemeID);
+                    bool isDupSchemeID = await ProductInfoTasks.IsDuplicateUniqueSchemeID(actDetailUniqSchemeID);
 
                     if (isDupSchemeID)
                     {
@@ -866,31 +861,14 @@ namespace dMobile.Controller
         /// 
         /// </summary>
         /// <param name="actSubTypes"></param>
-        public void Create(SysCommon.ActSubTypes actSubTypes)
+        public async Task Create(SysCommon.ActSubTypes actSubTypes)
         {
             try
             {
-                using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                using (SQLiteCommand cmndID = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                {
-                    cmndItem.CommandText = "INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (@activityItemSubType, @activityItemStatus, @activityRefno)";
-                    cmndItem.CommandType = CommandType.Text;
-                    cmndItem.Parameters.Add(new SQLiteParameter("@activityItemSubType", Convert.ToInt32(actSubTypes)));
-                    cmndItem.Parameters.Add(new SQLiteParameter("@activityItemStatus", Convert.ToInt32(SysCommon.ActStatus.Inserted)));
-                    cmndItem.Parameters.Add(new SQLiteParameter("@activityRefno", Convert.ToInt32(this.ActHdr.Refno)));
+                SQLiteAsyncConnection conn = DatabaseConnection.GetInstance().SQLConn;
 
-                    cmndItem.ExecuteNonQuery();
-
-                    //recActItem.SetInt32((int)SysCommon.ActItemFields.SubType, (int)actSubTypes);
-                    //recActItem.SetInt32((int)SysCommon.ActItemFields.ActRefno, this.ActHdr.Refno);
-                    //recActItem.SetInt32((int)SysCommon.ActItemFields.Status, (int)SysCommon.ActStatus.Inserted);
-                    //rsActItem.Insert(recActItem);
-
-                    cmndID.CommandText = "SELECT last_insert_rowid() FROM tActivityItem";
-                    cmndID.CommandType = CommandType.Text;
-
-                    this.Refno = Convert.ToInt32(cmndID.ExecuteScalar());
-                }
+                await conn.ExecuteAsync("INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (?, ?, ?)", Convert.ToInt32(actSubTypes), Convert.ToInt32(SysCommon.ActStatus.Inserted), Convert.ToInt32(this.ActHdr.Refno));
+                this.Refno = Convert.ToInt32(conn.QueryScalarsAsync<int>("SELECT last_insert_rowid() FROM tActivityItem"));
             }
             catch (SQLiteException ex)
             {

@@ -190,69 +190,10 @@ namespace dMobile.Controller
         /// <summary>
         ///
         /// </summary>
-        /// <remarks></remarks>
-        ///
-        //    public override void DesignDataGrid(DataGrid dataGridMain)
-        //    {
-        //      int colWidthFactor = 1;
-
-        //      if (SysEnv.IsWindowsMobile6Device)
-        //      {
-        //        colWidthFactor = 2;
-        //      }
-
-        //      if (dataGridMain.TableStyles.Count > 0)
-        //      {
-        //        dataGridMain.TableStyles.Clear();
-        //      }
-
-        //      DataGridTableStyle dataGridStyle = new DataGridTableStyle();
-        //      dataGridStyle.MappingName = this.MainGridMappingName;
-
-        //      DataGridTextBoxColumn dataGridCol = new DataGridTextBoxColumn();
-        //      dataGridCol.MappingName = "ProductCode";
-        //#if MULTILANGUAGE
-        //      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.ProductId);
-        //#else
-        //      dataGridCol.HeaderText = "Product ID";
-        //#endif
-        //      dataGridCol.Width = 65 * colWidthFactor;
-        //      dataGridStyle.GridColumnStyles.Add(dataGridCol);
-
-        //      dataGridCol = new DataGridTextBoxColumn();
-        //      dataGridCol.MappingName = "ActivityItemPurchaseOrderWorkSheetQuantityOrdered";
-        //#if MULTILANGUAGE
-        //      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Ordered);
-        //#else
-        //      dataGridCol.HeaderText = "Ordered";
-        //#endif
-        //      dataGridCol.Width = 52 * colWidthFactor;
-        //      dataGridCol.Format = "0.000";
-        //      dataGridStyle.GridColumnStyles.Add(dataGridCol);
-
-        //      dataGridCol = new DataGridTextBoxColumn();
-        //      dataGridCol.MappingName = "ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered";
-        //#if MULTILANGUAGE
-        //      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Weight);
-        //#else
-        //      dataGridCol.HeaderText = "Weight";
-        //#endif
-        //      dataGridCol.Width = 52 * colWidthFactor;
-        //      dataGridCol.Format = "0.000";
-        //      dataGridStyle.GridColumnStyles.Add(dataGridCol);
-
-        //      dataGridMain.TableStyles.Add(dataGridStyle);
-        //      dataGridMain.RowHeadersVisible = false;
-        //      dataGridMain.ColumnHeadersVisible = true;
-        //    }
-
-        /// <summary>
-        ///
-        /// </summary>
         /// <param name="isSubmitBatch"></param>
         /// <returns></returns>
         /// <remarks></remarks>
-        public override async Task<List<object>> GetList(bool isSubmitBatch)
+        public override async Task<List<object>> GetActivityList(bool isSubmitBatch)
         {
             StringBuilder sql = new StringBuilder();
 
@@ -318,15 +259,6 @@ namespace dMobile.Controller
                 sql.Append(" ORDER BY tActivityItemPurchaseOrderWorkSheet.ActivityItemRefno");
             }
 
-            //using (SQLiteDataAdapter da = new SQLiteDataAdapter(sql.ToString(), DatabaseConnection.GetInstance().SQLConn))
-            //using (DataSet ds = new DataSet())
-            //{
-            //da.Fill(ds);
-            //this.DataViewHdrs = ds.Tables[0].DefaultView;
-            //this.DataViewHdrs.Table.TableName = this.MainGridMappingName;
-            //this.DataViewHdrs.Sort = "ActivityItemPurchaseOrderWorkSheetFKRefno";
-            //}
-
             this.ListHdrs = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<object>(sql.ToString());
             return this.ListHdrs;
         }
@@ -346,19 +278,18 @@ namespace dMobile.Controller
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override async Task SelectHdr(object selectedItem)
+        public override async Task SelectActivity(object selectedActivity)
         {
-            dynamic poWorkSheet = selectedItem as dynamic;
-
-            if (poWorkSheet != null)
+            if (selectedActivity is PurchaseOrderWorkSheetItem purchaseOrderWorkSheetItem)
             {
-                this.FKRefno = Convert.ToInt32(poWorkSheet.ActivityRefno);
-                this.Refno = Convert.ToInt32(poWorkSheet.ActivityRefno);
+                this.SelectedActivity = purchaseOrderWorkSheetItem;
+                this.FKRefno = Convert.ToInt32(purchaseOrderWorkSheetItem.ActivityRefno);
+                this.Refno = Convert.ToInt32(purchaseOrderWorkSheetItem.ActivityRefno);
 
                 // Set the selected warehouse to the activity header warehouse.
-                if (LocationMap.GetInstance().CurrLocMap.WhsLocMapRefno != Convert.ToInt32(poWorkSheet.LocationMapRefno))
+                if (LocationMap.GetInstance().CurrLocMap.WhsLocMapRefno != Convert.ToInt32(purchaseOrderWorkSheetItem.LocationMapRefno))
                 {
-                    LocationMap.GetInstance().CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(poWorkSheet.LocationMapRefno));
+                    LocationMap.GetInstance().CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(purchaseOrderWorkSheetItem.LocationMapRefno));
                 }
             }
         }

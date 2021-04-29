@@ -1166,7 +1166,7 @@ namespace dMobile.View.Activity
         /// <param name="prodRefno"></param>
         private void GetProductVariantList(int prodRefno)
         {
-            this.DataViewVariants = this.ActDetailEdit.GetVariantDataView(prodRefno);
+            this.DataViewVariants = this.ActDetailEdit.GetVariantList(prodRefno);
             ObservableCollection<object> productVariantList = new ObservableCollection<object>();
 
             foreach (DataRow row in this.DataViewVariants.ToTable().Rows)
@@ -1194,7 +1194,7 @@ namespace dMobile.View.Activity
         /// <param name="prodRefno"></param>
         private void GetLotNumberList(int prodRefno)
         {
-            this.DataViewLots = this.ActDetailEdit.GetLotDataView(prodRefno);
+            this.DataViewLots = this.ActDetailEdit.GetLotList(prodRefno);
             ObservableCollection<object> lotNumberList = new ObservableCollection<object>();
 
             foreach (DataRow row in this.DataViewLots.ToTable().Rows)
@@ -1220,7 +1220,7 @@ namespace dMobile.View.Activity
         /// <param name="prodRefno"></param>
         private void GetSerialNumberList(int prodRefno)
         {
-            this.DataViewSerialNumbers = this.ActDetailEdit.GetSerialNumberDataView(prodRefno);
+            this.DataViewSerialNumbers = this.ActDetailEdit.GetSerialNumberList(prodRefno);
             ObservableCollection<SerialNumber> serialNumberList = new ObservableCollection<SerialNumber>();
             string selectedSerialNumberItem = this.cboSerialNo.Text;
             SerialNumber selectedSerialNumber = new SerialNumber();

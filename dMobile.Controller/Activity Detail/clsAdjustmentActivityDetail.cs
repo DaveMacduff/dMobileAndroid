@@ -3,7 +3,7 @@ namespace dMobile.Controller
     using System;
     using System.Collections.ObjectModel;
     using System.Data;
-    using System.Data.SQLite;
+    using SQLite;
     using System.Text;
     using System.Xml;
     using System.Xml.Linq;
@@ -12,6 +12,7 @@ namespace dMobile.Controller
     using dMobile.Resources.Services;
     using dMobile.Resources.Types;
     using Xamarin.Forms;
+    using System.Threading.Tasks;
 
     public class AdjActDetail : ActDetail
     {
@@ -82,7 +83,7 @@ namespace dMobile.Controller
         /// 
         /// </summary>
         /// <param name="skidInfo"></param>
-        public override void InsertSkid(SysSkidInfo skidInfo)
+        public override async Task InsertSkid(SysSkidInfo skidInfo)
         {
             XDocument request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
@@ -127,8 +128,6 @@ namespace dMobile.Controller
                         // Update the Activity Item quantity Adjustment
                         using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
                         {
-                            cmndItem.CommandType = CommandType.Text;
-                            //cmndItem.IndexName = string.Empty;
                             cmndItem.CommandText = "UPDATE tActivityItemAdjustment "
                                 + "SET ActivityItemAdjustmentStringFKRefno = \'" + this.NewItemFKRefno + "\', "
                                 + "ActivityItemAdjustmentFKRefno = " + this.NewItemFKRefno

@@ -190,7 +190,7 @@ namespace dMobile.Controller
         /// <param name="isSubmitBatch"></param>
         /// <returns></returns>
         /// <remarks></remarks>
-        public override async Task<List<object>> GetList(bool isSubmitBatch)
+        public override async Task<List<object>> GetActivityList(bool isSubmitBatch)
         {
             StringBuilder sql = new StringBuilder();
 
@@ -340,10 +340,11 @@ namespace dMobile.Controller
         /// 
         /// </summary>
         /// <remarks></remarks>
-        public override async Task SelectHdr(object selectedItem)
+        public override async Task SelectActivity(object selectedActivity)
         {
-            if (selectedItem is Count count)
+            if (selectedActivity is Count count)
             {
+                this.SelectedActivity = count;
                 this.FKRefno = Convert.ToInt32(count.ActivityCountFKRefno);
                 this.Refno = Convert.ToInt32(count.ActivityRefno);
 

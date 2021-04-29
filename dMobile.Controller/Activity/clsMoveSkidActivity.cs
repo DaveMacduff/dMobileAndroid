@@ -28,7 +28,7 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="idx"></param>
         /// <returns></returns>
-        public override async Task<bool> ChangeStatus(int idx)
+        public override async Task<bool> ChangeStatus(object selectedActivity)
         {
             return true;
         }
@@ -60,7 +60,7 @@ namespace dMobile.Controller
         /// <param name="i"></param>
         /// <param name="lst"></param>
         /// <remarks></remarks>
-        public override Task SelectHdr(object selectedItem)
+        public override Task SelectActivity(object selectedActivity)
         {
             throw new NotImplementedException();
         }
@@ -82,7 +82,7 @@ namespace dMobile.Controller
         /// <param name="isSubmitBatch"></param>
         /// <returns></returns>
         /// <remarks></remarks>
-        public override Task<List<object>> GetList(bool isSubmitBatch)
+        public override Task<List<object>> GetActivityList(bool isSubmitBatch)
         {
             throw new NotImplementedException();
         }

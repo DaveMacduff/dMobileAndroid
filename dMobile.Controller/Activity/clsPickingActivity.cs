@@ -812,7 +812,7 @@ namespace dMobile.Controller
         /// <param name="IsSubmitBatch"></param>
         /// <returns></returns>
         /// <remarks></remarks>
-        public override async Task<List<object>> GetList(bool isSubmitBatch)
+        public override async Task<List<object>> GetActivityList(bool isSubmitBatch)
         {
             PickingSettings pickingSettings = new PickingSettings().LoadData();
             StringBuilder sql = new StringBuilder();
@@ -996,10 +996,11 @@ namespace dMobile.Controller
         /// 
         /// </summary>
         /// <param name="idx"></param>
-        public override async Task SelectHdr(object selectedItem)
+        public override async Task SelectActivity(object selectedActivity)
         {
-            if (selectedItem is Picking picking)
+            if (selectedActivity is Picking picking)
             {
+                this.SelectedActivity = picking;
                 this.FKRefno = Convert.ToInt32(picking.ActivityPickingFKRefno);
                 this.Refno = Convert.ToInt32(picking.ActivityRefno);
 

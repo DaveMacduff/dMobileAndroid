@@ -19,6 +19,19 @@ namespace dMobile.Resources.Types
         // tActivityReturns.ActivityReturnsCustomerShipToInfo string
         // tActivity.ActivityStatus int
 
+        //sql.Append("SELECT tActivityReturns.ActivityRefno AS ActivityRefno,");
+        //        sql.Append("tActivityReturns.ActivityReturnsFKRefno AS ActivityReturnsFKRefno,");
+        //        sql.Append("tActivityReturns.ActivityReturnsStringFKRefno AS ActivityReturnsStringFKRefno,");
+        //        sql.Append("tActivityReturns.ActivityReturnsOrderedDateTime AS ActivityReturnsOrderedDateTime,");
+        //        sql.Append("tActivityReturns.ActivityReturnsDeliveryDateTime AS ActivityReturnsDeliveryDateTime,");
+        //        sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
+        //        sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno AS LocationMapWarehouseFKRefno,");
+        //        sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationMapWarehouseName,");
+        //        sql.Append("tActivityReturns.ActivityReturnsCustomerContactName AS ActivityReturnsCustomerContactName,");
+        //        sql.Append("tActivityReturns.ActivityReturnsCustomerShipToInfo AS ActivityReturnsCustomerShipToInfo,");
+        //        sql.Append("tActivity.ActivityStatus AS ActivityStatus");
+
+        private int activityRefno;
         private int activityReturnsFKRefno;
         private string activityReturnsStringFKRefno;
         private DateTime activityReturnsOrderedDateTime;
@@ -30,6 +43,7 @@ namespace dMobile.Resources.Types
         private string activityReturnsCustomerShipToInfo;
         private int activityStatus;
 
+        public int ActivityRefno { get => activityRefno; set => activityRefno = value; }
         public int ActivityReturnsFKRefno { get => activityReturnsFKRefno; set => activityReturnsFKRefno = value; }
         public string ActivityReturnsStringFKRefno { get => activityReturnsStringFKRefno; set => activityReturnsStringFKRefno = value; }
         public DateTime ActivityReturnsOrderedDateTime { get => activityReturnsOrderedDateTime; set => activityReturnsOrderedDateTime = value; }

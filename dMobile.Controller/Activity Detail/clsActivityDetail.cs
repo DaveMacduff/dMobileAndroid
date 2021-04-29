@@ -2,7 +2,7 @@ namespace dMobile.Controller
 {
     using System;
     using System.Data;
-    using System.Data.SQLite;
+    using SQLite;
     using System.Xml;
     using System.Xml.Linq;
     using dMobile.Bedrock;
@@ -10,6 +10,9 @@ namespace dMobile.Controller
     using System.Text;
     using System.Collections.ObjectModel;
     using Xamarin.Forms;
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
+    using dMobile.Resources.Models;
 
     /// <summary>
     ///
@@ -20,7 +23,7 @@ namespace dMobile.Controller
         #region Fields
 
         private string mainGridMappingName = "tActivityDetail";
-        private DataView dataViewDetails = null;
+        private List<object> listDetails = null;
         private SysCommon.ActSubTypes actSubType;
         private SysEnvironment sysEnv;
         private LocationMap locMap;
@@ -283,16 +286,16 @@ namespace dMobile.Controller
             }
         }
 
-        public DataView DataViewDetails
+        public List<object> ListDetails
         {
             get
             {
-                return this.dataViewDetails;
+                return this.listDetails;
             }
 
             set
             {
-                this.dataViewDetails = value;
+                this.listDetails = value;
             }
         }
 
@@ -353,31 +356,18 @@ namespace dMobile.Controller
         #region Public Members
 
         public abstract void Insert(XDocument data);
-
         public abstract void Delete();
-
         public abstract void Refresh();
-
         public abstract string CreateSubmitXML(XDocument data);
-
         public abstract string CreateDeleteXML(XDocument data);
-
         public abstract void Submit(int selectedRowIndex, XDocument data);
-
         public abstract ObservableCollection<object> Search(string searchText);
-
-        public abstract DataView GetDataView(bool isSubmitBatch);
-
+        public abstract Task<List<object>> GetList(bool isSubmitBatch);
         public abstract ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity);
-
         public abstract void SelectDetail(int selectedIndex);
-
         public abstract int GetRefno(int selectedIndex);
-
         public abstract int GetFKRefno(int selectedIndex);
-
-        public abstract void InsertSkid(SysSkidInfo skidInfo);
-
+        public abstract Task InsertSkid(SysSkidInfo skidInfo);
         public abstract void DeleteSkid(SysSkidInfo skidInfo);
 
         /// <summary>
@@ -388,13 +378,13 @@ namespace dMobile.Controller
         {
             SysCommon.SFillQuantity fillQty = new SysCommon.SFillQuantity();
 
-            if (this.DataViewDetails != null && this.DataViewDetails.Count > 0)
+            if (this.ListDetails != null && this.ListDetails.Count > 0)
             {
-                for (int i = 0; i <= this.DataViewDetails.Count - 1; i++)
+                foreach (dynamic detail in this.ListDetails)
                 {
-                    fillQty.Quantity += Convert.ToDecimal(this.DataViewDetails[i]["ActivityDetailQuantity"]);
-                    fillQty.BaseQuantity += Convert.ToDecimal(this.DataViewDetails[i]["ActivityDetailBaseQuantity"]);
-                    fillQty.WeightQuantity += Convert.ToDecimal(this.DataViewDetails[i]["ActivityDetailWeightQuantity"]);
+                    fillQty.Quantity += Convert.ToDecimal(detail.ActivityDetailQuantity);
+                    fillQty.BaseQuantity += Convert.ToDecimal(detail.ActivityDetailBaseQuantity);
+                    fillQty.WeightQuantity += Convert.ToDecimal(detail.ActivityDetailWeightQuantity);
                 }
             }
 
@@ -432,7 +422,7 @@ namespace dMobile.Controller
         public virtual ActDetail GetInfo(int idx, bool isAdd)
         {
             SProductSchemeData tmpSchemeData = this.SchemeData;
-            DataView details = this.DataViewDetails;
+            List<dynamic> details = this.ListDetails;
 
             if (isAdd)
             {
@@ -447,59 +437,49 @@ namespace dMobile.Controller
             }
             else
             {
-                this.Quantity = Convert.ToDecimal(details[idx]["ActivityDetailQuantity"]);
-                this.BaseQuantity = Convert.ToDecimal(details[idx]["ActivityDetailBaseQuantity"]);
-                this.WeightQuantity = Convert.ToDecimal(details[idx]["ActivityDetailWeightQuantity"]);
-                this.Refno = Convert.ToInt32(details[idx]["ActivityDetailRefno"]);
-                this.SchemeID = Convert.ToString(details[idx]["ActivityDetailSchemeID"]);
-                this.UniqueSchemeID = Convert.ToString(details[idx]["ActivityDetailUniqueSchemeID"]);
-
-                if (details.Table.Columns.Contains("ActivityDetailExtra1Text"))
+                if (details[idx] == null)
                 {
-                    // Check for DBNull because extra detail is in a child table, left join from the dataview query.
-                    if (details[idx]["ActivityDetailExtra1Text"] != DBNull.Value)
-                    {
-                        this.ActExtra.Text1 = Convert.ToString(details[idx]["ActivityDetailExtra1Text"]);
-                    }
+                    throw new Exception("Detail list[" + idx + "] is null");
                 }
 
-                if (details.Table.Columns.Contains("ActivityDetailExtra2Text"))
+                this.Quantity = Convert.ToDecimal(details[idx].ActivityDetailQuantity);
+                this.BaseQuantity = Convert.ToDecimal(details[idx].ActivityDetailBaseQuantity);
+                this.WeightQuantity = Convert.ToDecimal(details[idx].ActivityDetailWeightQuantity);
+                this.Refno = Convert.ToInt32(details[idx].ActivityDetailRefno);
+                this.SchemeID = Convert.ToString(details[idx].ActivityDetailSchemeID);
+                this.UniqueSchemeID = Convert.ToString(details[idx].ActivityDetailUniqueSchemeID);
+
+                // Check for DBNull because extra detail is in a child table, left join from the dataview query.
+                if (details[idx].ActivityDetailExtra1Text != null)
                 {
-                    // Check for DBNull because extra detail is in a child table, left join from the dataview query.
-                    if (details[idx]["ActivityDetailExtra2Text"] != DBNull.Value)
-                    {
-                        this.ActExtra.Text2 = Convert.ToString(details[idx]["ActivityDetailExtra2Text"]);
-                    }
+                    this.ActExtra.Text1 = Convert.ToString(details[idx].ActivityDetailExtra1Text);
                 }
 
-                if (details.Table.Columns.Contains("ActivityDetailExtra3Text"))
+                // Check for DBNull because extra detail is in a child table, left join from the dataview query.
+                if (details[idx].ActivityDetailExtra2Text != null)
                 {
-                    // Check for DBNull because extra detail is in a child table, left join from the dataview query.
-                    if (details[idx]["ActivityDetailExtra3Text"] != DBNull.Value)
-                    {
-                        this.ActExtra.Text3 = Convert.ToString(details[idx]["ActivityDetailExtra3Text"]);
-                    }
+                    this.ActExtra.Text2 = Convert.ToString(details[idx].ActivityDetailExtra2Text);
                 }
 
-                if (details.Table.Columns.Contains("ActivityDetailExtra4Text"))
+                // Check for DBNull because extra detail is in a child table, left join from the dataview query.
+                if (details[idx].ActivityDetailExtra3Text != null)
                 {
-                    // Check for DBNull because extra detail is in a child table, left join from the dataview query.
-                    if (details[idx]["ActivityDetailExtra4Text"] != DBNull.Value)
-                    {
-                        this.ActExtra.Text4 = Convert.ToString(details[idx]["ActivityDetailExtra4Text"]);
-                    }
+                    this.ActExtra.Text3 = Convert.ToString(details[idx].ActivityDetailExtra3Text);
                 }
 
-                if (details.Table.Columns.Contains("ActivityDetailExtra5Date"))
+                // Check for DBNull because extra detail is in a child table, left join from the dataview query.
+                if (details[idx].ActivityDetailExtra4Text != null)
                 {
-                    // Check for DBNull because extra detail is in a child table, left join from the dataview query.
-                    if (details[idx]["ActivityDetailExtra5Date"] != DBNull.Value && !string.IsNullOrEmpty(Convert.ToString(details[idx]["ActivityDetailExtra5Date"])))
-                    {
-                        this.ActExtra.DateTime5 = Convert.ToDateTime(details[idx]["ActivityDetailExtra5Date"]);
-                    }
+                    this.ActExtra.Text4 = Convert.ToString(details[idx].ActivityDetailExtra4Text);
                 }
 
-                DateTime bestBefore = Convert.ToDateTime(details[idx]["ActivityDetailLogisticUnitBestBeforeSellByDate"]);
+                // Check for DBNull because extra detail is in a child table, left join from the dataview query.
+                if (details[idx].ActivityDetailExtra5Date != null && !string.IsNullOrEmpty(Convert.ToString(details[idx].ActivityDetailExtra5Date)))
+                {
+                    this.ActExtra.DateTime5 = Convert.ToDateTime(details[idx].ActivityDetailExtra5Date);
+                }
+
+                DateTime bestBefore = Convert.ToDateTime(details[idx].ActivityDetailLogisticUnitBestBeforeSellByDate);
 
                 if (SysCommon.IsEmptyDateTime(bestBefore))
                 {
@@ -513,7 +493,7 @@ namespace dMobile.Controller
                     tmpSchemeData.LogisticUnitBestBeforeSellByDate = bestBefore;
                 }
 
-                DateTime production = Convert.ToDateTime(details[idx]["ActivityDetailLogisticUnitProductionDate"]);
+                DateTime production = Convert.ToDateTime(details[idx].ActivityDetailLogisticUnitProductionDate);
 
                 if (SysCommon.IsEmptyDateTime(production))
                 {
@@ -527,19 +507,19 @@ namespace dMobile.Controller
                     tmpSchemeData.LogisticUnitProductionDate = production;
                 }
 
-                tmpSchemeData.SingleTradeItemSerialNumber = Convert.ToString(details[idx]["ActivityDetailSingleTradeItemSerialNumber"]);
-                tmpSchemeData.LogisticUnitBatchLotNumber = Convert.ToString(details[idx]["ActivityDetailLogisticUnitBatchLotNumber"]);
+                tmpSchemeData.SingleTradeItemSerialNumber = Convert.ToString(details[idx].ActivityDetailSingleTradeItemSerialNumber);
+                tmpSchemeData.LogisticUnitBatchLotNumber = Convert.ToString(details[idx].ActivityDetailLogisticUnitBatchLotNumber);
 
                 // Check for DBNull because variants are in a child table, left join from the dataview query.
-                if (details[idx]["ProductSchemeVariantCode"] != DBNull.Value)
+                if (details[idx].ProductSchemeVariantCode != null)
                 {
-                    tmpSchemeData.VariantCode = Convert.ToString(details[idx]["ProductSchemeVariantCode"]);
+                    tmpSchemeData.VariantCode = Convert.ToString(details[idx].ProductSchemeVariantCode);
                 }
 
                 // Check for DBNull because variants are in a child table, left join from the dataview query.
-                if (details[idx]["ProductSchemeVariantNo"] != DBNull.Value)
+                if (details[idx].ProductSchemeVariantNo != null)
                 {
-                    tmpSchemeData.VariantNumber = Convert.ToInt32(details[idx]["ProductSchemeVariantNo"]);
+                    tmpSchemeData.VariantNumber = Convert.ToInt32(details[idx].ProductSchemeVariantNo);
                 }
             }
 
@@ -553,14 +533,14 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public virtual void IsReadyToApply(XDocument data)
+        public virtual async Task IsReadyToApply(XDocument data)
         {
             // Check for duplicate
             if (this.SysEnv.SysSettings.IsDisconnectedMode)
             {
                 if (string.Compare(this.UniqueSchemeID, string.Empty) > 0)
                 {
-                    bool isDupSchemeId = ProductInfoTasks.IsDuplicateUniqueSchemeID(this.UniqueSchemeID);
+                    bool isDupSchemeId = await ProductInfoTasks.IsDuplicateUniqueSchemeID(this.UniqueSchemeID);
 
                     if (isDupSchemeId)
                     {
@@ -762,31 +742,21 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="prodSchemeData"></param>
         /// <returns></returns>
-        public SProductSchemeData FillSchemeDataVarInfoFromSchemeDataVarNo(SProductSchemeData prodSchemeData)
+        public async Task<SProductSchemeData> FillSchemeDataVarInfoFromSchemeDataVarNo(SProductSchemeData prodSchemeData)
         {
             if (0 < prodSchemeData.VariantNumber)
             {
-                using (SQLiteCommand cmndSchemeVar = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+
+                List<tProductSchemeVariantModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tProductSchemeVariantModel>("SELECT * FROM tProductSchemeVariant WHERE ProductSchemeVariantNo = ?", Convert.ToInt32(prodSchemeData.VariantNumber));
+
+                if (results != null && results.Count > 0)
                 {
-                    cmndSchemeVar.CommandText = "SELECT * FROM tProductSchemeVariant WHERE ProductSchemeVariantNo = @productSchemeVariantNo";
-                    cmndSchemeVar.CommandType = CommandType.Text;
-                    //cmndSchemeVar.IndexName = "UQ_ProductSchemeVariantOnProductSchemeVariantNo";
-                    cmndSchemeVar.Parameters.Add(new SQLiteParameter("@productSchemeVariantNo", Convert.ToInt32(prodSchemeData.VariantNumber)));
-
-                    using (SQLiteDataReader drSchemeVar = cmndSchemeVar.ExecuteReader())
-                    {
-                        if (drSchemeVar.Read())
-                        {
-                            prodSchemeData.VariantCode = drSchemeVar["ProductSchemeVariantCode"].ToString();
-                            prodSchemeData.VariantDescription = drSchemeVar["ProductSchemeVariantDescription"].ToString();
-                        }
-                        else
-                        {
-                            throw new Exception("drSchemeVar.Read() failed.");
-                        }
-
-                        drSchemeVar.Close();
-                    }
+                    prodSchemeData.VariantCode = results[0].ProductSchemeVariantCode;
+                    prodSchemeData.VariantDescription = results[0].ProductSchemeVariantDescription;
+                }
+                else
+                {
+                    throw new Exception("FillSchemeDataVarInfoFromSchemeDataVarNo in clsActivityDetail returned no results");
                 }
             }
 
@@ -797,7 +767,7 @@ namespace dMobile.Controller
         /// 
         /// </summary>
         /// <param name="data"></param>
-        public void FillActDetailObjFromXML(XDocument data)
+        public async Task FillActDetailObjFromXML(XDocument data)
         {
             if (!string.IsNullOrEmpty(data.Root.Element("ser_refno").Value))
             {
@@ -856,7 +826,7 @@ namespace dMobile.Controller
                 tmpSchemeData.VariantNumber = int.Parse(data.Root.Element("variant_no").Value);
             }
 
-            tmpSchemeData = this.FillSchemeDataVarInfoFromSchemeDataVarNo(tmpSchemeData);
+            tmpSchemeData = await this.FillSchemeDataVarInfoFromSchemeDataVarNo(tmpSchemeData);
             this.SchemeData = tmpSchemeData;
 
             this.SchemeID = ProductInfoTasks.GetActSchemeIDFromSProdSchemeData(actItem.ProdInfo.Code, actItem.ProdInfo.Scheme, this.SchemeData);
@@ -875,7 +845,7 @@ namespace dMobile.Controller
             if (!string.IsNullOrEmpty(data.Root.Element("extra3").Value))
             {
                 this.ActExtra.Text3 = data.Root.Element("extra3").Value;
-            }   
+            }
 
             if (!string.IsNullOrEmpty(data.Root.Element("extra4").Value))
             {
@@ -896,62 +866,69 @@ namespace dMobile.Controller
         /// <example>InsertUpdateDataViewDetail("ActivityDetailPickingFKRefno", "ActivityDetailPickingFKRefno")</example>
         public void InsertUpdateDataViewDetail(string dataViewSortKey, string actDetailFKRefnoFldName)
         {
-            if (this.IsUpdateView && this.DataViewDetails != null)
+            if (this.IsUpdateView && this.ListDetails != null)
             {
-                DataRowView rowView = null;
-                string oldSort = this.DataViewDetails.Sort;
+                // TODO: Fix sorting
+                // this is the object to be added/updated
+                dynamic detail = null;
+                bool detailToBeAdded = false;
+                //string oldSort = this.DataViewDetails.Sort;
                 int rowIdx = 0;
-                this.DataViewDetails.Sort = dataViewSortKey;
+                //this.DataViewDetails.Sort = dataViewSortKey;
 
                 if (this.FKRefno > 0)
                 {
-                    rowIdx = this.DataViewDetails.Find(new object[] { this.FKRefno });
+                    // TODO: Test that this returns the expected value
+                    rowIdx = this.ListDetails.FindIndex(obj => Convert.ToInt32(obj.GetType().GetProperty(actDetailFKRefnoFldName).GetValue(obj, null)) == this.FKRefno);
 
                     if (rowIdx > -1)
                     {
-                        rowView = this.DataViewDetails[rowIdx];
+                        detail = this.ListDetails[rowIdx];
                     }
                 }
 
-                if (rowView == null)
+                if (detail == null)
                 {
-                    rowView = this.DataViewDetails.AddNew();
-                    rowView["ActivityDetailRefno"] = 0;
-                    rowView["ProductRefno"] = this.ActItem.ProdInfo.Refno;
-                    rowView["ProductCode"] = this.ActItem.ProdInfo.Code;
-                    rowView["ProductUnitBC"] = this.ActItem.ProdInfo.UnitBC;
-                    rowView["ProductUnitIsBC"] = this.ActItem.ProdInfo.UnitIsBC;
-                    rowView["ProductDescription"] = this.ActItem.ProdInfo.Desc;
-                    rowView["ProductUnitSizeDescription"] = this.ActItem.ProdInfo.UnitSizeDesc;
-                    rowView["UnitCode"] = this.ActItem.ProdInfo.UnitCode;
-                    rowView["BaseUnitCode"] = this.ActItem.ProdInfo.BaseUnitCode;
-                    rowView["WtUnitCode"] = this.ActItem.ProdInfo.WeightUnitCode;
-                    rowView["ActivityDetailQuantity"] = 0;
-                    rowView["ActivityDetailBaseQuantity"] = 0;
-                    rowView["ActivityDetailWeightQuantity"] = 0;
+                    detailToBeAdded = true;
 
-                    rowView[actDetailFKRefnoFldName] = this.FKRefno;
+                    detail = new
+                    {
+                        ActivityDetailRefno = 0,
+                        ProductRefno = this.ActItem.ProdInfo.Refno,
+                        ProductCode = this.ActItem.ProdInfo.Code,
+                        ProductUnitBC = this.ActItem.ProdInfo.UnitBC,
+                        ProductUnitIsBC = this.ActItem.ProdInfo.UnitIsBC,
+                        ProductDescription = this.ActItem.ProdInfo.Desc,
+                        ProductUnitSizeDescription = this.ActItem.ProdInfo.UnitSizeDesc,
+                        UnitCode = this.ActItem.ProdInfo.UnitCode,
+                        BaseUnitCode = this.ActItem.ProdInfo.BaseUnitCode,
+                        WtUnitCode = this.ActItem.ProdInfo.WeightUnitCode,
+                        ActivityDetailQuantity = 0,
+                        ActivityDetailBaseQuantity = 0,
+                        ActivityDetailWeightQuantity = 0,
+                        actDetailFKRefnoFldName = this.FKRefno
+                    };
                 }
 
-                rowView["LocationMapRefno"] = this.LocMap.CurrLocMapRefno;
-                rowView["ActivityDetailQuantity"] = Convert.ToDecimal(rowView["ActivityDetailQuantity"]) + Math.Round(this.Quantity, 3);
-                rowView["ActivityDetailBaseQuantity"] = Convert.ToDecimal(rowView["ActivityDetailBaseQuantity"]) + Math.Round(this.BaseQuantity, 3);
-                rowView["ActivityDetailWeightQuantity"] = Convert.ToDecimal(rowView["ActivityDetailWeightQuantity"]) + Math.Round(this.WeightQuantity, 3);
-                rowView["ProductSchemeVariantCode"] = this.SchemeData.VariantCode;
-                rowView["ProductSchemeVariantNo"] = this.SchemeData.VariantNumber;
+                detail.LocationMapRefno = this.LocMap.CurrLocMapRefno;
+                detail.ActivityDetailQuantity = Convert.ToDecimal(detail.ActivityDetailQuantity) + Math.Round(this.Quantity, 3);
+                detail.ActivityDetailBaseQuantity = Convert.ToDecimal(detail.ActivityDetailBaseQuantity) + Math.Round(this.BaseQuantity, 3);
+                detail.ActivityDetailWeightQuantity = Convert.ToDecimal(detail.ActivityDetailWeightQuantity) + Math.Round(this.WeightQuantity, 3);
+                detail.ProductSchemeVariantCode = this.SchemeData.VariantCode;
+                detail.ProductSchemeVariantNo = this.SchemeData.VariantNumber;
 
                 // " tProductSchemeVariant.ProductSchemeVariantDescription " & _
-                rowView["ActivityDetailSingleTradeItemSerialNumber"] = this.SchemeData.SingleTradeItemSerialNumber;
-                rowView["ActivityDetailLogisticUnitBestBeforeSellByDate"] = this.SchemeData.LogisticUnitBestBeforeSellByDate;
-                rowView["ActivityDetailLogisticUnitBatchLotNumber"] = this.SchemeData.LogisticUnitBatchLotNumber;
-                rowView["ActivityDetailLogisticUnitProductionDate"] = this.SchemeData.LogisticUnitProductionDate;
-                rowView["ActivityDetailLogisticUnitSkidNumber"] = this.SchemeData.LogisticUnitSkidNumber;
+                detail.ActivityDetailSingleTradeItemSerialNumber = this.SchemeData.SingleTradeItemSerialNumber;
+                detail.ActivityDetailLogisticUnitBestBeforeSellByDate = this.SchemeData.LogisticUnitBestBeforeSellByDate;
+                detail.ActivityDetailLogisticUnitBatchLotNumber = this.SchemeData.LogisticUnitBatchLotNumber;
+                detail.ActivityDetailLogisticUnitProductionDate = this.SchemeData.LogisticUnitProductionDate;
+                detail.ActivityDetailLogisticUnitSkidNumber = this.SchemeData.LogisticUnitSkidNumber;
 
-                rowView["ActivityDetailExtra1Text"] = this.ActExtra.Text1;
-                rowView["ActivityDetailExtra2Text"] = this.ActExtra.Text2;
-                rowView["ActivityDetailExtra3Text"] = this.ActExtra.Text3;
-                rowView["ActivityDetailExtra4Text"] = this.ActExtra.Text4;
-                rowView["ActivityDetailExtra5Date"] = this.ActExtra.DateTime5;
+                detail.ActivityDetailExtra1Text = this.ActExtra.Text1;
+                detail.ActivityDetailExtra2Text = this.ActExtra.Text2;
+                detail.ActivityDetailExtra3Text = this.ActExtra.Text3;
+                detail.ActivityDetailExtra4Text = this.ActExtra.Text4;
+                detail.ActivityDetailExtra5Date = this.ActExtra.DateTime5;
 
                 string locCode = string.Empty;
                 string locName = string.Empty;
@@ -972,36 +949,29 @@ namespace dMobile.Controller
                     locName = this.LocMap.CurrLocMap.WhsName;
                 }
 
-                rowView["LocationCode"] = locCode;
-                rowView["LocationName"] = locName;
-                rowView["ActivityDetailSchemeID"] = this.SchemeID;
-                rowView["ActivityDetailUniqueSchemeID"] = this.UniqueSchemeID;
-
-                ////if (this.ActSubType == SysCommon.ActSubTypes.Returns
-                ////    || this.ActSubType == SysCommon.ActSubTypes.Picking
-                ////    || this.ActSubType == SysCommon.ActSubTypes.PickingSingle
-                ////    || this.ActSubType == SysCommon.ActSubTypes.TransferFrom
-                ////    || this.ActSubType == SysCommon.ActSubTypes.TransferTo)
-                ////{
-                ////    rowView["ActivityDetailIsConfirmed"] = true;
-                ////    rowView["ActivityDetailIsConfirmedString"] = "C";
-                ////}
-                ///
+                detail.LocationCode = locCode;
+                detail.LocationName = locName;
+                detail.ActivityDetailSchemeID = this.SchemeID;
+                detail.ActivityDetailUniqueSchemeID = this.UniqueSchemeID;
 
                 if (this.ActSubType == SysCommon.ActSubTypes.Returns || this.ActSubType == SysCommon.ActSubTypes.Picking || this.ActSubType == SysCommon.ActSubTypes.PickingSingle)
                 {
-                    rowView["ActivityDetailIsConfirmed"] = true;
-                    rowView["ActivityDetailIsConfirmedString"] = "C";
+                    detail.ActivityDetailIsConfirmed = true;
+                    detail.ActivityDetailIsConfirmedString = "C";
                 }
 
                 if (this.ActSubType == SysCommon.ActSubTypes.Receiving)
                 {
-                    rowView["IsBatchProductLabel"] = Convert.ToBoolean(this.SysEnv.SysSettings.IsPrintProductLabelsAsBatch);
+                    detail.IsBatchProductLabel = Convert.ToBoolean(this.SysEnv.SysSettings.IsPrintProductLabelsAsBatch);
                 }
 
-                rowView.EndEdit();
+                if (detailToBeAdded)
+                {
+                    this.ListDetails.Add(detail);
+                }
 
-                this.DataViewDetails.Sort = oldSort;
+                //TODO: Fix sorting
+                //this.DataViewDetails.Sort = oldSort;
             }
         }
 
@@ -1017,7 +987,7 @@ namespace dMobile.Controller
             string reqData = SysCommon.SubmitComm(sendReq);
 
             if (reqData.Length > 0)
-            {   
+            {
                 XmlDocument xmlData = new XmlDocument();
                 xmlData.LoadXml(reqData);
 
@@ -1060,16 +1030,16 @@ namespace dMobile.Controller
         /// </summary>
         /// <returns>Inserted activity detail refno.</returns>
         /// <remarks>Assumes that 'this' is all filled in. Usually by calling this.FillActDetailObj</remarks>
-        public int InsertDetailDisconnected()
+        public async Task<int> InsertDetailDisconnected()
         {
             int actDetailRefno = 0;
-            SQLiteConnection conn = DatabaseConnection.GetInstance().SQLConn;
+            SQLiteAsyncConnection conn = DatabaseConnection.GetInstance().SQLConn;
 
             try
             {
                 if (string.Compare(this.UniqueSchemeID, string.Empty) > 0)
                 {
-                    bool isDupSchemeId = ProductInfoTasks.IsDuplicateUniqueSchemeID(this.UniqueSchemeID);
+                    bool isDupSchemeId = await ProductInfoTasks.IsDuplicateUniqueSchemeID(this.UniqueSchemeID);
 
                     if (isDupSchemeId)
                     {
@@ -1078,194 +1048,121 @@ namespace dMobile.Controller
                     }
                 }
 
-                using (SQLiteCommand cmndDetail = conn.CreateCommand())
+                string query = "INSERT INTO tActivityDetail (" +
+                    "ActivityDetailSubType, " +
+                    "ActivityDetailStatus, " +
+                    "ActivityItemRefno, " +
+                    "LocationMapRefno, " +
+                    "ProductUnitRefno, " +
+                    "ActivityDetailUniqueSchemeID, " +
+                    "ActivityDetailSchemeID, " +
+                    "ActivityDetailQuantity, " +
+                    "ActivityDetailBaseQuantity, " +
+                    "ActivityDetailWeightQuantity, " +
+                    "ActivityDetailSingleTradeItemSerialNumber, " +
+                    "ActivityDetailLogisticUnitBatchLotNumber, " +
+                    "ActivityDetailLogisticUnitBestBeforeSellByDate, " +
+                    "ActivityDetailLogisticUnitExpiryUseByDate, " +
+                    "ActivityDetailLogisticUnitProductionDate, " +
+                    "ActivityDetailLogisticUnitDueDate, " +
+                    "ActivityDetailLogisticUnitPackagingDate, " +
+                    "ActivityDetailLogisticUnitSkidNumber" +
+                    ") VALUES (" +
+                    "?, " +
+                    "?, " +
+                    "?, " +
+                    "?, " +
+                    "?, " +
+                    "?, " +
+                    "?, " +
+                    "?, " +
+                    "?, " +
+                    "?, " +
+                    "?, " +
+                    "?, " +
+                    "?, " +
+                    "?, " +
+                    "?, " +
+                    "?, " +
+                    "?, " +
+                    "?" +
+                    ")";
+
+                List<object> parameters = new List<object>()
                 {
-                    cmndDetail.CommandText = "INSERT INTO tActivityDetail (" +
-                        "ActivityDetailSubType, " +
-                        "ActivityDetailStatus, " +
-                        "ActivityItemRefno, " +
-                        "LocationMapRefno, " +
-                        "ProductUnitRefno, " +
-                        "ActivityDetailUniqueSchemeID, " +
-                        "ActivityDetailSchemeID, " +
-                        "ActivityDetailQuantity, " +
-                        "ActivityDetailBaseQuantity, " +
-                        "ActivityDetailWeightQuantity, " +
-                        "ActivityDetailSingleTradeItemSerialNumber, " +
-                        "ActivityDetailLogisticUnitBatchLotNumber, " +
-                        "ActivityDetailLogisticUnitBestBeforeSellByDate, " +
-                        "ActivityDetailLogisticUnitExpiryUseByDate, " +
-                        "ActivityDetailLogisticUnitProductionDate, " +
-                        "ActivityDetailLogisticUnitDueDate, " +
-                        "ActivityDetailLogisticUnitPackagingDate, " +
-                        "ActivityDetailLogisticUnitSkidNumber" +
-                        ") VALUES (" +
-                        "@activityDetailSubType, " +
-                        "@activityDetailStatus, " +
-                        "@activityItemRefno, " +
-                        "@locationMapRefno, " +
-                        "@productUnitRefno, " +
-                        "@activityDetailUniqueSchemeID, " +
-                        "@activityDetailSchemeID, " +
-                        "@activityDetailQuantity, " +
-                        "@activityDetailBaseQuantity, " +
-                        "@activityDetailWeightQuantity, " +
-                        "@activityDetailSingleTradeItemSerialNumber, " +
-                        "@activityDetailLogisticUnitBatchLotNumber, " +
-                        "@activityDetailLogisticUnitBestBeforeSellByDate, " +
-                        "@activityDetailLogisticUnitExpiryUseByDate, " +
-                        "@activityDetailLogisticUnitProductionDate, " +
-                        "@activityDetailLogisticUnitDueDate, " +
-                        "@activityDetailLogisticUnitPackagingDate, " +
-                        "@activityDetailLogisticUnitSkidNumber" +
-                        ")";
-                    cmndDetail.CommandType = CommandType.Text;
-                    //cmndDetail.IndexName = "PK_ActivityDetailOnActivityDetailRefno";
-                    cmndDetail.Parameters.Add(new SQLiteParameter("@activityDetailSubType", Convert.ToInt32(this.ActSubType)));
-                    cmndDetail.Parameters.Add(new SQLiteParameter("@activityDetailStatus", Convert.ToInt32(SysCommon.ActStatus.Inserted)));
-                    cmndDetail.Parameters.Add(new SQLiteParameter("@activityItemRefno", Convert.ToInt32(this.ActItem.Refno)));
-                    cmndDetail.Parameters.Add(new SQLiteParameter("@locationMapRefno", Convert.ToInt32(this.LocMap.CurrLocMapRefno)));
-                    cmndDetail.Parameters.Add(new SQLiteParameter("@productUnitRefno", Convert.ToInt32(this.ActItem.ProdInfo.UnitRefno)));
-                    cmndDetail.Parameters.Add(new SQLiteParameter("@activityDetailUniqueSchemeID", Convert.ToString(this.UniqueSchemeID)));
-                    cmndDetail.Parameters.Add(new SQLiteParameter("@activityDetailSchemeID", Convert.ToString(this.SchemeID)));
-                    cmndDetail.Parameters.Add(new SQLiteParameter("@activityDetailQuantity", Convert.ToDecimal(this.Quantity)));
-                    cmndDetail.Parameters.Add(new SQLiteParameter("@activityDetailBaseQuantity", Convert.ToDecimal(this.BaseQuantity)));
-                    cmndDetail.Parameters.Add(new SQLiteParameter("@activityDetailWeightQuantity", Convert.ToDecimal(this.WeightQuantity)));
-                    cmndDetail.Parameters.Add(new SQLiteParameter("@activityDetailSingleTradeItemSerialNumber", Convert.ToString(this.SchemeData.SingleTradeItemSerialNumber)));
-                    cmndDetail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitBatchLotNumber", Convert.ToString(this.SchemeData.LogisticUnitBatchLotNumber)));
-                    cmndDetail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitBestBeforeSellByDate", Convert.ToDateTime(this.SchemeData.LogisticUnitBestBeforeSellByDate)));
-                    cmndDetail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitExpiryUseByDate", Convert.ToDateTime(this.SchemeData.LogisticUnitExpiryUseByDate)));
-                    cmndDetail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitProductionDate", Convert.ToDateTime(this.SchemeData.LogisticUnitProductionDate)));
-                    cmndDetail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitDueDate", Convert.ToDateTime(this.SchemeData.LogisticUnitDueDate)));
-                    cmndDetail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitPackagingDate", Convert.ToDateTime(this.SchemeData.LogisticUnitPackagingDate)));
-                    cmndDetail.Parameters.Add(new SQLiteParameter("@activityDetailLogisticUnitSkidNumber", Convert.ToString(this.SchemeData.LogisticUnitSkidNumber)));
+                    Convert.ToInt32(this.ActSubType),
+                    Convert.ToInt32(SysCommon.ActStatus.Inserted),
+                    Convert.ToInt32(this.ActItem.Refno),
+                    Convert.ToInt32(this.LocMap.CurrLocMapRefno),
+                    Convert.ToInt32(this.ActItem.ProdInfo.UnitRefno),
+                    Convert.ToString(this.UniqueSchemeID),
+                    Convert.ToString(this.SchemeID),
+                    Convert.ToDecimal(this.Quantity),
+                    Convert.ToDecimal(this.BaseQuantity),
+                    Convert.ToDecimal(this.WeightQuantity),
+                    Convert.ToString(this.SchemeData.SingleTradeItemSerialNumber),
+                    Convert.ToString(this.SchemeData.LogisticUnitBatchLotNumber),
+                    Convert.ToDateTime(this.SchemeData.LogisticUnitBestBeforeSellByDate),
+                    Convert.ToDateTime(this.SchemeData.LogisticUnitExpiryUseByDate),
+                    Convert.ToDateTime(this.SchemeData.LogisticUnitProductionDate),
+                    Convert.ToDateTime(this.SchemeData.LogisticUnitDueDate),
+                    Convert.ToDateTime(this.SchemeData.LogisticUnitPackagingDate),
+                    Convert.ToString(this.SchemeData.LogisticUnitSkidNumber),
+                };
 
-                    cmndDetail.ExecuteNonQuery();
+                await conn.ExecuteAsync(query, parameters);
 
-                    //recDetail.SetInt32((int)SysCommon.ActDetailFields.SubType, (int)this.ActSubType);
-                    //recDetail.SetInt32((int)SysCommon.ActDetailFields.Status, (int)SysCommon.ActStatus.Inserted);
-                    //recDetail.SetInt32((int)SysCommon.ActDetailFields.ActivityItemRefno, this.ActItem.Refno);
-                    //recDetail.SetInt32((int)SysCommon.ActDetailFields.LocationMapRefno, this.LocMap.CurrLocMapRefno);
-                    //recDetail.SetInt32((int)SysCommon.ActDetailFields.ProductUnitRefno, this.ActItem.ProdInfo.UnitRefno);
-                    //recDetail.SetString((int)SysCommon.ActDetailFields.UniqueSchemeID, this.UniqueSchemeID);
-                    //recDetail.SetString((int)SysCommon.ActDetailFields.SchemeID, this.SchemeID);
-                    //recDetail.SetDecimal((int)SysCommon.ActDetailFields.Quantity, this.Quantity);
-                    //recDetail.SetDecimal((int)SysCommon.ActDetailFields.BaseQuantity, this.BaseQuantity);
-                    //recDetail.SetDecimal((int)SysCommon.ActDetailFields.WeightQuantity, this.WeightQuantity);
-                    //recDetail.SetString((int)SysCommon.ActDetailFields.SingleTradeItemSerialNumber, this.SchemeData.SingleTradeItemSerialNumber);
-                    //recDetail.SetString((int)SysCommon.ActDetailFields.LogisticUnitBatchLotNumber, this.SchemeData.LogisticUnitBatchLotNumber);
-                    //recDetail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitBestBeforeSellByDate, this.SchemeData.LogisticUnitBestBeforeSellByDate);
-                    //recDetail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitExpiryUseByDate, this.SchemeData.LogisticUnitExpiryUseByDate);
-                    //recDetail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitProductionDate, this.SchemeData.LogisticUnitProductionDate);
-                    //recDetail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitDueDate, this.SchemeData.LogisticUnitDueDate);
-                    //recDetail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitPackagingDate, this.SchemeData.LogisticUnitPackagingDate);
-                    //recDetail.SetString((int)SysCommon.ActDetailFields.LogisticUnitSkidNumber, this.SchemeData.LogisticUnitSkidNumber);
-                    //rsDetail.Insert(recDetail);
-                }
-
-                using (SQLiteCommand cmndID = conn.CreateCommand())
-                {
-                    cmndID.CommandText = "SELECT last_insert_rowid() FROM tActivityDetail";
-                    cmndID.CommandType = CommandType.Text;
-
-                    actDetailRefno = Convert.ToInt32(cmndID.ExecuteScalar());
-                }
-
+                actDetailRefno = Convert.ToInt32(await conn.QueryScalarsAsync<int>("SELECT last_insert_rowid() FROM tActivityDetail"));
                 this.FKRefno = actDetailRefno * -1;
 
                 if (0 < this.SchemeData.VariantNumber)
                 {
-                    using (SQLiteCommand cmndSchemeVar = conn.CreateCommand())
-                    using (SQLiteCommand cmndSchemeVarXRef = conn.CreateCommand())
+                    int schemeVarRefno = 0;
+                    List<tProductSchemeVariantModel> results = await conn.QueryAsync<tProductSchemeVariantModel>("SELECT * FROM tProductSchemeVariant WHERE ProductSchemeVariantNo = ?", Convert.ToInt32(this.SchemeData.VariantNumber));
+
+                    if (results != null && results.Count > 0)
                     {
-                        cmndSchemeVar.CommandText = "SELECT * FROM tProductSchemeVariant WHERE ProductSchemeVariantNo = @productSchemeVariantNo";
-                        cmndSchemeVar.CommandType = CommandType.Text;
-                        //cmndSchemeVar.IndexName = "UQ_ProductSchemeVariantOnProductSchemeVariantNo";
-                        cmndSchemeVar.Parameters.Add(new SQLiteParameter("@productSchemeVariantNo", Convert.ToInt32(this.SchemeData.VariantNumber)));
-
-                        //using (SqlCeResultSet rsSchemeVarXRef = cmndSchemeVarXRef.ExecuteResultSet(ResultSetOptions.Updatable))
-                        {
-                            //SqlCeUpdatableRecord recSchemeVarXRef = rsSchemeVarXRef.CreateRecord();
-
-                            int schemeVarRefno = 0;
-
-                            using (SQLiteDataReader drSchemeVar = cmndSchemeVar.ExecuteReader())
-                            {
-                                //if (drSchemeVar.Seek(DbSeekOptions.FirstEqual, new object[] { this.SchemeData.VariantNumber }))
-                                //{
-                                if (drSchemeVar.Read())
-                                {
-                                    schemeVarRefno = drSchemeVar.GetInt32(Convert.ToInt32(SysCommon.ProdSchemeVariantFields.Refno));
-
-                                    cmndSchemeVarXRef.CommandText = "INSERT INTO tActivityDetailProductSchemeVariantXRef (ActivityDetailRefno, ProductSchemeVariantRefno) VALUES (@activityDetailRefno, @productSchemeVariantRefno)";
-                                    cmndSchemeVarXRef.CommandType = CommandType.Text;
-                                    //cmndSchemeVarXRef.IndexName = "PK_ActivityDetailProductSchemeVariantXRefOnActivityDetailRefnoAndProductSchemeVariantRefno";
-                                    cmndSchemeVarXRef.Parameters.Add(new SQLiteParameter("@activityDetailRefno", Convert.ToInt32(actDetailRefno)));
-                                    cmndSchemeVarXRef.Parameters.Add(new SQLiteParameter("@productSchemeVariantRefno", Convert.ToInt32(schemeVarRefno)));
-
-                                    cmndSchemeVarXRef.ExecuteNonQuery();
-
-                                    //recSchemeVarXRef.SetInt32((int)SysCommon.ActDetailSchemeVariantXRefFields.ActDetailRefno, actDetailRefno);
-                                    //recSchemeVarXRef.SetInt32((int)SysCommon.ActDetailSchemeVariantXRefFields.ProdSchemeVariantRefno, schemeVarRefno);
-                                    //rsSchemeVarXRef.Insert(recSchemeVarXRef);
-                                }
-                                else
-                                {
-                                    throw new Exception("drSchemeVar.Read() failed.");
-                                }
-                                //}
-                                //else
-                                //{
-                                //    throw new Exception(string.Format("Unable to locate the product scheme variant no {0} in tProductSchemeVariant,", this.SchemeData.VariantNumber));
-                                //}
-                            }
-
-                        }
+                        schemeVarRefno = Convert.ToInt32(results[0].ProductSchemeVariantRefno);
+                        await conn.ExecuteAsync("INSERT INTO tActivityDetailProductSchemeVariantXRef (ActivityDetailRefno, ProductSchemeVariantRefno) VALUES (?, ?)", Convert.ToInt32(actDetailRefno), Convert.ToInt32(schemeVarRefno));
+                    }
+                    else
+                    {
+                        throw new Exception("drSchemeVar.Read() failed.");
                     }
                 }
 
                 if (!string.IsNullOrEmpty(this.ActExtra.Text1) || string.IsNullOrEmpty(this.ActExtra.Text2) || string.IsNullOrEmpty(this.ActExtra.Text3) || string.IsNullOrEmpty(this.ActExtra.Text4) || SysCommon.IsEmptyDate(this.ActExtra.DateTime5))
                 {
-                    using (SQLiteCommand cmndExtra = conn.CreateCommand())
+                    string queryExtra = "INSERT INTO tActivityDetailExtra (" +
+                        "ActivityDetailRefno, " +
+                        "ActivityDetailSubType, " +
+                        "ActivityDetailExtra1Text, " +
+                        "ActivityDetailExtra2Text, " +
+                        "ActivityDetailExtra3Text, " +
+                        "ActivityDetailExtra4Text, " +
+                        "ActivityDetailExtra5Date" +
+                        ") VALUES (" +
+                        "?, " +
+                        "?, " +
+                        "?, " +
+                        "?, " +
+                        "?, " +
+                        "?, " +
+                        "?" +
+                        ")";
+
+                    List<object> parametersExtra = new List<object>()
                     {
-                        cmndExtra.CommandText = "INSERT INTO tActivityDetailExtra (" +
-                            "ActivityDetailRefno, " +
-                            "ActivityDetailSubType, " +
-                            "ActivityDetailExtra1Text, " +
-                            "ActivityDetailExtra2Text, " +
-                            "ActivityDetailExtra3Text, " +
-                            "ActivityDetailExtra4Text, " +
-                            "ActivityDetailExtra5Date" +
-                            ") VALUES (" +                         
-                            "@activityDetailRefno, " +
-                            "@activityDetailSubType, " +
-                            "@activityDetailExtra1Text, " +
-                            "@activityDetailExtra2Text, " +
-                            "@activityDetailExtra3Text, " +
-                            "@activityDetailExtra4Text, " +
-                            "@activityDetailExtra5Date" +
-                            ")";
-                        cmndExtra.CommandType = CommandType.Text;
-                        //cmndExtra.IndexName = "PK_ActivityDetailExtraOnActivityDetailRefno";
-                        cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailRefno", Convert.ToInt32(actDetailRefno)));
-                        cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailSubType", Convert.ToInt32(this.ActSubType)));
-                        cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra1Text", Convert.ToString(this.ActExtra.Text1)));
-                        cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra2Text", Convert.ToString(this.ActExtra.Text2)));
-                        cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra3Text", Convert.ToString(this.ActExtra.Text3)));
-                        cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra4Text", Convert.ToString(this.ActExtra.Text4)));
-                        cmndExtra.Parameters.Add(new SQLiteParameter("@activityDetailExtra5Date", Convert.ToDateTime(this.ActExtra.DateTime5)));
+                        Convert.ToInt32(actDetailRefno),
+                        Convert.ToInt32(this.ActSubType),
+                        Convert.ToString(this.ActExtra.Text1),
+                        Convert.ToString(this.ActExtra.Text2),
+                        Convert.ToString(this.ActExtra.Text3),
+                        Convert.ToString(this.ActExtra.Text4),
+                        Convert.ToDateTime(this.ActExtra.DateTime5)
+                    };
 
-                        cmndExtra.ExecuteNonQuery();
-
-                        //recExtra.SetInt32((int)SysCommon.ActDetailExtraFields.ActDetailRefno, actDetailRefno);
-                        //recExtra.SetInt32((int)SysCommon.ActDetailExtraFields.ActDetailSubType, (int)this.ActSubType);
-                        //recExtra.SetString((int)SysCommon.ActDetailExtraFields.Text1, this.ActExtra.Text1);
-                        //recExtra.SetString((int)SysCommon.ActDetailExtraFields.Text2, this.ActExtra.Text2);
-                        //recExtra.SetString((int)SysCommon.ActDetailExtraFields.Text3, this.ActExtra.Text3);
-                        //recExtra.SetString((int)SysCommon.ActDetailExtraFields.Text4, this.ActExtra.Text4);
-                        //recExtra.SetString((int)SysCommon.ActDetailExtraFields.Text5, this.ActExtra.Text5);
-                        //rsExtra.Insert(recExtra);
-                    }
+                    await conn.ExecuteAsync(queryExtra, parametersExtra);
                 }
             }
             catch (SQLiteException ex)

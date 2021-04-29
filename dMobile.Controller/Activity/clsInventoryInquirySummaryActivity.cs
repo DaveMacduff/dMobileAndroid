@@ -59,9 +59,9 @@
         /// 
         /// </summary>
         /// <param name="idx"></param>
-        public override async Task SelectHdr(object selectedItem)
+        public override async Task SelectActivity(object selectedActivity)
         {
-            dynamic inventoryInquiry = selectedItem as dynamic;
+            dynamic inventoryInquiry = selectedActivity as dynamic;
 
             if (inventoryInquiry != null)
             {
@@ -82,6 +82,7 @@
 
             if (inventoryInquiry != null)
             {
+                this.SelectedActivity = inventoryInquiry;
                 this.FKRefno = Convert.ToInt32(inventoryInquiry.ActivityRefno);
                 this.Refno = Convert.ToInt32(inventoryInquiry.ActivityRefno);
             }
@@ -95,7 +96,7 @@
         /// <param name="isSubmitBatch"></param>
         /// <returns></returns>
         /// <remarks></remarks>
-        public override Task<List<object>> GetList(bool isSubmitBatch)
+        public override Task<List<object>> GetActivityList(bool isSubmitBatch)
         {
             throw new NotImplementedException();
         }

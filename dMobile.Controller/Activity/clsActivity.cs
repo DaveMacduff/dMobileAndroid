@@ -27,6 +27,7 @@ namespace dMobile.Controller
         private SysSkidInfo skidInfo = new SysSkidInfo();
         private DataLayerEventArgs dataEventArgs = new DataLayerEventArgs();
         private string fullClassName = typeof(Activity).FullName;
+        private object selectedActivity;
 
         #endregion
 
@@ -247,6 +248,22 @@ namespace dMobile.Controller
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        public object SelectedActivity
+        {
+            get
+            {
+                return this.selectedActivity;
+            }
+
+            set
+            {
+                this.selectedActivity = value;
+            }
+        }
+
         #endregion
 
         #region Public Members
@@ -270,7 +287,7 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="IsSubmitBatch"></param>
         /// <returns></returns>
-        public abstract Task<List<object>> GetList(bool isSubmitBatch);
+        public abstract Task<List<object>> GetActivityList(bool isSubmitBatch);
 
         /// <summary>
         /// 
@@ -283,14 +300,14 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="i"></param>
         /// <param name="lst"></param>
-        public abstract Task SelectHdr(object selectedItem);
+        public abstract Task SelectActivity(object selectedActivity);
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="idx"></param>
         /// <returns></returns>
-        public abstract int GetRefnoFromRowIdx(object selectedItem);
+        public abstract int GetRefnoFromRowIdx(object selectedActivity);
 
         /// <summary>
         /// 
@@ -434,7 +451,7 @@ namespace dMobile.Controller
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public virtual async Task<bool> ChangeStatus(object selectedItem)
+        public virtual async Task<bool> ChangeStatus(object selectedActivity)
         {
             return true;
         }

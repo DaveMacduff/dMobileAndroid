@@ -48,7 +48,7 @@ namespace dMobile.Controller
         /// 
         /// </summary>
         /// <param name="i"></param>
-        public override Task SelectHdr(object selectedItem)
+        public override Task SelectActivity(object selectedActivity)
         {
             throw new NotImplementedException();
         }
@@ -70,7 +70,7 @@ namespace dMobile.Controller
         /// <param name="isSubmitBatch"></param>
         /// <returns></returns>
         /// <remarks></remarks>
-        public override Task<List<object>> GetList(bool isSubmitBatch)
+        public override Task<List<object>> GetActivityList(bool isSubmitBatch)
         {
             throw new NotImplementedException();
         }

@@ -161,7 +161,7 @@
             {
                 dataConnUniq = new DatabaseConnection();
                 dbASCIIZ = Path.Combine(dbPath, dbName);
-                connString = new SQLiteConnectionString(dbASCIIZ);
+                //connString = new SQLiteConnectionString(dbASCIIZ);
                 // foreign keys=true HAS to be specified or SQLite will not enforce foreign key constraints
                 //connString = "Data Source = '" + dbASCIIZ + "'; foreign keys=true;";
                 //connString = "Data Source = '" + dbPath + dbName + "'; Password = " + dbPassword;
@@ -179,7 +179,7 @@
         {
             if (File.Exists(dbASCIIZ) & sqlConn == null)
             {
-                sqlConn = new SQLiteAsyncConnection(connString);
+                sqlConn = new SQLiteAsyncConnection(dbASCIIZ, SQLiteOpenFlags.Create | SQLiteOpenFlags.FullMutex | SQLiteOpenFlags.ReadWrite);
             }
 
             //if (sqlConn != null)

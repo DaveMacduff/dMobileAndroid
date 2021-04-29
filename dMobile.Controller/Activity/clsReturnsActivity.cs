@@ -3,7 +3,7 @@ namespace dMobile.Controller
     using System;
     using System.Collections.ObjectModel;
     using System.Data;
-    using System.Data.SQLite;
+    using SQLite;
     using System.Text;
     using System.Xml.Linq;
     using dMobile.Bedrock;
@@ -11,6 +11,9 @@ namespace dMobile.Controller
     using dMobile.Resources.Services;
     using dMobile.Resources.Types;
     using Xamarin.Forms;
+    using System.Threading.Tasks;
+    using System.Collections.Generic;
+    using System.Linq;
 
     public class ReturnsActivity : Activity
     {
@@ -94,21 +97,21 @@ namespace dMobile.Controller
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
-            foreach (DataRow row in this.DataViewHdrs.ToTable().Rows)
+            foreach (Return returns in this.ListHdrs)
             {
-                Return returns = new Return
-                {
-                    ActivityReturnsFKRefno = Convert.ToInt32(row["ActivityReturnsFKRefno"] != DBNull.Value ? row["ActivityReturnsFKRefno"] : null),
-                    ActivityReturnsStringFKRefno = Convert.ToString(row["ActivityReturnsStringFKRefno"] != DBNull.Value ? row["ActivityReturnsStringFKRefno"] : null),
-                    ActivityReturnsOrderedDateTime = Convert.ToDateTime(row["ActivityReturnsOrderedDateTime"] != DBNull.Value ? row["ActivityReturnsOrderedDateTime"] : null),
-                    ActivityReturnsDeliveryDateTime = Convert.ToDateTime(row["ActivityReturnsDeliveryDateTime"] != DBNull.Value ? row["ActivityReturnsDeliveryDateTime"] : null),
-                    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
-                    LocationMapWarehouseFKRefno = Convert.ToInt32(row["LocationMapWarehouseFKRefno"] != DBNull.Value ? row["LocationMapWarehouseFKRefno"] : null),
-                    LocationMapWarehouseName = Convert.ToString(row["LocationMapWarehouseName"] != DBNull.Value ? row["LocationMapWarehouseName"] : null),
-                    ActivityReturnsCustomerContactName = Convert.ToString(row["ActivityReturnsCustomerContactName"] != DBNull.Value ? row["ActivityReturnsCustomerContactName"] : null),
-                    ActivityReturnsCustomerShipToInfo = Convert.ToString(row["ActivityReturnsCustomerShipToInfo"] != DBNull.Value ? row["ActivityReturnsCustomerShipToInfo"] : null),
-                    ActivityStatus = Convert.ToInt32(row["ActivityStatus"] != DBNull.Value ? row["ActivityStatus"] : null),
-                };
+                //Return returns = new Return
+                //{
+                //    ActivityReturnsFKRefno = Convert.ToInt32(row["ActivityReturnsFKRefno"] != DBNull.Value ? row["ActivityReturnsFKRefno"] : null),
+                //    ActivityReturnsStringFKRefno = Convert.ToString(row["ActivityReturnsStringFKRefno"] != DBNull.Value ? row["ActivityReturnsStringFKRefno"] : null),
+                //    ActivityReturnsOrderedDateTime = Convert.ToDateTime(row["ActivityReturnsOrderedDateTime"] != DBNull.Value ? row["ActivityReturnsOrderedDateTime"] : null),
+                //    ActivityReturnsDeliveryDateTime = Convert.ToDateTime(row["ActivityReturnsDeliveryDateTime"] != DBNull.Value ? row["ActivityReturnsDeliveryDateTime"] : null),
+                //    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
+                //    LocationMapWarehouseFKRefno = Convert.ToInt32(row["LocationMapWarehouseFKRefno"] != DBNull.Value ? row["LocationMapWarehouseFKRefno"] : null),
+                //    LocationMapWarehouseName = Convert.ToString(row["LocationMapWarehouseName"] != DBNull.Value ? row["LocationMapWarehouseName"] : null),
+                //    ActivityReturnsCustomerContactName = Convert.ToString(row["ActivityReturnsCustomerContactName"] != DBNull.Value ? row["ActivityReturnsCustomerContactName"] : null),
+                //    ActivityReturnsCustomerShipToInfo = Convert.ToString(row["ActivityReturnsCustomerShipToInfo"] != DBNull.Value ? row["ActivityReturnsCustomerShipToInfo"] : null),
+                //    ActivityStatus = Convert.ToInt32(row["ActivityStatus"] != DBNull.Value ? row["ActivityStatus"] : null),
+                //};
 
                 observableCollection.Add(returns);
             }
@@ -177,79 +180,13 @@ namespace dMobile.Controller
             return observableCollection;
         }
 
-        //    /// <summary>
-        //    ///
-        //    /// </summary>
-        //    /// <remarks></remarks>
-        //    public override void DesignDataGrid(DataGrid dataGridMain)
-        //    {
-        //      int colWidthFactor = 1;
-
-        //      if (this.SysEnv.IsWindowsMobile6Device)
-        //      {
-        //        colWidthFactor = 2;
-        //      }
-
-        //      if (dataGridMain.TableStyles.Count > 0)
-        //      {
-        //        dataGridMain.TableStyles.Clear();
-        //      }
-
-        //      DataGridTableStyle dataGridStyle = new DataGridTableStyle();
-        //      dataGridStyle.MappingName = this.MainGridMappingName;
-
-        //      DataGridTextBoxColumn dataGridCol = new DataGridTextBoxColumn();
-        //      dataGridCol.MappingName = "ActivityReturnsStringFKRefno";
-        //#if MULTILANGUAGE
-        //      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Returnz);
-        //#else
-        //      dataGridCol.HeaderText = "Return #";
-        //#endif
-        //      dataGridCol.Width = 50 * colWidthFactor;
-        //      dataGridStyle.GridColumnStyles.Add(dataGridCol);
-
-        //      dataGridCol = new DataGridTextBoxColumn();
-        //      dataGridCol.MappingName = "ActivityReturnsOrderedDateTime";
-        //#if MULTILANGUAGE
-        //      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Entered);
-        //#else
-        //      dataGridCol.HeaderText = "Entered";
-        //#endif
-        //      dataGridCol.Width = 70 * colWidthFactor;
-        //      dataGridStyle.GridColumnStyles.Add(dataGridCol);
-
-        //      dataGridCol = new DataGridTextBoxColumn();
-        //      dataGridCol.MappingName = "ActivityReturnsDeliveryDateTime";
-        //#if MULTILANGUAGE
-        //      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Returned);
-        //#else
-        //      dataGridCol.HeaderText = "Returned";
-        //#endif
-        //      dataGridCol.Width = 65 * colWidthFactor;
-        //      dataGridStyle.GridColumnStyles.Add(dataGridCol);
-
-        //      dataGridCol = new DataGridTextBoxColumn();
-        //      dataGridCol.MappingName = "ActivityReturnsCustomerShipToInfo";
-        //#if MULTILANGUAGE
-        //      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.ShipTo);
-        //#else
-        //      dataGridCol.HeaderText = "Ship To";
-        //#endif
-        //      dataGridCol.Width = 100 * colWidthFactor;
-        //      dataGridStyle.GridColumnStyles.Add(dataGridCol);
-
-        //      dataGridMain.TableStyles.Add(dataGridStyle);
-        //      dataGridMain.RowHeadersVisible = false;
-        //      dataGridMain.ColumnHeadersVisible = true;
-        //    }
-
         /// <summary>
         ///
         /// </summary>
         /// <param name="isSubmitBatch"></param>
         /// <returns></returns>
         /// <remarks></remarks>
-        public override DataView GetDataView(bool isSubmitBatch)
+        public override async Task<List<object>> GetActivityList(bool isSubmitBatch)
         {
             StringBuilder sql = new StringBuilder();
 
@@ -328,19 +265,21 @@ namespace dMobile.Controller
                 sql.Append(" INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityReturns.ActivityRefno");
             }
 
-            using (SQLiteDataAdapter dataAdapterReturns = new SQLiteDataAdapter(sql.ToString(), DatabaseConnection.GetInstance().SQLConn))
-            {
-                using (DataSet dataSetReturns = new DataSet())
-                {
-                    dataAdapterReturns.Fill(dataSetReturns);
+            //using (SQLiteDataAdapter dataAdapterReturns = new SQLiteDataAdapter(sql.ToString(), DatabaseConnection.GetInstance().SQLConn))
+            //{
+            //    using (DataSet dataSetReturns = new DataSet())
+            //    {
+            //        dataAdapterReturns.Fill(dataSetReturns);
 
-                    this.DataViewHdrs = dataSetReturns.Tables[0].DefaultView;
-                    this.DataViewHdrs.Table.TableName = this.MainGridMappingName;
-                    this.DataViewHdrs.Sort = new ReturnsSettings().LoadData().GetDataViewSortBy();
-                }
-            }
+            //        this.DataViewHdrs = dataSetReturns.Tables[0].DefaultView;
+            //        this.DataViewHdrs.Table.TableName = this.MainGridMappingName;
+            //        TODO: Fix sorting
+            //        this.DataViewHdrs.Sort = new ReturnsSettings().LoadData().GetDataViewSortBy();
+            //    }
+            //}
 
-            return this.DataViewHdrs;
+            this.ListHdrs = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<object>(sql.ToString());
+            return this.ListHdrs;
         }
 
         /// <summary>
@@ -354,29 +293,29 @@ namespace dMobile.Controller
 
             if (string.IsNullOrEmpty(this.ActFilter))
             {
-                this.DataViewHdrs.RowFilter = "ActivityReturnsStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
+                //this.DataViewHdrs.RowFilter = "ActivityReturnsStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
+                this.ListHdrs = (List<object>)this.ListHdrs.OfType<Return>().Where(returns => returns.ActivityReturnsStringFKRefno.Contains(searchText.Trim()));
             }
             else
             {
-                this.DataViewHdrs.RowFilter = this.ActFilter + " AND ActivityReturnsStringFKRefno LIKE \'%"
-                    + searchText.Trim() + "%\'";
+                //this.DataViewHdrs.RowFilter = this.ActFilter + " AND ActivityReturnsStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
             }
 
-            foreach (DataRow row in this.DataViewHdrs.ToTable().Rows)
+            foreach (Return returns in this.ListHdrs)
             {
-                Return returns = new Return
-                {
-                    ActivityReturnsFKRefno = Convert.ToInt32(row["ActivityReturnsFKRefno"] != DBNull.Value ? row["ActivityReturnsFKRefno"] : null),
-                    ActivityReturnsStringFKRefno = Convert.ToString(row["ActivityReturnsStringFKRefno"] != DBNull.Value ? row["ActivityReturnsStringFKRefno"] : null),
-                    ActivityReturnsOrderedDateTime = Convert.ToDateTime(row["ActivityReturnsOrderedDateTime"] != DBNull.Value ? row["ActivityReturnsOrderedDateTime"] : null),
-                    ActivityReturnsDeliveryDateTime = Convert.ToDateTime(row["ActivityReturnsDeliveryDateTime"] != DBNull.Value ? row["ActivityReturnsDeliveryDateTime"] : null),
-                    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
-                    LocationMapWarehouseFKRefno = Convert.ToInt32(row["LocationMapWarehouseFKRefno"] != DBNull.Value ? row["LocationMapWarehouseFKRefno"] : null),
-                    LocationMapWarehouseName = Convert.ToString(row["LocationMapWarehouseName"] != DBNull.Value ? row["LocationMapWarehouseName"] : null),
-                    ActivityReturnsCustomerContactName = Convert.ToString(row["ActivityReturnsCustomerContactName"] != DBNull.Value ? row["ActivityReturnsCustomerContactName"] : null),
-                    ActivityReturnsCustomerShipToInfo = Convert.ToString(row["ActivityReturnsCustomerShipToInfo"] != DBNull.Value ? row["ActivityReturnsCustomerShipToInfo"] : null),
-                    ActivityStatus = Convert.ToInt32(row["ActivityStatus"] != DBNull.Value ? row["ActivityStatus"] : null),
-                };
+                //Return returns = new Return
+                //{
+                //    ActivityReturnsFKRefno = Convert.ToInt32(row["ActivityReturnsFKRefno"] != DBNull.Value ? row["ActivityReturnsFKRefno"] : null),
+                //    ActivityReturnsStringFKRefno = Convert.ToString(row["ActivityReturnsStringFKRefno"] != DBNull.Value ? row["ActivityReturnsStringFKRefno"] : null),
+                //    ActivityReturnsOrderedDateTime = Convert.ToDateTime(row["ActivityReturnsOrderedDateTime"] != DBNull.Value ? row["ActivityReturnsOrderedDateTime"] : null),
+                //    ActivityReturnsDeliveryDateTime = Convert.ToDateTime(row["ActivityReturnsDeliveryDateTime"] != DBNull.Value ? row["ActivityReturnsDeliveryDateTime"] : null),
+                //    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
+                //    LocationMapWarehouseFKRefno = Convert.ToInt32(row["LocationMapWarehouseFKRefno"] != DBNull.Value ? row["LocationMapWarehouseFKRefno"] : null),
+                //    LocationMapWarehouseName = Convert.ToString(row["LocationMapWarehouseName"] != DBNull.Value ? row["LocationMapWarehouseName"] : null),
+                //    ActivityReturnsCustomerContactName = Convert.ToString(row["ActivityReturnsCustomerContactName"] != DBNull.Value ? row["ActivityReturnsCustomerContactName"] : null),
+                //    ActivityReturnsCustomerShipToInfo = Convert.ToString(row["ActivityReturnsCustomerShipToInfo"] != DBNull.Value ? row["ActivityReturnsCustomerShipToInfo"] : null),
+                //    ActivityStatus = Convert.ToInt32(row["ActivityStatus"] != DBNull.Value ? row["ActivityStatus"] : null),
+                //};
 
                 observableCollection.Add(returns);
             }
@@ -388,17 +327,20 @@ namespace dMobile.Controller
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override void SelectHdr(int idx)
+        public override async Task SelectActivity(object selectedActivity)
         {
-            this.FKRefno = Convert.ToInt32(this.DataViewHdrs[idx]["ActivityReturnsFKRefno"]);
-            this.Refno = Convert.ToInt32(this.DataViewHdrs[idx]["ActivityRefno"]);
-            this.SelectedIndex = idx;
-
-            // Set the selected warehouse to the activity header warehouse.
-            if (LocationMap.GetInstance().CurrLocMap.WhsLocMapRefno != Convert.ToInt32(this.DataViewHdrs[idx]["LocationMapRefno"]))
+            if (selectedActivity is Return returns)
             {
-                LocationMap.GetInstance().CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(this.DataViewHdrs[idx]["LocationMapRefno"]));
-            }
+                this.SelectedActivity = returns;
+                this.FKRefno = Convert.ToInt32(returns.ActivityReturnsFKRefno);
+                this.Refno = Convert.ToInt32(returns.ActivityRefno);
+
+                // Set the selected warehouse to the activity header warehouse.
+                if (LocationMap.GetInstance().CurrLocMap.WhsLocMapRefno != Convert.ToInt32(returns.LocationMapRefno))
+                {
+                    LocationMap.GetInstance().CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(returns.LocationMapRefno));
+                }
+            } 
         }
 
         /// <summary>
@@ -407,10 +349,13 @@ namespace dMobile.Controller
         /// <param name="i"></param>
         /// <returns></returns>
         /// <remarks></remarks>
-        public override int GetRefnoFromRowIdx(int idx)
+        public override int GetRefnoFromRowIdx(object selectedItem)
         {
-            this.FKRefno = Convert.ToInt32(this.DataViewHdrs[idx]["ActivityReturnsFKRefno"]);
-            this.Refno = Convert.ToInt32(this.DataViewHdrs[idx]["ActivityRefno"]);
+            if (selectedItem is Return returns)
+            {
+                this.FKRefno = Convert.ToInt32(returns.ActivityReturnsFKRefno);
+                this.Refno = Convert.ToInt32(returns.ActivityRefno);
+            }
 
             return this.Refno;
         }
@@ -419,7 +364,7 @@ namespace dMobile.Controller
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override void Refresh(XDocument data)
+        public override async Task Refresh(XDocument data)
         {
             if (this.SysEnv.SysSettings.IsDisconnectedMode)
             {
@@ -428,7 +373,7 @@ namespace dMobile.Controller
             else
             {
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 2);
-                this.Purge();
+                await this.Purge();
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
 
                 TableActivityReturns tableActReturns = new TableActivityReturns();
@@ -443,7 +388,7 @@ namespace dMobile.Controller
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override void Purge()
+        public override async Task Purge()
         {
             TableActivityReturns tableActReturns = new TableActivityReturns();
             TableActivityReturnsItem tableActReturnsItem = new TableActivityReturnsItem();

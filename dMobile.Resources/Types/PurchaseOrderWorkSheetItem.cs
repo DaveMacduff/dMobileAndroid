@@ -3,6 +3,7 @@
     public class PurchaseOrderWorkSheetItem
     {
         private int activityItemRefno;
+        private int activityRefno;
         private int activityItemPurchaseOrderWorkSheetFKRefno;
         private string activityItemPurchaseOrderWorkSheetStringFKRefno;
         private int productUnitRefno;
@@ -20,6 +21,7 @@
         private int activityItemStatus;
 
         public int ActivityItemRefno { get => activityItemRefno; set => activityItemRefno = value; }
+        public int ActivityRefno { get => activityRefno; set => activityRefno = value; }
         public int ActivityItemPurchaseOrderWorkSheetFKRefno { get => activityItemPurchaseOrderWorkSheetFKRefno; set => activityItemPurchaseOrderWorkSheetFKRefno = value; }
         public string ActivityItemPurchaseOrderWorkSheetStringFKRefno { get => activityItemPurchaseOrderWorkSheetStringFKRefno; set => activityItemPurchaseOrderWorkSheetStringFKRefno = value; }
         public int ProductUnitRefno { get => productUnitRefno; set => productUnitRefno = value; }

@@ -222,69 +222,13 @@ namespace dMobile.Controller
             return observableCollection;
         }
 
-        //    /// <summary>
-        //    ///
-        //    /// </summary>
-        //    /// <remarks></remarks>
-        //    public override void DesignDataGrid(DataGrid dataGridMain)
-        //    {
-        //      int colWidthFactor = 1;
-
-        //      if (this.SysEnv.IsWindowsMobile6Device)
-        //      {
-        //        colWidthFactor = 2;
-        //      }
-
-        //      if (dataGridMain.TableStyles.Count > 0)
-        //      {
-        //        dataGridMain.TableStyles.Clear();
-        //      }
-
-        //      DataGridTableStyle dataGridStyle = new DataGridTableStyle();
-        //      dataGridStyle.MappingName = this.MainGridMappingName;
-
-        //      DataGridTextBoxColumn dataGridCol = new DataGridTextBoxColumn();
-        //      dataGridCol.MappingName = "ActivityAdjustmentStringFKRefno";
-        //#if MULTILANGUAGE
-        //      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Adj);
-        //#else
-        //      dataGridCol.HeaderText = "Adj #";
-        //#endif
-        //      dataGridCol.Width = 68 * colWidthFactor;
-        //      dataGridStyle.GridColumnStyles.Add(dataGridCol);
-
-        //      dataGridCol = new DataGridTextBoxColumn();
-        //      dataGridCol.MappingName = "ActivityAdjustmentDateTime";
-        //#if MULTILANGUAGE
-        //      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Date);
-        //#else
-        //      dataGridCol.HeaderText = "Date";
-        //#endif
-        //      dataGridCol.Width = 65 * colWidthFactor;
-        //      dataGridStyle.GridColumnStyles.Add(dataGridCol);
-
-        //      dataGridCol = new DataGridTextBoxColumn();
-        //      dataGridCol.MappingName = "ActivityAdjustmentDescription";
-        //#if MULTILANGUAGE
-        //      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Description);
-        //#else
-        //      dataGridCol.HeaderText = "Description";
-        //#endif
-        //      dataGridCol.Width = 100 * colWidthFactor;
-        //      dataGridStyle.GridColumnStyles.Add(dataGridCol);
-
-        //      dataGridMain.TableStyles.Add(dataGridStyle);
-        //      dataGridMain.RowHeadersVisible = false;
-        //      dataGridMain.ColumnHeadersVisible = true;
-        //    }
-
         /// <summary>
         ///
         /// </summary>
         /// <param name="isSubmitBatch"></param>
         /// <returns></returns>
         /// <remarks></remarks>
-        public override async Task<List<object>> GetList(bool isSubmitBatch)
+        public override async Task<List<object>> GetActivityList(bool isSubmitBatch)
         {
             AdjustmentSettings adjSettings = new AdjustmentSettings().LoadData();
             StringBuilder sql = new StringBuilder();
@@ -371,7 +315,7 @@ namespace dMobile.Controller
             //        dataAdapterAdj.Fill(dataSetAdj);
             //        this.DataViewHdrs = dataSetAdj.Tables[0].DefaultView;
             //        this.DataViewHdrs.Table.TableName = this.MainGridMappingName;
-            // TODO: Fix sorting
+            //        TODO: Fix sorting
             //        this.DataViewHdrs.Sort = adjSettings.GetDataViewSortBy();
             //        this.DataViewHdrs.RowFilter = this.GetFilter();
             //    }
@@ -395,13 +339,13 @@ namespace dMobile.Controller
             if (string.IsNullOrEmpty(this.ActFilter))
             {
                 //this.DataViewHdrs.RowFilter = "ActivityAdjustmentStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
-                this.ListHdrs = (List<object>)this.ListHdrs.OfType<Adjustment>().Where(adj => (adj.ActivityAdjustmentStringFKRefno as string).Contains(searchText.Trim()));
+                this.ListHdrs = (List<object>)this.ListHdrs.OfType<Adjustment>().Where(adj => adj.ActivityAdjustmentStringFKRefno.Contains(searchText.Trim()));
 
             }
             else
             {
+                // TODO: Fix filtering
                 //this.DataViewHdrs.RowFilter = this.ActFilter + " AND ActivityAdjustmentStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
-                this.ListHdrs = (List<object>)this.ListHdrs.OfType<Adjustment>().Where(adj => this.ActFilter.Contains(searchText.Trim()) && (adj.ActivityAdjustmentStringFKRefno as string).Contains(searchText.Trim()));
             }
 
             foreach (Adjustment adjustment in this.ListHdrs)
@@ -433,10 +377,11 @@ namespace dMobile.Controller
         /// <param name="i"></param>
         /// <param name="lstDisplay"></param>
         /// <remarks></remarks>
-        public override async Task SelectHdr(object selectedItem)
+        public override async Task SelectActivity(object selectedActivity)
         {
-            if (selectedItem is Adjustment adjustment)
+            if (selectedActivity is Adjustment adjustment)
             {
+                this.SelectedActivity = adjustment;
                 //this.FKRefno = Convert.ToInt32(this.DataViewHdrs[idx]["ActivityAdjustmentFKRefno"]);
                 //this.Refno = Convert.ToInt32(this.DataViewHdrs[idx]["ActivityRefno"]);
                 this.FKRefno = adjustment.ActivityAdjustmentFKRefno;
@@ -672,7 +617,7 @@ namespace dMobile.Controller
             }
         }
 
-        public override async Task<bool> ChangeStatus(int selectedIndex)
+        public override async Task<bool> ChangeStatus(object selectedActivity)
         {
             bool result = false;
             if (AdjSettings.AdjustmentType == SysCommon.AdjTypes.Debox && !SysEnv.SysSettings.IsDisconnectedMode)

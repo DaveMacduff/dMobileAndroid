@@ -128,10 +128,14 @@ namespace dMobile.Controller
         /// 
         /// </summary>
         /// <param name="idx"></param>
-        public override async Task SelectHdr(object selectedObject)
+        public override async Task SelectActivity(object selectedActivity)
         {
-            this.FKRefno = Convert.ToInt32((selectedObject as dynamic).ActivityRefno);
-            this.Refno = Convert.ToInt32((selectedObject as dynamic).ActivityRefno);
+            if (selectedActivity is BarcodeAssociation barcodeAssociation)
+            {
+                this.SelectedActivity = barcodeAssociation;
+                this.FKRefno = Convert.ToInt32((selectedActivity as dynamic).ActivityRefno);
+                this.Refno = Convert.ToInt32((selectedActivity as dynamic).ActivityRefno);
+            }
         }
 
         /// <summary>
@@ -153,7 +157,7 @@ namespace dMobile.Controller
         /// <param name="isSubmitBatch"></param>
         /// <returns></returns>
         /// <remarks></remarks>
-        public override async Task<List<object>> GetList(bool isSubmitBatch)
+        public override async Task<List<object>> GetActivityList(bool isSubmitBatch)
         {
             StringBuilder sql = new StringBuilder();
 
