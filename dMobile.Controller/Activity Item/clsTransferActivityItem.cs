@@ -3,7 +3,7 @@ namespace dMobile.Controller
     using System;
     using System.Collections.ObjectModel;
     using System.Data;
-    using System.Data.SQLite;
+    using SQLite;
     using System.Text;
     using System.Threading.Tasks;
     using System.Xml;
@@ -13,6 +13,8 @@ namespace dMobile.Controller
     using dMobile.Resources.Services;
     using dMobile.Resources.Types;
     using Xamarin.Forms;
+    using System.Collections.Generic;
+    using System.Linq;
 
     public class TransferActItem : ActItem
     {
@@ -207,47 +209,29 @@ namespace dMobile.Controller
         {
             int prodUnitRefno = int.Parse(data.Root.Element("ProductUnitRefno").Value);
 
-            using (SQLiteCommand cmndActTransferItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-            using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-            using (SQLiteCommand cmndID = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+            await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(async (transaction) =>
             {
-                //using (SqlCeResultSet rs = cmndActTransferItem.ExecuteResultSet(ResultSetOptions.Updatable))
-                //{
-                //SqlCeUpdatableRecord rec = rs.CreateRecord();
-
-                //using (SqlCeResultSet rsActItem = cmndItem.ExecuteResultSet(ResultSetOptions.Updatable))
-                //{
-                //SqlCeUpdatableRecord recActItem = rsActItem.CreateRecord();
-
-                cmndItem.CommandText = "INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (@activityItemSubType, @activityItemStatus, @activityRefno)";
-                cmndItem.CommandType = CommandType.Text;
+                string queryActivityItem = "INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (?, ?, ?)";
+                List<object> parametersActivityItem = new List<object>();
 
                 if (this.ActSubType == SysCommon.ActSubTypes.TransferFrom)
                 {
-                    cmndItem.Parameters.Add(new SQLiteParameter("@activityItemSubType", Convert.ToInt32(SysCommon.ActSubTypes.TransferFrom)));
+                    parametersActivityItem.Add(Convert.ToInt32(SysCommon.ActSubTypes.TransferFrom));
                 }
                 else
                 {
-                    cmndItem.Parameters.Add(new SQLiteParameter("@activityItemSubType", Convert.ToInt32(SysCommon.ActSubTypes.TransferTo)));
+                    parametersActivityItem.Add(Convert.ToInt32(SysCommon.ActSubTypes.TransferTo));
                 }
 
-                cmndItem.Parameters.Add(new SQLiteParameter("@activityItemStatus", Convert.ToInt32(SysCommon.ActStatus.NoChange)));
-                cmndItem.Parameters.Add(new SQLiteParameter("@activityRefno", Convert.ToInt32(this.ActHdr.Refno)));
+                parametersActivityItem.Add(Convert.ToInt32(SysCommon.ActStatus.NoChange));
+                parametersActivityItem.Add(Convert.ToInt32(this.ActHdr.Refno));
 
-                cmndItem.ExecuteNonQuery();
+                transaction.Execute(queryActivityItem, parametersActivityItem);
 
-                //recActItem.SetInt32((int)SysCommon.ActItemFields.SubType, (int)SysCommon.ActSubTypes.TransferFrom);
-                //recActItem.SetInt32((int)SysCommon.ActItemFields.Status, (int)SysCommon.ActStatus.NoChange);
-                //recActItem.SetInt32((int)SysCommon.ActItemFields.ActRefno, this.ActHdr.Refno);
-                //rsActItem.Insert(recActItem);
-
-                cmndID.CommandText = "SELECT last_insert_rowid() FROM tActivityItem";
-                cmndID.CommandType = CommandType.Text;
-
-                this.Refno = Convert.ToInt32(cmndID.ExecuteScalar());
+                this.Refno = Convert.ToInt32(transaction.QueryScalars<int>("SELECT last_insert_rowid() FROM tActivityItem"));
                 this.FKRefno = this.Refno * -1;
 
-                cmndActTransferItem.CommandText = "INSERT INTO tActivityItemTransfer (" +
+                string queryTransferItem = "INSERT INTO tActivityItemTransfer (" +
                     "ActivityItemRefno, " +
                     "ActivityItemSubType, " +
                     "ActivityItemTransferFKRefno, " +
@@ -259,87 +243,75 @@ namespace dMobile.Controller
                     "ActivityItemTransferBaseQuantity, " +
                     "ActivityItemTransferWeightQuantity" +
                     ") VALUES (" +
-                    "@activityItemRefno, " +
-                    "@activityItemSubType, " +
-                    "@activityItemTransferFKRefno, " +
-                    "@activityItemTransferStringFKRefno, " +
-                    "@productUnitRefno, " +
-                    "@transferFromWarehouseLocationMapRefno, " +
-                    "@activityItemTransferRequiredQuantity, " +
-                    "@activityItemTransferQuantity, " +
-                    "@activityItemTransferBaseQuantity, " +
-                    "@activityItemTransferWeightQuantity" +
+                    "?, " +
+                    "?, " +
+                    "?, " +
+                    "?, " +
+                    "?, " +
+                    "?, " +
+                    "?, " +
+                    "?, " +
+                    "?, " +
+                    "?" +
                     ")";
-                cmndActTransferItem.CommandType = CommandType.Text;
-                //cmndActTransferItem.IndexName = "UQ_ActivityItemTransferOnActivityItemTransferFKRefno";
-                cmndActTransferItem.Parameters.Add(new SQLiteParameter("@activityItemRefno", Convert.ToInt32(this.Refno)));
+                List<object> parametersTransferItem = new List<object>();
+                parametersTransferItem.Add(Convert.ToInt32(this.Refno));
 
                 if (this.ActSubType == SysCommon.ActSubTypes.TransferFrom)
                 {
-                    cmndActTransferItem.Parameters.Add(new SQLiteParameter("@activityItemSubType", Convert.ToInt32(SysCommon.ActSubTypes.TransferFrom)));
+                    parametersTransferItem.Add(Convert.ToInt32(SysCommon.ActSubTypes.TransferFrom));
                 }
                 else
                 {
-                    cmndActTransferItem.Parameters.Add(new SQLiteParameter("@activityItemSubType", Convert.ToInt32(SysCommon.ActSubTypes.TransferTo)));
+                    parametersTransferItem.Add(Convert.ToInt32(SysCommon.ActSubTypes.TransferTo));
                 }
 
-                cmndActTransferItem.Parameters.Add(new SQLiteParameter("@activityItemTransferFKRefno", Convert.ToInt32(this.FKRefno)));
-                cmndActTransferItem.Parameters.Add(new SQLiteParameter("@activityItemTransferStringFKRefno", Convert.ToString(this.FKRefno)));
-                cmndActTransferItem.Parameters.Add(new SQLiteParameter("@productUnitRefno", Convert.ToInt32(prodUnitRefno)));
-                cmndActTransferItem.Parameters.Add(new SQLiteParameter("@transferFromWarehouseLocationMapRefno", Convert.ToInt32(this.LocMap.CurrLocMap.WhsLocMapRefno)));
-                cmndActTransferItem.Parameters.Add(new SQLiteParameter("@activityItemTransferRequiredQuantity", Convert.ToInt32(0)));
-                cmndActTransferItem.Parameters.Add(new SQLiteParameter("@activityItemTransferQuantity", Convert.ToInt32(0)));
-                cmndActTransferItem.Parameters.Add(new SQLiteParameter("@activityItemTransferBaseQuantity", Convert.ToInt32(0)));
-                cmndActTransferItem.Parameters.Add(new SQLiteParameter("@activityItemTransferWeightQuantity", Convert.ToInt32(0)));
+                parametersTransferItem.Add(Convert.ToInt32(this.FKRefno));
+                parametersTransferItem.Add(Convert.ToString(this.FKRefno));
+                parametersTransferItem.Add(Convert.ToInt32(prodUnitRefno));
+                parametersTransferItem.Add(Convert.ToInt32(this.LocMap.CurrLocMap.WhsLocMapRefno));
+                parametersTransferItem.Add(Convert.ToInt32(0));
+                parametersTransferItem.Add(Convert.ToInt32(0));
+                parametersTransferItem.Add(Convert.ToInt32(0));
+                parametersTransferItem.Add(Convert.ToInt32(0));
 
-                cmndActTransferItem.ExecuteNonQuery();
+                transaction.Execute(queryTransferItem, parametersTransferItem);
 
-                //rec.SetInt32((int)SysCommon.ActItemTransferFields.ActItemRefno, this.Refno);
-                //rec.SetInt32((int)SysCommon.ActItemTransferFields.ActItemSubType, (int)SysCommon.ActSubTypes.TransferFrom);
-                //rec.SetInt32((int)SysCommon.ActItemTransferFields.FKRefno, this.FKRefno);
-                //rec.SetString((int)SysCommon.ActItemTransferFields.StringFKRefno, this.FKRefno.ToString());
-                //rec.SetInt32((int)SysCommon.ActItemTransferFields.ProductUnitRefno, prodUnitRefno);
-                //rec.SetInt32((int)SysCommon.ActItemTransferFields.TransferFromWhsLocMapRefno, this.LocMap.CurrLocMap.WhsLocMapRefno);
-                //rec.SetDecimal((int)SysCommon.ActItemTransferFields.RequiredQuantity, 0);
-                //rec.SetDecimal((int)SysCommon.ActItemTransferFields.Quantity, 0);
-                //rec.SetDecimal((int)SysCommon.ActItemTransferFields.BaseQuantity, 0);
-                //rec.SetDecimal((int)SysCommon.ActItemTransferFields.WeightQuantity, 0);
-                //rs.Insert(rec);
+                this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
+                this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
 
-                this.ProdInfo = ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
-                this.ProdInfo.Scheme = ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
-
-                if (this.DataViewItems != null)
+                if (this.ListItems != null)
                 {
-                    DataRowView rowView = this.DataViewItems.AddNew();
-                    rowView["ActivityItemRefno"] = this.Refno;
-                    rowView["ActivityItemTransferFKRefno"] = this.FKRefno;
-                    rowView["ActivityItemTransferStringFKRefno"] = this.FKRefno.ToString();
-                    rowView["ProductUnitRefno"] = prodUnitRefno;
-                    rowView["ProductRefno"] = int.Parse(data.Root.Element("ProductRefno").Value);
-                    rowView["ProductCode"] = data.Root.Element("ProductCode").Value;
-                    rowView["ProductDescription"] = data.Root.Element("ProductDescription").Value;
-                    rowView["UnitCode"] = data.Root.Element("UnitCode").Value;
-                    rowView["ProductUnitBC"] = data.Root.Element("ProductUnitBC").Value;
-                    rowView["ProductUnitSizeDescription"] = data.Root.Element("ProductUnitSizeDescription").Value;
-                    rowView["LocationMapRefno"] = this.LocMap.CurrLocMap.WhsLocMapRefno;
-                    rowView["LocationCode"] = this.LocMap.CurrLocMap.WhsCode;
-                    rowView["LocationName"] = this.LocMap.CurrLocMap.WhsName;
-                    rowView["ActivityItemStatus"] = SysCommon.ActStatus.Inserted;
-                    rowView["ActivityItemTransferRequiredQuantity"] = 0;
-                    rowView["ActivityItemTransferQuantity"] = 0;
-                    rowView["ActivityItemTransferBaseQuantity"] = 0;
-                    rowView["ActivityItemTransferWeightQuantity"] = 0;
-                    rowView.EndEdit();
+                    this.ListItems.Add(new TransferItem()
+                    {
+                        ActivityItemRefno = this.Refno,
+                        ActivityItemTransferFKRefno = this.FKRefno,
+                        ActivityItemTransferStringFKRefno = this.FKRefno.ToString(),
+                        ProductUnitRefno = prodUnitRefno,
+                        ProductRefno = int.Parse(data.Root.Element("ProductRefno").Value),
+                        ProductCode = data.Root.Element("ProductCode").Value,
+                        ProductDescription = data.Root.Element("ProductDescription").Value,
+                        UnitCode = data.Root.Element("UnitCode").Value,
+                        ProductUnitBC = data.Root.Element("ProductUnitBC").Value,
+                        ProductUnitSizeDescription = data.Root.Element("ProductUnitSizeDescription").Value,
+                        LocationMapRefno = this.LocMap.CurrLocMap.WhsLocMapRefno,
+                        LocationCode = this.LocMap.CurrLocMap.WhsCode,
+                        LocationName = this.LocMap.CurrLocMap.WhsName,
+                        ActivityItemStatus = Convert.ToInt32(SysCommon.ActStatus.Inserted),
+                        ActivityItemTransferRequiredQuantity = 0,
+                        ActivityItemTransferQuantity = 0,
+                        ActivityItemTransferBaseQuantity = 0,
+                        ActivityItemTransferWeightQuantity = 0
+                    });
                 }
-            }
+            });
         }
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="data"></param>
-        public override void Refresh(XDocument data)
+        public override async Task Refresh(XDocument data)
         {
             if (this.SysEnv.SysSettings.IsDisconnectedMode)
             {
@@ -438,29 +410,29 @@ namespace dMobile.Controller
 
             dataGridMainActivityHeader.Children.Add(gridHeader);
 
-            foreach (DataRow row in this.DataViewItems.ToTable().Rows)
+            foreach (TransferItem transferItem in this.ListItems)
             {
-                TransferItem transferItem = new TransferItem
-                {
-                    ActivityItemRefno = Convert.ToInt32(row["ActivityItemRefno"] != DBNull.Value ? row["ActivityItemRefno"] : null),
-                    ActivityItemStatus = Convert.ToInt32(row["ActivityItemStatus"] != DBNull.Value ? row["ActivityItemStatus"] : null),
-                    ActivityItemTransferBaseQuantity = Convert.ToDecimal(row["ActivityItemTransferBaseQuantity"] != DBNull.Value ? row["ActivityItemTransferBaseQuantity"] : null),
-                    ActivityItemTransferFKRefno = Convert.ToInt32(row["ActivityItemTransferFKRefno"] != DBNull.Value ? row["ActivityItemTransferFKRefno"] : null),
-                    ActivityItemTransferQuantity = Convert.ToDecimal(row["ActivityItemTransferQuantity"] != DBNull.Value ? row["ActivityItemTransferQuantity"] : null),
-                    ActivityItemTransferRequiredQuantity = Convert.ToDecimal(row["ActivityItemTransferRequiredQuantity"] != DBNull.Value ? row["ActivityItemTransferRequiredQuantity"] : null),
-                    ActivityItemTransferStringFKRefno = Convert.ToString(row["ActivityItemTransferStringFKRefno"] != DBNull.Value ? row["ActivityItemTransferStringFKRefno"] : null),
-                    ActivityItemTransferWeightQuantity = Convert.ToDecimal(row["ActivityItemTransferWeightQuantity"] != DBNull.Value ? row["ActivityItemTransferWeightQuantity"] : null),
-                    LocationCode = Convert.ToInt32(row["LocationCode"] != DBNull.Value ? row["LocationCode"] : null),
-                    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
-                    LocationName = Convert.ToString(row["LocationName"] != DBNull.Value ? row["LocationName"] : null),
-                    ProductCode = Convert.ToString(row["ProductCode"] != DBNull.Value ? row["ProductCode"] : null),
-                    ProductDescription = Convert.ToString(row["ProductDescription"] != DBNull.Value ? row["ProductDescription"] : null),
-                    ProductRefno = Convert.ToInt32(row["ProductRefno"] != DBNull.Value ? row["ProductRefno"] : null),
-                    ProductUnitBC = Convert.ToString(row["ProductUnitBC"] != DBNull.Value ? row["ProductUnitBC"] : null),
-                    ProductUnitRefno = Convert.ToInt32(row["ProductUnitRefno"] != DBNull.Value ? row["ProductUnitRefno"] : null),
-                    ProductUnitSizeDescription = Convert.ToString(row["ProductUnitSizeDescription"] != DBNull.Value ? row["ProductUnitSizeDescription"] : null),
-                    UnitCode = Convert.ToString(row["UnitCode"] != DBNull.Value ? row["UnitCode"] : null)
-                };
+                //TransferItem transferItem = new TransferItem
+                //{
+                //    ActivityItemRefno = Convert.ToInt32(row["ActivityItemRefno"] != DBNull.Value ? row["ActivityItemRefno"] : null),
+                //    ActivityItemStatus = Convert.ToInt32(row["ActivityItemStatus"] != DBNull.Value ? row["ActivityItemStatus"] : null),
+                //    ActivityItemTransferBaseQuantity = Convert.ToDecimal(row["ActivityItemTransferBaseQuantity"] != DBNull.Value ? row["ActivityItemTransferBaseQuantity"] : null),
+                //    ActivityItemTransferFKRefno = Convert.ToInt32(row["ActivityItemTransferFKRefno"] != DBNull.Value ? row["ActivityItemTransferFKRefno"] : null),
+                //    ActivityItemTransferQuantity = Convert.ToDecimal(row["ActivityItemTransferQuantity"] != DBNull.Value ? row["ActivityItemTransferQuantity"] : null),
+                //    ActivityItemTransferRequiredQuantity = Convert.ToDecimal(row["ActivityItemTransferRequiredQuantity"] != DBNull.Value ? row["ActivityItemTransferRequiredQuantity"] : null),
+                //    ActivityItemTransferStringFKRefno = Convert.ToString(row["ActivityItemTransferStringFKRefno"] != DBNull.Value ? row["ActivityItemTransferStringFKRefno"] : null),
+                //    ActivityItemTransferWeightQuantity = Convert.ToDecimal(row["ActivityItemTransferWeightQuantity"] != DBNull.Value ? row["ActivityItemTransferWeightQuantity"] : null),
+                //    LocationCode = Convert.ToInt32(row["LocationCode"] != DBNull.Value ? row["LocationCode"] : null),
+                //    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
+                //    LocationName = Convert.ToString(row["LocationName"] != DBNull.Value ? row["LocationName"] : null),
+                //    ProductCode = Convert.ToString(row["ProductCode"] != DBNull.Value ? row["ProductCode"] : null),
+                //    ProductDescription = Convert.ToString(row["ProductDescription"] != DBNull.Value ? row["ProductDescription"] : null),
+                //    ProductRefno = Convert.ToInt32(row["ProductRefno"] != DBNull.Value ? row["ProductRefno"] : null),
+                //    ProductUnitBC = Convert.ToString(row["ProductUnitBC"] != DBNull.Value ? row["ProductUnitBC"] : null),
+                //    ProductUnitRefno = Convert.ToInt32(row["ProductUnitRefno"] != DBNull.Value ? row["ProductUnitRefno"] : null),
+                //    ProductUnitSizeDescription = Convert.ToString(row["ProductUnitSizeDescription"] != DBNull.Value ? row["ProductUnitSizeDescription"] : null),
+                //    UnitCode = Convert.ToString(row["UnitCode"] != DBNull.Value ? row["UnitCode"] : null)
+                //};
 
                 observableCollection.Add(transferItem);
 
@@ -513,108 +485,12 @@ namespace dMobile.Controller
             return observableCollection;
         }
 
-        ///// <summary>
-        /////
-        ///// </summary>
-        ///// <param name="dataGridMain"></param>
-        ///// <remarks></remarks>
-        //public override void DesignDataGrid(DataGrid dataGridMain)
-        //{
-        //    int colWidthFactor = 1;
-
-        //    if (this.SysEnv.IsWindowsMobile6Device)
-        //    {
-        //        colWidthFactor = 2;
-        //    }
-
-        //    if (dataGridMain.TableStyles.Count > 0)
-        //    {
-        //        dataGridMain.TableStyles.Clear();
-        //    }
-
-        //    DataGridTableStyle dataGridStyle = new DataGridTableStyle();
-        //    dataGridStyle.MappingName = this.MainGridMappingName;
-
-        //    DataGridTextBoxColumn dataGridCol = new DataGridTextBoxColumn();
-        //    dataGridCol.MappingName = "ActivityItemRefno";
-        //    dataGridCol.HeaderText = string.Empty;
-        //    dataGridCol.Width = -1;
-        //    dataGridStyle.GridColumnStyles.Add(dataGridCol);
-
-        //    dataGridCol = new DataGridTextBoxColumn();
-        //    dataGridCol.MappingName = "ProductCode";
-        //    #if MULTILANGUAGE
-        //        dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.ProductId);
-        //    #else
-        //        dataGridCol.HeaderText = "Product ID";
-        //    #endif
-
-        //    dataGridCol.Width = 65 * colWidthFactor;
-        //    dataGridStyle.GridColumnStyles.Add(dataGridCol);
-
-        //    dataGridCol = new DataGridTextBoxColumn();
-        //    dataGridCol.MappingName = "ProductUnitBC";
-        //    #if MULTILANGUAGE
-        //        dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Bc);
-        //    #else
-        //        dataGridCol.HeaderText = "BC";
-        //    #endif
-
-        //    dataGridCol.Width = 20 * colWidthFactor;
-        //    dataGridStyle.GridColumnStyles.Add(dataGridCol);
-
-        //    dataGridCol = new DataGridTextBoxColumn();
-        //    dataGridCol.MappingName = "UnitCode";
-        //    dataGridCol.HeaderText = string.Empty;
-        //    dataGridCol.Width = 22 * colWidthFactor;
-        //    dataGridStyle.GridColumnStyles.Add(dataGridCol);
-
-        //    dataGridCol = new DataGridTextBoxColumn();
-        //    dataGridCol.MappingName = "ActivityItemTransferRequiredQuantity";
-        //    #if MULTILANGUAGE
-        //        dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Required);
-        //    #else
-        //        dataGridCol.HeaderText = "Required";
-        //    #endif
-
-        //    dataGridCol.Width = 55 * colWidthFactor;
-        //    dataGridCol.Format = "0.000";
-        //    dataGridStyle.GridColumnStyles.Add(dataGridCol);
-
-        //    dataGridCol = new DataGridTextBoxColumn();
-        //    dataGridCol.MappingName = "ActivityItemTransferQuantity";
-        //    #if MULTILANGUAGE
-        //        dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Qtyzzz);
-        //    #else
-        //        dataGridCol.HeaderText = "Qty";
-        //    #endif
-
-        //    dataGridCol.Width = 55 * colWidthFactor;
-        //    dataGridCol.Format = "0.000";
-        //    dataGridStyle.GridColumnStyles.Add(dataGridCol);
-
-        //    dataGridCol = new DataGridTextBoxColumn();
-        //    dataGridCol.MappingName = "LocationCode";
-        //    #if MULTILANGUAGE
-        //        dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Whs);
-        //    #else
-        //        dataGridCol.HeaderText = "Whs";
-        //    #endif
-
-        //    dataGridCol.Width = 58 * colWidthFactor;
-        //    dataGridStyle.GridColumnStyles.Add(dataGridCol);
-
-        //    dataGridMain.TableStyles.Add(dataGridStyle);
-        //    dataGridMain.RowHeadersVisible = false;
-        //    dataGridMain.ColumnHeadersVisible = true;
-        //}
-
         /// <summary>
         /// 
         /// </summary>
         /// <param name="isSubmitBatch"></param>
         /// <returns></returns>
-        public override DataView GetDataView(bool isSubmitBatch)
+        public override async Task<List<object>> GetActivityItemList(bool isSubmitBatch)
         {
             StringBuilder sql = new StringBuilder();
 
@@ -716,21 +592,23 @@ namespace dMobile.Controller
                 sql.Append("ORDER BY tActivityItemTransfer.ActivityItemRefno");
             }
 
-            using (SQLiteDataAdapter da = new SQLiteDataAdapter(sql.ToString(), DatabaseConnection.GetInstance().SQLConn))
-            {
-                using (DataSet ds = new DataSet())
-                {
-                    da.Fill(ds);
-                    this.DataViewItems = ds.Tables[0].DefaultView;
-                    this.DataViewItems.Table.TableName = this.MainGridMappingName;
-                    this.DataViewItems.AllowNew = true;
-                    this.DataViewItems.AllowEdit = true;
-                    this.DataViewItems.AllowDelete = true;
-                    this.DataViewItems.Sort = "ActivityItemRefno";
-                }
-            }
+            //using (SQLiteDataAdapter da = new SQLiteDataAdapter(sql.ToString(), DatabaseConnection.GetInstance().SQLConn))
+            //{
+            //    using (DataSet ds = new DataSet())
+            //    {
+            //        da.Fill(ds);
+            //        this.DataViewItems = ds.Tables[0].DefaultView;
+            //        this.DataViewItems.Table.TableName = this.MainGridMappingName;
+            //        this.DataViewItems.AllowNew = true;
+            //        this.DataViewItems.AllowEdit = true;
+            //        this.DataViewItems.AllowDelete = true;
+            //        TODO: Fix sorting
+            //        this.DataViewItems.Sort = "ActivityItemRefno";
+            //    }
+            //}
 
-            return this.DataViewItems;
+            this.ListItems = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<object>(sql.ToString());
+            return this.ListItems;
         }
 
         /// <summary>
@@ -744,36 +622,37 @@ namespace dMobile.Controller
 
             if (string.IsNullOrEmpty(this.ActItemFilter))
             {
-                this.DataViewItems.RowFilter = "ProductCode LIKE \'%" + searchText.Trim() + "%\'";
+                this.ListItems = (List<object>)this.ListItems.OfType<TransferItem>().Where(transferItem => transferItem.ProductCode.Contains(searchText.Trim()));
             }
             else
             {
-                this.DataViewItems.RowFilter = this.ActItemFilter + " AND ProductCode LIKE \'%" + searchText.Trim() + "%\'";
+                // TODO: Fix filtering
+                //this.DataViewItems.RowFilter = this.ActItemFilter + " AND ProductCode LIKE \'%" + searchText.Trim() + "%\'";
             }
 
-            foreach (DataRow row in this.DataViewItems.ToTable().Rows)
+            foreach (TransferItem transferItem in this.ListItems)
             {
-                TransferItem transferItem = new TransferItem
-                {
-                    ActivityItemRefno = Convert.ToInt32(row["ActivityItemRefno"] != DBNull.Value ? row["ActivityItemRefno"] : null),
-                    ActivityItemStatus = Convert.ToInt32(row["ActivityItemStatus"] != DBNull.Value ? row["ActivityItemStatus"] : null),
-                    ActivityItemTransferBaseQuantity = Convert.ToDecimal(row["ActivityItemTransferBaseQuantity"] != DBNull.Value ? row["ActivityItemTransferBaseQuantity"] : null),
-                    ActivityItemTransferFKRefno = Convert.ToInt32(row["ActivityItemTransferFKRefno"] != DBNull.Value ? row["ActivityItemTransferFKRefno"] : null),
-                    ActivityItemTransferQuantity = Convert.ToDecimal(row["ActivityItemTransferQuantity"] != DBNull.Value ? row["ActivityItemTransferQuantity"] : null),
-                    ActivityItemTransferRequiredQuantity = Convert.ToDecimal(row["ActivityItemTransferRequiredQuantity"] != DBNull.Value ? row["ActivityItemTransferRequiredQuantity"] : null),
-                    ActivityItemTransferStringFKRefno = Convert.ToString(row["ActivityItemTransferStringFKRefno"] != DBNull.Value ? row["ActivityItemTransferStringFKRefno"] : null),
-                    ActivityItemTransferWeightQuantity = Convert.ToDecimal(row["ActivityItemTransferWeightQuantity"] != DBNull.Value ? row["ActivityItemTransferWeightQuantity"] : null),
-                    LocationCode = Convert.ToInt32(row["LocationCode"] != DBNull.Value ? row["LocationCode"] : null),
-                    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
-                    LocationName = Convert.ToString(row["LocationName"] != DBNull.Value ? row["LocationName"] : null),
-                    ProductCode = Convert.ToString(row["ProductCode"] != DBNull.Value ? row["ProductCode"] : null),
-                    ProductDescription = Convert.ToString(row["ProductDescription"] != DBNull.Value ? row["ProductDescription"] : null),
-                    ProductRefno = Convert.ToInt32(row["ProductRefno"] != DBNull.Value ? row["ProductRefno"] : null),
-                    ProductUnitBC = Convert.ToString(row["ProductUnitBC"] != DBNull.Value ? row["ProductUnitBC"] : null),
-                    ProductUnitRefno = Convert.ToInt32(row["ProductUnitRefno"] != DBNull.Value ? row["ProductUnitRefno"] : null),
-                    ProductUnitSizeDescription = Convert.ToString(row["ProductUnitSizeDescription"] != DBNull.Value ? row["ProductUnitSizeDescription"] : null),
-                    UnitCode = Convert.ToString(row["UnitCode"] != DBNull.Value ? row["UnitCode"] : null)
-                };
+                //TransferItem transferItem = new TransferItem
+                //{
+                //    ActivityItemRefno = Convert.ToInt32(row["ActivityItemRefno"] != DBNull.Value ? row["ActivityItemRefno"] : null),
+                //    ActivityItemStatus = Convert.ToInt32(row["ActivityItemStatus"] != DBNull.Value ? row["ActivityItemStatus"] : null),
+                //    ActivityItemTransferBaseQuantity = Convert.ToDecimal(row["ActivityItemTransferBaseQuantity"] != DBNull.Value ? row["ActivityItemTransferBaseQuantity"] : null),
+                //    ActivityItemTransferFKRefno = Convert.ToInt32(row["ActivityItemTransferFKRefno"] != DBNull.Value ? row["ActivityItemTransferFKRefno"] : null),
+                //    ActivityItemTransferQuantity = Convert.ToDecimal(row["ActivityItemTransferQuantity"] != DBNull.Value ? row["ActivityItemTransferQuantity"] : null),
+                //    ActivityItemTransferRequiredQuantity = Convert.ToDecimal(row["ActivityItemTransferRequiredQuantity"] != DBNull.Value ? row["ActivityItemTransferRequiredQuantity"] : null),
+                //    ActivityItemTransferStringFKRefno = Convert.ToString(row["ActivityItemTransferStringFKRefno"] != DBNull.Value ? row["ActivityItemTransferStringFKRefno"] : null),
+                //    ActivityItemTransferWeightQuantity = Convert.ToDecimal(row["ActivityItemTransferWeightQuantity"] != DBNull.Value ? row["ActivityItemTransferWeightQuantity"] : null),
+                //    LocationCode = Convert.ToInt32(row["LocationCode"] != DBNull.Value ? row["LocationCode"] : null),
+                //    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
+                //    LocationName = Convert.ToString(row["LocationName"] != DBNull.Value ? row["LocationName"] : null),
+                //    ProductCode = Convert.ToString(row["ProductCode"] != DBNull.Value ? row["ProductCode"] : null),
+                //    ProductDescription = Convert.ToString(row["ProductDescription"] != DBNull.Value ? row["ProductDescription"] : null),
+                //    ProductRefno = Convert.ToInt32(row["ProductRefno"] != DBNull.Value ? row["ProductRefno"] : null),
+                //    ProductUnitBC = Convert.ToString(row["ProductUnitBC"] != DBNull.Value ? row["ProductUnitBC"] : null),
+                //    ProductUnitRefno = Convert.ToInt32(row["ProductUnitRefno"] != DBNull.Value ? row["ProductUnitRefno"] : null),
+                //    ProductUnitSizeDescription = Convert.ToString(row["ProductUnitSizeDescription"] != DBNull.Value ? row["ProductUnitSizeDescription"] : null),
+                //    UnitCode = Convert.ToString(row["UnitCode"] != DBNull.Value ? row["UnitCode"] : null)
+                //};
 
                 observableCollection.Add(transferItem);
             }
@@ -785,10 +664,13 @@ namespace dMobile.Controller
         /// 
         /// </summary>
         /// <param name="idx"></param>
-        public override void SelectItem(int idx)
+        public override async Task SelectActivityItem(object selectedActivityItem)
         {
-            base.SelectItem(idx);
-            this.FKRefno = Convert.ToInt32(this.DataViewItems[idx]["ActivityItemTransferFKRefno"]);
+            if (selectedActivityItem is TransferItem transferItem)
+            {
+                await base.SelectActivityItem(transferItem);
+                this.FKRefno = Convert.ToInt32(transferItem.ActivityItemTransferFKRefno);
+            }
         }
 
         /// <summary>
@@ -796,41 +678,32 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="prodUnitRefno"></param>
         /// <returns></returns>
-        public override int GetRefnoFromProdUnitRefno(int prodUnitRefno)
+        public override async Task<int> GetRefnoFromProdUnitRefno(int prodUnitRefno)
         {
             int foundItemRefno = 0;
 
-            using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+            string query = "SELECT tActivityItem.ActivityItemRefno,"
+                + "tActivityItemTransfer.ActivityItemTransferFKRefno,"
+                + "tActivityItemTransfer.ProductUnitRefno,"
+                + "tLocationMapWarehouse.LocationMapRefno "
+                + "FROM tActivityItemTransfer "
+                + "INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno = tActivityItemTransfer.ActivityItemRefno "
+                + "INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno "
+                + "= tActivityItemTransfer.TransferFromWarehouseLocationMapRefno "
+                + "WHERE tActivityItem.ActivityRefno = ? "
+                + "AND tActivityItemTransfer.TransferFromWarehouseLocationMapRefno = ? "
+                + "AND tActivityItemTransfer.ProductUnitRefno = ?";
+
+            List<TransferItem> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<TransferItem>(query, this.ActHdr.Refno, this.LocMap.CurrLocMap.WhsLocMapRefno, prodUnitRefno);
+
+            if (results?.Count > 0)
             {
-                cmndItem.CommandType = CommandType.Text;
-                cmndItem.CommandText = "SELECT tActivityItem.ActivityItemRefno,"
-                    + "tActivityItemTransfer.ActivityItemTransferFKRefno,"
-                    + "tActivityItemTransfer.ProductUnitRefno,"
-                    + "tLocationMapWarehouse.LocationMapRefno "
-                    + "FROM tActivityItemTransfer "
-                    + "INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno = tActivityItemTransfer.ActivityItemRefno "
-                    + "INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno "
-                    + "= tActivityItemTransfer.TransferFromWarehouseLocationMapRefno "
-                    + "WHERE tActivityItem.ActivityRefno = " + this.ActHdr.Refno
-                    + " AND tActivityItemTransfer.TransferFromWarehouseLocationMapRefno = "
-                    + this.LocMap.CurrLocMap.WhsLocMapRefno
-                    + " AND tActivityItemTransfer.ProductUnitRefno = " + prodUnitRefno;
+                this.Refno = Convert.ToInt32(results[0].ActivityItemRefno);
+                this.FKRefno = Convert.ToInt32(results[0].ActivityItemTransferFKRefno);
+                this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(results[0].ProductUnitRefno));
+                this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
 
-                using (SQLiteDataReader drItem = cmndItem.ExecuteReader())
-                {
-                    if (drItem.Read())
-                    {
-                        //// this.LocMap.CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(drItem["LocationMapRefno"]));
-                        this.Refno = Convert.ToInt32(drItem["ActivityItemRefno"]);
-                        this.FKRefno = Convert.ToInt32(drItem["ActivityItemTransferFKRefno"]);
-                        this.ProdInfo = ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(drItem["ProductUnitRefno"]));
-                        this.ProdInfo.Scheme = ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
-
-                        foundItemRefno = this.Refno;
-                    }
-
-                    drItem.Close();
-                }
+                foundItemRefno = this.Refno;
             }
 
             return foundItemRefno;
@@ -878,13 +751,14 @@ namespace dMobile.Controller
         /// <param name="quantity"></param>
         /// <param name="baseQuantity"></param>
         /// <param name="weightQuantity"></param>
-        public override void RefreshQuantity(int selectedIndex, decimal quantity, decimal baseQuantity, decimal weightQuantity)
+        public override void RefreshQuantity(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity)
         {
-            this.DataViewItems[selectedIndex].BeginEdit();
-            this.DataViewItems[selectedIndex]["ActivityItemTransferQuantity"] = quantity;
-            this.DataViewItems[selectedIndex]["ActivityItemTransferBaseQuantity"] = baseQuantity;
-            this.DataViewItems[selectedIndex]["ActivityItemTransferWeightQuantity"] = weightQuantity;
-            this.DataViewItems[selectedIndex].EndEdit();
+            if (selectedActivityItem is TransferItem transferItem)
+            {
+                transferItem.ActivityItemTransferQuantity = quantity;
+                transferItem.ActivityItemTransferBaseQuantity = baseQuantity;
+                transferItem.ActivityItemTransferWeightQuantity = weightQuantity;
+            }
         }
 
         /// <summary>
@@ -895,15 +769,14 @@ namespace dMobile.Controller
         /// <param name="baseQuantity"></param>
         /// <param name="weightQuantity"></param>
         /// <returns></returns>
-        public override int UpdateDataViewQuantity(int rowIdx, decimal quantity, decimal baseQuantity, decimal weightQuantity)
+        public override void UpdateListItemQuantity(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity)
         {
-            this.DataViewItems[rowIdx].BeginEdit();
-            this.DataViewItems[rowIdx]["ActivityItemTransferQuantity"] = Convert.ToDecimal(DataViewItems[rowIdx]["ActivityItemTransferQuantity"]) + quantity;
-            this.DataViewItems[rowIdx]["ActivityItemTransferBaseQuantity"] = Convert.ToDecimal(DataViewItems[rowIdx]["ActivityItemTransferBaseQuantity"]) + baseQuantity;
-            this.DataViewItems[rowIdx]["ActivityItemTransferWeightQuantity"] = Convert.ToDecimal(DataViewItems[rowIdx]["ActivityItemTransferWeightQuantity"]) + weightQuantity;
-            this.DataViewItems[rowIdx].EndEdit();
-
-            return rowIdx;
+            if (selectedActivityItem is TransferItem transferItem)
+            {
+                transferItem.ActivityItemTransferQuantity += quantity;
+                transferItem.ActivityItemTransferBaseQuantity += baseQuantity;
+                transferItem.ActivityItemTransferWeightQuantity += weightQuantity;
+            }
         }
 
         /// <summary>
@@ -911,18 +784,14 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="selectedIndex"></param>
         /// <param name="actItemRefno"></param>
-        public override void UpdateQuantityFromDataView(int idx, int actItemRefno)
+        public override async Task UpdateQuantityFromActivityItemList(object selectedActivityItem, int actItemRefno)
         {
-            using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+            if (selectedActivityItem is TransferItem transferItem)
             {
-                cmndItem.CommandText = "tActivityItemTransfer";
-                cmndItem.CommandType = CommandType.Text;
-                cmndItem.CommandText = "UPDATE tActivityItemTransfer "
-                    + "SET ActivityItemTransferQuantity = " + this.DataViewItems[idx]["ActivityItemTransferQuantity"] + ","
-                    + "ActivityItemTransferBaseQuantity = " + this.DataViewItems[idx]["ActivityItemTransferBaseQuantity"] + ","
-                    + "ActivityItemTransferWeightQuantity = " + this.DataViewItems[idx]["ActivityItemTransferWeightQuantity"] +
-                    " WHERE ActivityItemRefno = " + actItemRefno;
-                cmndItem.ExecuteNonQuery();
+                string query = "UPDATE tActivityItemTransfer SET ActivityItemTransferQuantity = ?, ActivityItemTransferBaseQuantity = ?, ActivityItemTransferWeightQuantity = ? WHERE ActivityItemRefno = ?";
+                List<object> parameters = new List<object>() { transferItem.ActivityItemTransferQuantity, transferItem.ActivityItemTransferBaseQuantity, transferItem.ActivityItemTransferWeightQuantity, actItemRefno };
+
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, parameters);
             }
         }
 
@@ -937,10 +806,10 @@ namespace dMobile.Controller
         /// <param name="actItemTransQuantity"></param>
         private void TransferModuleQuantityOverCheck(int actItemTransFKRefno, decimal actItemTransQuantity)
         {
-            if (this.CurrRowIdx >= 0 && this.CurrRowIdx < this.DataViewItems.Count)
+            if (this.SelectedActivityItem is TransferItem transferItem)
             {
-                decimal transferred = Convert.ToDecimal(this.DataViewItems[this.CurrRowIdx]["ActivityItemTransferQuantity"]);
-                decimal required = Convert.ToDecimal(this.DataViewItems[this.CurrRowIdx]["ActivityItemTransferRequiredQuantity"]);
+                decimal transferred = Convert.ToDecimal(transferItem.ActivityItemTransferQuantity);
+                decimal required = Convert.ToDecimal(transferItem.ActivityItemTransferRequiredQuantity);
 
                 if (transferred + actItemTransQuantity > required)
                 {

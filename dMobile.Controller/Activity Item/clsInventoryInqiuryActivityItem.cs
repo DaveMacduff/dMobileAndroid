@@ -1,8 +1,10 @@
 namespace dMobile.Controller
 {
     using System;
+    using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Data;
+    using System.Linq;
     using System.Text;
     using System.Threading.Tasks;
     using System.Xml;
@@ -97,11 +99,7 @@ namespace dMobile.Controller
         /// <param name="baseQuantity"></param>
         /// <param name="weightQuantity"></param>
         /// <returns></returns>
-        public override int UpdateDataViewQuantity(
-            int rowIdx,
-            decimal quantity,
-            decimal baseQuantity,
-            decimal weightQuantity)
+        public override void UpdateListItemQuantity(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity)
         {
             throw new NotImplementedException();
         }
@@ -147,8 +145,8 @@ namespace dMobile.Controller
 
             if (prodUnitRefno != 0)
             {
-                this.ProdInfo = ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
-                this.ProdInfo.Scheme = ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
+                this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
+                this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
             }
         }
 
@@ -212,17 +210,17 @@ namespace dMobile.Controller
 
             dataGridMainActivityHeader.Children.Add(gridHeader);
 
-            foreach (DataRow row in this.DataViewItems.ToTable().Rows)
+            foreach (InventoryInquiryItem inventoryInquiryItem in this.ListItems)
             {
-                InventoryInquiryItem inventoryInquiryItem = new InventoryInquiryItem
-                {
-                    Productcode = Convert.ToString(row["Productcode"] != DBNull.Value ? row["Productcode"] : null),
-                    Productunitbc = Convert.ToString(row["Productunitbc"] != DBNull.Value ? row["Productunitbc"] : null),
-                    Unitcode = Convert.ToString(row["Unitcode"] != DBNull.Value ? row["Unitcode"] : null),
-                    Weightunitcode = Convert.ToString(row["Weightunitcode"] != DBNull.Value ? row["Weightunitcode"] : null),
-                    Activityitemquantity = Convert.ToDecimal(row["Activityitemquantity"] != DBNull.Value ? row["Activityitemquantity"] : null),
-                    Activityitemweightquantity = Convert.ToDecimal(row["Activityitemweightquantity"] != DBNull.Value ? row["Activityitemweightquantity"] : null)
-                };
+                //InventoryInquiryItem inventoryInquiryItem = new InventoryInquiryItem
+                //{
+                //    Productcode = Convert.ToString(row["Productcode"] != DBNull.Value ? row["Productcode"] : null),
+                //    Productunitbc = Convert.ToString(row["Productunitbc"] != DBNull.Value ? row["Productunitbc"] : null),
+                //    Unitcode = Convert.ToString(row["Unitcode"] != DBNull.Value ? row["Unitcode"] : null),
+                //    Weightunitcode = Convert.ToString(row["Weightunitcode"] != DBNull.Value ? row["Weightunitcode"] : null),
+                //    Activityitemquantity = Convert.ToDecimal(row["Activityitemquantity"] != DBNull.Value ? row["Activityitemquantity"] : null),
+                //    Activityitemweightquantity = Convert.ToDecimal(row["Activityitemweightquantity"] != DBNull.Value ? row["Activityitemweightquantity"] : null)
+                //};
 
                 observableCollection.Add(inventoryInquiryItem);
 
@@ -275,50 +273,12 @@ namespace dMobile.Controller
             return observableCollection;
         }
 
-        //        /// <summary>
-        //        ///
-        //        /// </summary>
-        //        /// <param name="dataGridMain"></param>
-        //        /// <remarks></remarks>
-        //        public override void DesignDataGrid(DataGrid dataGridMain)
-        //        {
-        //            dataGridCol = new DataGridTextBoxColumn();
-        //            dataGridCol.MappingName = "productcode";
-        //            dataGridCol.HeaderText = "Product ID";
-        //            if (0 < ProdInfo.Refno)
-        //            {
-        //                dataGridCol.Width = -1;
-        //            }
-        //            else
-        //            {
-        //                dataGridCol.Width = (int)(65 * columnWidthFactor);
-        //            }
-        //            dataGridStyle.GridColumnStyles.Add(dataGridCol);
-
-        //            dataGridCol.MappingName = "productunitbc";
-        //            dataGridCol.HeaderText = string.Empty;
-
-        //            dataGridCol.MappingName = "activityitemquantity";
-        //            dataGridCol.HeaderText = "Quantity";
-        //            dataGridCol.Format = "0.000";
-
-        //            dataGridCol.MappingName = "unitcode";
-        //            dataGridCol.HeaderText = string.Empty;
-
-        //            dataGridCol.MappingName = "activityitemweightquantity";
-        //            dataGridCol.HeaderText = "Weight";
-        //            dataGridCol.Format = "0.000";
-
-        //            dataGridCol.MappingName = "weightunitcode";
-        //            dataGridCol.HeaderText = string.Empty;
-        //        }
-
         /// <summary>
         /// 
         /// </summary>
         /// <param name="isSubmitBatch"></param>
         /// <returns></returns>
-        public override DataView GetDataView(bool isSubmitBatch)
+        public override async Task<List<object>> GetActivityItemList(bool isSubmitBatch)
         {
             DataTable dataTableItems = new DataTable("tActivityItem");
 
@@ -329,10 +289,8 @@ namespace dMobile.Controller
             dataTableItems.Columns.Add("activityitemquantity", Type.GetType("System.Decimal"));
             dataTableItems.Columns.Add("activityitemweightquantity", Type.GetType("System.Decimal"));
 
-            this.DataViewItems = dataTableItems.DefaultView;
-            this.DataViewItems.Table.TableName = this.MainGridMappingName;
-
-            return this.DataViewItems;
+            this.ListItems = dataTableItems.Select().ToList<object>();
+            return this.ListItems;
         }
 
         /// <summary>
@@ -352,7 +310,7 @@ namespace dMobile.Controller
         /// <param name="productUnitRefno"></param>
         /// <returns></returns>
         /// <remarks></remarks>
-        public override int GetRefnoFromProdUnitRefno(int productUnitRefno)
+        public override Task<int> GetRefnoFromProdUnitRefno(int productUnitRefno)
         {
             throw new NotImplementedException();
         }
@@ -361,22 +319,22 @@ namespace dMobile.Controller
         /// 
         /// </summary>
         /// <param name="idx"></param>
-        public override void SelectItem(int idx)
+        public override async Task SelectActivityItem(object selectedActivityItem)
         {
-            this.CurrRowIdx = idx;
+            this.SelectedActivityItem = selectedActivityItem;
         }
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="data"></param>
-        public override void Refresh(XDocument data)
+        public override async Task Refresh(XDocument data)
         {
             try
             {
                 string reqData = SysCommon.SubmitComm(this.CreateSubmitXML(data));
 
-                this.DataViewItems = this.GetDataView(false);
+                this.ListItems = await this.GetActivityItemList(false);
                 if (reqData.Length > 0)
                 {
                     if (reqData.Contains("<message>ERROR</message>"))
@@ -390,9 +348,10 @@ namespace dMobile.Controller
                         using (DataSet ds = new DataSet())
                         {
                             ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
+
                             if (ds.Tables.Count != 0)
                             {
-                                this.DataViewItems = ds.Tables["tActivityItem"].DefaultView;
+                                this.ListItems = ds.Tables["tActivityItem"].Select().ToList<object>();
                             }
                         }
                     }
@@ -444,7 +403,7 @@ namespace dMobile.Controller
         /// <param name="quantity"></param>
         /// <param name="baseQuantity"></param>
         /// <param name="weightQuantity"></param>
-        public override void RefreshQuantity(int idx, decimal quantity, decimal baseQuantity, decimal weightQuantity)
+        public override void RefreshQuantity(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity)
         {
             throw new NotImplementedException();
         }
@@ -454,7 +413,7 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="idx"></param>
         /// <param name="actItemRefno"></param>
-        public override void UpdateQuantityFromDataView(int idx, int actItemRefno)
+        public override Task UpdateQuantityFromActivityItemList(object selectedActivityItem, int actItemRefno)
         {
             throw new NotImplementedException();
         }

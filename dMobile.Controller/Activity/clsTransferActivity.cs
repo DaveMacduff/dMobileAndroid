@@ -3,7 +3,7 @@ namespace dMobile.Controller
     using System;
     using System.Collections.ObjectModel;
     using System.Data;
-    using System.Data.SQLite;
+    using SQLite;
     using System.Text;
     using System.Xml.Linq;
     using dMobile.Bedrock;
@@ -11,6 +11,9 @@ namespace dMobile.Controller
     using dMobile.Resources.Services;
     using dMobile.Resources.Types;
     using Xamarin.Forms;
+    using System.Threading.Tasks;
+    using System.Collections.Generic;
+    using System.Linq;
 
     public class TransferActivity : Activity
     {
@@ -120,21 +123,21 @@ namespace dMobile.Controller
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
             
-            foreach (DataRow row in this.DataViewHdrs.ToTable().Rows)
+            foreach (Transfer transfer in this.ListHdrs)
             {
-                Transfer transfer = new Transfer
-                {
-                    ActivityRefno = Convert.ToInt32(row["ActivityRefno"] != DBNull.Value ? row["ActivityRefno"] : null),
-                    ActivityStatus = Convert.ToInt32(row["ActivityStatus"] != DBNull.Value ? row["ActivityStatus"] : null),
-                    ActivityTransferArrivalDateTime = Convert.ToDateTime(row["ActivityTransferArrivalDateTime"] != DBNull.Value ? row["ActivityTransferArrivalDateTime"] : null),
-                    ActivityTransferDateTime = Convert.ToDateTime(row["ActivityTransferDateTime"] != DBNull.Value ? row["ActivityTransferDateTime"] : null),
-                    ActivityTransferDescription = Convert.ToString(row["ActivityTransferDescription"] != DBNull.Value ? row["ActivityTransferDescription"] : null),
-                    ActivityTransferFKRefno = Convert.ToInt32(row["ActivityTransferFKRefno"] != DBNull.Value ? row["ActivityTransferFKRefno"] : null),
-                    ActivityTransferStringFKRefno = Convert.ToString(row["ActivityTransferStringFKRefno"] != DBNull.Value ? row["ActivityTransferStringFKRefno"] : null),
-                    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
-                    LocationMapWarehouseFKRefno = Convert.ToInt32(row["LocationMapWarehouseFKRefno"] != DBNull.Value ? row["LocationMapWarehouseFKRefno"] : null),
-                    LocationMapWarehouseName = Convert.ToString(row["LocationMapWarehouseName"] != DBNull.Value ? row["LocationMapWarehouseName"] : null)
-                };
+                //Transfer transfer = new Transfer
+                //{
+                //    ActivityRefno = Convert.ToInt32(row["ActivityRefno"] != DBNull.Value ? row["ActivityRefno"] : null),
+                //    ActivityStatus = Convert.ToInt32(row["ActivityStatus"] != DBNull.Value ? row["ActivityStatus"] : null),
+                //    ActivityTransferArrivalDateTime = Convert.ToDateTime(row["ActivityTransferArrivalDateTime"] != DBNull.Value ? row["ActivityTransferArrivalDateTime"] : null),
+                //    ActivityTransferDateTime = Convert.ToDateTime(row["ActivityTransferDateTime"] != DBNull.Value ? row["ActivityTransferDateTime"] : null),
+                //    ActivityTransferDescription = Convert.ToString(row["ActivityTransferDescription"] != DBNull.Value ? row["ActivityTransferDescription"] : null),
+                //    ActivityTransferFKRefno = Convert.ToInt32(row["ActivityTransferFKRefno"] != DBNull.Value ? row["ActivityTransferFKRefno"] : null),
+                //    ActivityTransferStringFKRefno = Convert.ToString(row["ActivityTransferStringFKRefno"] != DBNull.Value ? row["ActivityTransferStringFKRefno"] : null),
+                //    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
+                //    LocationMapWarehouseFKRefno = Convert.ToInt32(row["LocationMapWarehouseFKRefno"] != DBNull.Value ? row["LocationMapWarehouseFKRefno"] : null),
+                //    LocationMapWarehouseName = Convert.ToString(row["LocationMapWarehouseName"] != DBNull.Value ? row["LocationMapWarehouseName"] : null)
+                //};
 
                 observableCollection.Add(transfer);
             }
@@ -216,82 +219,12 @@ namespace dMobile.Controller
             return observableCollection;
         }
 
-        ///// <summary>
-        /////
-        ///// </summary>
-        ///// <remarks></remarks>
-        //public override void DesignDataGrid(DataGrid dataGridMain)
-        //{
-        //    int colWidthFactor = 1;
-
-        //    if (this.SysEnv.IsWindowsMobile6Device)
-        //    {
-        //        colWidthFactor = 2;
-        //    }
-
-        //    if (dataGridMain.TableStyles.Count > 0)
-        //    {
-        //        dataGridMain.TableStyles.Clear();
-        //    }
-
-        //    DataGridTableStyle dataGridStyle = new DataGridTableStyle();
-        //    dataGridStyle.MappingName = this.MainGridMappingName;
-
-        //    DataGridTextBoxColumn dataGridCol = new DataGridTextBoxColumn();
-        //    dataGridCol.MappingName = "ActivityTransferStringFKRefno";
-        //    #if MULTILANGUAGE
-        //        dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Transferz);
-        //    #else
-        //        dataGridCol.HeaderText = "Transfer #";
-        //    #endif
-
-        //    dataGridCol.Width = 68 * colWidthFactor;
-        //    dataGridStyle.GridColumnStyles.Add(dataGridCol);
-
-        //    dataGridCol = new DataGridTextBoxColumn();
-        //    dataGridCol.MappingName = "LocationMapWarehouseFKRefno";
-        //    #if MULTILANGUAGE
-        //        dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Whs);
-        //    #else
-        //        dataGridCol.HeaderText = "Whs";
-        //    #endif
-
-        //    dataGridCol.Width = 35 * colWidthFactor;
-        //    dataGridStyle.GridColumnStyles.Add(dataGridCol);
-
-        //    dataGridCol = new DataGridTextBoxColumn();
-        //    dataGridCol.MappingName = "ActivityTransferDateTime";
-        //    #if MULTILANGUAGE
-        //        dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Date);
-        //    #else
-        //        dataGridCol.HeaderText = "Date";
-        //    #endif
-
-        //    dataGridCol.Width = 65 * colWidthFactor;
-        //    dataGridStyle.GridColumnStyles.Add(dataGridCol);
-
-        //    dataGridCol = new DataGridTextBoxColumn();
-        //    dataGridCol.MappingName = "ActivityTransferArrivalDateTime";
-        //    #if MULTILANGUAGE
-        //        dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Arrived);
-        //    #else
-        //        dataGridCol.HeaderText = "Arrived";
-        //    #endif
-
-        //    dataGridCol.Width = 65 * colWidthFactor;
-        //    dataGridStyle.GridColumnStyles.Add(dataGridCol);
-
-        //    dataGridMain.TableStyles.Add(dataGridStyle);
-        //    dataGridMain.RowHeadersVisible = false;
-        //    dataGridMain.ColumnHeadersVisible = true;
-        //}
-
         /// <summary>
         /// 
         /// </summary>
         /// <param name="isSubmitBatch"></param>
         /// <returns></returns>
-        public override DataView GetDataView(bool isSubmitBatch)
+        public override async Task<List<object>> GetActivityList(bool isSubmitBatch)
         {
             StringBuilder sql = new StringBuilder();
 
@@ -369,20 +302,22 @@ namespace dMobile.Controller
                 sql.AppendFormat(" AND tActivityTransfer.ActivitySubType = {0}", Convert.ToInt32(this.ActSubType));
             }
 
-            using (SQLiteDataAdapter da = new SQLiteDataAdapter(sql.ToString(), DatabaseConnection.GetInstance().SQLConn))
-            {
-                using (DataSet ds = new DataSet())
-                {
-                    da.Fill(ds);
+            //using (SQLiteDataAdapter da = new SQLiteDataAdapter(sql.ToString(), DatabaseConnection.GetInstance().SQLConn))
+            //{
+            //    using (DataSet ds = new DataSet())
+            //    {
+            //        da.Fill(ds);
 
-                    this.DataViewHdrs = ds.Tables[0].DefaultView;
-                    this.DataViewHdrs.Table.TableName = this.MainGridMappingName;
-                    TransferSettings transferSettings = new TransferSettings().LoadData();
-                    this.DataViewHdrs.Sort = transferSettings.GetDataViewSortBy();
-                }
-            }
+            //        this.DataViewHdrs = ds.Tables[0].DefaultView;
+            //        this.DataViewHdrs.Table.TableName = this.MainGridMappingName;
+            //        TransferSettings transferSettings = new TransferSettings().LoadData();
+            //        // TODO: Fix sorting
+            //        this.DataViewHdrs.Sort = transferSettings.GetDataViewSortBy();
+            //    }
+            //}
 
-            return this.DataViewHdrs;
+            this.ListHdrs = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<object>(sql.ToString());
+            return this.ListHdrs;
         }
 
         /// <summary>
@@ -396,28 +331,30 @@ namespace dMobile.Controller
 
             if (string.IsNullOrEmpty(this.ActFilter))
             {
-                this.DataViewHdrs.RowFilter = "ActivityTransferStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
+                //this.DataViewHdrs.RowFilter = "ActivityTransferStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
+                this.ListHdrs = (List<object>)this.ListHdrs.OfType<Transfer>().Where(transfer => transfer.ActivityTransferStringFKRefno.Contains(searchText.Trim()));
             }
             else
             {
-                this.DataViewHdrs.RowFilter = this.ActFilter + " AND ActivityTransferStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
+                // TODO: Fix filtering
+                //this.DataViewHdrs.RowFilter = this.ActFilter + " AND ActivityTransferStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
             }
             
-            foreach (DataRow row in this.DataViewHdrs.ToTable().Rows)
+            foreach (Transfer transfer in this.ListHdrs)
             {
-                Transfer transfer = new Transfer
-                {
-                    ActivityRefno = Convert.ToInt32(row["ActivityRefno"] != DBNull.Value ? row["ActivityRefno"] : null),
-                    ActivityStatus = Convert.ToInt32(row["ActivityStatus"] != DBNull.Value ? row["ActivityStatus"] : null),
-                    ActivityTransferArrivalDateTime = Convert.ToDateTime(row["ActivityTransferArrivalDateTime"] != DBNull.Value ? row["ActivityTransferArrivalDateTime"] : null),
-                    ActivityTransferDateTime = Convert.ToDateTime(row["ActivityTransferDateTime"] != DBNull.Value ? row["ActivityTransferDateTime"] : null),
-                    ActivityTransferDescription = Convert.ToString(row["ActivityTransferDescription"] != DBNull.Value ? row["ActivityTransferDescription"] : null),
-                    ActivityTransferFKRefno = Convert.ToInt32(row["ActivityTransferFKRefno"] != DBNull.Value ? row["ActivityTransferFKRefno"] : null),
-                    ActivityTransferStringFKRefno = Convert.ToString(row["ActivityTransferStringFKRefno"] != DBNull.Value ? row["ActivityTransferStringFKRefno"] : null),
-                    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
-                    LocationMapWarehouseFKRefno = Convert.ToInt32(row["LocationMapWarehouseFKRefno"] != DBNull.Value ? row["LocationMapWarehouseFKRefno"] : null),
-                    LocationMapWarehouseName = Convert.ToString(row["LocationMapWarehouseName"] != DBNull.Value ? row["LocationMapWarehouseName"] : null)
-                };
+                //Transfer transfer = new Transfer
+                //{
+                //    ActivityRefno = Convert.ToInt32(row["ActivityRefno"] != DBNull.Value ? row["ActivityRefno"] : null),
+                //    ActivityStatus = Convert.ToInt32(row["ActivityStatus"] != DBNull.Value ? row["ActivityStatus"] : null),
+                //    ActivityTransferArrivalDateTime = Convert.ToDateTime(row["ActivityTransferArrivalDateTime"] != DBNull.Value ? row["ActivityTransferArrivalDateTime"] : null),
+                //    ActivityTransferDateTime = Convert.ToDateTime(row["ActivityTransferDateTime"] != DBNull.Value ? row["ActivityTransferDateTime"] : null),
+                //    ActivityTransferDescription = Convert.ToString(row["ActivityTransferDescription"] != DBNull.Value ? row["ActivityTransferDescription"] : null),
+                //    ActivityTransferFKRefno = Convert.ToInt32(row["ActivityTransferFKRefno"] != DBNull.Value ? row["ActivityTransferFKRefno"] : null),
+                //    ActivityTransferStringFKRefno = Convert.ToString(row["ActivityTransferStringFKRefno"] != DBNull.Value ? row["ActivityTransferStringFKRefno"] : null),
+                //    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
+                //    LocationMapWarehouseFKRefno = Convert.ToInt32(row["LocationMapWarehouseFKRefno"] != DBNull.Value ? row["LocationMapWarehouseFKRefno"] : null),
+                //    LocationMapWarehouseName = Convert.ToString(row["LocationMapWarehouseName"] != DBNull.Value ? row["LocationMapWarehouseName"] : null)
+                //};
 
                 observableCollection.Add(transfer);
             }
@@ -429,16 +366,19 @@ namespace dMobile.Controller
         /// 
         /// </summary>
         /// <param name="idx"></param>
-        public override void SelectHdr(int idx)
+        public override async Task SelectActivity(object selectedActivity)
         {
-            this.FKRefno = Convert.ToInt32(this.DataViewHdrs[idx]["ActivityTransferFKRefno"]);
-            this.Refno = Convert.ToInt32(this.DataViewHdrs[idx]["ActivityRefno"]);
-            this.SelectedIndex = idx;
-
-            // Set the selected warehouse to the activity header warehouse.
-            if (LocationMap.GetInstance().CurrLocMap.WhsLocMapRefno != Convert.ToInt32(this.DataViewHdrs[idx]["LocationMapRefno"]))
+            if (selectedActivity is Transfer transfer)
             {
-                LocationMap.GetInstance().CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(this.DataViewHdrs[idx]["LocationMapRefno"]));
+                this.SelectedActivity = transfer;
+                this.FKRefno = Convert.ToInt32(transfer.ActivityTransferFKRefno);
+                this.Refno = Convert.ToInt32(transfer.ActivityRefno);
+
+                // Set the selected warehouse to the activity header warehouse.
+                if (LocationMap.GetInstance().CurrLocMap.WhsLocMapRefno != Convert.ToInt32(transfer.LocationMapRefno))
+                {
+                    LocationMap.GetInstance().CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(transfer.LocationMapRefno));
+                }
             }
         }
 
@@ -447,10 +387,13 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="idx"></param>
         /// <returns></returns>
-        public override int GetRefnoFromRowIdx(int idx)
+        public override int GetRefnoFromRowIdx(object selectedItem)
         {
-            this.FKRefno = Convert.ToInt32(DataViewHdrs[idx]["ActivityTransferFKRefno"]);
-            this.Refno = Convert.ToInt32(DataViewHdrs[idx]["ActivityRefno"]);
+            if (selectedItem is Transfer transfer)
+            {
+                this.FKRefno = Convert.ToInt32(transfer.ActivityTransferFKRefno);
+                this.Refno = Convert.ToInt32(transfer.ActivityRefno);
+            }
 
             return this.Refno;
         }
@@ -459,7 +402,7 @@ namespace dMobile.Controller
         /// 
         /// </summary>
         /// <param name="data"></param>
-        public override void Refresh(XDocument data)
+        public override async Task Refresh(XDocument data)
         {
             if (this.SysEnv.SysSettings.IsDisconnectedMode)
             {
@@ -468,7 +411,7 @@ namespace dMobile.Controller
             else
             {
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 2);
-                this.Purge();
+                await this.Purge();
 
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
 
@@ -494,7 +437,7 @@ namespace dMobile.Controller
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override void Purge()
+        public override async Task Purge()
         {
             if (this.ActSubType == SysCommon.ActSubTypes.TransferFrom)
             {

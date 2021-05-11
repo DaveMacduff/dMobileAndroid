@@ -3,13 +3,16 @@ namespace dMobile.Controller
     using System;
     using System.Collections.ObjectModel;
     using System.Data;
-    using System.Data.SQLite;
+    using SQLite;
     using System.Text;
     using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
     using dMobile.Bedrock;
     using Xamarin.Forms;
+    using System.Collections.Generic;
+    using dMobile.Resources.Types;
+    using dMobile.Resources.Models;
 
     public class BarCodeActItem : ActItem
     {
@@ -33,11 +36,7 @@ namespace dMobile.Controller
         /// <param name="baseQuantity"></param>
         /// <param name="weightQuantity"></param>
         /// <returns></returns>
-        public override int UpdateDataViewQuantity(
-            int rowIdx,
-            decimal quantity,
-            decimal baseQuantity,
-            decimal weightQuantity)
+        public override void UpdateListItemQuantity(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity)
         {
             throw new NotImplementedException();
         }
@@ -87,188 +86,153 @@ namespace dMobile.Controller
             bool prodUnitIsBC = false;
             string prodUnitBC = string.Empty;
 
-            using (SQLiteCommand cmndProdUnit = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-            {
-                cmndProdUnit.CommandType = CommandType.Text;
-                cmndProdUnit.CommandText = "SELECT tProduct.ProductCode,"
-                    + "tProductUnit.ProductUnitIsBC,"
-                    + "tProductUnit.ProductUnitBC,"
-                    + "tUnit.UnitCode "
-                    + "FROM tProductUnit "
-                    + "INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno "
-                    + "INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno "
-                    + "WHERE tProductUnit.ProductUnitRefno = @productUnitRefno";
-                cmndProdUnit.Parameters.Add(new SQLiteParameter("@productUnitRefno", Convert.ToInt32(prodUnitRefno)));
+            string queryProductUnit = "SELECT tProduct.ProductCode,"
+                + "tProductUnit.ProductUnitIsBC,"
+                + "tProductUnit.ProductUnitBC,"
+                + "tUnit.UnitCode "
+                + "FROM tProductUnit "
+                + "INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno "
+                + "INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno "
+                + "WHERE tProductUnit.ProductUnitRefno = ?";
 
-                using (SQLiteDataReader drProdUnit = cmndProdUnit.ExecuteReader())
-                {
-                    if (drProdUnit.Read())
-                    {
-                        unitCode = Convert.ToString(drProdUnit["UnitCode"]);
-                        prodCode = Convert.ToString(drProdUnit["ProductCode"]);
-                        prodUnitIsBC = Convert.ToBoolean(drProdUnit["ProductUnitIsBC"]);
-                        prodUnitBC = Convert.ToString(drProdUnit["ProductUnitBC"]);
-                    }
-                    else
-                    {
-                        // TODO: Resource Strings
-                        throw new Exception(string.Format("Unable to location the product unit refno {0} in tProductUnit.", prodUnitRefno));
-                    }
-                }
+            List<ProductUnit> productUnitResults = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ProductUnit>(queryProductUnit, Convert.ToInt32(prodUnitRefno));
+
+            if (productUnitResults != null && productUnitResults.Count > 0)
+            {
+                unitCode = Convert.ToString(productUnitResults[0].UnitCode);
+                prodCode = Convert.ToString(productUnitResults[0].ProductCode);
+                prodUnitIsBC = Convert.ToBoolean(productUnitResults[0].ProductUnitIsBC);
+                prodUnitBC = Convert.ToString(productUnitResults[0].ProductUnitBC);
+            }
+            else
+            {
+                // TODO: Resource Strings
+                throw new Exception(string.Format("Unable to location the product unit refno {0} in tProductUnit.", prodUnitRefno));
             }
 
             // Check if the bar code is already associated to this product or another product
             bool isProdUnitBarCodeFound = false;
             string prodIdentifier = data.Root.Element("ProductIdentifier").Value;
 
-            using (SQLiteCommand cmndProdUnitBarCode = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+            string queryProdUnitBarcode = "SELECT ProductUnitRefno, ProductUnitBarCodeRefno FROM tProductUnitBarCode WHERE ProductUnitBarCodeCode = ? AND ProductUnitBarCodeModifier1 = ?";
+            List<tProductUnitBarCodeModel> prodUnitBarcodeResults = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tProductUnitBarCodeModel>(queryProdUnitBarcode, prodIdentifier, data.Root.Element("ProductUnitBarCodeModifier1").Value);
+
+            if (prodUnitBarcodeResults != null && prodUnitBarcodeResults.Count > 0)
             {
-                cmndProdUnitBarCode.CommandType = CommandType.Text;
-                cmndProdUnitBarCode.CommandText = "SELECT ProductUnitRefno, ProductUnitBarCodeRefno "
-                    + "FROM tProductUnitBarCode "
-                    + "WHERE ProductUnitBarCodeCode = @productUnitBarCodeCode "
-                    + "AND ProductUnitBarCodeModifier1 = @productUnitBarCodeModifier1";
-                cmndProdUnitBarCode.Parameters.Add(new SQLiteParameter("@productUnitBarCodeCode", prodIdentifier));
-                cmndProdUnitBarCode.Parameters.Add(new SQLiteParameter("@productUnitBarCodeModifier1", data.Root.Element("ProductUnitBarCodeModifier1").Value));
-
-                using (SQLiteDataReader drProdUnitBarCode = cmndProdUnitBarCode.ExecuteReader())
+                if (prodUnitRefno == Convert.ToInt32(prodUnitBarcodeResults[0].ProductUnitRefno))
                 {
-                    if (drProdUnitBarCode.Read())
-                    {
-                        if (prodUnitRefno == Convert.ToInt32(drProdUnitBarCode["ProductUnitRefno"]))
-                        {
-                            // bar code is already associated to this product
-                            isProdUnitBarCodeFound = true;
-                        }
-                        else
-                        {
-                            // bar code is associated to a different product
-                            isProdUnitBarCodeFound = true;
+                    // bar code is already associated to this product
+                    isProdUnitBarCodeFound = true;
+                }
+                else
+                {
+                    // bar code is associated to a different product
+                    isProdUnitBarCodeFound = true;
 
-                            // TODO: Resource strings
-                            await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert("Bar Code",
-                                string.Format(
-                                    "Scanned bar code is already associated to a different product {0} {1} {2}.",
-                                    prodCode,
-                                    prodUnitBC,
-                                    unitCode),
-                                "Yes", "No"));
-                        }
-                    }
+                    // TODO: Resource strings
+                    await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert("Bar Code",
+                        string.Format("Scanned bar code is already associated to a different product {0} {1} {2}.", prodCode, prodUnitBC, unitCode), "Yes", "No"));
                 }
             }
 
             if (!isProdUnitBarCodeFound)
             {
-                SQLiteConnection conn = DatabaseConnection.GetInstance().SQLConn;
+                //using (SQLiteCommand cmndProdUnitBarCode = conn.CreateCommand())
+                //using (SQLiteCommand cmndProdUnitBarCodeID = conn.CreateCommand())
+                //using (SQLiteCommand cmndItemBarCode = conn.CreateCommand())
+                //using (SQLiteTransaction transaction = conn.BeginTransaction())
 
-                using (SQLiteCommand cmndProdUnitBarCode = conn.CreateCommand())
-                using (SQLiteCommand cmndProdUnitBarCodeID = conn.CreateCommand())
-                using (SQLiteCommand cmndItemBarCode = conn.CreateCommand())
-                using (SQLiteTransaction transaction = conn.BeginTransaction())
+                await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(async (transaction) =>
+            {
+                try
                 {
-                    try
+                    await this.ActHdr.Create(SysCommon.ActSubTypes.BarCodeAssociation);
+                    await this.Create(SysCommon.ActSubTypes.BarCodeAssociation);
+
+                    // Add the new Bar Code to Product Unit Bar Codes                            
+                    string queryInsertProdUnitBarcode = "INSERT INTO tProductUnitBarCode ("
+                        + "ProductUnitRefno,"
+                        + "ProductUnitBarCodeCode,"
+                        + "ProductUnitBarCodeRaw,"
+                        + "ProductUnitBarCodeSymbologyEnum,"
+                        + "ProductUnitBarCodeModifier1,"
+                        + "ProductUnitBarCodeStatus" +
+                        " ) VALUES ( " +
+                        "?, " +
+                        "?, " +
+                        "?, " +
+                        "?, " +
+                        "?, " +
+                        "?)";
+                    List<object> parametersInsertProdUnitBarcode = new List<object>()
                     {
-                        this.ActHdr.Create(SysCommon.ActSubTypes.BarCodeAssociation);
-                        this.Create(SysCommon.ActSubTypes.BarCodeAssociation);
+                        Convert.ToInt32(prodUnitRefno),
+                        Convert.ToString(data.Root.Element("ProductIdentifier").Value),
+                        Convert.ToString(data.Root.Element("RawData").Value),
+                        Convert.ToString(data.Root.Element("enumBarCodeSymbology").Value),
+                        Convert.ToString(SysEnv.CurrentBarCodeModifier1),
+                        Convert.ToInt32(SysCommon.ActStatus.Inserted)
+                    };
 
-                        // Add the new Bar Code to Product Unit Bar Codes                            
-                        cmndProdUnitBarCode.CommandType = CommandType.Text;
-                        cmndProdUnitBarCode.CommandText = "INSERT INTO tProductUnitBarCode ("
-                            + "ProductUnitRefno,"
-                            + "ProductUnitBarCodeCode,"
-                            + "ProductUnitBarCodeRaw,"
-                            + "ProductUnitBarCodeSymbologyEnum,"
-                            + "ProductUnitBarCodeModifier1,"
-                            + "ProductUnitBarCodeStatus" +
-                            " ) VALUES ( " +
-                            "@productUnitRefno, " +
-                            "@productUnitBarCodeCode, " +
-                            "@productUnitBarCodeRaw, " +
-                            "@productUnitBarCodeSymbologyEnum, " +
-                            "@productUnitBarCodeModifier1, " +
-                            "@productUnitBarCodeStatus)";
-                        cmndProdUnitBarCode.Parameters.Add(new SQLiteParameter("@productUnitRefno", Convert.ToInt32(prodUnitRefno)));
-                        cmndProdUnitBarCode.Parameters.Add(new SQLiteParameter("@productUnitBarCodeCode", Convert.ToString(data.Root.Element("ProductIdentifier").Value)));
-                        cmndProdUnitBarCode.Parameters.Add(new SQLiteParameter("@productUnitBarCodeRaw", Convert.ToString(data.Root.Element("RawData").Value)));
-                        cmndProdUnitBarCode.Parameters.Add(new SQLiteParameter("@productUnitBarCodeSymbologyEnum", Convert.ToString(data.Root.Element("enumBarCodeSymbology").Value)));
-                        cmndProdUnitBarCode.Parameters.Add(new SQLiteParameter("@productUnitBarCodeModifier1", Convert.ToString(SysEnv.CurrentBarCodeModifier1)));
-                        cmndProdUnitBarCode.Parameters.Add(new SQLiteParameter("@productUnitBarCodeStatus", Convert.ToInt32(SysCommon.ActStatus.Inserted)));
+                    transaction.Execute(queryInsertProdUnitBarcode, parametersInsertProdUnitBarcode);
 
-                        cmndProdUnitBarCode.ExecuteNonQuery();
+                    prodUnitBarCodeRefno = Convert.ToInt32(transaction.QueryScalars<int>("SELECT last_insert_rowid() FROM tProductUnitBarCode"));
 
-                        cmndProdUnitBarCodeID.CommandText = "SELECT last_insert_rowid() FROM tProductUnitBarCode";
-                        //cmndProdUnitBarCodeID.IndexName = "PK_ProductUnitBarCodeOnProductUnitBarCodeRefno";
+                    // Create Activity to Bar Code XRef
+                    transaction.Execute("INSERT INTO tActivityItemBarCodeAssociationXRef (ActivityItemRefno, ProductUnitBarCodeRefno) VALUES (?, ?)", Convert.ToInt32(this.Refno), Convert.ToInt32(prodUnitBarCodeRefno));
+                    transaction.Commit();
 
-                        prodUnitBarCodeRefno = Convert.ToInt32(cmndProdUnitBarCodeID.ExecuteScalar());
+                    data = XDocument.Parse(
+                        "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
+                        + "<params>"
+                        + "<ProductUnitBarCodeRefno>" + prodUnitBarCodeRefno + "</ProductUnitBarCodeRefno>"
+                        + "<ProductUnitRefno>" + prodUnitRefno + "</ProductUnitRefno>"
+                        + "<ProductUnitBarCodeSymbologyPrefix>" + data.Root.Element("BarCodeSymbologyPrefix").Value
+                        + "</ProductUnitBarCodeSymbologyPrefix>"
+                        + "<ProductUnitBarCodeCode>" + data.Root.Element("ProductIdentifier").Value
+                        + "</ProductUnitBarCodeCode>"
+                        + "<ProductUnitIsBC>" + prodUnitIsBC + "</ProductUnitIsBC>"
+                        + "<ProductCode>" + prodCode + "</ProductCode>"
+                        + "<UnitCode>" + unitCode + "</UnitCode>"
+                        + "<ProductUnitBarCodeModifier1>" + this.SysEnv.CurrentBarCodeModifier1
+                        + "</ProductUnitBarCodeModifier1>"
+                        + "</params>");
 
-                        // Create Activity to Bar Code XRef
-
-                        cmndItemBarCode.CommandType = CommandType.Text;
-                        cmndItemBarCode.CommandText = "INSERT INTO tActivityItemBarCodeAssociationXRef ("
-                            + "ActivityItemRefno, "
-                            + "ProductUnitBarCodeRefno"
-                            + ") VALUES ("
-                            + "@activityItemRefno, "
-                            + "@productUnitBarCodeRefno)";
-                        cmndItemBarCode.Parameters.Add(new SQLiteParameter("@activityItemRefno", Convert.ToInt32(this.Refno)));
-                        cmndItemBarCode.Parameters.Add(new SQLiteParameter("@productUnitBarCodeRefno", Convert.ToInt32(prodUnitBarCodeRefno)));
-
-                        cmndItemBarCode.ExecuteNonQuery();
-
-                        transaction.Commit();
-
-                        data = XDocument.Parse(
-                            "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                            + "<params>"
-                            + "<ProductUnitBarCodeRefno>" + prodUnitBarCodeRefno + "</ProductUnitBarCodeRefno>"
-                            + "<ProductUnitRefno>" + prodUnitRefno + "</ProductUnitRefno>"
-                            + "<ProductUnitBarCodeSymbologyPrefix>" + data.Root.Element("BarCodeSymbologyPrefix").Value
-                            + "</ProductUnitBarCodeSymbologyPrefix>"
-                            + "<ProductUnitBarCodeCode>" + data.Root.Element("ProductIdentifier").Value
-                            + "</ProductUnitBarCodeCode>"
-                            + "<ProductUnitIsBC>" + prodUnitIsBC + "</ProductUnitIsBC>"
-                            + "<ProductCode>" + prodCode + "</ProductCode>"
-                            + "<UnitCode>" + unitCode + "</UnitCode>"
-                            + "<ProductUnitBarCodeModifier1>" + this.SysEnv.CurrentBarCodeModifier1
-                            + "</ProductUnitBarCodeModifier1>"
-                            + "</params>");
-
-                        if (!this.SysEnv.SysSettings.IsDisconnectedMode)
+                    if (!this.SysEnv.SysSettings.IsDisconnectedMode)
+                    {
+                        string reqData = SysCommon.SubmitComm(this.CreateSubmitXML(data));
+                        if (reqData.Length > 0)
                         {
-                            string reqData = SysCommon.SubmitComm(this.CreateSubmitXML(data));
-                            if (reqData.Length > 0)
+                            // Check if result is an error message
+                            if (reqData.Contains("<message>ERROR</message>"))
                             {
-                                // Check if result is an error message
-                                if (reqData.Contains("<message>ERROR</message>"))
-                                {
-                                    XmlDocument docError = new XmlDocument();
-                                    docError.LoadXml(reqData);
-                                    string errorDetail = docError.DocumentElement["detail"].InnerText;
+                                XmlDocument docError = new XmlDocument();
+                                docError.LoadXml(reqData);
+                                string errorDetail = docError.DocumentElement["detail"].InnerText;
 
-                                    if (errorDetail.Contains("MSGBOX-"))
-                                    {
-                                        throw new MessageOnlyException(errorDetail);
-                                    }
-                                    else
-                                    {
-                                        throw new Exception(errorDetail);
-                                    }
+                                if (errorDetail.Contains("MSGBOX-"))
+                                {
+                                    throw new MessageOnlyException(errorDetail);
+                                }
+                                else
+                                {
+                                    throw new Exception(errorDetail);
                                 }
                             }
                         }
                     }
-                    catch (SQLiteException ex)
-                    {
-                        transaction.Rollback();
-                        Console.WriteLine(ex);
-                        throw ex;
-                    }
-                    catch (Exception ex)
-                    {
-                        throw ex;
-                    }
                 }
+                catch (SQLiteException ex)
+                {
+                    transaction.Rollback();
+                    Console.WriteLine(ex);
+                    throw ex;
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
+            });
             }
         }
 
@@ -281,7 +245,7 @@ namespace dMobile.Controller
         //{
         //  throw new NotImplementedException();
         //}
-            
+
         public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity)
         {
             throw new NotImplementedException();
@@ -292,7 +256,7 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="isSubmitBatch"></param>
         /// <returns></returns>
-        public override DataView GetDataView(bool isSubmitBatch)
+        public override async Task<List<object>> GetActivityItemList(bool isSubmitBatch)
         {
             StringBuilder sql = new StringBuilder();
 
@@ -346,21 +310,23 @@ namespace dMobile.Controller
                 sql.Append("ORDER BY tActivityItem.ActivityItemRefno");
             }
 
-            using (SQLiteDataAdapter da = new SQLiteDataAdapter(sql.ToString(), DatabaseConnection.GetInstance().SQLConn))
-            {
-                using (DataSet ds = new DataSet())
-                {
-                    da.Fill(ds);
-                    this.DataViewItems = ds.Tables[0].DefaultView;
-                    this.DataViewItems.Table.TableName = this.MainGridMappingName;
-                    this.DataViewItems.AllowNew = true;
-                    this.DataViewItems.AllowEdit = true;
-                    this.DataViewItems.AllowDelete = true;
-                    this.DataViewItems.Sort = "ActivityItemRefno";
-                }
-            }
+            //using (SQLiteDataAdapter da = new SQLiteDataAdapter(sql.ToString(), DatabaseConnection.GetInstance().SQLConn))
+            //{
+            //    using (DataSet ds = new DataSet())
+            //    {
+            //        da.Fill(ds);
+            //        this.DataViewItems = ds.Tables[0].DefaultView;
+            //        this.DataViewItems.Table.TableName = this.MainGridMappingName;
+            //        this.DataViewItems.AllowNew = true;
+            //        this.DataViewItems.AllowEdit = true;
+            //        this.DataViewItems.AllowDelete = true;
+            //        this.DataViewItems.Sort = "ActivityItemRefno";
+            //        TODO: Fix sorting
+            //    }
+            //}
 
-            return this.DataViewItems;
+            this.ListItems = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<object>(sql.ToString());
+            return this.ListItems;
         }
 
         /// <summary>
@@ -380,7 +346,7 @@ namespace dMobile.Controller
         /// <param name="prodUnitRefno"></param>
         /// <returns></returns>
         /// <remarks></remarks>
-        public override int GetRefnoFromProdUnitRefno(int prodUnitRefno)
+        public override Task<int> GetRefnoFromProdUnitRefno(int prodUnitRefno)
         {
             throw new NotImplementedException();
         }
@@ -389,21 +355,25 @@ namespace dMobile.Controller
         /// 
         /// </summary>
         /// <param name="idx"></param>
-        public override void SelectItem(int idx)
+        public override async Task SelectActivityItem(object selectedActivityItem)
         {
-            ////base.SelectItem(idx);
-            this.CurrRowIdx = idx;
-            this.Refno = Convert.ToInt32(DataViewItems[idx]["ActivityItemRefno"]);
-            this.ProdInfo = ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(DataViewItems[idx]["ProductUnitRefno"]));
-            this.ProdInfo.Scheme = ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
-            this.FKRefno = Convert.ToInt32(DataViewItems[idx]["ActivityItemRefno"]);
+            dynamic selectedItem = selectedActivityItem;
+
+            if (selectedItem != null)
+            {
+                this.SelectedActivityItem = selectedItem;
+                this.Refno = Convert.ToInt32(selectedItem.ActivityItemRefno);
+                this.ProdInfo = ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(selectedItem.ProductUnitRefno));
+                this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
+                this.FKRefno = Convert.ToInt32(selectedItem.ActivityItemRefno);
+            }
         }
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="data"></param>
-        public override void Refresh(XDocument data)
+        public override Task Refresh(XDocument data)
         {
             throw new NotImplementedException();
         }
@@ -413,7 +383,7 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="data"></param>
         /// <param name="idx"></param>
-        public override void Submit(XDocument data, int idx)
+        public override async Task Submit(XDocument data, object selectedActivityItem)
         {
             XmlDocument xmlDoc = new XmlDocument();
             string send = this.CreateSubmitXML(data);
@@ -437,20 +407,11 @@ namespace dMobile.Controller
                 }
                 else
                 {
-                    using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                    {
-                        cmndItem.CommandType = CommandType.Text;
-                        cmndItem.CommandText = "UPDATE tActivityItem "
-                            + "SET ActivityItemStatus = " + Convert.ToInt32(SysCommon.ActStatus.NoChange)
-                            + " WHERE ActivityItemRefno = " + this.Refno;
-                        cmndItem.ExecuteNonQuery();
-                    }
+                    await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("UPDATE tActivityItem SET ActivityItemStatus = ? WHERE ActivityItemRefno = ?", Convert.ToInt32(SysCommon.ActStatus.NoChange), this.Refno);
 
-                    if (this.DataViewItems != null && idx >= 0)
+                    if (this.ListItems != null && selectedActivityItem != null)
                     {
-                        this.DataViewItems[idx].BeginEdit();
-                        this.DataViewItems[idx]["ActivityStatus"] = SysCommon.ActStatus.NoChange;
-                        this.DataViewItems[idx].EndEdit();
+                        (selectedActivityItem as dynamic).ActivityStatus = SysCommon.ActStatus.NoChange;
                     }
                 }
             }
@@ -501,7 +462,7 @@ namespace dMobile.Controller
         /// <param name="quantity"></param>
         /// <param name="baseQuantity"></param>
         /// <param name="weightQuantity"></param>
-        public override void RefreshQuantity(int idx, decimal quantity, decimal baseQuantity, decimal weightQuantity)
+        public override void RefreshQuantity(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity)
         {
             throw new NotImplementedException();
         }
@@ -511,7 +472,7 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="idx"></param>
         /// <param name="actItemRefno"></param>
-        public override void UpdateQuantityFromDataView(int idx, int actItemRefno)
+        public override Task UpdateQuantityFromActivityItemList(object selectedActivityItem, int actItemRefno)
         {
             throw new NotImplementedException();
         }

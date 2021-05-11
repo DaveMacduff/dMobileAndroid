@@ -3,7 +3,7 @@ namespace dMobile.Controller
     using System;
     using System.Collections.ObjectModel;
     using System.Data;
-    using System.Data.SQLite;
+    using SQLite;
     using System.Text;
     using System.Threading.Tasks;
     using System.Xml;
@@ -13,6 +13,9 @@ namespace dMobile.Controller
     using dMobile.Resources.Services;
     using dMobile.Resources.Types;
     using Xamarin.Forms;
+    using dMobile.Resources.Models;
+    using System.Collections.Generic;
+    using System.Linq;
 
     public class RecvActItem : ActItem
     {
@@ -207,26 +210,17 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="iSelectedIndex"></param>
         /// <returns></returns>
-        public override string GetComment(int selectedIndex)
+        public override async Task<string> GetComment(object selectedActivityItem)
         {
-            string cmmt = base.GetComment(selectedIndex);
+            string cmmt = await base.GetComment(selectedActivityItem);
 
-            using (SQLiteCommand cmndItemRecvCmnt = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+            if (selectedActivityItem is ReceiveItem receiveItem)
             {
-                cmndItemRecvCmnt.CommandType = CommandType.Text;
-                cmndItemRecvCmnt.CommandText = "SELECT * FROM tActivityItemReceivingComment WHERE ActivityItemRefno = @activityItemRefno";
-                //cmndItemRecvCmnt.IndexName = "PK_ActivityItemReceivingCommentOnActivityItemRefno";
-                cmndItemRecvCmnt.Parameters.Add(new SQLiteParameter("@activityItemRefno", Convert.ToInt32(selectedIndex)));
+                List<tActivityItemReceivingCommentModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityItemReceivingCommentModel>("SELECT * FROM tActivityItemReceivingComment WHERE ActivityItemRefno = ?", receiveItem.ActivityItemRefno);
 
-                using (SQLiteDataReader drItemRecvCmnt = cmndItemRecvCmnt.ExecuteReader())
+                if (results != null && results.Count > 0)
                 {
-                    //if (drItemRecvCmnt.Seek(DbSeekOptions.FirstEqual, new object[] { selectedIndex }))
-                    //{
-                    if (drItemRecvCmnt.Read())
-                    {
-                        cmmt = drItemRecvCmnt["ActivityItemReceivingCommentComment"].ToString();
-                    }
-                    //}
+                    cmmt = results[0].ActivityItemReceivingCommentComment;
                 }
             }
 
@@ -239,9 +233,9 @@ namespace dMobile.Controller
         /// <param name="whsLocMapRefno"></param>
         /// <param name="prodRefno"></param>
         /// <returns></returns>
-        public override int GetDefaultLocMapRefno(int whsLocMapRefno, int prodRefno)
+        public override async Task<int> GetDefaultLocMapRefno(int whsLocMapRefno, int prodRefno)
         {
-            return LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(whsLocMapRefno, prodRefno, SysCommon.ProdLocMapTypes.Receiving);;
+            return await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(whsLocMapRefno, prodRefno, SysCommon.ProdLocMapTypes.Receiving); ;
         }
 
         /// <summary>
@@ -291,7 +285,7 @@ namespace dMobile.Controller
         /// 
         /// </summary>
         /// <param name="data"></param>
-        public override void Refresh(XDocument data)
+        public override async Task Refresh(XDocument data)
         {
             if (this.SysEnv.SysSettings.IsDisconnectedMode)
             {
@@ -318,35 +312,35 @@ namespace dMobile.Controller
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
-            foreach (DataRow row in this.DataViewItems.ToTable().Rows)
+            foreach (ReceiveItem receiveItem in this.ListItems)
             {
-                ReceiveItem receiveItem = new ReceiveItem
-                {
-                    ActivityItemRefno = Convert.ToInt32(row["ActivityItemRefno"] != DBNull.Value ? row["ActivityItemRefno"] : null),
-                    ActivityItemReceivingFKRefno = Convert.ToInt32(row["ActivityItemReceivingFKRefno"]!= DBNull.Value ? row["ActivityItemReceivingFKRefno"] : null),
-                    ActivityItemReceivingStringFKRefno = Convert.ToString(row["ActivityItemReceivingStringFKRefno"]!= DBNull.Value ? row["ActivityItemReceivingStringFKRefno"] : null),
-                    ProductUnitRefno = Convert.ToInt32(row["ProductUnitRefno"]!= DBNull.Value ? row["ProductUnitRefno"] : null),
-                    ProductRefno = Convert.ToInt32(row["ProductRefno"]!= DBNull.Value ? row["ProductRefno"] : null),
-                    ProductCode = Convert.ToString(row["ProductCode"]!= DBNull.Value ? row["ProductCode"] : null),
-                    ProductDescription = Convert.ToString(row["ProductDescription"]!= DBNull.Value ? row["ProductDescription"] : null),
-                    UnitCode = Convert.ToString(row["UnitCode"]!= DBNull.Value ? row["UnitCode"] : null),
-                    ProductUnitBC = Convert.ToString(row["ProductUnitBC"]!= DBNull.Value ? row["ProductUnitBC"] : null),
-                    ProductUnitSizeDescription = Convert.ToString(row["ProductUnitSizeDescription"]!= DBNull.Value ? row["ProductUnitSizeDescription"] : null),
-                    ActivityItemReceivingQuantityOrdered = Convert.ToDecimal(row["ActivityItemReceivingQuantityOrdered"]!= DBNull.Value ? row["ActivityItemReceivingQuantityOrdered"] : null),
-                    ActivityItemReceivingBaseQuantityOrdered = Convert.ToDecimal(row["ActivityItemReceivingBaseQuantityOrdered"]!= DBNull.Value ? row["ActivityItemReceivingBaseQuantityOrdered"] : null),
-                    ActivityItemReceivingWeightQuantityOrdered = Convert.ToDecimal(row["ActivityItemReceivingWeightQuantityOrdered"]!= DBNull.Value ? row["ActivityItemReceivingWeightQuantityOrdered"] : null),
-                    ActivityItemReceivingQuantityReceived = Convert.ToDecimal(row["ActivityItemReceivingQuantityReceived"]!= DBNull.Value ? row["ActivityItemReceivingQuantityReceived"] : null),
-                    ActivityItemReceivingBaseQuantityReceived = Convert.ToDecimal(row["ActivityItemReceivingBaseQuantityReceived"]!= DBNull.Value ? row["ActivityItemReceivingBaseQuantityReceived"] : null),
-                    ActivityItemReceivingWeightQuantityReceived = Convert.ToDecimal(row["ActivityItemReceivingWeightQuantityReceived"]!= DBNull.Value ? row["ActivityItemRefno"] : null),
-                    ActivityItemReceivingVendorProductUnitCode = Convert.ToString(row["ActivityItemReceivingVendorProductUnitCode"]!= DBNull.Value ? row["ActivityItemReceivingVendorProductUnitCode"] : null),
-                    ActivityItemReceivingDescription = Convert.ToString(row["ActivityItemReceivingDescription"]!= DBNull.Value ? row["ActivityItemReceivingDescription"] : null),
-                    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"]!= DBNull.Value ? row["LocationMapRefno"] : null),
-                    LocationCode = Convert.ToInt32(row["LocationCode"]!= DBNull.Value ? row["LocationCode"] : null),
-                    LocationName = Convert.ToString(row["LocationName"]!= DBNull.Value ? row["LocationName"] : null),
-                    ActivityItemReceivingQuantityReceivedToDate = Convert.ToDecimal(row["ActivityItemReceivingQuantityReceivedToDate"]!= DBNull.Value ? row["ActivityItemReceivingQuantityReceivedToDate"] : null),
-                    ActivityItemReceivingWeightQuantityReceivedToDate = Convert.ToDecimal(row["ActivityItemReceivingWeightQuantityReceivedToDate"]!= DBNull.Value ? row["ActivityItemReceivingWeightQuantityReceivedToDate"] : null),
-                    IsActivityItemReceivingCommentString = !string.IsNullOrWhiteSpace(Convert.ToString(row["IsActivityItemReceivingComment"])) ? "X" : ""
-                };
+                //ReceiveItem receiveItem = new ReceiveItem
+                //{
+                //    ActivityItemRefno = Convert.ToInt32(row["ActivityItemRefno"] != DBNull.Value ? row["ActivityItemRefno"] : null),
+                //    ActivityItemReceivingFKRefno = Convert.ToInt32(row["ActivityItemReceivingFKRefno"]!= DBNull.Value ? row["ActivityItemReceivingFKRefno"] : null),
+                //    ActivityItemReceivingStringFKRefno = Convert.ToString(row["ActivityItemReceivingStringFKRefno"]!= DBNull.Value ? row["ActivityItemReceivingStringFKRefno"] : null),
+                //    ProductUnitRefno = Convert.ToInt32(row["ProductUnitRefno"]!= DBNull.Value ? row["ProductUnitRefno"] : null),
+                //    ProductRefno = Convert.ToInt32(row["ProductRefno"]!= DBNull.Value ? row["ProductRefno"] : null),
+                //    ProductCode = Convert.ToString(row["ProductCode"]!= DBNull.Value ? row["ProductCode"] : null),
+                //    ProductDescription = Convert.ToString(row["ProductDescription"]!= DBNull.Value ? row["ProductDescription"] : null),
+                //    UnitCode = Convert.ToString(row["UnitCode"]!= DBNull.Value ? row["UnitCode"] : null),
+                //    ProductUnitBC = Convert.ToString(row["ProductUnitBC"]!= DBNull.Value ? row["ProductUnitBC"] : null),
+                //    ProductUnitSizeDescription = Convert.ToString(row["ProductUnitSizeDescription"]!= DBNull.Value ? row["ProductUnitSizeDescription"] : null),
+                //    ActivityItemReceivingQuantityOrdered = Convert.ToDecimal(row["ActivityItemReceivingQuantityOrdered"]!= DBNull.Value ? row["ActivityItemReceivingQuantityOrdered"] : null),
+                //    ActivityItemReceivingBaseQuantityOrdered = Convert.ToDecimal(row["ActivityItemReceivingBaseQuantityOrdered"]!= DBNull.Value ? row["ActivityItemReceivingBaseQuantityOrdered"] : null),
+                //    ActivityItemReceivingWeightQuantityOrdered = Convert.ToDecimal(row["ActivityItemReceivingWeightQuantityOrdered"]!= DBNull.Value ? row["ActivityItemReceivingWeightQuantityOrdered"] : null),
+                //    ActivityItemReceivingQuantityReceived = Convert.ToDecimal(row["ActivityItemReceivingQuantityReceived"]!= DBNull.Value ? row["ActivityItemReceivingQuantityReceived"] : null),
+                //    ActivityItemReceivingBaseQuantityReceived = Convert.ToDecimal(row["ActivityItemReceivingBaseQuantityReceived"]!= DBNull.Value ? row["ActivityItemReceivingBaseQuantityReceived"] : null),
+                //    ActivityItemReceivingWeightQuantityReceived = Convert.ToDecimal(row["ActivityItemReceivingWeightQuantityReceived"]!= DBNull.Value ? row["ActivityItemRefno"] : null),
+                //    ActivityItemReceivingVendorProductUnitCode = Convert.ToString(row["ActivityItemReceivingVendorProductUnitCode"]!= DBNull.Value ? row["ActivityItemReceivingVendorProductUnitCode"] : null),
+                //    ActivityItemReceivingDescription = Convert.ToString(row["ActivityItemReceivingDescription"]!= DBNull.Value ? row["ActivityItemReceivingDescription"] : null),
+                //    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"]!= DBNull.Value ? row["LocationMapRefno"] : null),
+                //    LocationCode = Convert.ToInt32(row["LocationCode"]!= DBNull.Value ? row["LocationCode"] : null),
+                //    LocationName = Convert.ToString(row["LocationName"]!= DBNull.Value ? row["LocationName"] : null),
+                //    ActivityItemReceivingQuantityReceivedToDate = Convert.ToDecimal(row["ActivityItemReceivingQuantityReceivedToDate"]!= DBNull.Value ? row["ActivityItemReceivingQuantityReceivedToDate"] : null),
+                //    ActivityItemReceivingWeightQuantityReceivedToDate = Convert.ToDecimal(row["ActivityItemReceivingWeightQuantityReceivedToDate"]!= DBNull.Value ? row["ActivityItemReceivingWeightQuantityReceivedToDate"] : null),
+                //    IsActivityItemReceivingCommentString = !string.IsNullOrWhiteSpace(Convert.ToString(row["IsActivityItemReceivingComment"])) ? "X" : ""
+                //};
 
                 observableCollection.Add(receiveItem);
             }
@@ -452,98 +446,12 @@ namespace dMobile.Controller
             return observableCollection;
         }
 
-        //    /// <summary>
-        //    /// 
-        //    /// </summary>
-        //    /// <param name="dataGridMain"></param>
-        //    public override void DesignDataGrid(DataGrid dataGridMain)
-        //    {
-        //      int colWidthFactor = 1;
-
-        //      if (this.SysEnv.IsWindowsMobile6Device)
-        //      {
-        //        colWidthFactor = 2;
-        //      }
-
-        //      if (dataGridMain.TableStyles.Count > 0)
-        //      {
-        //        dataGridMain.TableStyles.Clear();
-        //      }
-
-        //      DataGridTableStyle dataGridStyle = new DataGridTableStyle();
-        //      dataGridStyle.MappingName = this.MainGridMappingName;
-
-        //      DataGridTextBoxColumn dataGridCol = new DataGridTextBoxColumn();
-        //      dataGridCol.MappingName = "ActivityItemRefno";
-        //      dataGridCol.HeaderText = string.Empty;
-        //      dataGridCol.Width = -1;
-        //      dataGridStyle.GridColumnStyles.Add(dataGridCol);
-
-        //      dataGridCol = new DataGridTextBoxColumn();
-        //      dataGridCol.MappingName = "IsActivityItemReceivingComment";
-        //#if MULTILANGUAGE
-        //      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.C);
-        //#else
-        //      dataGridCol.HeaderText = "C";
-        //#endif
-        //      dataGridCol.Width = 12 * colWidthFactor;
-        //      dataGridStyle.GridColumnStyles.Add(dataGridCol);
-
-        //      dataGridCol = new DataGridTextBoxColumn();
-        //      dataGridCol.MappingName = "ProductCode";
-        //#if MULTILANGUAGE
-        //      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.ProductId);
-        //#else
-        //      dataGridCol.HeaderText = "Product ID";
-        //#endif
-        //      dataGridCol.Width = 65 * colWidthFactor;
-        //      dataGridStyle.GridColumnStyles.Add(dataGridCol);
-
-        //      dataGridCol = new DataGridTextBoxColumn();
-        //      dataGridCol.MappingName = "ProductUnitBC";
-        //      dataGridCol.HeaderText = string.Empty;
-        //      dataGridCol.Width = 20 * colWidthFactor;
-        //      dataGridStyle.GridColumnStyles.Add(dataGridCol);
-
-        //      dataGridCol = new DataGridTextBoxColumn();
-        //      dataGridCol.MappingName = "UnitCode";
-        //      dataGridCol.HeaderText = string.Empty;
-        //      dataGridCol.Width = 22 * colWidthFactor;
-        //      dataGridStyle.GridColumnStyles.Add(dataGridCol);
-
-        //      dataGridCol = new DataGridTextBoxColumn();
-        //      dataGridCol.MappingName = "ActivityItemReceivingQuantityOrdered";
-        //#if MULTILANGUAGE
-        //      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Ordered);
-        //#else
-        //      dataGridCol.HeaderText = "Ordered";
-        //#endif
-        //      dataGridCol.Width = 52 * colWidthFactor;
-        //      dataGridCol.Format = "0.000";
-        //      dataGridStyle.GridColumnStyles.Add(dataGridCol);
-
-        //      dataGridCol = new DataGridTextBoxColumn();
-        //      dataGridCol.MappingName = "ActivityItemReceivingQuantityReceived";
-        //#if MULTILANGUAGE
-        //      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Received);
-        //#else
-        //      dataGridCol.HeaderText = "Received";
-        //#endif
-        //      dataGridCol.Width = 52 * colWidthFactor;
-        //      dataGridCol.Format = "0.000";
-        //      dataGridStyle.GridColumnStyles.Add(dataGridCol);
-
-        //      dataGridMain.TableStyles.Add(dataGridStyle);
-        //      dataGridMain.RowHeadersVisible = false;
-        //      dataGridMain.ColumnHeadersVisible = true;
-        //    }
-
         /// <summary>
         /// 
         /// </summary>
         /// <param name="isSubmitBatch"></param>
         /// <returns></returns>
-        public override DataView GetDataView(bool isSubmitBatch)
+        public override async Task<List<object>> GetActivityItemList(bool isSubmitBatch)
         {
             StringBuilder sql = new StringBuilder();
 
@@ -698,21 +606,23 @@ namespace dMobile.Controller
                 sql.Append("ORDER BY tActivityItemReceiving.ActivityItemRefno");
             }
 
-            using (SQLiteDataAdapter da = new SQLiteDataAdapter(sql.ToString(), DatabaseConnection.GetInstance().SQLConn))
-            {
-                using (DataSet ds = new DataSet())
-                {
-                    da.Fill(ds);
-                    this.DataViewItems = ds.Tables[0].DefaultView;
-                    this.DataViewItems.Table.TableName = this.MainGridMappingName;
-                    this.DataViewItems.AllowNew = true;
-                    this.DataViewItems.AllowEdit = true;
-                    this.DataViewItems.AllowDelete = true;
-                    this.DataViewItems.Sort = "ActivityItemRefno";
-                }
-            }
+            //using (SQLiteDataAdapter da = new SQLiteDataAdapter(sql.ToString(), DatabaseConnection.GetInstance().SQLConn))
+            //{
+            //    using (DataSet ds = new DataSet())
+            //    {
+            //        da.Fill(ds);
+            //        this.DataViewItems = ds.Tables[0].DefaultView;
+            //        this.DataViewItems.Table.TableName = this.MainGridMappingName;
+            //        this.DataViewItems.AllowNew = true;
+            //        this.DataViewItems.AllowEdit = true;
+            //        this.DataViewItems.AllowDelete = true;
+            //        TODO: Fix sorting
+            //        this.DataViewItems.Sort = "ActivityItemRefno";
+            //    }
+            //}
 
-            return this.DataViewItems;
+            this.ListItems = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<object>(sql.ToString());
+            return this.ListItems;
         }
 
         /// <summary>
@@ -726,42 +636,43 @@ namespace dMobile.Controller
 
             if (string.IsNullOrEmpty(this.ActItemFilter))
             {
-                this.DataViewItems.RowFilter = "ProductCode LIKE \'%" + searchText.Trim() + "%\'";
+                this.ListItems = (List<object>)this.ListItems.OfType<ReceiveItem>().Where(receiveItem => receiveItem.ProductCode.Contains(searchText.Trim()));
             }
             else
             {
-                this.DataViewItems.RowFilter = this.ActItemFilter + " AND ProductCode LIKE \'%" + searchText.Trim() + "%\'";
+                // TODO: Fix filtering
+                //this.DataViewItems.RowFilter = this.ActItemFilter + " AND ProductCode LIKE \'%" + searchText.Trim() + "%\'";
             }
 
-            foreach (DataRow row in this.DataViewItems.ToTable().Rows)
+            foreach (ReceiveItem receiveItem in this.ListItems)
             {
-                ReceiveItem receiveItem = new ReceiveItem
-                {
-                    ActivityItemRefno = Convert.ToInt32(row["ActivityItemRefno"]),
-                    ActivityItemReceivingFKRefno = Convert.ToInt32(row["ActivityItemReceivingFKRefno"]),
-                    ActivityItemReceivingStringFKRefno = Convert.ToString(row["ActivityItemReceivingStringFKRefno"]),
-                    ProductUnitRefno = Convert.ToInt32(row["ProductUnitRefno"]),
-                    ProductRefno = Convert.ToInt32(row["ProductRefno"]),
-                    ProductCode = Convert.ToString(row["ProductCode"]),
-                    ProductDescription = Convert.ToString(row["ProductDescription"]),
-                    UnitCode = Convert.ToString(row["UnitCode"]),
-                    ProductUnitBC = Convert.ToString(row["ProductUnitBC"]),
-                    ProductUnitSizeDescription = Convert.ToString(row["ProductUnitSizeDescription"]),
-                    ActivityItemReceivingQuantityOrdered = Convert.ToDecimal(row["ActivityItemReceivingQuantityOrdered"]),
-                    ActivityItemReceivingBaseQuantityOrdered = Convert.ToDecimal(row["ActivityItemReceivingBaseQuantityOrdered"]),
-                    ActivityItemReceivingWeightQuantityOrdered = Convert.ToDecimal(row["ActivityItemReceivingWeightQuantityOrdered"]),
-                    ActivityItemReceivingQuantityReceived = Convert.ToDecimal(row["ActivityItemReceivingQuantityReceived"]),
-                    ActivityItemReceivingBaseQuantityReceived = Convert.ToDecimal(row["ActivityItemReceivingBaseQuantityReceived"]),
-                    ActivityItemReceivingWeightQuantityReceived = Convert.ToDecimal(row["ActivityItemReceivingWeightQuantityReceived"]),
-                    ActivityItemReceivingVendorProductUnitCode = Convert.ToString(row["ActivityItemReceivingVendorProductUnitCode"]),
-                    ActivityItemReceivingDescription = Convert.ToString(row["ActivityItemReceivingDescription"]),
-                    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"]),
-                    LocationCode = Convert.ToInt32(row["LocationCode"]),
-                    LocationName = Convert.ToString(row["LocationName"]),
-                    ActivityItemReceivingQuantityReceivedToDate = Convert.ToDecimal(row["ActivityItemReceivingQuantityReceivedToDate"]),
-                    ActivityItemReceivingWeightQuantityReceivedToDate = Convert.ToDecimal(row["ActivityItemReceivingWeightQuantityReceivedToDate"]),
-                    IsActivityItemReceivingCommentString = !string.IsNullOrWhiteSpace(Convert.ToString(row["IsActivityItemReceivingComment"])) ? "X" : "",
-                };
+                //ReceiveItem receiveItem = new ReceiveItem
+                //{
+                //    ActivityItemRefno = Convert.ToInt32(row["ActivityItemRefno"]),
+                //    ActivityItemReceivingFKRefno = Convert.ToInt32(row["ActivityItemReceivingFKRefno"]),
+                //    ActivityItemReceivingStringFKRefno = Convert.ToString(row["ActivityItemReceivingStringFKRefno"]),
+                //    ProductUnitRefno = Convert.ToInt32(row["ProductUnitRefno"]),
+                //    ProductRefno = Convert.ToInt32(row["ProductRefno"]),
+                //    ProductCode = Convert.ToString(row["ProductCode"]),
+                //    ProductDescription = Convert.ToString(row["ProductDescription"]),
+                //    UnitCode = Convert.ToString(row["UnitCode"]),
+                //    ProductUnitBC = Convert.ToString(row["ProductUnitBC"]),
+                //    ProductUnitSizeDescription = Convert.ToString(row["ProductUnitSizeDescription"]),
+                //    ActivityItemReceivingQuantityOrdered = Convert.ToDecimal(row["ActivityItemReceivingQuantityOrdered"]),
+                //    ActivityItemReceivingBaseQuantityOrdered = Convert.ToDecimal(row["ActivityItemReceivingBaseQuantityOrdered"]),
+                //    ActivityItemReceivingWeightQuantityOrdered = Convert.ToDecimal(row["ActivityItemReceivingWeightQuantityOrdered"]),
+                //    ActivityItemReceivingQuantityReceived = Convert.ToDecimal(row["ActivityItemReceivingQuantityReceived"]),
+                //    ActivityItemReceivingBaseQuantityReceived = Convert.ToDecimal(row["ActivityItemReceivingBaseQuantityReceived"]),
+                //    ActivityItemReceivingWeightQuantityReceived = Convert.ToDecimal(row["ActivityItemReceivingWeightQuantityReceived"]),
+                //    ActivityItemReceivingVendorProductUnitCode = Convert.ToString(row["ActivityItemReceivingVendorProductUnitCode"]),
+                //    ActivityItemReceivingDescription = Convert.ToString(row["ActivityItemReceivingDescription"]),
+                //    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"]),
+                //    LocationCode = Convert.ToInt32(row["LocationCode"]),
+                //    LocationName = Convert.ToString(row["LocationName"]),
+                //    ActivityItemReceivingQuantityReceivedToDate = Convert.ToDecimal(row["ActivityItemReceivingQuantityReceivedToDate"]),
+                //    ActivityItemReceivingWeightQuantityReceivedToDate = Convert.ToDecimal(row["ActivityItemReceivingWeightQuantityReceivedToDate"]),
+                //    IsActivityItemReceivingCommentString = !string.IsNullOrWhiteSpace(Convert.ToString(row["IsActivityItemReceivingComment"])) ? "X" : "",
+                //};
 
                 observableCollection.Add(receiveItem);
             }
@@ -773,10 +684,13 @@ namespace dMobile.Controller
         /// 
         /// </summary>
         /// <param name="idx"></param>
-        public override void SelectItem(int idx)
+        public override async Task SelectActivityItem(object selectedActivityItem)
         {
-            base.SelectItem(idx);
-            this.FKRefno = Convert.ToInt32(DataViewItems[idx]["ActivityItemReceivingFKRefno"]);
+            if (selectedActivityItem is ReceiveItem receiveItem)
+            {
+                await base.SelectActivityItem(receiveItem);
+                this.FKRefno = Convert.ToInt32(receiveItem.ActivityItemReceivingFKRefno);
+            }
         }
 
         /// <summary>
@@ -784,43 +698,32 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="productUnitRefno"></param>
         /// <returns></returns>
-        public override int GetRefnoFromProdUnitRefno(int prodUnitRefno)
+        public override async Task<int> GetRefnoFromProdUnitRefno(int prodUnitRefno)
         {
             int foundActItemRefno = 0;
+            StringBuilder sql = new StringBuilder();
+            sql.Append("SELECT tActivityItem.ActivityItemRefno,");
+            sql.Append("tActivityItemReceiving.ActivityItemReceivingFKRefno,");
+            sql.Append("tActivityItemReceiving.ProductUnitRefno,");
+            sql.Append("tLocationMapWarehouse.LocationMapRefno ");
+            sql.Append("FROM tActivityItemReceiving ");
+            sql.Append("INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno = ");
+            sql.Append("tActivityItemReceiving.ActivityItemRefno ");
+            sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = ");
+            sql.Append("tActivityItemReceiving.WarehouseLocationMapRefno ");
+            sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.Refno);
+            sql.AppendFormat("AND tActivityItemReceiving.WarehouseLocationMapRefno = {0} ", this.LocMap.CurrLocMap.WhsLocMapRefno);
+            sql.AppendFormat("AND tActivityItemReceiving.ProductUnitRefno = {0}", prodUnitRefno);
 
-            using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+            List<ReceiveItem> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ReceiveItem>(sql.ToString());
+
+            if (results != null && results.Count > 0)
             {
-                StringBuilder sql = new StringBuilder();
-                sql.Append("SELECT tActivityItem.ActivityItemRefno,");
-                sql.Append("tActivityItemReceiving.ActivityItemReceivingFKRefno,");
-                sql.Append("tActivityItemReceiving.ProductUnitRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapRefno ");
-                sql.Append("FROM tActivityItemReceiving ");
-                sql.Append("INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno = ");
-                sql.Append("tActivityItemReceiving.ActivityItemRefno ");
-                sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = ");
-                sql.Append("tActivityItemReceiving.WarehouseLocationMapRefno ");
-                sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.Refno);
-                sql.AppendFormat("AND tActivityItemReceiving.WarehouseLocationMapRefno = {0} ", this.LocMap.CurrLocMap.WhsLocMapRefno);
-                sql.AppendFormat("AND tActivityItemReceiving.ProductUnitRefno = {0}", prodUnitRefno);
-
-                cmndItem.CommandType = CommandType.Text;
-                cmndItem.CommandText = sql.ToString();
-
-                using (SQLiteDataReader drItem = cmndItem.ExecuteReader())
-                {
-                    if (drItem.Read())
-                    {
-                        ////this.LocMap.CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno((int)drItem["LocationMapRefno"]);
-                        this.Refno = Convert.ToInt32(drItem["ActivityItemRefno"]);
-                        this.FKRefno = Convert.ToInt32(drItem["ActivityItemReceivingFKRefno"]);
-                        this.ProdInfo = ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(drItem["ProductUnitRefno"]));
-                        this.ProdInfo.Scheme = ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
-                        foundActItemRefno = this.Refno;
-                    }
-
-                    drItem.Close();
-                }
+                this.Refno = Convert.ToInt32(results[0].ActivityItemRefno);
+                this.FKRefno = Convert.ToInt32(results[0].ActivityItemReceivingFKRefno);
+                this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(results[0].ProductUnitRefno));
+                this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
+                foundActItemRefno = this.Refno;
             }
 
             return foundActItemRefno;
@@ -871,11 +774,14 @@ namespace dMobile.Controller
         /// <param name="quantity"></param>
         /// <param name="baseQuantity"></param>
         /// <param name="weightQuantity"></param>
-        public override void RefreshQuantity(int idx, decimal quantity, decimal baseQuantity, decimal weightQuantity)
+        public override void RefreshQuantity(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity)
         {
-            this.DataViewItems[idx]["ActivityItemReceivingQuantityReceived"] = quantity;
-            this.DataViewItems[idx]["ActivityItemReceivingBaseQuantityReceived"] = baseQuantity;
-            this.DataViewItems[idx]["ActivityItemReceivingWeightQuantityReceived"] = weightQuantity;
+            if (selectedActivityItem is ReceiveItem receiveItem)
+            {
+                receiveItem.ActivityItemReceivingQuantityReceived = quantity;
+                receiveItem.ActivityItemReceivingBaseQuantityReceived = baseQuantity;
+                receiveItem.ActivityItemReceivingWeightQuantityReceived = weightQuantity;
+            }
         }
 
         /// <summary>
@@ -886,15 +792,14 @@ namespace dMobile.Controller
         /// <param name="baseQuantity"></param>
         /// <param name="weightQuantity"></param>
         /// <returns></returns>
-        public override int UpdateDataViewQuantity(int idx, decimal quantity, decimal baseQuantity, decimal weightQuantity)
+        public override void UpdateListItemQuantity(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity)
         {
-            this.DataViewItems[idx].BeginEdit();
-            this.DataViewItems[idx]["ActivityItemReceivingQuantityReceived"] = Convert.ToDecimal(DataViewItems[idx]["ActivityItemReceivingQuantityReceived"]) + quantity;
-            this.DataViewItems[idx]["ActivityItemReceivingBaseQuantityReceived"] = Convert.ToDecimal(DataViewItems[idx]["ActivityItemReceivingBaseQuantityReceived"]) + baseQuantity;
-            this.DataViewItems[idx]["ActivityItemReceivingWeightQuantityReceived"] = Convert.ToDecimal(DataViewItems[idx]["ActivityItemReceivingWeightQuantityReceived"]) + weightQuantity;
-            this.DataViewItems[idx].EndEdit();
-
-            return idx;
+            if (selectedActivityItem is ReceiveItem receiveItem)
+            {
+                receiveItem.ActivityItemReceivingQuantityReceived += quantity;
+                receiveItem.ActivityItemReceivingBaseQuantityReceived += baseQuantity;
+                receiveItem.ActivityItemReceivingWeightQuantityReceived += weightQuantity;
+            }
         }
 
         /// <summary>
@@ -902,21 +807,14 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="selectedIndex"></param>
         /// <param name="activityItemRefno"></param>
-        public override void UpdateQuantityFromDataView(int idx, int actItemRefno)
+        public override async Task UpdateQuantityFromActivityItemList(object selectedActivityItem, int actItemRefno)
         {
-            using (SQLiteCommand cmndItemRecv = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+            if (selectedActivityItem is ReceiveItem receiveItem)
             {
-                cmndItemRecv.CommandType = CommandType.Text;
-                //cmndItemRecv.IndexName = string.Empty;
-                cmndItemRecv.CommandText = "UPDATE tActivityItemReceiving "
-                    + "SET ActivityItemReceivingQuantityReceived = "
-                    + this.DataViewItems[idx]["ActivityItemReceivingQuantityReceived"] + ","
-                    + "ActivityItemReceivingBaseQuantityReceived = "
-                    + this.DataViewItems[idx]["ActivityItemReceivingBaseQuantityReceived"] + ","
-                    + "ActivityItemReceivingWeightQuantityReceived = "
-                    + this.DataViewItems[idx]["ActivityItemReceivingWeightQuantityReceived"] +
-                    " WHERE ActivityItemRefno = " + actItemRefno;
-                cmndItemRecv.ExecuteNonQuery();
+                string query = "UPDATE tActivityItemReceiving SET ActivityItemReceivingQuantityReceived = ?, ActivityItemReceivingBaseQuantityReceived = ?, ActivityItemReceivingWeightQuantityReceived = ? WHERE ActivityItemRefno = ?";
+                List<object> parameters = new List<object>() { receiveItem.ActivityItemReceivingQuantityReceived, receiveItem.ActivityItemReceivingBaseQuantityReceived, receiveItem.ActivityItemReceivingWeightQuantityReceived, actItemRefno };
+
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, parameters);
             }
         }
 
@@ -924,34 +822,27 @@ namespace dMobile.Controller
         /// 
         /// </summary>
         /// <returns></returns>
-        public override string GetTotalQuantity()
+        public override async Task<string> GetTotalQuantity()
         {
-            string msg = string.Empty;
+            string msg = "Total received:";
+            string query = "SELECT SUM(tActivityItemReceiving.ActivityItemReceivingQuantityOrdered) AS "
+                + "Ordered,"
+                + "SUM(tActivityItemReceiving.ActivityItemReceivingQuantityReceived) AS Received "
+                + "FROM tActivityItem "
+                + "INNER JOIN tActivityItemReceiving ON tActivityItemReceiving.ActivityItemRefno = "
+                + "tActivityItem.ActivityItemRefno "
+                + string.Format("WHERE tActivityItem.ActivityRefno = {0}", this.ActHdr.Refno);
 
-            using (SQLiteCommand cmndItemRecv = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+            List<TotalQuantity> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<TotalQuantity>(query);
+
+            if (results != null && results.Count > 0)
             {
-                cmndItemRecv.CommandType = System.Data.CommandType.Text;
-                //cmndItemRecv.IndexName = string.Empty;
-                cmndItemRecv.CommandText = "SELECT SUM(tActivityItemReceiving.ActivityItemReceivingQuantityOrdered) AS "
-                    + "Ordered,"
-                    + "SUM(tActivityItemReceiving.ActivityItemReceivingQuantityReceived) AS Received "
-                    + "FROM tActivityItem "
-                    + "INNER JOIN tActivityItemReceiving ON tActivityItemReceiving.ActivityItemRefno = "
-                    + "tActivityItem.ActivityItemRefno "
-                    + string.Format("WHERE tActivityItem.ActivityRefno = {0}", this.ActHdr.Refno);
-
-                using (SQLiteDataReader dr = cmndItemRecv.ExecuteReader())
+                foreach (TotalQuantity result in results)
                 {
-                    // TODO: Resource strings
-                    msg = "Total received:";
-
-                    while (dr.Read())
-                    {
-                        // Because an agregate sum function is used in a query. There will always be a result record.
-                        // This causes problems detecting if there is a valid result. 
-                        // Converting Convert.ToDecimal(dr["Ordered"]) fails because there is not data. However to a string works.
-                        msg = msg + string.Format("\r{0} / {1}", Convert.ToString(dr["Ordered"]), Convert.ToString(dr["Received"]));
-                    }
+                    // Because an agregate sum function is used in a query. There will always be a result record.
+                    // This causes problems detecting if there is a valid result. 
+                    // Converting Convert.ToDecimal(dr["Ordered"]) fails because there is not data. However to a string works.
+                    msg += string.Format("\r{0} / {1}", Convert.ToString(result.Ordered), Convert.ToString(result.Received));
                 }
             }
 
@@ -972,7 +863,7 @@ namespace dMobile.Controller
             {
                 try
                 {
-                    this.ReceivingModuleQuantityOverCheck(int.Parse(data.Root.Element("itm_refno").Value), decimal.Parse(data.Root.Element("alt_qty").Value));
+                    this.ReceivingModuleQuantityOverCheck(decimal.Parse(data.Root.Element("alt_qty").Value));
                 }
                 catch (Exception ex)
                 {
@@ -1004,12 +895,12 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="actItemPickFKRefno"></param>
         /// <param name="actItemPickQuantity"></param>
-        private void ReceivingModuleQuantityOverCheck(int actItemRecvFKRefno, decimal actItemRecvQuantity)
+        private void ReceivingModuleQuantityOverCheck(decimal actItemRecvQuantity)
         {
-            if (this.CurrRowIdx >= 0 && this.CurrRowIdx < this.DataViewItems.Count)
+            if (this.SelectedActivityItem is ReceiveItem receiveItem)
             {
-                decimal received = Convert.ToDecimal(this.DataViewItems[this.CurrRowIdx]["ActivityItemPickingQuantityReceived"]);
-                decimal ordered = Convert.ToDecimal(this.DataViewItems[this.CurrRowIdx]["ActivityItemPickingQuantityOrdered"]);
+                decimal received = Convert.ToDecimal(receiveItem.ActivityItemReceivingQuantityReceived);
+                decimal ordered = Convert.ToDecimal(receiveItem.ActivityItemReceivingQuantityOrdered);
 
                 if (received + actItemRecvQuantity > ordered)
                 {

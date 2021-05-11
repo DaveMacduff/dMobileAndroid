@@ -60,10 +60,11 @@ namespace dMobile.Controller
         /// 
         /// </summary>
         /// <param name="idx"></param>
-        public override async Task SelectHdr(object selectedItem)
+        public override async Task SelectActivity(object selectedActivity)
         {
-            this.FKRefno = Convert.ToInt32((selectedItem as dynamic).ActivityRefno);
-            this.Refno = Convert.ToInt32((selectedItem as dynamic).ActivityRefno);
+            this.SelectedActivity = selectedActivity;
+            this.FKRefno = Convert.ToInt32((selectedActivity as dynamic).ActivityRefno);
+            this.Refno = Convert.ToInt32((selectedActivity as dynamic).ActivityRefno);
         }
 
         /// <summary>
@@ -86,7 +87,7 @@ namespace dMobile.Controller
         /// <param name="isSubmitBatch"></param>
         /// <returns></returns>
         /// <remarks></remarks>
-        public override Task<List<object>> GetList(bool isSubmitBatch)
+        public override Task<List<object>> GetActivityList(bool isSubmitBatch)
         {
             throw new NotImplementedException();
         }

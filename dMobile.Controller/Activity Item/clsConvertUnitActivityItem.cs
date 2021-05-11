@@ -1,13 +1,16 @@
 namespace dMobile.Controller
 {
     using System;
+    using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Data;
+    using System.Linq;
     using System.Text;
     using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
     using dMobile.Bedrock;
+    using dMobile.Resources.Types;
     using Xamarin.Forms;
 
     public class ConvertUnitActItem : ActItem
@@ -62,12 +65,9 @@ namespace dMobile.Controller
         /// <remarks></remarks>
         public override void Delete()
         {
-            if (this.DataViewItems != null)
+            if (this.ListItems != null)
             {
-                while (this.DataViewItems.Count > 0)
-                {
-                    this.DataViewItems.Delete(0);
-                }
+                this.ListItems.Clear();
             }
         }
 
@@ -79,11 +79,7 @@ namespace dMobile.Controller
         /// <param name="baseQuantity"></param>
         /// <param name="weightQuantity"></param>
         /// <returns></returns>
-        public override int UpdateDataViewQuantity(
-            int rowIdx,
-            decimal quantity,
-            decimal baseQuantity,
-            decimal weightQuantity)
+        public override void UpdateListItemQuantity(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity)
         {
             throw new NotImplementedException();
         }
@@ -124,57 +120,47 @@ namespace dMobile.Controller
         /// <remarks></remarks>
         public override async Task Insert(XDocument data, bool askToInsertAsNewItem)
         {
-            if (this.DataViewItems != null)
+            if (this.ListItems != null)
             {
-                DataRowView rowView = this.DataViewItems.AddNew();
-                rowView["ProductUnitRefno"] = this.ProdInfo.UnitRefno;
-                rowView["ProductRefno"] = this.ProdInfo.Refno;
-                rowView["ProductCode"] = this.ProdInfo.Code;
-                rowView["ProductUnitBC"] = this.ProdInfo.UnitBC;
-                rowView["UnitCode"] = this.ProdInfo.UnitCode;
-                rowView["ProductDescription"] = this.ProdInfo.Desc;
-                rowView["ProductUnitSizeDescription"] = this.ProdInfo.UnitSizeDesc;
-
                 SActItemSchemeData schemeData = Common.FillSActItemSchemeDataFromXML(data);
-
-                rowView["ActivityDetailQuantity"] = schemeData.ActDetailQuantity;
-                rowView["ActivityDetailBaseQuantity"] = schemeData.ActDetailBaseQuantity;
-                rowView["ActivityDetailWeightQuantity"] = schemeData.ActDetailWeightQuantity;
-                rowView["ActivityDetailLogisticUnitBestBeforeSellByDate"] = schemeData.ProdSchemeData.LogisticUnitBestBeforeSellByDate;
-                rowView["ActivityDetailLogisticUnitProductionDate"] = schemeData.ProdSchemeData.LogisticUnitProductionDate;
-                rowView["ActivityDetailSingleTradeItemSerialNumber"] = schemeData.ProdSchemeData.SingleTradeItemSerialNumber;
-                rowView["ActivityDetailLogisticUnitBatchLotNumber"] = schemeData.ProdSchemeData.LogisticUnitBatchLotNumber;
-                rowView["ProductSchemeVariantCode"] = schemeData.ProdSchemeData.VariantCode;
-                rowView["ProductSchemeVariantNumber"] = schemeData.ProdSchemeData.VariantNumber;
-                rowView["ActivityDetailSchemeID"] = ProductInfoTasks.GetActSchemeIDFromSProdSchemeData(this.ProdInfo.Code, this.ProdInfo.Scheme, schemeData.ProdSchemeData);
-                rowView["ActivityDetailUniqueSchemeID"] = ProductInfoTasks.GetActUniqueSchemeIDFromSProdSchemeData(this.ProdInfo.Code, this.ProdInfo.Scheme, schemeData.ProdSchemeData);
-                rowView["ActivityDetailFKRefno"] = this.FKRefno;
-                rowView["ActivityDetailRefno"] = this.Refno;
-                rowView.EndEdit();
+                this.ListItems.Add(
+                    new ConvertUnitItem()
+                    {
+                        ProductUnitRefno = this.ProdInfo.UnitRefno,
+                        ProductRefno = this.ProdInfo.Refno,
+                        ProductCode = this.ProdInfo.Code,
+                        ProductUnitBC = this.ProdInfo.UnitBC,
+                        UnitCode = this.ProdInfo.UnitCode,
+                        ProductDescription = this.ProdInfo.Desc,
+                        ProductUnitSizeDescription = this.ProdInfo.UnitSizeDesc,
+                        ActivityDetailQuantity = schemeData.ActDetailQuantity,
+                        ActivityDetailBaseQuantity = schemeData.ActDetailBaseQuantity,
+                        ActivityDetailWeightQuantity = schemeData.ActDetailWeightQuantity,
+                        ActivityDetailLogisticUnitBestBeforeSellByDate = schemeData.ProdSchemeData.LogisticUnitBestBeforeSellByDate,
+                        ActivityDetailLogisticUnitProductionDate = schemeData.ProdSchemeData.LogisticUnitProductionDate,
+                        ActivityDetailSingleTradeItemSerialNumber = schemeData.ProdSchemeData.SingleTradeItemSerialNumber,
+                        ActivityDetailLogisticUnitBatchLotNumber = schemeData.ProdSchemeData.LogisticUnitBatchLotNumber,
+                        ProductSchemeVariantCode = schemeData.ProdSchemeData.VariantCode,
+                        ProductSchemeVariantNumber = schemeData.ProdSchemeData.VariantNumber,
+                        ActivityDetailSchemeID = ProductInfoTasks.GetActSchemeIDFromSProdSchemeData(this.ProdInfo.Code, this.ProdInfo.Scheme, schemeData.ProdSchemeData),
+                        ActivityDetailUniqueSchemeID = ProductInfoTasks.GetActUniqueSchemeIDFromSProdSchemeData(this.ProdInfo.Code, this.ProdInfo.Scheme, schemeData.ProdSchemeData),
+                        ActivityDetailFKRefno = this.FKRefno,
+                        ActivityDetailRefno = this.Refno
+                    });
             }
         }
-        
+
         public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity)
         {
             throw new NotImplementedException();
         }
-
-        ///// <summary>
-        /////
-        ///// </summary>
-        ///// <param name="dataGridMain"></param>
-        ///// <remarks></remarks>
-        //public override void DesignDataGrid(DataGrid dataGridMain)
-        //{
-        //    throw new NotImplementedException();
-        //}
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="isSubmitBatch"></param>
         /// <returns></returns>
-        public override DataView GetDataView(bool isSubmitBatch)
+        public override async Task<List<object>> GetActivityItemList(bool isSubmitBatch)
         {
             DataTable moveTable = new DataTable("ActivityConvertUnitItem");
 
@@ -199,10 +185,8 @@ namespace dMobile.Controller
             moveTable.Columns.Add("ActivityDetailFKRefno", Type.GetType("System.Int32"));
             moveTable.Columns.Add("ActivityDetailRefno", Type.GetType("System.Int32"));
 
-            this.DataViewItems = moveTable.DefaultView;
-            this.DataViewItems.Table.TableName = this.MainGridMappingName;
-
-            return this.DataViewItems;
+            this.ListItems = moveTable.Select().ToList<object>();
+            return this.ListItems;
         }
 
         /// <summary>
@@ -220,7 +204,7 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="productUnitRefno"></param>
         /// <returns></returns>
-        public override int GetRefnoFromProdUnitRefno(int productUnitRefno)
+        public override Task<int> GetRefnoFromProdUnitRefno(int productUnitRefno)
         {
             throw new NotImplementedException();
         }
@@ -229,7 +213,7 @@ namespace dMobile.Controller
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override void SelectItem(int idx)
+        public override Task SelectActivityItem(object selectedActivityItem)
         {
             throw new NotImplementedException();
         }
@@ -239,7 +223,7 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="pbProgressBar"></param>
         /// <remarks></remarks>
-        public override void Refresh(XDocument data)
+        public override Task Refresh(XDocument data)
         {
             throw new NotImplementedException();
         }
@@ -249,7 +233,7 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="data"></param>
         /// <param name="idx"></param>
-        public override void Submit(XDocument data, int idx)
+        public override async Task Submit(XDocument data, object selectedActivityItem)
         {
             string reqData = SysCommon.SubmitComm(this.CreateSubmitXML(data));
 
@@ -316,7 +300,7 @@ namespace dMobile.Controller
         /// <param name="quantity"></param>
         /// <param name="baseQuantity"></param>
         /// <param name="weightQuantity"></param>
-        public override void RefreshQuantity(int idx, decimal quantity, decimal baseQuantity, decimal weightQuantity)
+        public override void RefreshQuantity(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity)
         {
             throw new NotImplementedException();
         }
@@ -326,7 +310,7 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="idx"></param>
         /// <param name="actItemRefno"></param>
-        public override void UpdateQuantityFromDataView(int idx, int actItemRefno)
+        public override Task UpdateQuantityFromActivityItemList(object selectedActivityItem, int actItemRefno)
         {
             throw new NotImplementedException();
         }

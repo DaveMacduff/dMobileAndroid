@@ -1,8 +1,10 @@
 namespace dMobile.Controller
 {
     using System;
+    using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Data;
+    using System.Threading.Tasks;
     using System.Xml.Linq;
     using dMobile.Bedrock;
     using Xamarin.Forms;
@@ -29,7 +31,7 @@ namespace dMobile.Controller
         /// 
         /// </summary>
         /// <param name="skidInfo"></param>
-        public override void InsertSkid(SysSkidInfo skidInfo)
+        public override Task InsertSkid(SysSkidInfo skidInfo)
         {
             throw new NotImplementedException();
         }
@@ -38,7 +40,7 @@ namespace dMobile.Controller
         /// 
         /// </summary>
         /// <param name="skidInfo"></param>
-        public override void DeleteSkid(SysSkidInfo skidInfo)
+        public override Task DeleteSkid(SysSkidInfo skidInfo)
         {
             throw new NotImplementedException();
         }
@@ -47,7 +49,7 @@ namespace dMobile.Controller
         /// 
         /// </summary>
         /// <param name="detailData"></param>
-        public override void Insert(XDocument detailData)
+        public override Task Insert(XDocument detailData)
         {
             throw new NotImplementedException();
         }
@@ -55,7 +57,7 @@ namespace dMobile.Controller
         /// <summary>
         ///
         /// </summary>
-        public override void Delete()
+        public override Task Delete()
         {
             throw new NotImplementedException();
         }
@@ -65,7 +67,7 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="selectedRowIndex"></param>
         /// <param name="detailData"></param>
-        public override void Submit(int selectedRowIndex, XDocument detailData)
+        public override Task Submit(object selectedActivityDetail, XDocument detailData)
         {
             throw new NotImplementedException();
         }
@@ -73,37 +75,37 @@ namespace dMobile.Controller
         /// <summary>
         /// 
         /// </summary>
-        public override void Refresh()
+        public override Task Refresh()
         {
             throw new NotImplementedException();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="selectedIndex"></param>
-        /// <returns></returns>
-        public override int GetRefno(int selectedIndex)
-        {
-            return Convert.ToInt32(DataViewDetails[selectedIndex]["ActivityDetailRefno"].ToString());
-        }
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        ///// <param name="selectedIndex"></param>
+        ///// <returns></returns>
+        //public override int GetRefno(object selectedActivityDetail)
+        //{
+        //    return Convert.ToInt32(DataViewDetails[selectedIndex]["ActivityDetailRefno"].ToString());
+        //}
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="selectedIndex"></param>
-        /// <returns></returns>
-        public override int GetFKRefno(int selectedIndex)
-        {
-            throw new NotImplementedException();
-        }
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        ///// <param name="selectedIndex"></param>
+        ///// <returns></returns>
+        //public override int GetFKRefno(object selectedActivityDetail)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="isSubmitBatch"></param>
         /// <returns></returns>
-        public override System.Data.DataView GetDataView(bool isSubmitBatch)
+        public override Task<List<object>> GetActivityDetailList(bool isSubmitBatch)
         {
             throw new NotImplementedException();
         }
@@ -136,7 +138,7 @@ namespace dMobile.Controller
         /// 
         /// </summary>
         /// <param name="selectedIndex"></param>
-        public override void SelectDetail(int selectedIndex)
+        public override Task SelectActivityDetail(object selectedActivityDetail)
         {
             throw new NotImplementedException();
         }
@@ -146,7 +148,7 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public override string CreateDeleteXML(XDocument data)
+        public override Task<string> CreateDeleteXML(XDocument data)
         {
             throw new NotImplementedException();
         }
@@ -156,7 +158,7 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public override string CreateSubmitXML(XDocument data)
+        public override Task<string> CreateSubmitXML(XDocument data)
         {
             throw new NotImplementedException();
         }

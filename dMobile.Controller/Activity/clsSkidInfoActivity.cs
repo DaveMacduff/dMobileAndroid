@@ -1,9 +1,11 @@
 namespace dMobile.Controller
 {
     using System;
+    using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Data;
-    using System.Diagnostics.CodeAnalysis;
+    using System.Threading.Tasks;
+    using System.Linq;
     using System.Xml.Linq;
     using dMobile.Bedrock;
     using dMobile.Resources.Services;
@@ -155,14 +157,11 @@ namespace dMobile.Controller
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override void Delete()
+        public override async Task Delete()
         {
-            if (this.DataViewHdrs != null)
+            if (this.ListHdrs != null && this.ListHdrs.Count > 1)
             {
-                while (this.DataViewHdrs.Count > 1)
-                {
-                    this.DataViewHdrs.Delete(0);
-                }
+                this.ListHdrs.RemoveRange(1, this.ListHdrs.Count - 1);
             }
         }
 
@@ -170,34 +169,33 @@ namespace dMobile.Controller
         /// 
         /// </summary>
         /// <param name="idx"></param>
-        public override void SelectHdr(int idx)
+        public override async Task SelectActivity(object selectedActivity)
         {
-            if (idx >= 0)
+            if (selectedActivity is Skid skid)
             {
-                this.FKRefno = Convert.ToInt32(this.DataViewHdrs[idx]["SkidFKRefno"]);
-                this.Refno = Convert.ToInt32(this.DataViewHdrs[idx]["SkidFKRefno"]);
-
-                ////this.SkidInfo = SysSkidInfo.GetSkidInfoFromBarCodeOrCode((string)this.DataViewHdrs[idx]["SkidCode"]);
+                this.SelectedActivity = skid;
+                this.FKRefno = Convert.ToInt32(skid.SkidFKRefno);
+                this.Refno = Convert.ToInt32(skid.SkidFKRefno);
 
                 SSkidInfo info = new SSkidInfo();
-                info.SkidCode = Convert.ToString(this.DataViewHdrs[idx]["SkidCode"]);
-                info.SkidFKRefno = Convert.ToInt32(this.DataViewHdrs[idx]["SkidFKRefno"]);
-                info.LocMapRefno = Convert.ToInt32(this.DataViewHdrs[idx]["LocationMapRefno"]);
-                info.LocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(info.LocMapRefno);
-                info.ProdInfo = ProductInfoTasks.GetInfoFromRefno(Convert.ToInt32(this.DataViewHdrs[idx]["ProductRefno"]));
-                info.Quantity = Convert.ToDecimal(this.DataViewHdrs[idx]["Quantity"]);
-                info.BaseQuantity = Convert.ToDecimal(this.DataViewHdrs[idx]["BaseQuantity"]);
-                info.WeightQuantity = Convert.ToDecimal(this.DataViewHdrs[idx]["WeightQuantity"]);
-                info.Cube = Convert.ToDecimal(this.DataViewHdrs[idx]["SkidCube"]);
-                info.CubeUnit = Convert.ToString(this.DataViewHdrs[idx]["SkidCubeUnit"]);
-                info.Height = Convert.ToDecimal(this.DataViewHdrs[idx]["SkidHeight"]);
-                info.HeightUnit = Convert.ToString(this.DataViewHdrs[idx]["SkidHeightUnit"]);
-                info.Hi = Convert.ToInt32(this.DataViewHdrs[idx]["SkidHi"]);
-                info.Ti = Convert.ToInt32(this.DataViewHdrs[idx]["SkidTi"]);
-                info.IsCHEP = Convert.ToBoolean(this.DataViewHdrs[idx]["SkidIsChep"]);
-                info.IsHold = Convert.ToBoolean(this.DataViewHdrs[idx]["SkidIsOnHold"]);
+                info.SkidCode = Convert.ToString(skid.SkidCode);
+                info.SkidFKRefno = Convert.ToInt32(skid.SkidFKRefno);
+                info.LocMapRefno = Convert.ToInt32(skid.LocationMapRefno);
+                info.LocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(info.LocMapRefno);
+                info.ProdInfo = await ProductInfoTasks.GetInfoFromRefno(Convert.ToInt32(skid.ProductRefno));
+                info.Quantity = Convert.ToDecimal(skid.Quantity);
+                info.BaseQuantity = Convert.ToDecimal(skid.BaseQuantity);
+                info.WeightQuantity = Convert.ToDecimal(skid.WeightQuantity);
+                info.Cube = Convert.ToDecimal(skid.SkidCube);
+                info.CubeUnit = Convert.ToString(skid.SkidCubeUnit);
+                info.Height = Convert.ToDecimal(skid.SkidHeight);
+                info.HeightUnit = Convert.ToString(skid.SkidHeightUnit);
+                info.Hi = Convert.ToInt32(skid.SkidHi);
+                info.Ti = Convert.ToInt32(skid.SkidTi);
+                info.IsCHEP = Convert.ToBoolean(skid.SkidIsCHEP);
+                info.IsHold = Convert.ToBoolean(skid.SkidIsOnHold);
                 info.IsPutAway = false;
-                info.IsCompleted = !SysCommon.IsEmptyDateTime(Convert.ToDateTime(this.DataViewHdrs[idx]["SkidCompleted"]));
+                info.IsCompleted = !SysCommon.IsEmptyDateTime(Convert.ToDateTime(skid.SkidCompleted));
                 info.IsConsumed = false;
 
                 // Note: did not fill in the scheme data, should call SysSkidInfo.GetSkidInfoFromBarCodeOrCode
@@ -218,7 +216,7 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="idx"></param>
         /// <returns></returns>
-        public override int GetRefnoFromRowIdx(int idx)
+        public override int GetRefnoFromRowIdx(object selectedItem)
         {
             return this.Refno;
         }
@@ -229,7 +227,7 @@ namespace dMobile.Controller
         /// <param name="isSubmitBatch"></param>
         /// <returns></returns>
         /// <remarks></remarks>
-        public override DataView GetDataView(bool isSubmitBatch)
+        public override async Task<List<object>> GetActivityList(bool isSubmitBatch)
         {
             DataTable table = new DataTable("ActivitySkid");
 
@@ -261,10 +259,11 @@ namespace dMobile.Controller
             table.Columns.Add("SkidIsCHEP", Type.GetType("System.Boolean"));
             table.Columns.Add("SkidIsOnHold", Type.GetType("System.Boolean"));
 
-            this.DataViewHdrs = table.DefaultView;
-            this.DataViewHdrs.Table.TableName = this.MainGridMappingName;
+            //this.DataViewHdrs = table.DefaultView;
+            //this.DataViewHdrs.Table.TableName = this.MainGridMappingName;
 
-            return this.DataViewHdrs;
+            this.ListHdrs = table.Select().ToList<object>();
+            return this.ListHdrs;
         }
 
         /// <summary>
@@ -282,37 +281,37 @@ namespace dMobile.Controller
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
-            foreach (DataRow row in this.DataViewHdrs.ToTable().Rows)
+            foreach (Skid skid in this.ListHdrs)
             {
-                Skid skid = new Skid
-                {
-                    SkidFKRefno = Convert.ToInt32(row["SkidFKRefno"] != DBNull.Value ? row["SkidFKRefno"] : null),
-                    SkidCode = Convert.ToString(row["SkidCode"] != DBNull.Value ? row["SkidCode"] : null),
-                    ProductUnitRefno = Convert.ToInt32(row["ProductUnitRefno"] != DBNull.Value ? row["ProductUnitRefno"] : null),
-                    ProductRefno = Convert.ToInt32(row["ProductRefno"] != DBNull.Value ? row["ProductRefno"] : null),
-                    ProductUnitBC = Convert.ToString(row["ProductUnitBC"] != DBNull.Value ? row["ProductUnitBC"] : null),
-                    ProductUnitIsBC = Convert.ToBoolean(row["ProductUnitIsBC"] != DBNull.Value ? row["ProductUnitIsBC"] : null),
-                    UnitCode = Convert.ToString(row["UnitCode"] != DBNull.Value ? row["UnitCode"] : null),
-                    BaseUnitCode = Convert.ToString(row["BaseUnitCode"] != DBNull.Value ? row["BaseUnitCode"] : null),
-                    WeightUnitCode = Convert.ToString(row["WeightUnitCode"] != DBNull.Value ? row["WeightUnitCode"] : null),
-                    ProductDescription = Convert.ToString(row["ProductDescription"] != DBNull.Value ? row["ProductDescription"] : null),
-                    ProductUnitSizeDescription = Convert.ToString(row["ProductUnitSizeDescription"] != DBNull.Value ? row["ProductUnitSizeDescription"] : null),
-                    Quantity = Convert.ToDecimal(row["Quantity"] != DBNull.Value ? row["Quantity"] : null),
-                    BaseQuantity = Convert.ToDecimal(row["BaseQuantity"] != DBNull.Value ? row["BaseQuantity"] : null),
-                    WeightQuantity = Convert.ToDecimal(row["WeightQuantity"] != DBNull.Value ? row["WeightQuantity"] : null),
-                    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
-                    LocationName = Convert.ToString(row["LocationName"] != DBNull.Value ? row["LocationName"] : null),
-                    SkidCreated = Convert.ToDateTime(row["SkidCreated"] != DBNull.Value ? row["SkidCreated"] : null),
-                    SkidCompleted = Convert.ToDateTime(row["SkidCompleted"] != DBNull.Value ? row["SkidCompleted"] : null),
-                    SkidTi = Convert.ToInt32(row["SkidTi"] != DBNull.Value ? row["SkidTi"] : null),
-                    SkidHi = Convert.ToInt32(row["SkidHi"] != DBNull.Value ? row["SkidHi"] : null),
-                    SkidCube = Convert.ToDecimal(row["SkidCube"] != DBNull.Value ? row["SkidCube"] : null),
-                    SkidCubeUnit = Convert.ToString(row["SkidCubeUnit"] != DBNull.Value ? row["SkidCubeUnit"] : null),
-                    SkidHeight = Convert.ToDecimal(row["SkidHeight"] != DBNull.Value ? row["SkidHeight"] : null),
-                    SkidHeightUnit = Convert.ToString(row["SkidHeightUnit"] != DBNull.Value ? row["SkidHeightUnit"] : null),
-                    SkidIsCHEP = Convert.ToBoolean(row["SkidIsCHEP"] != DBNull.Value ? row["SkidIsCHEP"] : null),
-                    SkidIsOnHold = Convert.ToBoolean(row["SkidIsOnHold"] != DBNull.Value ? row["SkidIsOnHold"] : null),
-                };
+                //Skid skid = new Skid
+                //{
+                //    SkidFKRefno = Convert.ToInt32(row["SkidFKRefno"] != DBNull.Value ? row["SkidFKRefno"] : null),
+                //    SkidCode = Convert.ToString(row["SkidCode"] != DBNull.Value ? row["SkidCode"] : null),
+                //    ProductUnitRefno = Convert.ToInt32(row["ProductUnitRefno"] != DBNull.Value ? row["ProductUnitRefno"] : null),
+                //    ProductRefno = Convert.ToInt32(row["ProductRefno"] != DBNull.Value ? row["ProductRefno"] : null),
+                //    ProductUnitBC = Convert.ToString(row["ProductUnitBC"] != DBNull.Value ? row["ProductUnitBC"] : null),
+                //    ProductUnitIsBC = Convert.ToBoolean(row["ProductUnitIsBC"] != DBNull.Value ? row["ProductUnitIsBC"] : null),
+                //    UnitCode = Convert.ToString(row["UnitCode"] != DBNull.Value ? row["UnitCode"] : null),
+                //    BaseUnitCode = Convert.ToString(row["BaseUnitCode"] != DBNull.Value ? row["BaseUnitCode"] : null),
+                //    WeightUnitCode = Convert.ToString(row["WeightUnitCode"] != DBNull.Value ? row["WeightUnitCode"] : null),
+                //    ProductDescription = Convert.ToString(row["ProductDescription"] != DBNull.Value ? row["ProductDescription"] : null),
+                //    ProductUnitSizeDescription = Convert.ToString(row["ProductUnitSizeDescription"] != DBNull.Value ? row["ProductUnitSizeDescription"] : null),
+                //    Quantity = Convert.ToDecimal(row["Quantity"] != DBNull.Value ? row["Quantity"] : null),
+                //    BaseQuantity = Convert.ToDecimal(row["BaseQuantity"] != DBNull.Value ? row["BaseQuantity"] : null),
+                //    WeightQuantity = Convert.ToDecimal(row["WeightQuantity"] != DBNull.Value ? row["WeightQuantity"] : null),
+                //    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
+                //    LocationName = Convert.ToString(row["LocationName"] != DBNull.Value ? row["LocationName"] : null),
+                //    SkidCreated = Convert.ToDateTime(row["SkidCreated"] != DBNull.Value ? row["SkidCreated"] : null),
+                //    SkidCompleted = Convert.ToDateTime(row["SkidCompleted"] != DBNull.Value ? row["SkidCompleted"] : null),
+                //    SkidTi = Convert.ToInt32(row["SkidTi"] != DBNull.Value ? row["SkidTi"] : null),
+                //    SkidHi = Convert.ToInt32(row["SkidHi"] != DBNull.Value ? row["SkidHi"] : null),
+                //    SkidCube = Convert.ToDecimal(row["SkidCube"] != DBNull.Value ? row["SkidCube"] : null),
+                //    SkidCubeUnit = Convert.ToString(row["SkidCubeUnit"] != DBNull.Value ? row["SkidCubeUnit"] : null),
+                //    SkidHeight = Convert.ToDecimal(row["SkidHeight"] != DBNull.Value ? row["SkidHeight"] : null),
+                //    SkidHeightUnit = Convert.ToString(row["SkidHeightUnit"] != DBNull.Value ? row["SkidHeightUnit"] : null),
+                //    SkidIsCHEP = Convert.ToBoolean(row["SkidIsCHEP"] != DBNull.Value ? row["SkidIsCHEP"] : null),
+                //    SkidIsOnHold = Convert.ToBoolean(row["SkidIsOnHold"] != DBNull.Value ? row["SkidIsOnHold"] : null),
+                //};
 
                 observableCollection.Add(skid);
             }
@@ -443,44 +442,11 @@ namespace dMobile.Controller
             return observableCollection;
         }
 
-//        /// <summary>
-//        /// 
-//        /// </summary>
-//        /// <param name="dataGridMain"></param>
-//        public override void DesignDataGrid(DataGrid dataGridMain)
-//        {
-//            dataGridCol.MappingName = "SkidCode";
-//            dataGridCol.HeaderText = "Code";
-
-//            dataGridCol.MappingName = "ProductCode";
-//            dataGridCol.HeaderText = string.Empty;
-
-//            dataGridCol.MappingName = "ProductUnitBC";
-//            dataGridCol.HeaderText = string.Empty;
-
-//            dataGridCol.MappingName = "Quantity";
-//            dataGridCol.HeaderText = "Qty";
-//            dataGridCol.Format = "0.000";
-
-//            dataGridCol.MappingName = "UnitCode";
-//            dataGridCol.HeaderText = string.Empty;
-
-//            dataGridCol.MappingName = "WeightQuantity";
-//            dataGridCol.HeaderText = "Weight";
-//            dataGridCol.Format = "0.000";
-
-//            dataGridCol.MappingName = "WeightUnitCode";
-//            dataGridCol.HeaderText = string.Empty;
-
-//            dataGridCol.MappingName = "LocationName";
-//            dataGridCol.HeaderText = string.Empty;
-//        }
-
         /// <summary>
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override void Refresh(XDocument data)
+        public override Task Refresh(XDocument data)
         {
             throw new NotImplementedException();
         }
@@ -489,7 +455,7 @@ namespace dMobile.Controller
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override void Purge()
+        public override Task Purge()
         {
             throw new NotImplementedException();
         }

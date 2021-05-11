@@ -1,10 +1,12 @@
 namespace dMobile.Controller
 {
     using System.Data;
-    using System.Data.SQLite;
+    using SQLite;
     using System.Text;
     using System.Xml.Linq;
     using dMobile.Bedrock;
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
 
     public class ActDetailEdit
     {
@@ -94,9 +96,8 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="prodRefno"></param>
         /// <returns></returns>
-        public DataView GetVariantDataView(int prodRefno)
+        public async Task<List<object>> GetVariantList(int prodRefno)
         {
-            DataView dataViewVariant;
             SLocMap currLocMap = LocationMap.GetInstance().CurrLocMap;
 
             StringBuilder s = new StringBuilder();
@@ -114,16 +115,7 @@ namespace dMobile.Controller
             s.AppendFormat(" AND tLocationMapWarehouseProductScheme.WarehouseLocationMapRefno = {0}", currLocMap.WhsLocMapRefno);
             s.Append(" ORDER BY tProductSchemeVariant.ProductSchemeVariantCode");
 
-            using (SQLiteDataAdapter dataAdapterVariant = new SQLiteDataAdapter(s.ToString(), DatabaseConnection.GetInstance().SQLConn))
-            {
-                using (DataSet dataSetVariant = new DataSet())
-                {
-                    dataAdapterVariant.Fill(dataSetVariant);
-                    dataViewVariant = dataSetVariant.Tables[0].DefaultView;
-                }
-            }
-
-            return dataViewVariant;
+            return await DatabaseConnection.GetInstance().SQLConn.QueryAsync<object>(s.ToString());
         }
 
         /// <summary>
@@ -131,10 +123,8 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="prodRefno"></param>
         /// <returns></returns>
-        public DataView GetLotDataView(int prodRefno)
+        public async Task<List<object>> GetLotList(int prodRefno)
         {
-            DataView dataViewLot;
-
             // TODO Put a number of lot max check, if tProductSchemeLotNumber is > 1000 only load the Detail lots not the
             // tProductSchemeLotNumber the exception would be receiving. The supplier Lot needs to exist in the list for
             // a lookup match.
@@ -150,16 +140,7 @@ namespace dMobile.Controller
             s.Append("FROM tProductSchemeLotNumber ");
             s.Append("ORDER BY ActivityDetailLogisticUnitBatchLotNumber");
 
-            using (SQLiteDataAdapter dataAdapterLot = new SQLiteDataAdapter(s.ToString(), DatabaseConnection.GetInstance().SQLConn))
-            {
-                using (DataSet dataSetLot = new DataSet())
-                {
-                    dataAdapterLot.Fill(dataSetLot);
-                    dataViewLot = dataSetLot.Tables[0].DefaultView;
-                }
-            }
-
-            return dataViewLot;
+            return await DatabaseConnection.GetInstance().SQLConn.QueryAsync<object>(s.ToString());
         }
 
         /// <summary>
@@ -167,10 +148,8 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="prodRefno"></param>
         /// <returns></returns>
-        public DataView GetSerialNumberDataView(int prodRefno)
+        public async Task<List<object>> GetSerialNumberList(int prodRefno)
         {
-            DataView dataViewSerial;
-
             StringBuilder s = new StringBuilder();
             s.Append("SELECT DISTINCT tActivityDetail.ActivityDetailSingleTradeItemSerialNumber AS ActivityDetailSingleTradeItemSerialNumber ");
             s.Append("FROM tActivityDetail ");
@@ -179,16 +158,7 @@ namespace dMobile.Controller
             s.AppendFormat("WHERE tProduct.ProductRefno = {0} ", prodRefno);
             s.Append("ORDER BY tActivityDetail.ActivityDetailSingleTradeItemSerialNumber");
 
-            using (SQLiteDataAdapter dataAdapterSerial = new SQLiteDataAdapter(s.ToString(), DatabaseConnection.GetInstance().SQLConn))
-            {
-                using (DataSet dataSetSerial = new DataSet())
-                {
-                    dataAdapterSerial.Fill(dataSetSerial);
-                    dataViewSerial = dataSetSerial.Tables[0].DefaultView;
-                }
-            }
-
-            return dataViewSerial;
+            return await DatabaseConnection.GetInstance().SQLConn.QueryAsync<object>(s.ToString());
         }
 
         /// <summary>

@@ -10,19 +10,15 @@ namespace dMobile.Controller
     using Xamarin.Forms;
     using dMobile.Resources.Types;
     using dMobile.Resources.Services;
+    using System.Threading.Tasks;
+    using System.Collections.Generic;
+    using System.Linq;
 
     public class ConvertProductActDetail : ActDetail
     {
         #region Fields
 
-        int _ID;
-
-        public int ID
-        {
-            get { return _ID; }
-            set { _ID = value; }
-        }
-
+        int id;
         private double columnWidth0 = 0;
         private double columnWidth1 = 0;
         private double columnWidth2 = 0;
@@ -31,6 +27,12 @@ namespace dMobile.Controller
         private double columnWidth5 = 0;
         private double columnWidth6 = 0;
         private ResourceDictionary resourceDictionary = new ResourceDictionary();
+
+        public int ID
+        {
+            get { return id; }
+            set { id = value; }
+        }
 
         #endregion
 
@@ -132,7 +134,7 @@ namespace dMobile.Controller
         /// 
         /// </summary>
         /// <param name="skidInfo"></param>
-        public override void InsertSkid(SysSkidInfo skidInfo)
+        public override Task InsertSkid(SysSkidInfo skidInfo)
         {
             throw new NotImplementedException();
         }
@@ -141,7 +143,7 @@ namespace dMobile.Controller
         /// 
         /// </summary>
         /// <param name="skidInfo"></param>
-        public override void DeleteSkid(SysSkidInfo skidInfo)
+        public override Task DeleteSkid(SysSkidInfo skidInfo)
         {
             throw new NotImplementedException();
         }
@@ -150,9 +152,9 @@ namespace dMobile.Controller
         /// 
         /// </summary>
         /// <param name="data"></param>
-        public override void Insert(XDocument data)
+        public override async Task Insert(XDocument data)
         {
-            if (this.DataViewDetails != null)
+            if (this.ListDetails != null)
             {
                 // Update Detail data
                 this.Quantity = Convert.ToDecimal(data.Root.Element("alt_qty").Value);
@@ -172,36 +174,33 @@ namespace dMobile.Controller
                 schemeData.VariantNumber = Convert.ToInt32(data.Root.Element("variant_no").Value);
                 this.SchemeData = schemeData;
 
-                DataRowView rowView = this.DataViewDetails.AddNew();
-                rowView["ProductRefno"] = this.ActItem.ProdInfo.Refno;
-                rowView["ActivityDetailQuantity"] = Math.Round(this.Quantity, 3);
-                rowView["ActivityDetailBaseQuantity"] = Math.Round(this.BaseQuantity, 3);
-                rowView["ActivityDetailWeightQuantity"] = Math.Round(this.WeightQuantity, 3);
-                rowView["ActivityDetailLogisticUnitBestBeforeSellByDate"] = this.SchemeData.LogisticUnitBestBeforeSellByDate;
-                rowView["ActivityDetailLogisticUnitProductionDate"] = this.SchemeData.LogisticUnitProductionDate;
-                rowView["ActivityDetailSingleTradeItemSerialNumber"] = this.SchemeData.SingleTradeItemSerialNumber;
-                rowView["ActivityDetailLogisticUnitBatchLotNumber"] = this.SchemeData.LogisticUnitBatchLotNumber;
-                rowView["ProductSchemeVariantCode"] = this.SchemeData.VariantCode;
-                rowView["ProductSchemeVariantNumber"] = this.SchemeData.VariantNumber;
-                rowView["ActivityDetailFKRefno"] = this.FKRefno;
-                rowView["ActivityItemFKRefno"] = this.ActItem.FKRefno;
-                rowView["ActivityHdrFKRefno"] = this.ActItem.ActHdr.FKRefno;
-
-                rowView.EndEdit();
+                this.ListDetails.Add(new ConvertProductDetail()
+                {
+                    ProductRefno = this.ActItem.ProdInfo.Refno,
+                    ActivityDetailQuantity = Math.Round(this.Quantity, 3),
+                    ActivityDetailBaseQuantity = Math.Round(this.BaseQuantity, 3),
+                    ActivityDetailWeightQuantity = Math.Round(this.WeightQuantity, 3),
+                    ActivityDetailLogisticUnitBestBeforeSellByDate = this.SchemeData.LogisticUnitBestBeforeSellByDate,
+                    ActivityDetailLogisticUnitProductionDate = this.SchemeData.LogisticUnitProductionDate,
+                    ActivityDetailSingleTradeItemSerialNumber = this.SchemeData.SingleTradeItemSerialNumber,
+                    ActivityDetailLogisticUnitBatchLotNumber = this.SchemeData.LogisticUnitBatchLotNumber,
+                    ProductSchemeVariantCode = this.SchemeData.VariantCode,
+                    ProductSchemeVariantNumber = this.SchemeData.VariantNumber,
+                    ActivityDetailFKRefno = this.FKRefno,
+                    ActivityItemFKRefno = this.ActItem.FKRefno,
+                    ActivityHdrFKRefno = this.ActItem.ActHdr.FKRefno
+                });
             }
         }
 
         /// <summary>
         /// 
         /// </summary>
-        public override void Delete()
+        public override async Task Delete()
         {
-            if (this.DataViewDetails != null)
+            if (this.ListDetails != null)
             {
-                while (this.DataViewDetails.Count > 0 && this.ActItem.CurrRowIdx >= 0 && this.ActItem.CurrRowIdx < this.DataViewDetails.Count)
-                {
-                    this.DataViewDetails.Delete(this.ActItem.CurrRowIdx);
-                }
+                this.ListDetails.Clear();
             }
         }
 
@@ -210,7 +209,7 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="rowIndex"></param>
         /// <param name="data"></param>
-        public override void Submit(int rowIndex, XDocument data)
+        public override Task Submit(object selectedActivityDetail, XDocument data)
         {
             throw new NotImplementedException();
         }
@@ -218,37 +217,37 @@ namespace dMobile.Controller
         /// <summary>
         /// 
         /// </summary>
-        public override void Refresh()
+        public override Task Refresh()
         {
             throw new NotImplementedException();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="rowIdx"></param>
-        /// <returns></returns>
-        public override int GetRefno(int rowIdx)
-        {
-            return Convert.ToInt32(this.DataViewDetails[rowIdx]["ActivityDetailRefno"]);
-        }
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        ///// <param name="rowIdx"></param>
+        ///// <returns></returns>
+        //public override int GetRefno(object selectedActivityDetail)
+        //{
+        //    return Convert.ToInt32((selectedActivityDetail as ConvertProductDetail).ActivityDetailRefno);
+        //}
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="rowIdx"></param>
-        /// <returns></returns>
-        public override int GetFKRefno(int rowIdx)
-        {
-            return Convert.ToInt32(this.DataViewDetails[rowIdx]["ActivityDetailCountFKRefno"]);
-        }
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        ///// <param name="rowIdx"></param>
+        ///// <returns></returns>
+        //public override int GetFKRefno(object selectedActivityDetail)
+        //{
+        //    return Convert.ToInt32(this.DataViewDetails[rowIdx]["ActivityDetailCountFKRefno"]);
+        //}
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="isSubmitBatch"></param>
         /// <returns></returns>
-        public override DataView GetDataView(bool isSubmitBatch)
+        public override async Task<List<object>> GetActivityDetailList(bool isSubmitBatch)
         {
             DataTable table = new DataTable("ActivityConvertProductItem");
 
@@ -266,18 +265,17 @@ namespace dMobile.Controller
             table.Columns.Add("ActivityItemFKRefno", Type.GetType("System.Int32"));
             table.Columns.Add("ActivityHdrFKRefno", Type.GetType("System.Int32"));
 
-            this.DataViewDetails = table.DefaultView;
-            this.DataViewDetails.Table.TableName = this.MainGridMappingName;
-
-            return this.DataViewDetails;
+            this.ListDetails = table.Select().ToList<object>();
+            return this.ListDetails;
         }
-        public override ActDetail GetInfo(int idx, bool isAdd)
-        {
-            base.GetInfo(idx, isAdd);
 
-            if (!isAdd)
+        public override async Task<ActDetail> GetInfo(object selectedActivityDetail, bool isAdd)
+        {
+            await base.GetInfo(selectedActivityDetail, isAdd);
+
+            if (!isAdd && selectedActivityDetail is ConvertProductDetail convertProductDetail)
             {
-                this.FKRefno = Convert.ToInt32(DataViewDetails[idx]["ActivityDetailFKRefno"]);
+                this.FKRefno = Convert.ToInt32(convertProductDetail.ActivityDetailFKRefno);
             }
 
             return this;
@@ -287,24 +285,24 @@ namespace dMobile.Controller
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
-            foreach (DataRow row in this.DataViewDetails.ToTable().Rows)
+            foreach (ConvertProductDetail convertProductDetail in this.ListDetails)
             {
-                ConvertProductDetail convertProductDetail = new ConvertProductDetail
-                {
-                    ActivityDetailQuantity = Convert.ToDecimal(row["ActivityDetailQuantity"] != DBNull.Value ? row["ActivityDetailQuantity"] : null),
-                    ActivityDetailBaseQuantity = Convert.ToDecimal(row["ActivityDetailBaseQuantity"] != DBNull.Value ? row["ActivityDetailBaseQuantity"] : null),
-                    ActivityDetailWeightQuantity = Convert.ToDecimal(row["ActivityDetailWeightQuantity"] != DBNull.Value ? row["ActivityDetailWeightQuantity"] : null),
-                    ActivityDetailLogisticUnitBestBeforeSellByDate = Convert.ToDateTime(row["ActivityDetailLogisticUnitBestBeforeSellByDate"] != DBNull.Value ? row["ActivityDetailLogisticUnitBestBeforeSellByDate"] : null),
-                    ActivityDetailSingleTradeItemSerialNumber = Convert.ToString(row["ActivityDetailSingleTradeItemSerialNumber"] != DBNull.Value ? row["ActivityDetailSingleTradeItemSerialNumber"] : null),
-                    ActivityDetailLogisticUnitBatchLotNumber = Convert.ToString(row["ActivityDetailLogisticUnitBatchLotNumber"] != DBNull.Value ? row["ActivityDetailLogisticUnitBatchLotNumber"] : null),
-                    ActivityDetailLogisticUnitProductionDate = Convert.ToDateTime(row["ActivityDetailLogisticUnitProductionDate"] != DBNull.Value ? row["ActivityDetailLogisticUnitProductionDate"] : null),
-                    ProductSchemeVariantCode = Convert.ToString(row["ProductSchemeVariantCode"] != DBNull.Value ? row["ProductSchemeVariantCode"] : null),
-                    ActivityDetailFKRefno = Convert.ToInt32(row["ActivityDetailFKRefno"] != DBNull.Value ? row["ActivityDetailFKRefno"] : null),
-                    ActivityHdrFKRefno = Convert.ToInt32(row["ActivityHdrFKRefno"] != DBNull.Value ? row["ActivityHdrFKRefno"] : null),
-                    ActivityItemFKRefno = Convert.ToInt32(row["ActivityItemFKRefno"] != DBNull.Value ? row["ActivityItemFKRefno"] : null),
-                    ProductRefno = Convert.ToInt32(row["ProductRefno"] != DBNull.Value ? row["ProductRefno"] : null),
-                    ProductSchemeVariantNumber = Convert.ToInt32(row["ProductSchemeVariantNumber"] != DBNull.Value ? row["ProductSchemeVariantNumber"] : null)
-                };
+                //ConvertProductDetail convertProductDetail = new ConvertProductDetail
+                //{
+                //    ActivityDetailQuantity = Convert.ToDecimal(row["ActivityDetailQuantity"] != DBNull.Value ? row["ActivityDetailQuantity"] : null),
+                //    ActivityDetailBaseQuantity = Convert.ToDecimal(row["ActivityDetailBaseQuantity"] != DBNull.Value ? row["ActivityDetailBaseQuantity"] : null),
+                //    ActivityDetailWeightQuantity = Convert.ToDecimal(row["ActivityDetailWeightQuantity"] != DBNull.Value ? row["ActivityDetailWeightQuantity"] : null),
+                //    ActivityDetailLogisticUnitBestBeforeSellByDate = Convert.ToDateTime(row["ActivityDetailLogisticUnitBestBeforeSellByDate"] != DBNull.Value ? row["ActivityDetailLogisticUnitBestBeforeSellByDate"] : null),
+                //    ActivityDetailSingleTradeItemSerialNumber = Convert.ToString(row["ActivityDetailSingleTradeItemSerialNumber"] != DBNull.Value ? row["ActivityDetailSingleTradeItemSerialNumber"] : null),
+                //    ActivityDetailLogisticUnitBatchLotNumber = Convert.ToString(row["ActivityDetailLogisticUnitBatchLotNumber"] != DBNull.Value ? row["ActivityDetailLogisticUnitBatchLotNumber"] : null),
+                //    ActivityDetailLogisticUnitProductionDate = Convert.ToDateTime(row["ActivityDetailLogisticUnitProductionDate"] != DBNull.Value ? row["ActivityDetailLogisticUnitProductionDate"] : null),
+                //    ProductSchemeVariantCode = Convert.ToString(row["ProductSchemeVariantCode"] != DBNull.Value ? row["ProductSchemeVariantCode"] : null),
+                //    ActivityDetailFKRefno = Convert.ToInt32(row["ActivityDetailFKRefno"] != DBNull.Value ? row["ActivityDetailFKRefno"] : null),
+                //    ActivityHdrFKRefno = Convert.ToInt32(row["ActivityHdrFKRefno"] != DBNull.Value ? row["ActivityHdrFKRefno"] : null),
+                //    ActivityItemFKRefno = Convert.ToInt32(row["ActivityItemFKRefno"] != DBNull.Value ? row["ActivityItemFKRefno"] : null),
+                //    ProductRefno = Convert.ToInt32(row["ProductRefno"] != DBNull.Value ? row["ProductRefno"] : null),
+                //    ProductSchemeVariantNumber = Convert.ToInt32(row["ProductSchemeVariantNumber"] != DBNull.Value ? row["ProductSchemeVariantNumber"] : null)
+                //};
 
                 observableCollection.Add(convertProductDetail);
             }
@@ -482,41 +480,6 @@ namespace dMobile.Controller
             return observableCollection;
         }
 
-        ///// <summary>
-        /////
-        ///// </summary>
-        ///// <param name="dataGridMain"></param>
-        ///// <remarks></remarks>
-        //public override void DesignDataGrid(DataGrid dataGridMain)
-        //{
-
-        //    dataGridStyle.GridColumnStyles.Add("ActivityDetailQuantity", "Quantity");
-        //    dataGridStyle.GridColumnStyles.Add("ActivityDetailWeightQuantity", "Weight");
-
-        //    if (this.ActItem.ProdInfo.Scheme.IsSerialTracked)
-        //    {
-        //        dataGridStyle.GridColumnStyles.Add("ActivityDetailSingleTradeItemSerialNumber", "SerialNo");
-        //    }
-
-        //    if (this.ActItem.ProdInfo.Scheme.IsProductionDateTracked)
-        //    {
-        //        dataGridStyle.GridColumnStyles.Add("ActivityDetailLogisticUnitProductionDate", "Prod Date");
-        //    }
-        //    if (this.ActItem.ProdInfo.Scheme.IsBestBeforeDateTracked)
-        //    {
-        //        dataGridStyle.GridColumnStyles.Add("ActivityDetailLogisticUnitBestBeforeSellByDate", "BBSB Date");
-        //    }
-        //    if (this.ActItem.ProdInfo.Scheme.IsLotTracked)
-        //    {
-        //        dataGridStyle.GridColumnStyles.Add("ActivityDetailLogisticUnitBatchLotNumber", "Lot");
-        //    }
-
-        //    if (this.ActItem.ProdInfo.Scheme.IsVariantTracked)
-        //    {
-        //        dataGridStyle.GridColumnStyles.Add("ProductSchemeVariantCode", "Variant");
-        //    }
-        //}
-
         /// <summary>
         /// 
         /// </summary>
@@ -531,33 +494,18 @@ namespace dMobile.Controller
         /// 
         /// </summary>
         /// <param name="idx"></param>
-        public override void SelectDetail(int idx)
+        public override async Task SelectActivityDetail(object selectedActivityDetail)
         {
-            if (this.DataViewDetails != null && idx >= 0 && idx < this.DataViewDetails.Count)
+            if (selectedActivityDetail is ConvertProductDetail convertProductDetail)
             {
-                DataRowView rowView = this.DataViewDetails[idx];
                 // Update Detail data
-                this.ActItem.ProdInfo.Refno = Convert.ToInt32(rowView["ProductRefno"]);
-                this.Quantity = Convert.ToDecimal(rowView["ActivityDetailQuantity"]);
-                this.BaseQuantity = Convert.ToDecimal(rowView["ActivityDetailBaseQuantity"]);
-                this.WeightQuantity = Convert.ToDecimal(rowView["ActivityDetailWeightQuantity"]);
-
-                //this.ActItem.ProdInfo.Scheme = ProductInfoTasks.GetSchemeComponentsFromRefno(this.ActItem.ProdInfo.Refno);
-
-                //// Update Scheme data
-                //SProductSchemeData schemeData = new SProductSchemeData();
-                //schemeData.LogisticUnitProductionDate = Convert.ToDateTime(rowView["ActivityDetailLogisticUnitProductionDate"]);
-                //schemeData.LogisticUnitBestBeforeSellByDate = Convert.ToDateTime(rowView["ActivityDetailLogisticUnitBestBeforeSellByDate"]);
-                //schemeData.SingleTradeItemSerialNumber = Convert.ToString(rowView["ActivityDetailSingleTradeItemSerialNumber"]);
-                //schemeData.LogisticUnitBatchLotNumber = Convert.ToString(rowView["ActivityDetailLogisticUnitBatchLotNumber"]);
-                //schemeData.VariantCode = Convert.ToString(rowView["ProductSchemeVariantCode"]);
-                //schemeData.VariantNumber = Convert.ToInt32(rowView["ProductSchemeVariantNumber"]);
-                //this.SchemeData = schemeData;
+                this.ActItem.ProdInfo.Refno = Convert.ToInt32(convertProductDetail.ProductRefno);
+                this.Quantity = Convert.ToDecimal(convertProductDetail.ActivityDetailQuantity);
+                this.BaseQuantity = Convert.ToDecimal(convertProductDetail.ActivityDetailBaseQuantity);
+                this.WeightQuantity = Convert.ToDecimal(convertProductDetail.ActivityDetailWeightQuantity);
                 
                 // Update Refnos
-                this.FKRefno = Convert.ToInt32(rowView["ActivityDetailFKRefno"]);
-                //this.ActItem.FKRefno = Convert.ToInt32(rowView["ActivityItemFKRefno"]);
-                //this.ActItem.ActHdr.FKRefno = Convert.ToInt32(rowView["ActivityHdrFKRefno"]);                
+                this.FKRefno = Convert.ToInt32(convertProductDetail.ActivityDetailFKRefno);          
             }
         }
 
@@ -566,7 +514,7 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public override string CreateDeleteXML(XDocument data)
+        public override async Task<string> CreateDeleteXML(XDocument data)
         {
             // Expecting fk_refno as input
             //int fkRefno = Convert.ToInt32(data.Root.Element("fk_refno").Value);
@@ -576,10 +524,10 @@ namespace dMobile.Controller
             XmlWriter xml = XmlWriter.Create(xmlString);
 
             // Set the FK refno to be the selected row
-            int idx = this.ActItem.CurrRowIdx;
-            this.ActItem.ActHdr.FKRefno = (int)DataViewDetails.Table.Rows[idx]["ActivityHdrFKRefno"];
-            this.ActItem.FKRefno = (int)DataViewDetails.Table.Rows[idx]["ActivityItemFKRefno"];
-            this.FKRefno = (int)DataViewDetails.Table.Rows[idx]["ActivityDetailFKRefno"];
+            dynamic selectedActivityItem = this.ActItem.SelectedActivityItem;
+            this.ActItem.ActHdr.FKRefno = Convert.ToInt32(selectedActivityItem.ActivityHdrFKRefno);
+            this.ActItem.FKRefno = Convert.ToInt32(selectedActivityItem.ActivityItemFKRefno);
+            this.FKRefno = Convert.ToInt32(selectedActivityItem.ActivityDetailFKRefno);
 
             XDocument request = null;
             request = XDocument.Parse(
@@ -646,16 +594,16 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public override string CreateSubmitXML(XDocument data)
+        public override async Task<string> CreateSubmitXML(XDocument data)
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);
 
-            int fromProdRefno = Convert.ToInt32(this.ActItem.DataViewItems[0]["from_prod_fk_refno"]);
-            int toProdRefno = Convert.ToInt32(this.ActItem.DataViewItems[0]["to_prod_fk_refno"]);
+            int fromProdRefno = Convert.ToInt32((this.ActItem.SelectedActivityItem as ConvertProductItem).From_prod_fk_refno);
+            int toProdRefno = Convert.ToInt32((this.ActItem.SelectedActivityItem as ConvertProductItem).To_prod_fk_refno);
 
-            ProductInfo fromProd = ProductInfoTasks.GetInfoFromRefno(fromProdRefno);
-            ProductInfo toProd = ProductInfoTasks.GetInfoFromRefno(toProdRefno);
+            ProductInfo fromProd = await ProductInfoTasks.GetInfoFromRefno(fromProdRefno);
+            ProductInfo toProd = await ProductInfoTasks.GetInfoFromRefno(toProdRefno);
             XDocument request = null;
 
             DateTime prodDate = Convert.ToDateTime(data.Root.Element("pdate").Value);
@@ -699,7 +647,6 @@ namespace dMobile.Controller
             req.AppendFormat("<base_unit>{0}</base_unit>", fromProd.BaseUnitCode);
             req.Append("</from>");
 
-            
             req.Append("<to>");
             req.AppendFormat("<whs_id>{0}</whs_id>", this.LocMap.CurrLocMap.WhsFKRefno);
             req.AppendFormat("<sect_refno>{0}</sect_refno>", this.LocMap.CurrLocMap.SectFKRefno);

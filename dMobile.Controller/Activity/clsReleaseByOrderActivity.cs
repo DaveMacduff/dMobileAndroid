@@ -14,6 +14,7 @@ namespace dMobile.Controller
     using dMobile.Resources.Types;
     using dMobile.Resources.Services;
     using System.Collections.Generic;
+    using System.Linq;
 
     public class ReleaseByOrderActivity : Activity
     {
@@ -285,91 +286,13 @@ namespace dMobile.Controller
             return observableCollection;
         }
 
-        //    /// <summary>
-        //    ///
-        //    /// </summary>
-        //    /// <remarks></remarks>
-        //    public override void DesignDataGrid(DataGrid dataGridMain)
-        //    {
-        //      int colWidthFactor = 1;
-
-        //      if (this.SysEnv.IsWindowsMobile6Device)
-        //      {
-        //        colWidthFactor = 2;
-        //      }
-
-        //      if (dataGridMain.TableStyles.Count > 0)
-        //      {
-        //        dataGridMain.TableStyles.Clear();
-        //      }
-
-        //      DataGridTableStyle dataGridStyle = new DataGridTableStyle();
-        //      dataGridStyle.MappingName = this.MainGridMappingName;
-
-        //      DataGridTextBoxColumn dataGridCol = new DataGridTextBoxColumn();
-        //      dataGridCol.MappingName = "ActivityPickingStringFKRefno";
-        //#if MULTILANGUAGE
-        //      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Order);
-        //#else
-        //      dataGridCol.HeaderText = "Order #";
-        //#endif
-        //      dataGridCol.Width = 50 * colWidthFactor;
-        //      dataGridStyle.GridColumnStyles.Add(dataGridCol);
-
-        //      dataGridCol = new DataGridTextBoxColumn();
-        //      dataGridCol.MappingName = "ActivityPickingOrderedDateTime";
-        //#if MULTILANGUAGE
-        //      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.OrderDate);
-        //#else
-        //      dataGridCol.HeaderText = "Order Date";
-        //#endif
-        //      dataGridCol.Width = 70 * colWidthFactor;
-        //      dataGridStyle.GridColumnStyles.Add(dataGridCol);
-
-        //      dataGridCol = new DataGridTextBoxColumn();
-        //      dataGridCol.MappingName = "ActivityPickingDeliveryDateTime";
-        //#if MULTILANGUAGE
-        //      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.DelDate);
-        //#else
-        //      dataGridCol.HeaderText = "Delivery Date";
-        //#endif
-        //      dataGridCol.Width = 65 * colWidthFactor;
-        //      dataGridStyle.GridColumnStyles.Add(dataGridCol);
-
-        //      dataGridCol = new DataGridTextBoxColumn();
-        //      dataGridCol.MappingName = "RouteCode";
-        //#if MULTILANGUAGE
-        //      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Route);
-        //#else
-        //      dataGridCol.HeaderText = "Route";
-        //#endif
-        //      dataGridCol.Width = 45 * colWidthFactor;
-        //      dataGridCol.NullText = string.Empty;
-        //      dataGridStyle.GridColumnStyles.Add(dataGridCol);
-
-        //      dataGridCol = new DataGridTextBoxColumn();
-        //      dataGridCol.MappingName = "RouteStop";
-        //#if MULTILANGUAGE
-        //      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Stop);
-        //#else
-        //      dataGridCol.HeaderText = "Stop";
-        //#endif
-        //      dataGridCol.Width = 45 * colWidthFactor;
-        //      dataGridCol.NullText = string.Empty;
-        //      dataGridStyle.GridColumnStyles.Add(dataGridCol);
-
-        //      dataGridMain.TableStyles.Add(dataGridStyle);
-        //      dataGridMain.RowHeadersVisible = false;
-        //      dataGridMain.ColumnHeadersVisible = true;
-        //    }
-
         /// <summary>
         ///
         /// </summary>
         /// <param name="IsSubmitBatch"></param>
         /// <returns></returns>
         /// <remarks></remarks>
-        public override async Task<List<object>> GetList(bool isSubmitBatch)
+        public override async Task<List<object>> GetActivityList(bool isSubmitBatch)
         {
             StringBuilder sql = new StringBuilder();
 
@@ -509,34 +432,36 @@ namespace dMobile.Controller
 
             if (string.IsNullOrEmpty(ActFilter))
             {
-                this.DataViewHdrs.RowFilter = "ActivityPickingStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
+                //this.DataViewHdrs.RowFilter = "ActivityPickingStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
+                this.ListHdrs = (List<object>)this.ListHdrs.OfType<Picking>().Where(picking => picking.ActivityPickingStringFKRefno.Contains(searchText.Trim()));
             }
             else
             {
+                // TODO: Fix filtering
                 //this.DataViewHdrs.RowFilter = ActFilter + " AND ActivityPickingStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
             }
 
-            foreach (DataRow row in this.DataViewHdrs.ToTable().Rows)
+            foreach (Picking picking in this.ListHdrs)
             {
-                Picking picking = new Picking
-                {
-                    ActivityRefno = Convert.ToInt32(row["ActivityRefno"] != DBNull.Value ? row["ActivityRefno"] : null),
-                    ActivityPickingFKRefno = Convert.ToInt32(row["ActivityPickingFKRefno"] != DBNull.Value ? row["ActivityPickingFKRefno"] : null),
-                    ActivityPickingStringFKRefno = Convert.ToString(row["ActivityPickingStringFKRefno"] != DBNull.Value ? row["ActivityPickingStringFKRefno"] : null),
-                    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
-                    LocationMapWarehouseFKRefno = Convert.ToInt32(row["LocationMapWarehouseFKRefno"] != DBNull.Value ? row["LocationMapWarehouseFKRefno"] : null),
-                    LocationMapWarehouseName = Convert.ToString(row["LocationMapWarehouseName"] != DBNull.Value ? row["LocationMapWarehouseName"] : null),
-                    ActivityPickingOrderedDateTime = Convert.ToDateTime(row["ActivityPickingOrderedDateTime"] != DBNull.Value ? row["ActivityPickingOrderedDateTime"] : null),
-                    ActivityPickingDeliveryDateTime = Convert.ToDateTime(row["ActivityPickingDeliveryDateTime"] != DBNull.Value ? row["ActivityPickingDeliveryDateTime"] : null),
-                    ActivityPickingCustomerContactName = Convert.ToString(row["ActivityPickingCustomerContactName"] != DBNull.Value ? row["ActivityPickingCustomerContactName"] : null),
-                    ActivityPickingCustomerShipToInfo = Convert.ToString(row["ActivityPickingCustomerShipToInfo"] != DBNull.Value ? row["ActivityPickingCustomerShipToInfo"] : null),
-                    RouteCode = Convert.ToString(row["RouteCode"] != DBNull.Value ? row["RouteCode"] : null),
-                    RouteDescription = Convert.ToString(row["RouteDescription"] != DBNull.Value ? row["RouteDescription"] : null),
-                    RouteDayOfWeek = Convert.ToString(row["RouteDayOfWeek"] != DBNull.Value ? row["RouteDayOfWeek"] : null),
-                    RouteStop = Convert.ToInt32(row["RouteStop"] != DBNull.Value ? row["RouteStop"] : null),
-                    ActivityStatus = Convert.ToInt32(row["ActivityStatus"] != DBNull.Value ? row["ActivityStatus"] : null),
-                    ActivityPickingIsReviewed = Convert.ToBoolean(row["ActivityPickingIsReviewed"] != DBNull.Value ? row["ActivityPickingIsReviewed"] : null),
-                };
+                //    Picking picking = new Picking
+                //    {
+                //        ActivityRefno = Convert.ToInt32(row["ActivityRefno"] != DBNull.Value ? row["ActivityRefno"] : null),
+                //        ActivityPickingFKRefno = Convert.ToInt32(row["ActivityPickingFKRefno"] != DBNull.Value ? row["ActivityPickingFKRefno"] : null),
+                //        ActivityPickingStringFKRefno = Convert.ToString(row["ActivityPickingStringFKRefno"] != DBNull.Value ? row["ActivityPickingStringFKRefno"] : null),
+                //        LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
+                //        LocationMapWarehouseFKRefno = Convert.ToInt32(row["LocationMapWarehouseFKRefno"] != DBNull.Value ? row["LocationMapWarehouseFKRefno"] : null),
+                //        LocationMapWarehouseName = Convert.ToString(row["LocationMapWarehouseName"] != DBNull.Value ? row["LocationMapWarehouseName"] : null),
+                //        ActivityPickingOrderedDateTime = Convert.ToDateTime(row["ActivityPickingOrderedDateTime"] != DBNull.Value ? row["ActivityPickingOrderedDateTime"] : null),
+                //        ActivityPickingDeliveryDateTime = Convert.ToDateTime(row["ActivityPickingDeliveryDateTime"] != DBNull.Value ? row["ActivityPickingDeliveryDateTime"] : null),
+                //        ActivityPickingCustomerContactName = Convert.ToString(row["ActivityPickingCustomerContactName"] != DBNull.Value ? row["ActivityPickingCustomerContactName"] : null),
+                //        ActivityPickingCustomerShipToInfo = Convert.ToString(row["ActivityPickingCustomerShipToInfo"] != DBNull.Value ? row["ActivityPickingCustomerShipToInfo"] : null),
+                //        RouteCode = Convert.ToString(row["RouteCode"] != DBNull.Value ? row["RouteCode"] : null),
+                //        RouteDescription = Convert.ToString(row["RouteDescription"] != DBNull.Value ? row["RouteDescription"] : null),
+                //        RouteDayOfWeek = Convert.ToString(row["RouteDayOfWeek"] != DBNull.Value ? row["RouteDayOfWeek"] : null),
+                //        RouteStop = Convert.ToInt32(row["RouteStop"] != DBNull.Value ? row["RouteStop"] : null),
+                //        ActivityStatus = Convert.ToInt32(row["ActivityStatus"] != DBNull.Value ? row["ActivityStatus"] : null),
+                //        ActivityPickingIsReviewed = Convert.ToBoolean(row["ActivityPickingIsReviewed"] != DBNull.Value ? row["ActivityPickingIsReviewed"] : null),
+                //    };
 
                 observableCollection.Add(picking);
             }
@@ -548,11 +473,14 @@ namespace dMobile.Controller
         /// 
         /// </summary>
         /// <param name="idx"></param>
-        public override void SelectHdr(int idx)
+        public override async Task SelectActivity(object selectedActivity)
         {
-            this.FKRefno = Convert.ToInt32(DataViewHdrs[idx]["ActivityPickingFKRefno"]);
-            this.Refno = Convert.ToInt32(DataViewHdrs[idx]["ActivityRefno"]);
-            this.SelectedIndex = idx;
+            if (selectedActivity is Picking picking)
+            {
+                this.SelectedActivity = picking;
+                this.FKRefno = Convert.ToInt32(picking.ActivityPickingFKRefno);
+                this.Refno = Convert.ToInt32(picking.ActivityRefno);
+            }
         }
 
         /// <summary>
@@ -561,10 +489,13 @@ namespace dMobile.Controller
         /// <param name="i"></param>
         /// <returns></returns>
         /// <remarks></remarks>
-        public override int GetRefnoFromRowIdx(int idx)
+        public override int GetRefnoFromRowIdx(object selectedItem)
         {
-            this.FKRefno = Convert.ToInt32(DataViewHdrs[idx]["ActivityPickingFKRefno"]);
-            this.Refno = Convert.ToInt32(DataViewHdrs[idx]["ActivityRefno"]);
+            if (selectedItem is Picking picking)
+            {
+                this.FKRefno = Convert.ToInt32(picking.ActivityPickingFKRefno);
+                this.Refno = Convert.ToInt32(picking.ActivityRefno);
+            }
 
             return this.Refno;
         }
@@ -573,7 +504,7 @@ namespace dMobile.Controller
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override void Refresh(XDocument data)
+        public override async Task Refresh(XDocument data)
         {
             if (this.SysEnv.SysSettings.IsDisconnectedMode)
             {
@@ -582,7 +513,7 @@ namespace dMobile.Controller
             else
             {
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 2);
-                this.Purge();
+                await this.Purge();
 
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
 
@@ -598,7 +529,7 @@ namespace dMobile.Controller
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override void Purge()
+        public override async Task Purge()
         {
             TableActivityPicking tableActPicking = new TableActivityPicking();
             TableActivityPickingRoute tableActPickingRoute = new TableActivityPickingRoute();

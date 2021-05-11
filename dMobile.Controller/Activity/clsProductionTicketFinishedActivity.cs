@@ -180,69 +180,13 @@ namespace dMobile.Controller
             return observableCollection;
         }
 
-        //    /// <summary>
-        //    ///
-        //    /// </summary>
-        //    /// <remarks></remarks>
-        //    public override void DesignDataGrid(DataGrid dataGridMain)
-        //    {
-        //      int colWidthFactor = 1;
-
-        //      if (this.SysEnv.IsWindowsMobile6Device)
-        //      {
-        //        colWidthFactor = 2;
-        //      }
-
-        //      if (dataGridMain.TableStyles.Count > 0)
-        //      {
-        //        dataGridMain.TableStyles.Clear();
-        //      }
-
-        //      DataGridTableStyle dataGridStyle = new DataGridTableStyle();
-        //      dataGridStyle.MappingName = this.MainGridMappingName;
-
-        //      DataGridTextBoxColumn dataGridCol = new DataGridTextBoxColumn();
-        //      dataGridCol.MappingName = "ActivityProductionStringFKRefno";
-        //#if MULTILANGUAGE
-        //      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Ticket);
-        //#else
-        //      dataGridCol.HeaderText = "Ticket #";
-        //#endif
-        //      dataGridCol.Width = 68 * colWidthFactor;
-        //      dataGridStyle.GridColumnStyles.Add(dataGridCol);
-
-        //      dataGridCol = new DataGridTextBoxColumn();
-        //      dataGridCol.MappingName = "ActivityProductionDateTime";
-        //#if MULTILANGUAGE
-        //      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Date);
-        //#else
-        //      dataGridCol.HeaderText = "Date";
-        //#endif
-        //      dataGridCol.Width = 65 * colWidthFactor;
-        //      dataGridStyle.GridColumnStyles.Add(dataGridCol);
-
-        //      dataGridCol = new DataGridTextBoxColumn();
-        //      dataGridCol.MappingName = "ActivityProductionDescription";
-        //#if MULTILANGUAGE
-        //      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Description);
-        //#else
-        //      dataGridCol.HeaderText = "Description";
-        //#endif
-        //      dataGridCol.Width = 100 * colWidthFactor;
-        //      dataGridStyle.GridColumnStyles.Add(dataGridCol);
-
-        //      dataGridMain.TableStyles.Add(dataGridStyle);
-        //      dataGridMain.RowHeadersVisible = false;
-        //      dataGridMain.ColumnHeadersVisible = true;
-        //    }
-
         /// <summary>
         ///
         /// </summary>
         /// <param name="IsSubmitBatch"></param>
         /// <returns></returns>
         /// <remarks></remarks>.
-        public override async Task<List<object>> GetList(bool isSubmitBatch)
+        public override async Task<List<object>> GetActivityList(bool isSubmitBatch)
         {
             ProductionTicketSettings ticketSettings = new ProductionTicketSettings().LoadData();
             StringBuilder sql = new StringBuilder();
@@ -392,10 +336,11 @@ namespace dMobile.Controller
         /// <param name="i"></param>
         /// <param name="lstDisplay"></param>
         /// <remarks></remarks>
-        public override async Task SelectHdr(object selectedItem)
+        public override async Task SelectActivity(object selectedActivity)
         {
-            if (selectedItem is ProductionTicketFinished productionTicketFinished)
+            if (selectedActivity is ProductionTicketFinished productionTicketFinished)
             {
+                this.SelectedActivity = productionTicketFinished;
                 this.FKRefno = Convert.ToInt32(productionTicketFinished.ActivityProductionFKRefno);
                 this.Refno = Convert.ToInt32(productionTicketFinished.ActivityRefno);
 

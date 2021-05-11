@@ -180,68 +180,12 @@ namespace dMobile.Controller
             return observableCollection;
         }
 
-        //        /// <summary>
-        //        /// 
-        //        /// </summary>
-        //        /// <param name="dataGridMain"></param>
-        //        public override void DesignDataGrid(DataGrid dataGridMain)
-        //        {
-        //            int colWidthFactor = 1;
-
-        //            if (SysEnv.IsWindowsMobile6Device)
-        //            {
-        //                colWidthFactor = 2;
-        //            }
-
-        //            if (dataGridMain.TableStyles.Count > 0)
-        //            {
-        //                dataGridMain.TableStyles.Clear();
-        //            }
-
-        //            DataGridTableStyle dataGridStyle = new DataGridTableStyle();
-        //            dataGridStyle.MappingName = this.MainGridMappingName;
-
-        //            DataGridTextBoxColumn dataGridCol1 = new DataGridTextBoxColumn();
-        //            dataGridCol1.MappingName = "ActivityCountStringFKRefno";
-        //#if MULTILANGUAGE
-        //            dataGridCol1.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Countz);
-        //#else
-        //            dataGridCol1.HeaderText = "Count#";
-        //#endif
-        //            dataGridCol1.Width = 50 * colWidthFactor;
-        //            dataGridStyle.GridColumnStyles.Add(dataGridCol1);
-
-        //            DataGridTextBoxColumn dataGridCol2 = new DataGridTextBoxColumn();
-        //            dataGridCol2.MappingName = "ActivityCountDateTime";
-        //#if MULTILANGUAGE
-        //            dataGridCol2.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Date);
-        //#else
-        //            dataGridCol2.HeaderText = "Date";
-        //#endif
-        //            dataGridCol2.Width = 58 * colWidthFactor;
-        //            dataGridStyle.GridColumnStyles.Add(dataGridCol2);
-
-        //            DataGridTextBoxColumn dataGridCol3 = new DataGridTextBoxColumn();
-        //            dataGridCol3.MappingName = "ActivityCountTypeDescription";
-        //#if MULTILANGUAGE
-        //            dataGridCol3.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.CountType);
-        //#else
-        //            dataGridCol3.HeaderText = "Count Type";
-        //#endif
-        //            dataGridCol3.Width = 118 * colWidthFactor;
-        //            dataGridStyle.GridColumnStyles.Add(dataGridCol3);
-
-        //            dataGridMain.TableStyles.Add(dataGridStyle);
-        //            dataGridMain.RowHeadersVisible = false;
-        //            dataGridMain.ColumnHeadersVisible = true;
-        //        }
-
         /// <summary>
         /// 
         /// </summary>
         /// <param name="isSubmitBatch"></param>
         /// <returns></returns>
-        public override async Task<List<object>> GetList(bool isSubmitBatch)
+        public override async Task<List<object>> GetActivityList(bool isSubmitBatch)
         {
             StringBuilder sql = new StringBuilder();
 
@@ -392,10 +336,11 @@ namespace dMobile.Controller
         /// 
         /// </summary>
         /// <param name="idx"></param>
-        public override async Task SelectHdr(object selectedItem)
+        public override async Task SelectActivity(object selectedActivity)
         {
-            if (selectedItem is Count count)
+            if (selectedActivity is Count count)
             {
+                this.SelectedActivity = count;
                 this.FKRefno = Convert.ToInt32(count.ActivityCountFKRefno);
                 this.Refno = Convert.ToInt32(count.ActivityRefno);
 

@@ -3,7 +3,7 @@ namespace dMobile.Controller
     using System;
     using System.Collections.ObjectModel;
     using System.Data;
-    using System.Data.SQLite;
+    using SQLite;
     using System.IO;
     using System.Text;
     using System.Threading.Tasks;
@@ -14,6 +14,9 @@ namespace dMobile.Controller
     using dMobile.Resources.Services;
     using dMobile.Resources.Types;
     using Xamarin.Forms;
+    using System.Collections.Generic;
+    using dMobile.Resources.Models;
+    using System.Linq;
 
     public class ReturnsActItem : ActItem
     {
@@ -124,26 +127,17 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="selectedIndex"></param>
         /// <returns></returns>
-        public override string GetComment(int selectedIndex)
+        public override async Task<string> GetComment(object selectedActivityItem)
         {
-            string comment = base.GetComment(selectedIndex);
-            using (SQLiteCommand cmndItemReturnsComment = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+            string comment = await base.GetComment(selectedActivityItem);
+
+            if (selectedActivityItem is ReturnItem returnItem)
             {
-                cmndItemReturnsComment.CommandType = CommandType.Text;
-                cmndItemReturnsComment.CommandText = "SELECT * FROM tActivityItemReturnsComment WHERE ActivityItemRefno = @selectedIndex";
-                cmndItemReturnsComment.Parameters.Add(new SQLiteParameter("@selectedIndex", selectedIndex));
+                List<tActivityItemReturnsCommentModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityItemReturnsCommentModel>("SELECT * FROM tActivityItemReturnsComment WHERE ActivityItemRefno = ?", returnItem.ActivityItemRefno);
 
-                //cmndItemReturnsComment.IndexName = "PK_ActivityItemReturnsCommentOnActivityItemRefno";
-
-                using (SQLiteDataReader drItemReturnsComment = cmndItemReturnsComment.ExecuteReader())
+                if (results != null && results.Count > 0)
                 {
-                    //if (drItemReturnsComment.Seek(DbSeekOptions.FirstEqual, new object[] { selectedIndex }))
-                    //{
-                    if (drItemReturnsComment.Read())
-                    {
-                        comment = drItemReturnsComment["ActivityItemReturnsCommentComment"].ToString();
-                    }
-                    //}
+                    comment = results[0].ActivityItemReturnsCommentComment;
                 }
             }
 
@@ -156,13 +150,9 @@ namespace dMobile.Controller
         /// <param name="whsLocMapRefno"></param>
         /// <param name="prodRefno"></param>
         /// <returns></returns>
-        public override int GetDefaultLocMapRefno(int whsLocMapRefno, int prodRefno)
+        public override async Task<int> GetDefaultLocMapRefno(int whsLocMapRefno, int prodRefno)
         {
-            int locMapRefno = LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(
-                whsLocMapRefno,
-                prodRefno,
-                SysCommon.ProdLocMapTypes.Receiving);
-
+            int locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(whsLocMapRefno, prodRefno, SysCommon.ProdLocMapTypes.Receiving);
             return locMapRefno;
         }
 
@@ -212,7 +202,7 @@ namespace dMobile.Controller
         /// 
         /// </summary>
         /// <param name="xmlParam"></param>
-        public override void Refresh(XDocument xmlParam)
+        public override async Task Refresh(XDocument xmlParam)
         {
             if (this.SysEnv.SysSettings.IsDisconnectedMode)
             {
@@ -288,31 +278,31 @@ namespace dMobile.Controller
 
             dataGridMainActivityHeader.Children.Add(gridHeaderReturns);
 
-            foreach (DataRow row in this.DataViewItems.ToTable().Rows)
+            foreach (ReturnItem returnItem in this.ListItems)
             {
-                ReturnItem returnItem = new ReturnItem
-                {
-                    ActivityItemRefno = Convert.ToInt32(row["ActivityItemRefno"] != DBNull.Value ? row["ActivityItemRefno"] : null),
-                    ActivityItemReturnsFKRefno = Convert.ToInt32(row["ActivityItemReturnsFKRefno"] != DBNull.Value ? row["ActivityItemReturnsFKRefno"] : null),
-                    ActivityItemReturnsStringFKRefno = Convert.ToString(row["ActivityItemReturnsStringFKRefno"] != DBNull.Value ? row["ActivityItemReturnsStringFKRefno"] : null),
-                    ProductUnitRefno = Convert.ToInt32(row["ProductUnitRefno"] != DBNull.Value ? row["ProductUnitRefno"] : null),
-                    ProductRefno = Convert.ToInt32(row["ProductRefno"] != DBNull.Value ? row["ProductRefno"] : null),
-                    ProductCode = Convert.ToString(row["ProductCode"] != DBNull.Value ? row["ProductCode"] : null),
-                    ProductDescription = Convert.ToString(row["ProductDescription"] != DBNull.Value ? row["ProductDescription"] : null),
-                    ProductBrandDescription = Convert.ToString(row["ProductBrandDescription"] != DBNull.Value ? row["ProductBrandDescription"] : null),
-                    UnitCode = Convert.ToString(row["UnitCode"] != DBNull.Value ? row["UnitCode"] : null),
-                    ProductUnitBC = Convert.ToString(row["ProductUnitBC"] != DBNull.Value ? row["ProductUnitBC"] : null),
-                    ProductUnitSizeDescription = Convert.ToString(row["ProductUnitSizeDescription"] != DBNull.Value ? row["ProductUnitSizeDescription"] : null),
-                    ActivityItemReturnsQuantityReturned = Convert.ToDecimal(row["ActivityItemReturnsQuantityReturned"] != DBNull.Value ? row["ActivityItemReturnsQuantityReturned"] : null),
-                    ActivityItemReturnsBaseQuantityReturned = Convert.ToDecimal(row["ActivityItemReturnsBaseQuantityReturned"] != DBNull.Value ? row["ActivityItemReturnsBaseQuantityReturned"] : null),
-                    ActivityItemReturnsWeightQuantityReturned = Convert.ToDecimal(row["ActivityItemReturnsWeightQuantityReturned"] != DBNull.Value ? row["ActivityItemReturnsWeightQuantityReturned"] : null),
-                    ActivityItemReturnsCustomerProductUnitCode = Convert.ToString(row["ActivityItemReturnsCustomerProductUnitCode"] != DBNull.Value ? row["ActivityItemReturnsCustomerProductUnitCode"] : null),
-                    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
-                    LocationCode = Convert.ToInt32(row["LocationCode"] != DBNull.Value ? row["LocationCode"] : null),
-                    LocationName = Convert.ToString(row["LocationName"] != DBNull.Value ? row["LocationName"] : null),
-                    IsActivityItemReturnsComment = Convert.ToString(row["IsActivityItemReturnsComment"] != DBNull.Value ? row["IsActivityItemReturnsComment"] : null),
-                    ActivityItemStatus = Convert.ToInt32(row["ActivityItemStatus"] != DBNull.Value ? row["ActivityItemStatus"] : null)
-                };
+                //ReturnItem returnItem = new ReturnItem
+                //{
+                //    ActivityItemRefno = Convert.ToInt32(row["ActivityItemRefno"] != DBNull.Value ? row["ActivityItemRefno"] : null),
+                //    ActivityItemReturnsFKRefno = Convert.ToInt32(row["ActivityItemReturnsFKRefno"] != DBNull.Value ? row["ActivityItemReturnsFKRefno"] : null),
+                //    ActivityItemReturnsStringFKRefno = Convert.ToString(row["ActivityItemReturnsStringFKRefno"] != DBNull.Value ? row["ActivityItemReturnsStringFKRefno"] : null),
+                //    ProductUnitRefno = Convert.ToInt32(row["ProductUnitRefno"] != DBNull.Value ? row["ProductUnitRefno"] : null),
+                //    ProductRefno = Convert.ToInt32(row["ProductRefno"] != DBNull.Value ? row["ProductRefno"] : null),
+                //    ProductCode = Convert.ToString(row["ProductCode"] != DBNull.Value ? row["ProductCode"] : null),
+                //    ProductDescription = Convert.ToString(row["ProductDescription"] != DBNull.Value ? row["ProductDescription"] : null),
+                //    ProductBrandDescription = Convert.ToString(row["ProductBrandDescription"] != DBNull.Value ? row["ProductBrandDescription"] : null),
+                //    UnitCode = Convert.ToString(row["UnitCode"] != DBNull.Value ? row["UnitCode"] : null),
+                //    ProductUnitBC = Convert.ToString(row["ProductUnitBC"] != DBNull.Value ? row["ProductUnitBC"] : null),
+                //    ProductUnitSizeDescription = Convert.ToString(row["ProductUnitSizeDescription"] != DBNull.Value ? row["ProductUnitSizeDescription"] : null),
+                //    ActivityItemReturnsQuantityReturned = Convert.ToDecimal(row["ActivityItemReturnsQuantityReturned"] != DBNull.Value ? row["ActivityItemReturnsQuantityReturned"] : null),
+                //    ActivityItemReturnsBaseQuantityReturned = Convert.ToDecimal(row["ActivityItemReturnsBaseQuantityReturned"] != DBNull.Value ? row["ActivityItemReturnsBaseQuantityReturned"] : null),
+                //    ActivityItemReturnsWeightQuantityReturned = Convert.ToDecimal(row["ActivityItemReturnsWeightQuantityReturned"] != DBNull.Value ? row["ActivityItemReturnsWeightQuantityReturned"] : null),
+                //    ActivityItemReturnsCustomerProductUnitCode = Convert.ToString(row["ActivityItemReturnsCustomerProductUnitCode"] != DBNull.Value ? row["ActivityItemReturnsCustomerProductUnitCode"] : null),
+                //    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
+                //    LocationCode = Convert.ToInt32(row["LocationCode"] != DBNull.Value ? row["LocationCode"] : null),
+                //    LocationName = Convert.ToString(row["LocationName"] != DBNull.Value ? row["LocationName"] : null),
+                //    IsActivityItemReturnsComment = Convert.ToString(row["IsActivityItemReturnsComment"] != DBNull.Value ? row["IsActivityItemReturnsComment"] : null),
+                //    ActivityItemStatus = Convert.ToInt32(row["ActivityItemStatus"] != DBNull.Value ? row["ActivityItemStatus"] : null)
+                //};
 
                 observableCollection.Add(returnItem);
 
@@ -358,100 +348,19 @@ namespace dMobile.Controller
             return observableCollection;
         }
 
-        //    /// <summary>
-        //    /// 
-        //    /// </summary>
-        //    /// <param name="dataGridMain"></param>
-        //    public override void DesignDataGrid(DataGrid dataGridMain)
-        //    {
-        //      int columnWidthFactor = 1;
-
-        //      if (this.SysEnv.IsWindowsMobile6Device)
-        //      {
-        //        columnWidthFactor = 2;
-        //      }
-
-        //      if (dataGridMain.TableStyles.Count > 0)
-        //      {
-        //        dataGridMain.TableStyles.Clear();
-        //      }
-
-        //      DataGridTableStyle dataGridStyle = new DataGridTableStyle();
-        //      dataGridStyle.MappingName = this.MainGridMappingName;
-
-        //      DataGridTextBoxColumn dataGridCol = new DataGridTextBoxColumn();
-        //      dataGridCol.MappingName = "ActivityItemRefno";
-        //      dataGridCol.HeaderText = string.Empty;
-        //      dataGridCol.Width = -1;
-        //      dataGridStyle.GridColumnStyles.Add(dataGridCol);
-
-        //      dataGridCol = new DataGridTextBoxColumn();
-        //      dataGridCol.MappingName = "IsActivityItemReturnsComment";
-        //#if MULTILANGUAGE
-        //      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.C);
-        //#else
-        //      dataGridCol.HeaderText = "C";
-        //#endif
-        //      dataGridCol.Width = 12 * columnWidthFactor;
-        //      dataGridStyle.GridColumnStyles.Add(dataGridCol);
-
-        //      dataGridCol = new DataGridTextBoxColumn();
-        //      dataGridCol.MappingName = "ProductCode";
-        //#if MULTILANGUAGE
-        //      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.ProductId);
-        //#else
-        //      dataGridCol.HeaderText = "Product ID";
-        //#endif
-        //      dataGridCol.Width = 65 * columnWidthFactor;
-        //      dataGridStyle.GridColumnStyles.Add(dataGridCol);
-
-        //      dataGridCol = new DataGridTextBoxColumn();
-        //      dataGridCol.MappingName = "ProductUnitBC";
-        //      dataGridCol.HeaderText = string.Empty;
-        //      dataGridCol.Width = 20 * columnWidthFactor;
-        //      dataGridStyle.GridColumnStyles.Add(dataGridCol);
-
-        //      dataGridCol = new DataGridTextBoxColumn();
-        //      dataGridCol.MappingName = "UnitCode";
-        //      dataGridCol.HeaderText = string.Empty;
-        //      dataGridCol.Width = 22 * columnWidthFactor;
-        //      dataGridStyle.GridColumnStyles.Add(dataGridCol);
-
-        //      dataGridCol = new DataGridTextBoxColumn();
-        //      dataGridCol.MappingName = "ActivityItemReturnsQuantityReturned";
-        //#if MULTILANGUAGE
-        //      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Returned);
-        //#else
-        //      dataGridCol.HeaderText = "Returned";
-        //#endif
-        //      dataGridCol.Width = 52 * columnWidthFactor;
-        //      dataGridCol.Format = "0.000";
-        //      dataGridStyle.GridColumnStyles.Add(dataGridCol);
-
-        //      ////dataGridCol.MappingName = string.Empty
-        //      ////dataGridCol.HeaderText = "R"
-        //      ////dataGridCol.Width = 12 * colWidthFactor
-        //      ////dataGridStyle.GridColumnStyles.Add(dataGridCol)
-
-        //      dataGridMain.TableStyles.Add(dataGridStyle);
-        //      dataGridMain.RowHeadersVisible = false;
-        //      dataGridMain.ColumnHeadersVisible = true;
-        //    }
-
         /// <summary>
         ///
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public override DataView GetDataView(bool isSubmitBatch)
+        public override async Task<List<object>> GetActivityItemList(bool isSubmitBatch)
         {
-            SQLiteCommand cmd = DatabaseConnection.GetInstance().SQLConn.CreateCommand();
-            cmd.CommandType = CommandType.Text;
+            string query = string.Empty;
+            List<object> parameters = new List<object>();
 
             if (isSubmitBatch)
             {
-                cmd.CommandText =
-                "SELECT tActivityItemReturns.ActivityItemRefno AS ActivityItemRefno, " +
+                query = "SELECT tActivityItemReturns.ActivityItemRefno AS ActivityItemRefno, " +
                 "tActivityItemReturns.ActivityItemReturnsFKRefno AS ActivityItemReturnsFKRefno, " +
                 "tActivityItemReturns.ActivityItemReturnsStringFKRefno AS ActivityItemReturnsStringFKRefno, " +
                 "tProductUnit.ProductUnitRefno AS ProductUnitRefno, " +
@@ -518,16 +427,16 @@ namespace dMobile.Controller
                 "tActivityItemReturns.WarehouseLocationMapRefno " +
                 "LEFT JOIN tActivityItemReturnsComment ON tActivityItemReturnsComment.ActivityItemRefno = " +
                 "tActivityItemReturns.ActivityItemRefno " +
-                "WHERE tActivityItem.ActivityRefno = @Refno " +
-                "AND tActivityDetail.ActivityDetailStatus <> @ActStatus " +
+                "WHERE tActivityItem.ActivityRefno = ? " +
+                "AND tActivityDetail.ActivityDetailStatus <> ? " +
                 "ORDER BY tActivityItemReturns.ActivityItemRefno";
-                cmd.Parameters.Add(new SQLiteParameter("@Refno", this.ActHdr.Refno));
-                cmd.Parameters.Add(new SQLiteParameter("@ActStatus", Convert.ToInt32(SysCommon.ActStatus.NoChange)));
+
+                parameters.Add(this.ActHdr.Refno);
+                parameters.Add(Convert.ToInt32(SysCommon.ActStatus.NoChange));
             }
             else
             {
-                cmd.CommandText =
-                "SELECT tActivityItemReturns.ActivityItemRefno AS ActivityItemRefno, " +
+                query = "SELECT tActivityItemReturns.ActivityItemRefno AS ActivityItemRefno, " +
                 "tActivityItemReturns.ActivityItemReturnsFKRefno AS ActivityItemReturnsFKRefno, " +
                 "tActivityItemReturns.ActivityItemReturnsStringFKRefno AS ActivityItemReturnsStringFKRefno, " +
                 "tProductUnit.ProductUnitRefno AS ProductUnitRefno, " +
@@ -558,26 +467,28 @@ namespace dMobile.Controller
                 "tActivityItemReturns.WarehouseLocationMapRefno " +
                 "LEFT JOIN tActivityItemReturnsComment ON tActivityItemReturnsComment.ActivityItemRefno = " +
                 "tActivityItemReturns.ActivityItemRefno " +
-                "WHERE tActivityItem.ActivityRefno = @Refno " +
+                "WHERE tActivityItem.ActivityRefno = ? " +
                 "ORDER BY tActivityItemReturns.ActivityItemRefno";
-                cmd.Parameters.Add(new SQLiteParameter("@Refno", this.ActHdr.Refno));
+                parameters.Add(this.ActHdr.Refno);
             }
 
-            using (SQLiteDataAdapter dataAdapterReturnItems = new SQLiteDataAdapter(cmd))
-            {
-                using (DataSet dataSetReturnItems = new DataSet())
-                {
-                    dataAdapterReturnItems.Fill(dataSetReturnItems);
-                    this.DataViewItems = dataSetReturnItems.Tables[0].DefaultView;
-                    this.DataViewItems.Table.TableName = this.MainGridMappingName;
-                    this.DataViewItems.AllowNew = true;
-                    this.DataViewItems.AllowEdit = true;
-                    this.DataViewItems.AllowDelete = true;
-                    this.DataViewItems.Sort = "ActivityItemRefno";
-                }
-            }
+            //using (SQLiteDataAdapter dataAdapterReturnItems = new SQLiteDataAdapter(cmd))
+            //{
+            //    using (DataSet dataSetReturnItems = new DataSet())
+            //    {
+            //        dataAdapterReturnItems.Fill(dataSetReturnItems);
+            //        this.DataViewItems = dataSetReturnItems.Tables[0].DefaultView;
+            //        this.DataViewItems.Table.TableName = this.MainGridMappingName;
+            //        this.DataViewItems.AllowNew = true;
+            //        this.DataViewItems.AllowEdit = true;
+            //        this.DataViewItems.AllowDelete = true;
+            //        TODO: Fix sorting
+            //        this.DataViewItems.Sort = "ActivityItemRefno";
+            //    }
+            //}
 
-            return this.DataViewItems;
+            this.ListItems = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<object>(query, parameters);
+            return this.ListItems;
         }
 
         /// <summary>
@@ -591,38 +502,39 @@ namespace dMobile.Controller
 
             if (string.IsNullOrEmpty(this.ActItemFilter))
             {
-                this.DataViewItems.RowFilter = "ProductCode LIKE \'%" + searchText.Trim() + "%\'";
+                this.ListItems = (List<object>)this.ListItems.OfType<ReturnItem>().Where(returnItem => returnItem.ProductCode.Contains(searchText.Trim()));
             }
             else
             {
-                this.DataViewItems.RowFilter = this.ActItemFilter + " AND ProductCode LIKE \'" + searchText.Trim() + "%\'";
+                // TODO: Fix filtering
+                //this.DataViewItems.RowFilter = this.ActItemFilter + " AND ProductCode LIKE \'" + searchText.Trim() + "%\'";
             }
 
-            foreach (DataRow row in this.DataViewItems.ToTable().Rows)
+            foreach (ReturnItem returnItem in this.ListItems)
             {
-                ReturnItem returnItem = new ReturnItem
-                {
-                    ActivityItemRefno = Convert.ToInt32(row["ActivityItemRefno"] != DBNull.Value ? row["ActivityItemRefno"] : null),
-                    ActivityItemReturnsFKRefno = Convert.ToInt32(row["ActivityItemReturnsFKRefno"] != DBNull.Value ? row["ActivityItemReturnsFKRefno"] : null),
-                    ActivityItemReturnsStringFKRefno = Convert.ToString(row["ActivityItemReturnsStringFKRefno"] != DBNull.Value ? row["ActivityItemReturnsStringFKRefno"] : null),
-                    ProductUnitRefno = Convert.ToInt32(row["ProductUnitRefno"] != DBNull.Value ? row["ProductUnitRefno"] : null),
-                    ProductRefno = Convert.ToInt32(row["ProductRefno"] != DBNull.Value ? row["ProductRefno"] : null),
-                    ProductCode = Convert.ToString(row["ProductCode"] != DBNull.Value ? row["ProductCode"] : null),
-                    ProductDescription = Convert.ToString(row["ProductDescription"] != DBNull.Value ? row["ProductDescription"] : null),
-                    ProductBrandDescription = Convert.ToString(row["ProductBrandDescription"] != DBNull.Value ? row["ProductBrandDescription"] : null),
-                    UnitCode = Convert.ToString(row["UnitCode"] != DBNull.Value ? row["UnitCode"] : null),
-                    ProductUnitBC = Convert.ToString(row["ProductUnitBC"] != DBNull.Value ? row["ProductUnitBC"] : null),
-                    ProductUnitSizeDescription = Convert.ToString(row["ProductUnitSizeDescription"] != DBNull.Value ? row["ProductUnitSizeDescription"] : null),
-                    ActivityItemReturnsQuantityReturned = Convert.ToDecimal(row["ActivityItemReturnsQuantityReturned"] != DBNull.Value ? row["ActivityItemReturnsQuantityReturned"] : null),
-                    ActivityItemReturnsBaseQuantityReturned = Convert.ToDecimal(row["ActivityItemReturnsBaseQuantityReturned"] != DBNull.Value ? row["ActivityItemReturnsBaseQuantityReturned"] : null),
-                    ActivityItemReturnsWeightQuantityReturned = Convert.ToDecimal(row["ActivityItemReturnsWeightQuantityReturned"] != DBNull.Value ? row["ActivityItemReturnsWeightQuantityReturned"] : null),
-                    ActivityItemReturnsCustomerProductUnitCode = Convert.ToString(row["ActivityItemReturnsCustomerProductUnitCode"] != DBNull.Value ? row["ActivityItemReturnsCustomerProductUnitCode"] : null),
-                    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
-                    LocationCode = Convert.ToInt32(row["LocationCode"] != DBNull.Value ? row["LocationCode"] : null),
-                    LocationName = Convert.ToString(row["LocationName"] != DBNull.Value ? row["LocationName"] : null),
-                    IsActivityItemReturnsComment = Convert.ToString(row["IsActivityItemReturnsComment"] != DBNull.Value ? row["IsActivityItemReturnsComment"] : null),
-                    ActivityItemStatus = Convert.ToInt32(row["ActivityItemStatus"] != DBNull.Value ? row["ActivityItemStatus"] : null)
-                };
+                //ReturnItem returnItem = new ReturnItem
+                //{
+                //    ActivityItemRefno = Convert.ToInt32(row["ActivityItemRefno"] != DBNull.Value ? row["ActivityItemRefno"] : null),
+                //    ActivityItemReturnsFKRefno = Convert.ToInt32(row["ActivityItemReturnsFKRefno"] != DBNull.Value ? row["ActivityItemReturnsFKRefno"] : null),
+                //    ActivityItemReturnsStringFKRefno = Convert.ToString(row["ActivityItemReturnsStringFKRefno"] != DBNull.Value ? row["ActivityItemReturnsStringFKRefno"] : null),
+                //    ProductUnitRefno = Convert.ToInt32(row["ProductUnitRefno"] != DBNull.Value ? row["ProductUnitRefno"] : null),
+                //    ProductRefno = Convert.ToInt32(row["ProductRefno"] != DBNull.Value ? row["ProductRefno"] : null),
+                //    ProductCode = Convert.ToString(row["ProductCode"] != DBNull.Value ? row["ProductCode"] : null),
+                //    ProductDescription = Convert.ToString(row["ProductDescription"] != DBNull.Value ? row["ProductDescription"] : null),
+                //    ProductBrandDescription = Convert.ToString(row["ProductBrandDescription"] != DBNull.Value ? row["ProductBrandDescription"] : null),
+                //    UnitCode = Convert.ToString(row["UnitCode"] != DBNull.Value ? row["UnitCode"] : null),
+                //    ProductUnitBC = Convert.ToString(row["ProductUnitBC"] != DBNull.Value ? row["ProductUnitBC"] : null),
+                //    ProductUnitSizeDescription = Convert.ToString(row["ProductUnitSizeDescription"] != DBNull.Value ? row["ProductUnitSizeDescription"] : null),
+                //    ActivityItemReturnsQuantityReturned = Convert.ToDecimal(row["ActivityItemReturnsQuantityReturned"] != DBNull.Value ? row["ActivityItemReturnsQuantityReturned"] : null),
+                //    ActivityItemReturnsBaseQuantityReturned = Convert.ToDecimal(row["ActivityItemReturnsBaseQuantityReturned"] != DBNull.Value ? row["ActivityItemReturnsBaseQuantityReturned"] : null),
+                //    ActivityItemReturnsWeightQuantityReturned = Convert.ToDecimal(row["ActivityItemReturnsWeightQuantityReturned"] != DBNull.Value ? row["ActivityItemReturnsWeightQuantityReturned"] : null),
+                //    ActivityItemReturnsCustomerProductUnitCode = Convert.ToString(row["ActivityItemReturnsCustomerProductUnitCode"] != DBNull.Value ? row["ActivityItemReturnsCustomerProductUnitCode"] : null),
+                //    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
+                //    LocationCode = Convert.ToInt32(row["LocationCode"] != DBNull.Value ? row["LocationCode"] : null),
+                //    LocationName = Convert.ToString(row["LocationName"] != DBNull.Value ? row["LocationName"] : null),
+                //    IsActivityItemReturnsComment = Convert.ToString(row["IsActivityItemReturnsComment"] != DBNull.Value ? row["IsActivityItemReturnsComment"] : null),
+                //    ActivityItemStatus = Convert.ToInt32(row["ActivityItemStatus"] != DBNull.Value ? row["ActivityItemStatus"] : null)
+                //};
 
                 observableCollection.Add(returnItem);
             }
@@ -634,10 +546,13 @@ namespace dMobile.Controller
         /// 
         /// </summary>
         /// <param name="idx"></param>
-        public override void SelectItem(int idx)
+        public override async Task SelectActivityItem(object selectedActivityItem)
         {
-            base.SelectItem(idx);
-            this.FKRefno = Convert.ToInt32(this.DataViewItems[idx]["ActivityItemReturnsFKRefno"]);
+            if (selectedActivityItem is ReturnItem returnItem)
+            {
+                await base.SelectActivityItem(returnItem);
+                this.FKRefno = Convert.ToInt32(returnItem.ActivityItemReturnsFKRefno);
+            }
         }
 
         /// <summary>
@@ -645,44 +560,33 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="prodUnitRefno"></param>
         /// <returns></returns>
-        public override int GetRefnoFromProdUnitRefno(int prodUnitRefno)
+        public override async Task<int> GetRefnoFromProdUnitRefno(int prodUnitRefno)
         {
             int foundActItemRefno = 0;
             int whsLocMapRefno = this.LocMap.CurrLocMap.WhsLocMapRefno;
+            string query = "SELECT tActivityItem.ActivityItemRefno, " +
+            "tActivityItemReturns.ActivityItemReturnsFKRefno, " +
+            "tActivityItemReturns.ProductUnitRefno, " +
+            "tLocationMapWarehouse.LocationMapRefno " +
+            "FROM tActivityItemReturns " +
+            "INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno = " +
+            "tActivityItemReturns.ActivityItemRefno " +
+            "INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = " +
+            "tActivityItemReturns.WarehouseLocationMapRefno " +
+            "WHERE tActivityItem.ActivityRefno = ? " +
+            "AND tActivityItemReturns.WarehouseLocationMapRefno = ? " +
+            "AND tActivityItemReturns.ProductUnitRefno = ?";
 
-            using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+            List<ReturnItem> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ReturnItem>(query, this.ActHdr.Refno, whsLocMapRefno, prodUnitRefno);
+
+            if (results != null && results.Count > 0)
             {
-                cmndItem.CommandType = CommandType.Text;
-                cmndItem.CommandText = "SELECT tActivityItem.ActivityItemRefno, " +
-                "tActivityItemReturns.ActivityItemReturnsFKRefno, " +
-                "tActivityItemReturns.ProductUnitRefno, " +
-                "tLocationMapWarehouse.LocationMapRefno " +
-                "FROM tActivityItemReturns " +
-                "INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno = " +
-                "tActivityItemReturns.ActivityItemRefno " +
-                "INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = " +
-                "tActivityItemReturns.WarehouseLocationMapRefno " +
-                "WHERE tActivityItem.ActivityRefno = @Refno " +
-                "AND tActivityItemReturns.WarehouseLocationMapRefno = @whsLocMapRefno " +
-                "AND tActivityItemReturns.ProductUnitRefno = @prodUnitRefno";
-                cmndItem.Parameters.Add(new SQLiteParameter("@Refno", this.ActHdr.Refno));
-                cmndItem.Parameters.Add(new SQLiteParameter("@whsLocMapRefno", whsLocMapRefno));
-                cmndItem.Parameters.Add(new SQLiteParameter("@prodUnitRefno", prodUnitRefno));
-
-                using (SQLiteDataReader drItem = cmndItem.ExecuteReader())
-                {
-                    if (drItem.Read())
-                    {
-                        // <WO ID="14777" comment="The last of the uncommented locmap code was removed here. We do not wish to set location map when we just want refnos." />
-                        this.Refno = Convert.ToInt32(drItem["ActivityItemRefno"]);
-                        this.FKRefno = Convert.ToInt32(drItem["ActivityItemReturnsFKRefno"]);
-                        this.ProdInfo = ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(drItem["ProductUnitRefno"]));
-                        this.ProdInfo.Scheme = ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
-                        foundActItemRefno = this.Refno;
-                    }
-
-                    drItem.Close();
-                }
+                // <WO ID="14777" comment="The last of the uncommented locmap code was removed here. We do not wish to set location map when we just want refnos." />
+                this.Refno = Convert.ToInt32(results[0].ActivityItemRefno);
+                this.FKRefno = Convert.ToInt32(results[0].ActivityItemReturnsFKRefno);
+                this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(results[0].ProductUnitRefno));
+                this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
+                foundActItemRefno = this.Refno;
             }
 
             return foundActItemRefno;
@@ -741,13 +645,14 @@ namespace dMobile.Controller
         /// <param name="quantity"></param>
         /// <param name="baseQuantity"></param>
         /// <param name="weightQuantity"></param>
-        public override void RefreshQuantity(int idx, decimal quantity, decimal baseQuantity, decimal weightQuantity)
+        public override void RefreshQuantity(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity)
         {
-            this.DataViewItems[idx].BeginEdit();
-            this.DataViewItems[idx]["ActivityItemReturnsQuantityReturned"] = quantity;
-            this.DataViewItems[idx]["ActivityItemReturnsBaseQuantityReturned"] = baseQuantity;
-            this.DataViewItems[idx]["ActivityItemReturnsWeightQuantityReturned"] = weightQuantity;
-            this.DataViewItems[idx].EndEdit();
+            if (selectedActivityItem is ReturnItem returnItem)
+            {
+                returnItem.ActivityItemReturnsQuantityReturned = quantity;
+                returnItem.ActivityItemReturnsBaseQuantityReturned = baseQuantity;
+                returnItem.ActivityItemReturnsWeightQuantityReturned = weightQuantity;
+            }
         }
 
         /// <summary>
@@ -758,15 +663,14 @@ namespace dMobile.Controller
         /// <param name="baseQuantity"></param>
         /// <param name="weightQuantity"></param>
         /// <returns></returns>
-        public override int UpdateDataViewQuantity(int idx, decimal quantity, decimal baseQuantity, decimal weightQuantity)
+        public override void UpdateListItemQuantity(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity)
         {
-            this.DataViewItems[idx].BeginEdit();
-            this.DataViewItems[idx]["ActivityItemReturnsQuantityReturned"] = Convert.ToDecimal(this.DataViewItems[idx]["ActivityItemReturnsQuantityReturned"]) + quantity;
-            this.DataViewItems[idx]["ActivityItemReturnsBaseQuantityReturned"] = Convert.ToDecimal(this.DataViewItems[idx]["ActivityItemReturnsBaseQuantityReturned"]) + baseQuantity;
-            this.DataViewItems[idx]["ActivityItemReturnsWeightQuantityReturned"] = Convert.ToDecimal(this.DataViewItems[idx]["ActivityItemReturnsWeightQuantityReturned"]) + weightQuantity;
-            this.DataViewItems[idx].EndEdit();
-
-            return idx;
+            if (selectedActivityItem is ReturnItem returnItem)
+            {
+                returnItem.ActivityItemReturnsQuantityReturned += quantity;
+                returnItem.ActivityItemReturnsBaseQuantityReturned += baseQuantity;
+                returnItem.ActivityItemReturnsWeightQuantityReturned += weightQuantity;
+            }
         }
 
         /// <summary>
@@ -774,23 +678,24 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="idx"></param>
         /// <param name="actItemRefno"></param>
-        public override void UpdateQuantityFromDataView(int idx, int actItemRefno)
+        public override async Task UpdateQuantityFromActivityItemList(object selectedActivityItem, int actItemRefno)
         {
-            using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+            if (selectedActivityItem is ReturnItem returnItem)
             {
-                cmndItem.CommandType = CommandType.Text;
-                cmndItem.CommandText =
-                    "UPDATE tActivityItemReturns " +
-                    "SET ActivityItemReturnsQuantityReturned = @ActivityItemReturnsQuantityReturned, " +
-                    "ActivityItemReturnsBaseQuantityReturned = @ActivityItemReturnsBaseQuantityReturned, " +
-                    "ActivityItemReturnsWeightQuantityReturned = @ActivityItemReturnsWeightQuantityReturned " +
-                    "WHERE ActivityItemRefno = @actItemRefno";
-                cmndItem.Parameters.Add(new SQLiteParameter("@ActivityItemReturnsQuantityReturned", this.DataViewItems[idx]["ActivityItemReturnsQuantityReturned"]));
-                cmndItem.Parameters.Add(new SQLiteParameter("@ActivityItemReturnsBaseQuantityReturned", this.DataViewItems[idx]["ActivityItemReturnsBaseQuantityReturned"]));
-                cmndItem.Parameters.Add(new SQLiteParameter("@ActivityItemReturnsWeightQuantityReturned", this.DataViewItems[idx]["ActivityItemReturnsWeightQuantityReturned"]));
-                cmndItem.Parameters.Add(new SQLiteParameter("@actItemRefno", actItemRefno));
+                string query = "UPDATE tActivityItemReturns " +
+                    "SET ActivityItemReturnsQuantityReturned = ?, " +
+                    "ActivityItemReturnsBaseQuantityReturned = ?, " +
+                    "ActivityItemReturnsWeightQuantityReturned = ? " +
+                    "WHERE ActivityItemRefno = ?";
+                List<object> parameters = new List<object>()
+                {
+                    returnItem.ActivityItemReturnsQuantityReturned,
+                    returnItem.ActivityItemReturnsBaseQuantityReturned,
+                    returnItem.ActivityItemReturnsWeightQuantityReturned,
+                    actItemRefno
+                };
 
-                cmndItem.ExecuteNonQuery();
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, parameters);
             }
         }
 

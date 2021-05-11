@@ -3,13 +3,16 @@ namespace dMobile.Controller
     using System;
     using System.Collections.ObjectModel;
     using System.Data;
-    using System.Data.SQLite;
+    using SQLite;
     using System.Xml;
     using System.Xml.Linq;
     using dMobile.Bedrock;
     using dMobile.Resources.Services;
     using dMobile.Resources.Types;
     using Xamarin.Forms;
+    using System.Threading.Tasks;
+    using System.Collections.Generic;
+    using System.Linq;
 
     public class PutAwaySkidActDetail : ActDetail
     {
@@ -80,7 +83,7 @@ namespace dMobile.Controller
         /// 
         /// </summary>
         /// <param name="skidInfo"></param>
-        public override void InsertSkid(SysSkidInfo skidInfo)
+        public override Task InsertSkid(SysSkidInfo skidInfo)
         {
             throw new NotImplementedException();
         }
@@ -89,7 +92,7 @@ namespace dMobile.Controller
         /// 
         /// </summary>
         /// <param name="skidInfo"></param>
-        public override void DeleteSkid(SysSkidInfo skidInfo)
+        public override Task DeleteSkid(SysSkidInfo skidInfo)
         {
             throw new NotImplementedException();
         }
@@ -98,41 +101,39 @@ namespace dMobile.Controller
         /// 
         /// </summary>
         /// <param name="detailData"></param>
-        public override void Insert(XDocument detailData)
+        public override async Task Insert(XDocument detailData)
         {
-            if (this.DataViewDetails != null)
+            if (this.ListDetails != null)
             {
-                DataRowView rowView = this.DataViewDetails.AddNew();
-                rowView["ProductUnitRefno"] = this.ActItem.ProdInfo.UnitRefno;
-                rowView["ProductRefno"] = this.ActItem.ProdInfo.Refno;
-                rowView["ProductCode"] = this.ActItem.ProdInfo.Code;
-                rowView["ProductUnitBC"] = this.ActItem.ProdInfo.UnitBC;
-                rowView["UnitCode"] = this.ActItem.ProdInfo.UnitCode;
-                rowView["ProductDescription"] = this.ActItem.ProdInfo.Desc;
-                rowView["ProductUnitSizeDescription"] = this.ActItem.ProdInfo.UnitSizeDesc;
-
-                rowView["ActivityDetailQuantity"] = Math.Round(this.Quantity, 3);
-                rowView["ActivityDetailBaseQuantity"] = Math.Round(this.BaseQuantity, 3);
-                rowView["ActivityDetailWeightQuantity"] = Math.Round(this.WeightQuantity, 3);
-
-                rowView["ActivityDetailLogisticUnitBestBeforeSellByDate"] = this.SchemeData.LogisticUnitBestBeforeSellByDate;
-                rowView["ActivityDetailLogisticUnitProductionDate"] = this.SchemeData.LogisticUnitProductionDate;
-                rowView["ActivityDetailSingleTradeItemSerialNumber"] = this.SchemeData.SingleTradeItemSerialNumber;
-                rowView["ActivityDetailLogisticUnitBatchLotNumber"] = this.SchemeData.LogisticUnitBatchLotNumber;
-                rowView["ProductSchemeVariantCode"] = this.SchemeData.VariantCode;
-                rowView["ProductSchemeVariantNo"] = this.SchemeData.VariantNumber;
-                rowView["ActivityDetailLogisticUnitSkidNumber"] = this.SchemeData.LogisticUnitSkidNumber;
-                rowView["ActivityDetailSchemeID"] = this.SchemeID;
-                rowView["ActivityDetailUniqueSchemeID"] = this.UniqueSchemeID;
-
-                rowView["ActivityDetailFKRefno"] = this.FKRefno;
-                rowView["ActivityDetailRefno"] = this.Refno;
-
-                rowView["ActivityDetailExtra1Text"] = this.ActExtra.Text1;
-                rowView["ActivityDetailExtra2Text"] = this.ActExtra.Text2;
-                rowView["ActivityDetailExtra3Text"] = this.ActExtra.Text3;
-                rowView["ActivityDetailExtra4Text"] = this.ActExtra.Text4;
-                rowView["ActivityDetailExtra5Date"] = this.ActExtra.DateTime5;
+                SkidPutAwayDetail skidPutAwayDetail = new SkidPutAwayDetail()
+                {
+                    ProductUnitRefno = this.ActItem.ProdInfo.UnitRefno,
+                    ProductRefno = this.ActItem.ProdInfo.Refno,
+                    ProductCode = this.ActItem.ProdInfo.Code,
+                    ProductUnitBC = this.ActItem.ProdInfo.UnitBC,
+                    UnitCode = this.ActItem.ProdInfo.UnitCode,
+                    ProductDescription = this.ActItem.ProdInfo.Desc,
+                    ProductUnitSizeDescription = this.ActItem.ProdInfo.UnitSizeDesc,
+                    ActivityDetailQuantity = Math.Round(this.Quantity, 3),
+                    ActivityDetailBaseQuantity = Math.Round(this.BaseQuantity, 3),
+                    ActivityDetailWeightQuantity = Math.Round(this.WeightQuantity, 3),
+                    ActivityDetailLogisticUnitBestBeforeSellByDate = this.SchemeData.LogisticUnitBestBeforeSellByDate,
+                    ActivityDetailLogisticUnitProductionDate = this.SchemeData.LogisticUnitProductionDate,
+                    ActivityDetailSingleTradeItemSerialNumber = this.SchemeData.SingleTradeItemSerialNumber,
+                    ActivityDetailLogisticUnitBatchLotNumber = this.SchemeData.LogisticUnitBatchLotNumber,
+                    ProductSchemeVariantCode = this.SchemeData.VariantCode,
+                    ProductSchemeVariantNo = this.SchemeData.VariantNumber,
+                    ActivityDetailLogisticUnitSkidNumber = this.SchemeData.LogisticUnitSkidNumber,
+                    ActivityDetailSchemeID = this.SchemeID,
+                    ActivityDetailUniqueSchemeID = this.UniqueSchemeID,
+                    ActivityDetailFKRefno = this.FKRefno,
+                    ActivityDetailRefno = this.Refno,
+                    ActivityDetailExtra1Text = this.ActExtra.Text1,
+                    ActivityDetailExtra2Text = this.ActExtra.Text2,
+                    ActivityDetailExtra3Text = this.ActExtra.Text3,
+                    ActivityDetailExtra4Text = this.ActExtra.Text4,
+                    ActivityDetailExtra5Date = this.ActExtra.DateTime5
+                };
 
                 string locCode = string.Empty;
                 string locName = string.Empty;
@@ -153,22 +154,22 @@ namespace dMobile.Controller
                     locName = this.LocMap.CurrLocMap.WhsName;
                 }
 
-                rowView["LocationMapRefno"] = this.LocMap.CurrLocMapRefno;
-                rowView["LocationCode"] = locCode;
-                rowView["LocationName"] = locName;
+                skidPutAwayDetail.LocationMapRefno = this.LocMap.CurrLocMapRefno;
+                skidPutAwayDetail.LocationCode = locCode;
+                skidPutAwayDetail.LocationName = locName;
 
-                rowView.EndEdit();
+                this.ListDetails.Add(skidPutAwayDetail);
             }
         }
 
         /// <summary>
         ///
         /// </summary>
-        public override void Delete()
+        public override async Task Delete()
         {
-            for (int i = 0; i <= this.DataViewDetails.Count; i++)
+            if (this.ListDetails != null)
             {
-                this.DataViewDetails.Delete(0);
+                this.ListDetails.Clear();
             }
         }
 
@@ -178,14 +179,14 @@ namespace dMobile.Controller
         /// <param name="idx"></param>
         /// <param name="isAdd"></param>
         /// <returns></returns>
-        public override ActDetail GetInfo(int idx, bool isAdd)
+        public override async Task<ActDetail> GetInfo(object selectedActivityDetail, bool isAdd)
         {
-            base.GetInfo(idx, isAdd);
+            await base.GetInfo(selectedActivityDetail, isAdd);
 
-            if (!isAdd)
+            if (!isAdd && selectedActivityDetail is SkidPutAwayDetail skidPutAwayDetail)
             {
-                this.FKRefno = Convert.ToInt32(this.DataViewDetails[idx]["ActivityDetailFKRefno"]);
-                this.LocMap.CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(this.DataViewDetails[idx]["LocationMapRefno"]));
+                this.FKRefno = Convert.ToInt32(skidPutAwayDetail.ActivityDetailFKRefno);
+                this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(skidPutAwayDetail.LocationMapRefno));
             }
 
             return this;
@@ -196,12 +197,12 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="idx"></param>
         /// <param name="data"></param>
-        public override void Submit(int idx, XDocument data)
+        public override async Task Submit(object selectedActivityDetail, XDocument data)
         {
-            this.GetInfo(idx, false);
+            await this.GetInfo(selectedActivityDetail, false);
 
             XmlDocument xmlDoc = new XmlDocument();
-            string xmlSend = this.CreateSubmitXML(data);
+            string xmlSend = await this.CreateSubmitXML(data);
             string reqData = SysCommon.SubmitComm(xmlSend);
 
             if (reqData.Length > 0)
@@ -225,62 +226,52 @@ namespace dMobile.Controller
                 {
                     this.FKRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
 
-                    if (this.DataViewDetails != null)
+                    if (selectedActivityDetail is SkidPutAwayDetail skidPutAwayDetail)
                     {
-                        this.DataViewDetails[idx].BeginEdit();
-                        ////this.DataViewDetails[idx]["ActivityDetailProductionFinishedFKRefno"] = this.FKRefno;
-                        this.DataViewDetails[idx]["ActivityDetailStatus"] = SysCommon.ActStatus.NoChange;
-                        this.DataViewDetails[idx].EndEdit();
+                        skidPutAwayDetail.ActivityDetailStatus = Convert.ToInt32(SysCommon.ActStatus.NoChange);
                     }
 
-                    using (SQLiteCommand cmndDetail = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                    {
-                        cmndDetail.CommandType = CommandType.Text;
-                        cmndDetail.CommandText = "UPDATE tActivityDetail "
-                            + "SET ActivityDetailStatus = " + Convert.ToInt32(SysCommon.ActStatus.NoChange)
-                            + " WHERE ActivityDetailRefno = " + this.Refno;
-                        cmndDetail.ExecuteNonQuery();
-                    }
+                    await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("UPDATE tActivityDetail SET ActivityDetailStatus = ? WHERE ActivityDetailRefno = ?", Convert.ToInt32(SysCommon.ActStatus.NoChange), this.Refno);
                 }
             }
 
-            this.DataViewDetails.Delete(idx);
+            this.ListDetails.Remove(selectedActivityDetail);
         }
 
         /// <summary>
         /// 
         /// </summary>
-        public override void Refresh()
+        public override Task Refresh()
         {
             throw new NotImplementedException();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="idx"></param>
-        /// <returns></returns>
-        public override int GetRefno(int idx)
-        {
-            return Convert.ToInt32(DataViewDetails[idx]["ActivityDetailRefno"]);
-        }
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        ///// <param name="idx"></param>
+        ///// <returns></returns>
+        //public override int GetRefno(int idx)
+        //{
+        //    return Convert.ToInt32(DataViewDetails[idx]["ActivityDetailRefno"]);
+        //}
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="selectedIndex"></param>
-        /// <returns></returns>
-        public override int GetFKRefno(int selectedIndex)
-        {
-            throw new NotImplementedException();
-        }
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        ///// <param name="selectedIndex"></param>
+        ///// <returns></returns>
+        //public override int GetFKRefno(int selectedIndex)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="isSubmitBatch"></param>
         /// <returns></returns>
-        public override DataView GetDataView(bool isSubmitBatch)
+        public override async Task<List<object>> GetActivityDetailList(bool isSubmitBatch)
         {
             DataTable table = new DataTable("ActivityMoveDetail");
 
@@ -291,11 +282,9 @@ namespace dMobile.Controller
             table.Columns.Add("UnitCode", Type.GetType("System.String"));
             table.Columns.Add("ProductDescription", Type.GetType("System.String"));
             table.Columns.Add("ProductUnitSizeDescription", Type.GetType("System.String"));
-
             table.Columns.Add("ActivityDetailQuantity", Type.GetType("System.Decimal"));
             table.Columns.Add("ActivityDetailBaseQuantity", Type.GetType("System.Decimal"));
             table.Columns.Add("ActivityDetailWeightQuantity", Type.GetType("System.Decimal"));
-
             table.Columns.Add("ActivityDetailLogisticUnitBestBeforeSellByDate", Type.GetType("System.DateTime"));
             table.Columns.Add("ActivityDetailLogisticUnitProductionDate", Type.GetType("System.DateTime"));
             table.Columns.Add("ActivityDetailSingleTradeItemSerialNumber", Type.GetType("System.String"));
@@ -305,64 +294,59 @@ namespace dMobile.Controller
             table.Columns.Add("ActivityDetailLogisticUnitSkidNumber", Type.GetType("System.String"));
             table.Columns.Add("ActivityDetailSchemeID", Type.GetType("System.String"));
             table.Columns.Add("ActivityDetailUniqueSchemeID", Type.GetType("System.String"));
-
             table.Columns.Add("ActivityDetailFKRefno", Type.GetType("System.Int32"));
             table.Columns.Add("ActivityDetailRefno", Type.GetType("System.Int32"));
-
             table.Columns.Add("ActivityDetailExtra1Text", Type.GetType("System.String"));
             table.Columns.Add("ActivityDetailExtra2Text", Type.GetType("System.String"));
             table.Columns.Add("ActivityDetailExtra3Text", Type.GetType("System.String"));
             table.Columns.Add("ActivityDetailExtra4Text", Type.GetType("System.String"));
             table.Columns.Add("ActivityDetailExtra5Date", Type.GetType("System.DateTime"));
-
             table.Columns.Add("LocationMapRefno", Type.GetType("System.Int32"));
             table.Columns.Add("LocationCode", Type.GetType("System.String"));
             table.Columns.Add("LocationName", Type.GetType("System.String"));
 
-            this.DataViewDetails = table.DefaultView;
-            this.DataViewDetails.Table.TableName = this.MainGridMappingName;
-
-            return this.DataViewDetails;
+            this.ListDetails = table.Select().ToList<object>();
+            return this.ListDetails;
         }
 
         public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity)
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
-            foreach (DataRow row in this.DataViewDetails.ToTable().Rows)
+            foreach (SkidPutAwayDetail skidPutAwayDetail in this.ListDetails)
             {
-                SkidPutAwayDetail skidPutAwayDetail = new SkidPutAwayDetail
-                {
-                    ActivityDetailRefno = Convert.ToInt32(row["ActivityDetailRefno"] != DBNull.Value ? row["ActivityDetailRefno"] : null),
-                    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
-                    UnitCode = Convert.ToString(row["UnitCode"] != DBNull.Value ? row["UnitCode"] : null),
-                    ProductCode = Convert.ToString(row["ProductCode"] != DBNull.Value ? row["ProductCode"] : null),
-                    ProductRefno = Convert.ToInt32(row["ProductRefno"] != DBNull.Value ? row["ProductRefno"] : null),
-                    ProductDescription = Convert.ToString(row["ProductDescription"] != DBNull.Value ? row["ProductDescription"] : null),
-                    ProductUnitBC = Convert.ToString(row["ProductUnitBC"] != DBNull.Value ? row["ProductUnitBC"] : null),
-                    ProductUnitSizeDescription = Convert.ToString(row["ProductUnitSizeDescription"] != DBNull.Value ? row["ProductUnitSizeDescription"] : null),
-                    ActivityDetailQuantity = Convert.ToDecimal(row["ActivityDetailQuantity"] != DBNull.Value ? row["ActivityDetailQuantity"] : null),
-                    ActivityDetailBaseQuantity = Convert.ToDecimal(row["ActivityDetailBaseQuantity"] != DBNull.Value ? row["ActivityDetailBaseQuantity"] : null),
-                    ActivityDetailWeightQuantity = Convert.ToDecimal(row["ActivityDetailWeightQuantity"] != DBNull.Value ? row["ActivityDetailWeightQuantity"] : null),
-                    ActivityDetailLogisticUnitBestBeforeSellByDate = Convert.ToDateTime(row["ActivityDetailLogisticUnitBestBeforeSellByDate"] != DBNull.Value ? row["ActivityDetailLogisticUnitBestBeforeSellByDate"] : null),
-                    ActivityDetailSchemeID = Convert.ToString(row["ActivityDetailSchemeID"] != DBNull.Value ? row["ActivityDetailSchemeID"] : null),
-                    ActivityDetailUniqueSchemeID = Convert.ToString(row["ActivityDetailUniqueSchemeID"] != DBNull.Value ? row["ActivityDetailUniqueSchemeID"] : null),
-                    ActivityDetailSingleTradeItemSerialNumber = Convert.ToString(row["ActivityDetailSingleTradeItemSerialNumber"] != DBNull.Value ? row["ActivityDetailSingleTradeItemSerialNumber"] : null),
-                    ActivityDetailLogisticUnitBatchLotNumber = Convert.ToString(row["ActivityDetailLogisticUnitBatchLotNumber"] != DBNull.Value ? row["ActivityDetailLogisticUnitBatchLotNumber"] : null),
-                    ActivityDetailLogisticUnitProductionDate = Convert.ToDateTime(row["ActivityDetailLogisticUnitProductionDate"] != DBNull.Value ? row["ActivityDetailLogisticUnitProductionDate"] : null),
-                    ActivityDetailLogisticUnitSkidNumber = Convert.ToString(row["ActivityDetailLogisticUnitSkidNumber"] != DBNull.Value ? row["ActivityDetailLogisticUnitSkidNumber"] : null),
-                    LocationCode = Convert.ToString(row["LocationCode"] != DBNull.Value ? row["LocationCode"] : null),
-                    LocationName = Convert.ToString(row["LocationName"] != DBNull.Value ? row["LocationName"] : null),
-                    ActivityDetailFKRefno = Convert.ToInt32(row["LocationCode"] != DBNull.Value ? row["LocationCode"] : null),
-                    ProductSchemeVariantCode = Convert.ToString(row["LocationCode"] != DBNull.Value ? row["LocationCode"] : null),
-                    ProductUnitRefno = Convert.ToInt32(row["LocationCode"] != DBNull.Value ? row["LocationCode"] : null),
-                    ProductSchemeVariantNo = Convert.ToInt32(row["ProductSchemeVariantNo"] != DBNull.Value ? row["ProductSchemeVariantNo"] : null),
-                    ActivityDetailExtra1Text = Convert.ToString(row["ActivityDetailExtra1Text"] != DBNull.Value ? row["ActivityDetailExtra1Text"] : null),
-                    ActivityDetailExtra2Text = Convert.ToString(row["ActivityDetailExtra2Text"] != DBNull.Value ? row["ActivityDetailExtra2Text"] : null),
-                    ActivityDetailExtra3Text = Convert.ToString(row["ActivityDetailExtra3Text"] != DBNull.Value ? row["ActivityDetailExtra3Text"] : null),
-                    ActivityDetailExtra4Text = Convert.ToString(row["ActivityDetailExtra4Text"] != DBNull.Value ? row["ActivityDetailExtra4Text"] : null),
-                    ActivityDetailExtra5Date = Convert.ToDateTime(row["ActivityDetailExtra5Date"] != DBNull.Value ? row["ActivityDetailExtra5Date"] : null)
-                };
+                //SkidPutAwayDetail skidPutAwayDetail = new SkidPutAwayDetail
+                //{
+                //    ActivityDetailRefno = Convert.ToInt32(row["ActivityDetailRefno"] != DBNull.Value ? row["ActivityDetailRefno"] : null),
+                //    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
+                //    UnitCode = Convert.ToString(row["UnitCode"] != DBNull.Value ? row["UnitCode"] : null),
+                //    ProductCode = Convert.ToString(row["ProductCode"] != DBNull.Value ? row["ProductCode"] : null),
+                //    ProductRefno = Convert.ToInt32(row["ProductRefno"] != DBNull.Value ? row["ProductRefno"] : null),
+                //    ProductDescription = Convert.ToString(row["ProductDescription"] != DBNull.Value ? row["ProductDescription"] : null),
+                //    ProductUnitBC = Convert.ToString(row["ProductUnitBC"] != DBNull.Value ? row["ProductUnitBC"] : null),
+                //    ProductUnitSizeDescription = Convert.ToString(row["ProductUnitSizeDescription"] != DBNull.Value ? row["ProductUnitSizeDescription"] : null),
+                //    ActivityDetailQuantity = Convert.ToDecimal(row["ActivityDetailQuantity"] != DBNull.Value ? row["ActivityDetailQuantity"] : null),
+                //    ActivityDetailBaseQuantity = Convert.ToDecimal(row["ActivityDetailBaseQuantity"] != DBNull.Value ? row["ActivityDetailBaseQuantity"] : null),
+                //    ActivityDetailWeightQuantity = Convert.ToDecimal(row["ActivityDetailWeightQuantity"] != DBNull.Value ? row["ActivityDetailWeightQuantity"] : null),
+                //    ActivityDetailLogisticUnitBestBeforeSellByDate = Convert.ToDateTime(row["ActivityDetailLogisticUnitBestBeforeSellByDate"] != DBNull.Value ? row["ActivityDetailLogisticUnitBestBeforeSellByDate"] : null),
+                //    ActivityDetailSchemeID = Convert.ToString(row["ActivityDetailSchemeID"] != DBNull.Value ? row["ActivityDetailSchemeID"] : null),
+                //    ActivityDetailUniqueSchemeID = Convert.ToString(row["ActivityDetailUniqueSchemeID"] != DBNull.Value ? row["ActivityDetailUniqueSchemeID"] : null),
+                //    ActivityDetailSingleTradeItemSerialNumber = Convert.ToString(row["ActivityDetailSingleTradeItemSerialNumber"] != DBNull.Value ? row["ActivityDetailSingleTradeItemSerialNumber"] : null),
+                //    ActivityDetailLogisticUnitBatchLotNumber = Convert.ToString(row["ActivityDetailLogisticUnitBatchLotNumber"] != DBNull.Value ? row["ActivityDetailLogisticUnitBatchLotNumber"] : null),
+                //    ActivityDetailLogisticUnitProductionDate = Convert.ToDateTime(row["ActivityDetailLogisticUnitProductionDate"] != DBNull.Value ? row["ActivityDetailLogisticUnitProductionDate"] : null),
+                //    ActivityDetailLogisticUnitSkidNumber = Convert.ToString(row["ActivityDetailLogisticUnitSkidNumber"] != DBNull.Value ? row["ActivityDetailLogisticUnitSkidNumber"] : null),
+                //    LocationCode = Convert.ToString(row["LocationCode"] != DBNull.Value ? row["LocationCode"] : null),
+                //    LocationName = Convert.ToString(row["LocationName"] != DBNull.Value ? row["LocationName"] : null),
+                //    ActivityDetailFKRefno = Convert.ToInt32(row["LocationCode"] != DBNull.Value ? row["LocationCode"] : null),
+                //    ProductSchemeVariantCode = Convert.ToString(row["LocationCode"] != DBNull.Value ? row["LocationCode"] : null),
+                //    ProductUnitRefno = Convert.ToInt32(row["LocationCode"] != DBNull.Value ? row["LocationCode"] : null),
+                //    ProductSchemeVariantNo = Convert.ToInt32(row["ProductSchemeVariantNo"] != DBNull.Value ? row["ProductSchemeVariantNo"] : null),
+                //    ActivityDetailExtra1Text = Convert.ToString(row["ActivityDetailExtra1Text"] != DBNull.Value ? row["ActivityDetailExtra1Text"] : null),
+                //    ActivityDetailExtra2Text = Convert.ToString(row["ActivityDetailExtra2Text"] != DBNull.Value ? row["ActivityDetailExtra2Text"] : null),
+                //    ActivityDetailExtra3Text = Convert.ToString(row["ActivityDetailExtra3Text"] != DBNull.Value ? row["ActivityDetailExtra3Text"] : null),
+                //    ActivityDetailExtra4Text = Convert.ToString(row["ActivityDetailExtra4Text"] != DBNull.Value ? row["ActivityDetailExtra4Text"] : null),
+                //    ActivityDetailExtra5Date = Convert.ToDateTime(row["ActivityDetailExtra5Date"] != DBNull.Value ? row["ActivityDetailExtra5Date"] : null)
+                //};
 
                 observableCollection.Add(skidPutAwayDetail);
             }
@@ -444,49 +428,6 @@ namespace dMobile.Controller
             return observableCollection;
         }
 
-        //    /// <summary>
-        //    ///
-        //    /// </summary>
-        //    /// <param name="dataGridMain"></param>
-        //    public override void DesignDataGrid(DataGrid dataGridMain)
-        //    {
-        //      dataGridCol = new DataGridTextBoxColumn();
-        //      dataGridCol.MappingName = "ActivityDetailQuantity";
-        //#if MULTILANGUAGE
-        //      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Qtyzzz);
-        //#else
-        //      dataGridCol.HeaderText = "Qty";
-        //#endif
-        //      dataGridCol.Width = (int)(50 * colWidthFactor);
-        //      dataGridCol.Format = "0.000";
-        //      dataGridStyle.GridColumnStyles.Add(dataGridCol);
-
-        //      dataGridCol = new DataGridTextBoxColumn();
-        //      dataGridCol.MappingName = "ActivityDetailWeightQuantity";
-        //#if MULTILANGUAGE
-        //      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.Weight);
-        //#else
-        //      dataGridCol.HeaderText = "Weight";
-        //#endif
-        //      dataGridCol.Width = (int)(55 * colWidthFactor);
-        //      dataGridCol.Format = "0.000";
-        //      dataGridStyle.GridColumnStyles.Add(dataGridCol);
-
-        //      dataGridCol = new DataGridTextBoxColumn();
-        //      dataGridCol.MappingName = "ActivityDetailSchemeID";
-        //#if MULTILANGUAGE
-        //      dataGridCol.HeaderText = Translator.GetInstance().Translate(TranslatorVocabulary.SchemeId);
-        //#else
-        //      dataGridCol.HeaderText = "Scheme ID";
-        //#endif
-        //      dataGridCol.Width = (int)(500 * colWidthFactor);
-        //      dataGridStyle.GridColumnStyles.Add(dataGridCol);
-
-        //      dataGridMain.TableStyles.Add(dataGridStyle);
-        //      dataGridMain.RowHeadersVisible = false;
-        //      dataGridMain.ColumnHeadersVisible = true;
-        //    }
-
         /// <summary>
         /// 
         /// </summary>
@@ -501,7 +442,7 @@ namespace dMobile.Controller
         /// 
         /// </summary>
         /// <param name="selectedIndex"></param>
-        public override void SelectDetail(int selectedIndex)
+        public override Task SelectActivityDetail(object selectedActivityDetail)
         {
             throw new NotImplementedException();
         }
@@ -511,7 +452,7 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public override string CreateDeleteXML(XDocument data)
+        public override Task<string> CreateDeleteXML(XDocument data)
         {
             throw new NotImplementedException();
         }
@@ -521,7 +462,7 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public override string CreateSubmitXML(XDocument data)
+        public override Task<string> CreateSubmitXML(XDocument data)
         {
             throw new NotImplementedException();
         }
