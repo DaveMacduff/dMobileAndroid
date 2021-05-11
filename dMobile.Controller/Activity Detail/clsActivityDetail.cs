@@ -355,26 +355,27 @@ namespace dMobile.Controller
 
         #region Public Members
 
-        public abstract void Insert(XDocument data);
-        public abstract void Delete();
-        public abstract void Refresh();
-        public abstract string CreateSubmitXML(XDocument data);
-        public abstract string CreateDeleteXML(XDocument data);
-        public abstract void Submit(int selectedRowIndex, XDocument data);
+        public abstract Task Insert(XDocument data);
+        public abstract Task Delete();
+        public abstract Task Refresh();
+        public abstract Task<string> CreateSubmitXML(XDocument data);
+        public abstract Task<string> CreateDeleteXML(XDocument data);
+        public abstract Task Submit(object selectedActivityDetail, XDocument data);
         public abstract ObservableCollection<object> Search(string searchText);
-        public abstract Task<List<object>> GetList(bool isSubmitBatch);
+        public abstract Task<List<object>> GetActivityDetailList(bool isSubmitBatch);
         public abstract ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity);
-        public abstract void SelectDetail(int selectedIndex);
-        public abstract int GetRefno(int selectedIndex);
-        public abstract int GetFKRefno(int selectedIndex);
+        public abstract Task SelectActivityDetail(object selectedActivityDetail);
+        // TODO: Check that these aren't needed
+        //public abstract int GetRefno(object selectedActivityDetail);
+        //public abstract int GetFKRefno(object selectedActivityDetail);
         public abstract Task InsertSkid(SysSkidInfo skidInfo);
-        public abstract void DeleteSkid(SysSkidInfo skidInfo);
+        public abstract Task DeleteSkid(SysSkidInfo skidInfo);
 
         /// <summary>
         /// Total all activity detail quantity from the dataview
         /// </summary>
         /// <returns>SFillQuantity structure</returns>
-        public virtual SysCommon.SFillQuantity GetDataViewTotalQuantity()
+        public virtual async Task<SysCommon.SFillQuantity> GetDataViewTotalQuantity()
         {
             SysCommon.SFillQuantity fillQty = new SysCommon.SFillQuantity();
 
@@ -419,10 +420,9 @@ namespace dMobile.Controller
         /// <param name="idx"></param>
         /// <param name="isAdd"></param>
         /// <returns></returns>
-        public virtual ActDetail GetInfo(int idx, bool isAdd)
+        public virtual async Task<ActDetail> GetInfo(object selectedActivityDetail, bool isAdd)
         {
             SProductSchemeData tmpSchemeData = this.SchemeData;
-            List<dynamic> details = this.ListDetails;
 
             if (isAdd)
             {
@@ -437,49 +437,51 @@ namespace dMobile.Controller
             }
             else
             {
-                if (details[idx] == null)
+                if (selectedActivityDetail == null)
                 {
-                    throw new Exception("Detail list[" + idx + "] is null");
+                    throw new Exception("Detail is null!");
                 }
 
-                this.Quantity = Convert.ToDecimal(details[idx].ActivityDetailQuantity);
-                this.BaseQuantity = Convert.ToDecimal(details[idx].ActivityDetailBaseQuantity);
-                this.WeightQuantity = Convert.ToDecimal(details[idx].ActivityDetailWeightQuantity);
-                this.Refno = Convert.ToInt32(details[idx].ActivityDetailRefno);
-                this.SchemeID = Convert.ToString(details[idx].ActivityDetailSchemeID);
-                this.UniqueSchemeID = Convert.ToString(details[idx].ActivityDetailUniqueSchemeID);
+                dynamic detail = selectedActivityDetail;
+
+                this.Quantity = Convert.ToDecimal(detail.ActivityDetailQuantity);
+                this.BaseQuantity = Convert.ToDecimal(detail.ActivityDetailBaseQuantity);
+                this.WeightQuantity = Convert.ToDecimal(detail.ActivityDetailWeightQuantity);
+                this.Refno = Convert.ToInt32(detail.ActivityDetailRefno);
+                this.SchemeID = Convert.ToString(detail.ActivityDetailSchemeID);
+                this.UniqueSchemeID = Convert.ToString(detail.ActivityDetailUniqueSchemeID);
 
                 // Check for DBNull because extra detail is in a child table, left join from the dataview query.
-                if (details[idx].ActivityDetailExtra1Text != null)
+                if (detail.ActivityDetailExtra1Text != null)
                 {
-                    this.ActExtra.Text1 = Convert.ToString(details[idx].ActivityDetailExtra1Text);
-                }
-
-                // Check for DBNull because extra detail is in a child table, left join from the dataview query.
-                if (details[idx].ActivityDetailExtra2Text != null)
-                {
-                    this.ActExtra.Text2 = Convert.ToString(details[idx].ActivityDetailExtra2Text);
+                    this.ActExtra.Text1 = Convert.ToString(detail.ActivityDetailExtra1Text);
                 }
 
                 // Check for DBNull because extra detail is in a child table, left join from the dataview query.
-                if (details[idx].ActivityDetailExtra3Text != null)
+                if (detail.ActivityDetailExtra2Text != null)
                 {
-                    this.ActExtra.Text3 = Convert.ToString(details[idx].ActivityDetailExtra3Text);
+                    this.ActExtra.Text2 = Convert.ToString(detail.ActivityDetailExtra2Text);
                 }
 
                 // Check for DBNull because extra detail is in a child table, left join from the dataview query.
-                if (details[idx].ActivityDetailExtra4Text != null)
+                if (detail.ActivityDetailExtra3Text != null)
                 {
-                    this.ActExtra.Text4 = Convert.ToString(details[idx].ActivityDetailExtra4Text);
+                    this.ActExtra.Text3 = Convert.ToString(detail.ActivityDetailExtra3Text);
                 }
 
                 // Check for DBNull because extra detail is in a child table, left join from the dataview query.
-                if (details[idx].ActivityDetailExtra5Date != null && !string.IsNullOrEmpty(Convert.ToString(details[idx].ActivityDetailExtra5Date)))
+                if (detail.ActivityDetailExtra4Text != null)
                 {
-                    this.ActExtra.DateTime5 = Convert.ToDateTime(details[idx].ActivityDetailExtra5Date);
+                    this.ActExtra.Text4 = Convert.ToString(detail.ActivityDetailExtra4Text);
                 }
 
-                DateTime bestBefore = Convert.ToDateTime(details[idx].ActivityDetailLogisticUnitBestBeforeSellByDate);
+                // Check for DBNull because extra detail is in a child table, left join from the dataview query.
+                if (detail.ActivityDetailExtra5Date != null && !string.IsNullOrEmpty(Convert.ToString(detail.ActivityDetailExtra5Date)))
+                {
+                    this.ActExtra.DateTime5 = Convert.ToDateTime(detail.ActivityDetailExtra5Date);
+                }
+
+                DateTime bestBefore = Convert.ToDateTime(detail.ActivityDetailLogisticUnitBestBeforeSellByDate);
 
                 if (SysCommon.IsEmptyDateTime(bestBefore))
                 {
@@ -493,7 +495,7 @@ namespace dMobile.Controller
                     tmpSchemeData.LogisticUnitBestBeforeSellByDate = bestBefore;
                 }
 
-                DateTime production = Convert.ToDateTime(details[idx].ActivityDetailLogisticUnitProductionDate);
+                DateTime production = Convert.ToDateTime(detail.ActivityDetailLogisticUnitProductionDate);
 
                 if (SysCommon.IsEmptyDateTime(production))
                 {
@@ -507,19 +509,19 @@ namespace dMobile.Controller
                     tmpSchemeData.LogisticUnitProductionDate = production;
                 }
 
-                tmpSchemeData.SingleTradeItemSerialNumber = Convert.ToString(details[idx].ActivityDetailSingleTradeItemSerialNumber);
-                tmpSchemeData.LogisticUnitBatchLotNumber = Convert.ToString(details[idx].ActivityDetailLogisticUnitBatchLotNumber);
+                tmpSchemeData.SingleTradeItemSerialNumber = Convert.ToString(detail.ActivityDetailSingleTradeItemSerialNumber);
+                tmpSchemeData.LogisticUnitBatchLotNumber = Convert.ToString(detail.ActivityDetailLogisticUnitBatchLotNumber);
 
                 // Check for DBNull because variants are in a child table, left join from the dataview query.
-                if (details[idx].ProductSchemeVariantCode != null)
+                if (detail.ProductSchemeVariantCode != null)
                 {
-                    tmpSchemeData.VariantCode = Convert.ToString(details[idx].ProductSchemeVariantCode);
+                    tmpSchemeData.VariantCode = Convert.ToString(detail.ProductSchemeVariantCode);
                 }
 
                 // Check for DBNull because variants are in a child table, left join from the dataview query.
-                if (details[idx].ProductSchemeVariantNo != null)
+                if (detail.ProductSchemeVariantNo != null)
                 {
-                    tmpSchemeData.VariantNumber = Convert.ToInt32(details[idx].ProductSchemeVariantNo);
+                    tmpSchemeData.VariantNumber = Convert.ToInt32(detail.ProductSchemeVariantNo);
                 }
             }
 
@@ -556,7 +558,7 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public virtual string CreateSubmitProductLabelXML(XDocument data)
+        public virtual Task<string> CreateSubmitProductLabelXML(XDocument data)
         {
             throw new NotImplementedException();
         }

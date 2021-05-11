@@ -59,6 +59,7 @@ namespace dMobile.Resources.Types
         private string activityDetailUniqueSchemeID; 
         private int activityDetailFKRefno;
         private int activityDetailRefno;        
+        private int activityDetailStatus;      
         private string activityDetailExtra1Text;
         private string activityDetailExtra2Text;
         private string activityDetailExtra3Text;
@@ -89,6 +90,7 @@ namespace dMobile.Resources.Types
         public string ActivityDetailUniqueSchemeID { get => activityDetailUniqueSchemeID; set => activityDetailUniqueSchemeID = value; }
         public int ActivityDetailFKRefno { get => activityDetailFKRefno; set => activityDetailFKRefno = value; }
         public int ActivityDetailRefno { get => activityDetailRefno; set => activityDetailRefno = value; }
+        public int ActivityDetailStatus { get => activityDetailStatus; set => activityDetailStatus = value; }
         public string ActivityDetailExtra1Text { get => activityDetailExtra1Text; set => activityDetailExtra1Text = value; }
         public string ActivityDetailExtra2Text { get => activityDetailExtra2Text; set => activityDetailExtra2Text = value; }
         public string ActivityDetailExtra3Text { get => activityDetailExtra3Text; set => activityDetailExtra3Text = value; }

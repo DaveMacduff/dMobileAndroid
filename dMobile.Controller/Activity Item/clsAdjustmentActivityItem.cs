@@ -167,7 +167,7 @@ namespace dMobile.Controller
 
             if (prodUnitRefno != 0)
             {
-                foundActItemRefno = this.GetRefnoFromProdUnitRefno(prodUnitRefno);
+                foundActItemRefno = await this.GetRefnoFromProdUnitRefno(prodUnitRefno);
 
                 if (foundActItemRefno > 0 && askToInsertAsNewItem)
                 {

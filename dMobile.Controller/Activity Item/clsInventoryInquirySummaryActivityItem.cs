@@ -12,6 +12,7 @@ namespace dMobile.Controller
     using Xamarin.Forms;
     using dMobile.Resources.Types;
     using dMobile.Resources.Services;
+    using System.Linq;
 
     public class InvInquirySummaryActItem : ActItem
     {
@@ -165,7 +166,7 @@ namespace dMobile.Controller
         /// <param name="baseQuantity"></param>
         /// <param name="weightQuantity"></param>
         /// <returns></returns>
-        public override int UpdateDataViewQuantity(int rowIdx, decimal quantity, decimal baseQuantity, decimal weightQuantity)
+        public override void UpdateListItemQuantity(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity)
         {
             throw new NotImplementedException();
         }
@@ -211,8 +212,8 @@ namespace dMobile.Controller
 
             if (prodUnitRefno != 0)
             {
-                this.ProdInfo = ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
-                this.ProdInfo.Scheme = ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
+                this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
+                this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
             }
         }
 
@@ -221,23 +222,23 @@ namespace dMobile.Controller
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
             // Add all items in dataview to observable collection for display
-            foreach (DataRow row in this.DataViewItems.ToTable().Rows)
+            foreach (ActivityItem activityItem in this.ListItems)
             {
-                ActivityItem activityItem = new ActivityItem
-                {
-                    ProductCode = Convert.ToString(row["ProductCode"] != DBNull.Value ? row["ProductCode"] : null),
-                    ProductUnitBC = Convert.ToString(row["ProductUnitBC"] != DBNull.Value ? row["ProductUnitBC"] : null),
-                    UnitCode = Convert.ToString(row["UnitCode"] != DBNull.Value ? row["UnitCode"] : null),
-                    WeightUnitCode = Convert.ToString(row["WeightUnitCode"] != DBNull.Value ? row["WeightUnitCode"] : null),
-                    ActivityDetailLogisticUnitProductionDate = Convert.ToString(row["ActivityDetailLogisticUnitProductionDate"] != DBNull.Value ? row["ActivityDetailLogisticUnitProductionDate"] : null),
-                    ActivityDetailLogisticUnitBestbeforesellbydate = Convert.ToString(row["ActivityDetailLogisticUnitBestbeforesellbydate"] != DBNull.Value ? row["ActivityDetailLogisticUnitBestbeforesellbydate"] : null),
-                    LocationMapWarehouseFKRefno = Convert.ToString(row["LocationMapWarehouseFKRefno"] != DBNull.Value ? row["LocationMapWarehouseFKRefno"] : null),
-                    LocationMapSectionFKRefno = Convert.ToString(row["LocationMapSectionFKRefno"] != DBNull.Value ? row["LocationMapSectionFKRefno"] : null),
-                    LocationMapSlotFKRefno = Convert.ToString(row["LocationMapSlotFKRefno"] != DBNull.Value ? row["LocationMapSlotFKRefno"] : null),
-                    SkidCode = Convert.ToString(row["SkidCode"] != DBNull.Value ? row["SkidCode"] : null),
-                    ActivityItemQuantity = Convert.ToDecimal(row["ActivityItemQuantity"] != DBNull.Value ? row["ActivityItemQuantity"] : null),
-                    ActivityItemWeightQuantity = Convert.ToDecimal(row["ActivityItemWeightQuantity"] != DBNull.Value ? row["ActivityItemWeightQuantity"] : null),
-                };
+                //ActivityItem activityItem = new ActivityItem
+                //{
+                //    ProductCode = Convert.ToString(row["ProductCode"] != DBNull.Value ? row["ProductCode"] : null),
+                //    ProductUnitBC = Convert.ToString(row["ProductUnitBC"] != DBNull.Value ? row["ProductUnitBC"] : null),
+                //    UnitCode = Convert.ToString(row["UnitCode"] != DBNull.Value ? row["UnitCode"] : null),
+                //    WeightUnitCode = Convert.ToString(row["WeightUnitCode"] != DBNull.Value ? row["WeightUnitCode"] : null),
+                //    ActivityDetailLogisticUnitProductionDate = Convert.ToString(row["ActivityDetailLogisticUnitProductionDate"] != DBNull.Value ? row["ActivityDetailLogisticUnitProductionDate"] : null),
+                //    ActivityDetailLogisticUnitBestbeforesellbydate = Convert.ToString(row["ActivityDetailLogisticUnitBestbeforesellbydate"] != DBNull.Value ? row["ActivityDetailLogisticUnitBestbeforesellbydate"] : null),
+                //    LocationMapWarehouseFKRefno = Convert.ToString(row["LocationMapWarehouseFKRefno"] != DBNull.Value ? row["LocationMapWarehouseFKRefno"] : null),
+                //    LocationMapSectionFKRefno = Convert.ToString(row["LocationMapSectionFKRefno"] != DBNull.Value ? row["LocationMapSectionFKRefno"] : null),
+                //    LocationMapSlotFKRefno = Convert.ToString(row["LocationMapSlotFKRefno"] != DBNull.Value ? row["LocationMapSlotFKRefno"] : null),
+                //    SkidCode = Convert.ToString(row["SkidCode"] != DBNull.Value ? row["SkidCode"] : null),
+                //    ActivityItemQuantity = Convert.ToDecimal(row["ActivityItemQuantity"] != DBNull.Value ? row["ActivityItemQuantity"] : null),
+                //    ActivityItemWeightQuantity = Convert.ToDecimal(row["ActivityItemWeightQuantity"] != DBNull.Value ? row["ActivityItemWeightQuantity"] : null),
+                //};
 
                 observableCollection.Add(activityItem);
             }
@@ -470,116 +471,12 @@ namespace dMobile.Controller
             return observableCollection;
         }
 
-//        /// <summary>
-//        ///
-//        /// </summary>
-//        /// <param name="dataGridMain"></param>
-//        /// <remarks></remarks>
-//        public override void DesignDataGrid(DataGrid dataGridMain)
-//        {
-//            AddGridColumn(
-//                (ProdInfo.Refno > 0) ? -1 : columnWidthFactor * 65,
-//                "productcode",
-//                "Product ID",
-//                dataGridStyle);
-
-//            AddGridColumn(
-//                columnWidthFactor * 10,
-//                "productunitbc",
-//                string.Empty,
-//                dataGridStyle);
-
-//            AddGridColumn(
-//                columnWidthFactor * 60,
-//                "activityitemquantity",
-//                "Quantity",
-//                dataGridStyle);
-
-//            AddGridColumn(
-//                columnWidthFactor * 20,
-//                "unitcode",
-//                string.Empty,
-//                dataGridStyle);
-
-
-//            if (this.ProdInfo.Scheme.IsProductionDateTracked)
-//            {
-//                AddGridColumn(
-//                    columnWidthFactor * 60,
-//                    "activitydetaillogisticunitproductiondate",
-//                    "Prod Date",
-//                    dataGridStyle);
-//            }
-
-//            if (this.ProdInfo.Scheme.IsBestBeforeDateTracked)
-//            {
-//                AddGridColumn(
-//                    columnWidthFactor * 60,
-//                    "activitydetaillogisticunitbestbeforesellbydate",
-//                    "BB/SB Date",
-//                    dataGridStyle);
-//            }
-
-//            if (this.LocMap.CurrLocMap.IsSectionTracked)
-//            {
-//                AddGridColumn(
-//                    columnWidthFactor * 60,
-//                    "locationmapsectionfkrefno",
-//                    "Section",
-//                    dataGridStyle);
-
-//                if (this.LocMap.CurrLocMap.IsSlotTracked)
-//                {
-//                    AddGridColumn(
-//                        columnWidthFactor * 60,
-//                        "locationmapslotfkrefno",
-//                        "Slot",
-//                        dataGridStyle);
-//                }
-//            }
-
-//            AddGridColumn(
-//                columnWidthFactor * 60,
-//                "skidcode",
-//                "Skid",
-//                dataGridStyle);
-
-//            AddGridColumn(
-//                columnWidthFactor * 60,
-//                "activityitemweightquantity",
-//                "Weight",
-//                dataGridStyle);
-
-//            AddGridColumn(
-//                columnWidthFactor * 20,
-//                "weightunitcode",
-//                string.Empty,
-//                dataGridStyle);
-
-//            dataGridMain.TableStyles.Add(dataGridStyle);
-//            dataGridMain.RowHeadersVisible = false;
-//            dataGridMain.ColumnHeadersVisible = true;
-//        }
-
-//        private static void AddGridColumn(
-//            int columnWidth,
-//            string mappingName,
-//            string headerText,
-//            DataGridTableStyle dataGridStyle)
-//        {
-//            DataGridTextBoxColumn dataGridCol = new DataGridTextBoxColumn();
-//            dataGridCol.MappingName = mappingName;
-//            dataGridCol.HeaderText = headerText;
-//            dataGridCol.Width = columnWidth;
-//            dataGridStyle.GridColumnStyles.Add(dataGridCol);
-//        }
-
         /// <summary>
         /// 
         /// </summary>
         /// <param name="isSubmitBatch"></param>
         /// <returns></returns>
-        public override DataView GetDataView(bool isSubmitBatch)
+        public override async Task<List<object>> GetActivityItemList(bool isSubmitBatch)
         {
             DataTable dataTableItems = new DataTable("tActivityItem");
 
@@ -596,10 +493,8 @@ namespace dMobile.Controller
             dataTableItems.Columns.Add("activityitemquantity", Type.GetType("System.Decimal"));
             dataTableItems.Columns.Add("activityitemweightquantity", Type.GetType("System.Decimal"));
 
-            this.DataViewItems = dataTableItems.DefaultView;
-            this.DataViewItems.Table.TableName = this.MainGridMappingName;
-
-            return this.DataViewItems;
+            this.ListItems = dataTableItems.Select().ToList<object>();
+            return this.ListItems;
         }
 
         /// <summary>
@@ -619,7 +514,7 @@ namespace dMobile.Controller
         /// <param name="productUnitRefno"></param>
         /// <returns></returns>
         /// <remarks></remarks>
-        public override int GetRefnoFromProdUnitRefno(int productUnitRefno)
+        public override Task<int> GetRefnoFromProdUnitRefno(int productUnitRefno)
         {
             throw new NotImplementedException();
         }
@@ -628,25 +523,23 @@ namespace dMobile.Controller
         /// 
         /// </summary>
         /// <param name="idx"></param>
-        public override void SelectItem(int idx)
+        public override async Task SelectActivityItem(object selectedActivityItem)
         {
-            this.CurrRowIdx = idx;
+            this.SelectedActivityItem = selectedActivityItem;
         }
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="data"></param>
-        public override void Refresh(XDocument data)
+        public override async Task Refresh(XDocument data)
         {
-
             try
             {
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
 
                 string reqData = SysCommon.SubmitComm(this.CreateSubmitXML(data));
-
-                this.DataViewItems = this.GetDataView(false);
+                this.ListItems = await this.GetActivityItemList(false);
 
                 if (reqData.Length > 0)
                 {
@@ -666,7 +559,7 @@ namespace dMobile.Controller
 
                             if (ds.Tables.Count != 0)
                             {
-                                this.DataViewItems = ds.Tables["tActivityItem"].DefaultView;
+                                this.ListItems = ds.Tables["tActivityItem"].Select().ToList<object>();
                             }
                         }
 
@@ -688,19 +581,17 @@ namespace dMobile.Controller
         /// <summary>
         /// Hides the extra columns, changes the sectionFKRefno and slotFKRefno code to names.
         /// </summary>
-        private void FormatGrid()
+        private async Task FormatGrid()
         {
-
             if (this.LocMap.CurrLocMap.IsSectionTracked)
             {
                 // Format Section column
                 // Use a dictionary to only hit the database once per unique section number this call.
                 Dictionary<int, string> names = new Dictionary<int, string>();
-                int rowCount = this.DataViewItems.Table.Rows.Count;
 
-                for (int i = 0; i < rowCount; ++i)
+                foreach(ActivityItem activityItem in this.ListItems)
                 {
-                    int sectionFKRefno = Convert.ToInt32(this.DataViewItems.Table.Rows[i]["locationmapsectionfkrefno"]);
+                    int sectionFKRefno = Convert.ToInt32(activityItem.LocationMapSectionFKRefno);
                     string sectionName;
 
                     if (names.ContainsKey(sectionFKRefno))
@@ -709,11 +600,11 @@ namespace dMobile.Controller
                     }
                     else
                     {
-                        sectionName = LocationMapTasks.GetSectionName(sectionFKRefno);
+                        sectionName = await LocationMapTasks.GetSectionName(sectionFKRefno);
                         names.Add(sectionFKRefno, sectionName);
                     }
 
-                    this.DataViewItems.Table.Rows[i]["locationmapsectionfkrefno"] = sectionName;
+                    activityItem.LocationMapSectionFKRefno = sectionName;
                 }
 
                 names.Clear();
@@ -724,11 +615,10 @@ namespace dMobile.Controller
                 // Format Slot column
                 // Use a dictionary to only hit the database once per unique slot number this call.
                 Dictionary<int, string> names = new Dictionary<int, string>();
-                int rowCount = this.DataViewItems.Table.Rows.Count;
 
-                for (int i = 0; i < rowCount; ++i)
+                foreach (ActivityItem activityItem in this.ListItems)
                 {
-                    int slotFKRefno = Convert.ToInt32(this.DataViewItems.Table.Rows[i]["locationmapslotfkrefno"]);
+                    int slotFKRefno = Convert.ToInt32(activityItem.LocationMapSlotFKRefno);
                     string slotName;
 
                     if (names.ContainsKey(slotFKRefno))
@@ -737,16 +627,15 @@ namespace dMobile.Controller
                     }
                     else
                     {
-                        slotName = LocationMapTasks.GetSlotName(slotFKRefno);
+                        slotName = await LocationMapTasks.GetSlotName(slotFKRefno);
                         names.Add(slotFKRefno, slotName);
                     }
 
-                    this.DataViewItems.Table.Rows[i]["locationmapslotfkrefno"] = slotName;
+                    activityItem.LocationMapSlotFKRefno = slotName;
                 }
 
                 names.Clear();
             }
-
         }
 
         /// <summary>
@@ -806,7 +695,7 @@ namespace dMobile.Controller
         /// <param name="quantity"></param>
         /// <param name="baseQuantity"></param>
         /// <param name="weightQuantity"></param>
-        public override void RefreshQuantity(int idx, decimal quantity, decimal baseQuantity, decimal weightQuantity)
+        public override void RefreshQuantity(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity)
         {
             throw new NotImplementedException();
         }
@@ -816,7 +705,7 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="idx"></param>
         /// <param name="actItemRefno"></param>
-        public override void UpdateQuantityFromDataView(int idx, int actItemRefno)
+        public override Task UpdateQuantityFromActivityItemList(object selectedActivityItem, int actItemRefno)
         {
             throw new NotImplementedException();
         }

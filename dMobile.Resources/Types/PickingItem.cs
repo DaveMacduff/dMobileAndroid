@@ -33,6 +33,7 @@
         private int activityItemPickingFKRefno;
         private string activityItemPickingStringFKRefno;
         private int productUnitRefno;
+        private int productRefno;
         private string productCode;
         private string productDescription;
         private string productBrandDescription;
@@ -59,6 +60,7 @@
         public int ActivityItemPickingFKRefno { get => activityItemPickingFKRefno; set => activityItemPickingFKRefno = value; }
         public string ActivityItemPickingStringFKRefno { get => activityItemPickingStringFKRefno; set => activityItemPickingStringFKRefno = value; }
         public int ProductUnitRefno { get => productUnitRefno; set => productUnitRefno = value; }
+        public int ProductRefno { get => productRefno; set => productRefno = value; }
         public string ProductCode { get => productCode; set => productCode = value; }
         public string ProductDescription { get => productDescription; set => productDescription = value; }
         public string ProductBrandDescription { get => productBrandDescription; set => productBrandDescription = value; }

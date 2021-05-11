@@ -1,13 +1,16 @@
 ﻿namespace dMobile.Controller
 {
     using System;
+    using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Data;
+    using System.Linq;
     using System.Text;
     using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
     using dMobile.Bedrock;
+    using dMobile.Resources.Types;
     using Xamarin.Forms;
 
     public class ConvertProductActItem : ActItem
@@ -70,12 +73,9 @@
         /// <remarks></remarks>
         public override void Delete()
         {
-            if (this.DataViewItems != null)
+            if (this.ListItems != null)
             {
-                while (this.DataViewItems.Count > 0)
-                {
-                    this.DataViewItems.Delete(0);
-                }
+                this.ListItems.Clear();
             }
         }
 
@@ -87,11 +87,7 @@
         /// <param name="baseQuantity"></param>
         /// <param name="weightQuantity"></param>
         /// <returns></returns>
-        public override int UpdateDataViewQuantity(
-            int rowIdx,
-            decimal quantity,
-            decimal baseQuantity,
-            decimal weightQuantity)
+        public override void UpdateListItemQuantity(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity)
         {
             throw new NotImplementedException();
         }
@@ -132,17 +128,16 @@
         /// <remarks></remarks>
         public override async Task Insert(XDocument data, bool askToInsertAsNewItem)
         {
-            if (this.DataViewItems != null)
+            if (this.ListItems != null)
             {
-                DataRowView rowView = this.DataViewItems.AddNew();
-                rowView.BeginEdit();
+                ConvertProductItem convertProductItem = new ConvertProductItem()
+                {
+                    From_prod_fk_refno = Convert.ToInt32(data.Root.Element("from_prod_fk_refno").Value),
+                    To_prod_fk_refno = Convert.ToInt32(data.Root.Element("to_prod_fk_refno").Value),
+                    Location_map_refno = Convert.ToInt32(data.Root.Element("location_map_refno").Value)
+                };
 
-                rowView["from_prod_fk_refno"] = Convert.ToInt32(data.Root.Element("from_prod_fk_refno").Value);
-                rowView["to_prod_fk_refno"] = Convert.ToInt32(data.Root.Element("to_prod_fk_refno").Value);
-                rowView["location_map_refno"] = Convert.ToInt32(data.Root.Element("location_map_refno").Value);
-
-
-                rowView.EndEdit();
+                this.ListItems.Add(convertProductItem);
             }
         }
 
@@ -155,7 +150,7 @@
         //{
         //    throw new NotImplementedException();
         //}
-                
+
         public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity)
         {
             throw new NotImplementedException();
@@ -166,19 +161,19 @@
         /// </summary>
         /// <param name="isSubmitBatch"></param>
         /// <returns></returns>
-        public override DataView GetDataView(bool isSubmitBatch)
+        public override async Task<List<object>> GetActivityItemList(bool isSubmitBatch)
         {
             DataTable moveTable = new DataTable("ActivityConvertProductItem");
 
             moveTable.Columns.Add("from_prod_fk_refno", Type.GetType("System.Int32"));
             moveTable.Columns.Add("to_prod_fk_refno", Type.GetType("System.Int32"));
             moveTable.Columns.Add("location_map_refno", Type.GetType("System.Int32"));
-            
 
-            this.DataViewItems = moveTable.DefaultView;
-            this.DataViewItems.Table.TableName = this.MainGridMappingName;
+            //this.DataViewItems = moveTable.DefaultView;
+            //this.DataViewItems.Table.TableName = this.MainGridMappingName;
 
-            return this.DataViewItems;
+            this.ListItems = moveTable.Select().ToList<object>();
+            return this.ListItems;
         }
 
         /// <summary>
@@ -196,7 +191,7 @@
         /// </summary>
         /// <param name="productUnitRefno"></param>
         /// <returns></returns>
-        public override int GetRefnoFromProdUnitRefno(int productUnitRefno)
+        public override Task<int> GetRefnoFromProdUnitRefno(int prodUnitRefno)
         {
             throw new NotImplementedException();
         }
@@ -205,7 +200,7 @@
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override void SelectItem(int idx)
+        public override Task SelectActivityItem(object selectedActivityItem)
         {
             throw new NotImplementedException();
         }
@@ -215,7 +210,7 @@
         /// </summary>
         /// <param name="pbProgressBar"></param>
         /// <remarks></remarks>
-        public override void Refresh(XDocument data)
+        public override Task Refresh(XDocument data)
         {
             throw new NotImplementedException();
         }
@@ -225,7 +220,7 @@
         /// </summary>
         /// <param name="data"></param>
         /// <param name="idx"></param>
-        public override void Submit(XDocument data, int idx)
+        public override async Task Submit(XDocument data, object selectedActivityItem)
         {
             string reqData = SysCommon.SubmitComm(this.CreateSubmitXML(data));
 
@@ -292,7 +287,7 @@
         /// <param name="quantity"></param>
         /// <param name="baseQuantity"></param>
         /// <param name="weightQuantity"></param>
-        public override void RefreshQuantity(int idx, decimal quantity, decimal baseQuantity, decimal weightQuantity)
+        public override void RefreshQuantity(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity)
         {
             throw new NotImplementedException();
         }
@@ -302,7 +297,7 @@
         /// </summary>
         /// <param name="idx"></param>
         /// <param name="actItemRefno"></param>
-        public override void UpdateQuantityFromDataView(int idx, int actItemRefno)
+        public override Task UpdateQuantityFromActivityItemList(object selectedActivityItem, int actItemRefno)
         {
             throw new NotImplementedException();
         }

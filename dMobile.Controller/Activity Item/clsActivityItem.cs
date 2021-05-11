@@ -623,6 +623,7 @@ namespace dMobile.Controller
                 return;
             }
 
+            this.SelectedActivityItem = selectedActivityItem;
             this.Refno = Convert.ToInt32(item.ActivityItemRefno);
             this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(item.ProductUnitRefno));
 
@@ -781,7 +782,7 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="idx"></param>
         /// <returns></returns>
-        public virtual string GetComment(int idx)
+        public virtual async Task<string> GetComment(object selectedActivityItem)
         {
             return string.Empty;
         }
@@ -791,7 +792,7 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="data"></param>
         /// <param name="idx"></param>
-        public virtual void Submit(XDocument data, int idx)
+        public virtual Task Submit(XDocument data, object selectedActivityItem)
         {
             throw new NotImplementedException();
         }
@@ -838,7 +839,7 @@ namespace dMobile.Controller
         /// 
         /// </summary>
         /// <param name="data"></param>
-        public virtual void Update(XDocument data)
+        public virtual Task Update(XDocument data)
         {
             throw new NotImplementedException();
         }
@@ -852,7 +853,7 @@ namespace dMobile.Controller
         /// Decided to add this to the base class in the event other modules would need something similar.
         /// Lets hope common sense will prevail. :-)
         /// <returns></returns>
-        public virtual string GetTotalQuantity()
+        public virtual async Task<string> GetTotalQuantity()
         {
             return string.Empty;
         }

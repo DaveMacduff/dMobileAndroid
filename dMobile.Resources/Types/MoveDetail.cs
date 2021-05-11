@@ -9,6 +9,7 @@ namespace dMobile.Resources.Types
         private int productSchemeVariantNo;
         private int activityDetailFKRefno;
         private int activityDetailRefno;
+        private int activityDetailStatus;
         private string productCode;
         private string productUnitBC;
         private string unitCode;
@@ -45,5 +46,6 @@ namespace dMobile.Resources.Types
         public decimal ActivityDetailWeightQuantity { get => activityDetailWeightQuantity; set => activityDetailWeightQuantity = value; }
         public DateTime ActivityDetailLogisticUnitBestBeforeSellByDate { get => activityDetailLogisticUnitBestBeforeSellByDate; set => activityDetailLogisticUnitBestBeforeSellByDate = value; }
         public DateTime ActivityDetailLogisticUnitProductionDate { get => activityDetailLogisticUnitProductionDate; set => activityDetailLogisticUnitProductionDate = value; }
+        public int ActivityDetailStatus { get => activityDetailStatus; set => activityDetailStatus = value; }
     }
 }

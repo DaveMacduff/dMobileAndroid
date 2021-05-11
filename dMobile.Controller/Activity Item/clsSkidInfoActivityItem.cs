@@ -2,6 +2,7 @@ namespace dMobile.Controller
 {
     using System;
     using System.Collections.ObjectModel;
+    using System.Collections.Generic;
     using System.Data;
     using System.Threading.Tasks;
     using System.Xml.Linq;
@@ -49,7 +50,7 @@ namespace dMobile.Controller
         /// <param name="baseQuantity"></param>
         /// <param name="weightQuantity"></param>
         /// <returns></returns>
-        public override int UpdateDataViewQuantity(int idx, decimal quantity, decimal baseQuantity, decimal weightQuantity)
+        public override void UpdateListItemQuantity(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity)
         {
             throw new NotImplementedException();
         }
@@ -113,12 +114,9 @@ namespace dMobile.Controller
         /// <remarks></remarks>
         public override void Delete()
         {
-            if (this.DataViewItems != null)
+            if (this.ListItems != null && this.ListItems.Count > 1)
             {
-                while (this.DataViewItems.Count > 1)
-                {
-                    this.DataViewItems.Delete(0);
-                }
+                this.ListItems.RemoveRange(1, ListItems.Count - 1);
             }
         }
 
@@ -127,7 +125,7 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="isSubmitBatch"></param>
         /// <returns></returns>
-        public override DataView GetDataView(bool isSubmitBatch)
+        public override Task<List<object>> GetActivityItemList(bool isSubmitBatch)
         {
             throw new NotImplementedException();
         }
@@ -147,7 +145,7 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="productUnitRefno"></param>
         /// <returns></returns>
-        public override int GetRefnoFromProdUnitRefno(int productUnitRefno)
+        public override Task<int> GetRefnoFromProdUnitRefno(int productUnitRefno)
         {
             throw new NotImplementedException();
         }
@@ -156,7 +154,7 @@ namespace dMobile.Controller
         /// 
         /// </summary>
         /// <param name="idx"></param>
-        public override void SelectItem(int idx)
+        public override async Task SelectActivityItem(object selectedActivityItem)
         {
             throw new NotImplementedException();
         }
@@ -165,7 +163,7 @@ namespace dMobile.Controller
         /// 
         /// </summary>
         /// <param name="data"></param>
-        public override void Refresh(XDocument data)
+        public override Task Refresh(XDocument data)
         {
             throw new NotImplementedException();
         }
@@ -175,7 +173,7 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="data"></param>
         /// <param name="selectedRowIndex"></param>
-        public override void Submit(XDocument data, int selectedRowIndex)
+        public override Task Submit(XDocument data, object selectedActivityItem)
         {
             throw new NotImplementedException();
         }
@@ -197,7 +195,7 @@ namespace dMobile.Controller
         /// <param name="quantity"></param>
         /// <param name="baseQuantity"></param>
         /// <param name="weightQuantity"></param>
-        public override void RefreshQuantity(int idx, decimal quantity, decimal baseQuantity, decimal weightQuantity)
+        public override void RefreshQuantity(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity)
         {
             throw new NotImplementedException();
         }
@@ -207,7 +205,7 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="idx"></param>
         /// <param name="actItemRefno"></param>
-        public override void UpdateQuantityFromDataView(int idx, int actItemRefno)
+        public override Task UpdateQuantityFromActivityItemList(object selectedActivityItem, int actItemRefno)
         {
             throw new NotImplementedException();
         }

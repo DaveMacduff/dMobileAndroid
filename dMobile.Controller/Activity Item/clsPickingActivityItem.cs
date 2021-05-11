@@ -3,16 +3,19 @@ namespace dMobile.Controller
     using System;
     using System.Collections.ObjectModel;
     using System.Data;
-    using System.Data.SQLite;
+    using SQLite;
     using System.Text;
     using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
     using dMobile.Bedrock;
-    using dMobile.GroundWork;    
+    using dMobile.GroundWork;
     using dMobile.Resources.Services;
     using dMobile.Resources.Types;
     using Xamarin.Forms;
+    using dMobile.Resources.Models;
+    using System.Collections.Generic;
+    using System.Linq;
 
     public class PickingActItem : ActItem
     {
@@ -119,11 +122,7 @@ namespace dMobile.Controller
             if (this.SysEnv.SysSettings.IsPickOverrideMsg1)
             {
                 // TODO: Resource strings
-                msg = string.Format("Product scannned, code \'{0}\' bc \'{1}\' unit \'{2}\', is not found on this order for warehouse {3}.",
-                    prodInfo.Code,
-                    prodInfo.UnitBC,
-                    prodInfo.UnitCode,
-                    locMap.CurrLocMap.WhsFKRefno);
+                msg = string.Format("Product scannned, code \'{0}\' bc \'{1}\' unit \'{2}\', is not found on this order for warehouse {3}.", prodInfo.Code, prodInfo.UnitBC, prodInfo.UnitCode, locMap.CurrLocMap.WhsFKRefno);
             }
 
             return msg;
@@ -136,7 +135,7 @@ namespace dMobile.Controller
         public override bool IsCatchAsk()
         {
             bool isCatchAsk = base.IsCatchAsk();
-            
+
             if (isCatchAsk)
             {
                 // modules are for exclusions
@@ -153,7 +152,7 @@ namespace dMobile.Controller
         public override bool IsCatchAskZero()
         {
             bool isCatchAskZero = base.IsCatchAskZero();
-            
+
             if (isCatchAskZero)
             {
                 isCatchAskZero = !this.SysEnv.SysSettings.IsPickingNoCatchAskZeroEnabled;
@@ -197,7 +196,7 @@ namespace dMobile.Controller
             {
                 try
                 {
-                    this.PickingModuleQuantityOverCheck(int.Parse(data.Root.Element("itm_refno").Value), decimal.Parse(data.Root.Element("alt_qty").Value));
+                    this.PickingModuleQuantityOverCheck(decimal.Parse(data.Root.Element("alt_qty").Value));
                 }
                 catch (Exception ex)
                 {
@@ -329,7 +328,7 @@ namespace dMobile.Controller
                     itemSchemeData.ActDetailExtra.Text2 = xmlDoc.SelectSingleNode("/VFPData/seg/activitydetailextra2").InnerText;
                     itemSchemeData.ActDetailExtra.Text3 = xmlDoc.SelectSingleNode("/VFPData/seg/activitydetailextra3").InnerText;
                     itemSchemeData.ActDetailExtra.Text4 = xmlDoc.SelectSingleNode("/VFPData/seg/activitydetailextra4").InnerText;
-                 
+
                     if (!(xmlDoc.SelectSingleNode("/VFPData/seg/activitydetailextra5").InnerText == string.Empty))
                     {
                         itemSchemeData.ActDetailExtra.DateTime5 = DateTime.Parse(xmlDoc.SelectSingleNode("/VFPData/seg/activitydetailextra5").InnerText);
@@ -345,30 +344,17 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="selectedIndex"></param>
         /// <returns></returns>
-        public override string GetComment(int selectedIndex)
+        public override async Task<string> GetComment(object selectedActivityItem)
         {
-            string comment = base.GetComment(selectedIndex);
+            string comment = await base.GetComment(selectedActivityItem);
 
-            using (SQLiteCommand cmndItemPickComment = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+            if (selectedActivityItem is PickingItem pickingItem)
             {
-                cmndItemPickComment.CommandType = CommandType.Text;
-                cmndItemPickComment.CommandText = "SELECT * FROM tActivityItemPickingComment WHERE ActivityItemRefno = @activityItemRefno";
-                //cmndItemPickComment.IndexName = "PK_ActivityItemPickingCommentOnActivityItemRefno";
-                cmndItemPickComment.Parameters.Add(new SQLiteParameter("@activityItemRefno", Convert.ToInt32(selectedIndex)));
+                List<tActivityItemPickingCommentModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityItemPickingCommentModel>("SELECT * FROM tActivityItemPickingComment WHERE ActivityItemRefno = ?", Convert.ToInt32(pickingItem.ActivityItemRefno));
 
-                using (SQLiteDataReader drItemPickingComment = cmndItemPickComment.ExecuteReader())
+                if (results != null && results.Count > 0)
                 {
-                    //if (drItemPickingComment.Seek(DbSeekOptions.FirstEqual, new object[] { selectedIndex }))
-                    //{
-                    if (drItemPickingComment.Read())
-                    {
-                        comment = Convert.ToString(drItemPickingComment["ActivityItemPickingCommentComment"]);
-                    }
-                    //else
-                    //{
-                    //    throw new Exception("drItemPickingComment.Read() failed.");
-                    //}
-                    //}
+                    comment = Convert.ToString(results[0].ActivityItemPickingCommentComment);
                 }
             }
 
@@ -419,7 +405,7 @@ namespace dMobile.Controller
 
             if (prodUnitRefno != 0)
             {
-                foundActItemRefno = this.GetRefnoFromProdUnitRefno(prodUnitRefno);
+                foundActItemRefno = await this.GetRefnoFromProdUnitRefno(prodUnitRefno);
 
                 if (foundActItemRefno > 0 && askToInsertAsNewItem)
                 {
@@ -437,39 +423,15 @@ namespace dMobile.Controller
 
                 if (result)
                 {
-                    SQLiteConnection conn = DatabaseConnection.GetInstance().SQLConn;
-
-                    using (SQLiteCommand cmndPickItem = conn.CreateCommand())
-                    using (SQLiteCommand cmndItem = conn.CreateCommand())
-                    using (SQLiteCommand cmndID = conn.CreateCommand())
-                    using (SQLiteTransaction transaction = conn.BeginTransaction())
+                    await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(async (transaction) =>
                     {
                         try
                         {
-                            //using (SqlCeResultSet rs = cmndPickItem.ExecuteResultSet(ResultSetOptions.Updatable))
-                            //SqlCeUpdatableRecord rec = rs.CreateRecord();
-                            //using (SqlCeResultSet rsActItem = cmndItem.ExecuteResultSet(ResultSetOptions.Updatable))
-                            //SqlCeUpdatableRecord recActItem = rsActItem.CreateRecord();
+                            transaction.Execute("INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (?, ?, ?)", Convert.ToInt32(SysCommon.ActSubTypes.Picking), Convert.ToInt32(SysCommon.ActStatus.NoChange), Convert.ToInt32(this.ActHdr.Refno));
 
-                            cmndItem.CommandText = "INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (@activityItemSubType, @activityItemStatus, @activityRefno)";
-                            cmndItem.CommandType = CommandType.Text;
-                            cmndItem.Parameters.Add(new SQLiteParameter("@activityItemSubType", Convert.ToInt32(SysCommon.ActSubTypes.Picking)));
-                            cmndItem.Parameters.Add(new SQLiteParameter("@activityItemStatus", Convert.ToInt32(SysCommon.ActStatus.NoChange)));
-                            cmndItem.Parameters.Add(new SQLiteParameter("@activityRefno", Convert.ToInt32(this.ActHdr.Refno)));
+                            this.Refno = Convert.ToInt32(transaction.QueryScalars<int>("SELECT last_insert_rowid() FROM tActivityItem"));
 
-                            cmndItem.ExecuteNonQuery();
-
-                            //recActItem.SetInt32((int)SysCommon.ActItemFields.SubType, (int)SysCommon.ActSubTypes.Picking);
-                            //recActItem.SetInt32((int)SysCommon.ActItemFields.Status, (int)SysCommon.ActStatus.NoChange);
-                            //recActItem.SetInt32((int)SysCommon.ActItemFields.ActRefno, this.ActHdr.Refno);
-                            //rsActItem.Insert(recActItem);
-
-                            cmndID.CommandText = "SELECT last_insert_rowid() FROM tActivityItem";
-                            cmndID.CommandType = CommandType.Text;
-
-                            this.Refno = Convert.ToInt32(cmndID.ExecuteScalar());
-
-                            cmndPickItem.CommandText = "INSERT INTO tActivityItemPicking (" +
+                            string query = "INSERT INTO tActivityItemPicking (" +
                                 "ActivityItemRefno, " +
                                 "ActivityItemSubType, " +
                                 "ActivityItemPickingFKRefno, " +
@@ -489,109 +451,85 @@ namespace dMobile.Controller
                                 "ActivityItemPickingWeightQuantityAvailable, " +
                                 "ActivityItemPickingIsReviewed" +
                                 ") VALUES (" +
-                                "@activityItemRefno, " +
-                                "@activityItemSubType, " +
-                                "@activityItemPickingFKRefno, " +
-                                "@activityItemPickingStringFKRefno, " +
-                                "@productUnitRefno, " +
-                                "@warehouseLocationMapRefno, " +
-                                "@activityItemPickingQuantityOrdered, " +
-                                "@activityItemPickingBaseQuantityOrdered, " +
-                                "@activityItemPickingWeightQuantityOrdered, " +
-                                "@activityItemPickingQuantityShipped, " +
-                                "@activityItemPickingBaseQuantityShipped, " +
-                                "@activityItemPickingWeightQuantityShipped, " +
-                                "@activityItemPickingCustomerProductUnitCode, " +
-                                "@activityItemPickingDescription, " +
-                                "@activityItemPickingQuantityAvailable, " +
-                                "@activityItemPickingBaseQuantityAvailable, " +
-                                "@activityItemPickingWeightQuantityAvailable, " +
-                                "@activityItemPickingIsReviewed" +
+                                "?, " +
+                                "?, " +
+                                "?, " +
+                                "?, " +
+                                "?, " +
+                                "?, " +
+                                "?, " +
+                                "?, " +
+                                "?, " +
+                                "?, " +
+                                "?, " +
+                                "?, " +
+                                "?, " +
+                                "?, " +
+                                "?, " +
+                                "?, " +
+                                "?, " +
+                                "?" +
                                 ")";
-                            cmndPickItem.CommandType = CommandType.Text;
-                            //cmndPickItem.IndexName = "UQ_ActivityItemPickingOnActivityItemPickingFKRefno";
-                            cmndPickItem.Parameters.Add(new SQLiteParameter("@activityItemRefno", Convert.ToInt32(this.Refno)));
-                            cmndPickItem.Parameters.Add(new SQLiteParameter("@activityItemSubType", Convert.ToInt32(SysCommon.ActSubTypes.Picking)));
-                            cmndPickItem.Parameters.Add(new SQLiteParameter("@activityItemPickingFKRefno", Convert.ToInt32(this.Refno * -1)));
-                            cmndPickItem.Parameters.Add(new SQLiteParameter("@activityItemPickingStringFKRefno", Convert.ToString(this.Refno * -1)));
-                            cmndPickItem.Parameters.Add(new SQLiteParameter("@productUnitRefno", Convert.ToInt32(prodUnitRefno)));
-                            cmndPickItem.Parameters.Add(new SQLiteParameter("@warehouseLocationMapRefno", Convert.ToInt32(this.LocMap.CurrLocMap.WhsLocMapRefno)));
-                            cmndPickItem.Parameters.Add(new SQLiteParameter("@activityItemPickingQuantityOrdered", Convert.ToInt32(0)));
-                            cmndPickItem.Parameters.Add(new SQLiteParameter("@activityItemPickingBaseQuantityOrdered", Convert.ToInt32(0)));
-                            cmndPickItem.Parameters.Add(new SQLiteParameter("@activityItemPickingWeightQuantityOrdered", Convert.ToInt32(0)));
-                            cmndPickItem.Parameters.Add(new SQLiteParameter("@activityItemPickingQuantityShipped", Convert.ToInt32(0)));
-                            cmndPickItem.Parameters.Add(new SQLiteParameter("@activityItemPickingBaseQuantityShipped", Convert.ToInt32(0)));
-                            cmndPickItem.Parameters.Add(new SQLiteParameter("@activityItemPickingWeightQuantityShipped", Convert.ToInt32(0)));
-                            cmndPickItem.Parameters.Add(new SQLiteParameter("@activityItemPickingCustomerProductUnitCode", Convert.ToString(string.Empty)));
-                            cmndPickItem.Parameters.Add(new SQLiteParameter("@activityItemPickingDescription", Convert.ToString(this.ProdInfo.Desc.Trim() + " " + this.ProdInfo.UnitSizeDesc)));
-                            cmndPickItem.Parameters.Add(new SQLiteParameter("@activityItemPickingQuantityAvailable", Convert.ToInt32(0)));
-                            cmndPickItem.Parameters.Add(new SQLiteParameter("@activityItemPickingBaseQuantityAvailable", Convert.ToInt32(0)));
-                            cmndPickItem.Parameters.Add(new SQLiteParameter("@activityItemPickingWeightQuantityAvailable", Convert.ToInt32(0)));
-                            cmndPickItem.Parameters.Add(new SQLiteParameter("@activityItemPickingIsReviewed", Convert.ToInt32(false)));
+                            List<object> parameters = new List<object>()
+                            {
+                                Convert.ToInt32(this.Refno),
+                                Convert.ToInt32(SysCommon.ActSubTypes.Picking),
+                                Convert.ToInt32(this.Refno * -1),
+                                Convert.ToString(this.Refno * -1),
+                                Convert.ToInt32(prodUnitRefno),
+                                Convert.ToInt32(this.LocMap.CurrLocMap.WhsLocMapRefno),
+                                Convert.ToInt32(0),
+                                Convert.ToInt32(0),
+                                Convert.ToInt32(0),
+                                Convert.ToInt32(0),
+                                Convert.ToInt32(0),
+                                Convert.ToInt32(0),
+                                Convert.ToString(string.Empty),
+                                Convert.ToString(this.ProdInfo.Desc.Trim() + " " + this.ProdInfo.UnitSizeDesc),
+                                Convert.ToInt32(0),
+                                Convert.ToInt32(0),
+                                Convert.ToInt32(0),
+                                Convert.ToInt32(false)
+                            };
 
-                            cmndPickItem.ExecuteNonQuery();
-
+                            transaction.Execute(query, parameters);
                             transaction.Commit();
-
-                            //rec.SetInt32((int)SysCommon.ActItemPickingFields.ActItemRefno, this.Refno);
-                            //rec.SetInt32((int)SysCommon.ActItemPickingFields.ActItemSubType, (int)SysCommon.ActSubTypes.Picking);
-                            //rec.SetInt32((int)SysCommon.ActItemPickingFields.FKRefno, this.Refno * -1);
-                            //rec.SetString((int)SysCommon.ActItemPickingFields.StringFKRefno, Convert.ToString(this.Refno * -1));
-                            //rec.SetInt32((int)SysCommon.ActItemPickingFields.ProdUnitRefno, prodUnitRefno);
-                            //rec.SetInt32((int)SysCommon.ActItemPickingFields.WhsLocMapRefno, this.LocMap.CurrLocMap.WhsLocMapRefno);
-                            //rec.SetString((int)SysCommon.ActItemPickingFields.Description, this.ProdInfo.Desc.Trim() + " " + this.ProdInfo.UnitSizeDesc);
-                            //rec.SetString((int)SysCommon.ActItemPickingFields.CustomerProductUnitCode, string.Empty);
-                            //rec.SetBoolean((int)SysCommon.ActItemPickingFields.IsReviewed, false);
-                            //rec.SetDecimal((int)SysCommon.ActItemPickingFields.QuantityOrdered, 0);
-                            //rec.SetDecimal((int)SysCommon.ActItemPickingFields.BaseQuantityOrdered, 0);
-                            //rec.SetDecimal((int)SysCommon.ActItemPickingFields.WeightQuantityOrdered, 0);
-                            //rec.SetDecimal((int)SysCommon.ActItemPickingFields.QuantityShipped, 0);
-                            //rec.SetDecimal((int)SysCommon.ActItemPickingFields.BaseQuantityShipped, 0);
-                            //rec.SetDecimal((int)SysCommon.ActItemPickingFields.WeightQuantityShipped, 0);
-                            //rec.SetDecimal((int)SysCommon.ActItemPickingFields.QuantityAvailable, 0);
-                            //rec.SetDecimal((int)SysCommon.ActItemPickingFields.BaseQuantityAvailable, 0);
-                            //rec.SetDecimal((int)SysCommon.ActItemPickingFields.WeightQuantityAvailable, 0);
-                            //rs.Insert(rec);
 
                             this.FKRefno = this.Refno * -1;
 
-                            this.ProdInfo = ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
-                            this.ProdInfo.Scheme = ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
+                            this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
+                            this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
 
-                            if (this.DataViewItems != null)
+                            if (this.ListItems != null)
                             {
-                                DataRowView rowView = this.DataViewItems.AddNew();
-
-                                rowView["ActivityItemRefno"] = this.Refno;
-                                rowView["ActivityItemPickingFKRefno"] = this.FKRefno;
-                                rowView["ActivityItemPickingStringFKRefno"] = this.FKRefno.ToString();
-                                rowView["ProductUnitRefno"] = prodUnitRefno;
-                                rowView["ProductRefno"] = this.ProdInfo.Refno;
-                                rowView["ProductCode"] = this.ProdInfo.Code;
-                                rowView["ProductDescription"] = this.ProdInfo.Desc;
-                                rowView["UnitCode"] = this.ProdInfo.UnitCode;
-                                rowView["ProductUnitBC"] = this.ProdInfo.UnitBC;
-                                rowView["ProductUnitSizeDescription"] = this.ProdInfo.UnitSizeDesc;
-                                rowView["LocationMapRefno"] = this.LocMap.CurrLocMap.WhsLocMapRefno;
-                                rowView["LocationCode"] = this.LocMap.CurrLocMap.WhsCode;
-                                rowView["LocationName"] = this.LocMap.CurrLocMap.WhsName;
-                                rowView["ActivityItemPickingCustomerProductUnitCode"] = string.Empty;
-                                rowView["ActivityItemStatus"] = SysCommon.ActStatus.Inserted;
-                                rowView["IsActivityItemPickingComment"] = " ";
-
-                                rowView["ActivityItemPickingQuantityOrdered"] = 0;
-                                rowView["ActivityItemPickingBaseQuantityOrdered"] = 0;
-                                rowView["ActivityItemPickingWeightQuantityOrdered"] = 0;
-
-                                rowView["ActivityItemPickingQuantityShipped"] = 0;
-                                rowView["ActivityItemPickingBaseQuantityShipped"] = 0;
-                                rowView["ActivityItemPickingWeightQuantityShipped"] = 0;
-
-                                rowView["ActivityItemPickingQuantityAvailable"] = 0;
-                                rowView["ActivityItemPickingBaseQuantityAvailable"] = 0;
-                                rowView["ActivityItemPickingWeightQuantityAvailable"] = 0;
-
-                                rowView.EndEdit();
+                                this.ListItems.Add(new PickingItem()
+                                {
+                                    ActivityItemRefno = this.Refno,
+                                    ActivityItemPickingFKRefno = this.FKRefno,
+                                    ActivityItemPickingStringFKRefno = this.FKRefno.ToString(),
+                                    ProductUnitRefno = prodUnitRefno,
+                                    ProductRefno = this.ProdInfo.Refno,
+                                    ProductCode = this.ProdInfo.Code,
+                                    ProductDescription = this.ProdInfo.Desc,
+                                    UnitCode = this.ProdInfo.UnitCode,
+                                    ProductUnitBC = this.ProdInfo.UnitBC,
+                                    ProductUnitSizeDescription = this.ProdInfo.UnitSizeDesc,
+                                    LocationMapRefno = this.LocMap.CurrLocMap.WhsLocMapRefno,
+                                    LocationCode = this.LocMap.CurrLocMap.WhsCode,
+                                    LocationName = this.LocMap.CurrLocMap.WhsName,
+                                    ActivityItemPickingCustomerProductUnitCode = string.Empty,
+                                    ActivityItemStatus = Convert.ToInt32(SysCommon.ActStatus.Inserted),
+                                    IsActivityItemPickingComment = string.Empty,
+                                    ActivityItemPickingQuantityOrdered = 0,
+                                    ActivityItemPickingBaseQuantityOrdered = 0,
+                                    ActivityItemPickingWeightQuantityOrdered = 0,
+                                    ActivityItemPickingQuantityShipped = 0,
+                                    ActivityItemPickingBaseQuantityShipped = 0,
+                                    ActivityItemPickingWeightQuantityShipped = 0,
+                                    ActivityItemPickingQuantityAvailable = 0,
+                                    ActivityItemPickingBaseQuantityAvailable = 0,
+                                    ActivityItemPickingWeightQuantityAvailable = 0,
+                                });
                             }
                         }
                         catch (SQLiteException ex)
@@ -600,7 +538,7 @@ namespace dMobile.Controller
                             Console.WriteLine(ex);
                             transaction.Rollback();
                         }
-                    }
+                    });
                 }
             }
         }
@@ -609,7 +547,7 @@ namespace dMobile.Controller
         /// 
         /// </summary>
         /// <param name="data"></param>
-        public override void Refresh(XDocument data)
+        public override async Task Refresh(XDocument data)
         {
             if (this.SysEnv.SysSettings.IsDisconnectedMode)
             {
@@ -706,35 +644,35 @@ namespace dMobile.Controller
 
             dataGridMainActivityHeader.Children.Add(gridHeaderPicking);
 
-            foreach (DataRow row in this.DataViewItems.ToTable().Rows)
+            foreach (PickingItem pickingItem in this.ListItems)
             {
-                PickingItem pickingItem = new PickingItem
-                {
-                    ActivityItemRefno = Convert.ToInt32(row["ActivityItemRefno"] != DBNull.Value ? row["ActivityItemRefno"] : null),
-                    ActivityItemPickingFKRefno = Convert.ToInt32(row["ActivityItemPickingFKRefno"] != DBNull.Value ? row["ActivityItemPickingFKRefno"] : null),
-                    ActivityItemPickingStringFKRefno = Convert.ToString(row["ActivityItemPickingStringFKRefno"] != DBNull.Value ? row["ActivityItemPickingStringFKRefno"] : null),
-                    ProductUnitRefno = Convert.ToInt32(row["ProductUnitRefno"] != DBNull.Value ? row["ProductUnitRefno"] : null),
-                    ProductCode = Convert.ToString(row["ProductCode"] != DBNull.Value ? row["ProductCode"] : null),
-                    ProductDescription = Convert.ToString(row["ProductDescription"] != DBNull.Value ? row["ProductDescription"] : null),
-                    ProductBrandDescription = Convert.ToString(row["ProductBrandDescription"] != DBNull.Value ? row["ProductBrandDescription"] : null),
-                    UnitCode = Convert.ToString(row["UnitCode"] != DBNull.Value ? row["UnitCode"] : null),
-                    ProductUnitBC = Convert.ToString(row["ProductUnitBC"] != DBNull.Value ? row["ProductUnitBC"] : null),
-                    ProductUnitSizeDescription = Convert.ToString(row["ProductUnitSizeDescription"] != DBNull.Value ? row["ProductUnitSizeDescription"] : null),
-                    ActivityItemPickingQuantityOrdered = Convert.ToDecimal(row["ActivityItemPickingQuantityOrdered"] != DBNull.Value ? row["ActivityItemPickingQuantityOrdered"] : null),
-                    ActivityItemPickingBaseQuantityOrdered = Convert.ToDecimal(row["ActivityItemPickingBaseQuantityOrdered"] != DBNull.Value ? row["ActivityItemPickingBaseQuantityOrdered"] : null),
-                    ActivityItemPickingWeightQuantityOrdered = Convert.ToDecimal(row["ActivityItemPickingWeightQuantityOrdered"] != DBNull.Value ? row["ActivityItemPickingWeightQuantityOrdered"] : null),
-                    ActivityItemPickingQuantityShipped = Convert.ToDecimal(row["ActivityItemPickingQuantityShipped"] != DBNull.Value ? row["ActivityItemPickingQuantityShipped"] : null),
-                    ActivityItemPickingBaseQuantityShipped = Convert.ToDecimal(row["ActivityItemPickingBaseQuantityShipped"] != DBNull.Value ? row["ActivityItemPickingBaseQuantityShipped"] : null),
-                    ActivityItemPickingWeightQuantityShipped = Convert.ToDecimal(row["ActivityItemPickingWeightQuantityShipped"] != DBNull.Value ? row["ActivityItemPickingWeightQuantityShipped"] : null),
-                    ActivityItemPickingCustomerProductUnitCode = Convert.ToString(row["ActivityItemPickingCustomerProductUnitCode"] != DBNull.Value ? row["ActivityItemPickingCustomerProductUnitCode"] : null),
-                    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
-                    LocationCode = Convert.ToInt32(row["LocationCode"] != DBNull.Value ? row["LocationCode"] : null),
-                    LocationName = Convert.ToString(row["LocationName"] != DBNull.Value ? row["LocationName"] : null),
-                    ActivityItemPickingQuantityAvailable = Convert.ToDecimal(row["ActivityItemPickingQuantityAvailable"] != DBNull.Value ? row["ActivityItemPickingQuantityAvailable"] : null),
-                    ActivityItemPickingWeightQuantityAvailable = Convert.ToDecimal(row["ActivityItemPickingWeightQuantityAvailable"] != DBNull.Value ? row["ActivityItemPickingWeightQuantityAvailable"] : null),
-                    IsActivityItemPickingComment = !string.IsNullOrWhiteSpace(Convert.ToString(row["IsActivityItemPickingComment"] != DBNull.Value ? row["IsActivityItemPickingComment"] : null)) ? "X" : "",
-                    ActivityItemStatus = Convert.ToInt32(row["ActivityItemStatus"] != DBNull.Value ? row["ActivityItemStatus"] : null)
-                };
+                //PickingItem pickingItem = new PickingItem
+                //{
+                //    ActivityItemRefno = Convert.ToInt32(row["ActivityItemRefno"] != DBNull.Value ? row["ActivityItemRefno"] : null),
+                //    ActivityItemPickingFKRefno = Convert.ToInt32(row["ActivityItemPickingFKRefno"] != DBNull.Value ? row["ActivityItemPickingFKRefno"] : null),
+                //    ActivityItemPickingStringFKRefno = Convert.ToString(row["ActivityItemPickingStringFKRefno"] != DBNull.Value ? row["ActivityItemPickingStringFKRefno"] : null),
+                //    ProductUnitRefno = Convert.ToInt32(row["ProductUnitRefno"] != DBNull.Value ? row["ProductUnitRefno"] : null),
+                //    ProductCode = Convert.ToString(row["ProductCode"] != DBNull.Value ? row["ProductCode"] : null),
+                //    ProductDescription = Convert.ToString(row["ProductDescription"] != DBNull.Value ? row["ProductDescription"] : null),
+                //    ProductBrandDescription = Convert.ToString(row["ProductBrandDescription"] != DBNull.Value ? row["ProductBrandDescription"] : null),
+                //    UnitCode = Convert.ToString(row["UnitCode"] != DBNull.Value ? row["UnitCode"] : null),
+                //    ProductUnitBC = Convert.ToString(row["ProductUnitBC"] != DBNull.Value ? row["ProductUnitBC"] : null),
+                //    ProductUnitSizeDescription = Convert.ToString(row["ProductUnitSizeDescription"] != DBNull.Value ? row["ProductUnitSizeDescription"] : null),
+                //    ActivityItemPickingQuantityOrdered = Convert.ToDecimal(row["ActivityItemPickingQuantityOrdered"] != DBNull.Value ? row["ActivityItemPickingQuantityOrdered"] : null),
+                //    ActivityItemPickingBaseQuantityOrdered = Convert.ToDecimal(row["ActivityItemPickingBaseQuantityOrdered"] != DBNull.Value ? row["ActivityItemPickingBaseQuantityOrdered"] : null),
+                //    ActivityItemPickingWeightQuantityOrdered = Convert.ToDecimal(row["ActivityItemPickingWeightQuantityOrdered"] != DBNull.Value ? row["ActivityItemPickingWeightQuantityOrdered"] : null),
+                //    ActivityItemPickingQuantityShipped = Convert.ToDecimal(row["ActivityItemPickingQuantityShipped"] != DBNull.Value ? row["ActivityItemPickingQuantityShipped"] : null),
+                //    ActivityItemPickingBaseQuantityShipped = Convert.ToDecimal(row["ActivityItemPickingBaseQuantityShipped"] != DBNull.Value ? row["ActivityItemPickingBaseQuantityShipped"] : null),
+                //    ActivityItemPickingWeightQuantityShipped = Convert.ToDecimal(row["ActivityItemPickingWeightQuantityShipped"] != DBNull.Value ? row["ActivityItemPickingWeightQuantityShipped"] : null),
+                //    ActivityItemPickingCustomerProductUnitCode = Convert.ToString(row["ActivityItemPickingCustomerProductUnitCode"] != DBNull.Value ? row["ActivityItemPickingCustomerProductUnitCode"] : null),
+                //    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
+                //    LocationCode = Convert.ToInt32(row["LocationCode"] != DBNull.Value ? row["LocationCode"] : null),
+                //    LocationName = Convert.ToString(row["LocationName"] != DBNull.Value ? row["LocationName"] : null),
+                //    ActivityItemPickingQuantityAvailable = Convert.ToDecimal(row["ActivityItemPickingQuantityAvailable"] != DBNull.Value ? row["ActivityItemPickingQuantityAvailable"] : null),
+                //    ActivityItemPickingWeightQuantityAvailable = Convert.ToDecimal(row["ActivityItemPickingWeightQuantityAvailable"] != DBNull.Value ? row["ActivityItemPickingWeightQuantityAvailable"] : null),
+                //    IsActivityItemPickingComment = !string.IsNullOrWhiteSpace(Convert.ToString(row["IsActivityItemPickingComment"] != DBNull.Value ? row["IsActivityItemPickingComment"] : null)) ? "X" : "",
+                //    ActivityItemStatus = Convert.ToInt32(row["ActivityItemStatus"] != DBNull.Value ? row["ActivityItemStatus"] : null)
+                //};
 
                 observableCollection.Add(pickingItem);
 
@@ -802,50 +740,12 @@ namespace dMobile.Controller
             return observableCollection;
         }
 
-        //    /// <summary>
-        //    ///
-        //    /// </summary>
-        //    /// <param name="dataGridMain"></param>
-        //    /// <remarks></remarks>
-        //    public override void DesignDataGrid(DataGrid dataGridMain)
-        //    {
-       
-        //      dataGridCol.MappingName = "IsActivityItemPickingComment";
-        //      dataGridCol.HeaderText = "C";
-
-        //      dataGridCol.MappingName = "ProductCode";
-        //      dataGridCol.HeaderText = "Product ID";
-
-        //      dataGridCol.MappingName = "ProductUnitBC";
-        //      dataGridCol.HeaderText = string.Empty;
-
-        //      dataGridCol.MappingName = "UnitCode";
-        //      dataGridCol.HeaderText = string.Empty;
-
-        //      dataGridCol.MappingName = "ActivityItemPickingQuantityOrdered";
-        //      dataGridCol.HeaderText = "Ordered";
-        //      dataGridCol.Format = "0.000";
-
-        //      dataGridCol.MappingName = "ActivityItemPickingQuantityShipped";
-        //      dataGridCol.HeaderText = "Shipped";
-        //      dataGridCol.Format = "0.000";
-
-        //      if (this.SysEnv.SysSettings.IsPickShowItemQtyAvail)
-        //      {
-        //        dataGridCol.MappingName = "ActivityItemPickingQuantityAvailable";
-        //        dataGridCol.HeaderText = "Available";
-        //        dataGridCol.Width = 52 * columnWidthFactor;
-        //        dataGridTableStyle.GridColumnStyles.Add(dataGridCol);
-        //      }
-
-        //    }
-
         /// <summary>
         ///
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public override DataView GetDataView(bool isSubmitBatch)
+        public override async Task<List<object>> GetActivityItemList(bool isSubmitBatch)
         {
             StringBuilder sql = new StringBuilder();
 
@@ -977,21 +877,23 @@ namespace dMobile.Controller
                 sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0}", this.ActHdr.Refno);
             }
 
-            using (SQLiteDataAdapter da = new SQLiteDataAdapter(sql.ToString(), DatabaseConnection.GetInstance().SQLConn))
-            {
-                using (DataSet ds = new DataSet())
-                {
-                    da.Fill(ds);
-                    this.DataViewItems = ds.Tables[0].DefaultView;
-                    this.DataViewItems.Table.TableName = this.MainGridMappingName;
-                    this.DataViewItems.AllowNew = true;
-                    this.DataViewItems.AllowEdit = true;
-                    this.DataViewItems.AllowDelete = true;
-                    this.DataViewItems.Sort = "ActivityItemRefno";
-                }
-            }
+            //using (SQLiteDataAdapter da = new SQLiteDataAdapter(sql.ToString(), DatabaseConnection.GetInstance().SQLConn))
+            //{
+            //    using (DataSet ds = new DataSet())
+            //    {
+            //        da.Fill(ds);
+            //        this.DataViewItems = ds.Tables[0].DefaultView;
+            //        this.DataViewItems.Table.TableName = this.MainGridMappingName;
+            //        this.DataViewItems.AllowNew = true;
+            //        this.DataViewItems.AllowEdit = true;
+            //        this.DataViewItems.AllowDelete = true;
+            //        TODO: Fix sorting
+            //        this.DataViewItems.Sort = "ActivityItemRefno";
+            //    }
+            //}
 
-            return this.DataViewItems;
+            this.ListItems = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<object>(sql.ToString());
+            return this.ListItems;
         }
 
         /// <summary>
@@ -1005,42 +907,43 @@ namespace dMobile.Controller
 
             if (string.IsNullOrEmpty(this.ActItemFilter))
             {
-                this.DataViewItems.RowFilter = "ProductCode LIKE \'%" + searchText.Trim() + "%\'";
+                this.ListItems = (List<object>)this.ListItems.OfType<PickingItem>().Where(pickingItem => pickingItem.ProductCode.Contains(searchText.Trim()));
             }
             else
             {
-                this.DataViewItems.RowFilter = this.ActItemFilter + " AND ProductCode LIKE \'%" + searchText.Trim() + "%\'";
+                // TODO: Fix filtering
+                //this.DataViewItems.RowFilter = this.ActItemFilter + " AND ProductCode LIKE \'%" + searchText.Trim() + "%\'";
             }
 
-            foreach (DataRow row in this.DataViewItems.ToTable().Rows)
+            foreach (PickingItem pickingItem in this.ListItems)
             {
-                PickingItem pickingItem = new PickingItem
-                {
-                    ActivityItemRefno = Convert.ToInt32(row["ActivityItemRefno"] != DBNull.Value ? row["ActivityItemRefno"] : null),
-                    ActivityItemPickingFKRefno = Convert.ToInt32(row["ActivityItemPickingFKRefno"] != DBNull.Value ? row["ActivityItemPickingFKRefno"] : null),
-                    ActivityItemPickingStringFKRefno = Convert.ToString(row["ActivityItemPickingStringFKRefno"] != DBNull.Value ? row["ActivityItemPickingStringFKRefno"] : null),
-                    ProductUnitRefno = Convert.ToInt32(row["ProductUnitRefno"] != DBNull.Value ? row["ProductUnitRefno"] : null),
-                    ProductCode = Convert.ToString(row["ProductCode"] != DBNull.Value ? row["ProductCode"] : null),
-                    ProductDescription = Convert.ToString(row["ProductDescription"] != DBNull.Value ? row["ProductDescription"] : null),
-                    ProductBrandDescription = Convert.ToString(row["ProductBrandDescription"] != DBNull.Value ? row["ProductBrandDescription"] : null),
-                    UnitCode = Convert.ToString(row["UnitCode"] != DBNull.Value ? row["UnitCode"] : null),
-                    ProductUnitBC = Convert.ToString(row["ProductUnitBC"] != DBNull.Value ? row["ProductUnitBC"] : null),
-                    ProductUnitSizeDescription = Convert.ToString(row["ProductUnitSizeDescription"] != DBNull.Value ? row["ProductUnitSizeDescription"] : null),
-                    ActivityItemPickingQuantityOrdered = Convert.ToDecimal(row["ActivityItemPickingQuantityOrdered"] != DBNull.Value ? row["ActivityItemPickingQuantityOrdered"] : null),
-                    ActivityItemPickingBaseQuantityOrdered = Convert.ToDecimal(row["ActivityItemPickingBaseQuantityOrdered"] != DBNull.Value ? row["ActivityItemPickingBaseQuantityOrdered"] : null),
-                    ActivityItemPickingWeightQuantityOrdered = Convert.ToDecimal(row["ActivityItemPickingWeightQuantityOrdered"] != DBNull.Value ? row["ActivityItemPickingWeightQuantityOrdered"] : null),
-                    ActivityItemPickingQuantityShipped = Convert.ToDecimal(row["ActivityItemPickingQuantityShipped"] != DBNull.Value ? row["ActivityItemPickingQuantityShipped"] : null),
-                    ActivityItemPickingBaseQuantityShipped = Convert.ToDecimal(row["ActivityItemPickingBaseQuantityShipped"] != DBNull.Value ? row["ActivityItemPickingBaseQuantityShipped"] : null),
-                    ActivityItemPickingWeightQuantityShipped = Convert.ToDecimal(row["ActivityItemPickingWeightQuantityShipped"] != DBNull.Value ? row["ActivityItemPickingWeightQuantityShipped"] : null),
-                    ActivityItemPickingCustomerProductUnitCode = Convert.ToString(row["ActivityItemPickingCustomerProductUnitCode"] != DBNull.Value ? row["ActivityItemPickingCustomerProductUnitCode"] : null),
-                    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
-                    LocationCode = Convert.ToInt32(row["LocationCode"] != DBNull.Value ? row["LocationCode"] : null),
-                    LocationName = Convert.ToString(row["LocationName"] != DBNull.Value ? row["LocationName"] : null),
-                    ActivityItemPickingQuantityAvailable = Convert.ToDecimal(row["ActivityItemPickingQuantityAvailable"] != DBNull.Value ? row["ActivityItemPickingQuantityAvailable"] : null),
-                    ActivityItemPickingWeightQuantityAvailable = Convert.ToDecimal(row["ActivityItemPickingWeightQuantityAvailable"] != DBNull.Value ? row["ActivityItemPickingWeightQuantityAvailable"] : null),
-                    IsActivityItemPickingComment = !string.IsNullOrWhiteSpace(Convert.ToString(row["IsActivityItemPickingComment"] != DBNull.Value ? row["IsActivityItemPickingComment"] : null)) ? "X" : "",
-                    ActivityItemStatus = Convert.ToInt32(row["ActivityItemStatus"] != DBNull.Value ? row["ActivityItemStatus"] : null)
-                };
+                //PickingItem pickingItem = new PickingItem
+                //{
+                //    ActivityItemRefno = Convert.ToInt32(row["ActivityItemRefno"] != DBNull.Value ? row["ActivityItemRefno"] : null),
+                //    ActivityItemPickingFKRefno = Convert.ToInt32(row["ActivityItemPickingFKRefno"] != DBNull.Value ? row["ActivityItemPickingFKRefno"] : null),
+                //    ActivityItemPickingStringFKRefno = Convert.ToString(row["ActivityItemPickingStringFKRefno"] != DBNull.Value ? row["ActivityItemPickingStringFKRefno"] : null),
+                //    ProductUnitRefno = Convert.ToInt32(row["ProductUnitRefno"] != DBNull.Value ? row["ProductUnitRefno"] : null),
+                //    ProductCode = Convert.ToString(row["ProductCode"] != DBNull.Value ? row["ProductCode"] : null),
+                //    ProductDescription = Convert.ToString(row["ProductDescription"] != DBNull.Value ? row["ProductDescription"] : null),
+                //    ProductBrandDescription = Convert.ToString(row["ProductBrandDescription"] != DBNull.Value ? row["ProductBrandDescription"] : null),
+                //    UnitCode = Convert.ToString(row["UnitCode"] != DBNull.Value ? row["UnitCode"] : null),
+                //    ProductUnitBC = Convert.ToString(row["ProductUnitBC"] != DBNull.Value ? row["ProductUnitBC"] : null),
+                //    ProductUnitSizeDescription = Convert.ToString(row["ProductUnitSizeDescription"] != DBNull.Value ? row["ProductUnitSizeDescription"] : null),
+                //    ActivityItemPickingQuantityOrdered = Convert.ToDecimal(row["ActivityItemPickingQuantityOrdered"] != DBNull.Value ? row["ActivityItemPickingQuantityOrdered"] : null),
+                //    ActivityItemPickingBaseQuantityOrdered = Convert.ToDecimal(row["ActivityItemPickingBaseQuantityOrdered"] != DBNull.Value ? row["ActivityItemPickingBaseQuantityOrdered"] : null),
+                //    ActivityItemPickingWeightQuantityOrdered = Convert.ToDecimal(row["ActivityItemPickingWeightQuantityOrdered"] != DBNull.Value ? row["ActivityItemPickingWeightQuantityOrdered"] : null),
+                //    ActivityItemPickingQuantityShipped = Convert.ToDecimal(row["ActivityItemPickingQuantityShipped"] != DBNull.Value ? row["ActivityItemPickingQuantityShipped"] : null),
+                //    ActivityItemPickingBaseQuantityShipped = Convert.ToDecimal(row["ActivityItemPickingBaseQuantityShipped"] != DBNull.Value ? row["ActivityItemPickingBaseQuantityShipped"] : null),
+                //    ActivityItemPickingWeightQuantityShipped = Convert.ToDecimal(row["ActivityItemPickingWeightQuantityShipped"] != DBNull.Value ? row["ActivityItemPickingWeightQuantityShipped"] : null),
+                //    ActivityItemPickingCustomerProductUnitCode = Convert.ToString(row["ActivityItemPickingCustomerProductUnitCode"] != DBNull.Value ? row["ActivityItemPickingCustomerProductUnitCode"] : null),
+                //    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
+                //    LocationCode = Convert.ToInt32(row["LocationCode"] != DBNull.Value ? row["LocationCode"] : null),
+                //    LocationName = Convert.ToString(row["LocationName"] != DBNull.Value ? row["LocationName"] : null),
+                //    ActivityItemPickingQuantityAvailable = Convert.ToDecimal(row["ActivityItemPickingQuantityAvailable"] != DBNull.Value ? row["ActivityItemPickingQuantityAvailable"] : null),
+                //    ActivityItemPickingWeightQuantityAvailable = Convert.ToDecimal(row["ActivityItemPickingWeightQuantityAvailable"] != DBNull.Value ? row["ActivityItemPickingWeightQuantityAvailable"] : null),
+                //    IsActivityItemPickingComment = !string.IsNullOrWhiteSpace(Convert.ToString(row["IsActivityItemPickingComment"] != DBNull.Value ? row["IsActivityItemPickingComment"] : null)) ? "X" : "",
+                //    ActivityItemStatus = Convert.ToInt32(row["ActivityItemStatus"] != DBNull.Value ? row["ActivityItemStatus"] : null)
+                //};
 
                 observableCollection.Add(pickingItem);
             }
@@ -1052,10 +955,14 @@ namespace dMobile.Controller
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override void SelectItem(int idx)
+        public override async Task SelectActivityItem(object selectedActivityItem)
         {
-            base.SelectItem(idx);
-            this.FKRefno = Convert.ToInt32(this.DataViewItems[idx]["ActivityItemPickingFKRefno"]);
+            if (selectedActivityItem is PickingItem pickingItem)
+            {
+                await base.SelectActivityItem(pickingItem);
+                this.SelectedActivityItem = pickingItem;
+                this.FKRefno = Convert.ToInt32(pickingItem.ActivityItemPickingFKRefno);
+            }
         }
 
         /// <summary>
@@ -1063,43 +970,33 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="prodUnitRefno"></param>
         /// <returns></returns>
-        public override int GetRefnoFromProdUnitRefno(int prodUnitRefno)
+        public override async Task<int> GetRefnoFromProdUnitRefno(int prodUnitRefno)
         {
             int foundActItemRefno = 0;
 
-            using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+            StringBuilder sql = new StringBuilder();
+            sql.Append("SELECT tActivityItem.ActivityItemRefno,");
+            sql.Append("tActivityItemPicking.ActivityItemPickingFKRefno,");
+            sql.Append("tActivityItemPicking.ProductUnitRefno,");
+            sql.Append("tLocationMapWarehouse.LocationMapRefno ");
+            sql.Append("FROM tActivityItemPicking ");
+            sql.Append("INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno ");
+            sql.Append("= tActivityItemPicking.ActivityItemRefno ");
+            sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
+            sql.Append("= tActivityItemPicking.WarehouseLocationMapRefno ");
+            sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.Refno);
+            sql.AppendFormat("AND tActivityItemPicking.WarehouseLocationMapRefno = {0} ", this.LocMap.CurrLocMap.WhsLocMapRefno);
+            sql.AppendFormat("AND tActivityItemPicking.ProductUnitRefno = {0}", prodUnitRefno);
+
+            List<PickingItem> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<PickingItem>(sql.ToString());
+
+            if (results != null && results.Count > 0)
             {
-                StringBuilder sql = new StringBuilder();
-                sql.Append("SELECT tActivityItem.ActivityItemRefno,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingFKRefno,");
-                sql.Append("tActivityItemPicking.ProductUnitRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapRefno ");
-                sql.Append("FROM tActivityItemPicking ");
-                sql.Append("INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno ");
-                sql.Append("= tActivityItemPicking.ActivityItemRefno ");
-                sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
-                sql.Append("= tActivityItemPicking.WarehouseLocationMapRefno ");
-                sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.Refno);
-                sql.AppendFormat("AND tActivityItemPicking.WarehouseLocationMapRefno = {0} ", this.LocMap.CurrLocMap.WhsLocMapRefno);
-                sql.AppendFormat("AND tActivityItemPicking.ProductUnitRefno = {0}", prodUnitRefno);
-
-                cmndItem.CommandType = CommandType.Text;
-                cmndItem.CommandText = sql.ToString();
-
-                using (SQLiteDataReader drItem = cmndItem.ExecuteReader())
-                {
-                    if (drItem.Read())
-                    {
-                        ////this.LocMap.CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno((int)drItem["LocationMapRefno"]);
-                        this.FKRefno = Convert.ToInt32(drItem["ActivityItemPickingFKRefno"]);
-                        this.ProdInfo = ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(drItem["ProductUnitRefno"]));
-                        this.ProdInfo.Scheme = ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
-                        this.Refno = Convert.ToInt32(drItem["ActivityItemRefno"]);
-                        foundActItemRefno = this.Refno;
-                    }
-
-                    drItem.Close();
-                }
+                this.FKRefno = Convert.ToInt32(results[0].ActivityItemPickingFKRefno);
+                this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(results[0].ProductUnitRefno));
+                this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
+                this.Refno = Convert.ToInt32(results[0].ActivityItemRefno);
+                foundActItemRefno = this.Refno;
             }
 
             return foundActItemRefno;
@@ -1119,7 +1016,7 @@ namespace dMobile.Controller
                     + "</params>"));
 
                 string reqData = SysCommon.SubmitComm(sendReq);
-                
+
                 if (reqData.Length > 0)
                 {
                     if (reqData.Contains("<message>ERROR</message>"))
@@ -1127,7 +1024,7 @@ namespace dMobile.Controller
                         XmlDocument docError = new XmlDocument();
                         docError.LoadXml(reqData);
                         string errorDetail = docError.DocumentElement["detail"].InnerText;
-                        
+
                         if (errorDetail.Contains("MSGBOX-"))
                         {
                             throw new MessageOnlyException(errorDetail);
@@ -1151,7 +1048,7 @@ namespace dMobile.Controller
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);
             XDocument request = null;
-            
+
             if (data.Document.Root.Element("skid_data") == null)
             {
                 // TODO: Resource strings
@@ -1227,13 +1124,14 @@ namespace dMobile.Controller
         /// <param name="quantity"></param>
         /// <param name="baseQuantity"></param>
         /// <param name="weightQuantity"></param>
-        public override void RefreshQuantity(int idx, decimal quantity, decimal baseQuantity, decimal weightQuantity)
+        public override void RefreshQuantity(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity)
         {
-            this.DataViewItems[idx].BeginEdit();
-            this.DataViewItems[idx]["ActivityItemPickingQuantityShipped"] = quantity;
-            this.DataViewItems[idx]["ActivityItemPickingBaseQuantityShipped"] = baseQuantity;
-            this.DataViewItems[idx]["ActivityItemPickingWeightQuantityShipped"] = weightQuantity;
-            this.DataViewItems[idx].EndEdit();
+            if (selectedActivityItem is PickingItem pickingItem)
+            {
+                pickingItem.ActivityItemPickingQuantityShipped = quantity;
+                pickingItem.ActivityItemPickingBaseQuantityShipped = baseQuantity;
+                pickingItem.ActivityItemPickingWeightQuantityShipped = weightQuantity;
+            }
         }
 
         /// <summary>
@@ -1245,15 +1143,14 @@ namespace dMobile.Controller
         /// <param name="decWeightQuantity"></param>
         /// <returns></returns>
         /// <remarks></remarks>
-        public override int UpdateDataViewQuantity(int idx, decimal quantity, decimal baseQuantity, decimal weightQuantity)
+        public override void UpdateListItemQuantity(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity)
         {
-            this.DataViewItems[idx].BeginEdit();
-            this.DataViewItems[idx]["ActivityItemPickingQuantityShipped"] = Convert.ToDecimal(this.DataViewItems[idx]["ActivityItemPickingQuantityShipped"]) + quantity;
-            this.DataViewItems[idx]["ActivityItemPickingBaseQuantityShipped"] = Convert.ToDecimal(this.DataViewItems[idx]["ActivityItemPickingBaseQuantityShipped"]) + baseQuantity;
-            this.DataViewItems[idx]["ActivityItemPickingWeightQuantityShipped"] = Convert.ToDecimal(this.DataViewItems[idx]["ActivityItemPickingWeightQuantityShipped"]) + weightQuantity;
-            this.DataViewItems[idx].EndEdit();
-
-            return idx;
+            if (selectedActivityItem is PickingItem pickingItem)
+            {
+                pickingItem.ActivityItemPickingQuantityShipped += quantity;
+                pickingItem.ActivityItemPickingBaseQuantityShipped += baseQuantity;
+                pickingItem.ActivityItemPickingWeightQuantityShipped += weightQuantity;
+            }
         }
 
         /// <summary>
@@ -1261,21 +1158,14 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="idx"></param>
         /// <param name="activityItemRefno"></param>
-        public override void UpdateQuantityFromDataView(int idx, int activityItemRefno)
+        public override async Task UpdateQuantityFromActivityItemList(object selectedActivityItem, int actItemRefno)
         {
-            using (SQLiteCommand cmndItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+            if (selectedActivityItem is PickingItem pickingItem)
             {
-                cmndItem.CommandType = CommandType.Text;
-                //cmndItem.IndexName = string.Empty;
-                cmndItem.CommandText = "UPDATE tActivityItemPicking "
-                    + "SET ActivityItemPickingQuantityShipped = "
-                    + this.DataViewItems[idx]["ActivityItemPickingQuantityShipped"] + ","
-                    + " ActivityItemPickingBaseQuantityShipped = "
-                    + this.DataViewItems[idx]["ActivityItemPickingBaseQuantityShipped"] + ","
-                    + " ActivityItemPickingWeightQuantityShipped = "
-                    + this.DataViewItems[idx]["ActivityItemPickingWeightQuantityShipped"]
-                    + " WHERE tActivityItemPicking.ActivityItemRefno = " + activityItemRefno;
-                cmndItem.ExecuteNonQuery();
+                string query = "UPDATE tActivityItemPicking SET ActivityItemPickingQuantityShipped = ?, ActivityItemPickingBaseQuantityShipped = ?, ActivityItemPickingWeightQuantityShipped = ? WHERE tActivityItemPicking.ActivityItemRefno = ?";
+                List<object> parameters = new List<object>() { pickingItem.ActivityItemPickingQuantityShipped, pickingItem.ActivityItemPickingBaseQuantityShipped, pickingItem.ActivityItemPickingWeightQuantityShipped, actItemRefno };
+
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, parameters);
             }
         }
 
@@ -1310,18 +1200,13 @@ namespace dMobile.Controller
         /// 
         /// </summary>
         /// <returns></returns>
-        public override string GetTotalQuantity()
+        public override async Task<string> GetTotalQuantity()
         {
             string msg = string.Empty;
 
             try
             {
-                using (SQLiteCommand cmndItemPicking = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                {
-                    cmndItemPicking.CommandType = CommandType.Text;
-                    //cmndItemPicking.IndexName = string.Empty;
-                    cmndItemPicking.CommandText =
-                        "SELECT SUM(tActivityItemPicking.ActivityItemPickingQuantityOrdered) AS Ordered,"
+                string query = "SELECT SUM(tActivityItemPicking.ActivityItemPickingQuantityOrdered) AS Ordered,"
                         + "SUM(tActivityItemPicking.ActivityItemPickingWeightQuantityOrdered) AS WeightOrdered,"
                         + "SUM(tActivityItemPicking.ActivityItemPickingQuantityShipped) AS Shipped,"
                         + "SUM(tActivityItemPicking.ActivityItemPickingWeightQuantityShipped) AS WeightShipped,"
@@ -1334,22 +1219,23 @@ namespace dMobile.Controller
                         + string.Format("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.Refno)
                         + "GROUP BY tUnit.UnitCode";
 
-                    using (SQLiteDataReader dr = cmndItemPicking.ExecuteReader())
+                List<PickingItem> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<PickingItem>(query);
+
+                if (results != null)
+                {
+                    foreach (dynamic pickingItem in results)
                     {
-                        while (dr.Read())
-                        {
-                            // Because an agregate sum function is used in a query. There will always be a result record.
-                            // This causes problems detecting if there is nothing to sum, resulting in null.
-                            // Converting Convert.ToDecimal(dr["Ordered"]) fails because there is not data. However to a string works.
-                            // TODO: Resource strings
-                            msg = msg + string.Format("Total ordered:\r{0} @ {1}{2}\r\rTotal shipped:\r{3} @ {4}{5}",
-                                Convert.ToInt32(Convert.ToDecimal(dr["Ordered"])),
-                                Convert.ToDecimal(dr["WeightOrdered"]),
-                                Convert.ToString(dr["WtUnitCode"]),
-                                Convert.ToInt32(Convert.ToDecimal(dr["Shipped"])),
-                                Convert.ToDecimal(dr["WeightShipped"]),
-                                Convert.ToString(dr["WtUnitCode"]));
-                        }
+                        // Because an agregate sum function is used in a query. There will always be a result record.
+                        // This causes problems detecting if there is nothing to sum, resulting in null.
+                        // Converting Convert.ToDecimal(dr["Ordered"]) fails because there is not data. However to a string works.
+                        // TODO: Resource strings
+                        msg += string.Format("Total ordered:\r{0} @ {1}{2}\r\rTotal shipped:\r{3} @ {4}{5}",
+                            Convert.ToInt32(Convert.ToDecimal(pickingItem.Ordered)),
+                            Convert.ToDecimal(pickingItem.WeightOrdered),
+                            Convert.ToString(pickingItem.WtUnitCode),
+                            Convert.ToInt32(Convert.ToDecimal(pickingItem.Shipped)),
+                            Convert.ToDecimal(pickingItem.WeightShipped),
+                            Convert.ToString(pickingItem.WtUnitCode));
                     }
                 }
             }
@@ -1369,41 +1255,14 @@ namespace dMobile.Controller
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="actItemPickFKRefno"></param>
         /// <param name="actItemPickQuantity"></param>
-        private void PickingModuleQuantityOverCheck(int actItemPickFKRefno, decimal actItemPickQuantity)
+        private void PickingModuleQuantityOverCheck(decimal actItemPickQuantity)
         {
-            ////if (0 < skidFKRefno)
-            ////{
-            ////  StringBuilder xmlString = new StringBuilder();
-            ////  XmlWriter xml = XmlWriter.Create(xmlString);
-
-            ////  // Sending the alt_qty is not used. Only the skid_no is used.
-            ////  // Kept the alt_qty
-            ////  XDocument request = XDocument.Parse(
-            ////      "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
-            ////      + "<imclient>"
-            ////      + "<command>"
-            ////      + "<action>REQUEST SALES ORDER ITEM QUANTITY OVER CHECK</action>"
-            ////      + SysCommon.GetRequestDefaults(false)
-            ////      + ("<itm_refno>" + actItemPickFKRefno + "</itm_refno>")
-            ////      + ("<alt_qty>" + actItemPickQuantity + "</alt_qty>")
-            ////      + "</command>"
-            ////      + "</imclient>");
-
-            ////  request.Save(xml);
-            ////  xml.Flush();
-            ////  xml.Close();
-
-            ////  string reqData = SysCommon.SubmitComm(request.ToString());
-
-            ////}
-
-            if (this.CurrRowIdx >= 0 && this.CurrRowIdx < this.DataViewItems.Count)
+            if (this.SelectedActivityItem is PickingItem pickingItem)
             {
-                decimal shipped = Convert.ToDecimal(this.DataViewItems[this.CurrRowIdx]["ActivityItemPickingQuantityShipped"]);
-                decimal ordered = Convert.ToDecimal(this.DataViewItems[this.CurrRowIdx]["ActivityItemPickingQuantityOrdered"]);
-                
+                decimal shipped = Convert.ToDecimal(pickingItem.ActivityItemPickingQuantityShipped);
+                decimal ordered = Convert.ToDecimal(pickingItem.ActivityItemPickingQuantityOrdered);
+
                 if (shipped + actItemPickQuantity > ordered)
                 {
                     // TODO: Resource strings

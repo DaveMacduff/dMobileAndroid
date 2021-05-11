@@ -3,12 +3,14 @@ namespace dMobile.Controller
     using System;
     using System.Collections.ObjectModel;
     using System.Data;
-    using System.Data.SQLite;
+    using SQLite;
     using System.Text;
     using System.Threading.Tasks;
     using System.Xml.Linq;
     using dMobile.Bedrock;
     using Xamarin.Forms;
+    using System.Collections.Generic;
+    using dMobile.Resources.Models;
 
     public class AssignDefaultLocActItem : ActItem
     {
@@ -37,7 +39,7 @@ namespace dMobile.Controller
         /// <param name="baseQuantity"></param>
         /// <param name="weightQuantity"></param>
         /// <returns></returns>
-        public override int UpdateDataViewQuantity(int idx, decimal quantity, decimal baseQuantity, decimal weightQuantity)
+        public override void UpdateListItemQuantity(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity)
         {
             throw new NotImplementedException();
         }
@@ -83,8 +85,8 @@ namespace dMobile.Controller
 
             if (prodUnitRefno != 0)
             {
-                this.ProdInfo = ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
-                this.ProdInfo.Scheme = ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
+                this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
+                this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
             }
         }
 
@@ -97,7 +99,7 @@ namespace dMobile.Controller
         //{
         //    throw new NotImplementedException();
         //}
-            
+
         public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity)
         {
             throw new NotImplementedException();
@@ -108,7 +110,7 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="isSubmitBatch"></param>
         /// <returns></returns>
-        public override DataView GetDataView(bool isSubmitBatch)
+        public override Task<List<object>> GetActivityItemList(bool isSubmitBatch)
         {
             throw new NotImplementedException();
         }
@@ -129,7 +131,7 @@ namespace dMobile.Controller
         /// <param name="prodUnitRefno"></param>
         /// <returns></returns>
         /// <remarks></remarks>
-        public override int GetRefnoFromProdUnitRefno(int prodUnitRefno)
+        public override Task<int> GetRefnoFromProdUnitRefno(int prodUnitRefno)
         {
             throw new NotImplementedException();
         }
@@ -138,7 +140,7 @@ namespace dMobile.Controller
         /// 
         /// </summary>
         /// <param name="idx"></param>
-        public override void SelectItem(int idx)
+        public override Task SelectActivityItem(object selectedActivityItem)
         {
             throw new NotImplementedException();
         }
@@ -147,7 +149,7 @@ namespace dMobile.Controller
         /// 
         /// </summary>
         /// <param name="data"></param>
-        public override void Refresh(XDocument data)
+        public override Task Refresh(XDocument data)
         {
             throw new NotImplementedException();
         }
@@ -169,7 +171,7 @@ namespace dMobile.Controller
         /// <param name="quantity"></param>
         /// <param name="baseQuantity"></param>
         /// <param name="weightQuantity"></param>
-        public override void RefreshQuantity(int idx, decimal quantity, decimal baseQuantity, decimal weightQuantity)
+        public override void RefreshQuantity(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity)
         {
             throw new NotImplementedException();
         }
@@ -179,7 +181,7 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="idx"></param>
         /// <param name="actItemRefno"></param>
-        public override void UpdateQuantityFromDataView(int idx, int actItemRefno)
+        public override Task UpdateQuantityFromActivityItemList(object selectedActivityItem, int actItemRefno)
         {
             throw new NotImplementedException();
         }
@@ -188,166 +190,87 @@ namespace dMobile.Controller
         /// 
         /// </summary>
         /// <param name="data"></param>
-        public override void Update(XDocument data)
+        public override async Task Update(XDocument data)
         {
-            ////MyBase.UpdateActivityItem(xmlParams)
-
-            ////<?xml version="1.0" encoding="utf-16" standalone="yes"?>
-            ////<param>
-            ////    <prod_refno><%= %></prod_refno>
-            ////    <receiving_is_update><%= %></receiving_is_update>
-            ////    <receiving_warehouse_location_refno><%= %></receiving_warehouse_location_refno>
-            ////    <receiving_old_location_refno><%= %></receiving_old_location_refno>
-            ////    <receiving_new_location_refno><%= %></receiving_new_location_refno>
-            ////    <picking_is_update><%= %></picking_is_update>
-            ////    <picking_warehouse_location_refno><%=  %></picking_warehouse_location_refno>
-            ////    <picking_old_location_refno><%= %></picking_old_location_refno>
-            ////    <picking_new_location_refno><%= %></picking_new_location_refno>
-            ////</param>
-
-            using (SQLiteCommand cmndProdtLocMapType = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-            using (SQLiteCommand cmndProdtLocMapTypePicking = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-            using (SQLiteCommand cmndProdtLocMapTypeReceiving = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+            if (bool.Parse(data.Root.Element("picking_is_update").Value))
             {
-                cmndProdtLocMapType.CommandText = "SELECT * FROM tProductLocationMapType WHERE ProductRefno = @productRefno AND LocationMapRefno = @locationMapRefno AND ProductLocationMapTypeEnum = @productLocationMapTypeEnum";
-                cmndProdtLocMapType.CommandType = CommandType.Text;
-                //cmndProdtLocMapType.IndexName = "PK_ProductLocationMapTypeOnProductRefnoAndLocationMapRefnoAndProductLocationMapTypeEnum";
-                cmndProdtLocMapType.Parameters.Add(new SQLiteParameter("@productRefno", Convert.ToInt32(int.Parse(data.Root.Element("prod_refno").Value))));
-                cmndProdtLocMapType.Parameters.Add(new SQLiteParameter("@locationMapRefno", Convert.ToInt32(int.Parse(data.Root.Element("picking_old_location_refno").Value))));
-                cmndProdtLocMapType.Parameters.Add(new SQLiteParameter("@productLocationMapTypeEnum", Convert.ToInt32(SysCommon.ProdLocMapTypes.Picking)));
-
-                if (bool.Parse(data.Root.Element("picking_is_update").Value))
+                string query = "SELECT * FROM tProductLocationMapType WHERE ProductRefno = ? AND LocationMapRefno = ? AND ProductLocationMapTypeEnum = ?";
+                List<object> parameters = new List<object>()
                 {
-                    using (SQLiteDataReader drProdLocMapTypePicking = cmndProdtLocMapType.ExecuteReader())
+                    Convert.ToInt32(int.Parse(data.Root.Element("prod_refno").Value)),
+                    Convert.ToInt32(int.Parse(data.Root.Element("picking_old_location_refno").Value)),
+                    Convert.ToInt32(SysCommon.ProdLocMapTypes.Picking)
+                };
+
+                List<tProductLocationMapTypeModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tProductLocationMapTypeModel>(query, parameters);
+
+                if (results != null && results.Count > 0)
+                {
+                    string queryUpdate = "UPDATE tProductLocationMapType SET LocationMapRefno = ? WHERE ProductRefno = ? AND WarehouseLocationMapRefno = ? AND LocationMapRefno = ? AND ProductLocationMapTypeEnum = ?";
+                    List<object> parametersUpdate = new List<object>()
                     {
-                        //if (drProdLocMapType.Seek(DbSeekOptions.FirstEqual, new object[] { int.Parse(data.Root.Element("prod_refno").Value), int.Parse(data.Root.Element("picking_old_location_refno").Value), (int)SysCommon.ProdLocMapTypes.Picking }))
-                        if (drProdLocMapTypePicking.Read())
-                        {
-                            cmndProdtLocMapTypePicking.CommandText = "UPDATE tProductLocationMapType " +
-                                "SET LocationMapRefno = @locationMapRefnoNew " +
-                                "WHERE ProductRefno = @productRefno " +
-                                "AND WarehouseLocationMapRefno = @warehouseLocationMapRefno " +
-                                "AND LocationMapRefno = @locationMapRefno " +
-                                "AND ProductLocationMapTypeEnum = @productLocationMapTypeEnum";
-                            cmndProdtLocMapTypePicking.CommandType = CommandType.Text;
-                            cmndProdtLocMapTypePicking.Parameters.Add(new SQLiteParameter("@locationMapRefnoNew", Convert.ToInt32(int.Parse(data.Root.Element("picking_new_location_refno").Value))));
-                            cmndProdtLocMapTypePicking.Parameters.Add(new SQLiteParameter("@productRefno", Convert.ToInt32(int.Parse(data.Root.Element("prod_refno").Value))));
-                            cmndProdtLocMapTypePicking.Parameters.Add(new SQLiteParameter("@warehouseLocationMapRefno", Convert.ToInt32(int.Parse(data.Root.Element("picking_warehouse_location_refno").Value))));
-                            cmndProdtLocMapTypePicking.Parameters.Add(new SQLiteParameter("@locationMapRefno", Convert.ToInt32(int.Parse(data.Root.Element("picking_old_location_refno").Value))));
-                            cmndProdtLocMapTypePicking.Parameters.Add(new SQLiteParameter("@productLocationMapTypeEnum", Convert.ToInt32(SysCommon.ProdLocMapTypes.Picking)));
+                        Convert.ToInt32(int.Parse(data.Root.Element("picking_new_location_refno").Value)),
+                        Convert.ToInt32(int.Parse(data.Root.Element("prod_refno").Value)),
+                        Convert.ToInt32(int.Parse(data.Root.Element("picking_warehouse_location_refno").Value)),
+                        Convert.ToInt32(int.Parse(data.Root.Element("picking_old_location_refno").Value)),
+                        Convert.ToInt32(SysCommon.ProdLocMapTypes.Picking)
+                    };
 
-                            //StringBuilder sql = new StringBuilder();
-                            //sql.Append("UPDATE tProductLocationMapType");
-                            //sql.AppendFormat(" SET LocationMapRefno = {0}", int.Parse(data.Root.Element("picking_new_location_refno").Value));
-                            //sql.AppendFormat(" WHERE ProductRefno = {0}", int.Parse(data.Root.Element("prod_refno").Value));
-                            //sql.AppendFormat(" AND WarehouseLocationMapRefno = {0}", int.Parse(data.Root.Element("picking_warehouse_location_refno").Value));
-                            //sql.AppendFormat(" AND LocationMapRefno = {0}", int.Parse(data.Root.Element("picking_old_location_refno").Value));
-                            //sql.AppendFormat(" AND ProductLocationMapTypeEnum = {0}", (int)SysCommon.ProdLocMapTypes.Picking);
-
-                            cmndProdtLocMapTypePicking.ExecuteNonQuery();
-                        }
-                        else
-                        {
-                            cmndProdtLocMapTypePicking.CommandText = "INSERT INTO tProductLocationMapType (" +
-                                "ProductRefno, " +
-                                "WarehouseLocationMapRefno, " +
-                                "LocationMapRefno, " +
-                                "ProductLocationMapTypeEnum" +
-                                ") VALUES (" +
-                                "@productRefno, " +
-                                "@warehouseLocationMapRefno, " +
-                                "@locationMapRefno, " +
-                                "@productLocationMapTypeEnum" +
-                                ")";
-                            cmndProdtLocMapTypePicking.CommandType = CommandType.Text;
-                            cmndProdtLocMapTypePicking.Parameters.Add(new SQLiteParameter("@productRefno", Convert.ToInt32(int.Parse(data.Root.Element("prod_refno").Value))));
-                            cmndProdtLocMapTypePicking.Parameters.Add(new SQLiteParameter("@warehouseLocationMapRefno", Convert.ToInt32(int.Parse(data.Root.Element("picking_warehouse_location_refno").Value))));
-                            cmndProdtLocMapTypePicking.Parameters.Add(new SQLiteParameter("@locationMapRefno", Convert.ToInt32(int.Parse(data.Root.Element("picking_new_location_refno").Value))));
-                            cmndProdtLocMapTypePicking.Parameters.Add(new SQLiteParameter("@productLocationMapTypeEnum", Convert.ToInt32(SysCommon.ProdLocMapTypes.Picking)));
-
-                            //StringBuilder sql = new StringBuilder();
-                            //sql.Append("INSERT INTO tProductLocationMapType");
-                            //sql.Append(" (ProductRefno, WarehouseLocationMapRefno, LocationMapRefno, ProductLocationMapTypeEnum)");
-                            //sql.AppendFormat(" VALUES ({0}, {1}, {2}, {3})",
-                            //    int.Parse(data.Root.Element("prod_refno").Value),
-                            //    int.Parse(data.Root.Element("picking_warehouse_location_refno").Value),
-                            //    int.Parse(data.Root.Element("picking_new_location_refno").Value),
-                            //    (int)SysCommon.ProdLocMapTypes.Picking);
-
-                            cmndProdtLocMapTypePicking.ExecuteNonQuery();
-                        }
-                    }
+                    await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(queryUpdate, parametersUpdate);
                 }
-
-                if (bool.Parse(data.Root.Element("receiving_is_update").Value))
+                else
                 {
-                    cmndProdtLocMapType.CommandText = "SELECT * FROM tProductLocationMapType WHERE ProductRefno = @productRefno AND LocationMapRefno = @locationMapRefno AND ProductLocationMapTypeEnum = @productLocationMapTypeEnum";
-                    cmndProdtLocMapType.CommandType = CommandType.Text;
-                    //cmndProdtLocMapType.IndexName = "PK_ProductLocationMapTypeOnProductRefnoAndLocationMapRefnoAndProductLocationMapTypeEnum";
-                    cmndProdtLocMapType.Parameters.Add(new SQLiteParameter("@productRefno", Convert.ToInt32(int.Parse(data.Root.Element("prod_refno").Value))));
-                    cmndProdtLocMapType.Parameters.Add(new SQLiteParameter("@locationMapRefno", Convert.ToInt32(int.Parse(data.Root.Element("receiving_old_location_refno").Value))));
-                    cmndProdtLocMapType.Parameters.Add(new SQLiteParameter("@productLocationMapTypeEnum", Convert.ToInt32(SysCommon.ProdLocMapTypes.Receiving)));
-
-                    using (SQLiteDataReader drProdLocMapTypeReceving = cmndProdtLocMapType.ExecuteReader())
+                    string queryInsert = "INSERT INTO tProductLocationMapType (ProductRefno, WarehouseLocationMapRefno, LocationMapRefno, ProductLocationMapTypeEnum) VALUES (?, ?, ?, ?)";
+                    List<object> parametersInsert = new List<object>()
                     {
-                        //if (drProdLocMapType.Seek(DbSeekOptions.FirstEqual, new object[] { int.Parse(data.Root.Element("prod_refno").Value), int.Parse(data.Root.Element("receiving_old_location_refno").Value), (int)SysCommon.ProdLocMapTypes.Receiving }))
-                        if (drProdLocMapTypeReceving.Read())
-                        {
-                            cmndProdtLocMapTypeReceiving.CommandText = "UPDATE tProductLocationMapType " +
-                                "SET LocationMapRefno = @locationMapRefnoNew " +
-                                "WHERE ProductRefno = @productRefno " +
-                                "AND WarehouseLocationMapRefno = @warehouseLocationMapRefno " +
-                                "AND LocationMapRefno = @locationMapRefno " +
-                                "AND ProductLocationMapTypeEnum = @productLocationMapTypeEnum";
-                            cmndProdtLocMapTypeReceiving.CommandType = CommandType.Text;
-                            cmndProdtLocMapTypeReceiving.CommandType = CommandType.Text;
-                            cmndProdtLocMapTypeReceiving.Parameters.Add(new SQLiteParameter("@locationMapRefnoNew", Convert.ToInt32(int.Parse(data.Root.Element("receiving_new_location_refno").Value))));
-                            cmndProdtLocMapTypeReceiving.Parameters.Add(new SQLiteParameter("@productRefno", Convert.ToInt32(int.Parse(data.Root.Element("prod_refno").Value))));
-                            cmndProdtLocMapTypeReceiving.Parameters.Add(new SQLiteParameter("@warehouseLocationMapRefno", Convert.ToInt32(int.Parse(data.Root.Element("receiving_warehouse_location_refno").Value))));
-                            cmndProdtLocMapTypeReceiving.Parameters.Add(new SQLiteParameter("@locationMapRefno", Convert.ToInt32(int.Parse(data.Root.Element("receiving_old_location_refno").Value))));
-                            cmndProdtLocMapTypeReceiving.Parameters.Add(new SQLiteParameter("@productLocationMapTypeEnum", Convert.ToInt32(SysCommon.ProdLocMapTypes.Receiving)));
+                        Convert.ToInt32(int.Parse(data.Root.Element("prod_refno").Value)),
+                        Convert.ToInt32(int.Parse(data.Root.Element("picking_warehouse_location_refno").Value)),
+                        Convert.ToInt32(int.Parse(data.Root.Element("picking_new_location_refno").Value)),
+                        Convert.ToInt32(SysCommon.ProdLocMapTypes.Picking)
+                    };
 
-                            //StringBuilder sql = new StringBuilder();
-                            //sql.Append("UPDATE tProductLocationMapType");
-                            //sql.AppendFormat(" SET LocationMapRefno = {0}", int.Parse(data.Root.Element("receiving_new_location_refno").Value));
-                            //sql.AppendFormat(" WHERE ProductRefno = {0}", int.Parse(data.Root.Element("prod_refno").Value));
-                            //sql.AppendFormat(" AND WarehouseLocationMapRefno = {0}", int.Parse(data.Root.Element("receiving_warehouse_location_refno").Value));
-                            //sql.AppendFormat(" AND LocationMapRefno = {0}", int.Parse(data.Root.Element("receiving_old_location_refno").Value));
-                            //sql.AppendFormat(" AND ProductLocationMapTypeEnum = {0}", (int)SysCommon.ProdLocMapTypes.Receiving);
+                    await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(queryInsert, parametersInsert);
+                }
+            }
 
-                            cmndProdtLocMapTypeReceiving.ExecuteNonQuery();
-                        }
-                        else
-                        {
-                            cmndProdtLocMapTypeReceiving.CommandText = "INSERT INTO tProductLocationMapType (" +
-                                "ProductRefno, " +
-                                "WarehouseLocationMapRefno, " +
-                                "LocationMapRefno, " +
-                                "ProductLocationMapTypeEnum" +
-                                ") VALUES (" +
-                                "@productRefno, " +
-                                "@warehouseLocationMapRefno, " +
-                                "@locationMapRefno, " +
-                                "@productLocationMapTypeEnum" +
-                                ")";
-                            cmndProdtLocMapTypeReceiving.CommandType = CommandType.Text;
-                            cmndProdtLocMapTypeReceiving.Parameters.Add(new SQLiteParameter("@productRefno", Convert.ToInt32(int.Parse(data.Root.Element("prod_refno").Value))));
-                            cmndProdtLocMapTypeReceiving.Parameters.Add(new SQLiteParameter("@warehouseLocationMapRefno", Convert.ToInt32(int.Parse(data.Root.Element("receiving_warehouse_location_refno").Value))));
-                            cmndProdtLocMapTypeReceiving.Parameters.Add(new SQLiteParameter("@locationMapRefno", Convert.ToInt32(int.Parse(data.Root.Element("receiving_new_location_refno").Value))));
-                            cmndProdtLocMapTypeReceiving.Parameters.Add(new SQLiteParameter("@productLocationMapTypeEnum", Convert.ToInt32(SysCommon.ProdLocMapTypes.Receiving)));
+            if (bool.Parse(data.Root.Element("receiving_is_update").Value))
+            {
+                string query = "SELECT * FROM tProductLocationMapType WHERE ProductRefno = ? AND LocationMapRefno = ? AND ProductLocationMapTypeEnum = ?";
+                List<object> parameters = new List<object>()
+                {
+                    Convert.ToInt32(int.Parse(data.Root.Element("prod_refno").Value)),
+                    Convert.ToInt32(int.Parse(data.Root.Element("receiving_old_location_refno").Value)),
+                    Convert.ToInt32(SysCommon.ProdLocMapTypes.Receiving)
+                };
 
-                            //StringBuilder sql = new StringBuilder();
-                            //sql.Append("INSERT INTO tProductLocationMapType");
-                            //sql.Append(" (ProductRefno, WarehouseLocationMapRefno, LocationMapRefno, ProductLocationMapTypeEnum)");
-                            //sql.AppendFormat(" VALUES ({0}, {1}, {2}, {3})",
-                            //    int.Parse(data.Root.Element("prod_refno").Value),
-                            //    int.Parse(data.Root.Element("receiving_warehouse_location_refno").Value),
-                            //    int.Parse(data.Root.Element("receiving_new_location_refno").Value),
-                            //    (int)SysCommon.ProdLocMapTypes.Receiving);
+                List<tProductLocationMapTypeModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tProductLocationMapTypeModel>(query, parameters);
 
-                            cmndProdtLocMapTypeReceiving.ExecuteNonQuery();
-                        }
-                    }
+                if (results != null && results.Count > 0)
+                {
+                    string queryUpdate = "UPDATE tProductLocationMapType SET LocationMapRefno = ? WHERE ProductRefno = ? AND WarehouseLocationMapRefno = ? AND LocationMapRefno = ? AND ProductLocationMapTypeEnum = ?";
+                    List<object> parametersUpdate = new List<object>()
+                    {
+                        Convert.ToInt32(int.Parse(data.Root.Element("receiving_new_location_refno").Value)),
+                        Convert.ToInt32(int.Parse(data.Root.Element("prod_refno").Value)),
+                        Convert.ToInt32(int.Parse(data.Root.Element("receiving_warehouse_location_refno").Value)),
+                        Convert.ToInt32(int.Parse(data.Root.Element("receiving_old_location_refno").Value)),
+                        Convert.ToInt32(SysCommon.ProdLocMapTypes.Receiving)
+                    };
+
+                    await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(queryUpdate, parametersUpdate);
+                }
+                else
+                {
+                    string queryInsert = "INSERT INTO tProductLocationMapType (ProductRefno, WarehouseLocationMapRefno, LocationMapRefno, ProductLocationMapTypeEnum) VALUES (?, ?, ?, ?)";
+                    List<object> parametersInsert = new List<object>()
+                    {
+                        Convert.ToInt32(int.Parse(data.Root.Element("prod_refno").Value)),
+                        Convert.ToInt32(int.Parse(data.Root.Element("receiving_warehouse_location_refno").Value)),
+                        Convert.ToInt32(int.Parse(data.Root.Element("receiving_new_location_refno").Value)),
+                        Convert.ToInt32(SysCommon.ProdLocMapTypes.Receiving)
+                    };
+
+                    await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(queryInsert, parametersInsert);
                 }
             }
         }
