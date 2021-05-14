@@ -44,7 +44,7 @@ namespace dMobile.GroundWork
 
                 if (actRefno == 0)
                 {
-                    string query = "SELECT tActivity.ActivityRefno FROM tActivity WHERE tActivity.ActivitySubType = ?";
+                    string query = "SELECT ActivityRefno FROM tActivity WHERE ActivitySubType = ?";
                     List<tActivityModel> results =  await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityModel>(query, Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts));
 
                     if (results != null && results.Count > 0)
@@ -61,7 +61,7 @@ namespace dMobile.GroundWork
                                 throw new Exception(reqErr.DocumentElement["detail"].InnerText);
                             }
 
-                            this.Save(reqData, actRefno);
+                            await this.Save(reqData, actRefno);
                         }
                     }
                 }
@@ -78,7 +78,7 @@ namespace dMobile.GroundWork
                             throw new Exception(reqErr.DocumentElement["detail"].InnerText);
                         }
 
-                        this.Save(reqData, actRefno);
+                        await this.Save(reqData, actRefno);
                     }
                 }
 
@@ -114,7 +114,7 @@ namespace dMobile.GroundWork
 
             try
             {
-                string query = "SELECT COUNT(tActivityItem.ActivityItemRefno) FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?";
+                string query = "SELECT COUNT(ActivityItemRefno) FROM tActivityItem WHERE ActivityItemSubType = ?";
                 rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>(query, Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts));
 
                 // TODO: Resource strings
@@ -146,10 +146,10 @@ namespace dMobile.GroundWork
                     + "WHERE tActivityItem.ActivityItemSubType = ?)";
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts));
 
-                query = "DELETE FROM tActivityItemCount WHERE tActivityItemCount.ActivityItemSubType = @activityItemSubType";
+                query = "DELETE FROM tActivityItemCount WHERE tActivityItemCount.ActivityItemSubType = ?";
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts));
 
-                query = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = @activityItemSubType";
+                query = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?";
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts));
 
                 // TODO: Resource strings
@@ -175,15 +175,15 @@ namespace dMobile.GroundWork
         {
             int actCountFKRefno = 0;
 
-            string query = "SELECT * FROM tActivityCount WHERE ActivityRefno = @activityRefno";
+            string query = "SELECT * FROM tActivityCount WHERE ActivityRefno = ?";
             List<tActivityCountModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityCountModel>(query, actRefno);
 
-            if (results != null && results.Count > 0)
+            if (results?.Count > 0)
             {
                 actCountFKRefno = results[0].ActivityCountFKRefno;
             }
 
-            return this.SendComm(this.Create(actCountFKRefno));
+            return await this.SendComm(this.Create(actCountFKRefno));
         }
 
         /// <summary>
@@ -229,10 +229,7 @@ namespace dMobile.GroundWork
                             {
                                 errMsg = "Arguments:";
 
-                                transaction.Execute("INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (?, ?, ?)",
-                                    Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts),
-                                    0,
-                                    actRefno);
+                                transaction.Execute("INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (?, ?, ?)", Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts), 0, actRefno);
 
                                 actItemRefno = Convert.ToInt32(transaction.QueryScalars<int>("SELECT last_insert_rowid() FROM tActivityItem"));
 
@@ -438,14 +435,6 @@ namespace dMobile.GroundWork
                     // TODO: Resource strings
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Request physical count items failed.", true);
-
-                    //// Duplicate key violations
-                    //if (ex.NativeError == 25016)
-                    //{
-                    //    // TODO: Resource strings
-                    //    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Uniqueness violation.", false);
-                    //    throw new Exception("Uniqueness violation." + Environment.NewLine + errMsg, ex);
-                    //}
 
                     // TODO: Resource strings
                     throw new Exception("Database exception occurred. Saving physical count items failed." + Environment.NewLine + errMsg, ex);

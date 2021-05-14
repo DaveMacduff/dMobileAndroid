@@ -3,10 +3,13 @@ namespace dMobile.GroundWork
     using dMobile.Bedrock;
     using System;
     using System.Data;
-    using System.Data.SQLite;
+    using SQLite;
     using System.Text;
     using System.Xml;
     using System.Xml.Linq;
+    using System.Threading.Tasks;
+    using System.Collections.Generic;
+    using dMobile.Resources.Models;
 
     /// <summary>
     /// Defines the <see cref="TableActivityProductionTicketFinishedItem" />
@@ -26,12 +29,9 @@ namespace dMobile.GroundWork
         /// The Request
         /// </summary>
         /// <param name="actRefno">The actRefno<see cref="int"/></param>
-        public override void Request(int actRefno)
+        public override async Task Request(int actRefno)
         {
             string reqData = string.Empty;
-
-            //GC.Collect();
-            //GC.WaitForPendingFinalizers();
 
             try
             {
@@ -40,37 +40,32 @@ namespace dMobile.GroundWork
 
                 if (actRefno == 0)
                 {
-                    using (SQLiteCommand cmndActivity = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                    List<tActivityModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityModel>("SELECT ActivityRefno FROM tActivity WHERE ActivitySubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished));
+
+                    if (results?.Count > 0)
                     {
-                        cmndActivity.CommandText = "SELECT tActivity.ActivityRefno FROM tActivity WHERE tActivity.ActivitySubType = @activitySubType";
-                        cmndActivity.CommandType = CommandType.Text;
-                        cmndActivity.Parameters.Add(new SQLiteParameter("@activitySubType", Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished)));
-
-                        using (SQLiteDataReader drActivity = cmndActivity.ExecuteReader())
+                        foreach (tActivityModel activityModel in results)
                         {
-                            while (drActivity.Read())
+                            actRefno = Convert.ToInt32(activityModel.ActivityRefno);
+                            reqData = await this.Send(actRefno);
+
+                            if (0 < reqData.Length)
                             {
-                                actRefno = Convert.ToInt32(drActivity["ActivityRefno"]);
-                                reqData = this.Send(actRefno);
-
-                                if (0 < reqData.Length)
+                                if (reqData.Contains("<message>ERROR</message>"))
                                 {
-                                    if (reqData.Contains("<message>ERROR</message>"))
-                                    {
-                                        XmlDocument reqErr = new XmlDocument();
-                                        reqErr.LoadXml(reqData);
-                                        new Exception(reqErr.DocumentElement["detail"].InnerText);
-                                    }
-
-                                    this.Save(reqData, actRefno);
+                                    XmlDocument reqErr = new XmlDocument();
+                                    reqErr.LoadXml(reqData);
+                                    new Exception(reqErr.DocumentElement["detail"].InnerText);
                                 }
+
+                                await this.Save(reqData, actRefno);
                             }
                         }
                     }
                 }
                 else
                 {
-                    reqData = this.Send(actRefno);
+                    reqData = await this.Send(actRefno);
 
                     if (0 < reqData.Length)
                     {
@@ -81,7 +76,7 @@ namespace dMobile.GroundWork
                             new Exception(reqErr.DocumentElement["detail"].InnerText);
                         }
 
-                        this.Save(reqData, actRefno);
+                        await this.Save(reqData, actRefno);
                     }
                 }
 
@@ -110,42 +105,36 @@ namespace dMobile.GroundWork
         /// <summary>
         /// The Purge
         /// </summary>
-        public override void Purge()
+        public override async Task Purge()
         {
             try
             {
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging finished ticket items.", true);
 
-                using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                {
-                    cmndPurge.CommandType = CommandType.Text;
-                    cmndPurge.Parameters.Add(new SQLiteParameter("@activityItemSubType", Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished)));
+                string query = "DELETE FROM tActivityItemBarCodeAssociationXRef"
+                    + " WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno IN"
+                    + " (SELECT tActivityItem.ActivityItemRefno"
+                    + " FROM tActivityItem"
+                    + " WHERE tActivityItem.ActivityItemSubType = ?)";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished));
 
-                    cmndPurge.CommandText = "DELETE FROM tActivityItemBarCodeAssociationXRef"
-                        + " WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno IN"
-                        + " (SELECT tActivityItem.ActivityItemRefno"
-                        + " FROM tActivityItem"
-                        + " WHERE tActivityItem.ActivityItemSubType = @activityItemSubType)";
-                    cmndPurge.ExecuteNonQuery();
+                query = "DELETE FROM tActivityItemProductionFinished"
+                    + " WHERE tActivityItemProductionFinished.ActivityItemRefno IN"
+                    + " (SELECT tActivityItem.ActivityItemRefno"
+                    + " FROM tActivityItem"
+                    + " WHERE tActivityItem.ActivityItemSubType = ?)";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished));
 
-                    cmndPurge.CommandText = "DELETE FROM tActivityItemProductionFinished"
-                        + " WHERE tActivityItemProductionFinished.ActivityItemRefno IN"
-                        + " (SELECT tActivityItem.ActivityItemRefno"
-                        + " FROM tActivityItem"
-                        + " WHERE tActivityItem.ActivityItemSubType = @activityItemSubType)";
-                    cmndPurge.ExecuteNonQuery();
+                query = "DELETE FROM tActivityItemProduction"
+                    + " WHERE tActivityItemProduction.ActivityItemRefno IN"
+                    + " (SELECT tActivityItem.ActivityItemRefno"
+                    + " FROM tActivityItem"
+                    + " WHERE tActivityItem.ActivityItemSubType = ?)";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished));
 
-                    cmndPurge.CommandText = "DELETE FROM tActivityItemProduction"
-                        + " WHERE tActivityItemProduction.ActivityItemRefno IN"
-                        + " (SELECT tActivityItem.ActivityItemRefno"
-                        + " FROM tActivityItem"
-                        + " WHERE tActivityItem.ActivityItemSubType = @activityItemSubType)";
-                    cmndPurge.ExecuteNonQuery();
-
-                    cmndPurge.CommandText = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = @activityItemSubType";
-                    cmndPurge.ExecuteNonQuery();
-                }
+                query = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished));
 
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging finished ticket items complete.", true);
@@ -165,22 +154,16 @@ namespace dMobile.GroundWork
         /// The DataStatus
         /// </summary>
         /// <returns>The <see cref="int"/></returns>
-        public override int DataStatus()
+        public override async Task<int> DataStatus()
         {
             int rowsAffected = 0;
+
             try
             {
-                using (SQLiteCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                {
-                    cmndStatus.CommandText = "SELECT COUNT(tActivityItem.ActivityItemRefno) FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = @activityItemSubType";
-                    cmndStatus.CommandType = CommandType.Text;
-                    cmndStatus.Parameters.Add(new SQLiteParameter("@activityItemSubType", Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished)));
+                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(ActivityItemRefno) FROM tActivityItem WHERE ActivityItemSubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished)));
 
-                    rowsAffected = Convert.ToInt32(cmndStatus.ExecuteScalar());
-
-                    // TODO: Resource strings
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} finished ticket items.", rowsAffected), true);
-                }
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} finished ticket items.", rowsAffected), true);
             }
             catch (SQLiteException ex)
             {
@@ -196,41 +179,23 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="actRefno"></param>
         /// <returns></returns>
-        protected override string Send(int actRefno)
+        protected override async Task<string> Send(int actRefno)
         {
             int actProductionFKRefno = 0;
 
-            using (SQLiteCommand cmndFinished = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+            List<tActivityProductionFinishedModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityProductionFinishedModel>("SELECT * FROM tActivityProductionFinished WHERE ActivityRefno = ?", Convert.ToInt32(actRefno));
+
+            if (results?.Count > 0)
             {
-                cmndFinished.CommandText = "SELECT * FROM tActivityProductionFinished WHERE ActivityRefno = @activityRefno";
-                cmndFinished.CommandType = CommandType.Text;
-                //cmndFinished.IndexName = "PK_ActivityProductionFinishedOnActivityRefno";
-                cmndFinished.Parameters.Add(new SQLiteParameter("@activityRefno", Convert.ToInt32(actRefno)));
-
-                using (SQLiteDataReader drFinished = cmndFinished.ExecuteReader())
-                {
-                    //if (drFinished.Seek(DbSeekOptions.FirstEqual, new object[] { actRefno }))
-                    //{
-                    if (drFinished.Read())
-                    {
-                        actProductionFKRefno = drFinished.GetInt32((int)SysCommon.ActProdFinishedFields.FKRefno);
-                    }
-                    else
-                    {
-                        // TODO: Resource strings
-                        throw new Exception("drFinished.Read() failed.");
-                    }
-                    //}
-                    //else
-                    //{
-                    //    // TODO: Resource strings
-                    //    throw new Exception(string.Format("Unable to locate the activity production ticket finished refno {0} in tActivityProductionFinished.", actRefno));
-                    //}
-                }
-
+                actProductionFKRefno = results[0].ActivityProductionFKRefno;
+            }
+            else
+            {
+                // TODO: Resource strings
+                throw new Exception("drFinished.Read() failed.");
             }
 
-            return this.SendComm(this.Create(actProductionFKRefno));
+            return await this.SendComm(this.Create(actProductionFKRefno));
         }
 
         /// <summary>
@@ -238,20 +203,11 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="reqData"></param>
         /// <param name="actRefno">The actRefno<see cref="int"/></param>
-        protected override void Save(string reqData, int actRefno)
+        protected override async Task Save(string reqData, int actRefno)
         {
-            SQLiteConnection conn = DatabaseConnection.GetInstance().SQLConn;
             string errMsg = string.Empty;
 
-            using (SQLiteCommand cmndItemProd = conn.CreateCommand())
-            using (SQLiteCommand cmndItemFinished = conn.CreateCommand())
-            using (SQLiteCommand cmndItem = conn.CreateCommand())
-            using (SQLiteCommand cmndProdUnit = conn.CreateCommand())
-            using (SQLiteCommand cmndGetProduct = conn.CreateCommand())
-            using (SQLiteCommand cmndGetUnit = conn.CreateCommand())
-            using (SQLiteCommand cmndLocMapWhs = conn.CreateCommand())
-            using (SQLiteCommand cmndID = conn.CreateCommand())
-            using (SQLiteTransaction transaction = conn.BeginTransaction())
+            await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
             {
                 try
                 {
@@ -272,72 +228,6 @@ namespace dMobile.GroundWork
                             // TODO: Resource strings
                             this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
 
-                            //using (SQLiteCommand cmndItemProd = conn.CreateCommand())
-                            //{
-                            //cmndItemProd.CommandText = "tActivityItemProduction";
-                            //cmndItemProd.CommandType = CommandType.Text;
-                            //cmndItemProd.IndexName = "PK_ActivityItemProductionOnActivityItemRefno";
-
-                            //using (SQLiteCommand cmndItemFinished = conn.CreateCommand())
-                            //{
-                            //cmndItemFinished.CommandText = "tActivityItemProductionFinished";
-                            //cmndItemFinished.CommandType = CommandType.Text;
-                            //cmndItemFinished.IndexName = "UQ_ActivityItemProductionFinishedOnActivityItemProductionFinishedFKRefno";
-
-                            //using (SQLiteCommand cmndItem = conn.CreateCommand())
-                            //{
-                            //cmndItem.CommandText = "tActivityItem";
-                            //cmndItem.CommandType = CommandType.Text;
-
-                            //using (SqlCeResultSet rsActItem = cmndItem.ExecuteResultSet(ResultSetOptions.Updatable))
-                            //{
-                            //SqlCeUpdatableRecord recActItem = rsActItem.CreateRecord();
-
-                            //using (SqlCeResultSet rsActItemFinished = cmndItemFinished.ExecuteResultSet(ResultSetOptions.Updatable))
-                            //{
-                            //SqlCeUpdatableRecord recActItemFinished = rsActItemFinished.CreateRecord();
-
-                            //using (SQLiteCommand cmndProdUnit = conn.CreateCommand())
-                            //{
-                            //cmndProdUnit.CommandText = "tProductUnit";
-                            //cmndProdUnit.CommandType = CommandType.Text;
-                            //cmndProdUnit.IndexName = "UQ_ProductUnitOnProductRefnoAndUnitRefnoAndProductUnitIsBC";
-
-                            //using (SQLiteDataReader drProdUnit = cmndProdUnit.ExecuteReader())
-                            //{
-                            //using (SQLiteCommand cmndGetProduct = conn.CreateCommand())
-                            //{
-                            //cmndGetProduct.CommandText = "tProduct";
-                            //cmndGetProduct.CommandType = CommandType.Text;
-                            //cmndGetProduct.IndexName = "UQ_ProductOnProductFKRefno";
-
-                            //using (SQLiteDataReader drProd = cmndGetProduct.ExecuteReader())
-                            //{
-                            //using (SQLiteCommand cmndGetUnit = conn.CreateCommand())
-                            //{
-                            //cmndGetUnit.CommandText = "tUnit";
-                            //cmndGetUnit.CommandType = CommandType.Text;
-                            //cmndGetUnit.IndexName = "UQ_UnitOnUnitCode";
-
-                            //using (SQLiteDataReader drUnit = cmndGetUnit.ExecuteReader())
-                            //{
-                            //using (SQLiteCommand cmndLocMapWhs = conn.CreateCommand())
-                            //{
-                            //cmndLocMapWhs.CommandText = "tLocationMapWarehouse";
-                            //cmndLocMapWhs.CommandType = CommandType.Text;
-                            //cmndLocMapWhs.IndexName = "UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno";
-
-                            //using (SQLiteDataReader drLocMapWhs = cmndLocMapWhs.ExecuteReader())
-                            //{
-                            //using (SQLiteCommand cmndID = conn.CreateCommand())
-                            //{
-                            //cmndID.CommandText = "SELECT last_insert_rowid()";
-                            //cmndID.CommandType = CommandType.Text;
-
-                            //using (SqlCeResultSet rsActItemProd = cmndItemProd.ExecuteResultSet(ResultSetOptions.Updatable))
-                            //{
-                            //SqlCeUpdatableRecord recActItemProd = rsActItemProd.CreateRecord();
-
                             int actItemRefno = 0;
                             int progValue = 0;
                             int prodUnitRefno = 0;
@@ -349,151 +239,12 @@ namespace dMobile.GroundWork
                             {
                                 errMsg = "Arguments:";
 
-                                cmndItem.CommandText = "INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (@activityItemSubType, @activityItemStatus, @activityRefno)";
-                                cmndItem.CommandType = CommandType.Text;
-                                cmndItem.Parameters.Add(new SQLiteParameter("@activityItemSubType", Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished)));
-                                cmndItem.Parameters.Add(new SQLiteParameter("@activityItemStatus", Convert.ToInt32(SysCommon.ActStatus.NoChange)));
-                                cmndItem.Parameters.Add(new SQLiteParameter("@activityRefno", Convert.ToInt32(actRefno)));
+                                transaction.Execute("INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (?, ?, ?)", Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished), Convert.ToInt32(SysCommon.ActStatus.NoChange), Convert.ToInt32(actRefno));
 
-                                cmndItem.ExecuteNonQuery();
+                                actItemRefno = Convert.ToInt32(transaction.QueryScalars<int>("SELECT last_insert_rowid() FROM tActivityItem"));
+                                prodUnitRefno = this.GetProductUnitRefnoFromDataRow(drow, transaction, errMsg, false);
 
-                                //recActItem.SetInt32((int)SysCommon.ActItemFields.SubType, (int)SysCommon.ActSubTypes.TicketFinished);
-                                //recActItem.SetInt32((int)SysCommon.ActItemFields.Status, (int)SysCommon.ActStatus.NoChange);
-                                //recActItem.SetInt32((int)SysCommon.ActItemFields.ActRefno, actRefno);
-                                //rsActItem.Insert(recActItem);
-
-                                cmndID.CommandText = "SELECT last_insert_rowid() FROM tActivityItem";
-                                cmndID.CommandType = CommandType.Text;
-
-                                actItemRefno = Convert.ToInt32(cmndID.ExecuteScalar());
-
-                                //prodUnitRefno = this.GetProductUnitRefnoFromDataRow(drow, ref errMsg, drProd, drUnit, drProdUnit, false);
-
-                                int prodRefno = 0;
-                                int prodFKRefno = 0;
-                                bool useFNo = false;
-
-                                if (useFNo)
-                                {
-                                    prodFKRefno = Convert.ToInt32(drow["f03"]);
-                                }
-                                else
-                                {
-                                    prodFKRefno = Convert.ToInt32(drow["ProductFKRefno"]);
-                                }
-
-                                errMsg += Environment.NewLine + "Prod fk refno " + prodFKRefno;
-
-
-                                cmndGetProduct.CommandText = "SELECT * FROM tProduct WHERE ProductFKRefno = @productFKRefno";
-                                cmndGetProduct.CommandType = CommandType.Text;
-                                //cmndGetProduct.IndexName = "UQ_ProductOnProductFKRefno";
-                                cmndGetProduct.Parameters.Add(new SQLiteParameter("@productFKRefno", prodFKRefno));
-
-                                using (SQLiteDataReader drProd = cmndGetProduct.ExecuteReader())
-                                {
-                                    //if (drProduct.Seek(DbSeekOptions.FirstEqual, new object[] { prodFKRefno }))
-                                    //{
-                                    if (drProd.Read())
-                                    {
-                                        prodRefno = drProd.GetInt32((int)SysCommon.ProductFields.Refno);
-                                    }
-                                    else
-                                    {
-                                        // TODO: Resource strings
-                                        throw new Exception("drProduct.Read() failed." + Environment.NewLine + errMsg);
-                                    }
-                                    //}
-                                    //else
-                                    //{
-                                    //    // TODO: Resource strings
-                                    //    throw new Exception("Unable to locate the product refno from the product fk refno in tProduct." + Environment.NewLine + errMsg);
-                                    //}
-                                }
-
-                                string unitCode = string.Empty;
-                                int unitRefno = 0;
-
-                                if (useFNo)
-                                {
-                                    unitCode = drow["f05"].ToString();
-                                }
-                                else
-                                {
-                                    unitCode = drow["UnitCode"].ToString();
-                                }
-
-                                errMsg += Environment.NewLine + "Unit \'" + unitCode + "\'";
-
-                                cmndGetUnit.CommandText = "SELECT * FROM tUnit WHERE UnitCode = @unitCode";
-                                cmndGetUnit.CommandType = CommandType.Text;
-                                //cmndGetUnit.IndexName = "UQ_UnitOnUnitCode";
-                                cmndGetUnit.Parameters.Add(new SQLiteParameter("@unitCode", unitCode));
-
-                                using (SQLiteDataReader drUnit = cmndGetUnit.ExecuteReader())
-                                {
-                                    //if (drUnit.Seek(DbSeekOptions.FirstEqual, new object[] { unitCode }))
-                                    //{
-                                    if (drUnit.Read())
-                                    {
-                                        unitRefno = drUnit.GetInt32((int)SysCommon.UnitFields.UnitRefno);
-                                    }
-                                    else
-                                    {
-                                        // TODO: Resource strings
-                                        throw new Exception("drUnit.Read() failed." + Environment.NewLine + errMsg);
-                                    }
-                                    //}
-                                    //else
-                                    //{
-                                    //    // TODO: Resource strings
-                                    //    throw new Exception("Unable to locate the unit refno from the unit code in  tUnit." + Environment.NewLine + errMsg);
-                                    //}
-                                }
-
-                                bool prodUnitIsBC = false;
-
-                                if (useFNo)
-                                {
-                                    prodUnitIsBC = Convert.ToBoolean(drow["f04"]);
-                                }
-                                else
-                                {
-                                    prodUnitIsBC = Convert.ToBoolean(drow["ProductUnitIsBC"]);
-                                }
-
-                                errMsg += Environment.NewLine + "Is bc " + prodUnitIsBC;
-
-                                cmndProdUnit.CommandText = "SELECT * FROM tProductUnit WHERE ProductRefno = @productRefno AND UnitRefno = @unitRefno AND ProductUnitIsBC = @productUnitIsBC";
-                                cmndProdUnit.CommandType = CommandType.Text;
-                                //cmndProdUnit.IndexName = "UQ_ProductUnitOnProductRefnoAndUnitRefnoAndProductUnitIsBC";
-                                cmndProdUnit.Parameters.Add(new SQLiteParameter("@productRefno", prodRefno));
-                                cmndProdUnit.Parameters.Add(new SQLiteParameter("@unitRefno", unitRefno));
-                                cmndProdUnit.Parameters.Add(new SQLiteParameter("@productUnitIsBC", prodUnitIsBC));
-
-                                using (SQLiteDataReader drProdUnit = cmndProdUnit.ExecuteReader())
-                                {
-                                    //if (drProdUnit.Seek(DbSeekOptions.FirstEqual, new object[] { prodRefno, unitRefno, prodUnitIsBC }))
-                                    //{
-                                    if (drProdUnit.Read())
-                                    {
-                                        prodUnitRefno = drProdUnit.GetInt32((int)SysCommon.ProdUnitFields.Refno);
-                                    }
-                                    else
-                                    {
-                                        // TODO: Resource strings
-                                        throw new Exception("drProdUnit.Read() failed." + Environment.NewLine + errMsg);
-                                    }
-                                    //}
-                                    //else
-                                    //{
-                                    //    // TODO: Resource strings
-                                    //    throw new Exception("Unable to locate the product unit refno from the product fk refno, bc and unit code in tProductUnit." + Environment.NewLine + errMsg);
-                                    //}
-
-                                }
-
-                                cmndItemProd.CommandText = "INSERT INTO tActivityItemProduction (" +
+                                string queryActivityItemProduction = "INSERT INTO tActivityItemProduction (" +
                                     "ActivityItemRefno, " +
                                     "ActivityItemSubType, " +
                                     "ProductUnitRefno, " +
@@ -506,75 +257,40 @@ namespace dMobile.GroundWork
                                     "ActivityItemProductionBaseQuantityExpected, " +
                                     "ActivityItemProductionWeightQuantityExpected" +
                                     ") VALUES (" +
-                                    "@activityItemRefno, " +
-                                    "@activityItemSubType, " +
-                                    "@productUnitRefno, " +
-                                    "@locationMapRefno, " +
-                                    "@activityItemProductionQuantity, " +
-                                    "@activityItemProductionBaseQuantity, " +
-                                    "@activityItemProductionWeightQuantity, " +
-                                    "@activityItemProductionDescription, " +
-                                    "@activityItemProductionQuantityExpected, " +
-                                    "@activityItemProductionBaseQuantityExpected, " +
-                                    "@activityItemProductionWeightQuantityExpected" +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?" +
                                     ")";
-                                cmndItemProd.CommandType = CommandType.Text;
-                                //cmndItemProd.IndexName = "PK_ActivityItemProductionOnActivityItemRefno";
-                                cmndItemProd.Parameters.Add(new SQLiteParameter("@activityItemRefno", actItemRefno));
-                                cmndItemProd.Parameters.Add(new SQLiteParameter("@activityItemSubType", Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished)));
-                                cmndItemProd.Parameters.Add(new SQLiteParameter("@productUnitRefno", prodUnitRefno));
 
-                                //recActItemProd.SetInt32((int)SysCommon.ActItemProdFields.ActItemRefno, actItemRefno);
-                                //recActItemProd.SetInt32((int)SysCommon.ActItemProdFields.ActivityItemSubType, (int)SysCommon.ActSubTypes.TicketFinished);
-                                //recActItemProd.SetInt32((int)SysCommon.ActItemProdFields.ProdUnitRefno, prodUnitRefno);
+                                List<object> parametersActivityItemProduction = new List<object>()
+                                {
+                                    actItemRefno,
+                                    Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished),
+                                    prodUnitRefno,
+                                    this.GetWhsLocMapRefnoFromDataRow(drow, ref errMsg, transaction),
+                                    Convert.ToDecimal(drow["ActivityItemProductionQuantity"]),
+                                    Convert.ToDecimal(drow["ActivityItemProductionBaseQuantity"]),
+                                    Convert.ToDecimal(drow["ActivityItemProductionWeightQuantity"]),
+                                    drow["ActivityItemProductionDescription"].ToString(),
+                                    Convert.ToDecimal(drow["ActivityItemProductionQuantityExpected"]),
+                                    Convert.ToDecimal(drow["ActivityItemProductionBaseQuantityExpected"]),
+                                    Convert.ToDecimal(drow["ActivityItemProductionWeightQuantityExpected"])
+                                };
 
-                                locMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, ref errMsg, cmndLocMapWhs);
-
-                                cmndItemProd.Parameters.Add(new SQLiteParameter("@locationMapRefno", locMapRefno));
-                                cmndItemProd.Parameters.Add(new SQLiteParameter("@activityItemProductionQuantity", Convert.ToDecimal(drow["ActivityItemProductionQuantity"])));
-                                cmndItemProd.Parameters.Add(new SQLiteParameter("@activityItemProductionBaseQuantity", Convert.ToDecimal(drow["ActivityItemProductionBaseQuantity"])));
-                                cmndItemProd.Parameters.Add(new SQLiteParameter("@activityItemProductionWeightQuantity", Convert.ToDecimal(drow["ActivityItemProductionWeightQuantity"])));
-                                cmndItemProd.Parameters.Add(new SQLiteParameter("@activityItemProductionDescription", drow["ActivityItemProductionDescription"].ToString()));
-                                cmndItemProd.Parameters.Add(new SQLiteParameter("@activityItemProductionQuantityExpected", Convert.ToDecimal(drow["ActivityItemProductionQuantityExpected"])));
-                                cmndItemProd.Parameters.Add(new SQLiteParameter("@activityItemProductionBaseQuantityExpected", Convert.ToDecimal(drow["ActivityItemProductionBaseQuantityExpected"])));
-                                cmndItemProd.Parameters.Add(new SQLiteParameter("@activityItemProductionWeightQuantityExpected", Convert.ToDecimal(drow["ActivityItemProductionWeightQuantityExpected"])));
-
-                                cmndItemProd.ExecuteNonQuery();
-
-                                //recActItemProd.SetInt32((int)SysCommon.ActItemProdFields.LocMapRefno, locMapRefno);
-                                //recActItemProd.SetDecimal((int)SysCommon.ActItemProdFields.Quantity, Convert.ToDecimal(drow["ActivityItemProductionQuantity"]));
-                                //recActItemProd.SetDecimal((int)SysCommon.ActItemProdFields.BaseQuantity, Convert.ToDecimal(drow["ActivityItemProductionBaseQuantity"]));
-                                //recActItemProd.SetDecimal((int)SysCommon.ActItemProdFields.WeightQuantity, Convert.ToDecimal(drow["ActivityItemProductionWeightQuantity"]));
-                                //recActItemProd.SetString((int)SysCommon.ActItemProdFields.Description, drow["ActivityItemProductionDescription"].ToString());
-                                //recActItemProd.SetDecimal((int)SysCommon.ActItemProdFields.QuantityExpected, Convert.ToDecimal(drow["ActivityItemProductionQuantityExpected"]));
-                                //recActItemProd.SetDecimal((int)SysCommon.ActItemProdFields.BaseQuantityExpected, Convert.ToDecimal(drow["ActivityItemProductionBaseQuantityExpected"]));
-                                //recActItemProd.SetDecimal((int)SysCommon.ActItemProdFields.WeightQuantityExpected, Convert.ToDecimal(drow["ActivityItemProductionWeightQuantityExpected"]));
-                                //rsActItemProd.Insert(recActItemProd);
+                                transaction.Execute(queryActivityItemProduction, parametersActivityItemProduction);
 
                                 int actItemProductionFKRefno = Convert.ToInt32(drow["ActivityItemProductionFKRefno"]);
                                 errMsg += Environment.NewLine + "Item fk refno " + actItemProductionFKRefno;
 
-                                cmndItemFinished.CommandText = "INSERT INTO tActivityItemProductionFinished (" +
-                                    "ActivityItemRefno, " +
-                                    "ActivityItemProductionFinishedFKRefno, " +
-                                    "ActivityItemProductionFinishedStringFKRefno" +
-                                    ") VALUES (" +
-                                    "@activityItemRefno, " +
-                                    "@activityItemProductionFinishedFKRefno, " +
-                                    "@activityItemProductionFinishedStringFKRefno" +
-                                    ")";
-                                cmndItemFinished.CommandType = CommandType.Text;
-                                //cmndItemFinished.IndexName = "UQ_ActivityItemProductionFinishedOnActivityItemProductionFinishedFKRefno";
-                                cmndItemFinished.Parameters.Add(new SQLiteParameter("@activityItemRefno", actItemRefno));
-                                cmndItemFinished.Parameters.Add(new SQLiteParameter("@activityItemProductionFinishedFKRefno", actItemProductionFKRefno));
-                                cmndItemFinished.Parameters.Add(new SQLiteParameter("@activityItemProductionFinishedStringFKRefno", actItemProductionFKRefno.ToString()));
-
-                                cmndItemFinished.ExecuteNonQuery();
-
-                                //recActItemFinished.SetInt32((int)SysCommon.ActItemProdFinishedFields.ActItemRefno, actItemRefno);
-                                //recActItemFinished.SetInt32((int)SysCommon.ActItemProdFinishedFields.FKRefno, actItemProductionFKRefno);
-                                //recActItemFinished.SetString((int)SysCommon.ActItemProdFinishedFields.StringFKRefno, actItemProductionFKRefno.ToString());
-                                //rsActItemFinished.Insert(recActItemFinished);
+                                transaction.Execute("INSERT INTO tActivityItemProductionFinished (ActivityItemRefno, ActivityItemProductionFinishedFKRefno, ActivityItemProductionFinishedStringFKRefno) VALUES (?, ?, ?)", actItemRefno, actItemProductionFKRefno, Convert.ToString(actItemProductionFKRefno));
 
                                 progValue++;
                                 if (progValue % 100 == 0)
@@ -585,29 +301,6 @@ namespace dMobile.GroundWork
 
                             this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
                         }
-                        //}
-
-                        //                                                        drLocMapWhs.Close();
-                        //                                                    }
-                        //                                                }
-
-                        //                                                drUnit.Close();
-                        //                                            }
-                        //                                        }
-
-                        //                                        drProd.Close();
-                        //                                    }
-                        //                                }
-
-                        //                                drProdUnit.Close();
-                        //                            }
-                        //                        }
-                        //                    }
-                        //                }
-                        //            }
-                        //        }
-                        //    }
-                        //}
 
                         transaction.Commit();
 
@@ -623,18 +316,10 @@ namespace dMobile.GroundWork
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving finished ticket items failed.", false);
 
-                    //// Duplicate key violations
-                    //if (ex.NativeError == 25016)
-                    //{
-                    //    // TODO: Resource strings
-                    //    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Uniqueness violation.", false);
-                    //    throw new Exception("Uniqueness violation." + Environment.NewLine + errMsg, ex);
-                    //}
-
                     // TODO: Resource strings
                     throw new Exception("Database exception occurred. Saving finished ticket items failed." + Environment.NewLine + errMsg, ex);
                 }
-            }
+            });
         }
 
         /// <summary>

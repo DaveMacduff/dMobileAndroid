@@ -3,10 +3,12 @@ namespace dMobile.GroundWork
     using dMobile.Bedrock;
     using System;
     using System.Data;
-    using System.Data.SQLite;
+    using SQLite;
     using System.Text;
     using System.Xml;
     using System.Xml.Linq;
+    using System.Threading.Tasks;
+    using System.Collections.Generic;
 
     /// <summary>
     /// Defines the <see cref="TableActivityReceiving" />
@@ -25,17 +27,14 @@ namespace dMobile.GroundWork
         /// <summary>
         /// The Request
         /// </summary>
-        public override void Request()
+        public override async Task Request()
         {
-            //GC.Collect();
-            //GC.WaitForPendingFinalizers();
-
             try
             {
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding receivings.", true);
 
-                string reqData = this.Send("receiving");
+                string reqData = await this.Send("receiving");
 
                 if (0 < reqData.Length)
                 {
@@ -46,7 +45,7 @@ namespace dMobile.GroundWork
                         throw new Exception(reqErr.DocumentElement["detail"].InnerText);
                     }
 
-                    this.Save(reqData);
+                    await this.Save(reqData);
                 }
 
                 // TODO: Resource strings
@@ -66,23 +65,16 @@ namespace dMobile.GroundWork
         /// The DataStatus
         /// </summary>
         /// <returns>The <see cref="int"/></returns>
-        public override int DataStatus()
+        public override async Task<int> DataStatus()
         {
             int rowsAffected = 0;
 
             try
             {
-                using (SQLiteCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                {
-                    cmndStatus.CommandText = "SELECT COUNT(tActivity.ActivityRefno) FROM tActivity WHERE tActivity.ActivitySubType = @activitySubType";
-                    cmndStatus.CommandType = CommandType.Text;
-                    cmndStatus.Parameters.Add(new SQLiteParameter("@activitySubType", Convert.ToInt32(SysCommon.ActSubTypes.Receiving)));
+                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(ActivityRefno) FROM tActivity WHERE ActivitySubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.Receiving)));
 
-                    rowsAffected = Convert.ToInt32(cmndStatus.ExecuteScalar());
-
-                    // TODO: Resource strings
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} receivings.", rowsAffected), true);
-                }
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} receivings.", rowsAffected), true);
             }
             catch (SQLiteException ex)
             {
@@ -96,24 +88,18 @@ namespace dMobile.GroundWork
         /// <summary>
         /// The Purge
         /// </summary>
-        public override void Purge()
+        public override async Task Purge()
         {
             try
             {
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging receivings.", true);
 
-                using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                {
-                    cmndPurge.CommandType = CommandType.Text;
-                    cmndPurge.Parameters.Add(new SQLiteParameter("@activitySubType", Convert.ToInt32(SysCommon.ActSubTypes.Receiving)));
+                string query = "DELETE FROM tActivityReceiving";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.Receiving));
 
-                    cmndPurge.CommandText = "DELETE FROM tActivityReceiving";
-                    cmndPurge.ExecuteNonQuery();
-
-                    cmndPurge.CommandText = "DELETE FROM tActivity WHERE tActivity.ActivitySubType = @activitySubType";
-                    cmndPurge.ExecuteNonQuery();
-                }
+                query = "DELETE FROM tActivity WHERE ActivitySubType = ?";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.Receiving));
 
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging receivings completed.", true);
@@ -133,16 +119,11 @@ namespace dMobile.GroundWork
         /// The Save
         /// </summary>
         /// <param name="reqData"></param>
-        protected override void Save(string reqData)
+        protected override async Task Save(string reqData)
         {
             string errMsg = string.Empty;
-            SQLiteConnection conn = DatabaseConnection.GetInstance().SQLConn;
 
-            using (SQLiteCommand cmndRecv = conn.CreateCommand())
-            using (SQLiteCommand cmndAct = conn.CreateCommand())
-            using (SQLiteCommand cmndID = conn.CreateCommand())
-            using (SQLiteCommand cmndWhs = conn.CreateCommand())
-            using (SQLiteTransaction transaction = conn.BeginTransaction())
+            await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
             {
                 try
                 {
@@ -163,37 +144,6 @@ namespace dMobile.GroundWork
                             // TODO: Resource strings
                             this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
 
-                            //using (SQLiteCommand cmndRecv = conn.CreateCommand())
-                            //{
-                            //cmndRecv.CommandText = "tActivityReceiving";
-                            //cmndRecv.CommandType = CommandType.Text;
-                            //cmndRecv.IndexName = "UQ_ActivityReceivingOnActivityReceivingFKRefno";
-
-                            //using (SQLiteCommand cmndAct = conn.CreateCommand())
-                            //{
-                            //cmndAct.CommandText = "tActivity";
-                            //cmndAct.CommandType = CommandType.Text;
-
-                            //using (SqlCeResultSet rsAct = cmndAct.ExecuteResultSet(ResultSetOptions.Updatable))
-                            //{
-                            //SqlCeUpdatableRecord recAct = rsAct.CreateRecord();
-
-                            //using (SQLiteCommand cmndID = conn.CreateCommand())
-                            //{
-                            //cmndID.CommandText = "SELECT last_insert_rowid()";
-                            //cmndID.CommandType = CommandType.Text;
-
-                            //using (SQLiteCommand cmndWhs = conn.CreateCommand())
-                            //{
-                            //cmndWhs.CommandText = "tLocationMapWarehouse";
-                            //cmndWhs.CommandType = CommandType.Text;
-                            //cmndWhs.IndexName = "UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno";
-
-                            //using (SQLiteDataReader drWhs = cmndWhs.ExecuteReader())
-                            //{
-                            //using (SqlCeResultSet rs = cmndRecv.ExecuteResultSet(ResultSetOptions.Updatable))
-                            //{
-                            //SqlCeUpdatableRecord rec = rs.CreateRecord();
                             int actRefno = 0;
                             int progValue = 0;
                             int whsLocMapRefno = 0;
@@ -206,31 +156,16 @@ namespace dMobile.GroundWork
                             {
                                 errMsg = "Arguments:";
 
-                                cmndAct.CommandText = "INSERT INTO tActivity (ActivityStatus, ActivitySubType) VALUES (@activityStatus, @activitySubType)";
-                                cmndAct.CommandType = CommandType.Text;
-                                cmndAct.Parameters.Add(new SQLiteParameter("@activityStatus", Convert.ToInt32(0)));
-                                cmndAct.Parameters.Add(new SQLiteParameter("@activitySubType", Convert.ToInt32(SysCommon.ActSubTypes.Receiving)));
+                                transaction.Execute("INSERT INTO tActivity (ActivityStatus, ActivitySubType) VALUES (?, ?)", 0, Convert.ToInt32(SysCommon.ActSubTypes.Receiving));
 
-                                cmndAct.ExecuteNonQuery();
-
-                                //recAct.SetInt32((int)SysCommon.ActFields.Status, 0);
-                                //recAct.SetInt32((int)SysCommon.ActFields.SubType, (int)SysCommon.ActSubTypes.Receiving);
-                                //rsAct.Insert(recAct);
-
-                                cmndID.CommandText = "SELECT last_insert_rowid() FROM tActivity";
-                                cmndID.CommandType = CommandType.Text;
-
-                                actRefno = Convert.ToInt32(cmndID.ExecuteScalar());
-
+                                actRefno = Convert.ToInt32(transaction.QueryScalars<int>("SELECT last_insert_rowid() FROM tActivity"));
                                 recvFKRefno = Convert.ToInt32(drow["ActivityPurchaseOrderFKRefno"]);
                                 errMsg += Environment.NewLine + "Recv fk refno " + recvFKRefno;
-
                                 recvPONumber = drow["ActivityPurchaseOrderPONumber"].ToString();
                                 errMsg += Environment.NewLine + "PO number " + recvPONumber;
+                                whsLocMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, ref errMsg, transaction);
 
-                                whsLocMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, ref errMsg, cmndWhs);
-
-                                cmndRecv.CommandText = "INSERT INTO tActivityReceiving (" +
+                                string query = "INSERT INTO tActivityReceiving (" +
                                     "ActivityRefno, " +
                                     "ActivitySubType, " +
                                     "ActivityReceivingFKRefno, " +
@@ -243,47 +178,34 @@ namespace dMobile.GroundWork
                                     "ActivityReceivingVendorSupplierContactName, " +
                                     "ActivityReceivingVendorSupplierGTINCompanyPrefix" +
                                     ") VALUES (" +
-                                    "@activityRefno, " +
-                                    "@activitySubType, " +
-                                    "@activityReceivingFKRefno, " +
-                                    "@activityReceivingStringFKRefno, " +
-                                    "@activityReceivingPONumber, " +
-                                    "@warehouseLocationMapRefno, " +
-                                    "@activityReceivingIssuedDateTime, " +
-                                    "@activityReceivingArrivalDateTime, " +
-                                    "@activityReceivingVendorContactName, " +
-                                    "@activityReceivingVendorSupplierContactName, " +
-                                    "@activityReceivingVendorSupplierGTINCompanyPrefix" +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?" +
                                     ")";
-                                cmndRecv.CommandType = CommandType.Text;
-                                //cmndRecv.IndexName = "UQ_ActivityReceivingOnActivityReceivingFKRefno";
-                                cmndRecv.Parameters.Add(new SQLiteParameter("@activityRefno", actRefno));
-                                cmndRecv.Parameters.Add(new SQLiteParameter("@activitySubType", Convert.ToInt32(SysCommon.ActSubTypes.Receiving)));
-                                cmndRecv.Parameters.Add(new SQLiteParameter("@activityReceivingFKRefno", recvFKRefno));
-                                cmndRecv.Parameters.Add(new SQLiteParameter("@activityReceivingStringFKRefno", Convert.ToString(recvFKRefno)));
-                                cmndRecv.Parameters.Add(new SQLiteParameter("@activityReceivingPONumber", recvPONumber));
-                                cmndRecv.Parameters.Add(new SQLiteParameter("@warehouseLocationMapRefno", whsLocMapRefno));
-                                cmndRecv.Parameters.Add(new SQLiteParameter("@activityReceivingIssuedDateTime", Convert.ToDateTime(drow["ActivityPurchaseOrderIssuedDateTime"])));
-                                cmndRecv.Parameters.Add(new SQLiteParameter("@activityReceivingArrivalDateTime", Convert.ToDateTime(drow["ActivityPurchaseOrderArrivalDateTime"])));
-                                cmndRecv.Parameters.Add(new SQLiteParameter("@activityReceivingVendorContactName", drow["ActivityPurchaseOrderVendorContactName"].ToString()));
-                                cmndRecv.Parameters.Add(new SQLiteParameter("@activityReceivingVendorSupplierContactName", drow["ActivityPurchaseOrderVendorSupplierContactName"].ToString()));
-                                cmndRecv.Parameters.Add(new SQLiteParameter("@activityReceivingVendorSupplierGTINCompanyPrefix", drow["ActivityPurchaseOrderVendorSupplierGTINCompanyPrefix"].ToString()));
+                                List<object> parameters = new List<object>()
+                                {
+                                    actRefno,
+                                    Convert.ToInt32(SysCommon.ActSubTypes.Receiving),
+                                    recvFKRefno,
+                                    Convert.ToString(recvFKRefno),
+                                    recvPONumber,
+                                    whsLocMapRefno,
+                                    Convert.ToDateTime(drow["ActivityPurchaseOrderIssuedDateTime"]),
+                                    Convert.ToDateTime(drow["ActivityPurchaseOrderArrivalDateTime"]),
+                                    drow["ActivityPurchaseOrderVendorContactName"].ToString(),
+                                    drow["ActivityPurchaseOrderVendorSupplierContactName"].ToString(),
+                                    drow["ActivityPurchaseOrderVendorSupplierGTINCompanyPrefix"].ToString(),
+                                };
 
-                                cmndRecv.ExecuteNonQuery();
-
-                                //rec.SetInt32(Convert.ToInt32(SysCommon.ActReceivingFields.ActRefno), actRefno);
-                                //rec.SetInt32(Convert.ToInt32(SysCommon.ActReceivingFields.ActSubType), Convert.ToInt32(SysCommon.ActSubTypes.Receiving));
-                                //rec.SetInt32((int)SysCommon.ActReceivingFields.FKRefno, recvFKRefno);
-                                //rec.SetString((int)SysCommon.ActReceivingFields.StringFKRefno, Convert.ToString(recvFKRefno));
-                                //rec.SetInt32((int)SysCommon.ActReceivingFields.WhsLocMapRefno, whsLocMapRefno);
-                                //rec.SetDateTime((int)SysCommon.ActReceivingFields.IssuedDateTime, Convert.ToDateTime(drow["ActivityPurchaseOrderIssuedDateTime"]));
-                                //rec.SetDateTime((int)SysCommon.ActReceivingFields.ArrivalDateTime, Convert.ToDateTime(drow["ActivityPurchaseOrderArrivalDateTime"]));
-                                //rec.SetString((int)SysCommon.ActReceivingFields.PONumber, recvPONumber);
-                                //rec.SetString((int)SysCommon.ActReceivingFields.VendorContactName, drow["ActivityPurchaseOrderVendorContactName"].ToString());
-                                //rec.SetString((int)SysCommon.ActReceivingFields.VendorSupplierContactName, drow["ActivityPurchaseOrderVendorSupplierContactName"].ToString());
-                                //rec.SetString((int)SysCommon.ActReceivingFields.VendorSupplierGTINCompanyPrefix, drow["ActivityPurchaseOrderVendorSupplierGTINCompanyPrefix"].ToString());
-
-                                //rs.Insert(rec);
+                                transaction.Execute(query, parameters);
 
                                 progValue++;
                                 if (progValue % 10 == 0)
@@ -294,15 +216,6 @@ namespace dMobile.GroundWork
 
                             this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
                         }
-
-                        //                            drWhs.Close();
-                        //                        }
-                        //                    }
-                        //                }
-                        //            }
-                        //        }
-                        //    }
-                        //}
 
                         transaction.Commit();
 
@@ -318,18 +231,10 @@ namespace dMobile.GroundWork
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving receivings failed.", false);
 
-                    //// Duplicate key violations
-                    //if (ex.NativeError == 25016)
-                    //{
-                    //    // TODO: Resource strings
-                    //    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Uniqueness violation.", false);
-                    //    throw new Exception("Uniqueness violation." + Environment.NewLine + errMsg, ex);
-                    //}
-
                     // TODO: Resource strings
                     throw new Exception("Database exception occurred. Saving receivings failed." + Environment.NewLine + errMsg, ex);
                 }
-            }
+            });
         }
 
         /// <summary>

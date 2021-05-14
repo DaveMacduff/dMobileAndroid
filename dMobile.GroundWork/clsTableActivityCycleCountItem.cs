@@ -6,13 +6,10 @@ namespace dMobile.GroundWork
     using System;
     using System.Collections.Generic;
     using System.Data;
-    using SQLite;
     using System.Text;
     using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
-    using dMobile.Resources.Models;
-    using System.Collections.Generic;
 
     /// <summary>
     /// Defines the <see cref="TableActivityCycleCountItem" />
@@ -64,7 +61,7 @@ namespace dMobile.GroundWork
                                     throw new Exception(reqErr.DocumentElement["detail"].InnerText);
                                 }
 
-                                this.Save(reqData, actRefno);
+                                await this.Save(reqData, actRefno);
                             }
                         }
                     }
@@ -82,7 +79,7 @@ namespace dMobile.GroundWork
                             throw new Exception(reqErr.DocumentElement["detail"].InnerText);
                         }
 
-                        this.Save(reqData, actRefno);
+                        await this.Save(reqData, actRefno);
                     }
                 }
 
@@ -185,7 +182,7 @@ namespace dMobile.GroundWork
             }
             else
             {
-                throw new Exception("drCount.Read() failed.");
+                throw new Exception("No results in tActivityCount for ActivityRefno " + actRefno);
             }
 
             return await this.SendComm(this.Create(actCountFKRefno)); ;

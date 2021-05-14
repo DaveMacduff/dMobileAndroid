@@ -3,11 +3,13 @@ namespace dMobile.GroundWork
     using dMobile.Bedrock;
     using System;
     using System.Data;
-    using System.Data.SQLite;
+    using SQLite;
     using System.Text;
     using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
+    using System.Collections.Generic;
+    using dMobile.Resources.Models;
 
     /// <summary>
     /// Defines the <see cref="TableContactUsers" />
@@ -26,21 +28,18 @@ namespace dMobile.GroundWork
         /// <summary>
         /// The Request
         /// </summary>
-        public override void Request()
+        public override async Task Request()
         {
             string reqData = string.Empty;
-
-            //GC.Collect();
-            //GC.WaitForPendingFinalizers();
 
             try
             {
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding users.", true);
 
-                this.SeedContactUsersWithSystemUsers();
+                await this.SeedContactUsersWithSystemUsers();
 
-                reqData = this.Send("contact users");
+                reqData = await this.Send("contact users");
 
                 if (0 < reqData.Length)
                 {
@@ -51,7 +50,7 @@ namespace dMobile.GroundWork
                         throw new Exception(reqErr.DocumentElement["detail"].InnerText);
                     }
 
-                    this.Save(reqData);
+                    await this.Save(reqData);
                 }
 
                 // TODO: Resource strings
@@ -71,21 +70,16 @@ namespace dMobile.GroundWork
         /// The DataStatus
         /// </summary>
         /// <returns>The <see cref="int"/></returns>
-        public override int DataStatus()
+        public override async Task<int> DataStatus()
         {
             int rowsAffected = 0;
 
             try
             {
-                using (SQLiteCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                {
-                    cmndStatus.CommandText = "SELECT COUNT(*) FROM tContactUser";
-                    cmndStatus.CommandType = CommandType.Text;
-                    rowsAffected = Convert.ToInt32(cmndStatus.ExecuteScalar());
+                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tContactUser"));
 
-                    // TODO: Resource strings
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} users.", rowsAffected), true);
-                }
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} users.", rowsAffected), true);
             }
             catch (SQLiteException ex)
             {
@@ -99,21 +93,14 @@ namespace dMobile.GroundWork
         /// <summary>
         /// The Purge
         /// </summary>
-        public override void Purge()
+        public override async Task Purge()
         {
             try
             {
-                SQLiteConnection conn = DatabaseConnection.GetInstance().SQLConn;
-
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging users.", true);
 
-                using (SQLiteCommand cmndPurge = conn.CreateCommand())
-                {
-                    cmndPurge.CommandText = "DELETE FROM tContactUser";
-                    cmndPurge.CommandType = CommandType.Text;
-                    cmndPurge.ExecuteNonQuery();
-                }
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("DELETE FROM tContactUser");
 
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging users complete.", true);
@@ -129,21 +116,14 @@ namespace dMobile.GroundWork
             }
         }
 
-        public void PurgeTContact()
+        public async Task PurgeTContact()
         {
             try
             {
-                SQLiteConnection conn = DatabaseConnection.GetInstance().SQLConn;
-
                 // TODO: Resource Strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging tContact.", true);
 
-                using (SQLiteCommand cmndPurge = conn.CreateCommand())
-                {
-                    cmndPurge.CommandText = "DELETE FROM tContact";
-                    cmndPurge.CommandType = CommandType.Text;
-                    cmndPurge.ExecuteNonQuery();
-                }
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("DELETE FROM tContact");
 
                 // TODO: Resource Strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging tContact complete.", true);
@@ -162,149 +142,106 @@ namespace dMobile.GroundWork
         /// The SeedContactUsersWithSystemUsers
         /// </summary>
         /// <returns>The <see cref="Task"/></returns>
-        public void SeedContactUsersWithSystemUsers()
+        public async Task SeedContactUsersWithSystemUsers()
         {
             string errMsg = string.Empty;
 
-            try
+            await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
             {
-                using (SQLiteCommand cmndContactUser = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                using (SQLiteCommand cmndContact = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                try
                 {
-                    //cmndContactUser.IndexName = "UQ_ContactUserOnContactUserCode";
-                    cmndContactUser.CommandText = "SELECT ContactUserCode FROM tContactUser WHERE ContactUserCode = @contactUserCodeAdmin OR ContactUserCode = @contactUserCodeSetup";
-                    cmndContactUser.CommandType = CommandType.Text;
-                    cmndContactUser.Parameters.Add(new SQLiteParameter("@contactUserCodeAdmin", SysCommon.SystemLoginID));
-                    cmndContactUser.Parameters.Add(new SQLiteParameter("@contactUserCodeSetup", SysCommon.SetupLoginID));
+                    List<tContactUserModel> resultsContactUser = transaction.Query<tContactUserModel>("SELECT ContactUserCode FROM tContactUser WHERE ContactUserCode = ? OR ContactUserCode = ?", SysCommon.SystemLoginID, SysCommon.SetupLoginID);
 
-                    using (SQLiteDataReader reader = cmndContactUser.ExecuteReader())
+                    if (resultsContactUser == null || resultsContactUser?.Count == 0)
                     {
-                        if (!reader.Read())
+                        transaction.Execute("INSERT INTO tContact (ContactSubType) VALUES (?)", Convert.ToInt32(SysCommon.ContactSubTypes.User));
+
+                        int contactRefno = Convert.ToInt32(transaction.QueryScalars<int>("SELECT last_insert_rowid() FROM tContact"));
+                        int contactCode = SysCommon.SystemLoginID;
+                        string contactName = "InterSect";
+                        errMsg = "Code " + contactCode;
+                        errMsg += Environment.NewLine + "Name \'" + contactName + "\'";
+
+                        string queryInsertContactUser = "INSERT INTO tContactUser " +
+                            "(ContactRefno, " +
+                            "ContactSubType, " +
+                            "ContactUserCode, " +
+                            "ContactUserName, " +
+                            "ContactUserPassword, " +
+                            "ContactUserIsAllowedAssociateProductBarCode, " +
+                            "ContactUserIsAllowedPickingModuleOverridePicker, " +
+                            "ContactUserIsAllowedPickingModuleOverrideAddManualDetail, " +
+                            "ContactUserLocalizationLanguage) " +
+                            "VALUES " +
+                            "(?, " +
+                            "?, " +
+                            "?, " +
+                            "?, " +
+                            "?, " +
+                            "?, " +
+                            "?, " +
+                            "?, " +
+                            "?)";
+                        List<object> parametersContactUserSystemLogin = new List<object>()
                         {
-                            cmndContact.CommandText = "INSERT INTO tContact (ContactSubType) VALUES (@subType)";
-                            cmndContact.CommandType = CommandType.Text;
-                            cmndContact.Parameters.Add(new SQLiteParameter("@subType", (int)SysCommon.ContactSubTypes.User));
+                            contactRefno,
+                            Convert.ToInt32(SysCommon.ContactSubTypes.User),
+                            contactCode,
+                            contactName,
+                            SysCommon.SystemLoginPassword,
+                            true,
+                            true,
+                            true,
+                            SysEnv.SysSettings.DefaultLanguage
+                        };
 
-                            using (SQLiteCommand cmndID = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                            using (SQLiteCommand cmndContactInsert = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                            {
-                                cmndID.CommandText = "SELECT last_insert_rowid() FROM tContact";
-                                cmndID.CommandType = CommandType.Text;
+                        transaction.Execute(queryInsertContactUser, parametersContactUserSystemLogin);
 
-                                // Create User 30
-                                cmndContact.ExecuteNonQuery();
+                        // Create User 99
+                        transaction.Execute("INSERT INTO tContact (ContactSubType) VALUES (?)", Convert.ToInt32(SysCommon.ContactSubTypes.User));
 
-                                int contactRefno = Convert.ToInt32(cmndID.ExecuteScalar());
-                                int contactCode = SysCommon.SystemLoginID;
-                                string contactName = "InterSect";
-                                errMsg = "Code " + contactCode;
-                                errMsg += Environment.NewLine + "Name \'" + contactName + "\'";
+                        contactRefno = Convert.ToInt32(transaction.QueryScalars<int>("SELECT last_insert_rowid() FROM tContact"));
+                        contactCode = SysCommon.SetupLoginID;
 
-                                cmndContactInsert.CommandText = "INSERT INTO tContactUser " +
-                                    "(ContactRefno, " +
-                                    "ContactSubType, " +
-                                    "ContactUserCode, " +
-                                    "ContactUserName, " +
-                                    "ContactUserPassword, " +
-                                    "ContactUserIsAllowedAssociateProductBarCode, " +
-                                    "ContactUserIsAllowedPickingModuleOverridePicker, " +
-                                    "ContactUserIsAllowedPickingModuleOverrideAddManualDetail, " +
-                                    "ContactUserLocalizationLanguage) " +
-                                    "VALUES " +
-                                    "(@contactRefno, " +
-                                    "@contactSubType, " +
-                                    "@contactUserCode, " +
-                                    "@contactUserName, " +
-                                    "@contactUserPassword, " +
-                                    "@contactUserIsAllowedAssociateProductBarCode, " +
-                                    "@contactUserIsAllowedPickingModuleOverridePicker, " +
-                                    "@contactUserIsAllowedPickingModuleOverrideAddManualDetail, " +
-                                    "@contactUserLocalizationLanguage)";
+                        errMsg = "Code " + contactCode;
+                        contactName = "Setup User";
+                        errMsg += Environment.NewLine + "Name \'" + contactName + "\'";
 
-                                cmndContactInsert.CommandType = CommandType.Text;
-                                cmndContactInsert.Parameters.Add(new SQLiteParameter("@contactRefno", contactRefno));
-                                cmndContactInsert.Parameters.Add(new SQLiteParameter("@contactSubType", (int)SysCommon.ContactSubTypes.User));
-                                cmndContactInsert.Parameters.Add(new SQLiteParameter("@contactUserCode", contactCode));
-                                cmndContactInsert.Parameters.Add(new SQLiteParameter("@contactUserName", contactName));
-                                cmndContactInsert.Parameters.Add(new SQLiteParameter("@contactUserPassword", SysCommon.SystemLoginPassword));
-                                cmndContactInsert.Parameters.Add(new SQLiteParameter("@contactUserIsAllowedAssociateProductBarCode", true));
-                                cmndContactInsert.Parameters.Add(new SQLiteParameter("@contactUserIsAllowedPickingModuleOverridePicker", true));
-                                cmndContactInsert.Parameters.Add(new SQLiteParameter("@contactUserIsAllowedPickingModuleOverrideAddManualDetail", true));
-                                cmndContactInsert.Parameters.Add(new SQLiteParameter("@contactUserLocalizationLanguage", SysEnv.SysSettings.DefaultLanguage));
+                        List<object> parametersContactUserSetupLogin = new List<object>()
+                        {
+                            contactRefno,
+                            Convert.ToInt32(SysCommon.ContactSubTypes.User),
+                            contactCode,
+                            contactName,
+                            SysCommon.SetupLoginPassword,
+                            true,
+                            false,
+                            false,
+                            SysEnv.SysSettings.DefaultLanguage
+                        };
 
-                                cmndContactInsert.ExecuteNonQuery();
-                                cmndContactInsert.Parameters.Clear();
-
-                                // Create User 99
-                                cmndContact.ExecuteNonQuery();
-
-                                contactRefno = Convert.ToInt32(cmndID.ExecuteScalar());
-                                contactCode = SysCommon.SetupLoginID;
-
-                                errMsg = "Code " + contactCode;
-                                contactName = "Setup User";
-                                errMsg += Environment.NewLine + "Name \'" + contactName + "\'";
-
-                                cmndContactInsert.CommandText = "INSERT INTO tContactUser " +
-                                    "(ContactRefno, " +
-                                    "ContactSubType, " +
-                                    "ContactUserCode, " +
-                                    "ContactUserName, " +
-                                    "ContactUserPassword, " +
-                                    "ContactUserIsAllowedAssociateProductBarCode, " +
-                                    "ContactUserIsAllowedPickingModuleOverridePicker, " +
-                                    "ContactUserIsAllowedPickingModuleOverrideAddManualDetail, " +
-                                    "ContactUserLocalizationLanguage) " +
-                                    "VALUES " +
-                                    "(@contactRefno, " +
-                                    "@contactSubType, " +
-                                    "@contactUserCode, " +
-                                    "@contactUserName, " +
-                                    "@contactUserPassword, " +
-                                    "@contactUserIsAllowedAssociateProductBarCode, " +
-                                    "@contactUserIsAllowedPickingModuleOverridePicker, " +
-                                    "@contactUserIsAllowedPickingModuleOverrideAddManualDetail, " +
-                                    "@contactUserLocalizationLanguage)";
-
-                                cmndContactInsert.CommandType = CommandType.Text;
-                                cmndContactInsert.Parameters.Add(new SQLiteParameter("@contactRefno", contactRefno));
-                                cmndContactInsert.Parameters.Add(new SQLiteParameter("@contactSubType", (int)SysCommon.ContactSubTypes.User));
-                                cmndContactInsert.Parameters.Add(new SQLiteParameter("@contactUserCode", contactCode));
-                                cmndContactInsert.Parameters.Add(new SQLiteParameter("@contactUserName", contactName));
-                                cmndContactInsert.Parameters.Add(new SQLiteParameter("@contactUserPassword", SysCommon.SetupLoginPassword));
-                                cmndContactInsert.Parameters.Add(new SQLiteParameter("@contactUserIsAllowedAssociateProductBarCode", true));
-                                cmndContactInsert.Parameters.Add(new SQLiteParameter("@contactUserIsAllowedPickingModuleOverridePicker", false));
-                                cmndContactInsert.Parameters.Add(new SQLiteParameter("@contactUserIsAllowedPickingModuleOverrideAddManualDetail", false));
-                                cmndContactInsert.Parameters.Add(new SQLiteParameter("@contactUserLocalizationLanguage", SysEnv.SysSettings.DefaultLanguage));
-
-                                cmndContactInsert.ExecuteNonQuery();
-                            }
-                        }
+                        transaction.Execute(queryInsertContactUser, parametersContactUserSetupLogin);
                     }
+
+                    transaction.Commit();
                 }
-            }
-            catch (SQLiteException ex)
-            {
-                //        // Duplicate key violations
-                //        if (ex.NativeError == 25016)
-                //        {
-                //          throw new Exception("Uniqueness violation." + Environment.NewLine + errMsg, ex);
-                //} else {}
-                throw new Exception("Database exception occurred. Seeding system users failed." + Environment.NewLine + errMsg, ex);
-            }
+                catch (SQLiteException ex)
+                {
+                    transaction.Rollback();
+                    throw new Exception("Database exception occurred. Seeding system users failed." + Environment.NewLine + errMsg, ex);
+                }
+            });
         }
 
         /// <summary>
         /// The Save
         /// </summary>
         /// <param name="reqData"></param>
-        protected override void Save(string reqData)
+        protected override async Task Save(string reqData)
         {
-            SQLiteConnection conn = DatabaseConnection.GetInstance().SQLConn;
             string errMsg = string.Empty;
 
-            using (SQLiteCommand cmndUser = conn.CreateCommand())
-            using (SQLiteTransaction transaction = conn.BeginTransaction())
+            await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
             {
                 try
                 {
@@ -325,7 +262,7 @@ namespace dMobile.GroundWork
                             // TODO: Resource strings
                             this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
 
-                            cmndUser.CommandText = "INSERT INTO tContactUser " +
+                            string queryInsertContactUser = "INSERT INTO tContactUser " +
                             "(ContactRefno, " +
                             "ContactSubType, " +
                             "ContactUserCode, " +
@@ -336,69 +273,57 @@ namespace dMobile.GroundWork
                             "ContactUserIsAllowedPickingModuleOverrideAddManualDetail, " +
                             "ContactUserLocalizationLanguage) " +
                             "VALUES " +
-                            "(@contactRefno, " +
-                            "@contactSubType, " +
-                            "@contactUserCode, " +
-                            "@contactUserName, " +
-                            "@contactUserPassword, " +
-                            "@contactUserIsAllowedAssociateProductBarCode, " +
-                            "@contactUserIsAllowedPickingModuleOverridePicker, " +
-                            "@contactUserIsAllowedPickingModuleOverrideAddManualDetail, " +
-                            "@contactUserLocalizationLanguage)";
-                            cmndUser.CommandType = CommandType.Text;
+                            "(?, " +
+                            "?, " +
+                            "?, " +
+                            "?, " +
+                            "?, " +
+                            "?, " +
+                            "?, " +
+                            "?, " +
+                            "?)";
 
-                            using (SQLiteCommand cmndContact = conn.CreateCommand())
+                            int progValue = 0;
+                            int contactRefno = 0;
+                            int contactCode = 0;
+                            string contactName = string.Empty;
+
+                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
+
+                            foreach (DataRow drow in ds.Tables["tContactUser"].Rows)
                             {
-                                cmndContact.CommandText = "INSERT INTO tContact (ContactSubType) VALUES (@contactSubType)";
-                                cmndContact.CommandType = CommandType.Text;
-                                cmndContact.Parameters.Add(new SQLiteParameter("@contactSubType", (int)SysCommon.ContactSubTypes.User));
+                                transaction.Execute("INSERT INTO tContact (ContactSubType) VALUES (?)", Convert.ToInt32(SysCommon.ContactSubTypes.User));
 
-                                using (SQLiteCommand cmndID = conn.CreateCommand())
+                                contactRefno = Convert.ToInt32(transaction.QueryScalars<int>("SELECT last_insert_rowid() FROM tContact"));
+
+                                contactCode = Convert.ToInt32(drow["ContactUserCode"]);
+                                errMsg = "Code " + contactCode;
+                                contactName = drow["ContactUserName"].ToString();
+                                errMsg += Environment.NewLine + "Name \'" + contactName + "\'";
+
+                                List<object> parametersInsertContactUser = new List<object>()
                                 {
-                                    cmndID.CommandText = "SELECT last_insert_rowid() FROM tContact";
-                                    cmndID.CommandType = CommandType.Text;
+                                    contactRefno,
+                                    Convert.ToInt32(SysCommon.ContactSubTypes.User),
+                                    contactCode,
+                                    contactName,
+                                    Convert.ToString(drow["ContactUserPassword"]),
+                                    Convert.ToBoolean(drow["ContactUserIsAllowedAssociateProductBarCode"]),
+                                    Convert.ToBoolean(drow["ContactUserIsAllowedPickingModuleOverridePicker"]),
+                                    Convert.ToBoolean(drow["ContactUserIsAllowedPickingModuleOverrideAddManualDetail"]),
+                                    Convert.ToString(drow["ContactUserLocalizationLanguage"])
+                                };
 
-                                    int progValue = 0;
-                                    int contactRefno = 0;
-                                    int contactCode = 0;
-                                    string contactName = string.Empty;
+                                transaction.Execute(queryInsertContactUser, parametersInsertContactUser);
 
-                                    this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
-
-                                    foreach (DataRow drow in ds.Tables["tContactUser"].Rows)
-                                    {
-                                        cmndContact.ExecuteNonQuery();
-
-                                        contactRefno = Convert.ToInt32(cmndID.ExecuteScalar());
-
-                                        contactCode = Convert.ToInt32(drow["ContactUserCode"]);
-                                        errMsg = "Code " + contactCode;
-                                        contactName = drow["ContactUserName"].ToString();
-                                        errMsg += Environment.NewLine + "Name \'" + contactName + "\'";
-
-                                        cmndUser.Parameters.Clear();
-                                        cmndUser.Parameters.Add(new SQLiteParameter("@contactRefno", contactRefno));
-                                        cmndUser.Parameters.Add(new SQLiteParameter("@contactSubType", (int)SysCommon.ContactSubTypes.User));
-                                        cmndUser.Parameters.Add(new SQLiteParameter("@contactUserCode", contactCode));
-                                        cmndUser.Parameters.Add(new SQLiteParameter("@contactUserName", contactName));
-                                        cmndUser.Parameters.Add(new SQLiteParameter("@contactUserPassword", drow["ContactUserPassword"].ToString()));
-                                        cmndUser.Parameters.Add(new SQLiteParameter("@contactUserIsAllowedAssociateProductBarCode", Convert.ToBoolean(drow["ContactUserIsAllowedAssociateProductBarCode"])));
-                                        cmndUser.Parameters.Add(new SQLiteParameter("@contactUserIsAllowedPickingModuleOverridePicker", Convert.ToBoolean(drow["ContactUserIsAllowedPickingModuleOverridePicker"])));
-                                        cmndUser.Parameters.Add(new SQLiteParameter("@contactUserIsAllowedPickingModuleOverrideAddManualDetail", Convert.ToBoolean(drow["ContactUserIsAllowedPickingModuleOverrideAddManualDetail"])));
-                                        cmndUser.Parameters.Add(new SQLiteParameter("@contactUserLocalizationLanguage", drow["ContactUserLocalizationLanguage"].ToString()));
-
-                                        cmndUser.ExecuteNonQuery();
-
-                                        progValue++;
-                                        if (progValue % 100 == 0)
-                                        {
-                                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
-                                        }
-                                    }
-
-                                    this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
+                                progValue++;
+                                if (progValue % 100 == 0)
+                                {
+                                    this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
                                 }
                             }
+
+                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
                         }
 
                         transaction.Commit();
@@ -416,7 +341,7 @@ namespace dMobile.GroundWork
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving users failed.", false);
                     throw new Exception("Database exception occurred. Saving users failed." + Environment.NewLine + errMsg, ex);
                 }
-            }
+            });
         }
 
         /// <summary>

@@ -30,10 +30,10 @@ namespace dMobile.GroundWork
 
             try
             {
-                string query = "DELETE FROM tActivityItemMoveInventory WHERE tActivityItemMoveInventory.ActivityItemSubType = ?";
+                string query = "DELETE FROM tActivityItemMoveInventory WHERE ActivityItemSubType = ?";
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.MoveInventory));
 
-                query = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?";
+                query = "DELETE FROM tActivityItem WHERE ActivityItemSubType = ?";
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.MoveInventory));
 
                 // TODO: Resource strings

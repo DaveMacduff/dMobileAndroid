@@ -4,11 +4,13 @@ namespace dMobile.GroundWork
     using System;
     using System.Collections.Generic;
     using System.Data;
-    using System.Data.SQLite;
+    using SQLite;
     using System.IO;
     using System.Text;
     using System.Xml;
     using System.Xml.Linq;
+    using System.Threading.Tasks;
+    using dMobile.Resources.Models;
 
     /// <summary>
     /// Defines the <see cref="TableProduct" />
@@ -26,64 +28,37 @@ namespace dMobile.GroundWork
         /// <summary>
         /// The Request
         /// </summary>
-        public override void Request()
+        public override async Task Request()
         {
-            //System.Diagnostics.Stopwatch swTotal = new System.Diagnostics.Stopwatch();
-            //System.Diagnostics.Stopwatch swPerRun = new System.Diagnostics.Stopwatch();
-            //int runs = 0;
-            //swTotal.Start();
-
-            List<string> families = new List<string>();
-
             try
             {
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding products.", true);
 
-                using (SQLiteCommand cmndFamily = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                List<tFamilyModel> resultsFamily = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tFamilyModel>("SELECT * FROM tFamily");
+
+                if (resultsFamily?.Count > 0)
                 {
-                    cmndFamily.CommandText = "SELECT * FROM tFamily";
-                    cmndFamily.CommandType = CommandType.Text;
-                    //cmndFamily.IndexName = "UQ_FamilyOnFamilyCode";
-
-                    using (SQLiteDataReader drFamily = cmndFamily.ExecuteReader())
+                    foreach (tFamilyModel family in resultsFamily)
                     {
-                        while (drFamily.Read())
+                        string reqData = string.Empty;
+
+                        // TODO: Resource strings
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("For family {0}", family.FamilyCode), true);
+
+                        reqData = await this.SendRequest(family.FamilyCode);
+
+                        if (0 < reqData.Length)
                         {
-                            families.Add(drFamily["FamilyCode"].ToString());
+                            if (reqData.Contains("<message>ERROR</message>"))
+                            {
+                                XmlDocument reqErr = new XmlDocument();
+                                reqErr.LoadXml(reqData);
+                                throw new Exception(reqErr.DocumentElement["detail"].InnerText);
+                            }
+
+                            await this.SaveOpt(reqData);
                         }
-
-                        drFamily.Close();
-                    }
-                }
-
-                for (int i = 0; i < families.Count; ++i)
-                {
-                    //GC.Collect();
-                    //GC.WaitForPendingFinalizers();
-
-                    string family = families[i];
-                    string reqData = string.Empty;
-
-                    // TODO: Resource strings
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("For family {0}", family), true);
-
-                    reqData = this.SendRequest(family);
-
-                    if (0 < reqData.Length)
-                    {
-                        if (reqData.Contains("<message>ERROR</message>"))
-                        {
-                            XmlDocument reqErr = new XmlDocument();
-                            reqErr.LoadXml(reqData);
-                            throw new Exception(reqErr.DocumentElement["detail"].InnerText);
-                        }
-                        //swPerRun.Reset();
-                        //swPerRun.Start();
-                        //this.Save(reqData);
-                        this.SaveOpt(reqData);
-                        //swPerRun.Stop();
-                        //++runs;
                     }
                 }
 
@@ -112,19 +87,14 @@ namespace dMobile.GroundWork
         /// <summary>
         /// The Purge
         /// </summary>
-        public override void Purge()
+        public override async Task Purge()
         {
             try
             {
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging products.", true);
 
-                using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                {
-                    cmndPurge.CommandText = "DELETE FROM tProduct";
-                    cmndPurge.CommandType = CommandType.Text;
-                    cmndPurge.ExecuteNonQuery();
-                }
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("DELETE FROM tProduct");
 
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging products complete.", true);
@@ -145,34 +115,22 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="prodFKRefno"></param>
         /// <returns></returns>
-        public int GetProdRefnoFromProdFKRefno(int prodFKRefno)
+        public async Task<int> GetProdRefnoFromProdFKRefno(int prodFKRefno)
         {
             int prodRefno = 0;
 
             try
             {
-                using (SQLiteCommand cmndProduct = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                List<tProductModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tProductModel>("SELECT * FROM tProduct WHERE ProductFKRefno = ?", Convert.ToInt32(prodFKRefno));
+
+                if (results?.Count > 0)
                 {
-                    cmndProduct.CommandText = "SELECT * FROM tProduct WHERE ProductFKRefno = @productFKRefno";
-                    cmndProduct.CommandType = CommandType.Text;
-                    //cmndProduct.IndexName = "UQ_ProductOnProductFKRefno";
-                    cmndProduct.Parameters.Add(new SQLiteParameter("@productFKRefno", Convert.ToInt32(prodFKRefno)));
-
-                    using (SQLiteDataReader drProduct = cmndProduct.ExecuteReader())
-                    {
-                        //drProduct.Seek(DbSeekOptions.FirstEqual, new object[] { prodFKRefno });
-                        if (drProduct.Read())
-                        {
-                            prodRefno = drProduct.GetInt32((int)SysCommon.ProductFields.Refno);
-                        }
-                        else
-                        {
-                            // TODO: Resource strings
-                            throw new Exception(string.Format("Unable to locate product Refno from product FK Refno {0} in tProduct", prodFKRefno));
-                        }
-
-                        drProduct.Close();
-                    }
+                    prodRefno = results[0].ProductRefno;
+                }
+                else
+                {
+                    // TODO: Resource strings
+                    throw new Exception(string.Format("Unable to locate product Refno from product FK Refno {0} in tProduct", prodFKRefno));
                 }
             }
             catch (SQLiteException ex)
@@ -188,22 +146,16 @@ namespace dMobile.GroundWork
         /// The DataStatus
         /// </summary>
         /// <returns>The <see cref="int"/></returns>
-        public override int DataStatus()
+        public override async Task<int> DataStatus()
         {
             int rowsAffected = 0;
 
             try
             {
-                using (SQLiteCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                {
-                    cmndStatus.CommandText = "SELECT COUNT(*) FROM tProduct";
-                    cmndStatus.CommandType = CommandType.Text;
+                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tProduct"));
 
-                    rowsAffected = Convert.ToInt32(cmndStatus.ExecuteScalar());
-
-                    // TODO: Resource strings
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} products.", rowsAffected), true);
-                }
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} products.", rowsAffected), true);
             }
             catch (SQLiteException ex)
             {
@@ -219,16 +171,16 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="familyCode"></param>
         /// <returns></returns>
-        protected override string SendRequest(string familyCode)
+        protected override async Task<string> SendRequest(string familyCode)
         {
-            return this.SendComm(this.CreateRequest(familyCode));
+            return await this.SendComm(this.CreateRequest(familyCode));
         }
 
         /// <summary>
         /// The Save
         /// </summary>
         /// <param name="data"></param>
-        protected override void Save(string data)
+        protected override async Task Save(string data)
         {
         }
 
@@ -236,25 +188,17 @@ namespace dMobile.GroundWork
         /// The SaveOpt
         /// </summary>
         /// <param name="data"></param>
-        protected void SaveOpt(string data)
+        protected async Task SaveOpt(string data)
         {
             int processedCount = 0;
             string errMsg = string.Empty;
-            SQLiteConnection conn = DatabaseConnection.GetInstance().SQLConn;
             bool refreshDataChangesOnly = SysEnv.RefreshOpt.RefreshDataChangesOnly;
 
-            using (SQLiteCommand cmndProd = conn.CreateCommand())
-            using (SQLiteCommand cmndProdGet = conn.CreateCommand())
-            using (SQLiteCommand cmndProdUpdate = conn.CreateCommand())
-            using (SQLiteCommand cmndProdInsert = conn.CreateCommand())
-            using (SQLiteCommand cmndScheme = conn.CreateCommand())
-            using (SQLiteCommand cmndFamily = conn.CreateCommand())
-            using (SQLiteTransaction transaction = conn.BeginTransaction())
+            await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
             {
                 try
                 {
-                    //Dictionary<string, int> schemeCache = new Dictionary<string, int>();
-                    Dictionary<string, int> familyCache = new Dictionary<string, int>();
+                    Dictionary<string, int> dictionaryFamily = new Dictionary<string, int>();
                     // TODO: Resource Strings
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
 
@@ -275,30 +219,13 @@ namespace dMobile.GroundWork
                         // TODO: Resource Strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving products.", false);
 
-                        //cmndProd.CommandText = "SELECT * FROM tProduct";
-                        //cmndProd.CommandType = CommandType.Text;
-                        ////cmndProd.IndexName = "UQ_ProductOnProductFKRefno";
+                        List<tFamilyModel> resultsFamily = transaction.Query<tFamilyModel>("SELECT * FROM tFamily");
 
-                        //cmndScheme.CommandText = "SELECT * FROM tProductScheme";
-                        //cmndScheme.CommandType = CommandType.Text;
-                        //cmndScheme.IndexName = "UQ_ProductSchemeOnProductSchemeCode";
-
-                        cmndFamily.CommandText = "SELECT * FROM tFamily";
-                        cmndFamily.CommandType = CommandType.Text;
-                        //cmndFamily.IndexName = "UQ_FamilyOnFamilyCode";
-
-                        //using (SQLiteDataReader drProduct = cmndProd.ExecuteReader())
-                        //using (SQLiteDataReader drScheme = cmndScheme.ExecuteReader())
-                        using (SQLiteDataReader drFamily = cmndFamily.ExecuteReader())
+                        if (resultsFamily?.Count > 0)
                         {
-                            //while (drScheme.Read())
-                            //{
-                            //    schemeCache.Add(drScheme.GetString((int)SysCommon.ProdSchemeFields.Code), drScheme.GetInt32((int)SysCommon.ProdSchemeFields.Refno));
-                            //}
-
-                            while (drFamily.Read())
+                            foreach (tFamilyModel family in resultsFamily)
                             {
-                                familyCache.Add(drFamily.GetString((int)SysCommon.FamilyFields.Code), drFamily.GetInt32((int)SysCommon.FamilyFields.Refno));
+                                dictionaryFamily.Add(family.FamilyCode, family.FamilyRefno);
                             }
                         }
 
@@ -405,61 +332,49 @@ namespace dMobile.GroundWork
                             if (!recordFilled)
                                 continue;
 
-                            //schemeCache.TryGetValue(schemeCode, out schemeRefno);
-                            familyCache.TryGetValue(familyCode, out familyRefno);
-
-
+                            dictionaryFamily.TryGetValue(familyCode, out familyRefno);
                             isProdFound = false;
 
-                            cmndProdGet.CommandText = "SELECT ProductFKRefno FROM tProduct WHERE ProductFKRefno = @productFKRefno";
-                            cmndProdGet.CommandType = CommandType.Text;
-                            //cmndProdGet.IndexName = "UQ_ProductOnProductFKRefno";
-                            cmndProdGet.Parameters.Add(new SQLiteParameter("@productFKRefno", prodFKRefno));
+                            List<tProductModel> resultsProduct = transaction.Query<tProductModel>("SELECT ProductFKRefno FROM tProduct WHERE ProductFKRefno = ?", prodFKRefno);
 
-                            using (SQLiteDataReader drProduct = cmndProdGet.ExecuteReader())
+                            if (resultsProduct?.Count > 0)
                             {
-                                //if (drProduct.Seek(DbSeekOptions.FirstEqual, new object[] { prodFKRefno }))
-                                if (drProduct.Read())
+                                isProdFound = true;
+
+                                if (refreshDataChangesOnly)
                                 {
-                                    isProdFound = true;
-
-                                    if (refreshDataChangesOnly)
+                                    string queryUpdate = "UPDATE tProduct" +
+                                    " SET FamilyRefno = ?," +
+                                    " ProductCode = ?," +
+                                    " ProductDescription = ?," +
+                                    " ProductBrandDescription = ?," +
+                                    " ProductIsCatchCount = ?," +
+                                    " ProductIsCatchWeight = ?," +
+                                    " ProductIsCatchAsk = ?," +
+                                    " ProductIsCatchAskZero = ?," +
+                                    " ProductAllowConvertProduct = ?" +
+                                    " WHERE ProductFKRefno = ?";
+                                    List<object> parametersUpdate = new List<object>()
                                     {
-                                        cmndProdUpdate.CommandText = "UPDATE tProduct" +
-                                        " SET FamilyRefno = @familyRefno," +
-                                        " ProductCode = @prodCode," +
-                                        " ProductDescription = @desc," +
-                                        " ProductBrandDescription = @brandDesc," +
-                                        " ProductIsCatchCount = @catchCount," +
-                                        " ProductIsCatchWeight = @catchWeight," +
-                                        " ProductIsCatchAsk = @catchAsk," +
-                                        " ProductIsCatchAskZero = @catchAskZero," +
-                                        " ProductAllowConvertProduct = @allowConvert" +
-                                        " WHERE ProductFKRefno = @prodFKRefno";
+                                        familyRefno,
+                                        prodCode,
+                                        description,
+                                        brandDescription,
+                                        isCatchCount,
+                                        isCatchWeight,
+                                        isCatchAsk,
+                                        isCatchAskZero,
+                                        isAllowConvertProduct,
+                                        prodFKRefno
+                                    };
 
-                                        cmndProdUpdate.CommandType = CommandType.Text;
-                                        cmndProdUpdate.Parameters.Add(new SQLiteParameter("@familyRefno", familyRefno));
-                                        cmndProdUpdate.Parameters.Add(new SQLiteParameter("@prodCode", prodCode));
-                                        cmndProdUpdate.Parameters.Add(new SQLiteParameter("@desc", description));
-                                        cmndProdUpdate.Parameters.Add(new SQLiteParameter("@brandDesc", brandDescription));
-                                        cmndProdUpdate.Parameters.Add(new SQLiteParameter("@catchCount", isCatchCount));
-                                        cmndProdUpdate.Parameters.Add(new SQLiteParameter("@catchWeight", isCatchWeight));
-                                        cmndProdUpdate.Parameters.Add(new SQLiteParameter("@catchAsk", isCatchAsk));
-                                        cmndProdUpdate.Parameters.Add(new SQLiteParameter("@catchAskZero", isCatchAskZero));
-                                        cmndProdUpdate.Parameters.Add(new SQLiteParameter("@allowConvert", isAllowConvertProduct));
-                                        cmndProdUpdate.Parameters.Add(new SQLiteParameter("@prodFKRefno", prodFKRefno));
-
-                                        cmndProdUpdate.ExecuteNonQuery();
-                                    }
+                                    transaction.Execute(queryUpdate, parametersUpdate);
                                 }
                             }
 
-                            //}
                             if (!isProdFound)
                             {
-                                //using (SQLiteCommand cmndProdInsert = new SQLiteConnection(DatabaseConnection.GetInstance().SQLConn).CreateCommand())
-                                //{
-                                cmndProdInsert.CommandText = "INSERT INTO tProduct " +
+                                string queryInsert = "INSERT INTO tProduct " +
                                 "(ProductSchemeRefno, " +
                                 "FamilyRefno, " +
                                 "ProductCode, " +
@@ -483,40 +398,25 @@ namespace dMobile.GroundWork
                                 "@productIsCatchAskZero, " +
                                 "@productBrandDescription, " +
                                 "@productAllowConvertProduct)";
+                                List<object> parametersInsert = new List<object>()
+                                {
+                                    schemeRefno,
+                                    familyRefno,
+                                    prodCode,
+                                    prodFKRefno,
+                                    description,
+                                    isCatchCount,
+                                    isCatchWeight,
+                                    isCatchAsk,
+                                    isCatchAskZero,
+                                    brandDescription,
+                                    isAllowConvertProduct
+                                };
 
-                                cmndProdInsert.CommandType = CommandType.Text;
-                                //cmndProdInsert.IndexName = "UQ_ProductOnProductFKRefno";
-                                cmndProdInsert.Parameters.Add(new SQLiteParameter("@productSchemeRefno", schemeRefno));
-                                cmndProdInsert.Parameters.Add(new SQLiteParameter("@familyRefno", familyRefno));
-                                cmndProdInsert.Parameters.Add(new SQLiteParameter("@productCode", prodCode));
-                                cmndProdInsert.Parameters.Add(new SQLiteParameter("@productFKRefno", prodFKRefno));
-                                cmndProdInsert.Parameters.Add(new SQLiteParameter("@productDescription", description));
-                                cmndProdInsert.Parameters.Add(new SQLiteParameter("@productIsCatchCount", isCatchCount));
-                                cmndProdInsert.Parameters.Add(new SQLiteParameter("@productIsCatchWeight", isCatchWeight));
-                                cmndProdInsert.Parameters.Add(new SQLiteParameter("@productIsCatchAsk", isCatchAsk));
-                                cmndProdInsert.Parameters.Add(new SQLiteParameter("@productIsCatchAskZero", isCatchAskZero));
-                                cmndProdInsert.Parameters.Add(new SQLiteParameter("@productBrandDescription", brandDescription));
-                                cmndProdInsert.Parameters.Add(new SQLiteParameter("@productAllowConvertProduct", isAllowConvertProduct));
-
-                                cmndProdInsert.ExecuteNonQuery();
-
-                                //rec.SetInt32((int)SysCommon.ProductFields.ProdSchemeRefno, schemeRefno);
-                                //rec.SetString((int)SysCommon.ProductFields.Code, prodCode);
-                                //rec.SetInt32((int)SysCommon.ProductFields.FKRefno, prodFKRefno);
-                                //rec.SetString((int)SysCommon.ProductFields.Description, description);
-                                //rec.SetBoolean((int)SysCommon.ProductFields.IsCatchWeight, isCatchWeight);
-                                //rec.SetBoolean((int)SysCommon.ProductFields.IsCatchCount, isCatchCount);
-                                //rec.SetBoolean((int)SysCommon.ProductFields.IsCatchAsk, isCatchAsk);
-                                //rec.SetInt32((int)SysCommon.ProductFields.FamilyRefno, familyRefno);
-                                //rec.SetString((int)SysCommon.ProductFields.BrandDescription, brandDescription);
-                                //rec.SetBoolean((int)SysCommon.ProductFields.IsCatchAskZero, isCatchAskZero);
-                                //rec.SetBoolean((int)SysCommon.ProductFields.AllowConvertProduct, isAllowConvertProduct);
-                                //rs.Insert(rec);
-                                //}
+                                transaction.Execute(queryInsert, parametersInsert);
                             }
 
                             ++processedCount;
-
                             if (processedCount % 100 == 0)
                             {
                                 this.DataAccessProgressOutHandler(this, EventArgs.Empty, (processedCount / 10) % 100, 0, 100);
@@ -529,12 +429,6 @@ namespace dMobile.GroundWork
                         // TODO: Resource strings
                         this.DataAccessProgressOutHandler(this, EventArgs.Empty, 100, 0, 100); // complete
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", processedCount), false);
-
-                        //drFamily.Close();
-                        //drScheme.Close();
-                        //drProduct.Close();
-                        //} // using SQL
-                        //} // using commands
                     } // using xml stream reader
 
                     transaction.Commit();
@@ -550,18 +444,10 @@ namespace dMobile.GroundWork
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving products failed.", false);
 
-                    //// Duplicate key violations
-                    //if (ex.NativeError == 25016)
-                    //{
-                    //    // TODO: Resource Strings
-                    //    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Uniqueness violation.", false);
-                    //    throw new Exception("Uniqueness violation." + Environment.NewLine + errMsg, ex);
-                    //}
-
                     // TODO: Resource Strings
                     throw new Exception("Database exception occurred. Saving products failed." + Environment.NewLine + errMsg, ex);
                 }
-            }
+            });
         }
 
         /// <summary>

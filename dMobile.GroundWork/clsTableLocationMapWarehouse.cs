@@ -3,10 +3,13 @@ namespace dMobile.GroundWork
     using dMobile.Bedrock;
     using System;
     using System.Data;
-    using System.Data.SQLite;
+    using SQLite;
     using System.Text;
     using System.Xml;
     using System.Xml.Linq;
+    using System.Threading.Tasks;
+    using dMobile.Resources.Models;
+    using System.Collections.Generic;
 
     /// <summary>
     /// Defines the <see cref="TableLocationMapWarehouse" />
@@ -25,19 +28,14 @@ namespace dMobile.GroundWork
         /// <summary>
         /// The Request
         /// </summary>
-        public override void Request()
+        public override async Task Request()
         {
             try
             {
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding warehouses.", true);
 
-                string reqData = string.Empty;
-
-                //GC.Collect();
-                //GC.WaitForPendingFinalizers();
-
-                reqData = this.Send();
+                string reqData = await this.Send();
 
                 if (0 < reqData.Length)
                 {
@@ -48,7 +46,7 @@ namespace dMobile.GroundWork
                         throw new Exception(reqErr.DocumentElement["detail"].InnerText);
                     }
 
-                    this.Save(reqData);
+                    await this.Save(reqData);
                 }
 
                 // TODO: Resource strings
@@ -67,20 +65,14 @@ namespace dMobile.GroundWork
         /// <summary>
         /// The Purge
         /// </summary>
-        public override void Purge()
+        public override async Task Purge()
         {
             try
             {
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging warehouses.", true);
 
-                using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                {
-                    cmndPurge.CommandText = "DELETE FROM tLocationMapWarehouse WHERE LocationMapSubType = @locationMapSubType";
-                    cmndPurge.CommandType = CommandType.Text;
-                    cmndPurge.Parameters.Add(new SQLiteParameter("@locationMapSubType", Convert.ToInt32(SysCommon.LocMapSubTypes.Warehouse)));
-                    cmndPurge.ExecuteNonQuery();
-                }
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("DELETE FROM tLocationMapWarehouse WHERE LocationMapSubType = ?", Convert.ToInt32(SysCommon.LocMapSubTypes.Warehouse));
 
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging warehouses complete.", true);
@@ -100,38 +92,22 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="locMapWhsFKRefno"></param>
         /// <returns></returns>
-        public int GetLocMapWhsRefnoFromLocWhsFKRefno(int locMapWhsFKRefno)
+        public async Task<int> GetLocMapWhsRefnoFromLocWhsFKRefno(int locMapWhsFKRefno)
         {
             int whsLocMapRefno = 0;
 
             try
             {
-                using (SQLiteCommand cmndGetWhs = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                {
-                    cmndGetWhs.CommandText = "SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = @locationMapWarehouseFKRefno";
-                    cmndGetWhs.CommandType = CommandType.Text;
-                    //cmndGetWhs.IndexName = "UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno";
-                    cmndGetWhs.Parameters.Add(new SQLiteParameter("@locationMapWarehouseFKRefno", Convert.ToInt32(locMapWhsFKRefno)));
+                List<tLocationMapWarehouseModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tLocationMapWarehouseModel>("SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = ?", Convert.ToInt32(locMapWhsFKRefno));
 
-                    using (SQLiteDataReader drWhs = cmndGetWhs.ExecuteReader())
-                    {
-                        //if (drWhs.Seek(DbSeekOptions.FirstEqual, new object[] { locMapWhsFKRefno }))
-                        //{
-                        if (drWhs.Read())
-                        {
-                            whsLocMapRefno = drWhs.GetInt32((int)SysCommon.LocMapWhsFields.LocMapRefno);
-                        }
-                        else
-                        {
-                            // TODO: Resource strings
-                            throw new Exception("drWhs.Read() failed. " + string.Format("Unable to locate warehouse refno using the warehouse fk refno {0} in tLocationMapWarehouse.", locMapWhsFKRefno));
-                        }
-                        //}
-                        //else
-                        //{
-                        //    throw new Exception(string.Format("Unable to locate warehouse refno using the warehouse fk refno {0} in tLocationMapWarehouse.", locMapWhsFKRefno));
-                        //}
-                    }
+                if (results?.Count > 0)
+                {
+                    whsLocMapRefno = results[0].LocationMapRefno;
+                }
+                else
+                {
+                    // TODO: Resource strings
+                    throw new Exception(string.Format("Unable to locate warehouse refno using the warehouse fk refno {0} in tLocationMapWarehouse.", locMapWhsFKRefno));
                 }
             }
             catch (SQLiteException ex)
@@ -148,38 +124,22 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="locMapWhsRefno"></param>
         /// <returns></returns>
-        public int GetLocMapWhsFKRefnoFromLocMapWhsRefno(int locMapWhsRefno)
+        public async Task<int> GetLocMapWhsFKRefnoFromLocMapWhsRefno(int locMapWhsRefno)
         {
             int locMapWhsFKRefno = 0;
 
             try
             {
-                using (SQLiteCommand cmndGetWhs = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                {
-                    cmndGetWhs.CommandText = "SELECT * FROM tLocationMapWarehouse WHERE LocationMapRefno = @locationMapRefno";
-                    cmndGetWhs.CommandType = CommandType.Text;
-                    //cmndGetWhs.IndexName = "PK_LocationMapWarehouseOnLocationMapRefno";
-                    cmndGetWhs.Parameters.Add(new SQLiteParameter("@locationMapRefno", locMapWhsRefno));
+                List<tLocationMapWarehouseModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tLocationMapWarehouseModel>("SELECT * FROM tLocationMapWarehouse WHERE LocationMapRefno = ?", locMapWhsRefno);
 
-                    using (SQLiteDataReader drWhs = cmndGetWhs.ExecuteReader())
-                    {
-                        //if (drWhs.Seek(DbSeekOptions.FirstEqual, new object[] { locMapWhsRefno }))
-                        //{
-                        if (drWhs.Read())
-                        {
-                            locMapWhsFKRefno = drWhs.GetInt32((int)SysCommon.LocMapWhsFields.FKRefno);
-                        }
-                        else
-                        {
-                            // TODO: Resource strings
-                            throw new Exception("drWhs.Read() failed.");
-                        }
-                        //}
-                        //else
-                        //{
-                        //    throw new Exception(string.Format("Unable to locate warehouse fk refno using the warehouse refno {0} in tLocationMapWarehouse.", locMapWhsRefno));
-                        //}
-                    }
+                if (results?.Count > 0)
+                {
+                    locMapWhsFKRefno = results[0].LocationMapWarehouseFKRefno;
+                }
+                else
+                {
+                    // TODO: Resource strings
+                    throw new Exception(string.Format("Unable to locate warehouse FKRefno using the warehouse refno {0} in tLocationMapWarehouse.", locMapWhsRefno));
                 }
             }
             catch (SQLiteException ex)
@@ -195,22 +155,16 @@ namespace dMobile.GroundWork
         /// The DataStatus
         /// </summary>
         /// <returns>The <see cref="int"/></returns>
-        public override int DataStatus()
+        public override async Task<int> DataStatus()
         {
             int rowsAffected = 0;
 
             try
             {
-                using (SQLiteCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                {
-                    cmndStatus.CommandText = "SELECT COUNT(*) FROM tLocationMapWarehouse";
-                    cmndStatus.CommandType = CommandType.Text;
+                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tLocationMapWarehouse"));
 
-                    rowsAffected = Convert.ToInt32(cmndStatus.ExecuteScalar());
-
-                    // TODO: Resource strings
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} warehouses.", rowsAffected), true);
-                }
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} warehouses.", rowsAffected), true);
             }
             catch (SQLiteException ex)
             {
@@ -224,24 +178,20 @@ namespace dMobile.GroundWork
         /// The Send
         /// </summary>
         /// <returns></returns>
-        protected override string Send()
+        protected override async Task<string> Send()
         {
-            return this.SendComm(this.Create());
+            return await this.SendComm(this.Create());
         }
 
         /// <summary>
         /// The Save
         /// </summary>
         /// <param name="reqData"></param>
-        protected override void Save(string reqData)
+        protected override async Task Save(string reqData)
         {
-            SQLiteConnection conn = DatabaseConnection.GetInstance().SQLConn;
             string errMsg = string.Empty;
 
-            using (SQLiteCommand cmndWhs = conn.CreateCommand())
-            using (SQLiteCommand cmndLocMap = conn.CreateCommand())
-            using (SQLiteCommand cmndID = conn.CreateCommand())
-            using (SQLiteTransaction transaction = conn.BeginTransaction())
+            await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
             {
                 try
                 {
@@ -261,10 +211,6 @@ namespace dMobile.GroundWork
 
                             // TODO: Resource strings
                             this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
-
-                            cmndLocMap.CommandText = "INSERT INTO tLocationMap (LocationMapSubType) VALUES (@locationMapSubType)";
-                            cmndLocMap.CommandType = CommandType.Text;
-                            cmndLocMap.Parameters.Add(new SQLiteParameter("@locationMapSubType", Convert.ToInt32(SysCommon.LocMapSubTypes.Warehouse)));
 
                             int locMapRefno = 0;
                             int progValue = 0;
@@ -329,56 +275,44 @@ namespace dMobile.GroundWork
 
                                 isLocMapWhsFound = false;
 
-                                cmndWhs.CommandText = "SELECT LocationMapWarehouseFKRefno FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = @locMapWhsFKRefno";
-                                cmndWhs.CommandType = CommandType.Text;
-                                cmndWhs.Parameters.Add(new SQLiteParameter("@locMapWhsFKRefno", locMapWhsFKRefno));
-                                //cmndWhs.IndexName = "UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno";
+                                List<tLocationMapWarehouseModel> results = transaction.Query<tLocationMapWarehouseModel>("SELECT LocationMapWarehouseFKRefno FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = ?", locMapWhsFKRefno);
 
-                                using (SQLiteDataReader drWhs = cmndWhs.ExecuteReader())
+                                if (results?.Count > 0)
                                 {
-                                    if (drWhs.Read())
+                                    isLocMapWhsFound = true;
+
+                                    if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly)
                                     {
-                                        isLocMapWhsFound = true;
+                                        string queryUpdate = "UPDATE tLocationMapWarehouse " +
+                                        "SET LocationMapWarehouseCode = " + locMapWhsCode.ToString() + ", " +
+                                        "LocationMapWarehouseName = \'" + locMapWhsName + "\', " +
+                                        "LocationMapWarehouseBarCode = \'" + locMapWhsBarCode + "\', " +
+                                        "LocationMapWarehouseIsWMS = " + (isLocMapWhsIsWMS ? 1 : 0).ToString() +
+                                        "LocationMapWarehouseMask = \'" + locMapWhsMask + "\', " +
+                                        "LocationMapWarehouseSectionMask = \'" + locMapSectionMask + "\', " +
+                                        "LocationMapWarehouseSlotMask = \'" + locMapSlotMask + "\', " +
+                                        "LocationMapWarehouseSlotCoordinate1Mask = \'" + locMapSlotCoord1Mask + "\', " +
+                                        "LocationMapWarehouseSlotCoordinate2Mask = \'" + locMapSlotCoord2Mask + "\', " +
+                                        "LocationMapWarehouseSlotCoordinate3Mask = \'" + locMapSlotCoord3Mask + "\', " +
+                                        "LocationMapWarehouseSlotCoordinate1Name = \'" + locMapSlotCoord1Name + "\', " +
+                                        "LocationMapWarehouseSlotCoordinate2Name = \'" + locMapSlotCoord2Name + "\', " +
+                                        "LocationMapWarehouseSlotCoordinate3Name = \'" + locMapSlotCoord3Name + "\', " +
+                                        "LocationMapWarehouseIsSectionTracked = " + (isLocMapSectionTracked ? 1 : 0).ToString() +
+                                        "LocationMapWarehouseIsSlotTracked = " + (isLocMapSlotTracked ? 1 : 0).ToString() +
+                                        "LocationMapWarehouseAdhocEnabled = " + (isLocMapAdhocEnabled ? 1 : 0).ToString() +
+                                        "WHERE LocationMapWarehouseFKRefno = " + locMapWhsFKRefno.ToString();
 
-                                        if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly)
-                                        {
-                                            cmndWhs.CommandType = CommandType.Text;
-                                            cmndWhs.CommandText = "UPDATE tLocationMapWarehouse " +
-                                            "SET LocationMapWarehouseCode = " + locMapWhsCode.ToString() + ", " +
-                                            "LocationMapWarehouseName = \'" + locMapWhsName + "\', " +
-                                            "LocationMapWarehouseBarCode = \'" + locMapWhsBarCode + "\', " +
-                                            "LocationMapWarehouseIsWMS = " + (isLocMapWhsIsWMS ? 1 : 0).ToString() +
-                                            "LocationMapWarehouseMask = \'" + locMapWhsMask + "\', " +
-                                            "LocationMapWarehouseSectionMask = \'" + locMapSectionMask + "\', " +
-                                            "LocationMapWarehouseSlotMask = \'" + locMapSlotMask + "\', " +
-                                            "LocationMapWarehouseSlotCoordinate1Mask = \'" + locMapSlotCoord1Mask + "\', " +
-                                            "LocationMapWarehouseSlotCoordinate2Mask = \'" + locMapSlotCoord2Mask + "\', " +
-                                            "LocationMapWarehouseSlotCoordinate3Mask = \'" + locMapSlotCoord3Mask + "\', " +
-                                            "LocationMapWarehouseSlotCoordinate1Name = \'" + locMapSlotCoord1Name + "\', " +
-                                            "LocationMapWarehouseSlotCoordinate2Name = \'" + locMapSlotCoord2Name + "\', " +
-                                            "LocationMapWarehouseSlotCoordinate3Name = \'" + locMapSlotCoord3Name + "\', " +
-                                            "LocationMapWarehouseIsSectionTracked = " + (isLocMapSectionTracked ? 1 : 0).ToString() +
-                                            "LocationMapWarehouseIsSlotTracked = " + (isLocMapSlotTracked ? 1 : 0).ToString() +
-                                            "LocationMapWarehouseAdhocEnabled = " + (isLocMapAdhocEnabled ? 1 : 0).ToString() +
-                                            "WHERE LocationMapWarehouseFKRefno = " + locMapWhsFKRefno.ToString();
-                                            cmndWhs.ExecuteScalar();
-                                        }
+                                        transaction.Execute(queryUpdate);
                                     }
-
-                                    drWhs.Close();
                                 }
 
                                 if (!isLocMapWhsFound)
                                 {
-                                    cmndLocMap.ExecuteNonQuery();
+                                    transaction.Execute("INSERT INTO tLocationMap (LocationMapSubType) VALUES (?)", Convert.ToInt32(SysCommon.LocMapSubTypes.Warehouse));
 
-                                    cmndID.CommandText = "SELECT last_insert_rowid() FROM tLocationMap";
-                                    cmndID.CommandType = CommandType.Text;
-                                    locMapRefno = Convert.ToInt32(cmndID.ExecuteScalar());
+                                    locMapRefno = Convert.ToInt32(transaction.QueryScalars<int>("SELECT last_insert_rowid() FROM tLocationMap"));
 
-                                    cmndWhs.Parameters.Clear();
-                                    cmndWhs.CommandType = CommandType.Text;
-                                    cmndWhs.CommandText = "INSERT INTO tLocationMapWarehouse (" +
+                                    string queryInsert = "INSERT INTO tLocationMapWarehouse (" +
                                     "LocationMapRefno, " +
                                     "LocationMapSubType, " +
                                     "LocationMapWarehouseName, " +
@@ -399,76 +333,63 @@ namespace dMobile.GroundWork
                                     "LocationMapWarehouseIsSlotTracked, " +
                                     "LocationMapWarehouseAdhocEnabled" +
                                     ") VALUES (" +
-                                    "@locationMapRefno, " +
-                                    "@locationMapSubType, " +
-                                    "@locationMapWarehouseName, " +
-                                    "@locationMapWarehouseCode, " +
-                                    "@locationMapWarehouseFKRefno, " +
-                                    "@locationMapWarehouseBarCode, " +
-                                    "@locationMapWarehouseIsWMS, " +
-                                    "@locationMapWarehouseMask, " +
-                                    "@locationMapWarehouseSectionMask, " +
-                                    "@locationMapWarehouseSlotMask, " +
-                                    "@locationMapWarehouseSlotCoordinate1Mask, " +
-                                    "@locationMapWarehouseSlotCoordinate2Mask, " +
-                                    "@locationMapWarehouseSlotCoordinate3Mask, " +
-                                    "@locationMapWarehouseSlotCoordinate1Name, " +
-                                    "@locationMapWarehouseSlotCoordinate2Name, " +
-                                    "@locationMapWarehouseSlotCoordinate3Name, " +
-                                    "@locationMapWarehouseIsSectionTracked, " +
-                                    "@locationMapWarehouseIsSlotTracked, " +
-                                    "@locationMapWarehouseAdhocEnabled" +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?" +
                                     ")";
-                                    cmndWhs.Parameters.Add(new SQLiteParameter("@locationMapRefno", locMapRefno));
-                                    cmndWhs.Parameters.Add(new SQLiteParameter("@locationMapSubType", Convert.ToInt32(SysCommon.LocMapSubTypes.Warehouse)));
-                                    cmndWhs.Parameters.Add(new SQLiteParameter("@locationMapWarehouseName", locMapWhsName));
-                                    cmndWhs.Parameters.Add(new SQLiteParameter("@locationMapWarehouseCode", locMapWhsCode));
-                                    cmndWhs.Parameters.Add(new SQLiteParameter("@locationMapWarehouseFKRefno", locMapWhsFKRefno));
-                                    cmndWhs.Parameters.Add(new SQLiteParameter("@locationMapWarehouseBarCode", locMapWhsBarCode));
-                                    cmndWhs.Parameters.Add(new SQLiteParameter("@locationMapWarehouseIsWMS", Convert.ToInt32(isLocMapWhsIsWMS)));
-                                    cmndWhs.Parameters.Add(new SQLiteParameter("@locationMapWarehouseMask", locMapWhsMask));
-                                    cmndWhs.Parameters.Add(new SQLiteParameter("@locationMapWarehouseSectionMask", locMapSectionMask));
-                                    cmndWhs.Parameters.Add(new SQLiteParameter("@locationMapWarehouseSlotMask", locMapSlotMask));
-                                    cmndWhs.Parameters.Add(new SQLiteParameter("@locationMapWarehouseSlotCoordinate1Mask", locMapSlotCoord1Mask));
-                                    cmndWhs.Parameters.Add(new SQLiteParameter("@locationMapWarehouseSlotCoordinate2Mask", locMapSlotCoord2Mask));
-                                    cmndWhs.Parameters.Add(new SQLiteParameter("@locationMapWarehouseSlotCoordinate3Mask", locMapSlotCoord3Mask));
-                                    cmndWhs.Parameters.Add(new SQLiteParameter("@locationMapWarehouseSlotCoordinate1Name", locMapSlotCoord1Name));
-                                    cmndWhs.Parameters.Add(new SQLiteParameter("@locationMapWarehouseSlotCoordinate2Name", locMapSlotCoord2Name));
-                                    cmndWhs.Parameters.Add(new SQLiteParameter("@locationMapWarehouseSlotCoordinate3Name", locMapSlotCoord3Name));
-                                    cmndWhs.Parameters.Add(new SQLiteParameter("@locationMapWarehouseIsSectionTracked", Convert.ToInt32(isLocMapSectionTracked)));
-                                    cmndWhs.Parameters.Add(new SQLiteParameter("@locationMapWarehouseIsSlotTracked", Convert.ToInt32(isLocMapSlotTracked)));
-                                    cmndWhs.Parameters.Add(new SQLiteParameter("@locationMapWarehouseAdhocEnabled", Convert.ToInt32(isLocMapAdhocEnabled)));
+                                    List<object> parametersInsert = new List<object>()
+                                    {
+                                        locMapRefno,
+                                        Convert.ToInt32(SysCommon.LocMapSubTypes.Warehouse),
+                                        locMapWhsName,
+                                        locMapWhsCode,
+                                        locMapWhsFKRefno,
+                                        locMapWhsBarCode,
+                                        Convert.ToInt32(isLocMapWhsIsWMS),
+                                        locMapWhsMask,
+                                        locMapSectionMask,
+                                        locMapSlotMask,
+                                        locMapSlotCoord1Mask,
+                                        locMapSlotCoord2Mask,
+                                        locMapSlotCoord3Mask,
+                                        locMapSlotCoord1Name,
+                                        locMapSlotCoord2Name,
+                                        locMapSlotCoord3Name,
+                                        Convert.ToInt32(isLocMapSectionTracked),
+                                        Convert.ToInt32(isLocMapSlotTracked),
+                                        Convert.ToInt32(isLocMapAdhocEnabled)
+                                    };
 
-                                    cmndWhs.ExecuteNonQuery();
-
-                                    //rec.SetBoolean(Convert.ToInt32(SysCommon.LocMapWhsFields.IsWMS), isLocMapWhsIsWMS);
-                                    //rec.SetString(Convert.ToInt32(SysCommon.LocMapWhsFields.WhsMask), locMapWhsMask);
-                                    //rec.SetString(Convert.ToInt32(SysCommon.LocMapWhsFields.SectionMask), locMapSectionMask);
-                                    //rec.SetString(Convert.ToInt32(SysCommon.LocMapWhsFields.SlotMask), locMapSlotMask);
-                                    //rec.SetString(Convert.ToInt32(SysCommon.LocMapWhsFields.SlotCoord1Mask), locMapSlotCoord1Mask);
-                                    //rec.SetString(Convert.ToInt32(SysCommon.LocMapWhsFields.SlotCoord2Mask), locMapSlotCoord2Mask);
-                                    //rec.SetString(Convert.ToInt32(SysCommon.LocMapWhsFields.SlotCoord3Mask), locMapSlotCoord3Mask);
-                                    //rec.SetString(Convert.ToInt32(SysCommon.LocMapWhsFields.SlotCoord1Name), locMapSlotCoord1Name);
-                                    //rec.SetString(Convert.ToInt32(SysCommon.LocMapWhsFields.SlotCoord2Name), locMapSlotCoord2Name);
-                                    //rec.SetString(Convert.ToInt32(SysCommon.LocMapWhsFields.SlotCoord3Name), locMapSlotCoord3Name);
-                                    //rec.SetBoolean(Convert.ToInt32(SysCommon.LocMapWhsFields.IsSectionTracked), isLocMapSectionTracked);
-                                    //rec.SetBoolean(Convert.ToInt32(SysCommon.LocMapWhsFields.IsSlotTracked), isLocMapSlotTracked);
-                                    //rec.SetBoolean(Convert.ToInt32(SysCommon.LocMapWhsFields.IsAdhocEnabled), isLocMapAdhocEnabled);
+                                    transaction.Execute(queryInsert, parametersInsert);
                                 }
 
                                 progValue++;
-
                                 if (progValue % 100 == 0)
                                 {
                                     this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
                                 }
                             }
 
-                            transaction.Commit();
-
                             this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
-
                         }
+
+                        transaction.Commit();
 
                         // TODO: Resource strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving warehouses complete.", false);
@@ -482,22 +403,10 @@ namespace dMobile.GroundWork
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving warehouses failed.", false);
 
-                    //                // Duplicate key violations
-                    //                if (ex.NativeError == 25016)
-                    //                {
-                    //#if MULTILANGUAGE
-                    //                      this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.UniquenessViolation), false);
-                    //                      throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.UniquenessViolation) + Environment.NewLine + errMsg, ex);
-                    //#else
-                    //                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Uniqueness violation.", false);
-                    //                    throw new Exception("Uniqueness violation." + Environment.NewLine + errMsg, ex);
-                    //#endif
-                    //                }
-
                     // TODO: Resource strings
                     throw new Exception("Database exception occurred. Saving warehouses failed." + Environment.NewLine + errMsg, ex);
                 }
-            }
+            });
         }
 
         /// <summary>

@@ -4,13 +4,10 @@ namespace dMobile.GroundWork
     using SQLite;
     using System;
     using System.Data;
-    using SQLite;
     using System.Text;
     using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
-    using dMobile.Bedrock;
-    using System.Threading.Tasks;
     using dMobile.Resources.Models;
     using System.Collections.Generic;
 
@@ -44,7 +41,7 @@ namespace dMobile.GroundWork
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding adjustments.", true);
 
-                reqData = this.SendComm(this.Create());
+                reqData = await this.SendComm(this.Create());
 
                 if (0 < reqData.Length)
                 {
@@ -55,7 +52,7 @@ namespace dMobile.GroundWork
                         throw new Exception(reqErr.DocumentElement["detail"].InnerText);
                     }
 
-                    this.Save(reqData);
+                    await this.Save(reqData);
                 }
 
                 // TODO: Resource strings
@@ -317,17 +314,6 @@ namespace dMobile.GroundWork
                                     actAdjTypeDesc
                                 };
 
-                                //cmndAdj.Parameters.Add(new SQLiteParameter("@activityRefno", actRefno));
-                                //cmndAdj.Parameters.Add(new SQLiteParameter("@activitySubType", Convert.ToInt32(SysCommon.ActSubTypes.Adjustment)));
-                                //cmndAdj.Parameters.Add(new SQLiteParameter("@activityAdjustmentFKRefno", adjFKRefno));
-                                //cmndAdj.Parameters.Add(new SQLiteParameter("@activityAdjustmentStringFKRefno", adjFKRefno.ToString()));
-                                //cmndAdj.Parameters.Add(new SQLiteParameter("@activityAdjustmentType", Convert.ToInt32(drow["ActivityAdjustmentType"])));
-                                //cmndAdj.Parameters.Add(new SQLiteParameter("@warehouseLocationMapRefno", whsLocMapRefno));
-                                //cmndAdj.Parameters.Add(new SQLiteParameter("@activityAdjustmentDateTime", DateTime.Parse(dt.ToShortDateString())));
-                                //cmndAdj.Parameters.Add(new SQLiteParameter("@activityAdjustmentDescription", drow["ActivityAdjustmentDescription"].ToString()));
-                                //cmndAdj.Parameters.Add(new SQLiteParameter("@activityAdjustmentTypeDescription", actAdjTypeDesc));
-                                //cmndAdj.ExecuteNonQuery();
-
                                 transaction.Execute(sql, parameters);
 
                                 progValue++;
@@ -357,7 +343,6 @@ namespace dMobile.GroundWork
                     // TODO: Resource Strings
                     throw new Exception("Database exception occurred. Saving adjustments failed." + Environment.NewLine + errMsg, ex);
                 }
-                //}
             });
         }
 

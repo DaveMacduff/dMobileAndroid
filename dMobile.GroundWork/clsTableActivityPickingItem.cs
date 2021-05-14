@@ -4,10 +4,12 @@ namespace dMobile.GroundWork
     using System;
     using System.Collections.Generic;
     using System.Data;
-    using System.Data.SQLite;
+    using SQLite;
     using System.Text;
     using System.Xml;
     using System.Xml.Linq;
+    using System.Threading.Tasks;
+    using dMobile.Resources.Models;
 
     /// <summary>
     /// Defines the <see cref="TableActivityPickingItem" />
@@ -28,12 +30,9 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="actRefno">The actRefno<see cref="int"/></param>
         /// <param name="xmlCriteria">The xmlCriteria<see cref="XDocument"/></param>
-        public override void RequestData(int actRefno, XDocument xmlCriteria)
+        public override async Task RequestData(int actRefno, XDocument xmlCriteria)
         {
             string reqData = string.Empty;
-
-            //GC.Collect();
-            //GC.WaitForPendingFinalizers();
 
             try
             {
@@ -42,37 +41,32 @@ namespace dMobile.GroundWork
 
                 if (actRefno == 0)
                 {
-                    using (SQLiteCommand cmndPicking = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                    List<tActivityModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityModel>("SELECT ActivityRefno FROM tActivity WHERE ActivitySubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.Picking));
+
+                    if (results?.Count > 0)
                     {
-                        cmndPicking.CommandText = "SELECT tActivity.ActivityRefno FROM tActivity WHERE tActivity.ActivitySubType = @activitySubType";
-                        cmndPicking.CommandType = CommandType.Text;
-                        cmndPicking.Parameters.Add(new SQLiteParameter("@activitySubType", Convert.ToInt32(SysCommon.ActSubTypes.Picking)));
-
-                        using (SQLiteDataReader drPicking = cmndPicking.ExecuteReader())
+                        foreach(tActivityModel actvityModel in results)
                         {
-                            while (drPicking.Read())
+                            actRefno = Convert.ToInt32(actvityModel.ActivityRefno);
+                            reqData = await this.SendRequest(actRefno, xmlCriteria);
+
+                            if (0 < reqData.Length)
                             {
-                                actRefno = Convert.ToInt32(drPicking["ActivityRefno"]);
-                                reqData = this.SendRequest(actRefno, xmlCriteria);
-
-                                if (0 < reqData.Length)
+                                if (reqData.Contains("<message>ERROR</message>"))
                                 {
-                                    if (reqData.Contains("<message>ERROR</message>"))
-                                    {
-                                        XmlDocument reqErr = new XmlDocument();
-                                        reqErr.LoadXml(reqData);
-                                        throw new Exception(reqErr.DocumentElement["detail"].InnerText);
-                                    }
-
-                                    this.Save(reqData, actRefno);
+                                    XmlDocument reqErr = new XmlDocument();
+                                    reqErr.LoadXml(reqData);
+                                    throw new Exception(reqErr.DocumentElement["detail"].InnerText);
                                 }
+
+                                await this.Save(reqData, actRefno);
                             }
                         }
                     }
                 }
                 else
                 {
-                    reqData = this.SendRequest(actRefno, xmlCriteria);
+                    reqData = await this.SendRequest(actRefno, xmlCriteria);
 
                     if (0 < reqData.Length)
                     {
@@ -83,7 +77,7 @@ namespace dMobile.GroundWork
                             throw new Exception(reqErr.DocumentElement["detail"].InnerText);
                         }
 
-                        this.Save(reqData, actRefno);
+                        await this.Save(reqData, actRefno);
                     }
                 }
 
@@ -112,29 +106,23 @@ namespace dMobile.GroundWork
         /// <summary>
         /// The Purge
         /// </summary>
-        public override void Purge()
+        public override async Task Purge()
         {
             try
             {
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging sales order items.", true);
 
-                using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                {
-                    cmndPurge.CommandType = CommandType.Text;
-                    cmndPurge.Parameters.Add(new SQLiteParameter("@activityItemSubType", Convert.ToInt32(SysCommon.ActSubTypes.Picking)));
+                string query = "DELETE FROM tActivityItemBarCodeAssociationXRef "
+                    + "WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno IN "
+                    + "(SELECT tActivityItem.ActivityItemRefno FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?)";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.Picking));
 
-                    cmndPurge.CommandText = "DELETE FROM tActivityItemBarCodeAssociationXRef "
-                        + "WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno IN "
-                        + "(SELECT tActivityItem.ActivityItemRefno FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = @activityItemSubType)";
-                    cmndPurge.ExecuteNonQuery();
+                query = "DELETE FROM tActivityItemPicking WHERE tActivityItemPicking.ActivityItemSubType = ?";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.Picking));
 
-                    cmndPurge.CommandText = "DELETE FROM tActivityItemPicking WHERE tActivityItemPicking.ActivityItemSubType = @activityItemSubType";
-                    cmndPurge.ExecuteNonQuery();
-
-                    cmndPurge.CommandText = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = @activityItemSubType";
-                    cmndPurge.ExecuteNonQuery();
-                }
+                query = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.Picking));
 
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging sales order items completed.", true);
@@ -154,23 +142,16 @@ namespace dMobile.GroundWork
         /// The DataStatus
         /// </summary>
         /// <returns>The <see cref="int"/></returns>
-        public override int DataStatus()
+        public override async Task<int> DataStatus()
         {
             int rowsAffected = 0;
 
             try
             {
-                using (SQLiteCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                {
-                    cmndStatus.CommandText = "SELECT COUNT(tActivityItem.ActivityItemRefno) FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = @activityItemSubType";
-                    cmndStatus.CommandType = CommandType.Text;
-                    cmndStatus.Parameters.Add(new SQLiteParameter("@activityItemSubType", Convert.ToInt32(SysCommon.ActSubTypes.Picking)));
+                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.QueryScalarsAsync<int>("SELECT COUNT(ActivityItemRefno) FROM tActivityItem WHERE ActivityItemSubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.Picking)));
 
-                    rowsAffected = Convert.ToInt32(cmndStatus.ExecuteScalar());
-
-                    // TODO: Resource strings
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} Sales order items.", rowsAffected), true);
-                }
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} Sales order items.", rowsAffected), true);
             }
             catch (SQLiteException ex)
             {
@@ -187,40 +168,23 @@ namespace dMobile.GroundWork
         /// <param name="actRefno">The actRefno<see cref="int"/></param>
         /// <param name="xmlCriteria">The xmlCriteria<see cref="XDocument"/></param>
         /// <returns></returns>
-        protected override string SendRequest(int actRefno, XDocument xmlCriteria)
+        protected override async Task<string> SendRequest(int actRefno, XDocument xmlCriteria)
         {
             int actPickFKRefno = 0;
 
-            using (SQLiteCommand cmndPicking = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-            {
-                cmndPicking.CommandText = "SELECT * FROM tActivityPicking WHERE ActivityRefno = @activityRefno";
-                cmndPicking.CommandType = CommandType.Text;
-                //cmndPicking.IndexName = "PK_ActivityPickingOnActivityRefno";
-                cmndPicking.Parameters.Add(new SQLiteParameter("@activityRefno", actRefno));
+            List<tActivityPickingModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityPickingModel>("SELECT * FROM tActivityPicking WHERE ActivityRefno = ?", actRefno);
 
-                using (SQLiteDataReader drPicking = cmndPicking.ExecuteReader())
-                {
-                    //if (drPicking.Seek(DbSeekOptions.FirstEqual, new object[] { actRefno }))
-                    //{
-                    if (drPicking.Read())
-                    {
-                        actPickFKRefno = Convert.ToInt32(drPicking.GetValue((int)SysCommon.ActPickingFields.FKRefno));
-                    }
-                    else
-                    {
-                        // TODO: Resource strings
-                        throw new Exception("drPicking.Read() failed.");
-                    }
-                    //}
-                    //else
-                    //{
-                    //    // TODO: Resource strings
-                    //    throw new Exception(string.Format("Unable to locate the sales order refno {0} In tActivityPicking", actRefno));
-                    //}
-                }
+            if (results?.Count > 0)
+            {
+                actPickFKRefno = Convert.ToInt32(results[0].ActivityPickingFKRefno);
+            }
+            else
+            {
+                // TODO: Resource strings
+                throw new Exception("No results in tActivityPicking for ActivityRefno " + actRefno + Environment.NewLine + this.FullClassName + "SendRequest");
             }
 
-            return this.SendComm(this.CreateRequest(actPickFKRefno, xmlCriteria));
+            return await this.SendComm(this.CreateRequest(actPickFKRefno, xmlCriteria));
         }
 
         /// <summary>
@@ -228,20 +192,11 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="reqData"></param>
         /// <param name="actRefno">The actRefno<see cref="int"/></param>
-        protected override void Save(string reqData, int actRefno)
+        protected override async Task Save(string reqData, int actRefno)
         {
-            SQLiteConnection conn = DatabaseConnection.GetInstance().SQLConn;
             string errMsg = string.Empty;
 
-            using (SQLiteCommand cmndPickItem = conn.CreateCommand())
-            using (SQLiteCommand cmndPickItemComment = conn.CreateCommand())
-            using (SQLiteCommand cmndItem = conn.CreateCommand())
-            using (SQLiteCommand cmndProdUnit = conn.CreateCommand())
-            using (SQLiteCommand cmndProd = conn.CreateCommand())
-            using (SQLiteCommand cmndUnit = conn.CreateCommand())
-            using (SQLiteCommand cmndLocMapWhs = conn.CreateCommand())
-            using (SQLiteCommand cmndID = conn.CreateCommand())
-            using (SQLiteTransaction transaction = conn.BeginTransaction())
+            await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
             {
                 try
                 {
@@ -262,71 +217,6 @@ namespace dMobile.GroundWork
                             // TODO: Resource strings
                             this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
 
-                            //using (SQLiteCommand cmndPickItem = conn.CreateCommand())
-                            //{
-                            //cmndPickItem.CommandText = "tActivityItemPicking";
-                            //cmndPickItem.CommandType = CommandType.Text;
-                            //cmndPickItem.IndexName = "UQ_ActivityItemPickingOnActivityItemPickingFKRefno";
-
-                            //using (SQLiteCommand cmndPickItemComment = conn.CreateCommand())
-                            //{
-                            //cmndPickItemComment.CommandText = "tActivityItemPickingComment";
-                            //cmndPickItemComment.CommandType = CommandType.Text;
-                            //cmndPickItemComment.IndexName = "PK_ActivityItemPickingCommentOnActivityItemRefno";
-
-                            //using (SQLiteCommand cmndItem = conn.CreateCommand())
-                            //{
-                            //cmndItem.CommandText = "tActivityItem";
-                            //cmndItem.CommandType = CommandType.Text;
-
-                            //using (SqlCeResultSet rsItem = cmndItem.ExecuteResultSet(ResultSetOptions.Updatable))
-                            //{
-                            //SqlCeUpdatableRecord recItem = rsItem.CreateRecord();
-
-                            //using (SQLiteCommand cmndProdUnit = conn.CreateCommand())
-                            //{
-                            //    cmndProdUnit.CommandText = "tProductUnit";
-                            //    cmndProdUnit.CommandType = CommandType.Text;
-                            //    cmndProdUnit.IndexName = "UQ_ProductUnitOnProductRefnoAndUnitRefnoAndProductUnitIsBC";
-
-                            //using (SQLiteDataReader drProdUnit = cmndProdUnit.ExecuteReader())
-                            //{
-                            //using (SQLiteCommand cmndProd = conn.CreateCommand())
-                            //{
-                            //cmndProd.CommandText = "tProduct";
-                            //cmndProd.CommandType = CommandType.Text;
-                            //cmndProd.IndexName = "UQ_ProductOnProductFKRefno";
-
-                            //using (SQLiteDataReader drProd = cmndProd.ExecuteReader())
-                            //{
-                            //using (SQLiteCommand cmndUnit = conn.CreateCommand())
-                            //{
-                            //cmndUnit.CommandText = "tUnit";
-                            //cmndUnit.CommandType = CommandType.Text;
-                            //cmndUnit.IndexName = "UQ_UnitOnUnitCode";
-
-                            //using (SQLiteDataReader drUnit = cmndUnit.ExecuteReader())
-                            //{
-                            //using (SQLiteCommand cmndLocMapWhs = conn.CreateCommand())
-                            //{
-                            //cmndLocMapWhs.CommandText = "tLocationMapWarehouse";
-                            //cmndLocMapWhs.CommandType = CommandType.Text;
-                            //cmndLocMapWhs.IndexName = "UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno";
-
-                            //using (SQLiteDataReader drLocMapWhs = cmndLocMapWhs.ExecuteReader())
-                            //{
-                            //using (SQLiteCommand cmndID = conn.CreateCommand())
-                            //{
-                            cmndID.CommandText = "SELECT last_insert_rowid() FROM tActivityItem";
-                            cmndID.CommandType = CommandType.Text;
-
-                            //using (SqlCeResultSet rsPickItemComment = cmndPickItemComment.ExecuteResultSet(ResultSetOptions.Updatable))
-                            //{
-                            //SqlCeUpdatableRecord recPickItemComment = rsPickItemComment.CreateRecord();
-
-                            //using (SqlCeResultSet rsPickItem = cmndPickItem.ExecuteResultSet(ResultSetOptions.Updatable))
-                            //{
-                            //SqlCeUpdatableRecord recPickItem = rsPickItem.CreateRecord();
                             int actItemRefno = 0;
                             int prodUnitRefno = 0;
                             int progValue = 0;
@@ -340,28 +230,16 @@ namespace dMobile.GroundWork
                             {
                                 errMsg = "Arguments:";
 
-                                cmndItem.CommandText = "INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (@activityItemSubType, @activityItemStatus, @activityRefno)";
-                                cmndItem.CommandType = CommandType.Text;
-                                cmndItem.Parameters.Add(new SQLiteParameter("@activityItemSubType", Convert.ToInt32(SysCommon.ActSubTypes.Picking)));
-                                cmndItem.Parameters.Add(new SQLiteParameter("@activityItemStatus", Convert.ToInt32(0)));
-                                cmndItem.Parameters.Add(new SQLiteParameter("@activityRefno", actRefno));
+                                transaction.Execute("INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (?, ?, ?)", Convert.ToInt32(SysCommon.ActSubTypes.Picking), 0, actRefno);
 
-                                cmndItem.ExecuteNonQuery();
-
-                                //recItem.SetInt32((int)SysCommon.ActItemFields.SubType, (int)SysCommon.ActSubTypes.Picking);
-                                //recItem.SetInt32((int)SysCommon.ActItemFields.Status, 0);
-                                //recItem.SetInt32((int)SysCommon.ActItemFields.ActRefno, actRefno);
-                                //rsItem.Insert(recItem);
-
-                                actItemRefno = Convert.ToInt32(cmndID.ExecuteScalar());
-
+                                actItemRefno = Convert.ToInt32(transaction.QueryScalars<int>("SELECT last_insert_rowid() FROM tActivityItem"));
                                 actItemPickFKRefno = Convert.ToInt32(drow["ActivityItemPickingFKRefno"]);
                                 errMsg += Environment.NewLine + "Item fk refno " + actItemPickFKRefno;
 
-                                prodUnitRefno = this.GetProductUnitRefnoFromDataRow(drow, ref conn, ref errMsg, false);
-                                locMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, ref errMsg, cmndLocMapWhs);
+                                prodUnitRefno = this.GetProductUnitRefnoFromDataRow(drow, transaction, errMsg, false);
+                                locMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, ref errMsg, transaction);
 
-                                cmndPickItem.CommandText = "INSERT INTO tActivityItemPicking (" +
+                                string queryInsertItemPicking = "INSERT INTO tActivityItemPicking (" +
                                     "ActivityItemRefno, " +
                                     "ActivityItemSubType, " +
                                     "ActivityItemPickingFKRefno, " +
@@ -381,84 +259,54 @@ namespace dMobile.GroundWork
                                     "ActivityItemPickingWeightQuantityAvailable," +
                                     "ActivityItemPickingIsReviewed" +
                                     ") VALUES (" +
-                                    "@activityItemRefno, " +
-                                    "@activityItemSubType, " +
-                                    "@activityItemPickingFKRefno, " +
-                                    "@activityItemPickingStringFKRefno, " +
-                                    "@productUnitRefno, " +
-                                    "@warehouseLocationMapRefno, " +
-                                    "@activityItemPickingQuantityOrdered, " +
-                                    "@activityItemPickingBaseQuantityOrdered, " +
-                                    "@activityItemPickingWeightQuantityOrdered, " +
-                                    "@activityItemPickingQuantityShipped, " +
-                                    "@activityItemPickingBaseQuantityShipped, " +
-                                    "@activityItemPickingWeightQuantityShipped, " +
-                                    "@activityItemPickingCustomerProductUnitCode, " +
-                                    "@activityItemPickingDescription, " +
-                                    "@activityItemPickingQuantityAvailable, " +
-                                    "@activityItemPickingBaseQuantityAvailable, " +
-                                    "@activityItemPickingWeightQuantityAvailable," +
-                                    "@activityItemPickingIsReviewed" +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?," +
+                                    "?" +
                                     ")";
-                                cmndPickItem.CommandType = CommandType.Text;
-                                //cmndPickItem.IndexName = "UQ_ActivityItemPickingOnActivityItemPickingFKRefno";
-                                cmndPickItem.Parameters.Add(new SQLiteParameter("@activityItemRefno", actItemRefno));
-                                cmndPickItem.Parameters.Add(new SQLiteParameter("@activityItemSubType", Convert.ToInt32(SysCommon.ActSubTypes.Picking)));
-                                cmndPickItem.Parameters.Add(new SQLiteParameter("@activityItemPickingFKRefno", actItemPickFKRefno));
-                                cmndPickItem.Parameters.Add(new SQLiteParameter("@activityItemPickingStringFKRefno", actItemPickFKRefno.ToString()));
-                                cmndPickItem.Parameters.Add(new SQLiteParameter("@productUnitRefno", prodUnitRefno));
-                                cmndPickItem.Parameters.Add(new SQLiteParameter("@warehouseLocationMapRefno", locMapRefno));
-                                cmndPickItem.Parameters.Add(new SQLiteParameter("@activityItemPickingCustomerProductUnitCode", drow["ActivityItemPickingCustomerProductUnitCode"].ToString()));
-                                cmndPickItem.Parameters.Add(new SQLiteParameter("@activityItemPickingDescription", drow["ActivityItemPickingDescription"].ToString()));
-                                cmndPickItem.Parameters.Add(new SQLiteParameter("@activityItemPickingQuantityOrdered", Convert.ToDecimal(drow["ActivityItemPickingQuantityOrdered"])));
-                                cmndPickItem.Parameters.Add(new SQLiteParameter("@activityItemPickingBaseQuantityOrdered", Convert.ToDecimal(drow["ActivityItemPickingBaseQuantityOrdered"])));
-                                cmndPickItem.Parameters.Add(new SQLiteParameter("@activityItemPickingWeightQuantityOrdered", Convert.ToDecimal(drow["ActivityItemPickingWeightQuantityOrdered"])));
-                                cmndPickItem.Parameters.Add(new SQLiteParameter("@activityItemPickingQuantityShipped", Convert.ToDecimal(drow["ActivityItemPickingQuantityPicked"])));
-                                cmndPickItem.Parameters.Add(new SQLiteParameter("@activityItemPickingBaseQuantityShipped", Convert.ToDecimal(drow["ActivityItemPickingBaseQuantityPicked"])));
-                                cmndPickItem.Parameters.Add(new SQLiteParameter("@activityItemPickingWeightQuantityShipped", Convert.ToDecimal(drow["ActivityItemPickingWeightQuantityPicked"])));
-                                cmndPickItem.Parameters.Add(new SQLiteParameter("@activityItemPickingQuantityAvailable", Convert.ToDecimal(drow["ActivityItemPickingQuantityAvailable"])));
-                                cmndPickItem.Parameters.Add(new SQLiteParameter("@activityItemPickingBaseQuantityAvailable", Convert.ToDecimal(drow["ActivityItemPickingBaseQuantityAvailable"])));
-                                cmndPickItem.Parameters.Add(new SQLiteParameter("@activityItemPickingWeightQuantityAvailable", Convert.ToDecimal(drow["ActivityItemPickingWeightQuantityAvailable"])));
-                                cmndPickItem.Parameters.Add(new SQLiteParameter("@activityItemPickingIsReviewed", false));
+                                List<object> parametersInsertItemPicking = new List<object>()
+                                {
+                                    actItemRefno,
+                                    Convert.ToInt32(SysCommon.ActSubTypes.Picking),
+                                    actItemPickFKRefno,
+                                    actItemPickFKRefno.ToString(),
+                                    prodUnitRefno,
+                                    locMapRefno,
+                                    Convert.ToString(drow["ActivityItemPickingCustomerProductUnitCode"]),
+                                    Convert.ToString(drow["ActivityItemPickingDescription"]),
+                                    Convert.ToDecimal(drow["ActivityItemPickingQuantityOrdered"]),
+                                    Convert.ToDecimal(drow["ActivityItemPickingBaseQuantityOrdered"]),
+                                    Convert.ToDecimal(drow["ActivityItemPickingWeightQuantityOrdered"]),
+                                    Convert.ToDecimal(drow["ActivityItemPickingQuantityPicked"]),
+                                    Convert.ToDecimal(drow["ActivityItemPickingBaseQuantityPicked"]),
+                                    Convert.ToDecimal(drow["ActivityItemPickingWeightQuantityPicked"]),
+                                    Convert.ToDecimal(drow["ActivityItemPickingQuantityAvailable"]),
+                                    Convert.ToDecimal(drow["ActivityItemPickingBaseQuantityAvailable"]),
+                                    Convert.ToDecimal(drow["ActivityItemPickingWeightQuantityAvailable"]),
+                                    false
+                                };
 
-                                cmndPickItem.ExecuteNonQuery();
+                                transaction.Execute(queryInsertItemPicking, parametersInsertItemPicking);
 
-                                //recPickItem.SetInt32((int)SysCommon.ActItemPickingFields.ActItemRefno, actItemRefno);
-                                //recPickItem.SetInt32((int)SysCommon.ActItemPickingFields.ActItemSubType, Convert.ToInt32(SysCommon.ActSubTypes.Picking));
-                                //recPickItem.SetInt32((int)SysCommon.ActItemPickingFields.FKRefno, actItemPickFKRefno);
-                                //recPickItem.SetString((int)SysCommon.ActItemPickingFields.StringFKRefno, actItemPickFKRefno.ToString());
-                                //recPickItem.SetInt32((int)SysCommon.ActItemPickingFields.ProdUnitRefno, prodUnitRefno);
-                                //recPickItem.SetInt32((int)SysCommon.ActItemPickingFields.WhsLocMapRefno, locMapRefno);
-                                //recPickItem.SetString((int)SysCommon.ActItemPickingFields.CustomerProductUnitCode, drow["ActivityItemPickingCustomerProductUnitCode"].ToString());
-                                //recPickItem.SetString((int)SysCommon.ActItemPickingFields.Description, drow["ActivityItemPickingDescription"].ToString());
-                                //recPickItem.SetDecimal((int)SysCommon.ActItemPickingFields.QuantityOrdered, Convert.ToDecimal(drow["ActivityItemPickingQuantityOrdered"]));
-                                //recPickItem.SetDecimal((int)SysCommon.ActItemPickingFields.BaseQuantityOrdered, Convert.ToDecimal(drow["ActivityItemPickingBaseQuantityOrdered"]));
-                                //recPickItem.SetDecimal((int)SysCommon.ActItemPickingFields.WeightQuantityOrdered, Convert.ToDecimal(drow["ActivityItemPickingWeightQuantityOrdered"]));
-                                //recPickItem.SetDecimal((int)SysCommon.ActItemPickingFields.QuantityShipped, Convert.ToDecimal(drow["ActivityItemPickingQuantityPicked"]));
-                                //recPickItem.SetDecimal((int)SysCommon.ActItemPickingFields.BaseQuantityShipped, Convert.ToDecimal(drow["ActivityItemPickingBaseQuantityPicked"]));
-                                //recPickItem.SetDecimal((int)SysCommon.ActItemPickingFields.WeightQuantityShipped, Convert.ToDecimal(drow["ActivityItemPickingWeightQuantityPicked"]));
-                                //recPickItem.SetDecimal((int)SysCommon.ActItemPickingFields.QuantityAvailable, Convert.ToDecimal(drow["ActivityItemPickingQuantityAvailable"]));
-                                //recPickItem.SetDecimal((int)SysCommon.ActItemPickingFields.BaseQuantityAvailable, Convert.ToDecimal(drow["ActivityItemPickingBaseQuantityAvailable"]));
-                                //recPickItem.SetDecimal((int)SysCommon.ActItemPickingFields.WeightQuantityAvailable, Convert.ToDecimal(drow["ActivityItemPickingWeightQuantityAvailable"]));
-                                //recPickItem.SetBoolean((int)SysCommon.ActItemPickingFields.IsReviewed, false);
-                                //rsPickItem.Insert(recPickItem);
-
-                                actItemPickComment = drow["ActivityItemPickingComment"].ToString();
+                                actItemPickComment = Convert.ToString(drow["ActivityItemPickingComment"]);
 
                                 if (!string.IsNullOrEmpty(actItemPickComment))
                                 {
-
-                                    cmndPickItemComment.CommandText = "INSERT INTO tActivityItemPickingComment (ActivityItemRefno, ActivityItemPickingCommentComment) VALUES (@activityItemRefno, @activityItemPickingCommentComment)";
-                                    cmndPickItemComment.CommandType = CommandType.Text;
-                                    //cmndPickItemComment.IndexName = "PK_ActivityItemPickingCommentOnActivityItemRefno";
-                                    cmndPickItemComment.Parameters.Add(new SQLiteParameter("@activityItemRefno", actItemRefno));
-                                    cmndPickItemComment.Parameters.Add(new SQLiteParameter("@activityItemPickingCommentComment", actItemPickComment));
-
-                                    cmndPickItemComment.ExecuteNonQuery();
-
-                                    //recPickItemComment.SetInt32((int)SysCommon.ActItemPickingCommentFields.ActItemRefno, actItemRefno);
-                                    //recPickItemComment.SetString((int)SysCommon.ActItemPickingCommentFields.Comment, actItemPickComment);
-                                    //rsPickItemComment.Insert(recPickItemComment);
+                                    transaction.Execute("INSERT INTO tActivityItemPickingComment (ActivityItemRefno, ActivityItemPickingCommentComment) VALUES (?, ?)", actItemRefno, actItemPickComment);
                                 }
 
                                 progValue++;
@@ -470,29 +318,6 @@ namespace dMobile.GroundWork
 
                             this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
                         }
-                        //                                                        }
-                        //                                                    }
-
-                        //                                                    drLocMapWhs.Close();
-                        //                                                }
-                        //                                            }
-
-                        //                                            drUnit.Close();
-                        //                                        }
-                        //                                    }
-
-                        //                                    drProd.Close();
-                        //                                }
-                        //                            }
-
-                        //                            drProdUnit.Close();
-                        //                        }
-                        //                    }
-                        //                }
-                        //            }
-                        //        }
-                        //    }
-                        //}
 
                         transaction.Commit();
 
@@ -508,18 +333,10 @@ namespace dMobile.GroundWork
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving sales order items failed.", true);
 
-                    //// Duplicate key violations
-                    //if (ex.NativeError == 25016)
-                    //{
-                    //    // TODO: Resource strings
-                    //    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Uniqueness violation.", false);
-                    //    throw new Exception("Uniqueness violation." + Environment.NewLine + errMsg, ex);
-                    //}
-
                     // TODO: Resource strings
                     throw new Exception("Database exception occurred. Saving sales order items failed." + Environment.NewLine + errMsg, ex);
                 }
-            }
+            });
         }
 
         /// <summary>

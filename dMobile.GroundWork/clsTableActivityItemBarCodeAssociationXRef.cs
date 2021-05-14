@@ -29,8 +29,7 @@ namespace dMobile.GroundWork
                 // TODO: Resource Strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging item bar code association xrefs.", true);
 
-                string query = "DELETE FROM tActivityItemBarCodeAssociationXRef";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query);
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("DELETE FROM tActivityItemBarCodeAssociationXRef");
 
                 // TODO: Resource Strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging item bar code association xrefs complete.", true);

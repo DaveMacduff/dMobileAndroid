@@ -6,13 +6,10 @@ namespace dMobile.GroundWork
     using System;
     using System.Collections.Generic;
     using System.Data;
-    using SQLite;
     using System.Text;
     using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
-    using System.Collections.Generic;
-    using dMobile.Resources.Models;
 
     /// <summary>
     /// Defines the <see cref="TableActivityCycleCountDetail" />
@@ -46,19 +43,12 @@ namespace dMobile.GroundWork
 
                 if (actItemRefno == 0)
                 {
-                    //using (SQLiteCommand cmndCountItem = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                    //{
-                    //    cmndCountItem.CommandText = "SELECT ActivityItemRefno FROM tActivityItem WHERE ActivityItemSubType = @activitySubType";
-                    //    cmndCountItem.CommandType = CommandType.Text;
-                    //    cmndCountItem.Parameters.Add(new SQLiteParameter("@activitySubType", Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts)));
-
                     List<tActivityItemModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityItemModel>("SELECT ActivityItemRefno FROM tActivityItem WHERE ActivityItemSubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts));
 
                     if (results != null && results.Count > 0)
                     {
                         foreach (tActivityItemModel activityItem in results)
                         {
-                            //actItemRefno = Convert.ToInt32(drCountDetail["ActivityItemRefno"]);
                             actItemRefno = Convert.ToInt32(activityItem.ActivityItemRefno);
                             reqData = await this.Send(actItemRefno);
 
@@ -71,7 +61,7 @@ namespace dMobile.GroundWork
                                     throw new Exception(reqErr.DocumentElement["detail"].InnerText);
                                 }
 
-                                this.Save(reqData, actItemRefno);
+                                await this.Save(reqData, actItemRefno);
                             }
                         }
                     }
@@ -89,7 +79,7 @@ namespace dMobile.GroundWork
                             throw new Exception(reqErr.DocumentElement["detail"].InnerText);
                         }
 
-                        this.Save(reqData, actItemRefno);
+                        await this.Save(reqData, actItemRefno);
                     }
                 }
 
@@ -149,30 +139,29 @@ namespace dMobile.GroundWork
             {
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging cycle count details.", true);
-                //cmndPurge.Parameters.Add(new SQLiteParameter("@activityDetailSubType", Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts)));
 
                 string query = "DELETE FROM tActivityDetailProductSchemeVariantXRef "
                         + "WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno IN "
                         + "(SELECT tActivityDetail.ActivityDetailRefno "
                         + "FROM tActivityDetail "
-                        + "WHERE tActivityDetail.ActivityDetailSubType = @activityDetailSubType)";
+                        + "WHERE tActivityDetail.ActivityDetailSubType = ?)";
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts));
 
                 query = "DELETE FROM tActivityDetailCount "
                         + "WHERE tActivityDetailCount.ActivityDetailRefno IN "
                         + "(SELECT tActivityDetail.ActivityDetailRefno "
                         + "FROM tActivityDetail "
-                        + "WHERE tActivityDetail.ActivityDetailSubType = @activityDetailSubType)";
+                        + "WHERE tActivityDetail.ActivityDetailSubType = ?)";
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts));
 
                 query = "DELETE FROM tActivityDetailExtra "
                         + "WHERE tActivityDetailExtra.ActivityDetailRefno IN "
                         + "(SELECT tActivityDetail.ActivityDetailRefno "
                         + "FROM tActivityDetail "
-                        + "WHERE tActivityDetail.ActivityDetailSubType = @activityDetailSubType)";
+                        + "WHERE tActivityDetail.ActivityDetailSubType = ?)";
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts));
 
-                query = "DELETE FROM tActivityDetail WHERE tActivityDetail.ActivityDetailSubType = @activityDetailSubType";
+                query = "DELETE FROM tActivityDetail WHERE tActivityDetail.ActivityDetailSubType = ?";
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts));
 
                 // TODO: Resource strings
@@ -197,6 +186,7 @@ namespace dMobile.GroundWork
         protected override async Task<string> Send(int actItemCountRefno)
         {
             int actItemCountFKRefno = 0;
+
             try
             {
                 string query = "SELECT * FROM tActivityItemCount WHERE ActivityItemRefno = ?";
@@ -206,8 +196,12 @@ namespace dMobile.GroundWork
                 {
                     actItemCountFKRefno = results[0].ActivityItemCountFKRefno;
                 }
+                else
+                {
+                    throw new Exception("No results in tActivityItemCount for ActivityItemRefno " + actItemCountRefno);
+                }
 
-                return this.SendComm(this.Create(actItemCountFKRefno));
+                return await this.SendComm(this.Create(actItemCountFKRefno));
             }
             catch (SQLiteException ex)
             {
@@ -266,7 +260,6 @@ namespace dMobile.GroundWork
                                 errMsg = "Arguments:";
 
                                 List<object> detailParameterList = new List<object>();
-
                                 string queryInsertDetail = "INSERT INTO tActivityDetail " +
                                 "(" +
                                 "ActivityDetailSubType, " +
