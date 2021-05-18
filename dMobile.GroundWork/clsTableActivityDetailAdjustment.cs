@@ -1,4 +1,4 @@
-namespace dMobile.GroundWork
+﻿namespace dMobile.GroundWork
 {
     using dMobile.Bedrock;
     using dMobile.Resources.Models;
@@ -180,7 +180,7 @@ namespace dMobile.GroundWork
                 throw new Exception(string.Format("Unable to locate item adjustment {0} in tActivityItemAdjustment", actItemAdjRefno));
             }
 
-            return await this.SendComm(this.Create(actItemAdjFKRefno));
+            return await this.SendComm(await this.Create(actItemAdjFKRefno));
         }
 
         /// <summary>
@@ -574,7 +574,7 @@ namespace dMobile.GroundWork
     /// </summary>
     /// <param name="actItemAdjFKRefno"></param>
     /// <returns></returns>
-    protected override string Create(int actItemAdjFKRefno)
+    protected override async Task<string> Create(int actItemAdjFKRefno)
     {
         StringBuilder xmlString = new StringBuilder();
         XmlWriter xml = XmlWriter.Create(xmlString);

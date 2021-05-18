@@ -1,4 +1,4 @@
-namespace dMobile.GroundWork
+﻿namespace dMobile.GroundWork
 {
     using dMobile.Bedrock;
     using System;
@@ -157,7 +157,7 @@ namespace dMobile.GroundWork
         /// <returns></returns>
         protected override async Task<string> Send(int whsLocMapRefno)
         {
-            return await this.SendComm(this.Create(whsLocMapRefno));
+            return await this.SendComm(await this.Create(whsLocMapRefno));
         }
 
         /// <summary>
@@ -303,7 +303,7 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="whsLocMapRefno"></param>
         /// <returns></returns>
-        protected override string Create(int whsLocMapRefno)
+        protected override async Task<string> Create(int whsLocMapRefno)
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);
@@ -313,7 +313,7 @@ namespace dMobile.GroundWork
             // lookup and verify warehouse
             if (0 < whsLocMapRefno)
             {
-                locMapWhsFKRefno = locMapWhs.GetLocMapWhsFKRefnoFromLocMapWhsRefno(whsLocMapRefno);
+                locMapWhsFKRefno = await locMapWhs.GetLocMapWhsFKRefnoFromLocMapWhsRefno(whsLocMapRefno);
             }
 
             XDocument request = XDocument.Parse(

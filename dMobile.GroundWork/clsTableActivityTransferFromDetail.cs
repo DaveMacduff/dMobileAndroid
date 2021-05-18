@@ -198,7 +198,7 @@
                 throw new Exception(string.Format("Unable to locate to activity item transfer refno {0} in tActivityItemTransfer.", actItemRefno));
             }
 
-            return await this.SendComm(this.Create(actItemFKRefno));
+            return await this.SendComm(await this.Create(actItemFKRefno));
         }
 
         /// <summary>
@@ -364,7 +364,7 @@
         /// </summary>
         /// <param name="actItemTransferFKRefno"></param>
         /// <returns></returns>
-        protected override string Create(int actItemTransferFKRefno)
+        protected override async Task<string> Create(int actItemTransferFKRefno)
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);

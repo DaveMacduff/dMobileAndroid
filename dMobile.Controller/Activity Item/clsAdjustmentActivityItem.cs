@@ -289,7 +289,7 @@ namespace dMobile.Controller
                 TableActivityAdjustmentItem adjItem = new TableActivityAdjustmentItem();
                 TableActivityAdjustmentDetail adjDetail = new TableActivityAdjustmentDetail();
                 await adjDetail.Purge();
-                adjItem.Purge();
+                await adjItem.Purge();
 
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
 

@@ -1,4 +1,4 @@
-namespace dMobile.GroundWork
+﻿namespace dMobile.GroundWork
 {
     using System;
     using System.Data;
@@ -59,7 +59,7 @@ namespace dMobile.GroundWork
                                     throw new Exception(reqErr.DocumentElement["detail"].InnerText);
                                 }
 
-                                this.Save(reqData, actItemRefno);
+                                await this.Save(reqData, actItemRefno);
                             }
                         }
                     }
@@ -77,7 +77,7 @@ namespace dMobile.GroundWork
                             throw new Exception(reqErr.DocumentElement["detail"].InnerText);
                         }
 
-                        this.Save(reqData, actItemRefno);
+                        await this.Save(reqData, actItemRefno);
                     }
                 }
 
@@ -200,7 +200,7 @@ namespace dMobile.GroundWork
                 throw new Exception("drItemPick.Read() failed.");
             }
 
-            return await this.SendComm(this.Create(actItemPickFKRefno));
+            return await this.SendComm(await this.Create(actItemPickFKRefno));
         }
 
         /// <summary>
@@ -360,7 +360,7 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="actItemPickFKRefno"></param>
         /// <returns></returns>
-        protected override string Create(int actItemPickFKRefno)
+        protected override async Task<string> Create(int actItemPickFKRefno)
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);

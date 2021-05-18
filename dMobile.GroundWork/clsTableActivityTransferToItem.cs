@@ -187,7 +187,7 @@
                 throw new Exception(string.Format("Unable to locate the transfer refno {0} in tActivityTransfer.", actRefno));
             }
 
-            return await this.SendComm(this.Create(transFKRefno));
+            return await this.SendComm(await this.Create(transFKRefno));
         }
 
         /// <summary>
@@ -331,7 +331,7 @@
         /// </summary>
         /// <param name="transFKRefno"></param>
         /// <returns></returns>
-        protected override string Create(int transFKRefno)
+        protected override async Task<string> Create(int transFKRefno)
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);

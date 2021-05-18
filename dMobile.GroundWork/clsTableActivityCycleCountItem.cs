@@ -185,7 +185,7 @@ namespace dMobile.GroundWork
                 throw new Exception("No results in tActivityCount for ActivityRefno " + actRefno);
             }
 
-            return await this.SendComm(this.Create(actCountFKRefno)); ;
+            return await this.SendComm(await this.Create(actCountFKRefno));
         }
 
         /// <summary>
@@ -237,7 +237,7 @@ namespace dMobile.GroundWork
                                 transaction.Execute("INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (?, ?, ?)", Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts), 0, actRefno);
 
                                 actItemRefno = Convert.ToInt32(transaction.QueryScalars<int>("SELECT last_insert_rowid() FROM tActivityItem"));
-                                prodUnitRefno = this.GetProductUnitRefnoFromDataRow(drow, transaction, errMsg, true);
+                                prodUnitRefno = this.GetProductUnitRefnoFromDataRow(drow, transaction, ref errMsg, true);
 
                                 // Cannot use this.SaveDetailLocation() f00 tags are not the same.
                                 locMapRefno = 0;
@@ -370,7 +370,7 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="actCountFKRefno"></param>
         /// <returns></returns>
-        protected override string Create(int actCountFKRefno)
+        protected override async Task<string> Create(int actCountFKRefno)
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);

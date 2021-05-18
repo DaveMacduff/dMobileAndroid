@@ -190,7 +190,7 @@ namespace dMobile.Controller
         /// <param name="detailData"></param>
         /// <returns></returns>
         /// <remarks>CreateSubmitProductLabelXML assumes actItem and oLocation.sSelectedLocationMap is correct</remarks>
-        public override string CreateSubmitProductLabelXML(XDocument detailData)
+        public override async Task<string> CreateSubmitProductLabelXML(XDocument detailData)
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);
@@ -433,12 +433,12 @@ namespace dMobile.Controller
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 2);
 
                 TableActivityReceivingDetail tableActRecvDetail = new TableActivityReceivingDetail();
-                tableActRecvDetail.Purge();
+                await tableActRecvDetail.Purge();
 
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
 
                 tableActRecvDetail.RegisterDataAccessListenerProgressOut((RecvActDetail)this);
-                tableActRecvDetail.Request(ActItem.Refno);
+                await tableActRecvDetail.Request(ActItem.Refno);
                 tableActRecvDetail.UnregisterDataAccessListenerProgressOut((RecvActDetail)this);
             }
         }

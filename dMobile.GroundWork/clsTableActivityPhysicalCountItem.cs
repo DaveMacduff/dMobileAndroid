@@ -183,7 +183,7 @@ namespace dMobile.GroundWork
                 actCountFKRefno = results[0].ActivityCountFKRefno;
             }
 
-            return await this.SendComm(this.Create(actCountFKRefno));
+            return await this.SendComm(await this.Create(actCountFKRefno));
         }
 
         /// <summary>
@@ -447,7 +447,7 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="actCountFKRefno"></param>
         /// <returns></returns>
-        protected override string Create(int actCountFKRefno)
+        protected override async Task<string> Create(int actCountFKRefno)
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);

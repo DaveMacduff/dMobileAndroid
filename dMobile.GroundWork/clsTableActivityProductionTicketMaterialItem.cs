@@ -1,4 +1,4 @@
-namespace dMobile.GroundWork
+﻿namespace dMobile.GroundWork
 {
     using dMobile.Bedrock;
     using System;
@@ -194,7 +194,7 @@ namespace dMobile.GroundWork
                 throw new Exception("No results in tActivityProductionMaterial for ActivityRefno " + actRefno + Environment.NewLine + this.FullClassName + "Send");
             }
 
-            return await this.SendComm(this.Create(actProductionFKRefno));
+            return await this.SendComm(await this.Create(actProductionFKRefno));
         }
 
         /// <summary>
@@ -327,7 +327,7 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="actProductionFKRefno">The actProductionFKRefno<see cref="int"/></param>
         /// <returns></returns>
-        protected override string Create(int actProductionFKRefno)
+        protected override async Task<string> Create(int actProductionFKRefno)
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);

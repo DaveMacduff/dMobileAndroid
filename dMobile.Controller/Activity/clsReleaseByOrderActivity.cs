@@ -520,7 +520,7 @@ namespace dMobile.Controller
                 TableActivityPicking tableActPicking = new TableActivityPicking();
 
                 tableActPicking.RegisterDataAccessListenerProgressOut((IDataAccessEventListener)this);
-                tableActPicking.RequestData(data);
+                await tableActPicking.RequestData(data);
                 tableActPicking.UnregisterDataAccessListenerProgressOut((IDataAccessEventListener)this);
             }
         }
@@ -536,9 +536,9 @@ namespace dMobile.Controller
             TableActivityPickingItem tableActPickingItem = new TableActivityPickingItem();
             TableActivityPickingDetail tableActPickingDetail = new TableActivityPickingDetail();
 
-            tableActPickingDetail.Purge();
-            tableActPickingItem.Purge();
-            tableActPickingRoute.Purge();
+            await tableActPickingDetail.Purge();
+            await tableActPickingItem.Purge();
+            await tableActPickingRoute.Purge();
         }
 
         /// <summary>

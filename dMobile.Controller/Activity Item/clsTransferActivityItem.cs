@@ -325,26 +325,26 @@ namespace dMobile.Controller
                 {
                     TableActivityTransferFromItem tableActTransferItem = new TableActivityTransferFromItem();
                     TableActivityTransferFromDetail tableActTransferDetail = new TableActivityTransferFromDetail();
-                    tableActTransferDetail.Purge();
-                    tableActTransferItem.Purge();
+                    await tableActTransferDetail.Purge();
+                    await tableActTransferItem.Purge();
 
                     this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
 
                     tableActTransferItem.RegisterDataAccessListenerProgressOut((TransferActItem)this);
-                    tableActTransferItem.Request(this.ActHdr.Refno);
+                    await tableActTransferItem.Request(this.ActHdr.Refno);
                     tableActTransferItem.UnregisterDataAccessListenerProgressOut((TransferActItem)this);
                 }
                 else
                 {
                     TableActivityTransferToItem tableActTransferItem = new TableActivityTransferToItem();
                     TableActivityTransferToDetail tableActTransferDetail = new TableActivityTransferToDetail();
-                    tableActTransferDetail.Purge();
-                    tableActTransferItem.Purge();
+                    await tableActTransferDetail.Purge();
+                    await tableActTransferItem.Purge();
 
                     this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
 
                     tableActTransferItem.RegisterDataAccessListenerProgressOut((TransferActItem)this);
-                    tableActTransferItem.Request(this.ActHdr.Refno);
+                    await tableActTransferItem.Request(this.ActHdr.Refno);
                     tableActTransferItem.UnregisterDataAccessListenerProgressOut((TransferActItem)this);
                 }
             }

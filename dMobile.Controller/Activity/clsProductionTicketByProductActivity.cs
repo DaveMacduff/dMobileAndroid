@@ -388,7 +388,7 @@ namespace dMobile.Controller
                 TableActivityProductionTicketByProduct tableActTicketByProduct = new TableActivityProductionTicketByProduct();
 
                 tableActTicketByProduct.RegisterDataAccessListenerProgressOut((TicketByProdActivity)this);
-                tableActTicketByProduct.Request();
+                await tableActTicketByProduct.Request();
                 tableActTicketByProduct.UnregisterDataAccessListenerProgressOut((TicketByProdActivity)this);
             }
         }
@@ -404,8 +404,8 @@ namespace dMobile.Controller
             TableActivityProductionTicketByProductDetail tableActTicketByProductDetail = new TableActivityProductionTicketByProductDetail();
 
             await tableActTicketByProductDetail.Purge();
-            tableActTicketByProductItem.Purge();
-            tableActTicketByProduct.Purge();
+            await tableActTicketByProductItem.Purge();
+            await tableActTicketByProduct.Purge();
         }
 
         /// <summary>

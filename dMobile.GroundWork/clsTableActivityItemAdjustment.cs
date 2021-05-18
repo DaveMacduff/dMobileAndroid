@@ -1,4 +1,4 @@
-namespace dMobile.GroundWork
+﻿namespace dMobile.GroundWork
 {
     using dMobile.Bedrock;
     using dMobile.Resources.Models;
@@ -183,7 +183,7 @@ namespace dMobile.GroundWork
                 throw new Exception("No results in tActivityAdjustment for ActivityRefno " + actRefno);
             }
 
-            return await this.SendComm(this.Create(actAdjFKRefno));
+            return await this.SendComm(await this.Create(actAdjFKRefno));
         }
 
         /// <summary>
@@ -232,7 +232,7 @@ namespace dMobile.GroundWork
                                 transaction.Execute("INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (?, ?, ?)", Convert.ToInt32(SysCommon.ActSubTypes.Adjustment), Convert.ToInt32(SysCommon.ActStatus.NoChange), actRefno);
 
                                 actItemRefno = Convert.ToInt32(transaction.QueryScalars<int>("SELECT last_insert_rowid() FROM tActivityItem"));
-                                prodUnitRefno = this.GetProductUnitRefnoFromDataRow(drow, transaction, errMsg, false);
+                                prodUnitRefno = this.GetProductUnitRefnoFromDataRow(drow, transaction, ref errMsg, false);
                                 locMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, ref errMsg, transaction);
                                 actItemAdjFKRefno = Convert.ToInt32(drow["ActivityItemAdjustmentFKRefno"]);
 
@@ -313,7 +313,7 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="actAdjFKRefno"></param>
         /// <returns></returns>
-        protected override string Create(int actAdjFKRefno)
+        protected override async Task<string> Create(int actAdjFKRefno)
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);

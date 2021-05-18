@@ -1,4 +1,4 @@
-namespace dMobile.GroundWork
+﻿namespace dMobile.GroundWork
 {
     using dMobile.Bedrock;
     using System;
@@ -47,7 +47,7 @@ namespace dMobile.GroundWork
                         throw new Exception(reqErr.DocumentElement["detail"].InnerText);
                     }
 
-                    this.Save(reqData);
+                    await this.Save(reqData);
                 }
 
                 // TODO: Resource strings
@@ -251,7 +251,7 @@ namespace dMobile.GroundWork
         /// The Create
         /// </summary>
         /// <returns></returns>
-        protected override string Create()
+        protected override async Task<string> Create()
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);

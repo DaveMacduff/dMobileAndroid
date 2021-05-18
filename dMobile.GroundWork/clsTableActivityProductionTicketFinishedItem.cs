@@ -195,7 +195,7 @@ namespace dMobile.GroundWork
                 throw new Exception("drFinished.Read() failed.");
             }
 
-            return await this.SendComm(this.Create(actProductionFKRefno));
+            return await this.SendComm(await this.Create(actProductionFKRefno));
         }
 
         /// <summary>
@@ -242,7 +242,7 @@ namespace dMobile.GroundWork
                                 transaction.Execute("INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (?, ?, ?)", Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished), Convert.ToInt32(SysCommon.ActStatus.NoChange), Convert.ToInt32(actRefno));
 
                                 actItemRefno = Convert.ToInt32(transaction.QueryScalars<int>("SELECT last_insert_rowid() FROM tActivityItem"));
-                                prodUnitRefno = this.GetProductUnitRefnoFromDataRow(drow, transaction, errMsg, false);
+                                prodUnitRefno = this.GetProductUnitRefnoFromDataRow(drow, transaction, ref errMsg, false);
 
                                 string queryActivityItemProduction = "INSERT INTO tActivityItemProduction (" +
                                     "ActivityItemRefno, " +
@@ -327,7 +327,7 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="actProductionFKRefno">The actProductionFKRefno<see cref="int"/></param>
         /// <returns></returns>
-        protected override string Create(int actProductionFKRefno)
+        protected override async Task<string> Create(int actProductionFKRefno)
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);

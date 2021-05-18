@@ -1,4 +1,4 @@
-namespace dMobile.GroundWork
+﻿namespace dMobile.GroundWork
 {
     using dMobile.Bedrock;
     using System;
@@ -184,7 +184,7 @@ namespace dMobile.GroundWork
                 throw new Exception("drRecv.Read() failed.");
             }
 
-            return await this.SendComm(this.Create(recvFKRefno));
+            return await this.SendComm(await this.Create(recvFKRefno));
         }
 
         /// <summary>
@@ -341,7 +341,7 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="recvFKRefno"></param>
         /// <returns></returns>
-        protected override string Create(int recvFKRefno)
+        protected override async Task<string> Create(int recvFKRefno)
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);

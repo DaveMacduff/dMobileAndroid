@@ -1,4 +1,4 @@
-namespace dMobile.GroundWork
+﻿namespace dMobile.GroundWork
 {
     using dMobile.Bedrock;
     using SQLite;
@@ -41,7 +41,7 @@ namespace dMobile.GroundWork
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding adjustments.", true);
 
-                reqData = await this.SendComm(this.Create());
+                reqData = await this.SendComm(await this.Create());
 
                 if (0 < reqData.Length)
                 {
@@ -351,7 +351,7 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        protected override string Create()
+        protected override async Task<string> Create()
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);

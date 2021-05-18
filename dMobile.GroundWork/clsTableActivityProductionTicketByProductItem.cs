@@ -1,4 +1,4 @@
-namespace dMobile.GroundWork
+﻿namespace dMobile.GroundWork
 {
     using dMobile.Bedrock;
     using System;
@@ -194,7 +194,7 @@ namespace dMobile.GroundWork
                 throw new Exception("drByProduct.Read() failed.");
             }
 
-            return await this.SendComm(Create(productionFKRefno));
+            return await this.SendComm(await Create(productionFKRefno));
         }
 
         /// <summary>
@@ -245,7 +245,7 @@ namespace dMobile.GroundWork
                                 actItemProductionFKRefno = Convert.ToInt32(drow["ActivityItemProductionFKRefno"]);
                                 errMsg += Environment.NewLine + "Item fk refno " + actItemProductionFKRefno;
 
-                                prodUnitRefno = this.GetProductUnitRefnoFromDataRow(drow, transaction, errMsg, false);
+                                prodUnitRefno = this.GetProductUnitRefnoFromDataRow(drow, transaction, ref errMsg, false);
                                 locMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, ref errMsg, transaction);
 
                                 string queryActivityItemProduction = "INSERT INTO tActivityItemProduction " +
@@ -348,7 +348,7 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="actProductionFKRefno"></param>
         /// <returns></returns>
-        protected override string Create(int actProductionFKRefno)
+        protected override async Task<string> Create(int actProductionFKRefno)
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);

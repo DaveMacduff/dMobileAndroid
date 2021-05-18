@@ -1,4 +1,4 @@
-namespace dMobile.GroundWork
+﻿namespace dMobile.GroundWork
 {
     using System;
     using System.Collections.Generic;
@@ -201,7 +201,7 @@ namespace dMobile.GroundWork
                 throw new Exception("drItemReturns.Read() failed.");
             }
 
-            return await this.SendComm(this.Create(actItemRetFKRefno));
+            return await this.SendComm(await this.Create(actItemRetFKRefno));
         }
 
         /// <summary>
@@ -350,7 +350,7 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        protected override string Create(int iActivityItemReturnsFKRefno)
+        protected override async Task<string> Create(int iActivityItemReturnsFKRefno)
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);

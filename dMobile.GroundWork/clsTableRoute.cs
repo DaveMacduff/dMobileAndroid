@@ -3,10 +3,13 @@ namespace dMobile.GroundWork
     using dMobile.Bedrock;
     using System;
     using System.Data;
-    using System.Data.SQLite;
+    using SQLite;
     using System.Text;
     using System.Xml;
     using System.Xml.Linq;
+    using System.Threading.Tasks;
+    using System.Collections.Generic;
+    using dMobile.Resources.Models;
 
     /// <summary>
     /// Defines the <see cref="TableRoute" />
@@ -25,19 +28,16 @@ namespace dMobile.GroundWork
         /// <summary>
         /// The Request
         /// </summary>
-        public override void Request()
+        public override async Task Request()
         {
             string reqData = string.Empty;
-
-            //GC.Collect();
-            //GC.WaitForPendingFinalizers();
 
             try
             {
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding routes.", true);
 
-                reqData = this.Send("routes");
+                reqData = await this.Send("routes");
 
                 if (0 < reqData.Length)
                 {
@@ -48,7 +48,7 @@ namespace dMobile.GroundWork
                         throw new Exception(reqErr.DocumentElement["detail"].InnerText);
                     }
 
-                    this.Save(reqData);
+                    await this.Save(reqData);
                 }
 
                 // TODO: Resource strings
@@ -69,81 +69,75 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="routeCode"></param>
         /// <returns></returns>
-        public int GetiRouteRefnoFromRouteCode(string routeCode)
-        {
-            int routeRefno = 0;
+        //public int GetiRouteRefnoFromRouteCode(string routeCode)
+        //{
+        //    int routeRefno = 0;
 
-            //      try
-            //      {
-            //        using (SQLiteCommand cmndRoute = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-            //        {
-            //          cmndRoute.CommandText = "tRoute";
-            //          cmndRoute.IndexName = "UQ_RouteOnRouteCode";
-            //          cmndRoute.CommandType = CommandType.TableDirect;
+        //      try
+        //      {
+        //        using (SQLiteCommand cmndRoute = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        //        {
+        //          cmndRoute.CommandText = "tRoute";
+        //          cmndRoute.IndexName = "UQ_RouteOnRouteCode";
+        //          cmndRoute.CommandType = CommandType.TableDirect;
 
-            //          using (SQLiteDataReader drRoute = cmndRoute.ExecuteReader())
-            //          {
-            //            if (drRoute.Seek(DbSeekOptions.FirstEqual, new object[] { routeCode }))
-            //            {
-            //              if (drRoute.Read())
-            //              {
-            //                routeRefno = Convert.ToInt32(drRoute.GetValue((int)SysCommon.RouteFields.Refno));
-            //              }
-            //              else
-            //              {
-            //#if MULTILANGUAGE
-            //                throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DrroutereadFailed));
-            //#else
-            //                throw new Exception("drRoute.Read() failed.");
-            //#endif
-            //              }
-            //            }
-            //            else
-            //            {
-            //              throw new Exception(
-            //#if MULTILANGUAGE
-            //                string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.UnableToLocateRouteRefnoFromRouteCodeInTroute), routeCode));
-            //#else
-            //                string.Format("Unable To Locate Route Refno From Route Code {0} In tRoute", routeCode));
-            //#endif
-            //            }
+        //          using (SQLiteDataReader drRoute = cmndRoute.ExecuteReader())
+        //          {
+        //            if (drRoute.Seek(DbSeekOptions.FirstEqual, new object[] { routeCode }))
+        //            {
+        //              if (drRoute.Read())
+        //              {
+        //                routeRefno = Convert.ToInt32(drRoute.GetValue((int)SysCommon.RouteFields.Refno));
+        //              }
+        //              else
+        //              {
+        //#if MULTILANGUAGE
+        //                throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DrroutereadFailed));
+        //#else
+        //                throw new Exception("drRoute.Read() failed.");
+        //#endif
+        //              }
+        //            }
+        //            else
+        //            {
+        //              throw new Exception(
+        //#if MULTILANGUAGE
+        //                string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.UnableToLocateRouteRefnoFromRouteCodeInTroute), routeCode));
+        //#else
+        //                string.Format("Unable To Locate Route Refno From Route Code {0} In tRoute", routeCode));
+        //#endif
+        //            }
 
-            //            drRoute.Close();
-            //          }
-            //        }
-            //      }
-            //      catch (SQLiteException ex)
-            //      {
-            //#if MULTILANGUAGE
-            //        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredGetirouterefnofromroutecodeFailed), ex);
-            //#else
-            //        throw new Exception("Database exception occurred. GetiRouteRefnoFromRouteCode failed.", ex);
-            //#endif
-            //      }
+        //            drRoute.Close();
+        //          }
+        //        }
+        //      }
+        //      catch (SQLiteException ex)
+        //      {
+        //#if MULTILANGUAGE
+        //        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredGetirouterefnofromroutecodeFailed), ex);
+        //#else
+        //        throw new Exception("Database exception occurred. GetiRouteRefnoFromRouteCode failed.", ex);
+        //#endif
+        //      }
 
-            return routeRefno;
-        }
+        //    return routeRefno;
+        //}
 
         /// <summary>
         /// The DataStatus
         /// </summary>
         /// <returns>The <see cref="int"/></returns>
-        public override int DataStatus()
+        public override async Task<int> DataStatus()
         {
             int rowsAffected = 0;
 
             try
             {
-                using (SQLiteCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                {
-                    cmndStatus.CommandText = "SELECT COUNT(*) FROM tRoute";
-                    cmndStatus.CommandType = CommandType.Text;
+                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tRoute"));
 
-                    rowsAffected = Convert.ToInt32(cmndStatus.ExecuteScalar());
-
-                    // TODO: Resource strings
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} routes.", rowsAffected), true);
-                }
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} routes.", rowsAffected), true);
             }
             catch (SQLiteException ex)
             {
@@ -157,19 +151,14 @@ namespace dMobile.GroundWork
         /// <summary>
         /// The Purge
         /// </summary>
-        public override void Purge()
+        public override async Task Purge()
         {
             try
             {
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging routes.", true);
 
-                using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                {
-                    cmndPurge.CommandText = "DELETE FROM tRoute";
-                    cmndPurge.CommandType = CommandType.Text;
-                    cmndPurge.ExecuteNonQuery();
-                }
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("DELETE FROM tRoute");
 
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging routes complete.", true);
@@ -189,14 +178,11 @@ namespace dMobile.GroundWork
         /// The Save
         /// </summary>
         /// <param name="reqData"></param>
-        protected override void Save(string reqData)
+        protected override async Task Save(string reqData)
         {
-            SQLiteConnection conn = DatabaseConnection.GetInstance().SQLConn;
             string errMsg = string.Empty;
 
-            using (SQLiteCommand cmndRoute = conn.CreateCommand())
-            using (SQLiteCommand drRouteUpdate = conn.CreateCommand())
-            using (SQLiteTransaction transaction = conn.BeginTransaction())
+            await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
             {
                 try
                 {
@@ -233,40 +219,21 @@ namespace dMobile.GroundWork
 
                                 isRouteFound = false;
 
-                                cmndRoute.CommandText = "SELECT RouteCode FROM tRoute WHERE RouteCode = @routeCode";
-                                cmndRoute.CommandType = CommandType.Text;
-                                cmndRoute.Parameters.Add(new SQLiteParameter("@routeCode", routeCode));
+                                List<tRouteModel> resultsRoute = transaction.Query<tRouteModel>("SELECT RouteCode FROM tRoute WHERE RouteCode = ?", routeCode);
 
-                                using (SQLiteDataReader drRoute = cmndRoute.ExecuteReader())
+                                if (resultsRoute?.Count > 0)
                                 {
-                                    if (drRoute.Read())
+                                    isRouteFound = true;
+
+                                    if (SysEnv.RefreshOpt.RefreshDataChangesOnly)
                                     {
-                                        isRouteFound = true;
-
-                                        if (SysEnv.RefreshOpt.RefreshDataChangesOnly)
-                                        {
-                                            drRouteUpdate.CommandText = "UPDATE tRoute SET RouteDescription = @routeDesc, RouteDayOfWeek = @routeDayOfWeek WHERE RouteCode = @routeCode";
-                                        drRouteUpdate.CommandType = CommandType.Text;
-                                        drRouteUpdate.Parameters.Add(new SQLiteParameter("@routeDesc", routeDesc));
-                                        drRouteUpdate.Parameters.Add(new SQLiteParameter("@routeDayOfWeek", routeDayOfWeek));
-                                        drRouteUpdate.Parameters.Add(new SQLiteParameter("@routeCode", routeCode));
-
-                                        drRouteUpdate.ExecuteNonQuery();
-                                        }
+                                        transaction.Execute("UPDATE tRoute SET RouteDescription = ?, RouteDayOfWeek = ? WHERE RouteCode = ?", routeDesc, routeDayOfWeek, routeCode);
                                     }
-
-                                    drRoute.Close();
                                 }
 
                                 if (!isRouteFound)
                                 {
-                                    cmndRoute.CommandText = "INSERT INTO tRoute (RouteCode, RouteDescription, RouteDayOfWeek) VALUES (@routeCode, @routeDescription, @routeDayOfWeek)";
-                                    cmndRoute.CommandType = CommandType.Text;
-                                    cmndRoute.Parameters.Add(new SQLiteParameter("@routeCode", routeCode));
-                                    cmndRoute.Parameters.Add(new SQLiteParameter("@routeDescription", routeDesc));
-                                    cmndRoute.Parameters.Add(new SQLiteParameter("@routeDayOfWeek", routeDayOfWeek));
-
-                                    cmndRoute.ExecuteNonQuery();
+                                    transaction.Execute("INSERT INTO tRoute (RouteCode, RouteDescription, RouteDayOfWeek) VALUES (?, ?, ?)", routeCode, routeDesc, routeDayOfWeek);
                                 }
 
                                 progValue++;
@@ -296,14 +263,14 @@ namespace dMobile.GroundWork
 
                     throw new Exception("Database exception occurred. Saving routes failed." + Environment.NewLine + errMsg, ex);
                 }
-            }
+            });
         }
 
         /// <summary>
         /// The Create
         /// </summary>
         /// <returns></returns>
-        protected override string Create()
+        protected override async Task<string> Create()
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);

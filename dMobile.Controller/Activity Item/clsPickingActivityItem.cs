@@ -559,13 +559,13 @@ namespace dMobile.Controller
 
                 TableActivityPickingItem tableActPickingItem = new TableActivityPickingItem();
                 TableActivityPickingDetail tableActPickingDetail = new TableActivityPickingDetail();
-                tableActPickingDetail.Purge();
-                tableActPickingItem.Purge();
+                await tableActPickingDetail.Purge();
+                await tableActPickingItem.Purge();
 
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
 
                 tableActPickingItem.RegisterDataAccessListenerProgressOut((PickingActItem)this);
-                tableActPickingItem.RequestData(this.ActHdr.Refno, data);
+                await tableActPickingItem.RequestData(this.ActHdr.Refno, data);
                 tableActPickingItem.UnregisterDataAccessListenerProgressOut((PickingActItem)this);
             }
         }

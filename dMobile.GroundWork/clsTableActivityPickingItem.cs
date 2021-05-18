@@ -236,7 +236,7 @@ namespace dMobile.GroundWork
                                 actItemPickFKRefno = Convert.ToInt32(drow["ActivityItemPickingFKRefno"]);
                                 errMsg += Environment.NewLine + "Item fk refno " + actItemPickFKRefno;
 
-                                prodUnitRefno = this.GetProductUnitRefnoFromDataRow(drow, transaction, errMsg, false);
+                                prodUnitRefno = this.GetProductUnitRefnoFromDataRow(drow, transaction, ref errMsg, false);
                                 locMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, ref errMsg, transaction);
 
                                 string queryInsertItemPicking = "INSERT INTO tActivityItemPicking (" +

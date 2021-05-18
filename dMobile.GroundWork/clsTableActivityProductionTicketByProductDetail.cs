@@ -196,7 +196,7 @@ namespace dMobile.GroundWork
                     throw new Exception("No results found in tActivityItemProductionByProduct");
                 }
 
-                return await this.SendComm(this.Create(actItemFKRefno));
+                return await this.SendComm(await this.Create(actItemFKRefno));
             }
             catch (SQLiteException ex)
             {
@@ -346,7 +346,7 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="actItemFKRefno">The actItemFKRefno<see cref="int"/></param>
         /// <returns></returns>
-        protected override string Create(int actItemFKRefno)
+        protected override async Task<string> Create(int actItemFKRefno)
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);

@@ -179,7 +179,7 @@ namespace dMobile.GroundWork
                 throw new Exception("drReturns.Read() failed.");
             }
 
-            return await this.SendComm(this.Create(returnsFKRefno));
+            return await this.SendComm(await this.Create(returnsFKRefno));
         }
 
         /// <summary>
@@ -319,7 +319,7 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="returnsFKRefno"></param>
         /// <returns></returns>
-        protected override string Create(int returnsFKRefno)
+        protected override async Task<string> Create(int returnsFKRefno)
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);

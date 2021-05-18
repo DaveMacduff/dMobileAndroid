@@ -390,7 +390,7 @@ namespace dMobile.Controller
                 TableActivityProductionTicketMaterial tableTicketMaterial = new TableActivityProductionTicketMaterial();
 
                 tableTicketMaterial.RegisterDataAccessListenerProgressOut((TicketMaterialActivity)this);
-                tableTicketMaterial.Request();
+                await tableTicketMaterial.Request();
                 tableTicketMaterial.UnregisterDataAccessListenerProgressOut((TicketMaterialActivity)this);
             }
         }
@@ -405,9 +405,9 @@ namespace dMobile.Controller
             TableActivityProductionTicketMaterialItem tableTicketMaterialItem = new TableActivityProductionTicketMaterialItem();
             TableActivityProductionTicketMaterialDetail tableTicketMaterialDetail = new TableActivityProductionTicketMaterialDetail();
 
-            tableTicketMaterialDetail.Purge();
-            tableTicketMaterialItem.Purge();
-            tableTicketMaterial.Purge();
+            await tableTicketMaterialDetail.Purge();
+            await tableTicketMaterialItem.Purge();
+            await tableTicketMaterial.Purge();
         }
 
         /// <summary>

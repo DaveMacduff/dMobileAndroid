@@ -374,7 +374,7 @@ namespace dMobile.Controller
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 2);
 
                 TableActivityPhysicalCountDetail tableCountDet = new TableActivityPhysicalCountDetail();
-                tableCountDet.Purge();
+                await tableCountDet.Purge();
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
 
                 tableCountDet.RegisterDataAccessListenerProgressOut((PhysicalCountActDetail)this);

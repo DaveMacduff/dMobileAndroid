@@ -1,4 +1,4 @@
-namespace dMobile.GroundWork
+﻿namespace dMobile.GroundWork
 {
     using dMobile.Bedrock;
     using System;
@@ -196,7 +196,7 @@ namespace dMobile.GroundWork
                 throw new Exception("drItemRecv.Read() failed.");
             }
 
-            reqData = await this.SendComm(this.Create(actItemRecvFKRefno));
+            reqData = await this.SendComm(await this.Create(actItemRecvFKRefno));
 
             return reqData;
         }
@@ -347,7 +347,7 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="iActivityItemReceivingFKRefno">The iActivityItemReceivingFKRefno<see cref="int"/></param>
         /// <returns></returns>
-        protected override string Create(int iActivityItemReceivingFKRefno)
+        protected override async Task<string> Create(int iActivityItemReceivingFKRefno)
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);

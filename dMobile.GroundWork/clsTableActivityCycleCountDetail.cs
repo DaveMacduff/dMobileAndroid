@@ -1,4 +1,4 @@
-namespace dMobile.GroundWork
+﻿namespace dMobile.GroundWork
 {
     using dMobile.Bedrock;
     using dMobile.Resources.Models;
@@ -201,7 +201,7 @@ namespace dMobile.GroundWork
                     throw new Exception("No results in tActivityItemCount for ActivityItemRefno " + actItemCountRefno);
                 }
 
-                return await this.SendComm(this.Create(actItemCountFKRefno));
+                return await this.SendComm(await this.Create(actItemCountFKRefno));
             }
             catch (SQLiteException ex)
             {
@@ -357,7 +357,7 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="actItemCountFKRefno">The actItemCountFKRefno<see cref="int"/></param>
         /// <returns></returns>
-        protected override string Create(int actItemCountFKRefno)
+        protected override async Task<string> Create(int actItemCountFKRefno)
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);

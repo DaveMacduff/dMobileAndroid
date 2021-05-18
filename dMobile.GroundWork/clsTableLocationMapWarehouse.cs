@@ -1,4 +1,4 @@
-namespace dMobile.GroundWork
+﻿namespace dMobile.GroundWork
 {
     using dMobile.Bedrock;
     using System;
@@ -180,7 +180,7 @@ namespace dMobile.GroundWork
         /// <returns></returns>
         protected override async Task<string> Send()
         {
-            return await this.SendComm(this.Create());
+            return await this.SendComm(await this.Create());
         }
 
         /// <summary>
@@ -413,7 +413,7 @@ namespace dMobile.GroundWork
         /// The Create
         /// </summary>
         /// <returns></returns>
-        protected override string Create()
+        protected override async Task<string> Create()
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);

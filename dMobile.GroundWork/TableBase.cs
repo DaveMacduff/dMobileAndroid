@@ -321,9 +321,9 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="tableName"></param>
         /// <returns></returns>
-        protected virtual Task<string> Send(string tableName)
+        protected virtual async Task<string> Send(string tableName)
         {
-            return this.SendComm(this.Create());
+            return await this.SendComm(await this.Create());
         }
 
         /// <summary>
@@ -353,7 +353,7 @@ namespace dMobile.GroundWork
         /// <param name="sendData"></param>
         /// <param name="familyCode"></param>
         /// <returns></returns>
-        protected virtual string SendRequest(ref string sendData, string familyCode)
+        protected virtual Task<string> SendRequest(ref string sendData, string familyCode)
         {
             throw new NotImplementedException();
         }
@@ -364,7 +364,7 @@ namespace dMobile.GroundWork
         /// <param name="prodLocMapType"></param>
         /// <param name="whsLocMapFKRefno">The whsLocMapFKRefno<see cref="int"/></param>
         /// <returns>The <see cref="string"/></returns>
-        protected virtual string SendRequest(int prodLocMapType, int whsLocMapFKRefno)
+        protected virtual Task<string> SendRequest(int prodLocMapType, int whsLocMapFKRefno)
         {
             throw new NotImplementedException();
         }
@@ -374,7 +374,7 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="prodLocMapType"></param>
         /// <returns></returns>
-        protected virtual string SendRequest(int prodLocMapType)
+        protected virtual Task<string> SendRequest(int prodLocMapType)
         {
             throw new NotImplementedException();
         }
@@ -411,7 +411,7 @@ namespace dMobile.GroundWork
         /// The Create
         /// </summary>
         /// <returns></returns>
-        protected virtual string Create()
+        protected virtual Task<string> Create()
         {
             throw new NotImplementedException();
         }
@@ -441,7 +441,7 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="actFKRefno"></param>
         /// <returns></returns>
-        protected virtual string Create(int actFKRefno)
+        protected virtual Task<string> Create(int actFKRefno)
         {
             throw new NotImplementedException();
         }

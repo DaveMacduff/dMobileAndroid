@@ -387,7 +387,7 @@ namespace dMobile.Controller
 
                 TableActivityCycleCount cycleCount = new TableActivityCycleCount();
                 cycleCount.RegisterDataAccessListenerProgressOut((IDataAccessEventListener)this);
-                cycleCount.Request();
+                await cycleCount.Request();
                 cycleCount.UnregisterDataAccessListenerProgressOut((IDataAccessEventListener)this);
             }
         }
@@ -402,9 +402,9 @@ namespace dMobile.Controller
             TableActivityCycleCountItem cycleCountItem = new TableActivityCycleCountItem();
             TableActivityCycleCountDetail cycleCountDetail = new TableActivityCycleCountDetail();
 
-            cycleCountDetail.Purge();
+            await cycleCountDetail.Purge();
             await cycleCountItem.Purge();
-            cycleCount.Purge();
+            await cycleCount.Purge();
         }
 
         /// <summary>

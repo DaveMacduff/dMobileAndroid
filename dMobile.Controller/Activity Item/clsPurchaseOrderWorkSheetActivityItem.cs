@@ -528,12 +528,12 @@ namespace dMobile.Controller
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 2);
 
                 TableActivityPurchaseOrderWorkSheetItem tableActPOWorkSheetItem = new TableActivityPurchaseOrderWorkSheetItem();
-                tableActPOWorkSheetItem.Purge();
+                await tableActPOWorkSheetItem.Purge();
 
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
 
                 tableActPOWorkSheetItem.RegisterDataAccessListenerProgressOut((POWorkSheetActItem)this);
-                tableActPOWorkSheetItem.Request(ActHdr.Refno);
+                await tableActPOWorkSheetItem.Request(ActHdr.Refno);
                 tableActPOWorkSheetItem.UnregisterDataAccessListenerProgressOut((POWorkSheetActItem)this);
             }
         }

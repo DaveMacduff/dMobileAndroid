@@ -1,4 +1,4 @@
-namespace dMobile.GroundWork
+﻿namespace dMobile.GroundWork
 {
     using dMobile.Bedrock;
     using System;
@@ -130,7 +130,7 @@ namespace dMobile.GroundWork
         protected override async Task<string> Send(int actRefno)
         {
             int actWorkSheetFKRefno = 0;
-            return await this.SendComm(this.Create(actWorkSheetFKRefno));
+            return await this.SendComm(await this.Create(actWorkSheetFKRefno));
         }
 
         /// <summary>
@@ -258,7 +258,7 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="actWorkSheetFKRefno">The actWorkSheetFKRefno<see cref="int"/></param>
         /// <returns></returns>
-        protected override string Create(int actWorkSheetFKRefno)
+        protected override async Task<string> Create(int actWorkSheetFKRefno)
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);

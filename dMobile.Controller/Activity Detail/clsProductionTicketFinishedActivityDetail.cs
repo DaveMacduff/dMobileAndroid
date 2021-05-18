@@ -366,12 +366,12 @@ namespace dMobile.Controller
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 2);
 
                 TableActivityProductionTicketFinishedDetail tableActTicketDetail = new TableActivityProductionTicketFinishedDetail();
-                tableActTicketDetail.Purge();
+                await tableActTicketDetail.Purge();
 
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
 
                 tableActTicketDetail.RegisterDataAccessListenerProgressOut((TicketFinishedActDetail)this);
-                tableActTicketDetail.Request(this.ActItem.Refno);
+                await tableActTicketDetail.Request(this.ActItem.Refno);
                 tableActTicketDetail.UnregisterDataAccessListenerProgressOut((TicketFinishedActDetail)this);
             }
         }

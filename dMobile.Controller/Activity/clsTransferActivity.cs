@@ -419,14 +419,14 @@ namespace dMobile.Controller
                 {
                     TableActivityTransferFrom tableActTransfer = new TableActivityTransferFrom();
                     tableActTransfer.RegisterDataAccessListenerProgressOut((TransferActivity)this);
-                    tableActTransfer.Request();
+                    await tableActTransfer.Request();
                     tableActTransfer.UnregisterDataAccessListenerProgressOut((TransferActivity)this);
                 }
                 else
                 {
                     TableActivityTransferTo tableActTransfer = new TableActivityTransferTo();
                     tableActTransfer.RegisterDataAccessListenerProgressOut((TransferActivity)this);
-                    tableActTransfer.Request();
+                    await tableActTransfer.Request();
                     tableActTransfer.UnregisterDataAccessListenerProgressOut((TransferActivity)this);
                 }
 
@@ -444,18 +444,18 @@ namespace dMobile.Controller
                 TableActivityTransferFrom tableActTransfer = new TableActivityTransferFrom();
                 TableActivityTransferFromItem tableActTransferItem = new TableActivityTransferFromItem();
                 TableActivityTransferFromDetail tableActTransferDetail = new TableActivityTransferFromDetail();
-                tableActTransferDetail.Purge();
-                tableActTransferItem.Purge();
-                tableActTransfer.Purge();
+                await tableActTransferDetail.Purge();
+                await tableActTransferItem.Purge();
+                await tableActTransfer.Purge();
             }
             else
             {
                 TableActivityTransferTo tableActTransfer = new TableActivityTransferTo();
                 TableActivityTransferToItem tableActTransferItem = new TableActivityTransferToItem();
                 TableActivityTransferToDetail tableActTransferDetail = new TableActivityTransferToDetail();
-                tableActTransferDetail.Purge();
-                tableActTransferItem.Purge();
-                tableActTransfer.Purge();
+                await tableActTransferDetail.Purge();
+                await tableActTransferItem.Purge();
+                await tableActTransfer.Purge();
             }
         }
 

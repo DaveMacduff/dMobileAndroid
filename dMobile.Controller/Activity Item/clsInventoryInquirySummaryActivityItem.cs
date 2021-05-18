@@ -568,7 +568,7 @@ namespace dMobile.Controller
                 }
 
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 95);
-                FormatGrid();
+                await FormatGrid();
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 100);
             }
             catch (Exception ex)

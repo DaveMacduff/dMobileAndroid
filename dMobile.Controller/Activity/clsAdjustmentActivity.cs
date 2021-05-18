@@ -114,7 +114,7 @@ namespace dMobile.Controller
             TableActivityAdjustmentDetail adjDetail = new TableActivityAdjustmentDetail();
 
             await adjDetail.Purge();
-            adjItem.Purge();
+            await adjItem.Purge();
             await adj.Purge();
         }
 
