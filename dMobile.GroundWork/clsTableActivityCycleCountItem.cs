@@ -1,15 +1,15 @@
 namespace dMobile.GroundWork
 {
     using dMobile.Bedrock;
-    using System;
-    using System.Data;
+    using dMobile.Resources.Models;
     using SQLite;
+    using System;
+    using System.Collections.Generic;
+    using System.Data;
     using System.Text;
     using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
-    using dMobile.Resources.Models;
-    using System.Collections.Generic;
 
     /// <summary>
     /// Defines the <see cref="TableActivityCycleCountItem" />
@@ -61,7 +61,7 @@ namespace dMobile.GroundWork
                                     throw new Exception(reqErr.DocumentElement["detail"].InnerText);
                                 }
 
-                                this.Save(reqData, actRefno);
+                                await this.Save(reqData, actRefno);
                             }
                         }
                     }
@@ -79,7 +79,7 @@ namespace dMobile.GroundWork
                             throw new Exception(reqErr.DocumentElement["detail"].InnerText);
                         }
 
-                        this.Save(reqData, actRefno);
+                        await this.Save(reqData, actRefno);
                     }
                 }
 
@@ -115,7 +115,8 @@ namespace dMobile.GroundWork
 
             try
             {
-                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.QueryScalarsAsync<tActivityItemModel>("SELECT COUNT(ActivityItemRefno) FROM tActivityItem WHERE ActivityItemSubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts)));
+                string query = "SELECT COUNT(tActivityItem.ActivityItemRefno) FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?";
+                rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>(query, Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts));
 
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} cycle count item(s)", rowsAffected), true);
@@ -140,11 +141,15 @@ namespace dMobile.GroundWork
             try
             {
                 string query = "DELETE FROM tActivityItemBarCodeAssociationXRef "
-                    + "WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno IN "
-                    + "(SELECT tActivityItem.ActivityItemRefno FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?)";
+                        + "WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno IN "
+                        + "(SELECT tActivityItem.ActivityItemRefno FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?";
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts));
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("DELETE FROM tActivityItemCount WHERE tActivityItemCount.ActivityItemSubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts));
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("DELETE FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts));
+
+                query = "DELETE FROM tActivityItemCount WHERE tActivityItemCount.ActivityItemSubType = ?";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts));
+
+                query = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts));
 
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging cycle count items complete.", true);
@@ -167,7 +172,6 @@ namespace dMobile.GroundWork
         /// <returns></returns>
         protected override async Task<string> Send(int actRefno)
         {
-            string reqData = string.Empty;
             int actCountFKRefno = 0;
 
             List<tActivityCountModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityCountModel>("SELECT * FROM tActivityCount WHERE ActivityRefno = ?", actRefno);
@@ -178,10 +182,10 @@ namespace dMobile.GroundWork
             }
             else
             {
-                throw new Exception("drCount.Read() failed.");
+                throw new Exception("No results in tActivityCount for ActivityRefno " + actRefno);
             }
 
-            return await this.SendComm(this.Create(actCountFKRefno)); ;
+            return await this.SendComm(await this.Create(actCountFKRefno));
         }
 
         /// <summary>
@@ -233,7 +237,7 @@ namespace dMobile.GroundWork
                                 transaction.Execute("INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (?, ?, ?)", Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts), 0, actRefno);
 
                                 actItemRefno = Convert.ToInt32(transaction.QueryScalars<int>("SELECT last_insert_rowid() FROM tActivityItem"));
-                                prodUnitRefno = this.GetProductUnitRefnoFromDataRow(drow, transaction, errMsg, true);
+                                prodUnitRefno = this.GetProductUnitRefnoFromDataRow(drow, transaction, ref errMsg, true);
 
                                 // Cannot use this.SaveDetailLocation() f00 tags are not the same.
                                 locMapRefno = 0;
@@ -366,7 +370,7 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="actCountFKRefno"></param>
         /// <returns></returns>
-        protected override string Create(int actCountFKRefno)
+        protected override async Task<string> Create(int actCountFKRefno)
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);

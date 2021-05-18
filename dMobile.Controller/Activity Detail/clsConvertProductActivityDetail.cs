@@ -557,7 +557,7 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public override string CreateSubmitProductLabelXML(XDocument data)
+        public override async Task<string> CreateSubmitProductLabelXML(XDocument data)
         {
             PrinterSettings prnSettings = new PrinterSettings().LoadData();
             StringBuilder xmlString = new StringBuilder();

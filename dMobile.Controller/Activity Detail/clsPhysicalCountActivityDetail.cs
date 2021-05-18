@@ -6,6 +6,7 @@ namespace dMobile.Controller
     using System.Data;
     using SQLite;
     using System.Text;
+    using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
     using dMobile.Bedrock;
@@ -373,11 +374,11 @@ namespace dMobile.Controller
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 2);
 
                 TableActivityPhysicalCountDetail tableCountDet = new TableActivityPhysicalCountDetail();
-                tableCountDet.Purge();
+                await tableCountDet.Purge();
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
 
                 tableCountDet.RegisterDataAccessListenerProgressOut((PhysicalCountActDetail)this);
-                tableCountDet.Request(this.ActItem.Refno);
+                await tableCountDet.Request(this.ActItem.Refno);
                 tableCountDet.UnregisterDataAccessListenerProgressOut((PhysicalCountActDetail)this);
             }
         }

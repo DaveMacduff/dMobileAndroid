@@ -1049,7 +1049,7 @@ namespace dMobile.Controller
                 try
                 {
                     actPicking.RegisterDataAccessListenerProgressOut((IDataAccessEventListener)this);
-                    actPicking.RequestData(data);
+                    await actPicking.RequestData(data);
                 }
                 catch (Exception ex)
                 {
@@ -1073,10 +1073,10 @@ namespace dMobile.Controller
             TableActivityPickingItem actPickingItem = new TableActivityPickingItem();
             TableActivityPickingDetail actPickingDetail = new TableActivityPickingDetail();
 
-            actPickingDetail.Purge();
-            actPickingItem.Purge();
-            actPickingRoute.Purge();
-            actPicking.Purge();
+            await actPickingDetail.Purge();
+            await actPickingItem.Purge();
+            await actPickingRoute.Purge();
+            await actPicking.Purge();
         }
 
         /// <summary>

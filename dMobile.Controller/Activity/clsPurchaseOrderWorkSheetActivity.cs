@@ -339,7 +339,7 @@ namespace dMobile.Controller
         {
             TableActivityPurchaseOrderWorkSheetItem tableWorkSheetItem = new TableActivityPurchaseOrderWorkSheetItem();
 
-            tableWorkSheetItem.Purge();
+            await tableWorkSheetItem.Purge();
         }
 
         /// <summary>

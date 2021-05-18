@@ -1,10 +1,12 @@
 namespace dMobile.GroundWork
 {
     using dMobile.Bedrock;
+    using SQLite;
     using System;
+    using System.Collections.Generic;
     using System.Data;
-    using System.Data.SQLite;
     using System.Text;
+    using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
 
@@ -25,19 +27,16 @@ namespace dMobile.GroundWork
         /// <summary>
         /// The Request
         /// </summary>
-        public override void Request()
+        public override async Task Request()
         {
             string reqData = string.Empty;
-
-            //GC.Collect();
-            //GC.WaitForPendingFinalizers();
 
             try
             {
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding physical counts.", true);
 
-                reqData = this.Send("physical counts");
+                reqData = await this.Send("physical counts");
 
                 if (0 < reqData.Length)
                 {
@@ -48,7 +47,7 @@ namespace dMobile.GroundWork
                         throw new Exception(reqErr.DocumentElement["detail"].InnerText);
                     }
 
-                    this.Save(reqData);
+                    await this.Save(reqData);
                 }
 
                 // TODO: Resource strings
@@ -68,23 +67,17 @@ namespace dMobile.GroundWork
         /// The DataStatus
         /// </summary>
         /// <returns>The <see cref="int"/></returns>
-        public override int DataStatus()
+        public override async Task<int> DataStatus()
         {
             int rowsAffected = 0;
 
             try
             {
-                using (SQLiteCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                {
-                    cmndStatus.CommandText = "SELECT COUNT(tActivity.ActivityRefno) FROM tActivity WHERE tActivity.ActivitySubType = @activitySubType";
-                    cmndStatus.CommandType = CommandType.Text;
-                    cmndStatus.Parameters.Add(new SQLiteParameter("@activitySubType", Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts)));
+                string query = "SELECT COUNT(ActivityRefno) FROM tActivity WHERE ActivitySubType = ?";
+                rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>(query, Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts));
 
-                    rowsAffected = Convert.ToInt32(cmndStatus.ExecuteScalar());
-
-                    // TODO: Resource strings
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} physical counts.", rowsAffected), true);
-                }
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} physical counts.", rowsAffected), true);
             }
             catch (SQLiteException ex)
             {
@@ -98,24 +91,18 @@ namespace dMobile.GroundWork
         /// <summary>
         /// The Purge
         /// </summary>
-        public override void Purge()
+        public override async Task Purge()
         {
             try
             {
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging physical counts.", true);
 
-                using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                {
-                    cmndPurge.CommandType = CommandType.Text;
-                    cmndPurge.Parameters.Add(new SQLiteParameter("@activitySubType", Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts)));
+                string query = "DELETE FROM tActivityCount WHERE tActivityCount.ActivitySubType = ?";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts));
 
-                    cmndPurge.CommandText = "DELETE FROM tActivityCount WHERE tActivityCount.ActivitySubType = @activitySubType";
-                    cmndPurge.ExecuteNonQuery();
-
-                    cmndPurge.CommandText = "DELETE FROM tActivity WHERE tActivity.ActivitySubType = @activitySubType";
-                    cmndPurge.ExecuteNonQuery();
-                }
+                query = "DELETE FROM tActivity WHERE tActivity.ActivitySubType = ?";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts));
 
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging physical counts complete.", true);
@@ -135,16 +122,11 @@ namespace dMobile.GroundWork
         /// The Save
         /// </summary>
         /// <param name="reqData"></param>
-        protected override void Save(string reqData)
+        protected override async Task Save(string reqData)
         {
-            SQLiteConnection conn = DatabaseConnection.GetInstance().SQLConn;
             string errMsg = string.Empty;
 
-            using (SQLiteCommand cmndCount = conn.CreateCommand())
-            using (SQLiteCommand cmndAct = conn.CreateCommand())
-            using (SQLiteCommand cmndID = conn.CreateCommand())
-            using (SQLiteCommand cmndWhs = conn.CreateCommand())
-            using (SQLiteTransaction transaction = conn.BeginTransaction())
+            await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
             {
                 try
                 {
@@ -164,36 +146,6 @@ namespace dMobile.GroundWork
                             // TODO: Resource strings
                             this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
 
-
-                            //cmndCount.CommandText = "tActivityCount";
-                            //cmndCount.CommandType = CommandType.Text;
-                            //cmndCount.IndexName = "UQ_ActivityCountOnActivityCountFKRefno";
-
-                            //using (SQLiteCommand cmndAct = conn.CreateCommand())
-                            //{
-                            //cmndAct.CommandText = "tActivity";
-                            //cmndAct.CommandType = CommandType.Text;
-
-                            //using (SqlCeResultSet rsAct = cmndAct.ExecuteResultSet(ResultSetOptions.Updatable))
-                            //{
-                            //SqlCeUpdatableRecord recAct = rsAct.CreateRecord();
-
-                            //using (SQLiteCommand cmndID = conn.CreateCommand())
-                            //{
-                            //cmndID.CommandText = "SELECT last_insert_rowid() FROM tActivity";
-                            //cmndID.CommandType = CommandType.Text;
-
-                            //using (SQLiteCommand cmndWhs = conn.CreateCommand())
-                            //{
-                            //cmndWhs.CommandText = "tLocationMapWarehouse";
-                            //cmndWhs.CommandType = CommandType.Text;
-                            //cmndWhs.IndexName = "UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno";
-
-                            //using (SQLiteDataReader drWhs = cmndWhs.ExecuteReader())
-                            //{
-                            //using (SqlCeResultSet rs = cmndCount.ExecuteResultSet(ResultSetOptions.Updatable))
-                            //{
-                            //SqlCeUpdatableRecord rec = rs.CreateRecord();
                             int actRefno = 0;
                             int progValue = 0;
                             int whsLocMapRefno = 0;
@@ -206,28 +158,15 @@ namespace dMobile.GroundWork
                             {
                                 errMsg = "Arguments:";
 
-                                whsLocMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, ref errMsg, cmndWhs);
+                                whsLocMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, ref errMsg, transaction);
 
-                                cmndAct.CommandText = "INSERT INTO tActivity (ActivityStatus, ActivitySubType) VALUES (@activityStatus, @activitySubType)";
-                                cmndAct.CommandType = CommandType.Text;
-                                cmndAct.Parameters.Add(new SQLiteParameter("@activityStatus", Convert.ToInt32(0)));
-                                cmndAct.Parameters.Add(new SQLiteParameter("@activitySubType", Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts)));
+                                transaction.Execute("INSERT INTO tActivity (ActivityStatus, ActivitySubType) VALUES (?, ?)", 0, Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts));
 
-                                cmndAct.ExecuteNonQuery();
-
-                                //recAct.SetInt32((int)SysCommon.ActFields.SubType, (int)SysCommon.ActSubTypes.PhysicalCounts);
-                                //recAct.SetInt32((int)SysCommon.ActFields.Status, 0);
-                                //rsAct.Insert(recAct);
-
-                                cmndID.CommandText = "SELECT last_insert_rowid() FROM tActivity";
-                                cmndID.CommandType = CommandType.Text;
-
-                                actRefno = Convert.ToInt32(cmndID.ExecuteScalar());
-
+                                actRefno = Convert.ToInt32(transaction.QueryScalars<int>("SELECT last_insert_rowid() FROM tActivity"));
                                 countFKRefno = Convert.ToInt32(drow["ActivityCountFKRefno"]);
                                 errMsg += Environment.NewLine + "FK refno " + countFKRefno;
 
-                                cmndCount.CommandText = "INSERT INTO tActivityCount (" +
+                                string query = "INSERT INTO tActivityCount (" +
                                 "ActivityRefno, " +
                                 "ActivitySubType, " +
                                 "ActivityCountFKRefno, " +
@@ -238,35 +177,30 @@ namespace dMobile.GroundWork
                                 "ActivityCountTypeDescription, " +
                                 "ActivityCountDescription" +
                                 ") VALUES (" +
-                                "@activityRefno, " +
-                                "@activitySubType, " +
-                                "@activityCountFKRefno, " +
-                                "@activityCountStringFKRefno, " +
-                                "@warehouseLocationMapRefno, " +
-                                "@activityCountType, " +
-                                "@activityCountDateTime, " +
-                                "@activityCountTypeDescription, " +
-                                "@activityCountDescription" +
+                                "?, " +
+                                "?, " +
+                                "?, " +
+                                "?, " +
+                                "?, " +
+                                "?, " +
+                                "?, " +
+                                "?, " +
+                                "?" +
                                 ")";
-                                cmndCount.CommandType = CommandType.Text;
-                                cmndCount.Parameters.Add(new SQLiteParameter("@activityRefno", actRefno));
-                                cmndCount.Parameters.Add(new SQLiteParameter("@activitySubType", Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts)));
-                                cmndCount.Parameters.Add(new SQLiteParameter("@activityCountFKRefno", countFKRefno));
-                                cmndCount.Parameters.Add(new SQLiteParameter("@activityCountStringFKRefno", countFKRefno.ToString()));
-                                cmndCount.Parameters.Add(new SQLiteParameter("@warehouseLocationMapRefno", whsLocMapRefno));
-                                cmndCount.Parameters.Add(new SQLiteParameter("@activityCountType", Convert.ToInt32(drow["ActivityCountType"])));
-
-                                //rec.SetInt32((int)SysCommon.ActCountFields.ActRefno, actRefno);
-                                //rec.SetInt32((int)SysCommon.ActCountFields.ActSubType, (int)SysCommon.ActSubTypes.PhysicalCounts);
-                                //rec.SetInt32((int)SysCommon.ActCountFields.FKRefno, countFKRefno);
-                                //rec.SetString((int)SysCommon.ActCountFields.StringFKRefno, countFKRefno.ToString());
-                                //rec.SetInt32((int)SysCommon.ActCountFields.WhsLocMapRefno, whsLocMapRefno);
-                                //rec.SetInt32((int)SysCommon.ActCountFields.Type, Convert.ToInt32(drow["ActivityCountType"]));
+                                List<object> parameters = new List<object>()
+                                {
+                                    actRefno,
+                                    Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts),
+                                    countFKRefno,
+                                    countFKRefno.ToString(),
+                                    whsLocMapRefno,
+                                    Convert.ToInt32(drow["ActivityCountType"])
+                                };
 
                                 // To remove time - convert twice
                                 DateTime dt = Convert.ToDateTime(drow["ActivityCountDateTime"]);
                                 //rec.SetDateTime((int)SysCommon.ActCountFields.DateTime, DateTime.Parse(dt.ToShortDateString()));
-                                cmndCount.Parameters.Add(new SQLiteParameter("@activityCountDateTime", DateTime.Parse(dt.ToShortDateString())));
+                                parameters.Add(DateTime.Parse(dt.ToShortDateString()));
 
                                 switch (Convert.ToInt32(drow["ActivityCountType"]))
                                 {
@@ -298,8 +232,7 @@ namespace dMobile.GroundWork
 
                                 errMsg += Environment.NewLine + "Type \'" + actCountTypeDesc + "\'";
 
-                                cmndCount.Parameters.Add(new SQLiteParameter("@activityCountTypeDescription", actCountTypeDesc));
-                                //rec.SetString((int)SysCommon.ActCountFields.TypeDescription, actCountTypeDesc);
+                                parameters.Add(actCountTypeDesc);
 
                                 // <wo="14563" comment="receiving strings up to 75 in length when database wants max 60. This is the viewable description when selecting line item." />
                                 string incomingDescription = ReduceWhitespace(drow["ActivityCountDescription"].ToString());
@@ -314,11 +247,9 @@ namespace dMobile.GroundWork
                                     incomingDescription = incomingDescription.Substring(0, 60); // truncate the end if we need to.
                                 }
 
-                                cmndCount.Parameters.Add(new SQLiteParameter("@activityCountDescription", incomingDescription));
-                                //rec.SetString((int)SysCommon.ActCountFields.Description, incomingDescription);
+                                parameters.Add(incomingDescription);
 
-                                cmndCount.ExecuteNonQuery();
-                                //rs.Insert(rec);
+                                transaction.Execute(query, parameters);
 
                                 progValue++;
                                 if (progValue % 10 == 0)
@@ -328,16 +259,7 @@ namespace dMobile.GroundWork
                             }
 
                             this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
-                            //}
-
-                            //drWhs.Close();
-                            //}
-                            //}
-                            //}
-                            //}
                         }
-                        //}
-                        //}
 
                         transaction.Commit();
 
@@ -353,18 +275,10 @@ namespace dMobile.GroundWork
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving physical counts failed.", true);
 
-                    //// Duplicate key violations
-                    //if (ex.NativeError == 25016)
-                    //{
-                    //    // TODO: Resource strings
-                    //    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Uniqueness violation.", false);
-                    //    throw new Exception("Uniqueness violation." + Environment.NewLine + errMsg, ex);
-                    //}
-
                     // TODO: Resource strings
                     throw new Exception("Database exception occurred. Saving physical counts failed." + Environment.NewLine + errMsg, ex);
                 }
-            }
+            });
         }
 
         /// <summary>
@@ -405,7 +319,7 @@ namespace dMobile.GroundWork
         /// The Create
         /// </summary>
         /// <returns></returns>
-        protected override string Create()
+        protected override async Task<string> Create()
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);

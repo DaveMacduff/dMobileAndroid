@@ -1,13 +1,13 @@
 namespace dMobile.GroundWork
 {
     using dMobile.Bedrock;
+    using SQLite;
     using System;
     using System.Data;
-    using SQLite;
     using System.Text;
+    using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
-    using System.Threading.Tasks;
     using System.Collections.Generic;
 
     /// <summary>
@@ -39,7 +39,7 @@ namespace dMobile.GroundWork
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding cycle counts.", true);
 
-                reqData = this.Send("cycle counts");
+                reqData = await this.Send("cycle counts");
 
                 if (0 < reqData.Length)
                 {
@@ -76,7 +76,8 @@ namespace dMobile.GroundWork
 
             try
             {
-                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(tActivity.ActivityRefno) FROM tActivity WHERE tActivity.ActivitySubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts)));
+                string query = "SELECT COUNT(tActivity.ActivityRefno) FROM tActivity WHERE tActivity.ActivitySubType = ?";
+                rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>(query, Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts));
 
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} cycle count(s)", rowsAffected), true);
@@ -100,8 +101,11 @@ namespace dMobile.GroundWork
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging cycle counts.", true);
 
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("DELETE FROM tActivityCount WHERE tActivityCount.ActivitySubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts));
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("DELETE FROM tActivity WHERE tActivity.ActivitySubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts));
+                string query = "DELETE FROM tActivityCount WHERE tActivityCount.ActivitySubType = ?";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts));
+
+                query = "DELETE FROM tActivity WHERE tActivity.ActivitySubType = ?";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts));
 
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging cycle counts complete.", true);
@@ -250,30 +254,6 @@ namespace dMobile.GroundWork
 
                                 transaction.Execute(sql, parameters);
 
-                                //cmndCount.CommandType = CommandType.Text;
-                                //cmndCount.Parameters.Add(new SQLiteParameter("@activityRefno", actRefno));
-                                //cmndCount.Parameters.Add(new SQLiteParameter("@activitySubType", Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts)));
-                                //cmndCount.Parameters.Add(new SQLiteParameter("@activityCountFKRefno", countFKRefno));
-                                //cmndCount.Parameters.Add(new SQLiteParameter("@activityCountStringFKRefno", countFKRefno.ToString()));
-                                //cmndCount.Parameters.Add(new SQLiteParameter("@warehouseLocationMapRefno", whsLocMapRefno));
-                                //cmndCount.Parameters.Add(new SQLiteParameter("@activityCountType", Convert.ToInt32(drow["ActivityCountType"])));
-                                //cmndCount.Parameters.Add(new SQLiteParameter("@activityCountDateTime", DateTime.Parse(dt.ToShortDateString())));
-                                //cmndCount.Parameters.Add(new SQLiteParameter("@activityCountTypeDescription", actCountTypeDesc));
-                                //cmndCount.Parameters.Add(new SQLiteParameter("@activityCountDescription", incomingDescription));
-                                //cmndCount.ExecuteNonQuery();
-
-                                //rec.SetInt32((int)SysCommon.ActCountFields.ActRefno, actRefno);
-                                //rec.SetInt32((int)SysCommon.ActCountFields.ActSubType, (int)SysCommon.ActSubTypes.CycleCounts);
-                                //rec.SetInt32(Convert.ToInt32(SysCommon.ActCountFields.FKRefno), countFKRefno);
-                                //rec.SetString((int)SysCommon.ActCountFields.StringFKRefno, countFKRefno.ToString());
-                                //rec.SetInt32((int)SysCommon.ActCountFields.WhsLocMapRefno, whsLocMapRefno);
-                                //rec.SetDateTime((int)SysCommon.ActCountFields.DateTime, DateTime.Parse(dt.ToShortDateString()));
-                                //rec.SetInt32((int)SysCommon.ActCountFields.Type, Convert.ToInt32(drow["ActivityCountType"]));
-                                //rec.SetString((int)SysCommon.ActCountFields.TypeDescription, actCountTypeDesc);
-                                //rec.SetString((int)SysCommon.ActCountFields.Description, incomingDescription);
-
-                                //rs.Insert(rec);
-
                                 progValue++;
                                 if (progValue % 10 == 0)
                                 {
@@ -339,7 +319,7 @@ namespace dMobile.GroundWork
         /// The Create
         /// </summary>
         /// <returns></returns>
-        protected override string Create()
+        protected override async Task<string> Create()
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);

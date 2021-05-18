@@ -378,12 +378,12 @@ namespace dMobile.Controller
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 2);
 
                 TableActivityReturnsDetail tableActReturnsDetail = new TableActivityReturnsDetail();
-                tableActReturnsDetail.Purge();
+                await tableActReturnsDetail.Purge();
 
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
 
                 tableActReturnsDetail.RegisterDataAccessListenerProgressOut((ReturnsActDetail)this);
-                tableActReturnsDetail.Request(ActItem.Refno);
+                await tableActReturnsDetail.Request(ActItem.Refno);
                 tableActReturnsDetail.UnregisterDataAccessListenerProgressOut((ReturnsActDetail)this);
             }
         }

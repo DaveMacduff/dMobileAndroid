@@ -1,6 +1,11 @@
 namespace dMobile.Controller
 {
+    using dMobile.Bedrock;
+    using dMobile.GroundWork;
+    using dMobile.Resources.Services;
+    using dMobile.Resources.Types;
     using System;
+    using System.Collections.ObjectModel;
     using System.Data;
     using SQLite;
     using System.Text;
@@ -10,7 +15,8 @@ namespace dMobile.Controller
     using dMobile.GroundWork;
     using System.Xml;
     using System.Threading.Tasks;
-    using System.Collections.ObjectModel;
+    using System.Xml;
+    using System.Xml.Linq;
     using Xamarin.Forms;
     using dMobile.Resources.Types;
     using dMobile.Resources.Services;
@@ -107,9 +113,9 @@ namespace dMobile.Controller
             TableActivityAdjustmentItem adjItem = new TableActivityAdjustmentItem();
             TableActivityAdjustmentDetail adjDetail = new TableActivityAdjustmentDetail();
 
-            adjDetail.Purge();
-            adjItem.Purge();
-            adj.Purge();
+            await adjDetail.Purge();
+            await adjItem.Purge();
+            await adj.Purge();
         }
 
         /// <summary>
@@ -442,7 +448,7 @@ namespace dMobile.Controller
 
                 TableActivityAdjustment adj = new TableActivityAdjustment();
                 adj.RegisterDataAccessListenerProgressOut((IDataAccessEventListener)this);
-                adj.Request();
+                await adj.Request();
                 adj.UnregisterDataAccessListenerProgressOut((IDataAccessEventListener)this);
             }
         }

@@ -321,9 +321,9 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="tableName"></param>
         /// <returns></returns>
-        protected virtual Task<string> Send(string tableName)
+        protected virtual async Task<string> Send(string tableName)
         {
-            return this.SendComm(this.Create());
+            return await this.SendComm(await this.Create());
         }
 
         /// <summary>
@@ -342,7 +342,7 @@ namespace dMobile.GroundWork
         /// <param name="actRefno"></param>
         /// <param name="criteria"></param>
         /// <returns></returns>
-        protected virtual string SendRequest(int actRefno, XDocument criteria)
+        protected virtual Task<string> SendRequest(int actRefno, XDocument criteria)
         {
             throw new NotImplementedException();
         }
@@ -353,7 +353,7 @@ namespace dMobile.GroundWork
         /// <param name="sendData"></param>
         /// <param name="familyCode"></param>
         /// <returns></returns>
-        protected virtual string SendRequest(ref string sendData, string familyCode)
+        protected virtual Task<string> SendRequest(ref string sendData, string familyCode)
         {
             throw new NotImplementedException();
         }
@@ -364,7 +364,7 @@ namespace dMobile.GroundWork
         /// <param name="prodLocMapType"></param>
         /// <param name="whsLocMapFKRefno">The whsLocMapFKRefno<see cref="int"/></param>
         /// <returns>The <see cref="string"/></returns>
-        protected virtual string SendRequest(int prodLocMapType, int whsLocMapFKRefno)
+        protected virtual Task<string> SendRequest(int prodLocMapType, int whsLocMapFKRefno)
         {
             throw new NotImplementedException();
         }
@@ -374,7 +374,7 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="prodLocMapType"></param>
         /// <returns></returns>
-        protected virtual string SendRequest(int prodLocMapType)
+        protected virtual Task<string> SendRequest(int prodLocMapType)
         {
             throw new NotImplementedException();
         }
@@ -411,7 +411,7 @@ namespace dMobile.GroundWork
         /// The Create
         /// </summary>
         /// <returns></returns>
-        protected virtual string Create()
+        protected virtual Task<string> Create()
         {
             throw new NotImplementedException();
         }
@@ -441,7 +441,7 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="actFKRefno"></param>
         /// <returns></returns>
-        protected virtual string Create(int actFKRefno)
+        protected virtual Task<string> Create(int actFKRefno)
         {
             throw new NotImplementedException();
         }
@@ -551,12 +551,12 @@ namespace dMobile.GroundWork
 
             if (useFNo)
             {
-                parameters.Add(drow["f19"].ToString());
-                parameters.Add(drow["f20"].ToString());
-                parameters.Add(drow["f21"].ToString());
-                parameters.Add(drow["f22"].ToString());
+                parameters.Add(Convert.ToString(drow["f19"]));
+                parameters.Add(Convert.ToString(drow["f20"]));
+                parameters.Add(Convert.ToString(drow["f21"]));
+                parameters.Add(Convert.ToString(drow["f22"]));
 
-                if (string.IsNullOrEmpty(drow["f23"].ToString()))
+                if (string.IsNullOrEmpty(Convert.ToString(drow["f23"])))
                 {
                     parameters.Add(DateTime.Parse(emptyDate));
                 }
@@ -567,12 +567,12 @@ namespace dMobile.GroundWork
             }
             else
             {
-                parameters.Add(drow["ActivityDetailExtra1"].ToString());
-                parameters.Add(drow["ActivityDetailExtra2"].ToString());
-                parameters.Add(drow["ActivityDetailExtra3"].ToString());
-                parameters.Add(drow["ActivityDetailExtra4"].ToString());
+                parameters.Add(Convert.ToString(drow["ActivityDetailExtra1"]));
+                parameters.Add(Convert.ToString(drow["ActivityDetailExtra2"]));
+                parameters.Add(Convert.ToString(drow["ActivityDetailExtra3"]));
+                parameters.Add(Convert.ToString(drow["ActivityDetailExtra4"]));
 
-                if (string.IsNullOrEmpty(drow["ActivityDetailExtra5"].ToString()))
+                if (string.IsNullOrEmpty(Convert.ToString(drow["ActivityDetailExtra5"])))
                 {
                     parameters.Add(DateTime.Parse(emptyDate));
                 }
@@ -680,62 +680,53 @@ namespace dMobile.GroundWork
                 detailParameters.Add(Convert.ToDecimal(drow["f04"]));
                 detailParameters.Add(Convert.ToString(drow["f10"]));
                 detailParameters.Add(Convert.ToString(drow["f11"]));
-                detailParameters.Add(Convert.ToString(drow["f18"]));
 
                 if (string.IsNullOrEmpty(Convert.ToString(drow["f13"])))
                 {
                     detailParameters.Add(DateTime.Parse(emptyDate));
-                    //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitBestBeforeSellByDate, DateTime.Parse(emptyDate));
                 }
                 else
                 {
                     detailParameters.Add(Convert.ToDateTime(drow["f13"]));
-                    //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitBestBeforeSellByDate, Convert.ToDateTime(drow["f13"]));
                 }
 
                 if (string.IsNullOrEmpty(Convert.ToString(drow["f14"])))
                 {
                     detailParameters.Add(DateTime.Parse(emptyDate));
-                    //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitExpiryUseByDate, DateTime.Parse(emptyDate));
                 }
                 else
                 {
                     detailParameters.Add(Convert.ToDateTime(drow["f14"]));
-                    //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitExpiryUseByDate, Convert.ToDateTime(drow["f14"]));
                 }
 
                 if (string.IsNullOrEmpty(Convert.ToString(drow["f12"])))
                 {
                     detailParameters.Add(DateTime.Parse(emptyDate));
-                    //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitProductionDate, DateTime.Parse(emptyDate));
                 }
                 else
                 {
                     detailParameters.Add(Convert.ToDateTime(drow["f12"]));
-                    //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitProductionDate, Convert.ToDateTime(drow["f12"]));
                 }
 
                 if (string.IsNullOrEmpty(Convert.ToString(drow["f15"])))
                 {
                     detailParameters.Add(DateTime.Parse(emptyDate));
-                    //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitDueDate, DateTime.Parse(emptyDate));
                 }
                 else
                 {
                     detailParameters.Add(Convert.ToDateTime(drow["f15"]));
-                    //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitDueDate, Convert.ToDateTime(drow["f15"]));
                 }
 
                 if (string.IsNullOrEmpty(Convert.ToString(drow["f16"])))
                 {
                     detailParameters.Add(DateTime.Parse(emptyDate));
-                    //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitPackagingDate, DateTime.Parse(emptyDate));
                 }
                 else
                 {
                     detailParameters.Add(Convert.ToDateTime(drow["f16"]));
-                    //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitPackagingDate, Convert.ToDateTime(drow["f16"]));
                 }
+
+                detailParameters.Add(Convert.ToString(drow["f18"]));
             }
             else
             {
@@ -746,71 +737,53 @@ namespace dMobile.GroundWork
                 detailParameters.Add(Convert.ToDecimal(drow["ActivityDetailWeightQuantity"]));
                 detailParameters.Add(Convert.ToString(drow["ActivityDetailSingleTradeItemSerialNumber"]));
                 detailParameters.Add(Convert.ToString(drow["ActivityDetailLogisticUnitBatchLotNumber"]));
-                detailParameters.Add(Convert.ToString(drow["ActivityDetailLogisticUnitSkidCode"]));
-
-                //detail.SetString((int)SysCommon.ActDetailFields.UniqueSchemeID, drow["ActivityDetailUniqueSchemeID"].ToString());
-                //detail.SetString((int)SysCommon.ActDetailFields.SchemeID, drow["ActivityDetailSchemeID"].ToString());
-                //detail.SetDecimal((int)SysCommon.ActDetailFields.Quantity, Convert.ToDecimal(drow["ActivityDetailQuantity"]));
-                //detail.SetDecimal((int)SysCommon.ActDetailFields.BaseQuantity, Convert.ToDecimal(drow["ActivityDetailBaseQuantity"]));
-                //detail.SetDecimal((int)SysCommon.ActDetailFields.WeightQuantity, Convert.ToDecimal(drow["ActivityDetailWeightQuantity"]));
-                //detail.SetString((int)SysCommon.ActDetailFields.SingleTradeItemSerialNumber, drow["ActivityDetailSingleTradeItemSerialNumber"].ToString());
-                //detail.SetString((int)SysCommon.ActDetailFields.LogisticUnitBatchLotNumber, drow["ActivityDetailLogisticUnitBatchLotNumber"].ToString());
-                //detail.SetString((int)SysCommon.ActDetailFields.LogisticUnitSkidNumber, drow["ActivityDetailLogisticUnitSkidCode"].ToString());
 
                 if (string.IsNullOrEmpty(Convert.ToString(drow["ActivityDetailLogisticUnitBestBeforeSellByDate"])))
                 {
                     detailParameters.Add(DateTime.Parse(emptyDate));
-                    //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitBestBeforeSellByDate, DateTime.Parse(emptyDate));
                 }
                 else
                 {
                     detailParameters.Add(Convert.ToDateTime(drow["ActivityDetailLogisticUnitBestBeforeSellByDate"]));
-                    //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitBestBeforeSellByDate, Convert.ToDateTime(drow["ActivityDetailLogisticUnitBestBeforeSellByDate"]));
                 }
 
                 if (string.IsNullOrEmpty(Convert.ToString(drow["ActivityDetailLogisticUnitExpiryUseByDate"])))
                 {
                     detailParameters.Add(DateTime.Parse(emptyDate));
-                    //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitExpiryUseByDate, DateTime.Parse(emptyDate));
                 }
                 else
                 {
                     detailParameters.Add(Convert.ToDateTime(drow["ActivityDetailLogisticUnitExpiryUseByDate"]));
-                    //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitExpiryUseByDate, Convert.ToDateTime(drow["ActivityDetailLogisticUnitExpiryUseByDate"]));
                 }
 
                 if (string.IsNullOrEmpty(Convert.ToString(drow["ActivityDetailLogisticUnitProductionDate"])))
                 {
                     detailParameters.Add(DateTime.Parse(emptyDate));
-                    //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitProductionDate, DateTime.Parse(emptyDate));
                 }
                 else
                 {
                     detailParameters.Add(Convert.ToDateTime(drow["ActivityDetailLogisticUnitProductionDate"]));
-                    //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitProductionDate, Convert.ToDateTime(drow["ActivityDetailLogisticUnitProductionDate"]));
                 }
 
                 if (string.IsNullOrEmpty(Convert.ToString(drow["ActivityDetailLogisticUnitDueDate"])))
                 {
                     detailParameters.Add(DateTime.Parse(emptyDate));
-                    //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitDueDate, DateTime.Parse(emptyDate));
                 }
                 else
                 {
                     detailParameters.Add(Convert.ToDateTime(drow["ActivityDetailLogisticUnitDueDate"]));
-                    //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitDueDate, Convert.ToDateTime(drow["ActivityDetailLogisticUnitDueDate"]));
                 }
 
                 if (string.IsNullOrEmpty(Convert.ToString(drow["ActivityDetailLogisticUnitPackagingDate"])))
                 {
                     detailParameters.Add(DateTime.Parse(emptyDate));
-                    //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitPackagingDate, DateTime.Parse(emptyDate));
                 }
                 else
                 {
                     detailParameters.Add(Convert.ToDateTime(drow["ActivityDetailLogisticUnitPackagingDate"]));
-                    //detail.SetDateTime((int)SysCommon.ActDetailFields.LogisticUnitPackagingDate, Convert.ToDateTime(drow["ActivityDetailLogisticUnitPackagingDate"]));
                 }
+
+                detailParameters.Add(Convert.ToString(drow["ActivityDetailLogisticUnitSkidCode"]));
             }
 
             return detailParameters;
@@ -839,17 +812,10 @@ namespace dMobile.GroundWork
             int locMapWhsFKRefno = Convert.ToInt32(drow["LocationMapWarehouseFKRefno"]);
             errMsg += Environment.NewLine + "Whs " + locMapWhsFKRefno;
 
-            //cmndLocMapWhs.CommandText = "SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = @locationMapWarehouseFKRefno";
-            //cmndLocMapWhs.CommandType = CommandType.Text;
-            //cmndLocMapWhs.IndexName = "UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno";
-            //cmndLocMapWhs.Parameters.Add(new SQLiteParameter("@locationMapWarehouseFKRefno", Convert.ToInt32(locMapWhsFKRefno)));
+            List<tLocationMapWarehouseModel> results = conn.Query<tLocationMapWarehouseModel>("SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = ?", Convert.ToInt32(locMapWhsFKRefno));
 
-            List<tLocationMapWarehouseModel> results = conn.Query<tLocationMapWarehouseModel>("SELECT LocationMapRefno FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = ?", Convert.ToInt32(locMapWhsFKRefno));
-
-            //if (drWhs.Seek(DbSeekOptions.FirstEqual, new object[] { locMapWhsFKRefno }))
             if (results != null && results.Count > 0)
             {
-                //locMapRefno = drLocMapWhs.GetInt32(Convert.ToInt32(SysCommon.LocMapWhsFields.LocMapRefno));
                 locMapRefno = results[0].LocationMapRefno;
             }
             else
@@ -877,7 +843,7 @@ namespace dMobile.GroundWork
         /// <param name="drProdUnit"></param>
         /// <param name="useFNo">The useFNo<see cref="bool"/></param>
         /// <returns></returns>
-        protected virtual int GetProductUnitRefnoFromDataRow(DataRow drow, SQLiteConnection conn, string errMsg, bool useFNo)
+        protected virtual int GetProductUnitRefnoFromDataRow(DataRow drow, SQLiteConnection conn, ref string errMsg, bool useFNo)
         {
             int prodRefno = 0;
             int prodFKRefno = 0;
@@ -907,7 +873,6 @@ namespace dMobile.GroundWork
 
             if (productResults != null && productResults.Count > 0)
             {
-                //prodRefno = drProduct.GetInt32(Convert.ToInt32(SysCommon.ProductFields.Refno));
                 prodRefno = Convert.ToInt32(productResults[0].ProductRefno);
             }
             else
@@ -920,7 +885,6 @@ namespace dMobile.GroundWork
 
             if (unitResults != null && unitResults.Count > 0)
             {
-                //unitRefno = drUnit.GetInt32(Convert.ToInt32(SysCommon.UnitFields.UnitRefno));
                 unitRefno = Convert.ToInt32(unitResults[0].UnitRefno);
             }
             else
@@ -933,7 +897,6 @@ namespace dMobile.GroundWork
 
             if (productUnitResults != null && productUnitResults.Count > 0)
             {
-                //prodUnitRefno = drProductUnit.GetInt32(Convert.ToInt32(SysCommon.ProdUnitFields.Refno));
                 prodUnitRefno = Convert.ToInt32(productUnitResults[0].ProductUnitRefno);
             }
             else

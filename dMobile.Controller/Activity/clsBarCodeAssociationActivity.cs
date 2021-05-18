@@ -5,6 +5,7 @@ namespace dMobile.Controller
     using System.Data;
     using SQLite;
     using System.Text;
+    using System.Threading.Tasks;
     using System.Xml.Linq;
     using dMobile.Bedrock;
     using dMobile.GroundWork;
@@ -89,7 +90,7 @@ namespace dMobile.Controller
         {
             TableActivityItemBarCodeAssociationXRef actBarCodeAssocXRef = new TableActivityItemBarCodeAssociationXRef();
 
-            actBarCodeAssocXRef.Purge();
+            await actBarCodeAssocXRef.Purge();
 
             try
             {

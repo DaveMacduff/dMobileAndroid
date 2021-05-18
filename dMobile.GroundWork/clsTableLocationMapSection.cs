@@ -1,12 +1,15 @@
-namespace dMobile.GroundWork
+﻿namespace dMobile.GroundWork
 {
     using dMobile.Bedrock;
     using System;
     using System.Data;
-    using System.Data.SQLite;
+    using SQLite;
     using System.Text;
     using System.Xml;
     using System.Xml.Linq;
+    using System.Threading.Tasks;
+    using dMobile.Resources.Models;
+    using System.Collections.Generic;
 
     /// <summary>
     /// Defines the <see cref="TableLocationMapSection" />
@@ -26,7 +29,7 @@ namespace dMobile.GroundWork
         /// The Request
         /// </summary>
         /// <param name="whsLocMapRefno"></param>
-        public override void Request(int whsLocMapRefno)
+        public override async Task Request(int whsLocMapRefno)
         {
             try
             {
@@ -35,39 +38,24 @@ namespace dMobile.GroundWork
 
                 string reqData = string.Empty;
 
-                //GC.Collect();
-                //GC.WaitForPendingFinalizers();
-
                 if (0 < whsLocMapRefno)
                 {
-                    using (SQLiteCommand cmndWhs = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                    List<tLocationMapWarehouseModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tLocationMapWarehouseModel>("SELECT * FROM tLocationMapWarehouse WHERE LocationMapRefno = ?", whsLocMapRefno);
+
+                    if (results?.Count > 0)
                     {
-                        cmndWhs.CommandText = "SELECT * FROM tLocationMapWarehouse WHERE LocationMapRefno = @locationMapRefno";
-                        cmndWhs.CommandType = CommandType.Text;
-                        //cmndWhs.IndexName = "PK_LocationMapWarehouseOnLocationMapRefno";
-                        cmndWhs.Parameters.Add(new SQLiteParameter("@locationMapRefno", whsLocMapRefno));
-
-                        using (SQLiteDataReader drWhs = cmndWhs.ExecuteReader())
-                        {
-                            //if (drWhs.Seek(DbSeekOptions.FirstEqual, new object[] { whsLocMapRefno }))
-                            //{
-                            if (drWhs.Read())
-                            {
-                                // TODO: Resource String
-                                this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("For whs \'{0}\'.", drWhs.GetString((int)SysCommon.LocMapWhsFields.Name)), true);
-                            }
-                            else
-                            {
-                                // TODO: Resource String
-                                throw new Exception(string.Format("Unable to locate the warehouse name using the warehouse refno {0} in tLocationMapWarehouse.", whsLocMapRefno));
-                            }
-
-                            drWhs.Close();
-                        }
+                        // TODO: Resource String
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("For whs \'{0}\'.", results[0].LocationMapWarehouseName), true);
                     }
+                    else
+                    {
+                        // TODO: Resource String
+                        throw new Exception(string.Format("Unable to locate the warehouse name using the warehouse refno {0} in tLocationMapWarehouse.", whsLocMapRefno));
+                    }
+
                 }
 
-                reqData = this.Send(whsLocMapRefno);
+                reqData = await this.Send(whsLocMapRefno);
 
                 if (0 < reqData.Length)
                 {
@@ -78,7 +66,7 @@ namespace dMobile.GroundWork
                         throw new Exception(reqErr.DocumentElement["detail"].InnerText);
                     }
 
-                    this.Save(reqData);
+                    await this.Save(reqData);
                 }
 
                 // TODO: Resource strings
@@ -108,29 +96,20 @@ namespace dMobile.GroundWork
         /// The PurgeData
         /// </summary>
         /// <param name="whsLocMapRefno"></param>
-        public override void PurgeData(int whsLocMapRefno)
+        public override async Task PurgeData(int whsLocMapRefno)
         {
             try
             {
-
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging sections.", true);
 
-                using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                if (whsLocMapRefno == 0)
                 {
-                    cmndPurge.CommandType = CommandType.Text;
-
-                    if (whsLocMapRefno == 0)
-                    {
-                        cmndPurge.CommandText = "DELETE FROM tLocationMapSection";
-                    }
-                    else
-                    {
-                        cmndPurge.CommandText = "DELETE FROM tLocationMapSection WHERE WarehouseLocationMapRefno = @warehouseLocationMapRefno";
-                        cmndPurge.Parameters.Add(new SQLiteParameter("@warehouseLocationMapRefno", whsLocMapRefno.ToString()));
-                    }
-
-                    cmndPurge.ExecuteNonQuery();
+                    await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("DELETE FROM tLocationMapSection");
+                }
+                else
+                {
+                    await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("DELETE FROM tLocationMapSection WHERE WarehouseLocationMapRefno = ?", Convert.ToString(whsLocMapRefno));
                 }
 
                 // TODO: Resource strings
@@ -151,22 +130,16 @@ namespace dMobile.GroundWork
         /// The DataStatus
         /// </summary>
         /// <returns>The <see cref="int"/></returns>
-        public override int DataStatus()
+        public override async Task<int> DataStatus()
         {
             int rowsAffected = 0;
 
             try
             {
-                using (SQLiteCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                {
-                    cmndStatus.CommandText = "SELECT COUNT(*) FROM tLocationMapSection";
-                    cmndStatus.CommandType = CommandType.Text;
+                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tLocationMapSection"));
 
-                    rowsAffected = Convert.ToInt32(cmndStatus.ExecuteScalar());
-
-                    // TODO: Resource strings
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} sections.", rowsAffected), true);
-                }
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} sections.", rowsAffected), true);
             }
             catch (SQLiteException ex)
             {
@@ -182,26 +155,20 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="whsLocMapRefno"></param>
         /// <returns></returns>
-        protected override string Send(int whsLocMapRefno)
+        protected override async Task<string> Send(int whsLocMapRefno)
         {
-            return this.SendComm(this.Create(whsLocMapRefno));
+            return await this.SendComm(await this.Create(whsLocMapRefno));
         }
 
         /// <summary>
         /// The Save
         /// </summary>
         /// <param name="reqData"></param>
-        protected override void Save(string reqData)
+        protected override async Task Save(string reqData)
         {
-            SQLiteConnection conn = DatabaseConnection.GetInstance().SQLConn;
             string errMsg = string.Empty;
 
-            using (SQLiteCommand cmndWhs = conn.CreateCommand())
-            using (SQLiteCommand cmndSect = conn.CreateCommand())
-            using (SQLiteCommand cmndID = conn.CreateCommand())
-            using (SQLiteCommand cmndLocMapInsert = conn.CreateCommand())
-            using (SQLiteCommand cmndSectInsert = conn.CreateCommand())
-            using (SQLiteTransaction transaction = conn.BeginTransaction())
+            await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
             {
                 try
                 {
@@ -222,18 +189,6 @@ namespace dMobile.GroundWork
                             // TODO: Resource String
                             this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
 
-                            //using (SQLiteCommand cmndLocMap = conn.CreateCommand())
-                            //{
-                            //    cmndLocMap.CommandText = "tLocationMap";
-                            //    cmndLocMap.CommandType = CommandType.TableDirect;
-
-                            //using (SqlCeResultSet rsLocMap = cmndLocMap.ExecuteResultSet(ResultSetOptions.Updatable))
-                            //{
-                            //    SqlCeUpdatableRecord recLocMap = rsLocMap.CreateRecord();
-
-                            //using (SqlCeResultSet rs = cmndSect.ExecuteResultSet(ResultSetOptions.Updatable))
-                            //{
-                            //    SqlCeUpdatableRecord rec = rs.CreateRecord();
                             int locMapRefno = 0;
                             int whsLocMapRefno = 0;
                             int progValue = 0;
@@ -255,109 +210,70 @@ namespace dMobile.GroundWork
                                 errMsg += Environment.NewLine + "Section name \'" + sectName + "\'";
                                 sectBarCode = Convert.ToString(drowSection["LocationMapSectionBarCode"]);
                                 errMsg += Environment.NewLine + "Section bar code \'" + sectBarCode + "\'";
-
-                                whsLocMapRefno = this.GetWhsLocMapRefnoFromDataRow(drowSection, ref errMsg, cmndWhs);
-
+                                whsLocMapRefno = this.GetWhsLocMapRefnoFromDataRow(drowSection, ref errMsg, transaction);
                                 isSectFound = false;
 
-                                cmndSect.CommandText = "SELECT LocationMapSectionFKRefno FROM tLocationMapSection WHERE LocationMapSectionFKRefno = @locationMapSectionFKRefno";
-                                cmndSect.CommandType = CommandType.Text;
-                                //cmndSect.IndexName = "UQ_LocationMapSectionOnLocationMapSectionFKRefno";
-                                cmndSect.Parameters.Clear();
-                                cmndSect.Parameters.Add(new SQLiteParameter("@locationMapSectionFKRefno", sectFKRefno.ToString()));
+                                List<tLocationMapSectionModel> resultsLocationMapSection = transaction.Query<tLocationMapSectionModel>("SELECT LocationMapSectionFKRefno FROM tLocationMapSection WHERE LocationMapSectionFKRefno = ?", Convert.ToString(sectFKRefno));
 
-                                using (SQLiteDataReader drSect = cmndSect.ExecuteReader())
+                                if (resultsLocationMapSection?.Count > 0)
                                 {
-                                    //cmndSect.CommandText = "tLocationMapSection";
-                                    //cmndSect.CommandType = CommandType.Text;
-                                    //cmndSect.IndexName = "UQ_LocationMapSectionOnLocationMapSectionFKRefno";
+                                    isSectFound = true;
 
-                                    //if (drSect.Seek(DbSeekOptions.FirstEqual, new object[] { sectFKRefno }))
-
-                                    if (drSect.Read())
+                                    if (SysEnv.RefreshOpt.RefreshDataChangesOnly)
                                     {
-                                        isSectFound = true;
+                                        string queryUpdate = "UPDATE tLocationMapSection "
+                                        + "SET WarehouseLocationMapRefno = " + whsLocMapRefno + ","
+                                        + "LocationMapSectionCode = " + sectCode + ","
+                                        + "LocationMapSectionName = \'" + sectName + "\',"
+                                        + "LocationMapSectionBarCode = \'" + sectBarCode + "\' "
+                                        + "WHERE LocationMapSectionFKRefno = " + sectFKRefno;
 
-                                        if (SysEnv.RefreshOpt.RefreshDataChangesOnly)
-                                        {
-                                            cmndSect.CommandType = CommandType.Text;
-                                            //cmndSect.IndexName = string.Empty;
-                                            cmndSect.CommandText = "UPDATE tLocationMapSection "
-                                            + "SET WarehouseLocationMapRefno = " + whsLocMapRefno + ","
-                                            + "LocationMapSectionCode = " + sectCode + ","
-                                            + "LocationMapSectionName = \'" + sectName + "\',"
-                                            + "LocationMapSectionBarCode = \'" + sectBarCode + "\' "
-                                            + "WHERE LocationMapSectionFKRefno = " + sectFKRefno;
-
-                                            cmndSect.ExecuteNonQuery();
-                                        }
+                                        transaction.Execute(queryUpdate);
                                     }
+                                }
 
-                                    if (!isSectFound)
+                                if (!isSectFound)
+                                {
+                                    transaction.Execute("INSERT INTO tLocationMap (LocationMapSubType) VALUES (?)", Convert.ToInt32(SysCommon.LocMapSubTypes.Section));
+
+                                    locMapRefno = Convert.ToInt32(transaction.QueryScalars<int>("SELECT last_insert_rowid() FROM tLocationMap"));
+
+                                    string queryInsert = "INSERT INTO tLocationMapSection " +
+                                    "(LocationMapRefno, " +
+                                    "LocationMapSubType, " +
+                                    "WarehouseLocationMapRefno, " +
+                                    "LocationMapSectionCode, " +
+                                    "LocationMapSectionName, " +
+                                    "LocationMapSectionFKRefno, " +
+                                    "LocationMapSectionBarCode " +
+                                    ") " +
+                                    "VALUES " +
+                                    "(?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?" +
+                                    ")";
+                                    List<object> parametersInsert = new List<object>()
                                     {
-                                        cmndLocMapInsert.CommandText = "INSERT INTO tLocationMap (LocationMapSubType) VALUES (@locationMapSubType)";
-                                        cmndLocMapInsert.CommandType = CommandType.Text;
-                                        cmndLocMapInsert.Parameters.Add(new SQLiteParameter("@locationMapSubType", (int)SysCommon.LocMapSubTypes.Section));
+                                        locMapRefno,
+                                        Convert.ToInt32(SysCommon.LocMapSubTypes.Section),
+                                        whsLocMapRefno,
+                                        sectCode,
+                                        sectName,
+                                        sectFKRefno,
+                                        sectBarCode
+                                    };
 
-                                        cmndLocMapInsert.ExecuteNonQuery();
+                                    transaction.Execute(queryInsert, parametersInsert);
+                                }
 
-                                        //recLocMap.SetInt32((int)SysCommon.LocMapFields.SubType, (int)SysCommon.LocMapSubTypes.Section);
-                                        //    rsLocMap.Insert(recLocMap);
-
-                                        cmndID.CommandText = "SELECT last_insert_rowid() FROM tLocationMap";
-                                        cmndID.CommandType = CommandType.Text;
-
-                                        locMapRefno = Convert.ToInt32(cmndID.ExecuteScalar());
-
-                                        cmndSectInsert.CommandText = "INSERT INTO tLocationMapSection " +
-                                        "(LocationMapRefno, " +
-                                        "LocationMapSubType, " +
-                                        "WarehouseLocationMapRefno, " +
-                                        "LocationMapSectionCode, " +
-                                        "LocationMapSectionName, " +
-                                        "LocationMapSectionFKRefno, " +
-                                        "LocationMapSectionBarCode " +
-                                        ") " +
-                                        "VALUES " +
-                                        "(@locationMapRefno, " +
-                                        "@locationMapSubType, " +
-                                        "@warehouseLocationMapRefno, " +
-                                        "@locationMapSectionCode, " +
-                                        "@locationMapSectionName, " +
-                                        "@locationMapSectionFKRefno, " +
-                                        "@locationMapSectionBarCode" +
-                                        ")";
-                                        cmndSectInsert.CommandType = CommandType.Text;
-                                        //cmndSectInsert.IndexName = string.Empty;
-                                        cmndSectInsert.Parameters.Add(new SQLiteParameter("@locationMapRefno", locMapRefno));
-                                        cmndSectInsert.Parameters.Add(new SQLiteParameter("@locationMapSubType", (int)SysCommon.LocMapSubTypes.Section));
-                                        cmndSectInsert.Parameters.Add(new SQLiteParameter("@warehouseLocationMapRefno", whsLocMapRefno));
-                                        cmndSectInsert.Parameters.Add(new SQLiteParameter("@locationMapSectionCode", sectCode));
-                                        cmndSectInsert.Parameters.Add(new SQLiteParameter("@locationMapSectionName", sectName));
-                                        cmndSectInsert.Parameters.Add(new SQLiteParameter("@locationMapSectionFKRefno", sectFKRefno));
-                                        cmndSectInsert.Parameters.Add(new SQLiteParameter("@locationMapSectionBarCode", sectBarCode));
-
-                                        cmndSectInsert.ExecuteNonQuery();
-
-                                        //rec.SetInt32((int)SysCommon.LocMapSectFields.LocMapRefno, locMapRefno);
-                                        //rec.SetInt32((int)SysCommon.LocMapSectFields.LocMapSubType, (int)SysCommon.LocMapSubTypes.Section);
-                                        //rec.SetInt32((int)SysCommon.LocMapSectFields.WhsLocMapRefno, whsLocMapRefno);
-                                        //rec.SetInt32((int)SysCommon.LocMapSectFields.Code, sectCode);
-                                        //rec.SetString((int)SysCommon.LocMapSectFields.Name, sectName);
-                                        //rec.SetInt32((int)SysCommon.LocMapSectFields.FKRefno, sectFKRefno);
-                                        //rec.SetString((int)SysCommon.LocMapSectFields.BarCode, sectBarCode);
-
-                                        //rs.Insert(rec);
-                                    }
-
-                                    progValue++;
-
-                                    if (progValue % 100 == 0)
-                                    {
-                                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
-                                    }
-
-                                    drSect.Close();
+                                progValue++;
+                                if (progValue % 100 == 0)
+                                {
+                                    this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
                                 }
 
                                 this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
@@ -376,17 +292,10 @@ namespace dMobile.GroundWork
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving sections failed.", false);
 
-                    //// Duplicate key violations
-                    //if (ex.NativeError == 25016)
-                    //{
-                    //    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Uniqueness violation.", false);
-                    //    throw new Exception("Uniqueness violation." + Environment.NewLine + errMsg, ex);
-                    //}
-
                     // TODO: Resource String
                     throw new Exception("Database exception occurred. Saving sections failed." + Environment.NewLine + errMsg, ex);
                 }
-            }
+            });
         }
 
         /// <summary>
@@ -394,7 +303,7 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="whsLocMapRefno"></param>
         /// <returns></returns>
-        protected override string Create(int whsLocMapRefno)
+        protected override async Task<string> Create(int whsLocMapRefno)
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);
@@ -404,7 +313,7 @@ namespace dMobile.GroundWork
             // lookup and verify warehouse
             if (0 < whsLocMapRefno)
             {
-                locMapWhsFKRefno = locMapWhs.GetLocMapWhsFKRefnoFromLocMapWhsRefno(whsLocMapRefno);
+                locMapWhsFKRefno = await locMapWhs.GetLocMapWhsFKRefnoFromLocMapWhsRefno(whsLocMapRefno);
             }
 
             XDocument request = XDocument.Parse(

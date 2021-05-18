@@ -388,7 +388,7 @@ namespace dMobile.Controller
                 TableActivityProductionTicketFinished tableFinished = new TableActivityProductionTicketFinished();
 
                 tableFinished.RegisterDataAccessListenerProgressOut((TicketFinishedActivity)this);
-                tableFinished.Request();
+                await tableFinished.Request();
                 tableFinished.UnregisterDataAccessListenerProgressOut((TicketFinishedActivity)this);
             }
         }
@@ -403,9 +403,9 @@ namespace dMobile.Controller
             TableActivityProductionTicketFinishedItem tableFinishedItem = new TableActivityProductionTicketFinishedItem();
             TableActivityProductionTicketFinishedDetail tableFinishedDetail = new TableActivityProductionTicketFinishedDetail();
 
-            tableFinishedDetail.Purge();
-            tableFinishedItem.Purge();
-            tableFinished.Purge();
+            await tableFinishedDetail.Purge();
+            await tableFinishedItem.Purge();
+            await tableFinished.Purge();
         }
 
         /// <summary>

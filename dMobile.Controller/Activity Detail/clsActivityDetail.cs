@@ -1,14 +1,14 @@
 namespace dMobile.Controller
 {
+    using dMobile.Bedrock;
+    using dMobile.GroundWork;
+    using SQLite;
     using System;
+    using System.Collections.ObjectModel;
     using System.Data;
     using SQLite;
     using System.Xml;
     using System.Xml.Linq;
-    using dMobile.Bedrock;
-    using dMobile.GroundWork;
-    using System.Text;
-    using System.Collections.ObjectModel;
     using Xamarin.Forms;
     using System.Collections.Generic;
     using System.Threading.Tasks;

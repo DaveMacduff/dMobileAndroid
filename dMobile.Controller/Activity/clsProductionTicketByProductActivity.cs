@@ -5,6 +5,7 @@ namespace dMobile.Controller
     using System.Data;
     using SQLite;
     using System.Text;
+    using System.Threading.Tasks;
     using System.Xml.Linq;
     using dMobile.Bedrock;
     using dMobile.GroundWork;
@@ -387,7 +388,7 @@ namespace dMobile.Controller
                 TableActivityProductionTicketByProduct tableActTicketByProduct = new TableActivityProductionTicketByProduct();
 
                 tableActTicketByProduct.RegisterDataAccessListenerProgressOut((TicketByProdActivity)this);
-                tableActTicketByProduct.Request();
+                await tableActTicketByProduct.Request();
                 tableActTicketByProduct.UnregisterDataAccessListenerProgressOut((TicketByProdActivity)this);
             }
         }
@@ -402,9 +403,9 @@ namespace dMobile.Controller
             TableActivityProductionTicketByProductItem tableActTicketByProductItem = new TableActivityProductionTicketByProductItem();
             TableActivityProductionTicketByProductDetail tableActTicketByProductDetail = new TableActivityProductionTicketByProductDetail();
 
-            tableActTicketByProductDetail.Purge();
-            tableActTicketByProductItem.Purge();
-            tableActTicketByProduct.Purge();
+            await tableActTicketByProductDetail.Purge();
+            await tableActTicketByProductItem.Purge();
+            await tableActTicketByProduct.Purge();
         }
 
         /// <summary>

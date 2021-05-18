@@ -393,7 +393,7 @@ namespace dMobile.Controller
                 TableActivityReceiving tableActReceiving = new TableActivityReceiving();
 
                 tableActReceiving.RegisterDataAccessListenerProgressOut((RecvActivity)this);
-                tableActReceiving.Request();
+                await tableActReceiving.Request();
                 tableActReceiving.UnregisterDataAccessListenerProgressOut((RecvActivity)this);
             }
         }
@@ -408,9 +408,9 @@ namespace dMobile.Controller
             TableActivityRecevingItem tableActReceivingItem = new TableActivityRecevingItem();
             TableActivityReceivingDetail tableActReceivingDetail = new TableActivityReceivingDetail();
 
-            tableActReceivingDetail.Purge();
-            tableActReceivingItem.Purge();
-            tableActReceiving.Purge();
+            await tableActReceivingDetail.Purge();
+            await tableActReceivingItem.Purge();
+            await tableActReceiving.Purge();
         }
 
         /// <summary>

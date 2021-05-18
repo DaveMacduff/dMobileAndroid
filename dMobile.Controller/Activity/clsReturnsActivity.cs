@@ -379,7 +379,7 @@ namespace dMobile.Controller
                 TableActivityReturns tableActReturns = new TableActivityReturns();
 
                 tableActReturns.RegisterDataAccessListenerProgressOut((ReturnsActivity)this);
-                tableActReturns.Request();
+                await tableActReturns.Request();
                 tableActReturns.UnregisterDataAccessListenerProgressOut((ReturnsActivity)this);
             }
         }
@@ -394,9 +394,9 @@ namespace dMobile.Controller
             TableActivityReturnsItem tableActReturnsItem = new TableActivityReturnsItem();
             TableActivityReturnsDetail tableActReturnsDetail = new TableActivityReturnsDetail();
 
-            tableActReturnsDetail.Purge();
-            tableActReturnsItem.Purge();
-            tableActReturns.Purge();
+            await tableActReturnsDetail.Purge();
+            await tableActReturnsItem.Purge();
+            await tableActReturns.Purge();
         }
 
         /// <summary>

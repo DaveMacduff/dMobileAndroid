@@ -1,12 +1,15 @@
-namespace dMobile.GroundWork
+﻿namespace dMobile.GroundWork
 {
     using dMobile.Bedrock;
     using System;
     using System.Data;
-    using System.Data.SQLite;
+    using SQLite;
     using System.Text;
     using System.Xml;
     using System.Xml.Linq;
+    using System.Threading.Tasks;
+    using System.Collections.Generic;
+    using dMobile.Resources.Models;
 
     /// <summary>
     /// Defines the <see cref="TableProductSchemeLotNumberXRef" />
@@ -25,19 +28,16 @@ namespace dMobile.GroundWork
         /// <summary>
         /// The Request
         /// </summary>
-        public override void Request()
+        public override async Task Request()
         {
             string reqData = string.Empty;
-
-            //GC.Collect();
-            //GC.WaitForPendingFinalizers();
 
             try
             {
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding product scheme lot number xref.", true);
 
-                reqData = this.Send("product scheme lot number xref");
+                reqData = await this.Send("product scheme lot number xref");
 
                 if (0 < reqData.Length)
                 {
@@ -48,7 +48,7 @@ namespace dMobile.GroundWork
                         throw new Exception(reqErr.DocumentElement["detail"].InnerText);
                     }
 
-                    this.Save(reqData);
+                    await this.Save(reqData);
                 }
 
                 // TODO: Resource strings
@@ -67,23 +67,15 @@ namespace dMobile.GroundWork
         /// <summary>
         /// The Purge
         /// </summary>
-        public override void Purge()
+        public override async Task Purge()
         {
             try
             {
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product scheme lot number xref.", true);
 
-                using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                {
-                    cmndPurge.CommandText = "DELETE FROM tProductSchemeLotNumber";
-                    cmndPurge.CommandType = CommandType.Text;
-                    cmndPurge.ExecuteNonQuery();
-
-                    cmndPurge.CommandText = "DELETE FROM tProductSchemeLotNumberXRef";
-                    cmndPurge.CommandType = CommandType.Text;
-                    cmndPurge.ExecuteNonQuery();
-                }
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("DELETE FROM tProductSchemeLotNumber");
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("DELETE FROM tProductSchemeLotNumberXRef");
 
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product scheme lot number xref failed.", true);
@@ -103,22 +95,16 @@ namespace dMobile.GroundWork
         /// The DataStatus
         /// </summary>
         /// <returns>The <see cref="int"/></returns>
-        public override int DataStatus()
+        public override async Task<int> DataStatus()
         {
             int rowsAffected = 0;
 
             try
             {
-                using (SQLiteCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                {
-                    cmndStatus.CommandText = "SELECT COUNT(*) FROM tProductSchemeLotNumberXRef";
-                    cmndStatus.CommandType = CommandType.Text;
+                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tProductSchemeLotNumberXRef"));
 
-                    rowsAffected = Convert.ToInt32(cmndStatus.ExecuteScalar());
-
-                    // TODO: Resource strings
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} product scheme lot number xrefs.", rowsAffected), true);
-                }
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} product scheme lot number xrefs.", rowsAffected), true);
             }
             catch (SQLiteException ex)
             {
@@ -133,15 +119,11 @@ namespace dMobile.GroundWork
         /// The Save
         /// </summary>
         /// <param name="reqData"></param>
-        protected override void Save(string reqData)
+        protected override async Task Save(string reqData)
         {
-            SQLiteConnection conn = DatabaseConnection.GetInstance().SQLConn;
             string errMsg = string.Empty;
 
-            using (SQLiteCommand cmndGetScheme = conn.CreateCommand())
-            using (SQLiteCommand cmndGetSchemeLot = conn.CreateCommand())
-            using (SQLiteCommand cmndSchemeLotXRef = conn.CreateCommand())
-            using (SQLiteTransaction transaction = conn.BeginTransaction())
+            await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
             {
                 try
                 {
@@ -162,29 +144,6 @@ namespace dMobile.GroundWork
                             // TODO: Resource Strings
                             this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
 
-                            //cmndSchemeLotXRef.CommandText = "tProductSchemeLotNumberXRef";
-                            //cmndSchemeLotXRef.CommandType = CommandType.TableDirect;
-                            //cmndSchemeLotXRef.IndexName = "PK_ProductSchemeLotNumberXRefOnProductSchemeRefnoAndProductSchemeLotNumberRefno";
-
-                            //using (SQLiteDataReader drSchemeLotXRef = cmndSchemeLotXRef.ExecuteReader())
-                            //{
-                            //{
-                            //cmndGetScheme.CommandText = "tProductScheme";
-                            //cmndGetScheme.IndexName = "UQ_ProductSchemeOnProductSchemeCode";
-                            //cmndGetScheme.CommandType = CommandType.TableDirect;
-
-                            //using (SQLiteDataReader drScheme = cmndGetScheme.ExecuteReader())
-                            //{
-                            //    {
-                            //cmndGetSchemeLot.CommandText = "tProductSchemeLotNumber";
-                            //cmndGetSchemeLot.IndexName = "UQ_ProductSchemeLotNumberOnProductSchemeLotNumberCode";
-                            //cmndGetSchemeLot.CommandType = CommandType.TableDirect;
-
-                            //using (SQLiteDataReader drSchemeLot = cmndGetSchemeLot.ExecuteReader())
-                            //{
-                            //using (SqlCeResultSet rs = cmndSchemeLotXRef.ExecuteResultSet(ResultSetOptions.Updatable))
-                            //{
-                            //    SqlCeUpdatableRecord rec = rs.CreateRecord();
                             int schemeRefno = 0;
                             int schemeLotRefno = 0;
                             int progValue = 0;
@@ -199,101 +158,48 @@ namespace dMobile.GroundWork
                                 schemeCode = Convert.ToString(drow["ProductSchemeCode"]);
                                 errMsg = "Scheme code \'" + schemeCode + "\'";
 
-                                cmndGetScheme.CommandText = "SELECT * FROM tProductScheme WHERE ProductSchemeCode = @productSchemeCode";
-                                cmndGetScheme.CommandType = CommandType.Text;
-                                //cmndGetScheme.IndexName = "UQ_ProductSchemeOnProductSchemeCode";
-                                cmndGetScheme.Parameters.Add(new SQLiteParameter("@productSchemeCode", schemeCode));
+                                List<tProductSchemeModel> resultsProductScheme = transaction.Query<tProductSchemeModel>("SELECT * FROM tProductScheme WHERE ProductSchemeCode = ?", schemeCode);
 
-                                using (SQLiteDataReader drScheme = cmndGetScheme.ExecuteReader())
+                                if (resultsProductScheme?.Count > 0)
                                 {
-                                    //if (drScheme.Seek(DbSeekOptions.FirstEqual, new object[] { schemeCode }))
-                                    //{
-                                    if (drScheme.Read())
-                                    {
-                                        schemeRefno = Convert.ToInt32(drScheme.GetValue(Convert.ToInt32(SysCommon.ProdSchemeFields.Refno)));
-                                    }
-                                    else
-                                    {
-                                        // TODO: Resource Strings
-                                        throw new Exception("drScheme.Read() failed." + Environment.NewLine + errMsg);
-                                    }
-                                    //}
-                                    //else
-                                    //{
-                                    //    // TODO: Resource Strings
-                                    //    throw new Exception("Unable to locate the product scheme code in tProductScheme." + Environment.NewLine + errMsg);
-                                    //}
-
-                                    drScheme.Close();
+                                    schemeRefno = resultsProductScheme[0].ProductSchemeRefno;
+                                }
+                                else
+                                {
+                                    // TODO: Resource Strings
+                                    throw new Exception("drScheme.Read() failed." + Environment.NewLine + errMsg);
                                 }
 
                                 schemeLotCode = Convert.ToString(drow["ProductSchemeLotNumberCode"]);
                                 errMsg += Environment.NewLine + "Scheme lot code \'" + schemeLotCode + "\'";
 
-                                cmndGetSchemeLot.CommandText = "SELECT * FROM tProductSchemeLotNumber WHERE ProductSchemeLotNumberCode = @productSchemeLotNumberCode";
-                                cmndGetSchemeLot.CommandType = CommandType.Text;
-                                //cmndGetSchemeLot.IndexName = "UQ_ProductSchemeLotNumberOnProductSchemeLotNumberCode";
-                                cmndGetSchemeLot.Parameters.Add(new SQLiteParameter("@productSchemeLotNumberCode", schemeLotCode));
+                                List<tProductSchemeLotNumberModel> resultsProductSchemeLotNumber = transaction.Query<tProductSchemeLotNumberModel>("SELECT * FROM tProductSchemeLotNumber WHERE ProductSchemeLotNumberCode = ?", schemeLotCode);
 
-                                using (SQLiteDataReader drSchemeLot = cmndGetSchemeLot.ExecuteReader())
+                                if (resultsProductSchemeLotNumber?.Count > 0)
                                 {
-                                    //if (drSchemeLot.Seek(DbSeekOptions.FirstEqual, new object[] { schemeLotCode }))
-                                    //{
-                                    if (drSchemeLot.Read())
-                                    {
-                                        schemeLotRefno = Convert.ToInt32(drSchemeLot.GetValue(Convert.ToInt32(SysCommon.ProdSchemeLotNumberFields.Refno)));
-                                    }
-                                    else
-                                    {
-                                        // TODO: Resource Strings
-                                        throw new Exception("drSchemeLot.Read() failed." + Environment.NewLine + errMsg);
-                                    }
-                                    //}
-                                    //else
-                                    //{
-                                    //    // TODO: Resource Strings
-                                    //    throw new Exception("Unable to locate the product scheme lot number code in tProductSchemeLotNumber." + Environment.NewLine + errMsg);
-                                    //}
-
-                                    drSchemeLot.Close();
+                                    schemeLotRefno = resultsProductSchemeLotNumber[0].ProductSchemeLotNumberRefno;
+                                }
+                                else
+                                {
+                                    // TODO: Resource Strings
+                                    throw new Exception("drSchemeLot.Read() failed." + Environment.NewLine + errMsg);
                                 }
 
                                 isSchemeLotXRef = false;
 
                                 if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly)
                                 {
-                                    cmndSchemeLotXRef.CommandText = "SELECT ProductSchemeRefno, ProductSchemeLotNumberRefno FROM tProductSchemeLotNumberXRef WHERE ProductSchemeRefno = @productSchemeRefno AND ProductSchemeLotNumberRefno = @productSchemeLotNumberRefno";
-                                    cmndSchemeLotXRef.CommandType = CommandType.Text;
-                                    //cmndSchemeLotXRef.IndexName = "PK_ProductSchemeLotNumberXRefOnProductSchemeRefnoAndProductSchemeLotNumberRefno";
-                                    cmndSchemeLotXRef.Parameters.Add(new SQLiteParameter("@productSchemeRefno", schemeRefno));
-                                    cmndSchemeLotXRef.Parameters.Add(new SQLiteParameter("@productSchemeLotNumberRefno", schemeLotRefno));
+                                    List<tProductSchemeLotNumberXRefModel> resultsProductSchemeLotNumberXRef = transaction.Query<tProductSchemeLotNumberXRefModel>("SELECT ProductSchemeRefno, ProductSchemeLotNumberRefno FROM tProductSchemeLotNumberXRef WHERE ProductSchemeRefno = ? AND ProductSchemeLotNumberRefno = ?", schemeRefno, schemeLotRefno);
 
-                                    using (SQLiteDataReader drSchemeLotXRef = cmndSchemeLotXRef.ExecuteReader())
+                                    if (resultsProductSchemeLotNumberXRef?.Count > 0)
                                     {
-                                        //if (drSchemeLotXRef.Seek(DbSeekOptions.FirstEqual, new object[] { schemeRefno, schemeLotRefno }))
-                                        if (drSchemeLotXRef.Read())
-                                        {
-                                            isSchemeLotXRef = true;
-                                        }
-
-                                        drSchemeLotXRef.Close();
+                                        isSchemeLotXRef = true;
                                     }
                                 }
 
                                 if (!isSchemeLotXRef)
                                 {
-                                    cmndSchemeLotXRef.CommandText = "INSERT INTO tProductSchemeLotNumberXRef (ProductSchemeRefno, ProductSchemeLotNumberRefno) VALUES (@productSchemeRefno, @productSchemeLotNumberRefno)";
-                                    cmndSchemeLotXRef.CommandType = CommandType.Text;
-                                    //cmndSchemeLotXRef.IndexName = "PK_ProductSchemeLotNumberXRefOnProductSchemeRefnoAndProductSchemeLotNumberRefno";
-                                    cmndSchemeLotXRef.Parameters.Add(new SQLiteParameter("@productSchemeRefno", schemeRefno));
-                                    cmndSchemeLotXRef.Parameters.Add(new SQLiteParameter("@productSchemeLotNumberRefno", schemeLotRefno));
-
-                                    cmndSchemeLotXRef.ExecuteNonQuery();
-
-                                    //rec.SetInt32(Convert.ToInt32(SysCommon.ProdSchemeLotNumberXRefFields.ProdSchemeRefno), schemeRefno);
-                                    //rec.SetInt32(Convert.ToInt32(SysCommon.ProdSchemeLotNumberXRefFields.ProdSchemeLotNumberRefno), schemeLotRefno);
-
-                                    //rs.Insert(rec);
+                                    transaction.Execute("INSERT INTO tProductSchemeLotNumberXRef (ProductSchemeRefno, ProductSchemeLotNumberRefno) VALUES (?, ?)", schemeRefno, schemeLotRefno);
                                 }
 
                                 progValue++;
@@ -307,17 +213,6 @@ namespace dMobile.GroundWork
                             this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
 
                         }
-
-                        //drSchemeLot.Close();
-                        //}
-                        //}
-                        //drScheme.Close();
-                        //}
-                        //}
-                        //drSchemeLotXRef.Close();
-                        //}
-                        //}
-                        //}
 
                         transaction.Commit();
 
@@ -338,14 +233,14 @@ namespace dMobile.GroundWork
                     // TODO: Resource Strings
                     throw new Exception("Database exception occurred. Request product scheme lot number xref failed." + errMsg, ex);
                 }
-            }
+            });
         }
 
         /// <summary>
         /// The Create
         /// </summary>
         /// <returns></returns>
-        protected override string Create()
+        protected override async Task<string> Create()
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);

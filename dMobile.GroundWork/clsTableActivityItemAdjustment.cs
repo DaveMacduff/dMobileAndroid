@@ -1,10 +1,13 @@
-namespace dMobile.GroundWork
+﻿namespace dMobile.GroundWork
 {
     using dMobile.Bedrock;
+    using dMobile.Resources.Models;
+    using SQLite;
     using System;
+    using System.Collections.Generic;
     using System.Data;
-    using System.Data.SQLite;
     using System.Text;
+    using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
 
@@ -26,55 +29,42 @@ namespace dMobile.GroundWork
         /// The Request
         /// </summary>
         /// <param name="actRefno">The actRefno<see cref="int"/></param>
-        public override void Request(int actRefno)
+        public override async Task Request(int actRefno)
         {
             string reqData = string.Empty;
 
-            //GC.Collect();
-            //GC.WaitForPendingFinalizers();
-
             try
             {
-
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding adjustment items.", true);
 
                 if (actRefno == 0)
                 {
-                    using (SQLiteCommand cmndActAdj = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                    string query = "SELECT * FROM tActivity WHERE ActivitySubType = ?";
+
+                    List<tActivityModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityModel>(query, Convert.ToInt32(SysCommon.ActSubTypes.Adjustment));
+
+                    if (results != null && results.Count > 0)
                     {
-                        cmndActAdj.CommandType = CommandType.Text;
-                        cmndActAdj.CommandText = "SELECT tActivity.ActivityRefno "
-                            + "FROM tActivity "
-                            + "WHERE tActivity.ActivitySubType = " + (int)SysCommon.ActSubTypes.Adjustment;
+                        actRefno = results[0].ActivityRefno;
+                        reqData = await this.Send(actRefno);
 
-                        using (SQLiteDataReader drActAdj = cmndActAdj.ExecuteReader())
+                        if (0 < reqData.Length)
                         {
-                            while (drActAdj.Read())
+                            if (reqData.Contains("<message>ERROR</message>"))
                             {
-                                actRefno = Convert.ToInt32(drActAdj["ActivityRefno"]);
-                                reqData = this.Send(actRefno);
-
-                                if (0 < reqData.Length)
-                                {
-                                    if (reqData.Contains("<message>ERROR</message>"))
-                                    {
-                                        XmlDocument reqErr = new XmlDocument();
-                                        reqErr.LoadXml(reqData);
-                                        throw new Exception(reqErr.DocumentElement["detail"].InnerText);
-                                    }
-
-                                    this.Save(reqData, actRefno);
-                                }
+                                XmlDocument reqErr = new XmlDocument();
+                                reqErr.LoadXml(reqData);
+                                throw new Exception(reqErr.DocumentElement["detail"].InnerText);
                             }
 
-                            drActAdj.Close();
+                            await this.Save(reqData, actRefno);
                         }
                     }
                 }
                 else
                 {
-                    reqData = this.Send(actRefno);
+                    reqData = await this.Send(actRefno);
 
                     if (0 < reqData.Length)
                     {
@@ -85,7 +75,7 @@ namespace dMobile.GroundWork
                             throw new Exception(reqErr.DocumentElement["detail"].InnerText);
                         }
 
-                        this.Save(reqData, actRefno);
+                        await this.Save(reqData, actRefno);
                     }
                 }
 
@@ -115,22 +105,17 @@ namespace dMobile.GroundWork
         /// The DataStatus
         /// </summary>
         /// <returns>The <see cref="int"/></returns>
-        public override int DataStatus()
+        public override async Task<int> DataStatus()
         {
             int rowsAffected = 0;
 
             try
             {
-                using (SQLiteCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                {
-                    cmndStatus.CommandText = "SELECT COUNT(tActivityItem.ActivityItemRefno) FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = " + (int)SysCommon.ActSubTypes.Adjustment;
-                    cmndStatus.CommandType = CommandType.Text;
+                string query = "SELECT COUNT(tActivityItem.ActivityItemRefno) FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?";
+                rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>(query, (int)SysCommon.ActSubTypes.Adjustment);
 
-                    rowsAffected = Convert.ToInt32(cmndStatus.ExecuteScalar());
-
-                    // TODO: Resource strings
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} adjustment items.", rowsAffected), true);
-                }
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} adjustment items.", rowsAffected), true);
             }
             catch (SQLiteException ex)
             {
@@ -144,31 +129,25 @@ namespace dMobile.GroundWork
         /// <summary>
         /// The Purge
         /// </summary>
-        public override void Purge()
+        public override async Task Purge()
         {
             // TODO: Resource strings
             this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging existing adjustment items.", true);
 
             try
             {
-                using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                {
-                    cmndPurge.CommandType = CommandType.Text;
-                    cmndPurge.Parameters.Add(new SQLiteParameter("@activityItemSubType", Convert.ToInt32(SysCommon.ActSubTypes.Adjustment)));
+                string query = "DELETE FROM tActivityItemBarCodeAssociationXRef "
+                    + "WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno IN "
+                    + "(SELECT tActivityItem.ActivityItemRefno "
+                    + "FROM tActivityItem "
+                    + "WHERE tActivityItem.ActivityItemSubType = ?)";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.Adjustment));
 
-                    cmndPurge.CommandText = "DELETE FROM tActivityItemBarCodeAssociationXRef "
-                        + "WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno IN "
-                        + "(SELECT tActivityItem.ActivityItemRefno "
-                        + "FROM tActivityItem "
-                        + "WHERE tActivityItem.ActivityItemSubType = @activityItemSubType)";
-                    cmndPurge.ExecuteNonQuery();
+                query = "DELETE FROM tActivityItemAdjustment WHERE ActivityItemSubType = ?";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.Adjustment));
 
-                    cmndPurge.CommandText = "DELETE FROM tActivityItemAdjustment WHERE tActivityItemAdjustment.ActivityItemSubType = @activityItemSubType";
-                    cmndPurge.ExecuteNonQuery();
-
-                    cmndPurge.CommandText = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = @activityItemSubType";
-                    cmndPurge.ExecuteNonQuery();
-                }
+                query = "DELETE FROM tActivityItem WHERE ActivityItemSubType = ?";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.Adjustment));
 
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging existing adjustment items complete.", true);
@@ -189,40 +168,22 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="actRefno">The actRefno<see cref="int"/></param>
         /// <returns></returns>
-        protected override string Send(int actRefno)
+        protected override async Task<string> Send(int actRefno)
         {
             int actAdjFKRefno = 0;
+            List<tActivityAdjustmentModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityAdjustmentModel>("SELECT * FROM tActivityAdjustment WHERE ActivityRefno = ?", actRefno);
 
-            using (SQLiteCommand cmndActAdj = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+            if (results?.Count > 0)
             {
-                cmndActAdj.CommandText = "SELECT * FROM tActivityAdjustment WHERE ActivityRefno = @activityRefno";
-                cmndActAdj.CommandType = CommandType.Text;
-                //cmndActAdj.IndexName = "PK_ActivityAdjustmentOnActivityRefno";
-                cmndActAdj.Parameters.Add(new SQLiteParameter("@activityRefno", actRefno));
-
-                using (SQLiteDataReader drActAdj = cmndActAdj.ExecuteReader())
-                {
-                    //if (drActAdj.Seek(DbSeekOptions.FirstEqual, new object[] { actRefno }))
-                    //{
-                    if (drActAdj.Read())
-                    {
-                        actAdjFKRefno = Convert.ToInt32(drActAdj.GetValue((int)SysCommon.ActAdjFields.FKRefno));
-                    }
-                    else
-                    {
-                        // TODO: Resource strings
-                        throw new Exception("drActAdj.Read() failed.");
-                    }
-                    //}
-                    //else
-                    //{
-                    //    // TODO: Resource strings
-                    //    throw new Exception(string.Format("Unable to locate the adjustment refno {0} in tActivityAdjustment", actRefno));
-                    //}
-                }
+                actAdjFKRefno = results[0].ActivityAdjustmentFKRefno;
+            }
+            else
+            {
+                // TODO: Resource strings
+                throw new Exception("No results in tActivityAdjustment for ActivityRefno " + actRefno);
             }
 
-            return this.SendComm(this.Create(actAdjFKRefno));
+            return await this.SendComm(await this.Create(actAdjFKRefno));
         }
 
         /// <summary>
@@ -230,19 +191,11 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="reqData"></param>
         /// <param name="actRefno"></param>
-        protected override void Save(string reqData, int actRefno)
+        protected override async Task Save(string reqData, int actRefno)
         {
-            SQLiteConnection conn = DatabaseConnection.GetInstance().SQLConn;
             string errMsg = string.Empty;
 
-            using (SQLiteCommand cmndAdjItem = conn.CreateCommand())
-            using (SQLiteCommand cmndItem = conn.CreateCommand())
-            using (SQLiteCommand cmndProdUnit = conn.CreateCommand())
-            using (SQLiteCommand cmndProd = conn.CreateCommand())
-            using (SQLiteCommand cmndUnit = conn.CreateCommand())
-            using (SQLiteCommand cmndLocMapWhs = conn.CreateCommand())
-            using (SQLiteCommand cmndID = conn.CreateCommand())
-            using (SQLiteTransaction transaction = conn.BeginTransaction())
+            await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
             {
                 try
                 {
@@ -263,47 +216,6 @@ namespace dMobile.GroundWork
                             // TODO: Resource strings
                             this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
 
-                            //cmndAdjItem.CommandText = "tActivityItemAdjustment";
-                            //cmndAdjItem.CommandType = CommandType.Text;
-                            //cmndAdjItem.IndexName = "UQ_ActivityItemAdjustmentOnActivityItemAdjustmentFKRefno";
-
-                            //cmndItem.CommandText = "tActivityItem";
-                            //cmndItem.CommandType = CommandType.Text;
-
-                            //using (SqlCeResultSet rsItem = cmndItem.ExecuteResultSet(ResultSetOptions.Updatable))
-                            //{
-                            //    SqlCeUpdatableRecord recItem = rsItem.CreateRecord();
-
-                            //cmndProdUnit.CommandText = "tProductUnit";
-                            //cmndProdUnit.CommandType = CommandType.Text;
-                            //cmndProdUnit.IndexName = "UQ_ProductUnitOnProductRefnoAndUnitRefnoAndProductUnitIsBC";
-
-                            //using (SQLiteDataReader drProdUnit = cmndProdUnit.ExecuteReader())
-                            //{
-                            //cmndProd.CommandText = "tProduct";
-                            //cmndProd.IndexName = "UQ_ProductOnProductFKRefno";
-                            //cmndProd.CommandType = CommandType.Text;
-
-                            //using (SQLiteDataReader drProd = cmndProd.ExecuteReader())
-                            //{
-                            //cmndUnit.CommandText = "tUnit";
-                            //cmndUnit.IndexName = "UQ_UnitOnUnitCode";
-                            //cmndUnit.CommandType = CommandType.Text;
-
-                            //using (SQLiteDataReader drUnit = cmndUnit.ExecuteReader())
-                            //{
-                            //cmndLocMapWhs.CommandText = "tLocationMapWarehouse";
-                            //cmndLocMapWhs.CommandType = CommandType.Text;
-                            //cmndLocMapWhs.IndexName = "UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno";
-
-                            //using (SQLiteDataReader drLocMapWhs = cmndLocMapWhs.ExecuteReader())
-                            //{
-                            //cmndID.CommandText = "SELECT @@IDENTITY";
-                            //cmndID.CommandType = CommandType.Text;
-
-                            //using (SqlCeResultSet rs = cmndAdjItem.ExecuteResultSet(ResultSetOptions.Updatable))
-                            //{
-                            //    SqlCeUpdatableRecord rec = rs.CreateRecord();
                             int actItemRefno = 0;
                             int progValue = 0;
                             int actItemAdjFKRefno = 0;
@@ -317,29 +229,17 @@ namespace dMobile.GroundWork
                                 // TODO: Resource strings
                                 errMsg = "Arguments:";
 
-                                cmndItem.CommandText = "INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (@activityItemSubType, @activityItemStatus, @activityRefno)";
-                                cmndItem.CommandType = CommandType.Text;
-                                cmndItem.Parameters.Add(new SQLiteParameter("@activityItemSubType", Convert.ToInt32(SysCommon.ActSubTypes.Adjustment)));
-                                cmndItem.Parameters.Add(new SQLiteParameter("@activityItemStatus", Convert.ToInt32(SysCommon.ActStatus.NoChange)));
-                                cmndItem.Parameters.Add(new SQLiteParameter("@activityRefno", actRefno));
+                                transaction.Execute("INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (?, ?, ?)", Convert.ToInt32(SysCommon.ActSubTypes.Adjustment), Convert.ToInt32(SysCommon.ActStatus.NoChange), actRefno);
 
-                                cmndItem.ExecuteNonQuery();
-
-                                //recItem.SetInt32((int)SysCommon.ActItemFields.SubType, (int)SysCommon.ActSubTypes.Adjustment);
-                                //recItem.SetInt32((int)SysCommon.ActItemFields.Status, (int)SysCommon.ActStatus.NoChange);
-                                //recItem.SetInt32((int)SysCommon.ActItemFields.ActRefno, actRefno);
-
-                                //rsItem.Insert(recItem);
-
-                                cmndID.CommandText = "SELECT last_insert_rowid() FROM tActivityItem";
-                                cmndID.CommandType = CommandType.Text;
-
-                                actItemRefno = Convert.ToInt32(cmndID.ExecuteScalar());
-                                prodUnitRefno = this.GetProductUnitRefnoFromDataRow(drow, ref conn, ref errMsg, false);
-                                locMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, ref errMsg, cmndLocMapWhs);
+                                actItemRefno = Convert.ToInt32(transaction.QueryScalars<int>("SELECT last_insert_rowid() FROM tActivityItem"));
+                                prodUnitRefno = this.GetProductUnitRefnoFromDataRow(drow, transaction, ref errMsg, false);
+                                locMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, ref errMsg, transaction);
                                 actItemAdjFKRefno = Convert.ToInt32(drow["ActivityItemAdjustmentFKRefno"]);
 
-                                cmndAdjItem.CommandText = "INSERT INTO tActivityItemAdjustment " +
+                                // TODO: Resource strings
+                                errMsg += Environment.NewLine + "Item fk refno " + actItemAdjFKRefno;
+
+                                string query = "INSERT INTO tActivityItemAdjustment " +
                                     "(ActivityItemRefno, " +
                                     "ActivityItemSubType, " +
                                     "ActivityItemAdjustmentFKRefno, " +
@@ -351,48 +251,32 @@ namespace dMobile.GroundWork
                                     "ActivityItemAdjustmentWeightQuantity, " +
                                     "ActivityItemAdjustmentDescription) " +
                                     "VALUES " +
-                                    "(@activityItemRefno, " +
-                                    "@activityItemSubType, " +
-                                    "@activityItemAdjustmentFKRefno, " +
-                                    "@activityItemAdjustmentStringFKRefno, " +
-                                    "@productUnitRefno, " +
-                                    "@warehouseLocationMapRefno, " +
-                                    "@activityItemAdjustmentQuantity, " +
-                                    "@activityItemAdjustmentBaseQuantity, " +
-                                    "@activityItemAdjustmentWeightQuantity, " +
-                                    "@activityItemAdjustmentDescription)";
-                                cmndAdjItem.CommandType = CommandType.Text;
-                                //cmndAdjItem.IndexName = "UQ_ActivityItemAdjustmentOnActivityItemAdjustmentFKRefno";
-                                cmndAdjItem.Parameters.Add(new SQLiteParameter("@activityItemRefno", actItemRefno));
-                                cmndAdjItem.Parameters.Add(new SQLiteParameter("@activityItemSubType", Convert.ToInt32(SysCommon.ActSubTypes.Adjustment)));
-                                cmndAdjItem.Parameters.Add(new SQLiteParameter("@productUnitRefno", prodUnitRefno));
-                                cmndAdjItem.Parameters.Add(new SQLiteParameter("@warehouseLocationMapRefno", locMapRefno));
+                                    "(?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?)";
 
-                                //rec.SetInt32((int)SysCommon.ActItemAdjFields.ProdUnitRefno, prodUnitRefno);
-                                //rec.SetInt32((int)SysCommon.ActItemAdjFields.WhsLocMapRefno, locMapRefno);
-                                //rec.SetInt32((int)SysCommon.ActItemAdjFields.ActItemRefno, actItemRefno);
-                                //rec.SetInt32((int)SysCommon.ActItemAdjFields.ActItemSubType, Convert.ToInt32(SysCommon.ActSubTypes.Adjustment));
+                                List<object> parameters = new List<object>()
+                                {
+                                    actItemRefno,
+                                    Convert.ToInt32(SysCommon.ActSubTypes.Adjustment),
+                                    prodUnitRefno,
+                                    locMapRefno,
+                                    actItemAdjFKRefno,
+                                    Convert.ToString(actItemAdjFKRefno),
+                                    Convert.ToDecimal(drow["ActivityItemAdjustmentQuantity"]),
+                                    Convert.ToDecimal(drow["ActivityItemAdjustmentBaseQuantity"]),
+                                    Convert.ToDecimal(drow["ActivityItemAdjustmentWeightQuantity"]),
+                                    drow["ActivityItemAdjustmentDescription"].ToString(),
+                                };
 
-                                // TODO: Resource strings
-                                errMsg += Environment.NewLine + "Item fk refno " + actItemAdjFKRefno;
-
-                                cmndAdjItem.Parameters.Add(new SQLiteParameter("@activityItemAdjustmentFKRefno", actItemAdjFKRefno));
-                                cmndAdjItem.Parameters.Add(new SQLiteParameter("@activityItemAdjustmentStringFKRefno", Convert.ToString(actItemAdjFKRefno)));
-                                cmndAdjItem.Parameters.Add(new SQLiteParameter("@activityItemAdjustmentQuantity", Convert.ToDecimal(drow["ActivityItemAdjustmentQuantity"])));
-                                cmndAdjItem.Parameters.Add(new SQLiteParameter("@activityItemAdjustmentBaseQuantity", Convert.ToDecimal(drow["ActivityItemAdjustmentBaseQuantity"])));
-                                cmndAdjItem.Parameters.Add(new SQLiteParameter("@activityItemAdjustmentWeightQuantity", Convert.ToDecimal(drow["ActivityItemAdjustmentWeightQuantity"])));
-                                cmndAdjItem.Parameters.Add(new SQLiteParameter("@activityItemAdjustmentDescription", drow["ActivityItemAdjustmentDescription"].ToString()));
-
-                                cmndAdjItem.ExecuteNonQuery();
-
-                                //rec.SetInt32((int)SysCommon.ActItemAdjFields.FKRefno, actItemAdjFKRefno);
-                                //rec.SetString((int)SysCommon.ActItemAdjFields.StringFKRefno, Convert.ToString(actItemAdjFKRefno));
-                                //rec.SetDecimal((int)SysCommon.ActItemAdjFields.Quantity, Convert.ToDecimal(drow["ActivityItemAdjustmentQuantity"]));
-                                //rec.SetDecimal((int)SysCommon.ActItemAdjFields.BaseQuantity, Convert.ToDecimal(drow["ActivityItemAdjustmentBaseQuantity"]));
-                                //rec.SetDecimal((int)SysCommon.ActItemAdjFields.WeightQuantity, Convert.ToDecimal(drow["ActivityItemAdjustmentWeightQuantity"]));
-                                //rec.SetString((int)SysCommon.ActItemAdjFields.Description, drow["ActivityItemAdjustmentDescription"].ToString());
-
-                                //rs.Insert(rec);
+                                transaction.Execute(query, parameters);
 
                                 progValue++;
                                 if (progValue % 100 == 0)
@@ -401,7 +285,6 @@ namespace dMobile.GroundWork
                                 }
 
                                 this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
-
                             }
                         }
 
@@ -418,20 +301,11 @@ namespace dMobile.GroundWork
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "saving adjustment items failed.", true);
 
-                    //// Duplicate key violations
-                    //if (ex.NativeError == 25016)
-                    //{
-                    //    // TODO: Resource strings
-                    //    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Uniqueness violation.", false);
-                    //    throw new Exception("Uniqueness violation." + Environment.NewLine + errMsg, ex);
-
-                    //}
-
                     // TODO: Resource strings
-                    throw new Exception("Database exception occurred. Saving adjustment items failed." + Environment.NewLine + errMsg, ex);// TODO: Resource strings
+                    throw new Exception("Database exception occurred. Saving adjustment items failed." + Environment.NewLine + errMsg, ex);
                     throw new Exception("Database exception occurred. Saving adjustment items failed.", ex);
                 }
-            }
+            });
         }
 
         /// <summary>
@@ -439,7 +313,7 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="actAdjFKRefno"></param>
         /// <returns></returns>
-        protected override string Create(int actAdjFKRefno)
+        protected override async Task<string> Create(int actAdjFKRefno)
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);

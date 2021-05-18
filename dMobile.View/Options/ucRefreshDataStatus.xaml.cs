@@ -1726,7 +1726,7 @@ namespace dMobile.View.Options
                 {
                     try
                     {
-                        this.DataStatus();
+                        await this.DataStatus();
                     }
                     catch (Exception ex)
                     {
@@ -1775,7 +1775,7 @@ namespace dMobile.View.Options
                             this.RefreshSystemData();
                         }
 
-                        this.RefreshData();
+                        await this.RefreshData();
 
                         if (this.ActSubType == SysCommon.ActSubTypes.PurgeActivityData)
                         {
@@ -1885,12 +1885,12 @@ namespace dMobile.View.Options
         ///
         /// </summary>
         /// <remarks></remarks>
-        private void RefreshData()
+        private async Task RefreshData()
         {
-            this.RefreshDataBarCodeAssociation();
-            this.RefreshDataAdjustments();
-            this.RefreshDataCounts();
-            this.RefreshDataProduction();
+            await this.RefreshDataBarCodeAssociation();
+            await this.RefreshDataAdjustments();
+            await this.RefreshDataCounts();
+            await this.RefreshDataProduction();
             this.RefreshDataReceiving();
             this.RefreshDataPurchaseOrderWorkSheet();
             this.RefreshDataReplenishment();
@@ -1973,7 +1973,7 @@ namespace dMobile.View.Options
         ///
         /// </summary>
         /// <remarks></remarks>
-        private void DataStatus()
+        private async Task DataStatus()
         {
             this.SysEnv.RefreshOpt = this.SysEnv.RefreshOpt.LoadData();
 
@@ -2007,7 +2007,7 @@ namespace dMobile.View.Options
                 this.DataStatusPicking();
                 this.DataStatusReturns();
                 this.DataStatusTransfers();
-                this.DataStatusCounts();
+                await this.DataStatusCounts();
                 this.DataStatusTickets();
 
                 this.PurchaseOrderWorkSheetItem.RegisterDataAccessListenerProgressOut(this);
@@ -2423,23 +2423,23 @@ namespace dMobile.View.Options
         /// <summary>
         /// 
         /// </summary>
-        private void DataStatusCounts()
+        private async Task DataStatusCounts()
         {
             this.CycleCount.RegisterDataAccessListenerProgressOut(this);
             this.CycleCount.RegisterDataAccessListenerStatusOut(this);
-            this.CycleCount.DataStatus();
+            await this.CycleCount.DataStatus();
             this.CycleCount.UnregisterDataAccessListenerStatusOut(this);
             this.CycleCount.UnregisterDataAccessListenerProgressOut(this);
 
             this.CycleCountItem.RegisterDataAccessListenerProgressOut(this);
             this.CycleCountItem.RegisterDataAccessListenerStatusOut(this);
-            this.CycleCountItem.DataStatus();
+            await this.CycleCountItem.DataStatus();
             this.CycleCountItem.UnregisterDataAccessListenerStatusOut(this);
             this.CycleCountItem.UnregisterDataAccessListenerProgressOut(this);
 
             this.CycleCountDetail.RegisterDataAccessListenerProgressOut(this);
             this.CycleCountDetail.RegisterDataAccessListenerStatusOut(this);
-            this.CycleCountDetail.DataStatus();
+            await this.CycleCountDetail.DataStatus();
             this.CycleCountDetail.UnregisterDataAccessListenerStatusOut(this);
             this.CycleCountDetail.UnregisterDataAccessListenerProgressOut(this);
 
@@ -2513,21 +2513,21 @@ namespace dMobile.View.Options
         /// <summary>
         /// 
         /// </summary>
-        private void RefreshDataBarCodeAssociation()
+        private async Task RefreshDataBarCodeAssociation()
         {
             // Bar Code Association
             if (this.ActSubType == SysCommon.ActSubTypes.PurgeActivityData)
             {
                 this.ActItemBarCodeAssocXRef.RegisterDataAccessListenerStatusOut(this);
-                this.ActItemBarCodeAssocXRef.Purge();
+                await this.ActItemBarCodeAssocXRef.Purge();
                 this.ActItemBarCodeAssocXRef.UnregisterDataAccessListenerStatusOut(this);
 
                 this.ActivityItem.RegisterDataAccessListenerStatusOut(this);
-                this.ActivityItem.Purge(SysCommon.ActSubTypes.BarCodeAssociation);
+                await this.ActivityItem.Purge(SysCommon.ActSubTypes.BarCodeAssociation);
                 this.ActivityItem.UnregisterDataAccessListenerStatusOut(this);
 
                 this.Activity.RegisterDataAccessListenerStatusOut(this);
-                this.Activity.Purge(SysCommon.ActSubTypes.BarCodeAssociation);
+                await this.Activity.Purge(SysCommon.ActSubTypes.BarCodeAssociation);
                 this.Activity.UnregisterDataAccessListenerStatusOut(this);
             }
         }
@@ -2535,12 +2535,12 @@ namespace dMobile.View.Options
         /// <summary>
         /// 
         /// </summary>
-        private void RefreshDataAdjustments()
+        private async Task RefreshDataAdjustments()
         {
             if (this.SysEnv.RefreshOpt.Adjustments || this.ActSubType == SysCommon.ActSubTypes.PurgeActivityData)
             {
                 this.AdjustmentDetail.RegisterDataAccessListenerStatusOut(this);
-                this.AdjustmentDetail.Purge();
+                await this.AdjustmentDetail.Purge();
                 this.AdjustmentDetail.UnregisterDataAccessListenerStatusOut(this);
 
                 this.AdjustmentItem.RegisterDataAccessListenerStatusOut(this);
@@ -2548,21 +2548,21 @@ namespace dMobile.View.Options
                 this.AdjustmentItem.UnregisterDataAccessListenerStatusOut(this);
 
                 this.Adjustment.RegisterDataAccessListenerStatusOut(this);
-                this.Adjustment.Purge();
+                await this.Adjustment.Purge();
                 this.Adjustment.UnregisterDataAccessListenerStatusOut(this);
 
                 if (this.ActSubType != SysCommon.ActSubTypes.PurgeActivityData)
                 {
                     this.Adjustment.RegisterDataAccessListenerProgressOut(this);
                     this.Adjustment.RegisterDataAccessListenerStatusOut(this);
-                    this.Adjustment.Request();
+                    await this.Adjustment.Request();
                     this.Adjustment.UnregisterDataAccessListenerStatusOut(this);
                     this.Adjustment.UnregisterDataAccessListenerProgressOut(this);
                     this.StatusOut(this, EventArgs.Empty, string.Empty);
 
                     this.AdjustmentItem.RegisterDataAccessListenerProgressOut(this);
                     this.AdjustmentItem.RegisterDataAccessListenerStatusOut(this);
-                    this.AdjustmentItem.Request(0);
+                    await this.AdjustmentItem.Request(0);
                     this.AdjustmentItem.UnregisterDataAccessListenerStatusOut(this);
                     this.AdjustmentItem.UnregisterDataAccessListenerProgressOut(this);
                     this.StatusOut(this, EventArgs.Empty, string.Empty);
@@ -2571,7 +2571,7 @@ namespace dMobile.View.Options
                     {
                         this.AdjustmentDetail.RegisterDataAccessListenerProgressOut(this);
                         this.AdjustmentDetail.RegisterDataAccessListenerStatusOut(this);
-                        this.AdjustmentDetail.Request(0);
+                        await this.AdjustmentDetail.Request(0);
                         this.AdjustmentDetail.UnregisterDataAccessListenerStatusOut(this);
                         this.AdjustmentDetail.UnregisterDataAccessListenerProgressOut(this);
                         this.StatusOut(this, EventArgs.Empty, string.Empty);
@@ -2583,7 +2583,7 @@ namespace dMobile.View.Options
         /// <summary>
         /// 
         /// </summary>
-        private void RefreshDataCounts()
+        private async Task RefreshDataCounts()
         {
             if (this.SysEnv.RefreshOpt.Counts || this.ActSubType == SysCommon.ActSubTypes.PurgeActivityData)
             {
@@ -2627,29 +2627,29 @@ namespace dMobile.View.Options
                 }
 
                 this.CycleCountDetail.RegisterDataAccessListenerStatusOut(this);
-                this.CycleCountDetail.Purge();
+                await this.CycleCountDetail.Purge();
                 this.CycleCountDetail.UnregisterDataAccessListenerStatusOut(this);
 
                 this.CycleCountItem.RegisterDataAccessListenerStatusOut(this);
-                this.CycleCountItem.Purge();
+                await this.CycleCountItem.Purge();
                 this.CycleCountItem.UnregisterDataAccessListenerStatusOut(this);
 
                 this.CycleCount.RegisterDataAccessListenerStatusOut(this);
-                this.CycleCount.Purge();
+                await this.CycleCount.Purge();
                 this.CycleCount.UnregisterDataAccessListenerStatusOut(this);
 
                 if (this.ActSubType != SysCommon.ActSubTypes.PurgeActivityData)
                 {
                     this.CycleCount.RegisterDataAccessListenerProgressOut(this);
                     this.CycleCount.RegisterDataAccessListenerStatusOut(this);
-                    this.CycleCount.Request();
+                    await this.CycleCount.Request();
                     this.CycleCount.UnregisterDataAccessListenerStatusOut(this);
                     this.CycleCount.UnregisterDataAccessListenerProgressOut(this);
                     this.StatusOut(this, EventArgs.Empty, string.Empty);
 
                     this.CycleCountItem.RegisterDataAccessListenerProgressOut(this);
                     this.CycleCountItem.RegisterDataAccessListenerStatusOut(this);
-                    this.CycleCountItem.Request(0);
+                    await this.CycleCountItem.Request(0);
                     this.CycleCountItem.UnregisterDataAccessListenerStatusOut(this);
                     this.CycleCountItem.UnregisterDataAccessListenerProgressOut(this);
                     this.StatusOut(this, EventArgs.Empty, string.Empty);
@@ -2658,7 +2658,7 @@ namespace dMobile.View.Options
                     {
                         this.CycleCountDetail.RegisterDataAccessListenerProgressOut(this);
                         this.CycleCountDetail.RegisterDataAccessListenerStatusOut(this);
-                        this.CycleCountDetail.Request(0);
+                        await this.CycleCountDetail.Request(0);
                         this.CycleCountDetail.UnregisterDataAccessListenerStatusOut(this);
                         this.CycleCountDetail.UnregisterDataAccessListenerProgressOut(this);
                         this.StatusOut(this, EventArgs.Empty, string.Empty);
@@ -2670,7 +2670,7 @@ namespace dMobile.View.Options
         /// <summary>
         /// 
         /// </summary>
-        private void RefreshDataProduction()
+        private async Task RefreshDataProduction()
         {
             if (this.SysEnv.RefreshOpt.ProductionTickets || this.ActSubType == SysCommon.ActSubTypes.PurgeActivityData)
             {
@@ -2683,7 +2683,7 @@ namespace dMobile.View.Options
                 this.TicketDetailMaterial.UnregisterDataAccessListenerStatusOut(this);
 
                 this.TicketDetailByProduct.RegisterDataAccessListenerStatusOut(this);
-                this.TicketDetailByProduct.Purge();
+                await this.TicketDetailByProduct.Purge();
                 this.TicketDetailByProduct.UnregisterDataAccessListenerStatusOut(this);
 
                 this.TicketFinishedItem.RegisterDataAccessListenerStatusOut(this);
@@ -2772,7 +2772,7 @@ namespace dMobile.View.Options
 
                         this.TicketDetailByProduct.RegisterDataAccessListenerProgressOut(this);
                         this.TicketDetailByProduct.RegisterDataAccessListenerStatusOut(this);
-                        this.TicketDetailByProduct.Request(0);
+                        await this.TicketDetailByProduct.Request(0);
                         this.TicketDetailByProduct.UnregisterDataAccessListenerStatusOut(this);
                         this.TicketDetailByProduct.UnregisterDataAccessListenerProgressOut(this);
                         this.StatusOut(this, EventArgs.Empty, string.Empty);

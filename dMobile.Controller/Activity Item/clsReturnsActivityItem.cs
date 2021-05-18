@@ -214,13 +214,13 @@ namespace dMobile.Controller
 
                 TableActivityReturnsItem tableActReturnsItem = new TableActivityReturnsItem();
                 TableActivityReturnsDetail tableActReturnsDetail = new TableActivityReturnsDetail();
-                tableActReturnsDetail.Purge();
-                tableActReturnsItem.Purge();
+                await tableActReturnsDetail.Purge();
+                await tableActReturnsItem.Purge();
 
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
 
                 tableActReturnsItem.RegisterDataAccessListenerProgressOut((ReturnsActItem)this);
-                tableActReturnsItem.Request(ActHdr.Refno);
+                await tableActReturnsItem.Request(ActHdr.Refno);
                 tableActReturnsItem.UnregisterDataAccessListenerProgressOut((ReturnsActItem)this);
             }
         }

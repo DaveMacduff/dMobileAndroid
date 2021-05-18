@@ -385,12 +385,12 @@ namespace dMobile.Controller
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 2);
 
                 TableActivityPickingDetail tableActPickingDetail = new TableActivityPickingDetail();
-                tableActPickingDetail.Purge();
+                await tableActPickingDetail.Purge();
 
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
 
                 tableActPickingDetail.RegisterDataAccessListenerProgressOut((PickingActDetail)this);
-                tableActPickingDetail.Request(this.ActItem.Refno);
+                await tableActPickingDetail.Request(this.ActItem.Refno);
                 tableActPickingDetail.UnregisterDataAccessListenerProgressOut((PickingActDetail)this);
             }
         }

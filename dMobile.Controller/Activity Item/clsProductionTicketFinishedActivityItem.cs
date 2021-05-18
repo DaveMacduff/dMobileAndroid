@@ -174,7 +174,7 @@ namespace dMobile.Controller
 
             if (prodUnitRefno != 0)
             {
-                foundActItemRefno = this.GetRefnoFromProdUnitRefno(prodUnitRefno);
+                foundActItemRefno = await this.GetRefnoFromProdUnitRefno(prodUnitRefno);
 
                 if (foundActItemRefno > 0)
                 {
@@ -307,13 +307,13 @@ namespace dMobile.Controller
 
                 TableActivityProductionTicketFinishedItem tableFinishedItem = new TableActivityProductionTicketFinishedItem();
                 TableActivityProductionTicketFinishedDetail tableFinishedDetail = new TableActivityProductionTicketFinishedDetail();
-                tableFinishedDetail.Purge();
-                tableFinishedItem.Purge();
+                await tableFinishedDetail.Purge();
+                await tableFinishedItem.Purge();
 
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
 
                 tableFinishedItem.RegisterDataAccessListenerProgressOut((TicketFinishedActItem)this);
-                tableFinishedItem.Request(ActHdr.Refno);
+                await tableFinishedItem.Request(ActHdr.Refno);
                 tableFinishedItem.UnregisterDataAccessListenerProgressOut((TicketFinishedActItem)this);
             }
         }

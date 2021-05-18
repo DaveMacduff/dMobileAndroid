@@ -297,13 +297,13 @@ namespace dMobile.Controller
 
                 TableActivityRecevingItem tableActRecvItem = new TableActivityRecevingItem();
                 TableActivityReceivingDetail tableActRecvDetail = new TableActivityReceivingDetail();
-                tableActRecvDetail.Purge();
-                tableActRecvItem.Purge();
+                await tableActRecvDetail.Purge();
+                await tableActRecvItem.Purge();
 
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
 
                 tableActRecvItem.RegisterDataAccessListenerProgressOut((RecvActItem)this);
-                tableActRecvItem.Request(this.ActHdr.Refno);
+                await tableActRecvItem.Request(this.ActHdr.Refno);
                 tableActRecvItem.UnregisterDataAccessListenerProgressOut((RecvActItem)this);
             }
         }

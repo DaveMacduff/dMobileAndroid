@@ -126,36 +126,6 @@ namespace dMobile.GroundWork
             //DatabaseConnection.OpenDataBaseConnection();
         }
 
-        ///// <summary>
-        /////
-        ///// </summary>
-        ///// <param name="strCmndDDLStr"></param>
-        ///// <remarks></remarks>
-        //public async Task RunDDLCommand(string cmndDDLStr)
-        //{
-        //    //SQLiteCommand cmndDLLCmd = null;
-        //    try
-        //    {
-        //        await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(cmndDDLStr);
-        //    }
-        //    catch (SQLiteException ex)
-        //    {
-        //        this.ErrorRaised = true;
-
-        //        throw ex;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        this.ErrorRaised = true;
-
-        //        throw ex;
-        //    }
-        //    finally
-        //    {
-        //        // TODO: CloseAsync() ?
-        //    }
-        //}
-
         /// <summary>
         ///
         /// </summary>

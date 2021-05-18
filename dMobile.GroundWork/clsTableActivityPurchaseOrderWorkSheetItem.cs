@@ -1,12 +1,14 @@
-namespace dMobile.GroundWork
+﻿namespace dMobile.GroundWork
 {
     using dMobile.Bedrock;
     using System;
     using System.Data;
-    using System.Data.SQLite;
+    using SQLite;
     using System.Text;
     using System.Xml;
     using System.Xml.Linq;
+    using System.Threading.Tasks;
+    using System.Collections.Generic;
 
     /// <summary>
     /// Defines the <see cref="TableActivityPurchaseOrderWorkSheetItem" />
@@ -26,20 +28,16 @@ namespace dMobile.GroundWork
         /// The Request
         /// </summary>
         /// <param name="actRefno">The actRefno<see cref="int"/></param>
-        public override void Request(int actRefno)
+        public override async Task Request(int actRefno)
         {
             string reqData = string.Empty;
 
-            //GC.Collect();
-            //GC.WaitForPendingFinalizers();
-
             try
             {
-
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding work sheet items.", true);
 
-                reqData = this.Send(actRefno);
+                reqData = await this.Send(actRefno);
 
                 if (0 < reqData.Length)
                 {
@@ -50,7 +48,7 @@ namespace dMobile.GroundWork
                         throw new Exception(reqErr.DocumentElement["detail"].InnerText);
                     }
 
-                    this.Save(reqData, actRefno);
+                    await this.Save(reqData, actRefno);
                 }
 
                 // TODO: Resource strings
@@ -70,23 +68,16 @@ namespace dMobile.GroundWork
         /// The DataStatus
         /// </summary>
         /// <returns>The <see cref="int"/></returns>
-        public override int DataStatus()
+        public override async Task<int> DataStatus()
         {
             int rowsAffected = 0;
 
             try
             {
-                using (SQLiteCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                {
-                    cmndStatus.CommandText = "SELECT COUNT(tActivityItem.ActivityItemRefno) FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = @activityItemSubType";
-                    cmndStatus.CommandType = CommandType.Text;
-                    cmndStatus.Parameters.Add(new SQLiteParameter("@activityItemSubType", Convert.ToInt32(SysCommon.ActSubTypes.PurchaseOrderWorkSheet)));
+                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(ActivityItemRefno) FROM tActivityItem WHERE ActivityItemSubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.PurchaseOrderWorkSheet)));
 
-                    rowsAffected = Convert.ToInt32(cmndStatus.ExecuteScalar());
-
-                    // TODO: Resource strings
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} work sheet items.", rowsAffected), true);
-                }
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} work sheet items.", rowsAffected), true);
             }
             catch (SQLiteException ex)
             {
@@ -100,28 +91,22 @@ namespace dMobile.GroundWork
         /// <summary>
         /// The Purge
         /// </summary>
-        public override void Purge()
+        public override async Task Purge()
         {
             try
             {
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging work sheet items.", true);
 
-                using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                {
-                    cmndPurge.CommandType = CommandType.Text;
-                    cmndPurge.Parameters.Add(new SQLiteParameter("@activityItemSubType", Convert.ToInt32(SysCommon.ActSubTypes.PurchaseOrderWorkSheet)));
+                string query = "DELETE FROM tActivityItemBarCodeAssociationXRef WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno " +
+                    "IN (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?)";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.PurchaseOrderWorkSheet));
 
-                    cmndPurge.CommandText = "DELETE FROM tActivityItemBarCodeAssociationXRef WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno " +
-                        "IN (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = @activityItemSubType)";
-                    cmndPurge.ExecuteNonQuery();
+                query = "DELETE FROM tActivityItemPurchaseOrderWorkSheet WHERE tActivityItemPurchaseOrderWorkSheet.ActivityItemSubType = ?";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.PurchaseOrderWorkSheet));
 
-                    cmndPurge.CommandText = "DELETE FROM tActivityItemPurchaseOrderWorkSheet WHERE tActivityItemPurchaseOrderWorkSheet.ActivityItemSubType = @activityItemSubType";
-                    cmndPurge.ExecuteNonQuery();
-
-                    cmndPurge.CommandText = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = @activityItemSubType";
-                    cmndPurge.ExecuteNonQuery();
-                }
+                query = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.PurchaseOrderWorkSheet));
 
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging work sheet items complete.", true);
@@ -142,10 +127,10 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="actRefno">The actRefno<see cref="int"/></param>
         /// <returns></returns>
-        protected override string Send(int actRefno)
+        protected override async Task<string> Send(int actRefno)
         {
             int actWorkSheetFKRefno = 0;
-            return this.SendComm(this.Create(actWorkSheetFKRefno));
+            return await this.SendComm(await this.Create(actWorkSheetFKRefno));
         }
 
         /// <summary>
@@ -153,18 +138,11 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="reqData"></param>
         /// <param name="actRefno">The actRefno<see cref="int"/></param>
-        protected override void Save(string reqData, int actRefno)
+        protected override async Task Save(string reqData, int actRefno)
         {
-            SQLiteConnection conn = DatabaseConnection.GetInstance().SQLConn;
             string errMsg = string.Empty;
 
-            using (SQLiteCommand cmndWorkSheetItem = conn.CreateCommand())
-            using (SQLiteCommand cmndItem = conn.CreateCommand())
-            using (SQLiteCommand cmndLocMapWhs = conn.CreateCommand())
-            using (SQLiteCommand cmndActivity = conn.CreateCommand())
-            using (SQLiteCommand cmndID = conn.CreateCommand())
-            using (SQLiteCommand cmndIDItem = conn.CreateCommand())
-            using (SQLiteTransaction transaction = conn.BeginTransaction())
+            await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
             {
                 try
                 {
@@ -185,73 +163,6 @@ namespace dMobile.GroundWork
                             // TODO: Resource strings
                             this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
 
-                            //using (SQLiteCommand cmndWorkSheetItem = conn.CreateCommand())
-                            //{
-                            //cmndWorkSheetItem.CommandText = "tActivityItemPurchaseOrderWorkSheet";
-                            //cmndWorkSheetItem.CommandType = CommandType.Text;
-                            //cmndWorkSheetItem.IndexName = "UQ_ActivityItemPurchaseOrderWorkSheetOnActivityItemPurchaseOrderWorkSheetFKRefno";
-
-                            //using (SQLiteCommand cmndItem = conn.CreateCommand())
-                            //{
-                            //cmndItem.CommandText = "tActivityItem";
-                            //cmndItem.CommandType = CommandType.Text;
-
-                            //using (SqlCeResultSet rsItem = cmndItem.ExecuteResultSet(ResultSetOptions.Updatable))
-                            //{
-                            //SqlCeUpdatableRecord recItem = rsItem.CreateRecord();
-
-                            //using (SQLiteCommand cmndProdUnit = conn.CreateCommand())
-                            //{
-                            //cmndProdUnit.CommandText = "tProductUnit";
-                            //cmndProdUnit.CommandType = CommandType.Text;
-                            //cmndProdUnit.IndexName = "UQ_ProductUnitOnProductRefnoAndUnitRefnoAndProductUnitIsBC";
-
-                            //using (SQLiteDataReader drProdUnit = cmndProdUnit.ExecuteReader())
-                            //{
-                            //using (SQLiteCommand cmndProd = conn.CreateCommand())
-                            //{
-                            //cmndProd.CommandText = "tProduct";
-                            //cmndProd.IndexName = "UQ_ProductOnProductFKRefno";
-                            //cmndProd.CommandType = CommandType.Text;
-
-                            //using (SQLiteDataReader drProd = cmndProd.ExecuteReader())
-                            //{
-                            //using (SQLiteCommand cmndUnit = conn.CreateCommand())
-                            //{
-                            //cmndUnit.CommandText = "tUnit";
-                            //cmndUnit.IndexName = "UQ_UnitOnUnitCode";
-                            //cmndUnit.CommandType = CommandType.Text;
-
-                            //using (SQLiteDataReader drUnit = cmndUnit.ExecuteReader())
-                            //{
-                            //using (SQLiteCommand cmndLocMapWhs = conn.CreateCommand())
-                            //{
-                            //cmndLocMapWhs.CommandText = "tLocationMapWarehouse";
-                            //cmndLocMapWhs.CommandType = CommandType.Text;
-                            //cmndLocMapWhs.IndexName = "UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno";
-
-                            //using (SQLiteDataReader drLocMapWhs = cmndLocMapWhs.ExecuteReader())
-                            //{
-                            //using (SQLiteCommand cmndActivity = conn.CreateCommand())
-                            //{
-                            //cmndActivity.CommandText = "tActivity";
-                            //cmndActivity.CommandType = CommandType.Text;
-
-                            //using (SqlCeResultSet rsActivity = cmndActivity.ExecuteResultSet(ResultSetOptions.Updatable))
-                            //{
-                            //SqlCeUpdatableRecord recActivity = rsActivity.CreateRecord();
-
-                            //using (SQLiteCommand cmndID = conn.CreateCommand())
-                            //{
-                            cmndID.CommandText = "SELECT last_insert_rowid() FROM tActivity";
-                            cmndID.CommandType = CommandType.Text;
-
-                            cmndIDItem.CommandText = "SELECT last_insert_rowid() FROM tActivityItem";
-                            cmndIDItem.CommandType = CommandType.Text;
-
-                            //using (SqlCeResultSet rs = cmndWorkSheetItem.ExecuteResultSet(ResultSetOptions.Updatable))
-                            //{
-                            //SqlCeUpdatableRecord rec = rs.CreateRecord();
                             int actItemRefno = 0;
                             int progValue = 0;
                             int whsLocMapRefno = 0;
@@ -264,40 +175,19 @@ namespace dMobile.GroundWork
                             {
                                 errMsg = "Arguments:";
 
-                                cmndActivity.CommandText = "INSERT INTO tActivity (ActivityStatus, ActivitySubType) VALUES (@activityStatus, @activitySubType)";
-                                cmndActivity.CommandType = CommandType.Text;
-                                cmndActivity.Parameters.Add(new SQLiteParameter("@activityStatus", Convert.ToInt32(0)));
-                                cmndActivity.Parameters.Add(new SQLiteParameter("@activitySubType", Convert.ToInt32(SysCommon.ActSubTypes.PurchaseOrderWorkSheet)));
+                                transaction.Execute("INSERT INTO tActivity (ActivityStatus, ActivitySubType) VALUES (?, ?)", 0, Convert.ToInt32(SysCommon.ActSubTypes.PurchaseOrderWorkSheet));
 
-                                cmndActivity.ExecuteNonQuery();
+                                actRefno = Convert.ToInt32(transaction.QueryScalars<int>("SELECT last_insert_rowid() FROM tActivity"));
 
-                                //recActivity.SetInt32((int)SysCommon.ActFields.Status, 0);
-                                //recActivity.SetInt32((int)SysCommon.ActFields.SubType, (int)SysCommon.ActSubTypes.PurchaseOrderWorkSheet);
-                                //rsActivity.Insert(recActivity);
+                                transaction.Execute("INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (?, ?, ?)", Convert.ToInt32(SysCommon.ActSubTypes.PurchaseOrderWorkSheet), 0, actRefno);
 
-                                actRefno = Convert.ToInt32(cmndID.ExecuteScalar());
-
-                                cmndItem.CommandText = "INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (@activityItemSubType, @activityItemStatus, @activityRefno)";
-                                cmndItem.CommandType = CommandType.Text;
-                                cmndItem.Parameters.Add(new SQLiteParameter("@activityItemSubType", Convert.ToInt32(SysCommon.ActSubTypes.PurchaseOrderWorkSheet)));
-                                cmndItem.Parameters.Add(new SQLiteParameter("@activityItemStatus", Convert.ToInt32(0)));
-                                cmndItem.Parameters.Add(new SQLiteParameter("@activityRefno", Convert.ToInt32(actRefno)));
-
-                                cmndItem.ExecuteNonQuery();
-
-                                //recItem.SetInt32((int)SysCommon.ActItemFields.SubType, (int)SysCommon.ActSubTypes.PurchaseOrderWorkSheet);
-                                //recItem.SetInt32((int)SysCommon.ActItemFields.Status, 0);
-                                //recItem.SetInt32((int)SysCommon.ActItemFields.ActRefno, actRefno);
-                                //rsItem.Insert(recItem);
-
-                                actItemRefno = Convert.ToInt32(cmndIDItem.ExecuteScalar());
-
-                                prodUnitRefno = this.GetProductUnitRefnoFromDataRow(drow, ref conn, ref errMsg, false);
-                                whsLocMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, ref errMsg, cmndLocMapWhs);
+                                actItemRefno = Convert.ToInt32(transaction.QueryScalars<int>("SELECT last_insert_rowid() FROM tActivityItem"));
+                                prodUnitRefno = this.GetProductUnitRefnoFromDataRow(drow, transaction, ref errMsg, false);
+                                whsLocMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, ref errMsg, transaction);
 
                                 actItemWorkSheetFKRefno = Convert.ToInt32(drow["ActivityItemPurchaseOrderWorkSheetFKRefno"]);
 
-                                cmndWorkSheetItem.CommandText = "INSERT INTO tActivityItemPurchaseOrderWorkSheet (" +
+                                string query = "INSERT INTO tActivityItemPurchaseOrderWorkSheet (" +
                                     "ActivityItemRefno, " +
                                     "ActivityItemSubType, " +
                                     "ActivityItemPurchaseOrderWorkSheetFKRefno, " +
@@ -308,40 +198,30 @@ namespace dMobile.GroundWork
                                     "ActivityItemPurchaseOrderWorkSheetBaseQuantityOrdered, " +
                                     "ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered" +
                                     ") VALUES (" +
-                                    "@activityItemRefno, " +
-                                    "@activityItemSubType, " +
-                                    "@activityItemPurchaseOrderWorkSheetFKRefno, " +
-                                    "@activityItemPurchaseOrderWorkSheetStringFKRefno, " +
-                                    "@productUnitRefno, " +
-                                    "@warehouseLocationMapRefno, " +
-                                    "@activityItemPurchaseOrderWorkSheetQuantityOrdered, " +
-                                    "@activityItemPurchaseOrderWorkSheetBaseQuantityOrdered, " +
-                                    "@activityItemPurchaseOrderWorkSheetWeightQuantityOrdered" +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?" +
                                     ")";
-                                cmndWorkSheetItem.CommandType = CommandType.Text;
-                                //cmndWorkSheetItem.IndexName = "UQ_ActivityItemPurchaseOrderWorkSheetOnActivityItemPurchaseOrderWorkSheetFKRefno";
-                                cmndWorkSheetItem.Parameters.Add(new SQLiteParameter("@activityItemRefno", Convert.ToInt32(actItemRefno)));
-                                cmndWorkSheetItem.Parameters.Add(new SQLiteParameter("@activityItemSubType", Convert.ToInt32(SysCommon.ActSubTypes.PurchaseOrderWorkSheet)));
-                                cmndWorkSheetItem.Parameters.Add(new SQLiteParameter("@activityItemPurchaseOrderWorkSheetFKRefno", Convert.ToInt32(actItemWorkSheetFKRefno)));
-                                cmndWorkSheetItem.Parameters.Add(new SQLiteParameter("@activityItemPurchaseOrderWorkSheetStringFKRefno", Convert.ToString(actItemWorkSheetFKRefno)));
-                                cmndWorkSheetItem.Parameters.Add(new SQLiteParameter("@productUnitRefno", Convert.ToInt32(prodUnitRefno)));
-                                cmndWorkSheetItem.Parameters.Add(new SQLiteParameter("@warehouseLocationMapRefno", Convert.ToInt32(whsLocMapRefno)));
-                                cmndWorkSheetItem.Parameters.Add(new SQLiteParameter("@activityItemPurchaseOrderWorkSheetQuantityOrdered", Convert.ToDecimal(drow["ActivityItemPurchaseOrderWorkSheetQuantityOrdered"])));
-                                cmndWorkSheetItem.Parameters.Add(new SQLiteParameter("@activityItemPurchaseOrderWorkSheetBaseQuantityOrdered", Convert.ToDecimal(drow["ActivityItemPurchaseOrderWorkSheetBaseQuantityOrdered"])));
-                                cmndWorkSheetItem.Parameters.Add(new SQLiteParameter("@activityItemPurchaseOrderWorkSheetWeightQuantityOrdered", Convert.ToDecimal(drow["ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered"])));
+                                List<object> parameters = new List<object>()
+                                {
+                                    Convert.ToInt32(actItemRefno),
+                                    Convert.ToInt32(SysCommon.ActSubTypes.PurchaseOrderWorkSheet),
+                                    Convert.ToInt32(actItemWorkSheetFKRefno),
+                                    Convert.ToString(actItemWorkSheetFKRefno),
+                                    Convert.ToInt32(prodUnitRefno),
+                                    Convert.ToInt32(whsLocMapRefno),
+                                    Convert.ToDecimal(drow["ActivityItemPurchaseOrderWorkSheetQuantityOrdered"]),
+                                    Convert.ToDecimal(drow["ActivityItemPurchaseOrderWorkSheetBaseQuantityOrdered"]),
+                                    Convert.ToDecimal(drow["ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered"])
+                                };
 
-                                cmndWorkSheetItem.ExecuteNonQuery();
-
-                                //rec.SetInt32((int)SysCommon.ActItemWorkSheetFields.ActItemRefno, actItemRefno);
-                                //rec.SetInt32((int)SysCommon.ActItemWorkSheetFields.ActItemSubType, (int)SysCommon.ActSubTypes.PurchaseOrderWorkSheet);
-                                //rec.SetInt32((int)SysCommon.ActItemWorkSheetFields.FKRefno, actItemWorkSheetFKRefno);
-                                //rec.SetString((int)SysCommon.ActItemWorkSheetFields.StringFKRefno, actItemWorkSheetFKRefno.ToString());
-                                //rec.SetInt32((int)SysCommon.ActItemWorkSheetFields.ProdUnitRefno, prodUnitRefno);
-                                //rec.SetInt32((int)SysCommon.ActItemWorkSheetFields.WhsLocMapRefno, whsLocMapRefno);
-                                //rec.SetDecimal((int)SysCommon.ActItemWorkSheetFields.QuantityOrdered, Convert.ToDecimal(drow["ActivityItemPurchaseOrderWorkSheetQuantityOrdered"]));
-                                //rec.SetDecimal((int)SysCommon.ActItemWorkSheetFields.BaseQuantityOrdered, Convert.ToDecimal(drow["ActivityItemPurchaseOrderWorkSheetBaseQuantityOrdered"]));
-                                //rec.SetDecimal((int)SysCommon.ActItemWorkSheetFields.WeightQuantityOrdered, Convert.ToDecimal(drow["ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered"]));
-                                //rs.Insert(rec);
+                                transaction.Execute(query, parameters);
 
                                 progValue++;
                                 if (progValue % 100 == 0)
@@ -352,29 +232,6 @@ namespace dMobile.GroundWork
 
                             this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
                         }
-                        //                                                        }
-                        //                                                    }
-                        //                                                }
-
-                        //                                                drLocMapWhs.Close();
-                        //                                            }
-                        //                                        }
-
-                        //                                        drUnit.Close();
-                        //                                    }
-                        //                                }
-
-                        //                                drProd.Close();
-                        //                            }
-                        //                        }
-
-                        //                        drProdUnit.Close();
-                        //                    }
-                        //                }
-                        //            }
-                        //        }
-                        //    }
-                        //}
 
                         transaction.Commit();
 
@@ -390,18 +247,10 @@ namespace dMobile.GroundWork
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving work sheet items failed.", false);
 
-                    //// Duplicate key violations
-                    //if (ex.NativeError == 25016)
-                    //{
-                    //    // TODO: Resource strings
-                    //    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Uniqueness violation.", false);
-                    //    throw new Exception("Uniqueness violation." + Environment.NewLine + errMsg, ex);
-                    //}
-
                     // TODO: Resource strings
                     throw new Exception("Database exception occurred. Saving work sheet items failed." + Environment.NewLine + errMsg, ex);
                 }
-            }
+            });
         }
 
         /// <summary>
@@ -409,7 +258,7 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="actWorkSheetFKRefno">The actWorkSheetFKRefno<see cref="int"/></param>
         /// <returns></returns>
-        protected override string Create(int actWorkSheetFKRefno)
+        protected override async Task<string> Create(int actWorkSheetFKRefno)
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);

@@ -1,9 +1,9 @@
 namespace dMobile.GroundWork
 {
-    using System;
-    using System.Data;
-    using System.Data.SQLite;
     using dMobile.Bedrock;
+    using SQLite;
+    using System;
+    using System.Threading.Tasks;
 
     public class TableActivityMoveInventoryDetail : TableBase
     {
@@ -23,35 +23,29 @@ namespace dMobile.GroundWork
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override void Purge()
+        public override async Task Purge()
         {
             // TODO: Resource strings
             this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging move inventory details.", true);
 
             try
             {
-                using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                {
-                    cmndPurge.CommandType = CommandType.Text;
-                    cmndPurge.Parameters.Add(new SQLiteParameter("@activityDetailSubType", Convert.ToInt32(SysCommon.ActSubTypes.MoveInventory)));
+                string query = "DELETE FROM tActivityDetailProductSchemeVariantXRef "
+                     + "WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno IN "
+                     + "(SELECT tActivityDetail.ActivityDetailRefno "
+                     + "FROM tActivityDetail "
+                     + "WHERE tActivityDetail.ActivityDetailSubType = ?)";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.MoveInventory));
 
-                    cmndPurge.CommandText = "DELETE FROM tActivityDetailProductSchemeVariantXRef "
-                        + "WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno IN "
-                        + "(SELECT tActivityDetail.ActivityDetailRefno "
-                        + "FROM tActivityDetail "
-                        + "WHERE tActivityDetail.ActivityDetailSubType = @activityDetailSubType)";
-                    cmndPurge.ExecuteNonQuery();
+                query = "DELETE FROM tActivityDetailMoveInventory "
+                         + "WHERE tActivityDetailMoveInventory.ActivityDetailRefno IN "
+                         + "(SELECT tActivityDetail.ActivityDetailRefno "
+                         + "FROM tActivityDetail "
+                         + "WHERE tActivityDetail.ActivityDetailSubType = ?)";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.MoveInventory));
 
-                    cmndPurge.CommandText = "DELETE FROM tActivityDetailMoveInventory "
-                        + "WHERE tActivityDetailMoveInventory.ActivityDetailRefno IN "
-                        + "(SELECT tActivityDetail.ActivityDetailRefno "
-                        + "FROM tActivityDetail "
-                        + "WHERE tActivityDetail.ActivityDetailSubType = @activityDetailSubType)";
-                    cmndPurge.ExecuteNonQuery();
-
-                    cmndPurge.CommandText = "DELETE FROM tActivityDetail WHERE tActivityDetail.ActivityDetailSubType = @activityDetailSubType";
-                    cmndPurge.ExecuteNonQuery();
-                }
+                query = "DELETE FROM tActivityDetail WHERE tActivityDetail.ActivityDetailSubType = ?";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.MoveInventory));
 
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging move inventory details complete.", true);

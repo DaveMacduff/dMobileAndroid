@@ -1,9 +1,9 @@
 namespace dMobile.GroundWork
 {
     using dMobile.Bedrock;
+    using SQLite;
     using System;
-    using System.Data;
-    using System.Data.SQLite;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// Defines the <see cref="TableActivityItemBarCodeAssociationXRef" />
@@ -22,19 +22,14 @@ namespace dMobile.GroundWork
         /// <summary>
         /// The Purge
         /// </summary>
-        public override void Purge()
+        public override async Task Purge()
         {
             try
             {
                 // TODO: Resource Strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging item bar code association xrefs.", true);
 
-                using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                {
-                    cmndPurge.CommandText = "DELETE FROM tActivityItemBarCodeAssociationXRef";
-                    cmndPurge.CommandType = CommandType.Text;
-                    cmndPurge.ExecuteNonQuery();
-                }
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("DELETE FROM tActivityItemBarCodeAssociationXRef");
 
                 // TODO: Resource Strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging item bar code association xrefs complete.", true);

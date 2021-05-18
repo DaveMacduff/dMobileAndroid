@@ -1,13 +1,13 @@
-namespace dMobile.GroundWork
+﻿namespace dMobile.GroundWork
 {
+    using dMobile.Bedrock;
+    using SQLite;
     using System;
     using System.Data;
-    using SQLite;
     using System.Text;
+    using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
-    using dMobile.Bedrock;
-    using System.Threading.Tasks;
     using dMobile.Resources.Models;
     using System.Collections.Generic;
 
@@ -29,7 +29,7 @@ namespace dMobile.GroundWork
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override void Request()
+        public override async Task Request()
         {
             string reqData = string.Empty;
 
@@ -41,7 +41,7 @@ namespace dMobile.GroundWork
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding adjustments.", true);
 
-                reqData = this.SendComm(this.Create());
+                reqData = await this.SendComm(await this.Create());
 
                 if (0 < reqData.Length)
                 {
@@ -52,7 +52,7 @@ namespace dMobile.GroundWork
                         throw new Exception(reqErr.DocumentElement["detail"].InnerText);
                     }
 
-                    this.Save(reqData);
+                    await this.Save(reqData);
                 }
 
                 // TODO: Resource strings
@@ -79,14 +79,11 @@ namespace dMobile.GroundWork
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging adjustments.", true);
 
-                //cmndPurge.CommandText = "DELETE FROM tActivityAdjustment WHERE tActivityAdjustment.ActivitySubType = @activitySubType";
-                //cmndPurge.ExecuteNonQuery();
+                string query = "DELETE FROM tActivityAdjustment WHERE tActivityAdjustment.ActivitySubType = ?";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.Adjustment));
 
-                //cmndPurge.CommandText = "DELETE FROM tActivity WHERE tActivity.ActivitySubType = @activitySubType";
-                //cmndPurge.ExecuteNonQuery();
-
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("DELETE FROM tActivityAdjustment WHERE tActivityAdjustment.ActivitySubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.Adjustment));
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("DELETE FROM tActivity WHERE tActivity.ActivitySubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.Adjustment));
+                query = "DELETE FROM tActivity WHERE tActivity.ActivitySubType = = ?";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.Adjustment));
 
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging adjustments complete.", true);
@@ -112,7 +109,11 @@ namespace dMobile.GroundWork
 
             try
             {
-                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(tActivity.ActivityRefno) FROM tActivity WHERE tActivity.ActivitySubType = ?"));
+                string query = "SELECT COUNT(tActivity.ActivityRefno)"
+                        + " FROM tActivity"
+                        + " WHERE tActivity.ActivitySubType = ?";
+
+                rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>(query, (int)SysCommon.ActSubTypes.Adjustment);
 
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} adjustment(s)", rowsAffected), true);
@@ -313,17 +314,6 @@ namespace dMobile.GroundWork
                                     actAdjTypeDesc
                                 };
 
-                                //cmndAdj.Parameters.Add(new SQLiteParameter("@activityRefno", actRefno));
-                                //cmndAdj.Parameters.Add(new SQLiteParameter("@activitySubType", Convert.ToInt32(SysCommon.ActSubTypes.Adjustment)));
-                                //cmndAdj.Parameters.Add(new SQLiteParameter("@activityAdjustmentFKRefno", adjFKRefno));
-                                //cmndAdj.Parameters.Add(new SQLiteParameter("@activityAdjustmentStringFKRefno", adjFKRefno.ToString()));
-                                //cmndAdj.Parameters.Add(new SQLiteParameter("@activityAdjustmentType", Convert.ToInt32(drow["ActivityAdjustmentType"])));
-                                //cmndAdj.Parameters.Add(new SQLiteParameter("@warehouseLocationMapRefno", whsLocMapRefno));
-                                //cmndAdj.Parameters.Add(new SQLiteParameter("@activityAdjustmentDateTime", DateTime.Parse(dt.ToShortDateString())));
-                                //cmndAdj.Parameters.Add(new SQLiteParameter("@activityAdjustmentDescription", drow["ActivityAdjustmentDescription"].ToString()));
-                                //cmndAdj.Parameters.Add(new SQLiteParameter("@activityAdjustmentTypeDescription", actAdjTypeDesc));
-                                //cmndAdj.ExecuteNonQuery();
-
                                 transaction.Execute(sql, parameters);
 
                                 progValue++;
@@ -353,7 +343,6 @@ namespace dMobile.GroundWork
                     // TODO: Resource Strings
                     throw new Exception("Database exception occurred. Saving adjustments failed." + Environment.NewLine + errMsg, ex);
                 }
-                //}
             });
         }
 
@@ -362,7 +351,7 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        protected override string Create()
+        protected override async Task<string> Create()
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);

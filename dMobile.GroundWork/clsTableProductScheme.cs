@@ -1,22 +1,25 @@
-namespace dMobile.GroundWork
+﻿namespace dMobile.GroundWork
 {
-  using System;
-  using System.Data;
-  using System.Data.SQLite;
-  using System.Text;
-  using System.Xml;
-  using System.Xml.Linq;
-  using dMobile.Bedrock;
+    using System;
+    using System.Data;
+    using SQLite;
+    using System.Text;
+    using System.Xml;
+    using System.Xml.Linq;
+    using dMobile.Bedrock;
+    using System.Threading.Tasks;
+    using System.Collections.Generic;
+    using dMobile.Resources.Models;
 
-  public class TableProductScheme : TableBase
-  {
-    #region Constructors
-
-    public TableProductScheme()
-      : base()
+    public class TableProductScheme : TableBase
     {
-      this.FullClassName = "dMobile.GroundWork.TableProductScheme";
-    }
+        #region Constructors
+
+        public TableProductScheme()
+          : base()
+        {
+            this.FullClassName = "dMobile.GroundWork.TableProductScheme";
+        }
 
         #endregion
 
@@ -26,19 +29,16 @@ namespace dMobile.GroundWork
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override void Request()
+        public override async Task Request()
         {
             string reqData = string.Empty;
-
-            //GC.Collect();
-            //GC.WaitForPendingFinalizers();
 
             try
             {
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding product schemes.", true);
 
-                reqData = this.Send("product scheme");
+                reqData = await this.Send("product scheme");
 
                 if (0 < reqData.Length)
                 {
@@ -49,7 +49,7 @@ namespace dMobile.GroundWork
                         throw new Exception(reqErr.DocumentElement["detail"].InnerText);
                     }
 
-                    this.Save(reqData);
+                    await this.Save(reqData);
                 }
 
                 // TODO: Resource strings
@@ -65,88 +65,83 @@ namespace dMobile.GroundWork
             }
         }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="schemeCode"></param>
-    /// <returns></returns>
-    public int GetProdSchemeRefnoFromProdSchemeCode(string schemeCode)
-    {
-      int schemeRefno = 0;
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        ///// <param name="schemeCode"></param>
+        ///// <returns></returns>
+        //public int GetProdSchemeRefnoFromProdSchemeCode(string schemeCode)
+        //{
+        //  int schemeRefno = 0;
 
-//      try
-//      {
-//        using (SQLiteCommand cmndScheme = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-//        {
-//          cmndScheme.CommandText = "tProductScheme";
-//          cmndScheme.IndexName = "UQ_ProductSchemeOnProductSchemeCode";
-//          cmndScheme.CommandType = CommandType.TableDirect;
+        //      try
+        //      {
+        //        using (SQLiteCommand cmndScheme = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        //        {
+        //          cmndScheme.CommandText = "tProductScheme";
+        //          cmndScheme.IndexName = "UQ_ProductSchemeOnProductSchemeCode";
+        //          cmndScheme.CommandType = CommandType.TableDirect;
 
-//          using (SQLiteDataReader drScheme = cmndScheme.ExecuteReader())
-//          {
-//            if (drScheme.Seek(DbSeekOptions.FirstEqual, new object[] { schemeCode }))
-//            {
-//              if (drScheme.Read())
-//              {
-//                schemeRefno = Convert.ToInt32(drScheme.GetValue((int)SysCommon.ProdSchemeFields.Refno));
-//              }
-//              else
-//              {
-//                throw new Exception(
-//#if MULTILANGUAGE
-//                    Translator.GetInstance().Translate(TranslatorVocabulary.DrschemereadFailed) + Environment.NewLine + Translator.GetInstance().Translate(TranslatorVocabulary.SchemeCode) + schemeCode + "\'");
-//#else
-//                    "drScheme.Read() failed." + Environment.NewLine + "Scheme code \'" + schemeCode + "\'");
-//#endif
-//              }
-//            }
-//            else
-//            {
-//              throw new Exception(
-//#if MULTILANGUAGE
-//                  Translator.GetInstance().Translate(TranslatorVocabulary.UnableToLocateTheProductSchemeCodeInTproductscheme) 
-//                  + Environment.NewLine + Translator.GetInstance().Translate(TranslatorVocabulary.SchemeCode) + schemeCode + "\'");
-//#else
-//                  "Unable to locate the product scheme code in tProductScheme." 
-//                  + Environment.NewLine + "Scheme code \'" + schemeCode + "\'");
-//#endif
-//            }
+        //          using (SQLiteDataReader drScheme = cmndScheme.ExecuteReader())
+        //          {
+        //            if (drScheme.Seek(DbSeekOptions.FirstEqual, new object[] { schemeCode }))
+        //            {
+        //              if (drScheme.Read())
+        //              {
+        //                schemeRefno = Convert.ToInt32(drScheme.GetValue((int)SysCommon.ProdSchemeFields.Refno));
+        //              }
+        //              else
+        //              {
+        //                throw new Exception(
+        //#if MULTILANGUAGE
+        //                    Translator.GetInstance().Translate(TranslatorVocabulary.DrschemereadFailed) + Environment.NewLine + Translator.GetInstance().Translate(TranslatorVocabulary.SchemeCode) + schemeCode + "\'");
+        //#else
+        //                    "drScheme.Read() failed." + Environment.NewLine + "Scheme code \'" + schemeCode + "\'");
+        //#endif
+        //              }
+        //            }
+        //            else
+        //            {
+        //              throw new Exception(
+        //#if MULTILANGUAGE
+        //                  Translator.GetInstance().Translate(TranslatorVocabulary.UnableToLocateTheProductSchemeCodeInTproductscheme) 
+        //                  + Environment.NewLine + Translator.GetInstance().Translate(TranslatorVocabulary.SchemeCode) + schemeCode + "\'");
+        //#else
+        //                  "Unable to locate the product scheme code in tProductScheme." 
+        //                  + Environment.NewLine + "Scheme code \'" + schemeCode + "\'");
+        //#endif
+        //            }
 
-//            drScheme.Close();
-//          }
-//        }
-//      }
-//      catch (SQLiteException ex)
-//      {
-//#if MULTILANGUAGE
-//        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredGetprodschemerefnofromprodschemecodeFailed), ex);
-//#else
-//        throw new Exception("Database exception occurred. GetProdSchemeRefnoFromProdSchemeCode failed.", ex);
-//#endif
-//      }
+        //            drScheme.Close();
+        //          }
+        //        }
+        //      }
+        //      catch (SQLiteException ex)
+        //      {
+        //#if MULTILANGUAGE
+        //        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredGetprodschemerefnofromprodschemecodeFailed), ex);
+        //#else
+        //        throw new Exception("Database exception occurred. GetProdSchemeRefnoFromProdSchemeCode failed.", ex);
+        //#endif
+        //      }
 
-      return schemeRefno;
-    }
+        //  return schemeRefno;
+        //}
 
-    /// <summary>
-    ///
-    /// </summary>
-    /// <remarks></remarks>
-    public override int DataStatus()
-    {
-      int rowsAffected = 0;
+        /// <summary>
+        ///
+        /// </summary>
+        /// <remarks></remarks>
+        public override async Task<int> DataStatus()
+        {
+            int rowsAffected = 0;
 
             try
             {
-                using (SQLiteCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                {
-                    cmndStatus.CommandText = "SELECT COUNT(*) FROM tProductScheme";
-                    cmndStatus.CommandType = CommandType.Text;
-                    rowsAffected = Convert.ToInt32(cmndStatus.ExecuteScalar());
+                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tProductScheme"));
 
-                    // TODO: Resource strings
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} product schemes.", rowsAffected), true);
-                }
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} product schemes.", rowsAffected), true);
             }
             catch (SQLiteException ex)
             {
@@ -155,25 +150,20 @@ namespace dMobile.GroundWork
             }
 
             return rowsAffected;
-    }
+        }
 
-    /// <summary>
-    ///
-    /// </summary>
-    /// <remarks></remarks>
-    public override void Purge()
-    {
+        /// <summary>
+        ///
+        /// </summary>
+        /// <remarks></remarks>
+        public override async Task Purge()
+        {
             try
             {
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product schemes.", true);
 
-                using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                {
-                    cmndPurge.CommandText = "DELETE FROM tProductScheme";
-                    cmndPurge.CommandType = CommandType.Text;
-                    cmndPurge.ExecuteNonQuery();
-                }
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("DELETE FROM tProductScheme");
 
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product schemes failed.", true);
@@ -195,13 +185,11 @@ namespace dMobile.GroundWork
         //    /// <param name="reqData"></param>
         //    /// <remarks></remarks>
 
-        protected override void Save(string reqData)
+        protected override async Task Save(string reqData)
         {
-            SQLiteConnection conn = DatabaseConnection.GetInstance().SQLConn;
             string errMsg = string.Empty;
 
-            using (SQLiteCommand cmndScheme = conn.CreateCommand())
-            using (SQLiteTransaction transaction = conn.BeginTransaction())
+            await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
             {
                 try
                 {
@@ -221,13 +209,6 @@ namespace dMobile.GroundWork
                             // TODO: Resource String
                             this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", ds.Tables["tProductScheme"].Rows.Count), false);
 
-                            cmndScheme.CommandText = "SELECT ProductSchemeCode FROM tProductScheme WHERE ProductSchemeCode = @productSchemeCode";
-                            cmndScheme.CommandType = CommandType.Text;
-                            //cmndScheme.IndexName = "UQ_ProductSchemeOnProductSchemeCode";
-
-                            //using (SqlCeResultSet rs = cmndScheme.ExecuteResultSet(ResultSetOptions.Updatable))
-                            //{
-                            //    SqlCeUpdatableRecord rec = rs.CreateRecord();
                             int progValue = 0;
                             string schemeCode = string.Empty;
                             bool isSchemeFound = false;
@@ -239,263 +220,206 @@ namespace dMobile.GroundWork
                                 schemeCode = drow["ProductSchemeCode"].ToString();
                                 errMsg = "Scheme code \'" + schemeCode + "\'";
                                 isSchemeFound = false;
+                                List<tProductSchemeModel> resultsProductScheme = transaction.Query<tProductSchemeModel>("SELECT ProductSchemeCode FROM tProductScheme WHERE ProductSchemeCode = ?", schemeCode);
 
-                                cmndScheme.Parameters.Add(new SQLiteParameter("@productSchemeCode", schemeCode));
-
-                                using (SQLiteDataReader drScheme = cmndScheme.ExecuteReader())
+                                if (resultsProductScheme?.Count > 0)
                                 {
-                                    //cmndScheme.CommandText = "tProductScheme";
-                                    //cmndScheme.CommandType = CommandType.TableDirect;
-                                    //cmndScheme.IndexName = "UQ_ProductSchemeOnProductSchemeCode";
+                                    isSchemeFound = true;
 
-                                    //if (drScheme.Seek(DbSeekOptions.FirstEqual, new object[] { schemeCode }))
-                                    if (drScheme.Read())
+                                    if (SysEnv.RefreshOpt.RefreshDataChangesOnly)
                                     {
-                                        isSchemeFound = true;
+                                        StringBuilder s = new StringBuilder();
+                                        s.Append("UPDATE tProductScheme ");
+                                        s.AppendFormat(
+                                            "SET ProductSchemeIsSerialTracked = {0},",
+                                            Convert.ToBoolean(drow["ProductSchemeIsSerialTracked"]) ? 1 : 0);
+                                        s.AppendFormat(
+                                            "ProductSchemeIsProductionDateTracked = {0},",
+                                            Convert.ToBoolean(drow["ProductSchemeIsProductionDateTracked"]) ? 1 : 0);
+                                        s.AppendFormat(
+                                            "ProductSchemeIsLotTracked = {0},",
+                                            Convert.ToBoolean(drow["ProductSchemeIsLotTracked"]) ? 1 : 0);
+                                        s.AppendFormat(
+                                            "ProductSchemeIsBestBeforeDateTracked = {0},",
+                                            Convert.ToBoolean(drow["ProductSchemeIsBestBeforeDateTracked"]) ? 1 : 0);
+                                        s.AppendFormat(
+                                            "ProductSchemeIsVariantTracked = {0},",
+                                            Convert.ToBoolean(drow["ProductSchemeIsVariantTracked"]) ? 1 : 0);
+                                        s.AppendFormat(
+                                            "ProductSchemeIsLotUniqueComponent = {0},",
+                                            Convert.ToBoolean(drow["ProductSchemeIsLotUniqueComponent"]) ? 1 : 0);
+                                        s.AppendFormat(
+                                            "ProductSchemeIsProductionDateUniqueComponent = {0},",
+                                            Convert.ToBoolean(drow["ProductSchemeIsProductionDateUniqueComponent"]) ? 1 : 0);
+                                        s.AppendFormat(
+                                            "ProductSchemeIsBestBeforeDateUniqueComponent = {0},",
+                                            Convert.ToBoolean(drow["ProductSchemeIsBestBeforeDateUniqueComponent"]) ? 1 : 0);
+                                        s.AppendFormat(
+                                            "ProductSchemeIsVariantUniqueComponent = {0},",
+                                            Convert.ToBoolean(drow["ProductSchemeIsVariantUniqueComponent"]) ? 1 : 0);
+                                        s.AppendFormat(
+                                            "ProductSchemeExtra1Type = {0},",
+                                            Convert.ToInt32(drow["ProductSchemeExtra1Type"]));
+                                        s.AppendFormat(
+                                            "ProductSchemeExtra2Type = {0},",
+                                            Convert.ToInt32(drow["ProductSchemeExtra2Type"]));
+                                        s.AppendFormat(
+                                            "ProductSchemeExtra3Type = {0},",
+                                            Convert.ToInt32(drow["ProductSchemeExtra3Type"]));
+                                        s.AppendFormat(
+                                            "ProductSchemeExtra4Type = {0},",
+                                            Convert.ToInt32(drow["ProductSchemeExtra4Type"]));
+                                        s.AppendFormat(
+                                            "ProductSchemeExtra5Type = {0},",
+                                            Convert.ToInt32(drow["ProductSchemeExtra5Type"]));
+                                        s.AppendFormat(
+                                            "ProductSchemeExtra1Caption = \'{0}\',",
+                                            Convert.ToString(drow["ProductSchemeExtra1Caption"]));
+                                        s.AppendFormat(
+                                            "ProductSchemeExtra2Caption = \'{0}\',",
+                                            Convert.ToString(drow["ProductSchemeExtra2Caption"]));
+                                        s.AppendFormat(
+                                            "ProductSchemeExtra3Caption = \'{0}\',",
+                                            Convert.ToString(drow["ProductSchemeExtra3Caption"]));
+                                        s.AppendFormat(
+                                            "ProductSchemeExtra4Caption = \'{0}\',",
+                                            Convert.ToString(drow["ProductSchemeExtra4Caption"]));
+                                        s.AppendFormat(
+                                            "ProductSchemeExtra5Caption = \'{0}\',",
+                                            Convert.ToString(drow["ProductSchemeExtra5Caption"]));
+                                        s.AppendFormat(
+                                            "ProductSchemeExtra1IsRequired = {0},",
+                                            Convert.ToBoolean(drow["ProductSchemeExtra1IsRequired"]) ? 1 : 0);
+                                        s.AppendFormat(
+                                            "ProductSchemeExtra2IsRequired = {0},",
+                                            Convert.ToBoolean(drow["ProductSchemeExtra2IsRequired"]) ? 1 : 0);
+                                        s.AppendFormat(
+                                            "ProductSchemeExtra3IsRequired = {0},",
+                                            Convert.ToBoolean(drow["ProductSchemeExtra3IsRequired"]) ? 1 : 0);
+                                        s.AppendFormat(
+                                            "ProductSchemeExtra4IsRequired = {0},",
+                                            Convert.ToBoolean(drow["ProductSchemeExtra4IsRequired"]) ? 1 : 0);
+                                        s.AppendFormat(
+                                            "ProductSchemeExtra5IsRequired = {0},",
+                                            Convert.ToBoolean(drow["ProductSchemeExtra5IsRequired"]) ? 1 : 0);
+                                        s.AppendFormat(
+                                            "ProductSchemeIsLotTrackedDefault = {0},",
+                                            Convert.ToBoolean(drow["ProductSchemeIsLotTrackedDefault"]) ? 1 : 0);
+                                        s.AppendFormat(
+                                            "ProductSchemeIsProductionDateTrackedDefault = {0},",
+                                            Convert.ToBoolean(drow["ProductSchemeIsProductionDateTrackedDefault"]) ? 1 : 0);
+                                        s.AppendFormat(
+                                            "ProductSchemeIsBestBeforeDateTrackedDefault = {0} ",
+                                            Convert.ToBoolean(drow["ProductSchemeIsBestBeforeDateTrackedDefault"]) ? 1 : 0);
+                                        s.AppendFormat("WHERE ProductSchemeCode = \'{0}\'", schemeCode);
 
-                                        if (SysEnv.RefreshOpt.RefreshDataChangesOnly)
-                                        {
-                                            StringBuilder s = new StringBuilder();
-                                            s.Append("UPDATE tProductScheme ");
-                                            s.AppendFormat(
-                                                "SET ProductSchemeIsSerialTracked = {0},",
-                                                Convert.ToBoolean(drow["ProductSchemeIsSerialTracked"]) ? 1 : 0);
-                                            s.AppendFormat(
-                                                "ProductSchemeIsProductionDateTracked = {0},",
-                                                Convert.ToBoolean(drow["ProductSchemeIsProductionDateTracked"]) ? 1 : 0);
-                                            s.AppendFormat(
-                                                "ProductSchemeIsLotTracked = {0},",
-                                                Convert.ToBoolean(drow["ProductSchemeIsLotTracked"]) ? 1 : 0);
-                                            s.AppendFormat(
-                                                "ProductSchemeIsBestBeforeDateTracked = {0},",
-                                                Convert.ToBoolean(drow["ProductSchemeIsBestBeforeDateTracked"]) ? 1 : 0);
-                                            s.AppendFormat(
-                                                "ProductSchemeIsVariantTracked = {0},",
-                                                Convert.ToBoolean(drow["ProductSchemeIsVariantTracked"]) ? 1 : 0);
-                                            s.AppendFormat(
-                                                "ProductSchemeIsLotUniqueComponent = {0},",
-                                                Convert.ToBoolean(drow["ProductSchemeIsLotUniqueComponent"]) ? 1 : 0);
-                                            s.AppendFormat(
-                                                "ProductSchemeIsProductionDateUniqueComponent = {0},",
-                                                Convert.ToBoolean(drow["ProductSchemeIsProductionDateUniqueComponent"]) ? 1 : 0);
-                                            s.AppendFormat(
-                                                "ProductSchemeIsBestBeforeDateUniqueComponent = {0},",
-                                                Convert.ToBoolean(drow["ProductSchemeIsBestBeforeDateUniqueComponent"]) ? 1 : 0);
-                                            s.AppendFormat(
-                                                "ProductSchemeIsVariantUniqueComponent = {0},",
-                                                Convert.ToBoolean(drow["ProductSchemeIsVariantUniqueComponent"]) ? 1 : 0);
-                                            s.AppendFormat(
-                                                "ProductSchemeExtra1Type = {0},",
-                                                Convert.ToInt32(drow["ProductSchemeExtra1Type"]));
-                                            s.AppendFormat(
-                                                "ProductSchemeExtra2Type = {0},",
-                                                Convert.ToInt32(drow["ProductSchemeExtra2Type"]));
-                                            s.AppendFormat(
-                                                "ProductSchemeExtra3Type = {0},",
-                                                Convert.ToInt32(drow["ProductSchemeExtra3Type"]));
-                                            s.AppendFormat(
-                                                "ProductSchemeExtra4Type = {0},",
-                                                Convert.ToInt32(drow["ProductSchemeExtra4Type"]));
-                                            s.AppendFormat(
-                                                "ProductSchemeExtra5Type = {0},",
-                                                Convert.ToInt32(drow["ProductSchemeExtra5Type"]));
-                                            s.AppendFormat(
-                                                "ProductSchemeExtra1Caption = \'{0}\',",
-                                                Convert.ToString(drow["ProductSchemeExtra1Caption"]));
-                                            s.AppendFormat(
-                                                "ProductSchemeExtra2Caption = \'{0}\',",
-                                                Convert.ToString(drow["ProductSchemeExtra2Caption"]));
-                                            s.AppendFormat(
-                                                "ProductSchemeExtra3Caption = \'{0}\',",
-                                                Convert.ToString(drow["ProductSchemeExtra3Caption"]));
-                                            s.AppendFormat(
-                                                "ProductSchemeExtra4Caption = \'{0}\',",
-                                                Convert.ToString(drow["ProductSchemeExtra4Caption"]));
-                                            s.AppendFormat(
-                                                "ProductSchemeExtra5Caption = \'{0}\',",
-                                                Convert.ToString(drow["ProductSchemeExtra5Caption"]));
-                                            s.AppendFormat(
-                                                "ProductSchemeExtra1IsRequired = {0},",
-                                                Convert.ToBoolean(drow["ProductSchemeExtra1IsRequired"]) ? 1 : 0);
-                                            s.AppendFormat(
-                                                "ProductSchemeExtra2IsRequired = {0},",
-                                                Convert.ToBoolean(drow["ProductSchemeExtra2IsRequired"]) ? 1 : 0);
-                                            s.AppendFormat(
-                                                "ProductSchemeExtra3IsRequired = {0},",
-                                                Convert.ToBoolean(drow["ProductSchemeExtra3IsRequired"]) ? 1 : 0);
-                                            s.AppendFormat(
-                                                "ProductSchemeExtra4IsRequired = {0},",
-                                                Convert.ToBoolean(drow["ProductSchemeExtra4IsRequired"]) ? 1 : 0);
-                                            s.AppendFormat(
-                                                "ProductSchemeExtra5IsRequired = {0},",
-                                                Convert.ToBoolean(drow["ProductSchemeExtra5IsRequired"]) ? 1 : 0);
-                                            s.AppendFormat(
-                                                "ProductSchemeIsLotTrackedDefault = {0},",
-                                                Convert.ToBoolean(drow["ProductSchemeIsLotTrackedDefault"]) ? 1 : 0);
-                                            s.AppendFormat(
-                                                "ProductSchemeIsProductionDateTrackedDefault = {0},",
-                                                Convert.ToBoolean(drow["ProductSchemeIsProductionDateTrackedDefault"]) ? 1 : 0);
-                                            s.AppendFormat(
-                                                "ProductSchemeIsBestBeforeDateTrackedDefault = {0} ",
-                                                Convert.ToBoolean(drow["ProductSchemeIsBestBeforeDateTrackedDefault"]) ? 1 : 0);
-                                            s.AppendFormat("WHERE ProductSchemeCode = \'{0}\'", schemeCode);
-
-                                            using (SQLiteCommand cmndSchemeUpdate = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                                            {
-                                                cmndSchemeUpdate.CommandText = s.ToString();
-                                                cmndSchemeUpdate.CommandType = CommandType.Text;
-                                                cmndSchemeUpdate.ExecuteNonQuery();
-                                            }
-                                        }
+                                        transaction.Execute(s.ToString());
                                     }
+                                }
 
-                                    if (!isSchemeFound)
+                                if (!isSchemeFound)
+                                {
+                                    string queryInsert = "INSERT INTO tProductScheme " +
+                                        "(ProductSchemeCode, " +
+                                        "ProductSchemeIsSerialTracked, " +
+                                        "ProductSchemeIsProductionDateTracked, " +
+                                        "ProductSchemeIsLotTracked, " +
+                                        "ProductSchemeIsBestBeforeDateTracked, " +
+                                        "ProductSchemeIsVariantTracked, " +
+                                        "ProductSchemeIsLotUniqueComponent, " +
+                                        "ProductSchemeIsProductionDateUniqueComponent, " +
+                                        "ProductSchemeIsBestBeforeDateUniqueComponent, " +
+                                        "ProductSchemeIsVariantUniqueComponent, " +
+                                        "ProductSchemeExtra1Type, " +
+                                        "ProductSchemeExtra2Type, " +
+                                        "ProductSchemeExtra3Type, " +
+                                        "ProductSchemeExtra4Type, " +
+                                        "ProductSchemeExtra5Type, " +
+                                        "ProductSchemeExtra1Caption, " +
+                                        "ProductSchemeExtra2Caption, " +
+                                        "ProductSchemeExtra3Caption, " +
+                                        "ProductSchemeExtra4Caption, " +
+                                        "ProductSchemeExtra5Caption, " +
+                                        "ProductSchemeExtra1IsRequired, " +
+                                        "ProductSchemeExtra2IsRequired, " +
+                                        "ProductSchemeExtra3IsRequired, " +
+                                        "ProductSchemeExtra4IsRequired, " +
+                                        "ProductSchemeExtra5IsRequired," +
+                                        "ProductSchemeIsLotTrackedDefault, " +
+                                        "ProductSchemeIsProductionDateTrackedDefault, " +
+                                        "ProductSchemeIsBestBeforeDateTrackedDefault) " +
+                                        "VALUES " +
+                                        "(?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?)";
+                                    List<object> parametersInsert = new List<object>()
                                     {
-                                        using (SQLiteCommand cmndSchemeInsert = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                                        {
-                                            cmndSchemeInsert.CommandText = "INSERT INTO tProductScheme " +
-                                                "(ProductSchemeCode, " +
-                                                "ProductSchemeIsSerialTracked, " +
-                                                "ProductSchemeIsProductionDateTracked, " +
-                                                "ProductSchemeIsLotTracked, " +
-                                                "ProductSchemeIsBestBeforeDateTracked, " +
-                                                "ProductSchemeIsVariantTracked, " +
-                                                "ProductSchemeIsLotUniqueComponent, " +
-                                                "ProductSchemeIsProductionDateUniqueComponent, " +
-                                                "ProductSchemeIsBestBeforeDateUniqueComponent, " +
-                                                "ProductSchemeIsVariantUniqueComponent, " +
-                                                "ProductSchemeExtra1Type, " +
-                                                "ProductSchemeExtra2Type, " +
-                                                "ProductSchemeExtra3Type, " +
-                                                "ProductSchemeExtra4Type, " +
-                                                "ProductSchemeExtra5Type, " +
-                                                "ProductSchemeExtra1Caption, " +
-                                                "ProductSchemeExtra2Caption, " +
-                                                "ProductSchemeExtra3Caption, " +
-                                                "ProductSchemeExtra4Caption, " +
-                                                "ProductSchemeExtra5Caption, " +
-                                                "ProductSchemeExtra1IsRequired, " +
-                                                "ProductSchemeExtra2IsRequired, " +
-                                                "ProductSchemeExtra3IsRequired, " +
-                                                "ProductSchemeExtra4IsRequired, " +
-                                                "ProductSchemeExtra5IsRequired," +
-                                                "ProductSchemeIsLotTrackedDefault, " +
-                                                "ProductSchemeIsProductionDateTrackedDefault, " +
-                                                "ProductSchemeIsBestBeforeDateTrackedDefault) " +
-                                                "VALUES " +
-                                                "(@productSchemeCode, " +
-                                                "@productSchemeIsSerialTracked, " +
-                                                "@productSchemeIsProductionDateTracked, " +
-                                                "@productSchemeIsLotTracked, " +
-                                                "@productSchemeIsBestBeforeDateTracked, " +
-                                                "@productSchemeIsVariantTracked, " +
-                                                "@productSchemeIsLotUniqueComponent, " +
-                                                "@productSchemeIsProductionDateUniqueComponent, " +
-                                                "@productSchemeIsBestBeforeDateUniqueComponent, " +
-                                                "@productSchemeIsVariantUniqueComponent, " +
-                                                "@productSchemeExtra1Type, " +
-                                                "@productSchemeExtra2Type, " +
-                                                "@productSchemeExtra3Type, " +
-                                                "@productSchemeExtra4Type, " +
-                                                "@productSchemeExtra5Type, " +
-                                                "@productSchemeExtra1Caption, " +
-                                                "@productSchemeExtra2Caption, " +
-                                                "@productSchemeExtra3Caption, " +
-                                                "@productSchemeExtra4Caption, " +
-                                                "@productSchemeExtra5Caption, " +
-                                                "@productSchemeExtra1IsRequired, " +
-                                                "@productSchemeExtra2IsRequired, " +
-                                                "@productSchemeExtra3IsRequired, " +
-                                                "@productSchemeExtra4IsRequired, " +
-                                                "@productSchemeExtra5IsRequired, " +
-                                                "@productSchemeIsLotTrackedDefault, " +
-                                                "@productSchemeIsProductionDateTrackedDefault, " +
-                                                "@productSchemeIsBestBeforeDateTrackedDefault)";
-                                            cmndSchemeInsert.CommandType = CommandType.Text;
-                                            //cmndScheme.IndexName = "UQ_ProductSchemeOnProductSchemeCode";
-                                            cmndSchemeInsert.Parameters.Add(new SQLiteParameter("@productSchemeCode", schemeCode));
-                                            cmndSchemeInsert.Parameters.Add(new SQLiteParameter("@productSchemeIsSerialTracked", Convert.ToBoolean(drow["ProductSchemeIsSerialTracked"])));
-                                            cmndSchemeInsert.Parameters.Add(new SQLiteParameter("@productSchemeIsProductionDateTracked", Convert.ToBoolean(drow["ProductSchemeIsProductionDateTracked"])));
-                                            cmndSchemeInsert.Parameters.Add(new SQLiteParameter("@productSchemeIsLotTracked", Convert.ToBoolean(drow["ProductSchemeIsLotTracked"])));
-                                            cmndSchemeInsert.Parameters.Add(new SQLiteParameter("@productSchemeIsBestBeforeDateTracked", Convert.ToBoolean(drow["ProductSchemeIsBestBeforeDateTracked"])));
-                                            cmndSchemeInsert.Parameters.Add(new SQLiteParameter("@productSchemeIsVariantTracked", Convert.ToBoolean(drow["ProductSchemeIsVariantTracked"])));
-                                            cmndSchemeInsert.Parameters.Add(new SQLiteParameter("@productSchemeIsLotUniqueComponent", Convert.ToBoolean(drow["ProductSchemeIsLotUniqueComponent"])));
-                                            cmndSchemeInsert.Parameters.Add(new SQLiteParameter("@productSchemeIsProductionDateUniqueComponent", Convert.ToBoolean(drow["ProductSchemeIsProductionDateUniqueComponent"])));
-                                            cmndSchemeInsert.Parameters.Add(new SQLiteParameter("@productSchemeIsBestBeforeDateUniqueComponent", Convert.ToBoolean(drow["ProductSchemeIsBestBeforeDateUniqueComponent"])));
-                                            cmndSchemeInsert.Parameters.Add(new SQLiteParameter("@productSchemeIsVariantUniqueComponent", Convert.ToBoolean(drow["ProductSchemeIsVariantUniqueComponent"])));
-                                            cmndSchemeInsert.Parameters.Add(new SQLiteParameter("@productSchemeExtra1Type", Convert.ToInt32(drow["ProductSchemeExtra1Type"])));
-                                            cmndSchemeInsert.Parameters.Add(new SQLiteParameter("@productSchemeExtra2Type", Convert.ToInt32(drow["ProductSchemeExtra2Type"])));
-                                            cmndSchemeInsert.Parameters.Add(new SQLiteParameter("@productSchemeExtra3Type", Convert.ToInt32(drow["ProductSchemeExtra3Type"])));
-                                            cmndSchemeInsert.Parameters.Add(new SQLiteParameter("@productSchemeExtra4Type", Convert.ToInt32(drow["ProductSchemeExtra4Type"])));
-                                            cmndSchemeInsert.Parameters.Add(new SQLiteParameter("@productSchemeExtra5Type", Convert.ToInt32(drow["ProductSchemeExtra5Type"])));
-                                            cmndSchemeInsert.Parameters.Add(new SQLiteParameter("@productSchemeExtra1Caption", drow["ProductSchemeExtra1Caption"].ToString()));
-                                            cmndSchemeInsert.Parameters.Add(new SQLiteParameter("@productSchemeExtra2Caption", drow["ProductSchemeExtra2Caption"].ToString()));
-                                            cmndSchemeInsert.Parameters.Add(new SQLiteParameter("@productSchemeExtra3Caption", drow["ProductSchemeExtra3Caption"].ToString()));
-                                            cmndSchemeInsert.Parameters.Add(new SQLiteParameter("@productSchemeExtra4Caption", drow["ProductSchemeExtra4Caption"].ToString()));
-                                            cmndSchemeInsert.Parameters.Add(new SQLiteParameter("@productSchemeExtra5Caption", drow["ProductSchemeExtra5Caption"].ToString()));
-                                            cmndSchemeInsert.Parameters.Add(new SQLiteParameter("@productSchemeExtra1IsRequired", Convert.ToBoolean(drow["ProductSchemeExtra1IsRequired"])));
-                                            cmndSchemeInsert.Parameters.Add(new SQLiteParameter("@productSchemeExtra2IsRequired", Convert.ToBoolean(drow["ProductSchemeExtra2IsRequired"])));
-                                            cmndSchemeInsert.Parameters.Add(new SQLiteParameter("@productSchemeExtra3IsRequired", Convert.ToBoolean(drow["ProductSchemeExtra3IsRequired"])));
-                                            cmndSchemeInsert.Parameters.Add(new SQLiteParameter("@productSchemeExtra4IsRequired", Convert.ToBoolean(drow["ProductSchemeExtra4IsRequired"])));
-                                            cmndSchemeInsert.Parameters.Add(new SQLiteParameter("@productSchemeExtra5IsRequired", Convert.ToBoolean(drow["ProductSchemeExtra5IsRequired"])));
-                                            cmndSchemeInsert.Parameters.Add(new SQLiteParameter("@productSchemeIsLotTrackedDefault", Convert.ToBoolean(drow["ProductSchemeIsLotTrackedDefault"])));
-                                            cmndSchemeInsert.Parameters.Add(new SQLiteParameter("@productSchemeIsProductionDateTrackedDefault", Convert.ToBoolean(drow["ProductSchemeIsProductionDateTrackedDefault"])));
-                                            cmndSchemeInsert.Parameters.Add(new SQLiteParameter("@productSchemeIsBestBeforeDateTrackedDefault", Convert.ToBoolean(drow["ProductSchemeIsBestBeforeDateTrackedDefault"])));
+                                        schemeCode,
+                                        Convert.ToBoolean(drow["ProductSchemeIsSerialTracked"]),
+                                        Convert.ToBoolean(drow["ProductSchemeIsProductionDateTracked"]),
+                                        Convert.ToBoolean(drow["ProductSchemeIsLotTracked"]),
+                                        Convert.ToBoolean(drow["ProductSchemeIsBestBeforeDateTracked"]),
+                                        Convert.ToBoolean(drow["ProductSchemeIsVariantTracked"]),
+                                        Convert.ToBoolean(drow["ProductSchemeIsLotUniqueComponent"]),
+                                        Convert.ToBoolean(drow["ProductSchemeIsProductionDateUniqueComponent"]),
+                                        Convert.ToBoolean(drow["ProductSchemeIsBestBeforeDateUniqueComponent"]),
+                                        Convert.ToBoolean(drow["ProductSchemeIsVariantUniqueComponent"]),
+                                        Convert.ToInt32(drow["ProductSchemeExtra1Type"]),
+                                        Convert.ToInt32(drow["ProductSchemeExtra2Type"]),
+                                        Convert.ToInt32(drow["ProductSchemeExtra3Type"]),
+                                        Convert.ToInt32(drow["ProductSchemeExtra4Type"]),
+                                        Convert.ToInt32(drow["ProductSchemeExtra5Type"]),
+                                        drow["ProductSchemeExtra1Caption"].ToString(),
+                                        drow["ProductSchemeExtra2Caption"].ToString(),
+                                        drow["ProductSchemeExtra3Caption"].ToString(),
+                                        drow["ProductSchemeExtra4Caption"].ToString(),
+                                        drow["ProductSchemeExtra5Caption"].ToString(),
+                                        Convert.ToBoolean(drow["ProductSchemeExtra1IsRequired"]),
+                                        Convert.ToBoolean(drow["ProductSchemeExtra2IsRequired"]),
+                                        Convert.ToBoolean(drow["ProductSchemeExtra3IsRequired"]),
+                                        Convert.ToBoolean(drow["ProductSchemeExtra4IsRequired"]),
+                                        Convert.ToBoolean(drow["ProductSchemeExtra5IsRequired"]),
+                                        Convert.ToBoolean(drow["ProductSchemeIsLotTrackedDefault"]),
+                                        Convert.ToBoolean(drow["ProductSchemeIsProductionDateTrackedDefault"]),
+                                        Convert.ToBoolean(drow["ProductSchemeIsBestBeforeDateTrackedDefault"])
+                                    };
 
-                                            cmndSchemeInsert.ExecuteNonQuery();
+                                    transaction.Execute(queryInsert, parametersInsert);
+                                }
 
-                                            //rec.SetString((int)SysCommon.ProdSchemeFields.Code, schemeCode);
-                                            //rec.SetBoolean((int)SysCommon.ProdSchemeFields.IsSerialTracked, Convert.ToBoolean(drow["ProductSchemeIsSerialTracked"]));
-                                            //rec.SetBoolean((int)SysCommon.ProdSchemeFields.IsProductionDateTracked, Convert.ToBoolean(drow["ProductSchemeIsProductionDateTracked"]));
-                                            //rec.SetBoolean((int)SysCommon.ProdSchemeFields.IsBestBeforeDateTracked, Convert.ToBoolean(drow["ProductSchemeIsBestBeforeDateTracked"]));
-                                            //rec.SetBoolean((int)SysCommon.ProdSchemeFields.IsLotTracked, Convert.ToBoolean(drow["ProductSchemeIsLotTracked"]));
-                                            //rec.SetBoolean((int)SysCommon.ProdSchemeFields.IsVariantTracked, Convert.ToBoolean(drow["ProductSchemeIsVariantTracked"]));
-                                            //rec.SetBoolean((int)SysCommon.ProdSchemeFields.IsLotUniqueComponent, Convert.ToBoolean(drow["ProductSchemeIsLotUniqueComponent"]));
-                                            //rec.SetBoolean((int)SysCommon.ProdSchemeFields.IsProductionDateUniqueComponent, Convert.ToBoolean(drow["ProductSchemeIsProductionDateUniqueComponent"]));
-                                            //rec.SetBoolean((int)SysCommon.ProdSchemeFields.IsBestBeforeDateUniqueComponent, Convert.ToBoolean(drow["ProductSchemeIsBestBeforeDateUniqueComponent"]));
-                                            //rec.SetBoolean((int)SysCommon.ProdSchemeFields.IsVariantUniqueComponent, Convert.ToBoolean(drow["ProductSchemeIsVariantUniqueComponent"]));
-
-                                            //rec.SetInt32((int)SysCommon.ProdSchemeFields.Extra1Type, Convert.ToInt32(drow["ProductSchemeExtra1Type"]));
-                                            //rec.SetInt32((int)SysCommon.ProdSchemeFields.Extra2Type, Convert.ToInt32(drow["ProductSchemeExtra2Type"]));
-                                            //rec.SetInt32((int)SysCommon.ProdSchemeFields.Extra3Type, Convert.ToInt32(drow["ProductSchemeExtra3Type"]));
-                                            //rec.SetInt32((int)SysCommon.ProdSchemeFields.Extra4Type, Convert.ToInt32(drow["ProductSchemeExtra4Type"]));
-                                            //rec.SetInt32((int)SysCommon.ProdSchemeFields.Extra5Type, Convert.ToInt32(drow["ProductSchemeExtra5Type"]));
-
-                                            //rec.SetString((int)SysCommon.ProdSchemeFields.Extra1Caption, drow["ProductSchemeExtra1Caption"].ToString());
-                                            //rec.SetString((int)SysCommon.ProdSchemeFields.Extra2Caption, drow["ProductSchemeExtra2Caption"].ToString());
-                                            //rec.SetString((int)SysCommon.ProdSchemeFields.Extra3Caption, drow["ProductSchemeExtra3Caption"].ToString());
-                                            //rec.SetString((int)SysCommon.ProdSchemeFields.Extra4Caption, drow["ProductSchemeExtra4Caption"].ToString());
-                                            //rec.SetString((int)SysCommon.ProdSchemeFields.Extra5Caption, drow["ProductSchemeExtra5Caption"].ToString());
-
-                                            //rec.SetBoolean((int)SysCommon.ProdSchemeFields.Extra1IsRequired, Convert.ToBoolean(drow["ProductSchemeExtra1IsRequired"]));
-                                            //rec.SetBoolean((int)SysCommon.ProdSchemeFields.Extra2IsRequired, Convert.ToBoolean(drow["ProductSchemeExtra2IsRequired"]));
-                                            //rec.SetBoolean((int)SysCommon.ProdSchemeFields.Extra3IsRequired, Convert.ToBoolean(drow["ProductSchemeExtra3IsRequired"]));
-                                            //rec.SetBoolean((int)SysCommon.ProdSchemeFields.Extra4IsRequired, Convert.ToBoolean(drow["ProductSchemeExtra4IsRequired"]));
-                                            //rec.SetBoolean((int)SysCommon.ProdSchemeFields.Extra5IsRequired, Convert.ToBoolean(drow["ProductSchemeExtra5IsRequired"]));
-                                            //rec.SetBoolean((int)SysCommon.ProdSchemeFields.IsLotTrackedDefault, Convert.ToBoolean(drow["ProductSchemeIsLotTrackedDefault"]));
-                                            //rec.SetBoolean((int)SysCommon.ProdSchemeFields.IsProductionDateTrackedDefault, Convert.ToBoolean(drow["ProductSchemeIsProductionDateTrackedDefault"]));
-                                            //rec.SetBoolean((int)SysCommon.ProdSchemeFields.IsBestBeforeDateTrackedDefault, Convert.ToBoolean(drow["ProductSchemeIsBestBeforeDateTrackedDefault"]));
-
-                                            //rs.Insert(rec);
-                                        }
-                                    }
-
-                                    progValue++;
-                                    if (progValue % 100 == 0)
-                                    {
-                                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
-                                    }
-
-                                    drScheme.Close();
+                                progValue++;
+                                if (progValue % 100 == 0)
+                                {
+                                    this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
                                 }
 
                                 this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
-
-                                //}
-                                //drScheme.Close();
                             }
-
-                            //}
                         }
 
                         transaction.Commit();
@@ -506,51 +430,44 @@ namespace dMobile.GroundWork
                 }
                 catch (SQLiteException ex)
                 {
-                    transaction.Rollback(); 
+                    transaction.Rollback();
 
                     // TODO: Resource String
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product schemes failed.", false);
 
-                    //// Duplicate key violations
-                    //if (ex.NativeError == 25016)
-                    //{
-                    //    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Uniqueness violation.", false);
-                    //    throw new Exception("Uniqueness violation." + Environment.NewLine + errMsg, ex);
-                    //}
-
                     // TODO: Resource String
                     throw new Exception("Database exception occurred. Saving product schemes failed." + Environment.NewLine + errMsg, ex);
                 }
-            }
+            });
         }
 
-    /// <summary>
-    ///
-    /// </summary>
-    /// <returns></returns>
-    /// <remarks></remarks>
-    protected override string Create()
-    {
-      StringBuilder xmlString = new StringBuilder();
-      XmlWriter xml = XmlWriter.Create(xmlString);
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns></returns>
+        /// <remarks></remarks>
+        protected override async Task<string> Create()
+        {
+            StringBuilder xmlString = new StringBuilder();
+            XmlWriter xml = XmlWriter.Create(xmlString);
 
-      XDocument request = XDocument.Parse(
-          "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
-          + "<imclient>"
-          + "<command>" 
-          + "<action>REQUEST PRODUCT SCHEMES</action>"
-          + SysCommon.GetRequestDefaults(true)
-          + "</command>" 
-          + "</imclient>");
+            XDocument request = XDocument.Parse(
+                "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
+                + "<imclient>"
+                + "<command>"
+                + "<action>REQUEST PRODUCT SCHEMES</action>"
+                + SysCommon.GetRequestDefaults(true)
+                + "</command>"
+                + "</imclient>");
 
-      request.Save(xml);
-      xml.Flush();
-      xml.Close();
+            request.Save(xml);
+            xml.Flush();
+            xml.Close();
 
-      return xmlString.ToString();
+            return xmlString.ToString();
+        }
+
+        #endregion
     }
-
-    #endregion
-  }
 }

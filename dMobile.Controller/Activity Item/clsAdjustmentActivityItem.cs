@@ -289,12 +289,12 @@ namespace dMobile.Controller
                 TableActivityAdjustmentItem adjItem = new TableActivityAdjustmentItem();
                 TableActivityAdjustmentDetail adjDetail = new TableActivityAdjustmentDetail();
                 await adjDetail.Purge();
-                adjItem.Purge();
+                await adjItem.Purge();
 
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
 
                 adjItem.RegisterDataAccessListenerProgressOut(this);
-                adjItem.Request(ActHdr.Refno);
+                await adjItem.Request(ActHdr.Refno);
                 adjItem.UnregisterDataAccessListenerProgressOut(this);
             }
         }

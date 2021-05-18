@@ -311,13 +311,13 @@ namespace dMobile.Controller
 
                 TableActivityProductionTicketMaterialItem tableActTicketMatItem = new TableActivityProductionTicketMaterialItem();
                 TableActivityProductionTicketMaterialDetail tableActTicketMatDetail = new TableActivityProductionTicketMaterialDetail();
-                tableActTicketMatDetail.Purge();
-                tableActTicketMatItem.Purge();
+                await tableActTicketMatDetail.Purge();
+                await tableActTicketMatItem.Purge();
 
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
 
                 tableActTicketMatItem.RegisterDataAccessListenerProgressOut((TicketMaterialActItem)this);
-                tableActTicketMatItem.Request(ActHdr.Refno);
+                await tableActTicketMatItem.Request(ActHdr.Refno);
                 tableActTicketMatItem.UnregisterDataAccessListenerProgressOut((TicketMaterialActItem)this);
             }
         }

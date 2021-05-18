@@ -181,7 +181,7 @@ namespace dMobile.Bedrock
         /// <summary>
         /// Request the product scheme label settings data and save the file.
         /// </summary>
-        public void RequestProductSchemeLabelSettings()
+        public async Task RequestProductSchemeLabelSettings()
         {
             string reqData = string.Empty;
             ProdSchemeLabelSettingsEventArgs msgArgs = new ProdSchemeLabelSettingsEventArgs();
@@ -203,7 +203,7 @@ namespace dMobile.Bedrock
                         throw new Exception(docError.DocumentElement["detail"].InnerText);
                     }
 
-                    this.Save(reqData);
+                    await this.Save(reqData);
                 }
 
                 // TODO: Resource String

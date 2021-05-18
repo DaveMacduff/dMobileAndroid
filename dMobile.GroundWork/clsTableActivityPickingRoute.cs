@@ -1,9 +1,9 @@
 namespace dMobile.GroundWork
 {
     using System;
-    using System.Data;
-    using System.Data.SQLite;
+    using SQLite;
     using dMobile.Bedrock;
+    using System.Threading.Tasks;
 
     public class TableActivityPickingRoute : TableBase
     {
@@ -23,19 +23,14 @@ namespace dMobile.GroundWork
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override void Purge()
+        public override async Task Purge()
         {
             try
             {
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging sales order routes.", true);
 
-                using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                {
-                    cmndPurge.CommandText = "DELETE FROM tActivityPickingRoute";
-                    cmndPurge.CommandType = CommandType.Text;
-                    cmndPurge.ExecuteNonQuery();
-                }
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("DELETE FROM tActivityPickingRoute");
 
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging sales order routes complete.", true);

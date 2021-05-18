@@ -5,6 +5,7 @@ namespace dMobile.Controller
     using System.Data;
     using SQLite;
     using System.Text;
+    using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
     using dMobile.Bedrock;

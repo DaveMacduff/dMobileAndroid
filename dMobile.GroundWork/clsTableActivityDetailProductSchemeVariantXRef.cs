@@ -1,9 +1,9 @@
 namespace dMobile.GroundWork
 {
-    using System;
-    using System.Data;
-    using System.Data.SQLite;
     using dMobile.Bedrock;
+    using SQLite;
+    using System;
+    using System.Threading.Tasks;
 
     public class TableActivityDetailProductSchemeVariantXRef : TableBase
     {
@@ -23,19 +23,15 @@ namespace dMobile.GroundWork
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override void Purge()
+        public override async Task Purge()
         {
             try
             {
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product scheme variant xref details.", true);
 
-                using (SQLiteCommand cmndPurgeProdSchemeVarXRef = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                {
-                    cmndPurgeProdSchemeVarXRef.CommandText = "DELETE FROM tActivityDetailProductSchemeVariantXRef";
-                    cmndPurgeProdSchemeVarXRef.CommandType = CommandType.Text;
-                    cmndPurgeProdSchemeVarXRef.ExecuteNonQuery();
-                }
+                string query = "DELETE FROM tActivityDetailProductSchemeVariantXRef";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query);
 
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product scheme variant xref details complete.", true);

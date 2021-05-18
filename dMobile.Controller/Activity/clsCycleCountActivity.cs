@@ -5,6 +5,7 @@ namespace dMobile.Controller
     using System.Data;
     using SQLite;
     using System.Text;
+    using System.Threading.Tasks;
     using System.Xml.Linq;
     using dMobile.Bedrock;
     using dMobile.GroundWork;
@@ -386,7 +387,7 @@ namespace dMobile.Controller
 
                 TableActivityCycleCount cycleCount = new TableActivityCycleCount();
                 cycleCount.RegisterDataAccessListenerProgressOut((IDataAccessEventListener)this);
-                cycleCount.Request();
+                await cycleCount.Request();
                 cycleCount.UnregisterDataAccessListenerProgressOut((IDataAccessEventListener)this);
             }
         }
@@ -401,9 +402,9 @@ namespace dMobile.Controller
             TableActivityCycleCountItem cycleCountItem = new TableActivityCycleCountItem();
             TableActivityCycleCountDetail cycleCountDetail = new TableActivityCycleCountDetail();
 
-            cycleCountDetail.Purge();
-            cycleCountItem.Purge();
-            cycleCount.Purge();
+            await cycleCountDetail.Purge();
+            await cycleCountItem.Purge();
+            await cycleCount.Purge();
         }
 
         /// <summary>

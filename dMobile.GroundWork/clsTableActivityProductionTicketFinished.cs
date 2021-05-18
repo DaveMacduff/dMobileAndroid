@@ -3,10 +3,12 @@ namespace dMobile.GroundWork
     using dMobile.Bedrock;
     using System;
     using System.Data;
-    using System.Data.SQLite;
+    using SQLite;
     using System.Text;
     using System.Xml;
     using System.Xml.Linq;
+    using System.Threading.Tasks;
+    using System.Collections.Generic;
 
     /// <summary>
     /// Defines the <see cref="TableActivityProductionTicketFinished" />
@@ -25,19 +27,16 @@ namespace dMobile.GroundWork
         /// <summary>
         /// The Request
         /// </summary>
-        public override void Request()
+        public override async Task Request()
         {
             string reqData = string.Empty;
-
-            //GC.Collect();
-            //GC.WaitForPendingFinalizers();
 
             try
             {
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding finished tickets.", true);
 
-                reqData = this.Send("finished ticket");
+                reqData = await this.Send("finished ticket");
 
                 if (0 < reqData.Length)
                 {
@@ -48,7 +47,7 @@ namespace dMobile.GroundWork
                         throw new Exception(reqErr.DocumentElement["detail"].InnerText);
                     }
 
-                    this.Save(reqData);
+                    await this.Save(reqData);
                 }
 
                 // TODO: Resource strings
@@ -68,23 +67,16 @@ namespace dMobile.GroundWork
         /// The DataStatus
         /// </summary>
         /// <returns>The <see cref="int"/></returns>
-        public override int DataStatus()
+        public override async Task<int> DataStatus()
         {
             int rowsAffected = 0;
 
             try
             {
-                using (SQLiteCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                {
-                    cmndStatus.CommandText = "SELECT COUNT(tActivity.ActivityRefno) FROM tActivity WHERE tActivity.ActivitySubType = @activitySubType";
-                    cmndStatus.CommandType = CommandType.Text;
-                    cmndStatus.Parameters.Add(new SQLiteParameter("@activitySubType", Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished)));
+                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(ActivityRefno) FROM tActivity WHERE ActivitySubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished)));
 
-                    rowsAffected = Convert.ToInt32(cmndStatus.ExecuteScalar());
-
-                    // TODO: Resource strings
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} finished tickets.", rowsAffected), true);
-                }
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} finished tickets.", rowsAffected), true);
             }
             catch (SQLiteException ex)
             {
@@ -98,34 +90,28 @@ namespace dMobile.GroundWork
         /// <summary>
         /// The Purge
         /// </summary>
-        public override void Purge()
+        public override async Task Purge()
         {
             try
             {
-                using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                {
-                    // TODO: Resource strings
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging finished ticket.", true);
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging finished ticket.", true);
 
-                    cmndPurge.CommandType = CommandType.Text;
-                    cmndPurge.Parameters.Add(new SQLiteParameter("@activitySubType", Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished)));
+                string query = "DELETE FROM tActivityProductionFinished"
+                    + " WHERE tActivityProductionFinished.ActivityRefno IN"
+                    + " (SELECT tActivityProduction.ActivityRefno"
+                    + " FROM tActivityProduction"
+                    + " WHERE tActivityProduction.ActivitySubType = ?)";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished));
 
-                    cmndPurge.CommandText = "DELETE FROM tActivityProductionFinished"
-                        + " WHERE tActivityProductionFinished.ActivityRefno IN"
-                        + " (SELECT tActivityProduction.ActivityRefno"
-                        + " FROM tActivityProduction"
-                        + " WHERE tActivityProduction.ActivitySubType = @activitySubType)";
-                    cmndPurge.ExecuteNonQuery();
+                query = "DELETE FROM tActivityProduction WHERE tActivityProduction.ActivitySubType = ?";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished));
 
-                    cmndPurge.CommandText = "DELETE FROM tActivityProduction WHERE tActivityProduction.ActivitySubType = @activitySubType";
-                    cmndPurge.ExecuteNonQuery();
+                query = "DELETE FROM tActivity WHERE tActivity.ActivitySubType = ?";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished));
 
-                    cmndPurge.CommandText = "DELETE FROM tActivity WHERE tActivity.ActivitySubType = @activitySubType";
-                    cmndPurge.ExecuteNonQuery();
-
-                    // TODO: Resource strings
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging finished ticket complete.", true);
-                }
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging finished ticket complete.", true);
             }
             catch (SQLiteException ex)
             {
@@ -142,17 +128,11 @@ namespace dMobile.GroundWork
         /// The Save
         /// </summary>
         /// <param name="reqData"></param>
-        protected override void Save(string reqData)
+        protected override async Task Save(string reqData)
         {
-            SQLiteConnection conn = DatabaseConnection.GetInstance().SQLConn;
             string errMsg = string.Empty;
 
-            using (SQLiteCommand cmndProduction = conn.CreateCommand())
-            using (SQLiteCommand cmndFinished = conn.CreateCommand())
-            using (SQLiteCommand cmndActivity = conn.CreateCommand())
-            using (SQLiteCommand cmndID = conn.CreateCommand())
-            using (SQLiteCommand cmndWhs = conn.CreateCommand())
-            using (SQLiteTransaction transaction = conn.BeginTransaction())
+            await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
             {
                 try
                 {
@@ -173,48 +153,6 @@ namespace dMobile.GroundWork
                             // TODO: Resource strings
                             this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
 
-                            //using (SQLiteCommand cmndProduction = conn.CreateCommand())
-                            //{
-                            //cmndProduction.CommandText = "tActivityProduction";
-                            //cmndProduction.CommandType = CommandType.Text;
-                            //cmndProduction.IndexName = "PK_ActivityProductionOnActivityRefno";
-
-                            //using (SQLiteCommand cmndFinished = conn.CreateCommand())
-                            //{
-                            //cmndFinished.CommandText = "tActivityProductionFinished";
-                            //cmndFinished.CommandType = CommandType.Text;
-                            //cmndFinished.IndexName = "UQ_ActivityProductionFinishedOnActivityProductionFKRefno";
-
-                            //using (SqlCeResultSet rsFinished = cmndFinished.ExecuteResultSet(ResultSetOptions.Updatable))
-                            //{
-                            //SqlCeUpdatableRecord recFinished = rsFinished.CreateRecord();
-
-                            //using (SQLiteCommand cmndActivity = conn.CreateCommand())
-                            //{
-                            //cmndActivity.CommandText = "tActivity";
-                            //cmndActivity.CommandType = CommandType.Text;
-
-                            //using (SqlCeResultSet rsActivity = cmndActivity.ExecuteResultSet(ResultSetOptions.Updatable))
-                            //{
-                            //SqlCeUpdatableRecord recActivity = rsActivity.CreateRecord();
-
-                            //using (SQLiteCommand cmndID = conn.CreateCommand())
-                            //{
-                            //cmndID.CommandText = "SELECT @@IDENTITY";
-                            //cmndID.CommandType = CommandType.Text;
-
-                            //using (SQLiteCommand cmndWhs = conn.CreateCommand())
-                            //{
-                            //cmndWhs.CommandText = "tLocationMapWarehouse";
-                            //cmndWhs.IndexName = "UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno";
-                            //cmndWhs.CommandType = CommandType.Text;
-
-                            //using (SQLiteDataReader drWhs = cmndWhs.ExecuteReader())
-                            //{
-                            //using (SqlCeResultSet rsProduction = cmndProduction.ExecuteResultSet(ResultSetOptions.Updatable))
-                            //{
-                            //SqlCeUpdatableRecord recProduction = rsProduction.CreateRecord();
-
                             int actRefno = 0;
                             int progValue = 0;
                             int whsLocMapRefno = 0;
@@ -225,88 +163,62 @@ namespace dMobile.GroundWork
                             {
                                 errMsg = "Arguments:";
 
-                                cmndActivity.CommandText = "INSERT INTO tActivity (ActivityStatus, ActivitySubType) VALUES (@activityStatus, @activitySubType)";
-                                cmndActivity.CommandType = CommandType.Text;
-                                cmndActivity.Parameters.Add(new SQLiteParameter("@activityStatus", Convert.ToInt32(0)));
-                                cmndActivity.Parameters.Add(new SQLiteParameter("@activitySubType", Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished)));
+                                transaction.Execute("INSERT INTO tActivity (ActivityStatus, ActivitySubType) VALUES (?, ?)", 0, Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished));
 
-                                cmndActivity.ExecuteNonQuery();
+                                actRefno = Convert.ToInt32(transaction.QueryScalars<int>("SELECT last_insert_rowid() FROM tActivity"));
 
-                                //recActivity.SetInt32((int)SysCommon.ActFields.SubType, (int)SysCommon.ActSubTypes.TicketFinished);
-                                //recActivity.SetInt32((int)SysCommon.ActFields.Status, 0);
-                                //rsActivity.Insert(recActivity);
-
-                                cmndID.CommandText = "SELECT last_insert_rowid() FROM tActivity";
-                                cmndID.CommandType = CommandType.Text;
-
-                                actRefno = Convert.ToInt32(cmndID.ExecuteScalar());
-
-                                cmndProduction.CommandText = "INSERT INTO tActivityProduction (" +
+                                string queryActivityProduction = "INSERT INTO tActivityProduction (" +
                                     "ActivityRefno, " +
                                     "ActivitySubType, " +
                                     "WarehouseLocationMapRefno, " +
                                     "ActivityProductionDateTime, " +
                                     "ActivityProductionDescription" +
                                     ") VALUES (" +
-                                    "@activityRefno, " +
-                                    "@activitySubType, " +
-                                    "@warehouseLocationMapRefno, " +
-                                    "@activityProductionDateTime, " +
-                                    "@activityProductionDescription" +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?" +
                                     ")";
-                                cmndProduction.CommandType = CommandType.Text;
-                                //cmndProduction.IndexName = "PK_ActivityProductionOnActivityRefno";
-                                cmndProduction.Parameters.Add(new SQLiteParameter("@activityRefno", actRefno));
-                                cmndProduction.Parameters.Add(new SQLiteParameter("@activitySubType", Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished)));
+                                List<object> parametersActivityProduction = new List<object>();
+                                parametersActivityProduction.Add(actRefno);
+                                parametersActivityProduction.Add(Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished));
 
-                                //recProduction.SetInt32((int)SysCommon.ActProdFields.ActRefno, actRefno);
-                                //recProduction.SetInt32((int)SysCommon.ActProdFields.ActSubType, (int)SysCommon.ActSubTypes.TicketFinished);
+                                whsLocMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, ref errMsg, transaction);
 
-                                whsLocMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, ref errMsg, cmndWhs);
-
-                                cmndProduction.Parameters.Add(new SQLiteParameter("@warehouseLocationMapRefno", whsLocMapRefno));
-                                //recProduction.SetInt32((int)SysCommon.ActProdFields.WhsLocMapRefno, whsLocMapRefno);
+                                parametersActivityProduction.Add(whsLocMapRefno);
 
                                 DateTime dt = DateTime.Parse(Convert.ToDateTime(drow["ActivityProductionDateTime"]).ToShortDateString());
                                 errMsg += Environment.NewLine + "Date " + dt.ToShortDateString();
 
-                                cmndProduction.Parameters.Add(new SQLiteParameter("@activityProductionDateTime", dt));
-                                cmndProduction.Parameters.Add(new SQLiteParameter("@activityProductionDescription", drow["ActivityProductionDescription"].ToString()));
+                                parametersActivityProduction.Add(dt);
+                                parametersActivityProduction.Add(drow["ActivityProductionDescription"].ToString());
 
-                                cmndProduction.ExecuteNonQuery();
-
-                                //recProduction.SetDateTime((int)SysCommon.ActProdFields.DateTime, dt);
-                                //recProduction.SetString((int)SysCommon.ActProdFields.Description, drow["ActivityProductionDescription"].ToString());
-                                //rsProduction.Insert(recProduction);
+                                transaction.Execute(queryActivityProduction, parametersActivityProduction);
 
                                 int actProductionFKRefno = Convert.ToInt32(drow["ActivityProductionFKRefno"]);
                                 errMsg += Environment.NewLine + "FK refno " + actProductionFKRefno;
 
-                                cmndFinished.CommandText = "INSERT INTO tActivityProductionFinished (" +
+                                string queryActivityProductionFinished = "INSERT INTO tActivityProductionFinished (" +
                                     "ActivityRefno, " +
                                     "ActivityProductionFKRefno, " +
                                     "ActivityProductionStringFKRefno, " +
                                     "ActivityProductionFinishedDefaultLogisticUnitBatchLotNumber" +
                                     ") VALUES (" +
-                                    "@activityRefno, " +
-                                    "@activityProductionFKRefno, " +
-                                    "@activityProductionStringFKRefno, " +
-                                    "@activityProductionFinishedDefaultLogisticUnitBatchLotNumber" +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?" +
                                     ")";
-                                cmndFinished.CommandType = CommandType.Text;
-                                //cmndFinished.IndexName = "UQ_ActivityProductionFinishedOnActivityProductionFKRefno";
-                                cmndFinished.Parameters.Add(new SQLiteParameter("@activityRefno", actRefno));
-                                cmndFinished.Parameters.Add(new SQLiteParameter("@activityProductionFKRefno", actProductionFKRefno));
-                                cmndFinished.Parameters.Add(new SQLiteParameter("@activityProductionStringFKRefno", actProductionFKRefno.ToString()));
-                                cmndFinished.Parameters.Add(new SQLiteParameter("@activityProductionFinishedDefaultLogisticUnitBatchLotNumber", string.Empty));
+                                List<object> parametersActivityProductionFinished = new List<object>()
+                                {
+                                    actRefno,
+                                    actProductionFKRefno,
+                                    actProductionFKRefno.ToString(),
+                                    string.Empty
+                                };
 
-                                cmndFinished.ExecuteNonQuery();
-
-                                //recFinished.SetInt32((int)SysCommon.ActProdFinishedFields.ActivityRefno, actRefno);
-                                //recFinished.SetInt32((int)SysCommon.ActProdFinishedFields.FKRefno, actProductionFKRefno);
-                                //recFinished.SetString((int)SysCommon.ActProdFinishedFields.StringFKRefno, actProductionFKRefno.ToString());
-                                //recFinished.SetString((int)SysCommon.ActProdFinishedFields.DefaultLogisticUnitBatchLotNumber, string.Empty);
-                                //rsFinished.Insert(recFinished);
+                                transaction.Execute(queryActivityProductionFinished, parametersActivityProductionFinished);
 
                                 progValue++;
                                 if (progValue % 10 == 0)
@@ -317,17 +229,6 @@ namespace dMobile.GroundWork
 
                             this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
                         }
-
-                        //drWhs.Close();
-                        //}
-                        //                            }
-                        //                        }
-                        //                    }
-                        //                }
-                        //            }
-                        //        }
-                        //    }
-                        //}
 
                         transaction.Commit();
 
@@ -343,26 +244,17 @@ namespace dMobile.GroundWork
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving finished tickets failed.", false);
 
-
-                    //// Duplicate key violations
-                    //if (ex.NativeError == 25016)
-                    //{
-                    //    // TODO: Resource strings
-                    //    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Uniqueness violation.", false);
-                    //    throw new Exception("Uniqueness violation." + Environment.NewLine + errMsg, ex);
-                    //}
-
                     // TODO: Resource strings
                     throw new Exception("Database exception occurred. Saving finished tickets failed." + Environment.NewLine + errMsg, ex);
                 }
-            }
+            });
         }
 
         /// <summary>
         /// The Create
         /// </summary>
         /// <returns></returns>
-        protected override string Create()
+        protected override async Task<string> Create()
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);

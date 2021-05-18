@@ -392,7 +392,7 @@ namespace dMobile.Controller
                 TableActivityPhysicalCount tableActPhysicalCount = new TableActivityPhysicalCount();
 
                 tableActPhysicalCount.RegisterDataAccessListenerProgressOut((IDataAccessEventListener)this);
-                tableActPhysicalCount.Request();
+                await tableActPhysicalCount.Request();
                 tableActPhysicalCount.UnregisterDataAccessListenerProgressOut((IDataAccessEventListener)this);
             }
         }
@@ -407,9 +407,9 @@ namespace dMobile.Controller
             TableActivityPhysicalCountItem tableActPhysicalCountItem = new TableActivityPhysicalCountItem();
             TableActivityPhysicalCountDetail tableActPhysicalCountDetail = new TableActivityPhysicalCountDetail();
 
-            tableActPhysicalCountDetail.Purge();
-            tableActPhysicalCountItem.Purge();
-            tableActPhysicalCount.Purge();
+            await tableActPhysicalCountDetail.Purge();
+            await tableActPhysicalCountItem.Purge();
+            await tableActPhysicalCount.Purge();
         }
 
         /// <summary>

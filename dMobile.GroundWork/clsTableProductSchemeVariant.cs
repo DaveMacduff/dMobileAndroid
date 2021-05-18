@@ -1,12 +1,15 @@
-namespace dMobile.GroundWork
+﻿namespace dMobile.GroundWork
 {
-  using System;
-  using System.Data;
-    using System.Data.SQLite;
+    using System;
+    using System.Data;
+    using SQLite;
     using System.Text;
-  using System.Xml;
-  using System.Xml.Linq;
-  using dMobile.Bedrock;
+    using System.Xml;
+    using System.Xml.Linq;
+    using dMobile.Bedrock;
+    using System.Threading.Tasks;
+    using System.Collections.Generic;
+    using dMobile.Resources.Models;
 
     public class TableProductSchemeVariant : TableBase
     {
@@ -26,19 +29,16 @@ namespace dMobile.GroundWork
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override void Request()
+        public override async Task Request()
         {
             string reqData = string.Empty;
-
-            //GC.Collect();
-            //GC.WaitForPendingFinalizers();
 
             try
             {
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding product scheme variants.", true);
 
-                reqData = this.Send("product scheme variants");
+                reqData = await this.Send("product scheme variants");
 
                 if (0 < reqData.Length)
                 {
@@ -49,7 +49,7 @@ namespace dMobile.GroundWork
                         throw new Exception(reqErr.DocumentElement["detail"].InnerText);
                     }
 
-                    this.Save(reqData);
+                    await this.Save(reqData);
                 }
 
                 // TODO: Resource strings
@@ -69,23 +69,15 @@ namespace dMobile.GroundWork
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override void Purge()
+        public override async Task Purge()
         {
             try
             {
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product scheme variants.", true);
 
-                using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                {
-                    cmndPurge.CommandText = "DELETE FROM tProductSchemeVariantXRef";
-                    cmndPurge.CommandType = CommandType.Text;
-                    cmndPurge.ExecuteNonQuery();
-
-                    cmndPurge.CommandText = "DELETE FROM tProductSchemeVariant";
-                    cmndPurge.CommandType = CommandType.Text;
-                    cmndPurge.ExecuteNonQuery();
-                }
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("DELETE FROM tProductSchemeVariantXRef");
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("DELETE FROM tProductSchemeVariant");
 
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product scheme variants complete.", true);
@@ -101,88 +93,81 @@ namespace dMobile.GroundWork
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="schemeVarNo"></param>
-        /// <returns></returns>
-        public int GetProdSchemeVarRefnoFromProdSchemeVarNo(int schemeVarNo)
-        {
-            int schemeVarRefno = 0;
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        ///// <param name="schemeVarNo"></param>
+        ///// <returns></returns>
+        //public int GetProdSchemeVarRefnoFromProdSchemeVarNo(int schemeVarNo)
+        //{
+        //    int schemeVarRefno = 0;
 
-            //      try
-            //      {
-            //        using (SQLiteCommand cmndSchemeVar = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-            //        {
-            //          cmndSchemeVar.CommandText = "tProductSchemeVariant";
-            //          cmndSchemeVar.IndexName = "UQ_ProductSchemeVariantOnProductSchemeVariantNo";
-            //          cmndSchemeVar.CommandType = CommandType.TableDirect;
+        //      try
+        //      {
+        //        using (SQLiteCommand cmndSchemeVar = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        //        {
+        //          cmndSchemeVar.CommandText = "tProductSchemeVariant";
+        //          cmndSchemeVar.IndexName = "UQ_ProductSchemeVariantOnProductSchemeVariantNo";
+        //          cmndSchemeVar.CommandType = CommandType.TableDirect;
 
-            //          using (SQLiteDataReader drSchemeVar = cmndSchemeVar.ExecuteReader())
-            //          {
-            //            if (drSchemeVar.Seek(DbSeekOptions.FirstEqual, new object[] { schemeVarNo }))
-            //            {
-            //              if (drSchemeVar.Read())
-            //              {
-            //                schemeVarRefno = Convert.ToInt32(drSchemeVar.GetValue((int)SysCommon.ProdSchemeVariantFields.Refno));
-            //              }
-            //              else
-            //              {
-            //#if MULTILANGUAGE
-            //                throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DrschemevarreadFailed));
-            //#else
-            //                throw new Exception("drSchemeVar.Read() failed.");
-            //#endif
-            //              }
-            //            }
-            //            else
-            //            {
-            //              throw new Exception(
-            //                  string.Format(
-            //#if MULTILANGUAGE
-            //                  Translator.GetInstance().Translate(TranslatorVocabulary.UnableToLocateProductSchemeVariantNumberInTproductschemevariant), 
-            //#else
-            //                  "Unable To Locate Product Scheme Variant Number {0} In tProductSchemeVariant", 
-            //#endif
-            //                  schemeVarNo));
-            //            }
+        //          using (SQLiteDataReader drSchemeVar = cmndSchemeVar.ExecuteReader())
+        //          {
+        //            if (drSchemeVar.Seek(DbSeekOptions.FirstEqual, new object[] { schemeVarNo }))
+        //            {
+        //              if (drSchemeVar.Read())
+        //              {
+        //                schemeVarRefno = Convert.ToInt32(drSchemeVar.GetValue((int)SysCommon.ProdSchemeVariantFields.Refno));
+        //              }
+        //              else
+        //              {
+        //#if MULTILANGUAGE
+        //                throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DrschemevarreadFailed));
+        //#else
+        //                throw new Exception("drSchemeVar.Read() failed.");
+        //#endif
+        //              }
+        //            }
+        //            else
+        //            {
+        //              throw new Exception(
+        //                  string.Format(
+        //#if MULTILANGUAGE
+        //                  Translator.GetInstance().Translate(TranslatorVocabulary.UnableToLocateProductSchemeVariantNumberInTproductschemevariant), 
+        //#else
+        //                  "Unable To Locate Product Scheme Variant Number {0} In tProductSchemeVariant", 
+        //#endif
+        //                  schemeVarNo));
+        //            }
 
-            //            drSchemeVar.Close();
-            //          }
-            //        }
-            //      }
-            //      catch (SQLiteException ex)
-            //      {
-            //#if MULTILANGUAGE
-            //        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredGetprodschemevarrefnofromprodschemevarnoFailed), ex);
-            //#else
-            //        throw new Exception("Database exception occurred. GetProdSchemeVarRefnoFromProdSchemeVarNo failed.", ex);
-            //#endif
-            //      }
-
-            return schemeVarRefno;
-        }
+        //            drSchemeVar.Close();
+        //          }
+        //        }
+        //      }
+        //      catch (SQLiteException ex)
+        //      {
+        //#if MULTILANGUAGE
+        //        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredGetprodschemevarrefnofromprodschemevarnoFailed), ex);
+        //#else
+        //        throw new Exception("Database exception occurred. GetProdSchemeVarRefnoFromProdSchemeVarNo failed.", ex);
+        //#endif
+        //      }
+        //    return schemeVarRefno;
+        //}
 
         /// <summary>
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override int DataStatus()
+        public override async Task<int> DataStatus()
         {
             int rowsAffected = 0;
 
             try
             {
-                using (SQLiteCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                {
-                    cmndStatus.CommandText = "SELECT COUNT(*) FROM tProductSchemeVariant";
-                    cmndStatus.CommandType = CommandType.Text;
+                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tProductSchemeVariant"));
 
-                    rowsAffected = Convert.ToInt32(cmndStatus.ExecuteScalar());
-
-                    // TODO: Resource strings
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} product scheme variants.", rowsAffected), false);
-                }
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} product scheme variants.", rowsAffected), false);
             }
             catch (SQLiteException ex)
             {
@@ -202,15 +187,11 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="reqData"></param>
         /// <remarks></remarks>
-        protected override void Save(string reqData)
+        protected override async Task Save(string reqData)
         {
-            SQLiteConnection conn = DatabaseConnection.GetInstance().SQLConn;
             string errMsg = string.Empty;
 
-
-            using (SQLiteCommand cmndSchemeVar = conn.CreateCommand())
-            using (SQLiteCommand cmndSchemeVarUpdate = conn.CreateCommand())
-            using (SQLiteTransaction transaction = conn.BeginTransaction())
+            await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
             {
 
                 try
@@ -232,13 +213,6 @@ namespace dMobile.GroundWork
                             // TODO: Resource String
                             this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
 
-                            cmndSchemeVar.CommandText = "SELECT ProductSchemeVariantNo FROM tProductSchemeVariant WHERE ProductSchemeVariantNo = @productSchemeVariantNo";
-                            cmndSchemeVar.CommandType = CommandType.Text;
-                            //cmndSchemeVar.IndexName = "UQ_ProductSchemeVariantOnProductSchemeVariantNo";
-
-                            //using (SqlCeResultSet rs = cmndSchemeVar.ExecuteResultSet(ResultSetOptions.Updatable))
-                            //{
-                            //    SqlCeUpdatableRecord rec = rs.CreateRecord();
                             int progValue = 0;
                             bool isSchemeVarFound = false;
                             string schemeVarCode = string.Empty;
@@ -260,58 +234,29 @@ namespace dMobile.GroundWork
                                 errMsg += Environment.NewLine + "Variant is default " + schemeVarIsDefault;
                                 isSchemeVarFound = false;
 
-                                cmndSchemeVar.Parameters.Add(new SQLiteParameter("@productSchemeVariantNo", schemeVarNo));
+                                List<tProductSchemeVariantModel> resultsProductSchemeVariant = transaction.Query<tProductSchemeVariantModel>("SELECT ProductSchemeVariantNo FROM tProductSchemeVariant WHERE ProductSchemeVariantNo = ?", schemeVarNo);
 
-                                using (SQLiteDataReader drSchemeVar = cmndSchemeVar.ExecuteReader())
+                                if (resultsProductSchemeVariant?.Count > 0)
                                 {
-                                    //cmndSchemeVar.CommandText = "tProductSchemeVariant";
-                                    //cmndSchemeVar.CommandType = CommandType.Text;
-                                    //cmndSchemeVar.IndexName = "UQ_ProductSchemeVariantOnProductSchemeVariantNo";
+                                    isSchemeVarFound = true;
 
-                                    //if (drSchemeVar.Seek(DbSeekOptions.FirstEqual, new object[] { schemeVarNo }))
-                                    if (drSchemeVar.Read())
+                                    if (SysEnv.RefreshOpt.RefreshDataChangesOnly)
                                     {
-                                        isSchemeVarFound = true;
+                                        string queryUpdate = "UPDATE tProductSchemeVariant "
+                                            + "SET ProductSchemeVariantCode = \'" + schemeVarCode + "\', "
+                                            + "ProductSchemeVariantDescription = \'" + schemeVarDesc + "\', "
+                                            + "ProductSchemeVariantIsDefault = " + Convert.ToString(schemeVarIsDefault ? 1 : 0)
+                                            + " WHERE ProductSchemeVariantNo = " + schemeVarNo;
 
-                                        if (SysEnv.RefreshOpt.RefreshDataChangesOnly)
-                                        {
-                                            cmndSchemeVarUpdate.Parameters.Clear();
-                                            cmndSchemeVarUpdate.CommandType = CommandType.Text;
-                                            cmndSchemeVarUpdate.CommandText = "UPDATE tProductSchemeVariant "
-                                                + "SET ProductSchemeVariantCode = \'" + schemeVarCode + "\', "
-                                                + "ProductSchemeVariantDescription = \'" + schemeVarDesc + "\', "
-                                                + "ProductSchemeVariantIsDefault = " + Convert.ToString(schemeVarIsDefault ? 1 : 0)
-                                                + " WHERE ProductSchemeVariantNo = " + schemeVarNo;
-
-                                            cmndSchemeVarUpdate.ExecuteNonQuery();
-                                        }
+                                        transaction.Execute(queryUpdate);
                                     }
+                                }
 
-                                    if (!isSchemeVarFound)
-                                    {
-                                        using (SQLiteCommand cmndSchemeVarInsert = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                                        {
-                                            cmndSchemeVarInsert.CommandText = "INSERT INTO tProductSchemeVariant (ProductSchemeVariantCode, ProductSchemeVariantDescription, ProductSchemeVariantNo, ProductSchemeVariantIsDefault) " +
-                                            "VALUES (@productSchemeVariantCode, @productSchemeVariantDescription, @productSchemeVariantNo, @productSchemeVariantIsDefault)";
-                                            cmndSchemeVar.CommandType = CommandType.Text;
-                                            //cmndSchemeVar.IndexName = "UQ_ProductSchemeVariantOnProductSchemeVariantNo";
+                                if (!isSchemeVarFound)
+                                {
+                                    string queryInsert = "INSERT INTO tProductSchemeVariant (ProductSchemeVariantCode, ProductSchemeVariantDescription, ProductSchemeVariantNo, ProductSchemeVariantIsDefault) VALUES (?, ?, ?, ?)";
 
-                                            cmndSchemeVarInsert.Parameters.Add(new SQLiteParameter("@productSchemeVariantCode", schemeVarCode));
-                                            cmndSchemeVarInsert.Parameters.Add(new SQLiteParameter("@productSchemeVariantDescription", schemeVarDesc));
-                                            cmndSchemeVarInsert.Parameters.Add(new SQLiteParameter("@productSchemeVariantNo", schemeVarNo));
-                                            cmndSchemeVarInsert.Parameters.Add(new SQLiteParameter("@productSchemeVariantIsDefault", schemeVarIsDefault));
-
-                                            cmndSchemeVarInsert.ExecuteNonQuery();
-                                        }
-                                        //rec.SetString((int)SysCommon.ProdSchemeVariantFields.Code, schemeVarCode);
-                                        //rec.SetString((int)SysCommon.ProdSchemeVariantFields.Description, schemeVarDesc);
-                                        //rec.SetInt32((int)SysCommon.ProdSchemeVariantFields.No, schemeVarNo);
-                                        //rec.SetBoolean((int)SysCommon.ProdSchemeVariantFields.IsDefault, schemeVarIsDefault);
-
-                                        //rs.Insert(rec);
-                                    }
-
-                                    drSchemeVar.Close();
+                                    transaction.Execute(queryInsert, schemeVarCode, schemeVarDesc, schemeVarNo, schemeVarIsDefault);
                                 }
 
                                 progValue++;
@@ -319,15 +264,8 @@ namespace dMobile.GroundWork
                                 {
                                     this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
                                 }
-                                //}
 
                                 this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
-
-                                //}
-
-                                //drSchemeVar.Close();
-                                //}
-
                             }
                         }
 
@@ -343,46 +281,38 @@ namespace dMobile.GroundWork
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product scheme variants complete.", false);
 
-                    //// Duplicate key violations
-                    //if (ex.NativeError == 25016)
-                    //{
-                    //    // TODO: Resource strings
-                    //    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Uniqueness violation.", false);
-                    //    throw new Exception("Uniqueness violation." + Environment.NewLine + errMsg, ex);
-                    //}
-
                     // TODO: Resource strings
                     throw new Exception("Database exception occurred. Saving product scheme variants failed." + Environment.NewLine + errMsg, ex);
                 }
-            }
+            });
         }
 
-    /// <summary>
-    ///
-    /// </summary>
-    /// <returns></returns>
-    /// <remarks></remarks>
-    protected override string Create()
-    {
-      StringBuilder xmlString = new StringBuilder();
-      XmlWriter xml = XmlWriter.Create(xmlString);
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns></returns>
+        /// <remarks></remarks>
+        protected override async Task<string> Create()
+        {
+            StringBuilder xmlString = new StringBuilder();
+            XmlWriter xml = XmlWriter.Create(xmlString);
 
-      XDocument request = XDocument.Parse(
-          "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>" 
-          + "<imclient>"
-          + "<command>" 
-          + "<action>REQUEST PRODUCT SCHEME VARIANTS</action>"
-          + SysCommon.GetRequestDefaults(true)
-          + "</command>"
-          + "</imclient>");
+            XDocument request = XDocument.Parse(
+                "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
+                + "<imclient>"
+                + "<command>"
+                + "<action>REQUEST PRODUCT SCHEME VARIANTS</action>"
+                + SysCommon.GetRequestDefaults(true)
+                + "</command>"
+                + "</imclient>");
 
-      request.Save(xml);
-      xml.Flush();
-      xml.Close();
+            request.Save(xml);
+            xml.Flush();
+            xml.Close();
 
-      return xmlString.ToString();
+            return xmlString.ToString();
+        }
+
+        #endregion
     }
-
-    #endregion
-  }
 }

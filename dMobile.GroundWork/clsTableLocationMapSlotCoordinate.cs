@@ -3,10 +3,13 @@ namespace dMobile.GroundWork
     using dMobile.Bedrock;
     using System;
     using System.Data;
-    using System.Data.SQLite;
+    using SQLite;
     using System.Text;
     using System.Xml;
     using System.Xml.Linq;
+    using System.Threading.Tasks;
+    using System.Collections.Generic;
+    using dMobile.Resources.Models;
 
     /// <summary>
     /// Defines the <see cref="TableLocationMapSlotCoordinate" />
@@ -25,7 +28,7 @@ namespace dMobile.GroundWork
         /// <summary>
         /// The Request
         /// </summary>
-        public override void Request()
+        public override async Task Request()
         {
             try
             {
@@ -33,11 +36,7 @@ namespace dMobile.GroundWork
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding slot coordinates.", true);
 
                 string reqData = string.Empty;
-
-                //GC.Collect();
-                //GC.WaitForPendingFinalizers();
-
-                reqData = this.Send("slot coordinates");
+                reqData = await this.Send("slot coordinates");
 
                 if (0 < reqData.Length)
                 {
@@ -48,7 +47,7 @@ namespace dMobile.GroundWork
                         throw new Exception(reqErr.DocumentElement["detail"].InnerText);
                     }
 
-                    this.Save(reqData);
+                    await this.Save(reqData);
                 }
 
                 // TODO: Resource strings
@@ -67,19 +66,14 @@ namespace dMobile.GroundWork
         /// <summary>
         /// The Purge
         /// </summary>
-        public override void Purge()
+        public override async Task Purge()
         {
             try
             {
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging slot coordinates.", true);
 
-                using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                {
-                    cmndPurge.CommandType = CommandType.Text;
-                    cmndPurge.CommandText = "DELETE FROM tLocationMapSlotCoordinate";
-                    cmndPurge.ExecuteNonQuery();
-                }
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("DELETE FROM tLocationMapSlotCoordinate");
 
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging slot coordinates complete.", true);
@@ -99,21 +93,16 @@ namespace dMobile.GroundWork
         /// The DataStatus
         /// </summary>
         /// <returns>The <see cref="int"/></returns>
-        public override int DataStatus()
+        public override async Task<int> DataStatus()
         {
             int rowsAffected = 0;
+
             try
             {
-                using (SQLiteCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                {
-                    cmndStatus.CommandText = "SELECT COUNT(*) FROM tLocationMapSlotCoordinate";
-                    cmndStatus.CommandType = CommandType.Text;
+                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tLocationMapSlotCoordinate"));
 
-                    rowsAffected = Convert.ToInt32(cmndStatus.ExecuteScalar());
-
-                    // TODO: Resource strings
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} slot coordinates.", rowsAffected), true);
-                }
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} slot coordinates.", rowsAffected), true);
             }
             catch (SQLiteException ex)
             {
@@ -128,16 +117,11 @@ namespace dMobile.GroundWork
         /// The Save
         /// </summary>
         /// <param name="reqData"></param>
-        protected override void Save(string reqData)
-        {
-            SQLiteConnection conn = DatabaseConnection.GetInstance().SQLConn;
-
+        protected override async Task Save(string reqData)
+        {            
             string errMsg = string.Empty;
 
-            using (SQLiteCommand cmndSlotCoord = conn.CreateCommand())
-            using (SQLiteCommand cmndSlotCoordInsert = conn.CreateCommand())
-            using (SQLiteCommand cmndWhs = conn.CreateCommand())
-            using (SQLiteTransaction transaction = conn.BeginTransaction())
+            await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
             {
                 try
                 {
@@ -158,16 +142,9 @@ namespace dMobile.GroundWork
                             // TODO: Resource Strings
                             this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
                             
-                            cmndSlotCoord.CommandText = "SELECT * FROM tLocationMapSlotCoordinate WHERE LocationMapSlotCoordinateEnum = @locationMapSlotCoordinateEnum AND LocationMapSlotCoordinateCode = @locationMapSlotCoordinateCode AND WarehouseLocationMapRefno = @warehouseLocationMapRefno";
-                            cmndSlotCoord.CommandType = CommandType.Text;
-                            //cmndSlotCoord.IndexName = "UQ_LocationMapSlotCoordOnLocationMapSlotCoordEnumAndLocationMapSlotCoordCode";
-
-                            //using (SqlCeResultSet rs = cmndSlotCoord.ExecuteResultSet(ResultSetOptions.Updatable))
-                            //{
-                            //    SqlCeUpdatableRecord rec = rs.CreateRecord();
                             int progValue = 0;
                             bool isSlotCoordFound = false;
-                            int slotCoordType = (int)SysCommon.LocMapSlotCoordTypes.Coord1;
+                            int slotCoordType = Convert.ToInt32(SysCommon.LocMapSlotCoordTypes.Coord1);
                             string slotCoordCode = string.Empty;
                             int whsLocMapRefno = 0;
 
@@ -199,44 +176,28 @@ namespace dMobile.GroundWork
                                         throw new Exception("Unidentified slot coordinate enum type " + slotCoordType);
                                 }
 
-                                whsLocMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, ref errMsg, cmndWhs);
-
+                                whsLocMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, ref errMsg, transaction);
                                 isSlotCoordFound = false;
 
                                 if (SysEnv.RefreshOpt.RefreshDataChangesOnly)
                                 {
-                                    //cmndSlotCoord.CommandText = "tLocationMapSlotCoordinate";
-                                    //cmndSlotCoord.CommandType = CommandType.Text;
-                                    //cmndSlotCoord.IndexName = "UQ_LocationMapSlotCoordOnLocationMapSlotCoordEnumAndLocationMapSlotCoordCode";
-                                    cmndSlotCoord.Parameters.Add(new SQLiteParameter("@locationMapSlotCoordinateEnum", slotCoordType));
-                                    cmndSlotCoord.Parameters.Add(new SQLiteParameter("@locationMapSlotCoordinateCode", slotCoordCode));
-                                    cmndSlotCoord.Parameters.Add(new SQLiteParameter("@warehouseLocationMapRefno", whsLocMapRefno));
+                                    List<tLocationMapSlotCoordinateModel> results = transaction.Query<tLocationMapSlotCoordinateModel>("SELECT * FROM tLocationMapSlotCoordinate WHERE LocationMapSlotCoordinateEnum = ? AND LocationMapSlotCoordinateCode = ? AND WarehouseLocationMapRefno = ?",
+                                        slotCoordType,
+                                        slotCoordCode,
+                                        whsLocMapRefno);
 
-                                    using (SQLiteDataReader drSlotCoord = cmndSlotCoord.ExecuteReader())
+                                    if (results?.Count > 0)
                                     {
-                                        //if (drSlotCoord.Seek(DbSeekOptions.FirstEqual, new object[] { slotCoordType, slotCoordCode }))
-                                        if (drSlotCoord.Read())
-                                        {
-                                            isSlotCoordFound = true;
-                                        }
+                                        isSlotCoordFound = true;
                                     }
                                 }
 
                                 if (!isSlotCoordFound)
                                 {
-                                    cmndSlotCoordInsert.CommandText = "INSERT INTO tLocationMapSlotCoordinate (LocationMapSlotCoordinateEnum, WarehouseLocationMapRefno, LocationMapSlotCoordinateCode) VALUES (@locationMapSlotCoordinateEnum, @warehouseLocationMapRefno, @locationMapSlotCoordinateCode)";
-                                    cmndSlotCoordInsert.CommandType = CommandType.Text;
-                                    //cmndSlotCoordInsert.IndexName = "UQ_LocationMapSlotCoordOnLocationMapSlotCoordEnumAndLocationMapSlotCoordCode";
-                                    cmndSlotCoordInsert.Parameters.Add(new SQLiteParameter("@locationMapSlotCoordinateEnum", Convert.ToInt32(drow["LocationMapSlotCoordinateEnum"])));
-                                    cmndSlotCoordInsert.Parameters.Add(new SQLiteParameter("@warehouseLocationMapRefno", whsLocMapRefno));
-                                    cmndSlotCoordInsert.Parameters.Add(new SQLiteParameter("@locationMapSlotCoordinateCode", drow["LocationMapSlotCoordinateCode"].ToString()));
-
-                                    cmndSlotCoordInsert.ExecuteNonQuery();
-
-                                    //rec.SetInt32((int)SysCommon.LocMapSlotCoordFields.EnumType, Convert.ToInt32(drow["LocationMapSlotCoordinateEnum"]));
-                                    //rec.SetString((int)SysCommon.LocMapSlotCoordFields.Code, drow["LocationMapSlotCoordinateCode"].ToString());
-
-                                    //rs.Insert(rec);
+                                    transaction.Execute("INSERT INTO tLocationMapSlotCoordinate (LocationMapSlotCoordinateEnum, WarehouseLocationMapRefno, LocationMapSlotCoordinateCode) VALUES (?, ?, ?)",
+                                        Convert.ToInt32(drow["LocationMapSlotCoordinateEnum"]),
+                                        whsLocMapRefno,
+                                        Convert.ToString(drow["LocationMapSlotCoordinateCode"]));
                                 }
 
                                 progValue++;
@@ -247,12 +208,6 @@ namespace dMobile.GroundWork
                             }
 
                             this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
-                            //}
-
-                            //drSlotCoord.Close();
-                            //}
-                            //}
-
                         }
 
                         transaction.Commit();
@@ -269,24 +224,17 @@ namespace dMobile.GroundWork
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving slot coordinates failed.", false);
 
-                    //// Duplicate key violations
-                    //if (ex.NativeError == 25016)
-                    //{
-                    //    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Uniqueness violation.", false);
-                    //    throw new Exception("Uniqueness violation." + Environment.NewLine + errMsg, ex);
-                    //}
-
                     // TODO: Resource Strings
                     throw new Exception("Database exception occurred. Saving slot coordinates failed." + Environment.NewLine + errMsg, ex);
                 }
-            }
+            });
         }
 
         /// <summary>
         /// The Create
         /// </summary>
         /// <returns></returns>
-        protected override string Create()
+        protected override async Task<string> Create()
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);

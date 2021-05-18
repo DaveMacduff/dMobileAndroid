@@ -2,12 +2,14 @@
 {
     using System;
     using System.Data;
-    using System.Data.SQLite;
+    using SQLite;
     using System.Text;
     using System.Xml;
     using System.Xml.Linq;
     using dMobile.Bedrock;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
+    using dMobile.Resources.Models;
 
     public class TableLocationMapWarehouseProductScheme : TableBase
     {
@@ -21,54 +23,34 @@
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override void Request()
+        public override async Task Request()
         {
-            //System.Diagnostics.Stopwatch swTotal = new System.Diagnostics.Stopwatch();
-            //System.Diagnostics.Stopwatch swPerRun = new System.Diagnostics.Stopwatch();
-            //int runs = 0;
-            //swTotal.Start();
-
-            List<string> families = new List<string>();
-
             try
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding warehouse product schemes.", true);
 
-                using (SQLiteCommand cmndFamily = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                List<tFamilyModel> resultsFamily = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tFamilyModel>("SELECT * FROM tFamily");
+
+                if (resultsFamily?.Count > 0)
                 {
-                    cmndFamily.CommandText = "SELECT tFamily.* FROM tFamily";
-                    cmndFamily.CommandType = CommandType.Text;
-                    //cmndFamily.IndexName = "UQ_FamilyOnFamilyCode";
-
-                    using (SQLiteDataReader drFamily = cmndFamily.ExecuteReader())
+                    foreach (tFamilyModel family in resultsFamily)
                     {
-                        while (drFamily.Read())
+                        // TODO: Resource strings
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("For family {0}", family.FamilyCode), true);
+
+                        string reqData = await this.SendRequest(family.FamilyCode);
+
+                        if (0 < reqData.Length)
                         {
-                            families.Add(drFamily["FamilyCode"].ToString());
+                            if (reqData.Contains("<message>ERROR</message>"))
+                            {
+                                XmlDocument reqErr = new XmlDocument();
+                                reqErr.LoadXml(reqData);
+                                throw new Exception(reqErr.DocumentElement["detail"].InnerText);
+                            }
+
+                            await this.Save(reqData);
                         }
-                    }
-                }
-
-                for (int i = 0; i < families.Count; ++i)
-                {
-                    string family = families[i];
-                    string reqData = string.Empty;
-
-                    // TODO: Resource strings
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("For family {0}", family), true);
-
-                    reqData = this.SendRequest(family);
-
-                    if (0 < reqData.Length)
-                    {
-                        if (reqData.Contains("<message>ERROR</message>"))
-                        {
-                            XmlDocument reqErr = new XmlDocument();
-                            reqErr.LoadXml(reqData);
-                            throw new Exception(reqErr.DocumentElement["detail"].InnerText);
-                        }
-
-                        this.Save(reqData);
                     }
                 }
 
@@ -94,21 +76,16 @@
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override int DataStatus()
+        public override async Task<int> DataStatus()
         {
             int rowsAffected = 0;
 
             try
             {
-                using (SQLiteCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                {
-                    cmndStatus.CommandText = "SELECT COUNT(*) FROM tLocationMapWarehouseProductScheme";
-                    cmndStatus.CommandType = CommandType.Text;
-                    rowsAffected = Convert.ToInt32(cmndStatus.ExecuteScalar());
+                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tLocationMapWarehouseProductScheme"));
 
-                    // TODO: Resource strings
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} warehouse product schemes.", rowsAffected), true);
-                }
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} warehouse product schemes.", rowsAffected), true);
             }
             catch (SQLiteException ex)
             {
@@ -123,19 +100,14 @@
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override void Purge()
+        public override async Task Purge()
         {
             try
             {
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging warehouse product schemes.", true);
 
-                using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                {
-                    cmndPurge.CommandText = "DELETE FROM tLocationMapWarehouseProductScheme";
-                    cmndPurge.CommandType = CommandType.Text;
-                    cmndPurge.ExecuteNonQuery();
-                }
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("DELETE FROM tLocationMapWarehouseProductScheme");
 
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging warehouse product schemes failed.", true);
@@ -154,16 +126,11 @@
         /// </summary>
         /// <param name="reqData"></param>
         /// <remarks></remarks>
-        protected override void Save(string reqData)
+        protected override async Task Save(string reqData)
         {
-            SQLiteConnection conn = DatabaseConnection.GetInstance().SQLConn;
             string errMsg = string.Empty;
 
-            using (SQLiteCommand cmndLocMapWhs = conn.CreateCommand())
-            using (SQLiteCommand cmndProduct = conn.CreateCommand())
-            using (SQLiteCommand cmndScheme = conn.CreateCommand())
-            using (SQLiteCommand cmndLocMapProdScheme = conn.CreateCommand())
-            using (SQLiteTransaction transaction = conn.BeginTransaction())
+            await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
             {
                 try
                 {
@@ -207,135 +174,73 @@
                                 errMsg = "Product FK Refno \'" + productFKRefno.ToString() + "\'";
 
                                 // Find the scheme
-                                cmndScheme.CommandText = "SELECT * FROM tProductScheme WHERE ProductSchemeCode = @productSchemeCode";
-                                cmndScheme.CommandType = CommandType.Text;
-                                //cmndScheme.IndexName = "UQ_ProductSchemeOnProductSchemeCode";
-                                cmndScheme.Parameters.Add(new SQLiteParameter("@productSchemeCode", schemeCode));
+                                List<tProductSchemeModel> resultsProductScheme = transaction.Query<tProductSchemeModel>("SELECT * FROM tProductScheme WHERE ProductSchemeCode = ?", schemeCode);
 
-                                using (SQLiteDataReader drScheme = cmndScheme.ExecuteReader())
+                                if (resultsProductScheme?.Count > 0)
                                 {
-                                    //if (drScheme.Seek(DbSeekOptions.FirstEqual, new object[] { schemeCode }))
-                                    //{
-                                    if (drScheme.Read())
-                                    {
-                                        schemeRefno = Convert.ToInt32(drScheme.GetValue(
-                                            (int)SysCommon.ProdSchemeFields.Refno));
-                                    }
-                                    else
-                                    {
-                                        throw new Exception("drScheme.Read() failed. Unable to locate the scheme refno using the scheme code in tProductScheme." + Environment.NewLine + errMsg);
-                                    }
-                                    //}
-                                    //else
-                                    //{
-                                    //    throw new Exception("Unable to locate the scheme refno using the scheme code in tProductScheme." + Environment.NewLine + errMsg);
-                                    //}
+                                    schemeRefno = resultsProductScheme[0].ProductSchemeRefno;
+                                }
+                                else
+                                {
+                                    // TODO: Resource strings
+                                    throw new Exception("Unable to locate the scheme refno using the scheme code in tProductScheme." + Environment.NewLine + errMsg);
                                 }
 
                                 // Find the product
-                                cmndProduct.CommandText = "SELECT * FROM tProduct WHERE ProductFKRefno = @productFKRefno";
-                                cmndProduct.CommandType = CommandType.Text;
-                                //cmndProduct.IndexName = "UQ_ProductOnProductFKRefno";
-                                cmndProduct.Parameters.Add(new SQLiteParameter("@productFKRefno", Convert.ToInt32(productFKRefno)));
+                                List<tProductModel> resultsProduct = transaction.Query<tProductModel>("SELECT * FROM tProduct WHERE ProductFKRefno = ?", Convert.ToInt32(productFKRefno));
 
-                                using (SQLiteDataReader drProduct = cmndProduct.ExecuteReader())
+                                if (resultsProduct?.Count > 0)
                                 {
-                                    //if (drProduct.Seek(DbSeekOptions.FirstEqual, new object[] { productFKRefno }))
-                                    //{
-                                    if (drProduct.Read())
-                                    {
-                                        productRefno = Convert.ToInt32(drProduct.GetValue((int)SysCommon.ProductFields.Refno));
-                                    }
-                                    else
-                                    {
-                                        // TODO: Resource strings
-                                        throw new Exception("drProduct.Read() failed." + Environment.NewLine + errMsg);
-                                    }
-                                    //}
-                                    //else
-                                    //{
-                                    //    // TODO: Resource strings
-                                    //    throw new Exception("Unable to locate the product refno using the product FK refno in tProduct." + Environment.NewLine + errMsg);
-                                    //}
+                                    productRefno = resultsProduct[0].ProductRefno;
+                                }
+                                else
+                                {
+                                    // TODO: Resource strings
+                                    throw new Exception(string.Format("Unable to locate the product refno using the product FKRefno {0} in tProduct.", productFKRefno) + Environment.NewLine + errMsg);
                                 }
 
                                 // Find the warehouse
-                                cmndLocMapWhs.CommandText = "SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = @locationMapWarehouseFKRefno";
-                                cmndLocMapWhs.CommandType = CommandType.Text;
-                                //cmndLocMapWhs.IndexName = "UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno";
-                                cmndLocMapWhs.Parameters.Add(new SQLiteParameter("@locationMapWarehouseFKRefno", Convert.ToInt32(locMapWhsFKRefno)));
+                                List<tLocationMapWarehouseModel> resultsLocationMapWarehouse = transaction.Query<tLocationMapWarehouseModel>("SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = ?", Convert.ToInt32(locMapWhsFKRefno));
 
-                                using (SQLiteDataReader drLocMapWhs = cmndLocMapWhs.ExecuteReader())
+                                if (resultsLocationMapWarehouse?.Count > 0)
                                 {
-                                    //if (drLocMapWhs.Seek(DbSeekOptions.FirstEqual, new object[] { locMapWhsFKRefno }))
-                                    //{
-                                    if (drLocMapWhs.Read())
-                                    {
-                                        locMapWhsRefno = Convert.ToInt32(drLocMapWhs.GetValue((int)SysCommon.LocMapWhsFields.LocMapRefno));
-                                    }
-                                    else
-                                    {
-                                        throw new Exception("drLocMapWhs.Read() failed." + Environment.NewLine + errMsg);
-                                    }
-                                    //}
-                                    //else
-                                    //{
-                                    //    // TODO: Resource strings
-                                    //    throw new Exception("Unable to locate the warehouse refno using the warehouse FK refno in tLocationMapWarehouse." + Environment.NewLine + errMsg);
-                                    //}
+                                    locMapWhsRefno = resultsLocationMapWarehouse[0].LocationMapRefno;
+                                }
+                                else
+                                {
+                                    // TODO: Resource strings
+                                    throw new Exception(string.Format("Unable to locate the locationMapWarehouse location map refno using the locMapWhsFKRefno {0} in tLocationMapWarehouse.", locMapWhsFKRefno) + Environment.NewLine + errMsg);
                                 }
 
                                 isWhsProdSchemeFound = false;
 
                                 if (SysEnv.RefreshOpt.RefreshDataChangesOnly)
                                 {
-                                    cmndLocMapProdScheme.CommandText = "SELECT * FROM tLocationMapWarehouseProductScheme WHERE WarehouseLocationMapRefno = @warehouseLocationMapRefno AND ProductRefno = @productRefno AND ProductSchemeRefno = @productSchemeRefno";
-                                    cmndLocMapProdScheme.CommandType = CommandType.Text;
-                                    //cmndLocMapProdScheme.IndexName = "UQ_WhsProdSchemeOnWhsRefnoAndProductRefnoAndSchemeRefno";
-                                    cmndLocMapProdScheme.Parameters.Add(new SQLiteParameter("@warehouseLocationMapRefno", Convert.ToInt32(locMapWhsRefno)));
-                                    cmndLocMapProdScheme.Parameters.Add(new SQLiteParameter("@productRefno", Convert.ToInt32(productRefno)));
-                                    cmndLocMapProdScheme.Parameters.Add(new SQLiteParameter("@productSchemeRefno", Convert.ToInt32(schemeRefno)));
+                                    string query = "SELECT * FROM tLocationMapWarehouseProductScheme WHERE WarehouseLocationMapRefno = ? AND ProductRefno = ? AND ProductSchemeRefno = ?";
+                                    List<tLocationMapWarehouseProductSchemeModel> resultsLocationMapWarehouseProductScheme = transaction.Query<tLocationMapWarehouseProductSchemeModel>(query, Convert.ToInt32(locMapWhsRefno), Convert.ToInt32(productRefno), Convert.ToInt32(schemeRefno));
 
-                                    using (SQLiteDataReader drLocMapProdScheme = cmndLocMapProdScheme.ExecuteReader())
+                                    if (resultsLocationMapWarehouseProductScheme?.Count > 0)
                                     {
-                                        //if (drScheme.Seek(DbSeekOptions.FirstEqual, new object[] { locMapWhsRefno, productRefno, schemeRefno }))
-                                        if (drLocMapProdScheme.Read())
-                                        {
-                                            isWhsProdSchemeFound = true;
-                                            // Nothing to update because all the fields in the table make up the lookup key.
-                                        }
+                                        isWhsProdSchemeFound = true;
                                     }
                                 }
 
                                 if (!isWhsProdSchemeFound)
                                 {
-                                    cmndLocMapProdScheme.CommandText = "INSERT INTO tLocationMapWarehouseProductScheme (WarehouseLocationMapRefno, ProductRefno, ProductSchemeRefno) VALUES (@warehouseLocationMapRefno, @productRefno, @productSchemeRefno)";
-                                    cmndLocMapProdScheme.CommandType = CommandType.Text;
-                                    //cmndLocMapProdScheme.IndexName = "UQ_WhsProdSchemeOnWhsRefnoAndProductRefnoAndSchemeRefno";
-                                    cmndLocMapProdScheme.Parameters.Add(new SQLiteParameter("@warehouseLocationMapRefno", Convert.ToInt32(locMapWhsRefno)));
-                                    cmndLocMapProdScheme.Parameters.Add(new SQLiteParameter("@productRefno", Convert.ToInt32(productRefno)));
-                                    cmndLocMapProdScheme.Parameters.Add(new SQLiteParameter("@productSchemeRefno", Convert.ToInt32(schemeRefno)));
-
-                                    cmndLocMapProdScheme.ExecuteNonQuery();
-
-                                    //rec.SetInt32((int)SysCommon.WhsLocMapProdSchemeFields.WhsLocMapRefno, locMapWhsRefno);
-                                    //rec.SetInt32((int)SysCommon.WhsLocMapProdSchemeFields.ProdRefno, productRefno);
-                                    //rec.SetInt32((int)SysCommon.WhsLocMapProdSchemeFields.ProdSchemeRefno, schemeRefno);
-                                    //rs.Insert(rec);
+                                    transaction.Execute("INSERT INTO tLocationMapWarehouseProductScheme (WarehouseLocationMapRefno, ProductRefno, ProductSchemeRefno) VALUES (?, ?, ?)", Convert.ToInt32(locMapWhsRefno), Convert.ToInt32(productRefno), Convert.ToInt32(schemeRefno));
                                 }
 
                                 progValue++;
-
                                 if (progValue % 100 == 0)
                                 {
                                     this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
                                 }
                             }
 
-                            transaction.Commit();
-
                             this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
                         }
+
+                        transaction.Commit();
                     }
 
                     // TODO: Resource strings
@@ -349,17 +254,10 @@
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving warehouse product schemes failed.", false);
 
-                    //// Duplicate key violations
-                    //if (ex.NativeError == 25016)
-                    //{
-                    //    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Uniqueness violation.", false);
-                    //    throw new Exception("Uniqueness violation." + Environment.NewLine + errMsg, ex);
-                    //}
-
                     // TODO: Resource strings
                     throw new Exception("Database exception occurred. Saving warehouse product schemes failed." + Environment.NewLine + errMsg, ex);
                 }
-            }
+            });
         }
 
         /// <summary>
@@ -394,9 +292,9 @@
         /// </summary>
         /// <param name="familyCode"></param>
         /// <returns></returns>
-        protected override string SendRequest(string familyCode)
+        protected override async Task<string> SendRequest(string familyCode)
         {
-            return this.SendComm(this.CreateRequest(familyCode));
+            return await this.SendComm(this.CreateRequest(familyCode));
         }
     }
 }

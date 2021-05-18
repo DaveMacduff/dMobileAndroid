@@ -182,7 +182,7 @@ namespace dMobile.Controller
 
             if (prodUnitRefno != 0)
             {
-                foundActItemRefno = this.GetRefnoFromProdUnitRefno(prodUnitRefno);
+                foundActItemRefno = await this.GetRefnoFromProdUnitRefno(prodUnitRefno);
 
                 if (foundActItemRefno > 0)
                 {
@@ -323,13 +323,13 @@ namespace dMobile.Controller
 
                 TableActivityPhysicalCountItem tableItem = new TableActivityPhysicalCountItem();
                 TableActivityPhysicalCountDetail tableDetail = new TableActivityPhysicalCountDetail();
-                tableDetail.Purge();
-                tableItem.Purge();
+                await tableDetail.Purge();
+                await tableItem.Purge();
 
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
 
                 tableItem.RegisterDataAccessListenerProgressOut((PhysicalActItem)this);
-                tableItem.Request(this.ActHdr.Refno);
+                await tableItem.Request(this.ActHdr.Refno);
                 tableItem.UnregisterDataAccessListenerProgressOut((PhysicalActItem)this);
             }
         }

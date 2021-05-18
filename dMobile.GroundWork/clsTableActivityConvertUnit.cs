@@ -1,7 +1,6 @@
 namespace dMobile.GroundWork
 {
     using System;
-    using System.Data;
     using SQLite;
     using dMobile.Bedrock;
     using System.Threading.Tasks;
@@ -30,8 +29,11 @@ namespace dMobile.GroundWork
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging convert units.", true);
 
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("DELETE FROM tActivityConvertUnit WHERE tActivityConvertUnit.ActivitySubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.ConvertUnit));
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("DELETE FROM tActivity WHERE tActivity.ActivitySubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.ConvertUnit));
+                string query = "DELETE FROM tActivityConvertUnit WHERE tActivityConvertUnit.ActivitySubType = ?";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.ConvertUnit));
+
+                query = "DELETE FROM tActivity WHERE tActivity.ActivitySubType = ?";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.ConvertUnit));
 
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging convert units complete.", true);

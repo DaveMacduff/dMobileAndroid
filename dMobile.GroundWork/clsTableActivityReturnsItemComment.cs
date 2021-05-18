@@ -1,69 +1,51 @@
 namespace dMobile.GroundWork
 {
-  using System;
-  using System.Data;
-  using System.Data.SQLite;
-  using dMobile.Bedrock;
+    using System;
+    using SQLite;
+    using dMobile.Bedrock;
+    using System.Threading.Tasks;
 
-  public class TableActivityReturnsItemComment : TableBase
-  {
-    #region Constructors
-
-    public TableActivityReturnsItemComment()
-      : base()
+    public class TableActivityReturnsItemComment : TableBase
     {
-      this.FullClassName = "dMobile.GroundWork.TableActivityReturnsItemComment";
-    }
+        #region Constructors
 
-    #endregion
-
-    #region Public Members
-
-    /// <summary>
-    ///
-    /// </summary>
-    /// <remarks></remarks>
-    public override void Purge()
-    {
-      try
-      {
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingSalesReturnItemComments), true);
-#else
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging sales return item comments.", true);
-#endif
-
-        using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        public TableActivityReturnsItemComment()
+          : base()
         {
-          cmndPurge.CommandText = "DELETE FROM tActivityReturnsItemComment";
-          cmndPurge.CommandType = CommandType.Text;
-          cmndPurge.ExecuteNonQuery();
+            this.FullClassName = "dMobile.GroundWork.TableActivityReturnsItemComment";
         }
 
-#if MULTILANGUAGE
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingSalesReturnItemCommentsComplete), true);
-#else
-        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging sales return item comments complete.", true);
-#endif
-      }
-      catch (SQLiteException ex)
-      {
-#if MULTILANGUAGE
-        DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurred), true);
-        DataAccessStatusOutHandler(this, EventArgs.Empty, Translator.GetInstance().Translate(TranslatorVocabulary.PurgingSalesReturnItemCommentsFailed), true);
-#else
-        DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-        DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging sales return item comments failed.", true);
-#endif
+        #endregion
 
-#if MULTILANGUAGE
-        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredPurgingSalesReturnItemCommentsFailed), ex);
-#else
-        throw new Exception("Database exception occurred. Purging sales return item comments failed.", ex);
-#endif
-      }
+        #region Public Members
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <remarks></remarks>
+        public override async Task Purge()
+        {
+            try
+            {
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging sales return item comments.", true);
+
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("DELETE FROM tActivityReturnsItemComment");
+
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging sales return item comments complete.", true);
+            }
+            catch (SQLiteException ex)
+            {
+                // TODO: Resource strings
+                DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
+                DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging sales return item comments failed.", true);
+
+                // TODO: Resource strings
+                throw new Exception("Database exception occurred. Purging sales return item comments failed.", ex);
+            }
+        }
+
+        #endregion
     }
-
-    #endregion
-  }
 }

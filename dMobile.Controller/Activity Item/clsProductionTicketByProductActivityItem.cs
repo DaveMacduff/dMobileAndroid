@@ -314,13 +314,13 @@ namespace dMobile.Controller
 
                 TableActivityProductionTicketByProductItem tableByProdItem = new TableActivityProductionTicketByProductItem();
                 TableActivityProductionTicketByProductDetail tableByProdDetail = new TableActivityProductionTicketByProductDetail();
-                tableByProdDetail.Purge();
-                tableByProdItem.Purge();
+                await tableByProdDetail.Purge();
+                await tableByProdItem.Purge();
 
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
 
                 tableByProdItem.RegisterDataAccessListenerProgressOut((TicketByProdActItem)this);
-                tableByProdItem.Request(ActHdr.Refno);
+                await tableByProdItem.Request(ActHdr.Refno);
                 tableByProdItem.UnregisterDataAccessListenerProgressOut((TicketByProdActItem)this);
             }
         }

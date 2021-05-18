@@ -851,10 +851,9 @@
         public static async Task<bool> IsDuplicateUniqueSchemeID(string unqSchemeID)
         {
             bool isDuplicate = false;
-            string sql = "SELECT ActivityDetailUniqueSchemeID FROM tActivityDetail WHERE ActivityDetailUniqueSchemeID = ?";
-            //cmnd.Parameters.Add(new SQLiteParameter("@activityDetailUniqueSchemeID", unqSchemeID));
-     
-            List<tActivityDetailModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityDetailModel>(sql, unqSchemeID);
+
+            string query = "SELECT ActivityDetailUniqueSchemeID FROM tActivityDetail WHERE ActivityDetailUniqueSchemeID = ?";
+            List<tActivityDetailModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityDetailModel>(query, unqSchemeID);
 
             if (results != null && results.Count > 0)
             {

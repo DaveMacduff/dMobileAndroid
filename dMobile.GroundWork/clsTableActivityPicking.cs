@@ -3,10 +3,13 @@ namespace dMobile.GroundWork
     using dMobile.Bedrock;
     using System;
     using System.Data;
-    using System.Data.SQLite;
+    using SQLite;
     using System.Text;
     using System.Xml;
     using System.Xml.Linq;
+    using System.Threading.Tasks;
+    using System.Collections.Generic;
+    using dMobile.Resources.Models;
 
     /// <summary>
     /// Defines the <see cref="TableActivityPicking" />
@@ -26,19 +29,16 @@ namespace dMobile.GroundWork
         /// The RequestData
         /// </summary>
         /// <param name="criteria"></param>
-        public override void RequestData(XDocument criteria)
+        public override async Task RequestData(XDocument criteria)
         {
             string reqData = string.Empty;
-
-            //GC.Collect();
-            //GC.WaitForPendingFinalizers();
 
             try
             {
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding sales orders.", true);
 
-                reqData = this.SendRequest(criteria);
+                reqData = await this.SendRequest(criteria);
 
                 if (0 < reqData.Length)
                 {
@@ -49,7 +49,7 @@ namespace dMobile.GroundWork
                         throw new Exception(reqErr.DocumentElement["detail"].InnerText);
                     }
 
-                    this.Save(reqData);
+                    await this.Save(reqData);
                 }
 
                 // TODO: Resource strings
@@ -69,23 +69,16 @@ namespace dMobile.GroundWork
         /// The DataStatus
         /// </summary>
         /// <returns>The <see cref="int"/></returns>
-        public override int DataStatus()
+        public override async Task<int> DataStatus()
         {
             int rowsAffected = 0;
 
             try
             {
-                using (SQLiteCommand cmndStatus = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                {
-                    cmndStatus.CommandText = "SELECT COUNT(tActivity.ActivityRefno) FROM tActivity WHERE tActivity.ActivitySubType = @activitySubType";
-                    cmndStatus.CommandType = CommandType.Text;
-                    cmndStatus.Parameters.Add(new SQLiteParameter("@activitySubType", Convert.ToInt32(SysCommon.ActSubTypes.Picking)));
+                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(ActivityRefno) FROM tActivity WHERE ActivitySubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.Picking)));
 
-                    rowsAffected = Convert.ToInt32(cmndStatus.ExecuteScalar());
-
-                    // TODO: Resource strings
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} sales orders.", rowsAffected), true);
-                }
+                // TODO: Resource strings
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} sales orders.", rowsAffected), true);
             }
             catch (SQLiteException ex)
             {
@@ -99,31 +92,21 @@ namespace dMobile.GroundWork
         /// <summary>
         /// The Purge
         /// </summary>
-        public override void Purge()
+        public override async Task Purge()
         {
             try
             {
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging sales orders.", true);
 
-                using (SQLiteCommand cmndPurge = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                {
-                    cmndPurge.CommandText = "DELETE FROM tActivityPickingRoute WHERE tActivityPickingRoute.PickingActivityRefno IN "
-                        + "(SELECT tActivity.ActivityRefno FROM tActivity WHERE tActivity.ActivitySubType = @activitySubType)";
-                    cmndPurge.CommandType = CommandType.Text;
-                    cmndPurge.Parameters.Add(new SQLiteParameter("@activitySubType", Convert.ToInt32(SysCommon.ActSubTypes.Picking)));
-                    cmndPurge.ExecuteNonQuery();
+                string query = "DELETE FROM tActivityPickingRoute WHERE PickingActivityRefno IN (SELECT ActivityRefno FROM tActivity WHERE ActivitySubType = ?)";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.Picking));
 
-                    cmndPurge.CommandText = "DELETE FROM tActivityPicking WHERE tActivityPicking.ActivitySubType = @activitySubType";
-                    cmndPurge.CommandType = CommandType.Text;
-                    cmndPurge.Parameters.Add(new SQLiteParameter("@activitySubType", Convert.ToInt32(SysCommon.ActSubTypes.Picking)));
-                    cmndPurge.ExecuteNonQuery();
+                query = "DELETE FROM tActivityPicking WHERE ActivitySubType = ?";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.Picking));
 
-                    cmndPurge.CommandText = "DELETE FROM tActivity WHERE tActivity.ActivitySubType = @activitySubType";
-                    cmndPurge.CommandType = CommandType.Text;
-                    cmndPurge.Parameters.Add(new SQLiteParameter("@activitySubType", Convert.ToInt32(SysCommon.ActSubTypes.Picking)));
-                    cmndPurge.ExecuteNonQuery();
-                }
+                query = "DELETE FROM tActivity WHERE ActivitySubType = ?";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.Picking));
 
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging sales orders complete.", true);
@@ -144,27 +127,20 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="criteria">The criteria<see cref="XDocument"/></param>
         /// <returns></returns>
-        protected override string SendRequest(XDocument criteria)
+        protected override async Task<string> SendRequest(XDocument criteria)
         {
-            return this.SendComm(this.CreateRequest(criteria));
+            return await this.SendComm(this.CreateRequest(criteria));
         }
 
         /// <summary>
         /// The Save
         /// </summary>
         /// <param name="reqData"></param>
-        protected override void Save(string reqData)
+        protected override async Task Save(string reqData)
         {
-            SQLiteConnection conn = DatabaseConnection.GetInstance().SQLConn;
             string errMsg = string.Empty;
 
-            using (SQLiteCommand cmndPick = conn.CreateCommand())
-            using (SQLiteCommand cmndAct = conn.CreateCommand())
-            using (SQLiteCommand cmndID = conn.CreateCommand())
-            using (SQLiteCommand cmndWhs = conn.CreateCommand())
-            using (SQLiteCommand cmndPickRoute = conn.CreateCommand())
-            using (SQLiteCommand cmndRoute = conn.CreateCommand())
-            using (SQLiteTransaction transaction = conn.BeginTransaction())
+            await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
             {
                 try
                 {
@@ -185,55 +161,6 @@ namespace dMobile.GroundWork
                             // TODO: Resource strings
                             this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("Records {0}", progMax), false);
 
-                            //using (SQLiteCommand cmndPick = conn.CreateCommand())
-                            //{
-                            //cmndPick.CommandText = "tActivityPicking";
-                            //cmndPick.CommandType = CommandType.Text;
-                            //cmndPick.IndexName = "UQ_ActivityPickingOnActivityPickingFKRefno";
-
-                            //using (SQLiteCommand cmndAct = conn.CreateCommand())
-                            //{
-                            //cmndAct.CommandText = "tActivity";
-                            //cmndAct.CommandType = CommandType.Text;
-
-                            //using (SqlCeResultSet rsAct = cmndAct.ExecuteResultSet(ResultSetOptions.Updatable))
-                            //{
-                            //SqlCeUpdatableRecord recAct = rsAct.CreateRecord();
-
-                            //using (SQLiteCommand cmndID = conn.CreateCommand())
-                            //{
-                            cmndID.CommandText = "SELECT last_insert_rowid() FROM tActivity";
-                            cmndID.CommandType = CommandType.Text;
-
-                            //using (SQLiteCommand cmndWhs = conn.CreateCommand())
-                            //{
-                            //cmndWhs.CommandText = "tLocationMapWarehouse";
-                            //cmndWhs.IndexName = "UQ_LocationMapWarehouseOnLocationMapWarehouseFKRefno";
-                            //cmndWhs.CommandType = CommandType.Text;
-
-                            //using (SQLiteDataReader drWhs = cmndWhs.ExecuteReader())
-                            //{
-                            //using (SQLiteCommand cmndPickRoute = conn.CreateCommand())
-                            //{
-                            //cmndPickRoute.CommandType = CommandType.Text;
-                            //cmndPickRoute.CommandText = "tActivityPickingRoute";
-                            //cmndPickRoute.IndexName = "UQ_ActivityPickingRouteOnPickingActivityRefnoAndRouteRefno";
-
-                            //using (SQLiteCommand cmndRoute = conn.CreateCommand())
-                            //{
-                            //cmndRoute.CommandText = "tRoute";
-                            //cmndRoute.CommandType = CommandType.Text;
-                            //cmndRoute.IndexName = "UQ_RouteOnRouteCode";
-
-                            //using (SQLiteDataReader drRoute = cmndRoute.ExecuteReader())
-                            //{
-                            //using (SqlCeResultSet rsPickRoute = cmndPickRoute.ExecuteResultSet(ResultSetOptions.Updatable))
-                            //{
-                            //SqlCeUpdatableRecord recPickRoute = rsPickRoute.CreateRecord();
-
-                            //using (SqlCeResultSet rsPick = cmndPick.ExecuteResultSet(ResultSetOptions.Updatable))
-                            //{
-                            //SqlCeUpdatableRecord recPick = rsPick.CreateRecord();
                             int actRefno = 0;
                             int progValue = 0;
                             int whsLocMapRefno = 0;
@@ -247,23 +174,14 @@ namespace dMobile.GroundWork
                             {
                                 errMsg = "Arguments:";
 
-                                cmndAct.CommandText = "INSERT INTO tActivity (ActivityStatus, ActivitySubType) VALUES (@activityStatus, @activitySubType)";
-                                cmndAct.CommandType = CommandType.Text;
-                                cmndAct.Parameters.Add(new SQLiteParameter("@activityStatus", Convert.ToInt32(0)));
-                                cmndAct.Parameters.Add(new SQLiteParameter("@activitySubType", Convert.ToInt32(SysCommon.ActSubTypes.Picking)));
+                                transaction.Execute("INSERT INTO tActivity (ActivityStatus, ActivitySubType) VALUES (?, ?)", 0, Convert.ToInt32(SysCommon.ActSubTypes.Picking));
 
-                                cmndAct.ExecuteNonQuery();
-
-                                //recAct.SetInt32((int)SysCommon.ActFields.Status, 0);
-                                //recAct.SetInt32((int)SysCommon.ActFields.SubType, (int)SysCommon.ActSubTypes.Picking);
-                                //rsAct.Insert(recAct);
-
-                                actRefno = Convert.ToInt32(cmndID.ExecuteScalar());
+                                actRefno = Convert.ToInt32(transaction.QueryScalars<int>("SELECT last_insert_rowid() FROM tActivity"));
                                 actPickFKRefno = Convert.ToInt32(drow["ActivityPickingFKRefno"]);
                                 errMsg += Environment.NewLine + "FK refno " + actPickFKRefno;
-                                whsLocMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, ref errMsg, cmndWhs);
+                                whsLocMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, ref errMsg, transaction);
 
-                                cmndPick.CommandText = "INSERT INTO tActivityPicking (" +
+                                string queryInsertPicking = "INSERT INTO tActivityPicking (" +
                                     "ActivityRefno, " +
                                     "ActivitySubType, " +
                                     "ActivityPickingFKRefno, " +
@@ -275,92 +193,55 @@ namespace dMobile.GroundWork
                                     "ActivityPickingCustomerShipToInfo, " +
                                     "ActivityPickingIsReviewed" +
                                     ") VALUES (" +
-                                    "@activityRefno, " +
-                                    "@activitySubType, " +
-                                    "@activityPickingFKRefno, " +
-                                    "@activityPickingStringFKRefno, " +
-                                    "@warehouseLocationMapRefno, " +
-                                    "@activityPickingOrderedDateTime, " +
-                                    "@activityPickingDeliveryDateTime, " +
-                                    "@activityPickingCustomerContactName, " +
-                                    "@activityPickingCustomerShipToInfo, " +
-                                    "@activityPickingIsReviewed" +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?" +
                                     ")";
-                                cmndPick.CommandType = CommandType.Text;
-                                //cmndPick.IndexName = "UQ_ActivityPickingOnActivityPickingFKRefno";
-                                cmndPick.Parameters.Add(new SQLiteParameter("@activityRefno", actRefno));
-                                cmndPick.Parameters.Add(new SQLiteParameter("@activitySubType", Convert.ToInt32(SysCommon.ActSubTypes.Picking)));
-                                cmndPick.Parameters.Add(new SQLiteParameter("@activityPickingFKRefno", actPickFKRefno));
-                                cmndPick.Parameters.Add(new SQLiteParameter("@activityPickingStringFKRefno", actPickFKRefno.ToString()));
-                                cmndPick.Parameters.Add(new SQLiteParameter("@warehouseLocationMapRefno", whsLocMapRefno));
-                                cmndPick.Parameters.Add(new SQLiteParameter("@activityPickingOrderedDateTime", Convert.ToDateTime(drow["ActivityPickingOrderedDateTime"])));
-                                cmndPick.Parameters.Add(new SQLiteParameter("@activityPickingDeliveryDateTime", Convert.ToDateTime(drow["ActivityPickingDeliveryDateTime"])));
-                                cmndPick.Parameters.Add(new SQLiteParameter("@activityPickingCustomerContactName", drow["ActivityPickingCustomerContactName"].ToString()));
-                                cmndPick.Parameters.Add(new SQLiteParameter("@activityPickingCustomerShipToInfo", drow["ActivityPickingCustomerShipToInfo"].ToString()));
-                                cmndPick.Parameters.Add(new SQLiteParameter("@activityPickingIsReviewed", false));
+                                List<object> parametersInsertPicking = new List<object>()
+                            {
+                                actRefno,
+                                Convert.ToInt32(SysCommon.ActSubTypes.Picking),
+                                actPickFKRefno,
+                                Convert.ToString(actPickFKRefno),
+                                whsLocMapRefno,
+                                Convert.ToDateTime(drow["ActivityPickingOrderedDateTime"]),
+                                Convert.ToDateTime(drow["ActivityPickingDeliveryDateTime"]),
+                                Convert.ToString(drow["ActivityPickingCustomerContactName"]),
+                                Convert.ToString(drow["ActivityPickingCustomerShipToInfo"]),
+                                false
+                            };
 
-                                cmndPick.ExecuteNonQuery();
-
-                                //recPick.SetInt32((int)SysCommon.ActPickingFields.ActRefno, actRefno);
-                                //recPick.SetInt32((int)SysCommon.ActPickingFields.ActSubType, (int)SysCommon.ActSubTypes.Picking);
-                                //recPick.SetInt32((int)SysCommon.ActPickingFields.FKRefno, actPickFKRefno);
-                                //recPick.SetString((int)SysCommon.ActPickingFields.StringFKRefno, actPickFKRefno.ToString());
-                                //recPick.SetInt32((int)SysCommon.ActPickingFields.WhsLocMapRefno, whsLocMapRefno);
-                                //recPick.SetDateTime((int)SysCommon.ActPickingFields.OrderedDateTime, Convert.ToDateTime(drow["ActivityPickingOrderedDateTime"]));
-                                //recPick.SetDateTime((int)SysCommon.ActPickingFields.DeliveryDateTime, Convert.ToDateTime(drow["ActivityPickingDeliveryDateTime"]));
-                                //recPick.SetString((int)SysCommon.ActPickingFields.CustomerContactName, drow["ActivityPickingCustomerContactName"].ToString());
-                                //recPick.SetString((int)SysCommon.ActPickingFields.CustomerShipToInfo, drow["ActivityPickingCustomerShipToInfo"].ToString());
-                                //recPick.SetBoolean((int)SysCommon.ActPickingFields.IsReviewed, false);
-                                //rsPick.Insert(recPick);
+                                transaction.Execute(queryInsertPicking, parametersInsertPicking);
 
                                 routeRefno = 0;
-                                pickRouteCode = drow["ActivityPickingRouteCode"].ToString();
+                                pickRouteCode = Convert.ToString(drow["ActivityPickingRouteCode"]);
                                 errMsg += Environment.NewLine + "Route code \'" + pickRouteCode + "\'";
 
                                 if (!string.IsNullOrEmpty(pickRouteCode))
                                 {
-                                    cmndRoute.CommandText = "SELECT * FROM tRoute WHERE RouteCode = @routeCode";
-                                    cmndRoute.CommandType = CommandType.Text;
-                                    //cmndRoute.IndexName = "UQ_RouteOnRouteCode";
-                                    cmndRoute.Parameters.Add(new SQLiteParameter("@routeCode", pickRouteCode));
+                                    List<tRouteModel> resultRoutes = transaction.Query<tRouteModel>("SELECT * FROM tRoute WHERE RouteCode = ?", pickRouteCode);
 
-                                    using (SQLiteDataReader drRoute = cmndRoute.ExecuteReader())
+                                    if (resultRoutes?.Count > 0)
                                     {
-                                        //if (drRoute.Seek(DbSeekOptions.FirstEqual, new object[] { pickRouteCode }))
-                                        //{
-                                        if (drRoute.Read())
-                                        {
-                                            routeRefno = drRoute.GetInt32((int)SysCommon.RouteFields.Refno);
-                                        }
-                                        else
-                                        {
-                                            // TODO: Resource strings
-                                            throw new Exception("drRoute.Read() failed." + Environment.NewLine + errMsg);
-                                        }
-                                        //}
-                                        //else
-                                        //{
-                                        //    // TODO: Resource strings
-                                        //    throw new Exception("Unable to locate the route code in tRoute." + Environment.NewLine + errMsg);
-                                        //}
+                                        routeRefno = resultRoutes[0].RouteRefno;
+                                    }
+                                    else
+                                    {
+                                        // TODO: Resource strings
+                                        throw new Exception("drRoute.Read() failed." + Environment.NewLine + errMsg);
                                     }
                                 }
 
                                 if (routeRefno != 0)
                                 {
-                                    cmndPickRoute.CommandText = "INSERT INTO tActivityPickingRoute (PickingActivityRefno, RouteRefno, RouteStop) VALUES (@pickingActivityRefno, @routeRefno, @routeStop)";
-                                    cmndPickRoute.CommandType = CommandType.Text;
-                                    //cmndPickRoute.IndexName = "UQ_ActivityPickingRouteOnPickingActivityRefnoAndRouteRefno";
-                                    cmndPickRoute.Parameters.Add(new SQLiteParameter("@pickingActivityRefno", actRefno));
-                                    cmndPickRoute.Parameters.Add(new SQLiteParameter("@routeRefno", routeRefno));
-                                    cmndPickRoute.Parameters.Add(new SQLiteParameter("@routeStop", Convert.ToInt32(drow["ActivityPickingRouteStop"])));
-
-                                    cmndPickRoute.ExecuteNonQuery();
-
-                                    //recPickRoute.SetInt32((int)SysCommon.ActPickingRouteFields.PickingActRefno, actRefno);
-                                    //recPickRoute.SetInt32((int)SysCommon.ActPickingRouteFields.RouteRefno, routeRefno);
-                                    //recPickRoute.SetInt32((int)SysCommon.ActPickingRouteFields.RouteStop, Convert.ToInt32(drow["ActivityPickingRouteStop"]));
-                                    //rsPickRoute.Insert(recPickRoute);
+                                    transaction.Execute("INSERT INTO tActivityPickingRoute (PickingActivityRefno, RouteRefno, RouteStop) VALUES (?, ?, ?)", actRefno, routeRefno, Convert.ToInt32(drow["ActivityPickingRouteStop"]));
                                 }
 
                                 progValue++;
@@ -372,21 +253,6 @@ namespace dMobile.GroundWork
 
                             this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax);
                         }
-                        //}
-
-                        //                                        drRoute.Close();
-                        //                                    }
-                        //                                }
-                        //                            }
-
-                        //                            drWhs.Close();
-                        //                        }
-                        //                    }
-                        //                }
-                        //            }
-                        //        }
-                        //    }
-                        //}
 
                         transaction.Commit();
 
@@ -402,18 +268,10 @@ namespace dMobile.GroundWork
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving sales orders failed.", true);
 
-                    //// Duplicate key violations
-                    //if (ex.NativeError == 25016)
-                    //{
-                    //    // TODO: Resource strings
-                    //    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Uniqueness violation.", false);
-                    //    throw new Exception("Uniqueness violation." + Environment.NewLine + errMsg, ex);
-                    //}
-
                     // TODO: Resource strings
                     throw new Exception("Database exception occurred. Saving sales orders failed." + Environment.NewLine + errMsg, ex);
                 }
-            }
+            });
         }
 
         /// <summary>
