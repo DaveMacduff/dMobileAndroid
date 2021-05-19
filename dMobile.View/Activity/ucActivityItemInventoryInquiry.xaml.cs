@@ -29,7 +29,6 @@ namespace dMobile.View.Activity
         private bool isBarCodeHandlerRegistered = false;
         private SysEnvironment sysEnv;
         private bool isEnterTrapped = false;
-        //private UserControl callingControl;
         private int totalTicks = 0;
         private ReqCloseHandler reqCloseEvent;
         private ReqSaveEnableHandler reqSaveEnableEvent;
@@ -104,10 +103,10 @@ namespace dMobile.View.Activity
                             {
                                 index = this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem);
 
-                                this.ActItem.ProdInfo = ProductInfoTasks.GetInfoFromCodeBCUnit(
-                                    Convert.ToString(this.ActItem.DataViewItems[index]["productcode"]),
-                                    Convert.ToString(this.ActItem.DataViewItems[index]["productunitbc"]),
-                                    Convert.ToString(this.ActItem.DataViewItems[index]["unitcode"]));
+                                // TODO: test
+                                this.ActItem.ProdInfo = ProductInfoTasks.GetInfoFromCodeBCUnit(Convert.ToString((this.ActItem.ListItems[index] as dynamic).productcode),
+                                    Convert.ToString((this.ActItem.ListItems[index] as dynamic).productunitbc),
+                                    Convert.ToString((this.ActItem.ListItems[index] as dynamic).unitcode));
 
                                 ActDetail actDetail = ActDetailFacade.GetActDetail(this.ActItem, SysCommon.ActSubTypes.InventoryInquiry);
 
@@ -478,7 +477,7 @@ namespace dMobile.View.Activity
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public XDocument GetXML()
+        public async Task<XDocument> GetXML()
         {
             XDocument xmldocParams = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
@@ -618,7 +617,7 @@ namespace dMobile.View.Activity
                     + "<params>"
                     + "</params>");
 
-                this.ActItem.Refresh(xmldocParams);
+                await this.ActItem.Refresh(xmldocParams);
                 this.DataGridMainActivityItemsList = this.ActItem.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
                 this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
             }
@@ -632,9 +631,9 @@ namespace dMobile.View.Activity
                 });
             }
 
-            if (this.ActItem.DataViewItems.Count > 0)
+            if (this.ActItem.ListItems.Count > 0)
             {
-                this.ActItem.SelectItem(0);
+                await this.ActItem.SelectActivityItem(this.ActItem.ListItems[0]);
             }
 
             await this.ScannerEnable();

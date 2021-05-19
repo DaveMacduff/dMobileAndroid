@@ -81,12 +81,12 @@ namespace dMobile.View.Activity
             this.SelToLocMap = new SLocMap();
 
             this.updnBarCodeModifier1.Items.Clear();
-            
+
             if (this.SysEnv.SysSettings.IsProductUnitBarCodeModifier1)
             {
                 this.updnBarCodeModifier1.Items.Add(string.Empty);
                 string[] modifiers = this.SysEnv.SysSettings.ProductUnitBarCodeModifier1Codes.Split(',');
-            
+
                 foreach (string item in modifiers)
                 {
                     this.updnBarCodeModifier1.Items.Add(item);
@@ -116,8 +116,8 @@ namespace dMobile.View.Activity
         #endregion
 
         #region OnAppearing/OnDisappearing
-        
-         /// <summary>
+
+        /// <summary>
         /// The OnAppearing
         /// </summary>
         protected override async void OnAppearing()
@@ -136,7 +136,8 @@ namespace dMobile.View.Activity
                     // TODO: Resource strings
                     if (this.dataGridMainActivity.SelectedItem != null && this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem) != -1 && await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Do you wish to delete this record?", "Yes", "No")))
                     {
-                        this.ActDetail.DataViewDetails[this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem)].Delete();
+                        // TODO: Test
+                        this.ActDetail.ListDetails.RemoveAt(this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem));
                     }
                 }
                 else if (keycode == Keycode.Escape)
@@ -366,19 +367,6 @@ namespace dMobile.View.Activity
             }
         }
 
-        //private UserControl CallingControl
-        //{
-        //    get
-        //    {
-        //        return this.callingControl;
-        //    }
-
-        //    set
-        //    {
-        //        this.callingControl = value;
-        //    }
-        //}
-
         private ActItem ActItem
         {
             get
@@ -607,9 +595,9 @@ namespace dMobile.View.Activity
         {
             bool isReadyToSave = true;
 
-            if (ActDetail.DataViewDetails.Count > 0)
+            if (ActDetail.ListDetails.Count > 0)
             {
-                if (!LocationMapTasks.IsCompleteLocMapRefno(SelFromLocMap))
+                if (!await LocationMapTasks.IsCompleteLocMapRefno(SelFromLocMap))
                 {
                     isReadyToSave = false;
 
@@ -617,7 +605,7 @@ namespace dMobile.View.Activity
                     await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Send Moves", "Invalid Move \'From\' Location", "OK"));
 
                 }
-                else if (!LocationMapTasks.IsCompleteLocMapRefno(SelToLocMap))
+                else if (!await LocationMapTasks.IsCompleteLocMapRefno(SelToLocMap))
                 {
                     isReadyToSave = false;
 
@@ -692,24 +680,24 @@ namespace dMobile.View.Activity
             {
                 if (await IsReadyToSave())
                 {
-                    if (ActDetail.DataViewDetails != null && ActDetail.DataViewDetails.Count > 0)
+                    if (ActDetail.ListDetails != null && ActDetail.ListDetails.Count > 0)
                     {
-                        for (int idx = 0; idx <= ActDetail.DataViewDetails.Count - 1; idx++)
+                        for (int idx = 0; idx <= ActDetail.ListDetails.Count - 1; idx++)
                         {
                             try
                             {
-                                if (ActDetail.DataViewDetails.Count > 0)
+                                if (ActDetail.ListDetails.Count > 0)
                                 {
                                     ActItem.FKRefno = 0;
                                     ActItem.Refno = 0;
                                     ProductInfo oProductInfo = ActItem.ProdInfo;
-                                    oProductInfo = ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(ActDetail.DataViewDetails[idx]["ProductUnitRefno"]));
-                                    oProductInfo.Scheme = ProductInfoTasks.GetSchemeComponentsFromRefno(oProductInfo.Refno);
+                                    oProductInfo = ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32((ActDetail.ListDetails[idx] as dynamic).ProductUnitRefno));
+                                    oProductInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(oProductInfo.Refno);
                                     ActItem.ProdInfo = oProductInfo;
-                                    ActDetail = ActDetail.GetInfo(idx, false);
+                                    ActDetail = await ActDetail.GetInfo(ActDetail.ListDetails[idx], false);
                                     XDocument xmlParam = XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" + "<param>" + ("<whs_id>" + SelFromLocMap.WhsFKRefno.ToString() + "</whs_id>") + ("<sect_refno>" + SelFromLocMap.SectFKRefno.ToString() + "</sect_refno>") + ("<slot_refno>" + SelFromLocMap.SlotFKRefno.ToString() + "</slot_refno>") + ("<to_sect_refno>" + SelToLocMap.SectFKRefno.ToString() + "</to_sect_refno>") + ("<to_slot_refno>" + SelToLocMap.SlotFKRefno.ToString() + "</to_slot_refno>") + "</param>");
 
-                                    ActDetail.Submit(idx, xmlParam);
+                                    await ActDetail.Submit(ActDetail.ListDetails[idx], xmlParam);
                                     idx--;
                                 }
                                 else
@@ -731,17 +719,17 @@ namespace dMobile.View.Activity
                                 }
                                 else
                                 {
-                                    if (ActDetail.DataViewDetails.Count > 0)
+                                    if (ActDetail.ListDetails.Count > 0)
                                     {
                                         idx--;
                                     }
                                 }
                             }
                         }
-                    
+
                     endOfForLoop:
 
-                        if (ActDetail.DataViewDetails.Count > 0)
+                        if (ActDetail.ListDetails.Count > 0)
                         {
                             bSaveComplete = false;
                         }
@@ -765,7 +753,7 @@ namespace dMobile.View.Activity
             catch (Exception ex)
             {
                 bSaveComplete = false;
-                
+
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errorReport = new FormErrorReport(this.ActSubType, ex);
@@ -811,7 +799,7 @@ namespace dMobile.View.Activity
             catch (Exception ex)
             {
                 cancelChanges = false;
-                
+
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errorReport = new FormErrorReport(SysCommon.ActSubTypes.MoveInventory, ex);
@@ -827,7 +815,7 @@ namespace dMobile.View.Activity
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public XDocument GetXML()
+        public async Task<XDocument> GetXML()
         {
             XDocument xmlDoc = XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" + "<params>" + "</params>");
             return xmlDoc;
@@ -853,7 +841,7 @@ namespace dMobile.View.Activity
             {
                 int iTokens = Convert.ToInt32(Math.Ceiling(Convert.ToDouble(dataLayerEventArgs.StatusOutMsg.Length / tokenLength)));
                 int iTokenLength = 0;
-                
+
                 for (var iTokenIdx = 0; iTokenIdx <= (iTokens * tokenLength) - 1; iTokenIdx++)
                 {
                     iTokenLength = Convert.ToInt32(dataLayerEventArgs.StatusOutMsg.Length - iTokenIdx > tokenLength ? tokenLength : dataLayerEventArgs.StatusOutMsg.Length - iTokenIdx);
@@ -874,13 +862,6 @@ namespace dMobile.View.Activity
         /// <param name="dataLayerEventArgs"></param>
         public void OnLayerProgOut(IDataLayerEventPublisher dataLayerEventPublisher, DataLayerEventArgs dataLayerEventArgs)
         {
-            //if (dataLayerEventArgs.SetMinMaxValue)
-            //{
-            //    pbarStatus.Minimum = dataLayerEventArgs.MinValue;
-            //    pbarStatus.Maximum = dataLayerEventArgs.MaxValue;
-            //}
-
-            //pbarStatus.Value = dataLayerEventArgs.CurrentValue;
         }
 
         #endregion
@@ -1064,7 +1045,7 @@ namespace dMobile.View.Activity
                 {
                     this.SelFromLocMap = this.LocMap.CurrLocMap;
                     this.SelFromCurrLocMapRefno = this.LocMap.CurrLocMapRefno;
-                    
+
                     if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
                     {
                         this.cmdFromLocation.Text = LocationMapTasks.GetCurrentReadableLocation();
@@ -1121,7 +1102,8 @@ namespace dMobile.View.Activity
                     prodUnitRefno = Convert.ToInt32(xmlDoc.Root.Element("ProductUnitRefno").Value);
 
                     await this.ActItem.Insert(xmlDoc, false);
-                    this.ActDetail = this.ActDetail.GetInfo(0, true);
+                    // TODO: Test
+                    this.ActDetail = await this.ActDetail.GetInfo(this.ActDetail.ListDetails[0], true);
 
                     SysCommon.SFillQuantity fillQty = SysCommon.FillQuantityStructureFromQuantity((ProductInfo)this.ActItem.ProdInfo, 1);
                     SActItemSchemeData tempItemSchemeData = new SActItemSchemeData
@@ -1134,9 +1116,9 @@ namespace dMobile.View.Activity
                     bool isInsertReady = false;
                     int foundRowIdx = -1;
 
-                    if (this.ActDetail.DataViewDetails.Count > 0)
+                    if (this.ActDetail.ListDetails.Count > 0)
                     {
-                        foundRowIdx = this.ActDetail.DataViewDetails.Count - 1;
+                        foundRowIdx = this.ActDetail.ListDetails.Count - 1;
                     }
 
                     this.BarCodeParse = BarCodeParseFacade.ParseData(string.Empty);
@@ -1183,48 +1165,6 @@ namespace dMobile.View.Activity
             }
         }
 
-        ///// <summary>
-        /////
-        ///// </summary>
-        ///// <param name="sender"></param>
-        ///// <param name="e"></param>
-        ///// <remarks></remarks>
-        //private void KeyUpHandler(object sender, KeyEventArgs e)
-        //{
-        //    if (e.KeyCode == Keys.Escape || e.KeyCode == Keys.F1)
-        //    {
-        //        if (this.SaveChanges())
-        //        {
-        //            if (this.ReqCloseEvent != null)
-        //            {
-        //                this.ReqCloseEvent((IAppPublisher)this, new AppEventArgs());
-        //            }
-        //        }
-        //        else
-        //        {
-        //            this.CancelChanges();
-        //        }
-        //    }
-        //}
-
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        //private void DisplayData()
-        //{
-        //}
-
-        ///// <summary>
-        /////
-        ///// </summary>
-        ///// <param name="sender"></param>
-        ///// <param name="e"></param>
-        ///// <remarks></remarks>
-        //private void updnBarCodeModifier1_GotFocus(object sender, EventArgs e)
-        //{
-        //    SysCommon.SelectValueInDomainUpDown((UpDownBase)sender);
-        //}
-
         /// <summary>
         ///
         /// </summary>
@@ -1236,18 +1176,12 @@ namespace dMobile.View.Activity
         {
             if (isInsertDetailReady)
             {
-                //if (this.ActDetail.DataViewDetails.Count > 0)
-                //{
-                //    this.dataGridMainActivity.UnSelect(rowIdx);
-                //}
-
                 XDocument xmlDoc = this.ActDetail.GetXML(this.ActDetail);
                 this.ActDetail.Insert(xmlDoc);
 
-                if (this.ActDetail.DataViewDetails.Count > 0 && this.DataGridMainActivityItemsList.Count > this.ActDetail.DataViewDetails.Count - 1)
+                if (this.ActDetail.ListDetails.Count > 0 && this.DataGridMainActivityItemsList.Count > this.ActDetail.ListDetails.Count - 1)
                 {
-                    //this.dataGridMainActivity.CurrentRowIndex = this.ActDetail.DataViewDetails.Count - 1;
-                    this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[this.ActDetail.DataViewDetails.Count - 1];
+                    this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[this.ActDetail.ListDetails.Count - 1];
                 }
             }
         }
@@ -1275,9 +1209,9 @@ namespace dMobile.View.Activity
                 {
                     if (this.chkScanToLocation.IsChecked)
                     {
-                        this.LocMap.CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(barCodeParse.LocationIdentifier));
+                        this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(await LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(barCodeParse.LocationIdentifier));
                         this.SelToLocMap = LocMap.CurrLocMap;
-                        
+
                         if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
                         {
                             this.cmdToLocation.Text = LocationMapTasks.GetCurrentReadableLocation();
@@ -1290,9 +1224,9 @@ namespace dMobile.View.Activity
                     }
                     else
                     {
-                        this.LocMap.CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(barCodeParse.LocationIdentifier));
+                        this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(await LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(barCodeParse.LocationIdentifier));
                         this.SelFromLocMap = this.LocMap.CurrLocMap;
-                        
+
                         if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
                         {
                             this.cmdFromLocation.Text = LocationMapTasks.GetCurrentReadableLocation();
@@ -1317,16 +1251,16 @@ namespace dMobile.View.Activity
                               + "</params>");
 
                         await this.ActItem.Insert(xmlDoc, false);
-                        this.ActDetail = this.ActDetail.GetInfo(0, true);
+                        this.ActDetail = await this.ActDetail.GetInfo(this.ActDetail.ListDetails[0], true);
 
                         SActItemSchemeData tempItemSchemeData = new SActItemSchemeData();
                         bool isInsertReady = false;
 
                         int foundRowIdx = -1;
-                        
-                        if (this.ActDetail.DataViewDetails.Count > 0)
+
+                        if (this.ActDetail.ListDetails.Count > 0)
                         {
-                            foundRowIdx = this.ActDetail.DataViewDetails.Count - 1;
+                            foundRowIdx = this.ActDetail.ListDetails.Count - 1;
                         }
 
                         isInsertReady = await SysShared.GatherProductData(this.BarCodeParse, this.ActSubType, this.ActItem, tempItemSchemeData, isInsertReady, this.ActDetail, false);
@@ -1359,23 +1293,21 @@ namespace dMobile.View.Activity
             {
                 ex.Show(this.ActSubType);
 
-                if (this.ActDetail.DataViewDetails.Count > 0 && rowIdx + 1 <= this.ActDetail.DataViewDetails.Count)
+                if (this.ActDetail.ListDetails.Count > 0 && rowIdx + 1 <= this.ActDetail.ListDetails.Count)
                 {
-                    //this.dataGridMainActivity.CurrentRowIndex = rowIdx;
                     this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[rowIdx];
                 }
             }
             catch (Exception ex)
-            {   
+            {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errorReport = new FormErrorReport(this.ActSubType, ex);
                     await errorReport.ShowDialog();
                 });
 
-                if (this.ActDetail.DataViewDetails.Count > 0 && rowIdx + 1 <= this.ActDetail.DataViewDetails.Count)
+                if (this.ActDetail.ListDetails.Count > 0 && rowIdx + 1 <= this.ActDetail.ListDetails.Count)
                 {
-                    //this.dataGridMainActivity.CurrentRowIndex = rowIdx;
                     this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[rowIdx];
                 }
             }
@@ -1393,22 +1325,18 @@ namespace dMobile.View.Activity
         {
             await this.ScannerDisable();
 
-            //this.pbarStatus.Visible = true;
             this.ItemsList.Clear();
-            //this.pbarStatus.Visible = false;
 
-            this.ActDetail.GetDataView(false);
+            await this.ActDetail.GetActivityDetailList(false);
             this.DataGridMainActivityItemsList = this.ActDetail.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
             this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
 
-            if (this.ActDetail.DataViewDetails.Count > 0 && this.DataGridMainActivityItemsList.Count > 0)
+            if (this.ActDetail.ListDetails.Count > 0 && this.DataGridMainActivityItemsList.Count > 0)
             {
                 this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[0];
-                this.ActDetail.SelectDetail(this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem));
-                //this.dataGridMainActivity.Focus();
+                await this.ActDetail.SelectActivityDetail(this.ActDetail.ListDetails[this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem)]);
             }
 
-            //this.DisplayData();
             await this.ScannerEnable();
         }
 

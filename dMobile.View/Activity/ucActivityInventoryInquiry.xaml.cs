@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Data;
 using System.Xml.Linq;
@@ -13,7 +12,7 @@ using Xamarin.Forms.Xaml;
 using dMobile.View.Forms;
 using dMobile.Resources.Enums;
 using Android.Views;
-using System.Data.SQLite;
+using SQLite;
 using System.Collections.ObjectModel;
 using dMobile.Resources.Services;
 using dMobile.Resources.Types;
@@ -43,7 +42,7 @@ namespace dMobile.View.Activity
         private ReqCancelEnableHandler reqCancelEnableEvent;
         private ReqCancelDisableHandler reqCancelDisableEvent;
         private string mainGridMappingName = "tLocationMapDefault";
-        private DataView dataViewItems;
+        private List<object> listItems;
         private bool isControlLoaded = false;
         private ObservableCollection<object> dataGridMainItemsList = new ObservableCollection<object>();
 
@@ -548,16 +547,16 @@ namespace dMobile.View.Activity
             }
         }
 
-        private DataView DataViewItems
+        private List<object> ListItems
         {
             get
             {
-                return this.dataViewItems;
+                return this.listItems;
             }
 
             set
             {
-                this.dataViewItems = value;
+                this.listItems = value;
             }
         }
 
@@ -610,7 +609,7 @@ namespace dMobile.View.Activity
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public XDocument GetXML()
+        public async Task<XDocument> GetXML()
         {
             XDocument xmldocParams = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
@@ -757,7 +756,7 @@ namespace dMobile.View.Activity
             {
                 if (0 >= this.LocMap.CurrLocMap.WhsLocMapRefno)
                 {
-                    this.LocMap.CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(this.LocMap.LoginWhsLocMapRefno);
+                    this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(this.LocMap.LoginWhsLocMapRefno);
                     this.cmdLocation.Text = LocationMapTasks.GetCurrentReadableLocation();
                 }
                 else
@@ -767,7 +766,7 @@ namespace dMobile.View.Activity
             }
             else
             {
-                this.LocMap.CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(this.LocMap.LoginWhsLocMapRefno);
+                this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(this.LocMap.LoginWhsLocMapRefno);
                 this.cmdLocation.Text = LocationMapTasks.GetCurrentReadableLocation();
             }
 
@@ -795,7 +794,7 @@ namespace dMobile.View.Activity
             {
                 //await form.SaveChanges(sender, e);
                 XDocument xmlArgs = form.DisplayControlData;
-                prodInfo = ProductInfoTasks.GetInfoFromRefno(Convert.ToInt32(xmlArgs.Root.Element("ProductRefno").Value));
+                prodInfo = await ProductInfoTasks.GetInfoFromRefno(Convert.ToInt32(xmlArgs.Root.Element("ProductRefno").Value));
                 this.cmdSelectProduct.Text = prodInfo.Code;
             }
             else
@@ -805,9 +804,6 @@ namespace dMobile.View.Activity
             }
 
             this.ActItem.ProdInfo = prodInfo;
-            //this.dataGridMain.DataSource = null;
-            //this.dataGridMain.Refresh();
-
             await this.ScannerEnable();
         }
 
@@ -963,7 +959,7 @@ namespace dMobile.View.Activity
                         if (prodUnitRefno != 0)
                         {
                             ProductInfo tempProdInfo = new ProductInfo();
-                            tempProdInfo = ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
+                            tempProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
                             this.ActItem.ProdInfo = tempProdInfo;
                             //<issue="13609" author="RD" date="2016/02/22"/>
                             SysShared.AssertSuppressedErrorsAgainstScheme(this.ActItem.ProdInfo, this.BarParse);
@@ -982,7 +978,7 @@ namespace dMobile.View.Activity
                     }
                     else if (!string.IsNullOrEmpty(this.BarParse.LocationIdentifier))
                     {
-                        this.LocMap.CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(this.BarParse.LocationIdentifier));
+                        this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(await LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(this.BarParse.LocationIdentifier));
 
                         if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
                         {
@@ -1038,15 +1034,15 @@ namespace dMobile.View.Activity
         {
             this.DataGridMainItemsList = new ObservableCollection<object>();
 
-            foreach (DataRow row in this.DataViewItems.ToTable().Rows)
+            foreach (ProductLocationMapType location in this.ListItems)
             {
-                ProductLocationMapType location = new ProductLocationMapType
-                {
-                    ProductCode = Convert.ToString(row["ProductCode"]),
-                    LocationMapType = Convert.ToString(row["LocationMapType"]),
-                    ProductDescription = Convert.ToString(row["ProductDescription"]),
-                    ProductBrandDescription = Convert.ToString(row["ProductBrandDescription"])
-                };
+                //ProductLocationMapType location = new ProductLocationMapType
+                //{
+                //    ProductCode = Convert.ToString(row["ProductCode"]),
+                //    LocationMapType = Convert.ToString(row["LocationMapType"]),
+                //    ProductDescription = Convert.ToString(row["ProductDescription"]),
+                //    ProductBrandDescription = Convert.ToString(row["ProductBrandDescription"])
+                //};
 
                 this.DataGridMainItemsList.Add(location);
             }
@@ -1173,17 +1169,17 @@ namespace dMobile.View.Activity
         {
             this.DataGridMainItemsList = new ObservableCollection<object>();
 
-            foreach (DataRow row in this.DataViewItems.ToTable().Rows)
+            foreach (dynamic obj in this.ListItems)
             {
-                var location = new
-                {
-                    LocationMapWarehouseCode = Convert.ToInt32(row["LocationMapWarehouseCode"]),
-                    LocationMapSectionName = Convert.ToString(row["LocationMapSectionName"]),
-                    LocationMapSlotName = Convert.ToString(row["LocationMapSlotName"]),
-                    LocationMapType = Convert.ToString(row["LocationMapType"])
-                };
+                //var location = new
+                //{
+                //    LocationMapWarehouseCode = Convert.ToInt32(row["LocationMapWarehouseCode"]),
+                //    LocationMapSectionName = Convert.ToString(row["LocationMapSectionName"]),
+                //    LocationMapSlotName = Convert.ToString(row["LocationMapSlotName"]),
+                //    LocationMapType = Convert.ToString(row["LocationMapType"])
+                //};
 
-                this.DataGridMainItemsList.Add(location);
+                this.DataGridMainItemsList.Add(obj);
             }
 
             // TODO: Resource strings
@@ -1406,74 +1402,76 @@ namespace dMobile.View.Activity
         /// 
         /// </summary>
         /// <returns></returns>
-        private DataView GetDataViewProductOnly()
+        private async Task<List<object>> GetDataViewProductOnly()
         {
             DataTable dataTableItems = new DataTable("tLocation");
-
             dataTableItems.Columns.Add("ProductCode", Type.GetType("System.String"));
             dataTableItems.Columns.Add("LocationMapType", Type.GetType("System.String"));
             dataTableItems.Columns.Add("ProductDescription", Type.GetType("System.String"));
             dataTableItems.Columns.Add("ProductBrandDescription", Type.GetType("System.String"));
 
-            using (SQLiteCommand cmndProdLocType = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-            {
-                cmndProdLocType.CommandType = CommandType.Text;
-                cmndProdLocType.CommandText = this.GetDataViewProductOnlyPickingQuery();
+            List<object> listLocationMapTypes = dataTableItems.Select().ToList<object>();
 
-                if (!string.IsNullOrEmpty(cmndProdLocType.CommandText))
+            string queryPickingOnly = this.GetDataViewProductOnlyPickingQuery();
+
+            if (!string.IsNullOrEmpty(queryPickingOnly))
+            {
+                List<ProductLocationMapType> resultsPickingProductLocationMapType = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ProductLocationMapType>(queryPickingOnly);
+
+                if (resultsPickingProductLocationMapType?.Count > 0)
                 {
-                    using (SQLiteDataReader drProdLocType = cmndProdLocType.ExecuteReader())
-                    {
-                        while (drProdLocType.Read())
-                        {
-                            DataRow row = dataTableItems.NewRow();
-                            row["ProductCode"] = Convert.ToString(drProdLocType["ProductCode"]);
-                            row["LocationMapType"] = "Picking";
-                            row["ProductBrandDescription"] = Convert.ToString(drProdLocType["ProductBrandDescription"]);
-                            row["ProductDescription"] = Convert.ToString(drProdLocType["ProductDescription"]);
-                            dataTableItems.Rows.Add(row);
-                        }
-                    }
+                    listLocationMapTypes.AddRange(resultsPickingProductLocationMapType);
+
+                    //foreach (ProductLocationMapType productLocationMapType in resultsPickingProductLocationMapType)
+                    //{
+                    //    DataRow row = dataTableItems.NewRow();
+                    //    row["ProductCode"] = Convert.ToString(drProdLocType["ProductCode"]);
+                    //    row["LocationMapType"] = "Picking";
+                    //    row["ProductBrandDescription"] = Convert.ToString(drProdLocType["ProductBrandDescription"]);
+                    //    row["ProductDescription"] = Convert.ToString(drProdLocType["ProductDescription"]);
+                    //    dataTableItems.Rows.Add(row);
+                    //}
                 }
             }
 
-            using (SQLiteCommand cmndProdLocType = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-            {
-                cmndProdLocType.CommandType = CommandType.Text;
-                cmndProdLocType.CommandText = this.GetDataViewProductOnlyReceivingQuery();
+            string queryReceivingOnly = this.GetDataViewProductOnlyReceivingQuery();
 
-                if (!string.IsNullOrEmpty(cmndProdLocType.CommandText))
+            if (!string.IsNullOrEmpty(queryReceivingOnly))
+            {
+                List<ProductLocationMapType> resultsReceivingProductLocationMapType = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ProductLocationMapType>(queryReceivingOnly);
+
+                if (resultsReceivingProductLocationMapType?.Count > 0)
                 {
-                    using (SQLiteDataReader drProdLocType = cmndProdLocType.ExecuteReader())
-                    {
-                        while (drProdLocType.Read())
-                        {
-                            DataRow row = dataTableItems.NewRow();
-                            row["ProductCode"] = Convert.ToString(drProdLocType["ProductCode"]);
-                            row["LocationMapType"] = "Receiving";
-                            row["ProductBrandDescription"] = Convert.ToString(drProdLocType["ProductBrandDescription"]);
-                            row["ProductDescription"] = Convert.ToString(drProdLocType["ProductDescription"]);
-                            dataTableItems.Rows.Add(row);
-                        }
-                    }
+                    listLocationMapTypes.AddRange(resultsReceivingProductLocationMapType);
+
+                    //while (drProdLocType.Read())
+                    //{
+                    //    DataRow row = dataTableItems.NewRow();
+                    //    row["ProductCode"] = Convert.ToString(drProdLocType["ProductCode"]);
+                    //    row["LocationMapType"] = "Receiving";
+                    //    row["ProductBrandDescription"] = Convert.ToString(drProdLocType["ProductBrandDescription"]);
+                    //    row["ProductDescription"] = Convert.ToString(drProdLocType["ProductDescription"]);
+                    //    dataTableItems.Rows.Add(row);
+                    //}
                 }
             }
 
-            this.DataViewItems = dataTableItems.DefaultView;
-            this.DataViewItems.Table.TableName = this.MainGridMappingName;
-            this.DataViewItems.AllowNew = false;
-            this.DataViewItems.AllowEdit = false;
-            this.DataViewItems.AllowDelete = false;
-            this.DataViewItems.Sort = "ProductCode,LocationMapType";
+            //this.DataViewItems = dataTableItems.DefaultView;
+            //this.DataViewItems.Table.TableName = this.MainGridMappingName;
+            //this.DataViewItems.AllowNew = false;
+            //this.DataViewItems.AllowEdit = false;
+            //this.DataViewItems.AllowDelete = false;
+            //this.DataViewItems.Sort = "ProductCode,LocationMapType";
 
-            return this.DataViewItems;
+            this.ListItems = (List<object>)listLocationMapTypes.OfType<ProductLocationMapType>().OrderBy(locMapType => locMapType.ProductCode).ThenBy(locMapType => locMapType.LocationMapType);
+            return this.ListItems;
         }
 
         /// <summary>
         /// 
         /// </summary>
         /// <returns></returns>
-        private DataView GetDataViewLocationOnly()
+        private async Task<List<object>> GetDataViewLocationOnly()
         {
             DataTable dataTableItems = new DataTable("tLocation");
 
@@ -1482,8 +1480,8 @@ namespace dMobile.View.Activity
             dataTableItems.Columns.Add("LocationMapSlotName", Type.GetType("System.String"));
             dataTableItems.Columns.Add("LocationMapType", Type.GetType("System.String"));
 
-            int locMapRefno = LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(this.LocMap.CurrLocMap.WhsLocMapRefno, this.ActItem.ProdInfo.Refno, SysCommon.ProdLocMapTypes.Picking);
-            SLocMap locMap = LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
+            int locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(this.LocMap.CurrLocMap.WhsLocMapRefno, this.ActItem.ProdInfo.Refno, SysCommon.ProdLocMapTypes.Picking);
+            SLocMap locMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
 
             DataRow row = dataTableItems.NewRow();
             row["LocationMapWarehouseCode"] = locMap.WhsCode;
@@ -1492,8 +1490,8 @@ namespace dMobile.View.Activity
             row["LocationMapType"] = "Picking";
             dataTableItems.Rows.Add(row);
 
-            locMapRefno = LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(this.LocMap.CurrLocMap.WhsLocMapRefno, this.ActItem.ProdInfo.Refno, SysCommon.ProdLocMapTypes.Receiving);
-            locMap = LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
+            locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(this.LocMap.CurrLocMap.WhsLocMapRefno, this.ActItem.ProdInfo.Refno, SysCommon.ProdLocMapTypes.Receiving);
+            locMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
 
             row = dataTableItems.NewRow();
             row["LocationMapWarehouseCode"] = locMap.WhsCode;
@@ -1502,14 +1500,15 @@ namespace dMobile.View.Activity
             row["LocationMapType"] = "Receiving";
             dataTableItems.Rows.Add(row);
 
-            this.DataViewItems = dataTableItems.DefaultView;
-            this.DataViewItems.Table.TableName = this.MainGridMappingName;
-            this.DataViewItems.AllowNew = false;
-            this.DataViewItems.AllowEdit = false;
-            this.DataViewItems.AllowDelete = false;
-            this.DataViewItems.Sort = "LocationMapWarehouseCode,LocationMapSectionName,LocationMapSlotName,LocationMapType";
+            //this.DataViewItems = dataTableItems.DefaultView;
+            //this.DataViewItems.Table.TableName = this.MainGridMappingName;
+            //this.DataViewItems.AllowNew = false;
+            //this.DataViewItems.AllowEdit = false;
+            //this.DataViewItems.AllowDelete = false;
+            //this.DataViewItems.Sort = "LocationMapWarehouseCode,LocationMapSectionName,LocationMapSlotName,LocationMapType";
 
-            return this.DataViewItems;
+            this.ListItems = (List<object>)dataTableItems.Select().ToList().OfType<dynamic>().OrderBy(obj => obj.LocationMapWarehouseCode).ThenBy(obj => obj.LocationMapSectionName).ThenBy(obj => obj.LocationMapSlotName).ThenBy(obj => obj.LocationMapType);
+            return this.ListItems;
         }
 
         /// <summary>
@@ -1535,7 +1534,7 @@ namespace dMobile.View.Activity
 
                     if (0 < this.ActItem.ProdInfo.Refno)
                     {
-                        this.ActItem.DataViewItems = this.GetDataViewLocationOnly();
+                        this.ActItem.ListItems = await this.GetDataViewLocationOnly();
 
                         await Device.InvokeOnMainThreadAsync(() =>
                         {
@@ -1558,7 +1557,7 @@ namespace dMobile.View.Activity
                             throw new Exception("The set location must have a section selected.");
                         }
 
-                        this.ActItem.DataViewItems = this.GetDataViewProductOnly();
+                        this.ActItem.ListItems = await this.GetDataViewProductOnly();
 
                         await Device.InvokeOnMainThreadAsync(() =>
                         {

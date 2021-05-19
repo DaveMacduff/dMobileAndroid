@@ -184,14 +184,14 @@ namespace dMobile.Controller
             string reqData = SysCommon.SubmitComm(xmlSend);
 
             if (reqData.Length > 0)
-            {   
+            {
                 xmlDoc.LoadXml(reqData);
 
                 // check if result is an error message
                 if (reqData.Contains("<message>ERROR</message>"))
                 {
                     string errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
-                    
+
                     if (errorDetail.Contains("MSGBOX-"))
                     {
                         throw new MessageOnlyException(errorDetail);
@@ -218,25 +218,25 @@ namespace dMobile.Controller
             throw new NotImplementedException();
         }
 
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        ///// <param name="selectedIndex"></param>
-        ///// <returns></returns>
-        //public override int GetRefno(int selectedIndex)
-        //{
-        //    return Convert.ToInt32(DataViewDetails[selectedIndex]["ActivityDetailRefno"]);
-        //}
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="selectedIndex"></param>
+        /// <returns></returns>
+        public override int GetRefno(object selectedActivityDetail)
+        {
+            return (selectedActivityDetail as MoveInventoryDetail).ActivityDetailRefno;
+        }
 
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        ///// <param name="idx"></param>
-        ///// <returns></returns>
-        //public override int GetFKRefno(int idx)
-        //{
-        //    throw new NotImplementedException();
-        //}
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="idx"></param>
+        /// <returns></returns>
+        public override int GetFKRefno(object selectedActivityDetail)
+        {
+            throw new NotImplementedException();
+        }
 
         /// <summary>
         /// 
@@ -275,7 +275,7 @@ namespace dMobile.Controller
         public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity)
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
-            
+
             foreach (MoveInventoryDetail moveInventoryDetail in this.ListDetails)
             {
                 //MoveInventoryDetail moveInventoryDetail = new MoveInventoryDetail
@@ -304,7 +304,7 @@ namespace dMobile.Controller
 
                 observableCollection.Add(moveInventoryDetail);
             }
-            
+
             // TODO: Resource strings
             Label labelCodeHeader = new Label { Text = "Code", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
             Label labelBCHeader = new Label { Text = "BC", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
@@ -387,13 +387,13 @@ namespace dMobile.Controller
                     columnWidth3 = detailWidth3;
                     gridHeader.ColumnDefinitions[3].Width = columnWidth3;
                 }
-                
+
                 if (detailWidth4 > columnWidth4)
                 {
                     columnWidth4 = detailWidth4;
                     gridHeader.ColumnDefinitions[4].Width = columnWidth4;
                 }
-                
+
                 if (detailWidth5 > columnWidth5)
                 {
                     columnWidth5 = detailWidth5;

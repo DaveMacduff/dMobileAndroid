@@ -81,27 +81,25 @@ namespace dMobile.Controller
             throw new NotImplementedException();
         }
 
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        ///// <param name="idx"></param>
-        ///// <returns></returns>
-        //public override int GetRefno(object selectedActivityDetail)
-        //{
-        //    dynamic detail = selectedActivityDetail;
-        //    return Convert.ToInt32(detail.ActivityDetailRefno);
-        //}
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="idx"></param>
+        /// <returns></returns>
+        public override int GetRefno(object selectedActivityDetail)
+        {
+            return (selectedActivityDetail as dynamic).ActivityDetailRefno;
+        }
 
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        ///// <param name="selectedIndex"></param>
-        ///// <returns></returns>
-        //public override int GetFKRefno(object selectedActivityDetail)
-        //{
-        //    dynamic detail = selectedActivityDetail;
-        //    return Convert.ToInt32(detail.ActivityDetailCountFKRefno);
-        //}
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="selectedIndex"></param>
+        /// <returns></returns>
+        public override int GetFKRefno(object selectedActivityDetail)
+        {
+            return (selectedActivityDetail as dynamic).ActivityDetailCountFKRefno;
+        }
 
         /// <summary>
         /// 
@@ -112,16 +110,6 @@ namespace dMobile.Controller
         {
             throw new NotImplementedException();
         }
-
-        ///// <summary>
-        /////
-        ///// </summary>
-        ///// <param name="dataGridMain"></param>
-        ///// <remarks></remarks>
-        //public override void DesignDataGrid(DataGrid dataGridMain)
-        //{
-        //  throw new NotImplementedException();
-        //}
 
         public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity)
         {

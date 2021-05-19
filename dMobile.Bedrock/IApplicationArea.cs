@@ -67,6 +67,6 @@ namespace dMobile.Bedrock
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        XDocument GetXML();
+        Task<XDocument> GetXML();
     }
 }

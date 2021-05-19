@@ -372,25 +372,25 @@ namespace dMobile.Controller
             this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
         }
 
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        ///// <param name="idx"></param>
-        ///// <returns></returns>
-        //public override int GetRefno(object selectedActivityDetail)
-        //{
-        //    return Convert.ToInt32(this.DataViewDetails[idx]["ActivityDetailRefno"]);
-        //}
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="idx"></param>
+        /// <returns></returns>
+        public override int GetRefno(object selectedActivityDetail)
+        {
+            return (selectedActivityDetail as SkidInfoDetail).ActivityDetailRefno;
+        }
 
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        ///// <param name="idx"></param>
-        ///// <returns></returns>
-        //public override int GetFKRefno(object selectedActivityDetail)
-        //{
-        //    return Convert.ToInt32(this.DataViewDetails[idx]["ActivityDetailFKRefno"]);
-        //}
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="idx"></param>
+        /// <returns></returns>
+        public override int GetFKRefno(object selectedActivityDetail)
+        {
+            return (selectedActivityDetail as SkidInfoDetail).ActivityDetailFKRefno;
+        }
 
         /// <summary>
         /// 

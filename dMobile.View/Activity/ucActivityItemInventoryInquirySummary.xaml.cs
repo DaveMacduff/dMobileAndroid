@@ -110,6 +110,7 @@ namespace dMobile.View.Activity
                             this.ReqSaveDisableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
 
                             await this.ScannerDisable();
+
                             int currentIndex = this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem);
 
                             if (currentIndex < 0)
@@ -117,10 +118,11 @@ namespace dMobile.View.Activity
                                 return;
                             }
 
+                            // TODO: Test
                             this.ActItem.ProdInfo = ProductInfoTasks.GetInfoFromCodeBCUnit(
-                                Convert.ToString(this.ActItem.DataViewItems[currentIndex]["productcode"]),
-                                Convert.ToString(this.ActItem.DataViewItems[currentIndex]["productunitbc"]),
-                                Convert.ToString(this.ActItem.DataViewItems[currentIndex]["unitcode"]));
+                                Convert.ToString((this.ActItem.ListItems[currentIndex] as dynamic).productcode),
+                                Convert.ToString((this.ActItem.ListItems[currentIndex] as dynamic).productunitbc),
+                                Convert.ToString((this.ActItem.ListItems[currentIndex] as dynamic).unitcode));
 
                             ActDetail actDetail = ActDetailFacade.GetActDetail(this.ActItem, SysCommon.ActSubTypes.InventoryInquiry);
 
@@ -264,19 +266,6 @@ namespace dMobile.View.Activity
         #endregion
 
         #region Properties
-
-        //public UserControl CallingControl
-        //{
-        //    get
-        //    {
-        //        return this.callingControl;
-        //    }
-
-        //    set
-        //    {
-        //        this.callingControl = value;
-        //    }
-        //}
 
         public bool IsEnterTrapped
         {
@@ -522,7 +511,7 @@ namespace dMobile.View.Activity
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public XDocument GetXML()
+        public async Task<XDocument> GetXML()
         {
             XDocument xmldocParams = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
@@ -594,7 +583,6 @@ namespace dMobile.View.Activity
                 this.ReqSaveEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
 
                 this.IsEnabled = true;
-                //dataGridMainActivity.Focus();
             }
 
             return true;
@@ -662,7 +650,7 @@ namespace dMobile.View.Activity
                     + "<params>"
                     + "</params>");
 
-                this.ActItem.Refresh(xmldocParams);
+                await this.ActItem.Refresh(xmldocParams);
 
                 this.DataGridMainActivityItemsList = this.ActItem.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
                 this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
@@ -685,7 +673,8 @@ namespace dMobile.View.Activity
             if (this.DataGridMainActivityItemsList.Count > 0)
             {
                 this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[0];
-                this.ActItem.SelectItem(0);
+                // TODO: test
+                await this.ActItem.SelectActivityItem(this.ActItem.ListItems[0]);
             }
 
             DisplaySummaryData();
@@ -700,33 +689,32 @@ namespace dMobile.View.Activity
         /// </summary>
         private void DisplaySummaryData()
         {
-            int rowIdx = this.ActItem.CurrRowIdx;
-
+            dynamic selectedItem = this.ActItem.SelectedActivityItem;
             ProductInfo prodInfo = this.ActItem.ProdInfo;
-            //this.lstDisplay.SuspendLayout();
+
             this.ItemsList.Clear();
 
-            if (this.ActItem.DataViewItems.Count > 0)
+            if (selectedItem != null)
             {
                 // TODO: Resource strings
                 this.ItemsList.Add(string.Format(
                     "Quantity {0} {1} @ {2} {3}",
-                    this.ActItem.DataViewItems.Table.Rows[rowIdx]["activityitemquantity"],
-                    this.ActItem.DataViewItems.Table.Rows[rowIdx]["unitcode"],
-                    this.ActItem.DataViewItems.Table.Rows[rowIdx]["activityitemweightquantity"],
-                    this.ActItem.DataViewItems.Table.Rows[rowIdx]["weightunitcode"]));
+                    selectedItem.activityitemquantity,
+                    selectedItem.unitcode,
+                    selectedItem.activityitemweightquantity,
+                    selectedItem.weightunitcode));
 
                 if (this.ActItem.LocMap.CurrLocMap.IsSectionTracked)
                 {
                     if (this.ActItem.LocMap.CurrLocMap.IsSlotTracked)
                     {
                         // TODO: Resource strings
-                        this.ItemsList.Add(string.Format("Section {0} Slot {1}", this.ActItem.DataViewItems.Table.Rows[rowIdx]["locationmapsectionfkrefno"], this.ActItem.DataViewItems.Table.Rows[rowIdx]["locationmapslotfkrefno"]));
+                        this.ItemsList.Add(string.Format("Section {0} Slot {1}", selectedItem.locationmapsectionfkrefno, selectedItem.locationmapslotfkrefno));
                     }
                     else
                     {
                         // TODO: Resource strings
-                        this.ItemsList.Add(string.Format("Section {0}", this.ActItem.DataViewItems.Table.Rows[rowIdx]["locationmapsectionfkrefno"] ));
+                        this.ItemsList.Add(string.Format("Section {0}", selectedItem.locationmapsectionfkrefno));
                     }
                 }
             }
@@ -739,39 +727,7 @@ namespace dMobile.View.Activity
             // TODO: Resource strings
             this.ItemsList.Add(string.Format("Product ID {0}", prodInfo.Code));
             this.ItemsList.Add(string.Format("Whs {0} {1}", this.ActItem.LocMap.CurrLocMap.WhsFKRefno, this.ActItem.LocMap.CurrLocMap.WhsName ));
-
-            //this.lstDisplay.ResumeLayout(true);
-            //this.lstDisplay.Invalidate();
-            //this.lstDisplay.Update();
         }
-
-        ///// <summary>
-        /////
-        ///// </summary>
-        ///// <param name="sender"></param>
-        ///// <param name="e"></param>
-        ///// <remarks></remarks>
-        //public void tmrActivityItemInventoryInquirySummary_Tick(object sender, EventArgs e)
-        //{
-            //this.TotalTicks = this.TotalTicks + this.tmrActivityItemInventoryInquirySummary.Interval;
-
-            //if (this.Enabled && this.TotalTicks >= 100)
-            //{
-            //    this.tmrActivityItemInventoryInquirySummary.Enabled = false;
-
-                //this.RefreshData();
-
-                //if (this.ReqCancelEnableEvent != null)
-                //{
-                //    this.ReqCancelEnableEvent((IAppPublisher)this, new AppEventArgs());
-                //}
-
-                //if (this.ReqSaveEnableEvent != null)
-                //{
-                //    this.ReqSaveEnableEvent((IAppPublisher)this, new AppEventArgs());
-                //}
-        //    }
-        //}
 
         #region IAppPublisher Members
 
@@ -959,7 +915,6 @@ namespace dMobile.View.Activity
 
         public void OnLayerStatOut(IDataLayerEventPublisher dataLayerEventPublisher, DataLayerEventArgs dataLayerEventArgs)
         {
-
         }
 
         /// <summary>
@@ -969,21 +924,13 @@ namespace dMobile.View.Activity
         /// <param name="dataLayerEventArgs"></param>
         public void OnLayerProgOut(IDataLayerEventPublisher dataLayerEventPublisher, DataLayerEventArgs dataLayerEventArgs)
         {
-            //if (dataLayerEventArgs.SetMinMaxValue)
-            //{
-            //    this.pbarStatus.Minimum = dataLayerEventArgs.MinValue;
-            //    this.pbarStatus.Maximum = dataLayerEventArgs.MaxValue;
-            //}
-
-            //this.pbarStatus.Value = dataLayerEventArgs.CurrentValue;
         }
 
         #endregion
 
         private void dataGridMainActivity_ItemSelected(object sender, SelectedItemChangedEventArgs e)
         {
-            this.ActItem.CurrRowIdx = e.SelectedItemIndex;
-            //this.dataGridMainActivity.Select(this.ActItem.CurrRowIdx);
+            this.ActItem.SelectedActivityItem = e.SelectedItem;
             DisplaySummaryData();
         }
     }

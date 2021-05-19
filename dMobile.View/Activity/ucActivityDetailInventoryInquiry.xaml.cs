@@ -412,7 +412,7 @@ namespace dMobile.View.Activity
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public XDocument GetXML()
+        public async Task<XDocument> GetXML()
         {
             XDocument xmldocParams = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
@@ -547,7 +547,7 @@ namespace dMobile.View.Activity
 
             try
             {
-                this.ActDetail.Refresh();
+                await this.ActDetail.Refresh();
     
                 this.DataGridMainActivityItemsList = this.ActDetail.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
                 this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
@@ -564,9 +564,9 @@ namespace dMobile.View.Activity
 
             this.ItemsList.Clear();
 
-            if (this.ActDetail.DataViewDetails.Count > 0 && this.DataGridMainActivityItemsList.Count > 0)
+            if (this.ActDetail.ListDetails.Count > 0 && this.DataGridMainActivityItemsList.Count > 0)
             {
-                this.ActDetail.SelectDetail(0);
+                await this.ActDetail.SelectActivityDetail(this.ActDetail.ListDetails[0]);
                 this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[0];
             }
 

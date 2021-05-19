@@ -395,25 +395,25 @@ namespace dMobile.Controller
             }
         }
 
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        ///// <param name="selectedIndex"></param>
-        ///// <returns></returns>
-        //public override int GetRefno(int selectedIndex)
-        //{
-        //    return Convert.ToInt32(this.DataViewDetails[selectedIndex]["ActivityDetailRefno"]);
-        //}
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="selectedIndex"></param>
+        /// <returns></returns>
+        public override int GetRefno(object selectedActivityDetail)
+        {
+            return (selectedActivityDetail as PickingDetail).ActivityDetailRefno;
+        }
 
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        ///// <param name="selectedIndex"></param>
-        ///// <returns></returns>
-        //public override int GetFKRefno(int selectedIndex)
-        //{
-        //    return Convert.ToInt32(this.DataViewDetails[selectedIndex]["ActivityDetailPickingFKRefno"]);
-        //}
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="selectedIndex"></param>
+        /// <returns></returns>
+        public override int GetFKRefno(object selectedActivityDetail)
+        {
+            return (selectedActivityDetail as PickingDetail).ActivityDetailPickingFKRefno;
+        }
 
         /// <summary>
         /// Get a data view of the activity detail.

@@ -545,7 +545,7 @@ namespace dMobile.View.Activity
         {
             bool isReadyToSave = true;
 
-            isReadyToSave = isReadyToSave && LocationMapTasks.IsCompleteLocMapRefno(this.LocMap.CurrLocMapRefno);
+            isReadyToSave = isReadyToSave && await LocationMapTasks.IsCompleteLocMapRefno(this.LocMap.CurrLocMapRefno);
             isReadyToSave = isReadyToSave && this.SkidInfo.CurrSkid.SkidFKRefno != 0;
 
             return isReadyToSave;
@@ -638,7 +638,7 @@ namespace dMobile.View.Activity
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public XDocument GetXML()
+        public async Task<XDocument> GetXML()
         {
             XDocument xmlDoc = null;
 
@@ -705,9 +705,8 @@ namespace dMobile.View.Activity
             {
                 if (await this.IsReadyToSave())
                 {
-                    this.SkidInfo = SysSkidInfo.Move(this.SkidInfo, this.LocMap.CurrLocMap);
+                    this.SkidInfo = await SysSkidInfo.Move(this.SkidInfo, this.LocMap.CurrLocMap);
 
-                    //if (MessageBox.Show("Do you wish to move any more skid(s)?", this.GetControlDescription(), MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.No)
                     // TODO: Resource strings
                     if (await Device.InvokeOnMainThreadAsync(async () => !await DisplayAlert(this.GetControlDescription(), "Do you wish to move any more skid(s)?", "Yes", "No")))
                     {
@@ -717,29 +716,12 @@ namespace dMobile.View.Activity
             }
             catch (Exception ex)
             {
-                //MessageBox.Show(ex.Message, this.GetControlDescription(), MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
                 // TODO: Resource strings
                 await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), ex.Message, "OK"));
             }
 
             return saveComplete;
         }
-
-        ///// <summary>
-        /////
-        ///// </summary>
-        ///// <param name="sender"></param>
-        ///// <param name="e"></param>
-        ///// <remarks></remarks>
-        //public void KeyPressHander(object sender, System.Windows.Forms.KeyPressEventArgs e)
-        //{
-        //    if (this.IsEnterTrapped)
-        //    {
-        //        e.Handled = true;
-        //        this.SelectNextControl((System.Windows.Forms.Control)sender, true, false, false, true);
-        //        this.IsEnterTrapped = false;
-        //    }
-        //}
 
         /// <summary>
         ///
@@ -907,11 +889,11 @@ namespace dMobile.View.Activity
                     // GLOBAL LOCATION IDENTIFIER SCANNED
                     if (!string.IsNullOrEmpty(parse.LocationIdentifier))
                     {
-                        int locMapRefno = LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(parse.LocationIdentifier);
+                        int locMapRefno = await LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(parse.LocationIdentifier);
 
                         if (locMapRefno > 0)
                         {
-                            this.LocMap.CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
+                            this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
                         }
 
                         if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
@@ -942,11 +924,11 @@ namespace dMobile.View.Activity
                     // SHIPPING CONAINTER SCANNED, SKID
                     if (!string.IsNullOrEmpty(parse.SSCC18))
                     {
-                        this.SkidInfo = SysSkidInfo.GetSkidInfoFromBarCodeOrCode(parse.SSCC18);
+                        this.SkidInfo = await SysSkidInfo.GetSkidInfoFromBarCodeOrCode(parse.SSCC18);
 
                         if (this.SkidInfo.CurrSkid.SkidFKRefno != 0)
                         {
-                            this.LocMap.CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(this.SkidInfo.CurrSkid.LocMapRefno);
+                            this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(this.SkidInfo.CurrSkid.LocMapRefno);
                         }
 
                         await Device.InvokeOnMainThreadAsync(() => this.DisplaySkidInfo());
@@ -1017,8 +999,6 @@ namespace dMobile.View.Activity
                 // TODO: Resource strings
                 this.ItemsList.Add("Skid does not exist.");
             }
-
-            //this.lstSkidStats.SelectedIndex = 0;
         }
 
         /// <summary>
@@ -1029,11 +1009,11 @@ namespace dMobile.View.Activity
         {
             try
             {
-                this.SkidInfo = SysSkidInfo.GetSkidInfoFromBarCodeOrCode(this.txtSkidCode.Text);
+                this.SkidInfo = await SysSkidInfo.GetSkidInfoFromBarCodeOrCode(this.txtSkidCode.Text);
 
                 if (this.SkidInfo.CurrSkid.SkidFKRefno != 0)
                 {
-                    this.LocMap.CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(this.SkidInfo.CurrSkid.LocMapRefno);
+                    this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(this.SkidInfo.CurrSkid.LocMapRefno);
                 }
 
                 await Device.InvokeOnMainThreadAsync(() => this.DisplaySkidInfo());

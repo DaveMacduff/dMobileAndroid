@@ -5,7 +5,7 @@
     using dMobile.Resources.Enums;
     using dMobile.View.CustomPages.Modal;
     using System;
-    using System.Data.SQLite;
+    using SQLite;
     using System.Threading.Tasks;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Data.SQLite;
+using SQLite;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -61,7 +61,7 @@ namespace dMobile.View.Activity
             this.ActSubType = actSubTypes;
             this.Activity = ActivityFacade.GetActivity(this.ActSubType);
             this.Activity.ActSubType = this.ActSubType;
-            
+
             this.Title = this.GetControlDescription();
             this.ItemsList = new ObservableCollection<string>();
             this.DataGridMainActivityItemsList = new ObservableCollection<object>();
@@ -71,7 +71,7 @@ namespace dMobile.View.Activity
 
         #region keyEvents
 
-            /// <summary>
+        /// <summary>
         /// The OnAppearing
         /// </summary>
         protected override async void OnAppearing()
@@ -97,22 +97,22 @@ namespace dMobile.View.Activity
                                 {
                                     // Load activity properties, activity is an argument for the ShippingLabelControl
                                     // SelectedIdx is not refreshed.
-                                    this.Activity.Refno = this.Activity.GetRefnoFromRowIdx(this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem));
+                                    this.Activity.Refno = this.Activity.GetRefnoFromRowIdx(this.dataGridMainActivity.SelectedItem);
 
                                     SysCommon.SLabelQuantity labelQuantity = new SysCommon.SLabelQuantity();
-                                    labelQuantity = this.Activity.GetLabelQuantity();
+                                    labelQuantity = await this.Activity.GetLabelQuantity();
 
                                     FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucActivityShippingLabelEdit, this.ActSubType, labelQuantity, this.Activity, SysCommon.ShippingLabelQuantitySelectionMode.BothFullRepack);
-                                    
+
                                     if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
                                     {
                                         await form.SaveChanges(this, new EventArgs());
-                                        XDocument request = form.GetXML();
+                                        XDocument request = await form.GetXML();
 
                                         // The itm_refno elements is used to mark the ar_oeitm.slbl_prtd as true.
                                         // If itm_refno is zero then no line is updated as printed.
                                         request.Element("params").Element("whs_id").AddAfterSelf(new XElement("itm_refno", 0));
-                                        this.Activity.PrintLabel(request);
+                                        await this.Activity.PrintLabel(request);
                                     }
                                 }
 
@@ -122,7 +122,7 @@ namespace dMobile.View.Activity
                                 }
                                 else
                                 {
-                                    this.Activity.DataViewHdrs.Delete(this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem));
+                                    this.Activity.ListHdrs.Remove(this.dataGridMainActivity.SelectedItem);
                                 }
 
                                 await this.ScannerEnable();
@@ -557,7 +557,7 @@ namespace dMobile.View.Activity
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public XDocument GetXML()
+        public async Task<XDocument> GetXML()
         {
             XDocument xmldocParams = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
@@ -605,12 +605,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public void DataGridMainActivity_ItemSelected(object sender, SelectedItemChangedEventArgs e)
         {
-            int index = this.DataGridMainActivityItemsList.IndexOf(e.SelectedItem);
-
-            if (index != -1)
-            {
-                this.Activity.SelectHdr(Convert.ToInt32(index));
-            }
+            this.Activity.SelectActivity(e.SelectedItem);
         }
 
         /// <summary>
@@ -624,14 +619,15 @@ namespace dMobile.View.Activity
             await this.ScannerDisable();
 
             FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucActivityHdrPickingFilter, this.ActSubType);
-            
+
             if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
             {
                 await form.SaveChanges(sender, e);
                 XDocument xmlDoc = form.DisplayControlData;
                 string filter = this.Activity.GetFilter(xmlDoc);
 
-                this.Activity.DataViewHdrs.RowFilter = filter;
+                // TODO: Fix filtering
+                //this.Activity.DataViewHdrs.RowFilter = filter;
 
                 if (!string.IsNullOrEmpty(this.txtSearchHdr.Text))
                 {
@@ -640,31 +636,13 @@ namespace dMobile.View.Activity
 
                 if (!string.IsNullOrEmpty(xmlDoc.Root.Element("sortby").Value))
                 {
-                    this.Activity.DataViewHdrs.Sort = xmlDoc.Root.Element("sortby").Value;
+                    // TODO: Fix sorting
+                    //this.Activity.DataViewHdrs.Sort = xmlDoc.Root.Element("sortby").Value;
                 }
             }
 
             await this.ScannerEnable();
         }
-
-        ///// <summary>
-        /////
-        ///// </summary>
-        ///// <param name="sender"></param>
-        ///// <param name="e"></param>
-        ///// <remarks></remarks>
-        //public void tmrActivityLoaded_Tick(object sender, EventArgs e)
-        //{
-        //    this.TotalTicks = this.TotalTicks + this.tmrActivityLoaded.Interval;
-
-        //    if (this.Enabled && this.TotalTicks >= 1000)
-        //    {
-        //        this.tmrActivityLoaded.Enabled = false;
-
-        //        // Moved to gotFocus
-        //        //this.RefreshData();
-        //    }
-        //}
 
         /// <summary>
         ///
@@ -702,7 +680,7 @@ namespace dMobile.View.Activity
         /// <param name="e"></param>
         /// <remarks></remarks>
         public void txtSearchHdr_GotFocus(object sender, EventArgs e)
-        {               
+        {
             if (this.txtSearchHdr.Text != null)
             {
                 this.txtSearchHdr.CursorPosition = 0;
@@ -820,7 +798,7 @@ namespace dMobile.View.Activity
             {
                 string message = string.Empty;
                 //int currRowIdx = this.dataGridMainActivity.CurrentRowIndex;
-                int currRowIdx = this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem);
+                //int currRowIdx = this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem);
                 string savedViewSort = string.Empty;
 
                 this.Parse = scanArgs.ParseInfo;
@@ -834,21 +812,19 @@ namespace dMobile.View.Activity
 
                     if (!string.IsNullOrEmpty(actStringFKRefno))
                     {
-                        savedViewSort = this.Activity.DataViewHdrs.Sort;
-                        this.Activity.DataViewHdrs.Sort = this.Activity.GetFKRefnoIdx();
+                        // TODO: Fix sorting
+                        //savedViewSort = this.Activity.DataViewHdrs.Sort;
+                        //this.Activity.DataViewHdrs.Sort = this.Activity.GetFKRefnoIdx();
 
-                        //if (this.Activity.DataViewHdrs.Count > 0)
-                        //{
-                        //    this.dataGridMainActivity.UnSelect(currRowIdx);
-                        //}
+                        object selectedActivity = this.Activity.ListHdrs.OfType<object>().Where(activity => Convert.ToString(activity.GetType().GetProperty(this.Activity.GetFKRefnoIdx()).GetValue(activity)) == actStringFKRefno).FirstOrDefault();
 
-                        int rowIdx = this.Activity.DataViewHdrs.Find(actStringFKRefno);
-                        this.Activity.DataViewHdrs.Sort = savedViewSort;
+                        // TODO: Fix sorting
+                        //this.Activity.DataViewHdrs.Sort = savedViewSort;
 
-                        if (rowIdx >= 0)
+                        if (selectedActivity != null)
                         {
                             //this.dataGridMainActivity.CurrentRowIndex = rowIdx;
-                            this.Activity.GetRefnoFromRowIdx(rowIdx);
+                            this.Activity.GetRefnoFromRowIdx(selectedActivity);
 
                             FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucActivityItem, this.Activity, this.ActSubType);
                             await Device.InvokeOnMainThreadAsync(async () => await form.DisplayControl.ShowDialog());
@@ -935,7 +911,7 @@ namespace dMobile.View.Activity
             {
                 try
                 {
-                    this.Activity.Refresh(null);
+                    await this.Activity.Refresh(null);
                 }
                 catch (SQLiteException ex)
                 {
@@ -955,11 +931,11 @@ namespace dMobile.View.Activity
                     this.Loading = false;
                 }
 
-                await Device.InvokeOnMainThreadAsync(() =>
+                this.Activity.ListHdrs = await this.Activity.GetActivityList(false);
+
+                await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     this.ItemsList.Clear();
-
-                    this.Activity.DataViewHdrs = this.Activity.GetDataView(false);
                     this.DataGridMainActivityItemsList = this.Activity.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
 
                     if (!string.IsNullOrEmpty(this.txtSearchHdr.Text))
@@ -969,10 +945,10 @@ namespace dMobile.View.Activity
 
                     this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
 
-                    if (this.Activity.DataViewHdrs.Count > 0 && this.DataGridMainActivityItemsList.Count > 0 && this.DataGridMainActivityItemsList[0] != null)
+                    if (this.Activity.ListHdrs.Count > 0 && this.DataGridMainActivityItemsList.Count > 0 && this.DataGridMainActivityItemsList[0] != null)
                     {
                         this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[0];
-                        this.Activity.SelectHdr(this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem));
+                        await this.Activity.SelectActivity(this.dataGridMainActivity.SelectedItem);
                     }
                 });
             });

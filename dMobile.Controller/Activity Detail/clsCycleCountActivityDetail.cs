@@ -13,7 +13,6 @@ namespace dMobile.Controller
     using dMobile.Resources.Services;
     using dMobile.Resources.Types;
     using Xamarin.Forms;
-    using System.Threading.Tasks;
     using System.Linq;
     using System.Collections.Generic;
 
@@ -388,25 +387,25 @@ namespace dMobile.Controller
             }
         }
 
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        ///// <param name="idx"></param>
-        ///// <returns></returns>
-        //public override int GetRefno(int idx)
-        //{
-        //    return Convert.ToInt32(this.DataViewDetails[idx]["ActivityDetailRefno"]);
-        //}
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="idx"></param>
+        /// <returns></returns>
+        public override int GetRefno(object selectedActivityDetail)
+        {
+            return (selectedActivityDetail as CountDetail).ActivityDetailRefno;
+        }
 
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        ///// <param name="selectedIndex"></param>
-        ///// <returns></returns>
-        //public override int GetFKRefno(int selectedIndex)
-        //{
-        //    return Convert.ToInt32(DataViewDetails[selectedIndex]["ActivityDetailCountFKRefno"]);
-        //}
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="selectedIndex"></param>
+        /// <returns></returns>
+        public override int GetFKRefno(object selectedActivityDetail)
+        {
+            return (selectedActivityDetail as CountDetail).ActivityDetailCountFKRefno;
+        }
 
         /// <summary>
         /// 

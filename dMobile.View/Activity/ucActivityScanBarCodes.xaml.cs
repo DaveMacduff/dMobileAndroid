@@ -16,11 +16,13 @@ using dMobile.GroundWork;
 using dMobile.View.CustomPages;
 using dMobile.View.Forms;
 using dMobile.Resources.Enums;
-using System.Data.SQLite;
+using SQLite;
 using Color = Xamarin.Forms.Color;
 using Android.Views;
 using System.Collections.ObjectModel;
 using System.Threading;
+using dMobile.Resources.Types;
+using dMobile.Resources.Models;
 
 namespace dMobile.View.Activity
 {
@@ -29,7 +31,6 @@ namespace dMobile.View.Activity
     {
         #region Fields
 
-        //private UserControl callingControl = new ucUtilitiesMenu();
         private BarCodeParse parse = null;
         private Controller.Activity actBarCode = null;
         private ActItem actItemBarCode = null;
@@ -691,7 +692,7 @@ namespace dMobile.View.Activity
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public XDocument GetXML()
+        public async Task<XDocument> GetXML()
         {
             XDocument xmlDoc = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
@@ -874,208 +875,184 @@ namespace dMobile.View.Activity
                     if (!string.IsNullOrEmpty(scanArgs.ParseInfo.ProductIdentifier))
                     {
                         string prodIdentifier = scanArgs.ParseInfo.ProductIdentifier;
+                        string queryProductUnitBarcode = "SELECT tProductUnit.ProductUnitRefno,"
+                            + "tProductUnitBarCode.ProductUnitBarCodeRefno,"
+                            + "tLocationMapWarehouseProductScheme.ProductSchemeRefno,"
+                            + "tProduct.ProductSchemeRefno,"
+                            + "tProduct.ProductCode,"
+                            + "tProduct.ProductDescription,"
+                            + "tProductUnit.ProductUnitBC,"
+                            + "tUnit.UnitCode "
+                            + "FROM tProductUnitBarCode "
+                            + "INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = tProductUnitBarCode.ProductUnitRefno "
+                            + "INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno "
+                            + "INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno "
+                            + "INNER JOIN tLocationMapWarehouseProductScheme ON tLocationMapWarehouseProductScheme.ProductRefno = tProduct.ProductRefno "
+                            + "WHERE tProductUnitBarCode.ProductUnitBarCodeCode = ? "
+                            + "AND tLocationMapWarehouseProductScheme.WarehouseLocationMapRefno = ? "
+                            + "AND tProductUnitBarCode.ProductUnitBarCodeModifier1 = ?";
 
-                        using (SQLiteCommand cmndProdBCUnit = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                        List<dynamic> resultsProductUnitBarcode = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<dynamic>(queryProductUnitBarcode, prodIdentifier, currLocMap.WhsLocMapRefno, this.SysEnv.CurrentBarCodeModifier1);
+
+                        if (resultsProductUnitBarcode?.Count > 0)
                         {
-                            cmndProdBCUnit.CommandType = CommandType.Text;
-                            cmndProdBCUnit.CommandText = "SELECT tProductUnit.ProductUnitRefno,"
-                                + "tProductUnitBarCode.ProductUnitBarCodeRefno,"
-                                + "tLocationMapWarehouseProductScheme.ProductSchemeRefno,"
-                                + "tProduct.ProductSchemeRefno,"
-                                + "tProduct.ProductCode,"
-                                + "tProduct.ProductDescription,"
-                                + "tProductUnit.ProductUnitBC,"
-                                + "tUnit.UnitCode "
-                                + "FROM tProductUnitBarCode "
-                                + "INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = tProductUnitBarCode.ProductUnitRefno "
-                                + "INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno "
-                                + "INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno "
-                                + "INNER JOIN tLocationMapWarehouseProductScheme ON tLocationMapWarehouseProductScheme.ProductRefno = tProduct.ProductRefno "
-                                + "WHERE tProductUnitBarCode.ProductUnitBarCodeCode = @prodIdentifier "
-                                + "AND tLocationMapWarehouseProductScheme.WarehouseLocationMapRefno = @whsLocMapRefno "
-                                + "AND tProductUnitBarCode.ProductUnitBarCodeModifier1 = @productUnitBarCodeModifier1";
-                            cmndProdBCUnit.Parameters.Add(new SQLiteParameter("@prodIdentifier", prodIdentifier));
-                            cmndProdBCUnit.Parameters.Add(new SQLiteParameter("@whsLocMapRefno", currLocMap.WhsLocMapRefno));
-                            cmndProdBCUnit.Parameters.Add(new SQLiteParameter("@productUnitBarCodeModifier1", this.SysEnv.CurrentBarCodeModifier1));
+                            this.UnitRefno = Convert.ToInt32(resultsProductUnitBarcode[0].ProductUnitRefno);
+                            this.UnitBarCodeRefno = Convert.ToInt32(resultsProductUnitBarcode[0].ProductUnitBarCodeRefno);
+                            prodSchemeRefno = Convert.ToInt32(resultsProductUnitBarcode[0].ProductSchemeRefno);
+                            prodCode = Convert.ToString(resultsProductUnitBarcode[0].ProductCode);
 
-                            using (SQLiteDataReader drProdBCUnit = cmndProdBCUnit.ExecuteReader())
+                            // If product was found associated display it.  'ProductID+BC+UOM'
+
+                            // TODO: Resource strings
+                            await this.AddScanMsg(sender, scanArgs, "Product associated to bar code");
+
+                            string prodBCUnit = resultsProductUnitBarcode[0].ProductCode.ToString() + " " + resultsProductUnitBarcode[0].ProductUnitBC.ToString() + " " + resultsProductUnitBarcode[0].UnitCode.ToString();
+
+                            await this.AddScanMsg(sender, scanArgs, prodBCUnit);
+
+                            await Device.InvokeOnMainThreadAsync(() =>
                             {
-                                if (drProdBCUnit.Read())
+                                this.lblProductData.TextColor = Color.Black;
+                                this.lblProductData.Text = prodBCUnit;
+                            });
+
+                            await this.AddScanMsg(sender, scanArgs, resultsProductUnitBarcode[0].ProductDescription.ToString());
+                        }
+
+                        if (this.UnitRefno == 0)
+                        {
+                            // Do not look up gtin in barcode database for this rule, product will be identified by a range
+                            // of fixed weights.
+                            if (sysEnv.BarCodeSettings.IsRuleEnabled_ParseSumwaFarmFedWholeDuck_UseWeightRangeToIDProduct && this.Parse.ProductIdentifier == "90695955110022")
+                            {
+                                SysShared.BarCodeRuleParseSumwaFarmFedWholeDuckUseWeightRangeToIDProduct(this.Parse);
+
+                                prodInfo = await ProductInfoTasks.GetInfoFromCodeBCUnit(this.Parse.ProductIdentifier, string.Empty, "CS");
+                                this.UnitRefno = prodInfo.UnitRefno;
+                            }
+                        }
+
+                        if (this.UnitRefno == 0)
+                        {
+                            try
+                            {
+                                decimal deliScaleWeight = 0;
+                                string deliScaleWeightUnit = string.Empty;
+                                ProductInfoTasks.UnitRefnoFromBarCode unitRefnoFromBarcode = await ProductInfoTasks.GetUnitRefnoFromBarCode(prodIdentifier, this.SysEnv.CurrentBarCodeModifier1, this.Parse.Symbology, this.Parse.DeliScaleAmount, deliScaleWeight, deliScaleWeightUnit, prodInfo);
+                                this.UnitRefno = unitRefnoFromBarcode.ProdInfo.UnitRefno;
+
+                                if (this.UnitRefno == 0)
                                 {
-                                    this.UnitRefno = Convert.ToInt32(drProdBCUnit["ProductUnitRefno"]);
-                                    this.UnitBarCodeRefno = Convert.ToInt32(drProdBCUnit["ProductUnitBarCodeRefno"]);
-                                    prodSchemeRefno = Convert.ToInt32(drProdBCUnit["ProductSchemeRefno"]);
-                                    prodCode = Convert.ToString(drProdBCUnit["ProductCode"]);
-
-                                    // If product was found associated display it.  'ProductID+BC+UOM'
-
                                     // TODO: Resource strings
-                                    await this.AddScanMsg(sender, scanArgs, "Product associated to bar code");
-
-                                    string prodBCUnit = drProdBCUnit["ProductCode"].ToString() + " " + drProdBCUnit["ProductUnitBC"].ToString() + " " + drProdBCUnit["UnitCode"].ToString();
-
-                                    await this.AddScanMsg(sender, scanArgs, prodBCUnit);
+                                    await this.AddScanMsg(sender, scanArgs, "Not associated to a product");
 
                                     await Device.InvokeOnMainThreadAsync(() =>
                                     {
-                                        this.lblProductData.TextColor = Color.Black;
-                                        this.lblProductData.Text = prodBCUnit;
-                                    });
-
-                                    await this.AddScanMsg(sender, scanArgs, drProdBCUnit["ProductDescription"].ToString());
-                                }
-                            }
-
-                            if (this.UnitRefno == 0)
-                            {
-                                // Do not look up gtin in barcode database for this rule, product will be identified by a range
-                                // of fixed weights.
-                                if (sysEnv.BarCodeSettings.IsRuleEnabled_ParseSumwaFarmFedWholeDuck_UseWeightRangeToIDProduct && this.Parse.ProductIdentifier == "90695955110022")
-                                {
-                                    SysShared.BarCodeRuleParseSumwaFarmFedWholeDuckUseWeightRangeToIDProduct(this.Parse);
-
-                                    prodInfo = ProductInfoTasks.GetInfoFromCodeBCUnit(this.Parse.ProductIdentifier, string.Empty, "CS");
-                                    this.UnitRefno = prodInfo.UnitRefno;
-                                }
-                            }
-
-                            if (this.UnitRefno == 0)
-                            {
-                                try
-                                {
-                                    decimal deliScaleWeight = 0;
-                                    string deliScaleWeightUnit = string.Empty;
-                                    this.UnitRefno = ProductInfoTasks.GetUnitRefnoFromBarCode(
-                                        prodIdentifier,
-                                        this.SysEnv.CurrentBarCodeModifier1,
-                                        this.Parse.Symbology,
-                                        this.Parse.DeliScaleAmount,
-                                        ref deliScaleWeight,
-                                        ref deliScaleWeightUnit,
-                                        ref prodInfo);
-
-                                    if (this.UnitRefno == 0)
-                                    {
-                                        // TODO: Resource strings
-                                        await this.AddScanMsg(sender, scanArgs, "Not associated to a product");
-
-                                        await Device.InvokeOnMainThreadAsync(() =>
-                                        {
-                                            this.lblProductData.TextColor = Color.Red;
-
-                                            // TODO: Resource strings
-                                            this.lblProductData.Text = "Unidentified";
-                                        });
-                                    }
-                                    else
-                                    {
-                                        cmndProdBCUnit.CommandType = CommandType.Text;
-                                        cmndProdBCUnit.CommandText = "SELECT tProductUnit.ProductUnitRefno,"
-                                        + "tLocationMapWarehouseProductScheme.ProductSchemeRefno,"
-                                        + "tProduct.ProductCode,"
-                                        + "tProductUnit.ProductUnitBC,"
-                                        + "tUnit.UnitCode "
-                                        + "FROM tProductUnit "
-                                        + "INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno "
-                                        + "INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno "
-                                        + "INNER JOIN tLocationMapWarehouseProductScheme ON tLocationMapWarehouseProductScheme.ProductRefno = tProduct.ProductRefno "
-                                        + "WHERE tProductUnit.ProductUnitRefno = @productUnitRefno "
-                                        + "AND tLocationMapWarehouseProductScheme.WarehouseLocationMapRefno = @whsLocMapRefno";
-                                        cmndProdBCUnit.Parameters.Add(new SQLiteParameter("@productUnitRefno", this.UnitRefno));
-                                        cmndProdBCUnit.Parameters.Add(new SQLiteParameter("@whsLocMapRefno", currLocMap.WhsLocMapRefno));
-
-                                        using (SQLiteDataReader drProductBCUnit = cmndProdBCUnit.ExecuteReader())
-                                        {
-                                            if (drProductBCUnit.Read())
-                                            {
-                                                this.UnitRefno = Convert.ToInt32(drProductBCUnit["ProductUnitRefno"]);
-                                                this.UnitBarCodeRefno = 0;
-                                                prodSchemeRefno = Convert.ToInt32(drProductBCUnit["ProductSchemeRefno"]);
-                                                prodCode = drProductBCUnit["ProductCode"].ToString();
-
-                                                // If product was found associated display it.  'ProductID+BC+UOM'
-
-                                                // TODO: Resource strings
-                                                await this.AddScanMsg(sender, scanArgs, "Product Associated To Bar Code");
-
-                                                string prodbcuom = drProductBCUnit["ProductCode"].ToString() + " "
-                                                    + drProductBCUnit["ProductUnitBC"].ToString() + " " + drProductBCUnit["UnitCode"].ToString();
-                                                await this.AddScanMsg(sender, scanArgs, prodbcuom);
-
-                                                if (this.Parse.DeliScaleAmount != 0 && (this.Parse.Symbology == SysCommon.BarCodeSymbologies.UCC_12_UPC_E || this.Parse.Symbology == SysCommon.BarCodeSymbologies.EAN_UCC_13))
-                                                {
-                                                    await this.AddScanMsg(sender, scanArgs, string.Format("Product Deli Scale Amount {0}", this.Parse.DeliScaleAmount));
-                                                    await this.AddScanMsg(sender, scanArgs, string.Format("Product Deli Scale Weight {0} {1}", deliScaleWeight, deliScaleWeightUnit));
-
-                                                    if (this.SysEnv.BarCodeSettings.IsRuleEnabled_Parse_UCC_12_UPC_E_as_Deli_PLU_4_Digit_Amount)
-                                                    {
-                                                        await this.AddScanMsg(sender, scanArgs, "Barcode Rule: 4 digit amount");
-                                                    }
-                                                }
-
-                                                await Device.InvokeOnMainThreadAsync(() =>
-                                                {
-                                                    this.lblProductData.TextColor = Color.Black;
-                                                    this.lblProductData.Text = prodbcuom;
-                                                });
-                                            }
-                                        }
-                                    }
-                                }
-                                catch (Exception ex)
-                                {
-                                    await Device.InvokeOnMainThreadAsync(async () =>
-                                    {
-                                        // TODO: Resource strings
-                                        await this.AddScanMsg(sender, scanArgs, "Product unidentified");
-
                                         this.lblProductData.TextColor = Color.Red;
 
                                         // TODO: Resource strings
                                         this.lblProductData.Text = "Unidentified";
                                     });
                                 }
-                            }
-
-                            // get product tracking scheme
-                            if (prodSchemeRefno != 0)
-                            {
-                                using (SQLiteCommand scheme = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                                else
                                 {
-                                    scheme.CommandType = CommandType.Text;
-                                    scheme.CommandText = "SELECT tProductScheme.ProductSchemeIsSerialTracked,"
-                                        + "tProductScheme.ProductSchemeIsProductionDateTracked,"
-                                        + "tProductScheme.ProductSchemeIsLotTracked,"
-                                        + "tProductScheme.ProductSchemeIsBestBeforeDateTracked,"
-                                        + "tProductScheme.ProductSchemeIsVariantTracked,"
-                                        + "tProductScheme.ProductSchemeIsLotUniqueComponent,"
-                                        + "tProductScheme.ProductSchemeIsProductionDateUniqueComponent,"
-                                        + "tProductScheme.ProductSchemeIsBestBeforeDateUniqueComponent,"
-                                        + "tProductScheme.ProductSchemeIsVariantUniqueComponent "
-                                        + "FROM tProductScheme "
-                                        + "WHERE tProductScheme.ProductSchemeRefno = " + prodSchemeRefno;
+                                    string queryProductUnit = "SELECT tProductUnit.ProductUnitRefno,"
+                                    + "tLocationMapWarehouseProductScheme.ProductSchemeRefno,"
+                                    + "tProduct.ProductCode,"
+                                    + "tProductUnit.ProductUnitBC,"
+                                    + "tUnit.UnitCode "
+                                    + "FROM tProductUnit "
+                                    + "INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno "
+                                    + "INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno "
+                                    + "INNER JOIN tLocationMapWarehouseProductScheme ON tLocationMapWarehouseProductScheme.ProductRefno = tProduct.ProductRefno "
+                                    + "WHERE tProductUnit.ProductUnitRefno = ? "
+                                    + "AND tLocationMapWarehouseProductScheme.WarehouseLocationMapRefno = ?";
 
-                                    using (SQLiteDataReader drScheme = scheme.ExecuteReader())
+                                    List<dynamic> resultsProductUnit = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<dynamic>(queryProductUnit, this.UnitRefno, currLocMap.WhsLocMapRefno);
+
+                                    if (resultsProductUnit?.Count > 0)
                                     {
-                                        if (drScheme.Read())
+                                        this.UnitRefno = Convert.ToInt32(resultsProductUnit[0].ProductUnitRefno);
+                                        this.UnitBarCodeRefno = 0;
+                                        prodSchemeRefno = Convert.ToInt32(resultsProductUnit[0].ProductSchemeRefno);
+                                        prodCode = resultsProductUnit[0].ProductCode.ToString();
+
+                                        // If product was found associated display it.  'ProductID+BC+UOM'
+
+                                        // TODO: Resource strings
+                                        await this.AddScanMsg(sender, scanArgs, "Product Associated To Bar Code");
+
+                                        string prodbcuom = resultsProductUnit[0].ProductCode.ToString() + " "
+                                            + resultsProductUnit[0].ProductUnitBC.ToString() + " " + resultsProductUnit[0].UnitCode.ToString();
+                                        await this.AddScanMsg(sender, scanArgs, prodbcuom);
+
+                                        if (this.Parse.DeliScaleAmount != 0 && (this.Parse.Symbology == SysCommon.BarCodeSymbologies.UCC_12_UPC_E || this.Parse.Symbology == SysCommon.BarCodeSymbologies.EAN_UCC_13))
                                         {
-                                            isSerialTracked = Convert.ToBoolean(drScheme["ProductSchemeIsSerialTracked"]);
-                                            isProductionDateTracked = Convert.ToBoolean(drScheme["ProductSchemeIsProductionDateTracked"]);
-                                            isLotTracked = Convert.ToBoolean(drScheme["ProductSchemeIsLotTracked"]);
-                                            isBestBeforeDateTracked = Convert.ToBoolean(drScheme["ProductSchemeIsBestBeforeDateTracked"]);
-                                            isVariantTracked = Convert.ToBoolean(drScheme["ProductSchemeIsVariantTracked"]);
-                                            isLotUniqueComponent = Convert.ToBoolean(drScheme["ProductSchemeIsLotUniqueComponent"]);
-                                            isProductionDateUniqueComponent = Convert.ToBoolean(drScheme["ProductSchemeIsProductionDateUniqueComponent"]);
-                                            isBestBeforeDateUniqueComponent = Convert.ToBoolean(drScheme["ProductSchemeIsBestBeforeDateUniqueComponent"]);
-                                            isVariantUniqueComponent = Convert.ToBoolean(drScheme["ProductSchemeIsVariantUniqueComponent"]);
+                                            await this.AddScanMsg(sender, scanArgs, string.Format("Product Deli Scale Amount {0}", this.Parse.DeliScaleAmount));
+                                            await this.AddScanMsg(sender, scanArgs, string.Format("Product Deli Scale Weight {0} {1}", deliScaleWeight, deliScaleWeightUnit));
+
+                                            if (this.SysEnv.BarCodeSettings.IsRuleEnabled_Parse_UCC_12_UPC_E_as_Deli_PLU_4_Digit_Amount)
+                                            {
+                                                await this.AddScanMsg(sender, scanArgs, "Barcode Rule: 4 digit amount");
+                                            }
                                         }
-                                        else
+
+                                        await Device.InvokeOnMainThreadAsync(() =>
                                         {
-                                            // TODO: Resource strings
-                                            throw new Exception(string.Format("Unable to locate the product scheme for product \'{0}\'", prodCode));
-                                        }
+                                            this.lblProductData.TextColor = Color.Black;
+                                            this.lblProductData.Text = prodbcuom;
+                                        });
                                     }
                                 }
+                            }
+                            catch (Exception ex)
+                            {
+                                await Device.InvokeOnMainThreadAsync(async () =>
+                                {
+                                    // TODO: Resource strings
+                                    await this.AddScanMsg(sender, scanArgs, "Product unidentified");
+
+                                    this.lblProductData.TextColor = Color.Red;
+
+                                    // TODO: Resource strings
+                                    this.lblProductData.Text = "Unidentified";
+                                });
+                            }
+                        }
+
+                        // get product tracking scheme
+                        if (prodSchemeRefno != 0)
+                        {
+                            string queryProductScheme = "SELECT tProductScheme.ProductSchemeIsSerialTracked,"
+                                + "tProductScheme.ProductSchemeIsProductionDateTracked,"
+                                + "tProductScheme.ProductSchemeIsLotTracked,"
+                                + "tProductScheme.ProductSchemeIsBestBeforeDateTracked,"
+                                + "tProductScheme.ProductSchemeIsVariantTracked,"
+                                + "tProductScheme.ProductSchemeIsLotUniqueComponent,"
+                                + "tProductScheme.ProductSchemeIsProductionDateUniqueComponent,"
+                                + "tProductScheme.ProductSchemeIsBestBeforeDateUniqueComponent,"
+                                + "tProductScheme.ProductSchemeIsVariantUniqueComponent "
+                                + "FROM tProductScheme "
+                                + "WHERE tProductScheme.ProductSchemeRefno = ?";
+
+                            List<tProductSchemeModel> resultsProductScheme = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tProductSchemeModel>(queryProductScheme, prodSchemeRefno);
+
+                            if (resultsProductScheme?.Count > 0)
+                            {
+                                isSerialTracked = Convert.ToBoolean(resultsProductScheme[0].ProductSchemeIsSerialTracked);
+                                isProductionDateTracked = Convert.ToBoolean(resultsProductScheme[0].ProductSchemeIsProductionDateTracked);
+                                isLotTracked = Convert.ToBoolean(resultsProductScheme[0].ProductSchemeIsLotTracked);
+                                isBestBeforeDateTracked = Convert.ToBoolean(resultsProductScheme[0].ProductSchemeIsBestBeforeDateTracked);
+                                isVariantTracked = Convert.ToBoolean(resultsProductScheme[0].ProductSchemeIsVariantTracked);
+                                isLotUniqueComponent = Convert.ToBoolean(resultsProductScheme[0].ProductSchemeIsLotUniqueComponent);
+                                isProductionDateUniqueComponent = Convert.ToBoolean(resultsProductScheme[0].ProductSchemeIsProductionDateUniqueComponent);
+                                isBestBeforeDateUniqueComponent = Convert.ToBoolean(resultsProductScheme[0].ProductSchemeIsBestBeforeDateUniqueComponent);
+                                isVariantUniqueComponent = Convert.ToBoolean(resultsProductScheme[0].ProductSchemeIsVariantUniqueComponent);
+                            }
+                            else
+                            {
+                                // TODO: Resource strings
+                                throw new Exception(string.Format("Unable to locate the product scheme for product \'{0}\'", prodCode));
                             }
                         }
                     }
@@ -1105,7 +1082,7 @@ namespace dMobile.View.Activity
                         {
                             try
                             {
-                                SysSkidInfo skid = SysSkidInfo.GetSkidInfoFromBarCodeOrCode(scanArgs.ParseInfo.SSCC18);
+                                SysSkidInfo skid = await SysSkidInfo.GetSkidInfoFromBarCodeOrCode(scanArgs.ParseInfo.SSCC18);
 
                                 if (skid.CurrSkid.SkidFKRefno > 0)
                                 {
@@ -1156,7 +1133,7 @@ namespace dMobile.View.Activity
 
                         if (locMapRefno > 0)
                         {
-                            SLocMap locMap = LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
+                            SLocMap locMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
 
                             // TODO: Resource strings
                             await this.AddScanMsg(sender, scanArgs, string.Format("Warehouse code: {0}", locMap.WhsCode));
@@ -1515,45 +1492,6 @@ namespace dMobile.View.Activity
             }
         }
 
-        ///// <summary>
-        /////
-        ///// </summary>
-        ///// <param name="sender"></param>
-        ///// <param name="e"></param>
-        ///// <remarks></remarks>
-        //private void ValidateEntry(object sender, CancelEventArgs e)
-        //{
-        //    e.Cancel = false;
-
-        //    try
-        //    {
-        //        if (sender == this.cmdAssignProduct)
-        //        {
-        //        }
-
-        //        if (sender == this.lstScannedData)
-        //        {
-        //        }
-
-        //        if (sender == this.updnBarCodeModifier1)
-        //        {
-        //        }
-        //    }
-        //    catch (Exceptions.MessageOnlyException ex)
-        //    {
-        //        e.Cancel = true;
-        //        ex.Show(this.ActSubType);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        e.Cancel = false;
-        //        using (FormErrorReport errRpt = new FormErrorReport(this.ActSubType, this, ex))
-        //        {
-        //            errRpt.ShowDialog();
-        //        }
-        //    }
-        //}
-
         /// <summary>
         ///
         ///
@@ -1597,13 +1535,11 @@ namespace dMobile.View.Activity
 
                         if (!this.SysEnv.SysSettings.IsDisconnectedMode)
                         {
-                            ////tableActivityItemBarCodeAssociationXRef.PurgeActivityItemBarCodeAssociationXRef()
-                            ////tableActivityItem.PurgeActivityItem(ActivitySubTypes.BarCodeAssociation)
-                            tableActivity.Purge(SysCommon.ActSubTypes.BarCodeAssociation);
+                            await tableActivity.Purge(SysCommon.ActSubTypes.BarCodeAssociation);
                         }
 
                         this.ActBarCode = ActivityFacade.GetActivity(SysCommon.ActSubTypes.BarCodeAssociation);
-                        this.ActBarCode.Create(SysCommon.ActSubTypes.BarCodeAssociation);
+                        await this.ActBarCode.Create(SysCommon.ActSubTypes.BarCodeAssociation);
                         this.ActItemBarCode = ActItemFacade.GetActItem(this.ActBarCode, SysCommon.ActSubTypes.BarCodeAssociation);
                     }
 
@@ -1676,26 +1612,19 @@ namespace dMobile.View.Activity
                         //await this.AddScanMsg(sender, null, "Product associated to bar code.");
                         await Device.InvokeOnMainThreadAsync(() => this.ItemsList[0] = "Product Associated To Bar Code");
 
-                        using (SQLiteCommand cmndProdBCUnit = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                        {
-                            cmndProdBCUnit.CommandType = CommandType.Text;
-                            cmndProdBCUnit.CommandText = "SELECT tProduct.ProductCode,"
-                                 + "tProductUnit.ProductUnitBC,"
-                                 + "tUnit.UnitCode "
-                                 + "FROM tProductUnit "
-                                 + "INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno "
-                                 + "INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno "
-                                 + "WHERE tProductUnit.ProductUnitRefno = " + this.UnitRefno;
+                        string queryProductUnit = "SELECT tProduct.ProductCode,"
+                             + "tProductUnit.ProductUnitBC,"
+                             + "tUnit.UnitCode "
+                             + "FROM tProductUnit "
+                             + "INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno "
+                             + "INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno "
+                             + "WHERE tProductUnit.ProductUnitRefno = ?";
 
-                            using (SQLiteDataReader drProdBCUnit = cmndProdBCUnit.ExecuteReader())
-                            {
-                                if (drProdBCUnit.Read())
-                                {
-                                    productDataText = Convert.ToString(drProdBCUnit["ProductCode"]).TrimEnd()
-                                                 + (" " + Convert.ToString(drProdBCUnit["ProductUnitBC"])).TrimEnd()
-                                                 + " " + Convert.ToString(drProdBCUnit["UnitCode"]);
-                                }
-                            }
+                        List<ProductUnit> resultsProductScheme = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ProductUnit>(queryProductUnit, this.UnitRefno);
+
+                        if (resultsProductScheme?.Count > 0)
+                        {
+                            productDataText = Convert.ToString(resultsProductScheme[0].ProductCode).TrimEnd() + (" " + Convert.ToString(resultsProductScheme[0].ProductUnitBC)).TrimEnd() + " " + Convert.ToString(resultsProductScheme[0].UnitCode);
                         }
 
                         if (!string.IsNullOrEmpty(productDataText))
@@ -1738,63 +1667,6 @@ namespace dMobile.View.Activity
                 }
             }
         }
-    
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <remarks></remarks>
-        //private void tmrActivityLoaded_Tick(object sender, EventArgs e)
-        //{
-        //    this.TotalTicks = this.TotalTicks + this.tmrActivityLoaded.Interval;
-
-        //    if (this.IsEnabled && this.TotalTicks >= 100)
-        //    {
-        //        this.IsControlLoaded = true;
-        //        this.tmrActivityLoaded.Enabled = false;
-        //        TableActivityItemBarCodeAssociationXRef tableActItemBarCodeXRef = new TableActivityItemBarCodeAssociationXRef();
-        //        TableActivityItem tableActItem = new TableActivityItem();
-        //        TableActivity tableActivity = new TableActivity();
-
-        //        if (!this.SysEnv.SysSettings.IsDisconnectedMode)
-        //        {
-        //            ////tableActivityItemBarCodeAssociationXRef.PurgeActivityItemBarCodeAssociationXRef()
-        //            ////tableActivityItem.PurgeActivityItem(ActivitySubTypes.BarCodeAssociation)
-        //            tableActivity.Purge(SysCommon.ActSubTypes.BarCodeAssociation);
-        //        }
-
-        //        this.ActBarCode = ActivityFacade.GetActivity(SysCommon.ActSubTypes.BarCodeAssociation);
-        //        this.ActBarCode.Create(SysCommon.ActSubTypes.BarCodeAssociation);
-        //        this.ActItemBarCode = ActItemFacade.GetActItem(this.ActBarCode, SysCommon.ActSubTypes.BarCodeAssociation);
-        //    }
-        //}
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <remarks></remarks>
-        //private void ucActivityScanBarCodes_LostFocus(object sender, EventArgs e)
-        //{
-        //    if (!this.tmrActivityLoaded.Enabled)
-        //    {
-        //        await this.ScannerDisable();
-        //    }
-        //}
-
-        ///// <summary>
-        /////
-        ///// </summary>
-        ///// <param name="sender"></param>
-        ///// <param name="e"></param>
-        ///// <remarks></remarks>
-        //private void updnBarCodeModifier1_GotFocus(object sender, EventArgs e)
-        //{
-        //    SysCommon.SelectValueInDomainUpDown((UpDownBase)sender);
-        //}
 
         #endregion
     }

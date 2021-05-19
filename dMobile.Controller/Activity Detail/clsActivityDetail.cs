@@ -5,8 +5,6 @@ namespace dMobile.Controller
     using SQLite;
     using System;
     using System.Collections.ObjectModel;
-    using System.Data;
-    using SQLite;
     using System.Xml;
     using System.Xml.Linq;
     using Xamarin.Forms;
@@ -365,9 +363,8 @@ namespace dMobile.Controller
         public abstract Task<List<object>> GetActivityDetailList(bool isSubmitBatch);
         public abstract ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity);
         public abstract Task SelectActivityDetail(object selectedActivityDetail);
-        // TODO: Check that these aren't needed
-        //public abstract int GetRefno(object selectedActivityDetail);
-        //public abstract int GetFKRefno(object selectedActivityDetail);
+        public abstract int GetRefno(object selectedActivityDetail);
+        public abstract int GetFKRefno(object selectedActivityDetail);
         public abstract Task InsertSkid(SysSkidInfo skidInfo);
         public abstract Task DeleteSkid(SysSkidInfo skidInfo);
 

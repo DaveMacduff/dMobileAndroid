@@ -1,26 +1,25 @@
-﻿    using dMobile.View.CustomPages;
-    using System;
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
-    using System.ComponentModel;
-    using System.Data;
-    using System.Xml.Linq;
-    using dMobile.Bedrock;
-    using Xamarin.Forms;
-    using Xamarin.Forms.Xaml;
-    using System.Data.SQLite;
-    using dMobile.View.Forms;
-    using dMobile.Resources.Enums;
-    using Android.Views;
-    using dMobile.View.Themes;
-    using System.Collections.ObjectModel;
+﻿using dMobile.View.CustomPages;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using System.ComponentModel;
+using System.Data;
+using System.Xml.Linq;
+using dMobile.Bedrock;
+using Xamarin.Forms;
+using Xamarin.Forms.Xaml;
+using SQLite;
+using dMobile.View.Forms;
+using dMobile.Resources.Enums;
+using Android.Views;
+using dMobile.View.Themes;
+using System.Collections.ObjectModel;
 
 namespace dMobile.View.Options
 {
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ucSetupDefaults : DMobileContentPage, IAppPublisher
     {
-        //private UserControl callingControl = new ucOptionsMenu();
         private bool isControlLoaded;
         private bool isChangesMade;
         public ObservableCollection<Theme> themesList;
@@ -96,11 +95,6 @@ namespace dMobile.View.Options
                 if (keycode == Keycode.Enter)
                 {
                     this.BtnSave_Clicked(this, new EventArgs());
-
-                    //if (this.SaveChanges())
-                    //{
-                    //    this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-                    //}
                 }
                 else if (keycode == Keycode.Escape)
                 {
@@ -112,11 +106,6 @@ namespace dMobile.View.Options
                 else if (keycode == Keycode.F1)
                 {
                     this.BtnSave_Clicked(this, new EventArgs());
-
-                    //if (this.SaveChanges())
-                    //{
-                    //    this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-                    //}
                 }
             });
 
@@ -627,7 +616,7 @@ namespace dMobile.View.Options
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public XDocument GetXML()
+        public async Task<XDocument> GetXML()
         {
             XDocument xmldocParams = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
@@ -896,7 +885,7 @@ namespace dMobile.View.Options
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        private void ValidateEntry(object sender, CancelEventArgs e)
+        private async Task ValidateEntry(object sender, CancelEventArgs e)
         {
             try
             {
@@ -907,40 +896,30 @@ namespace dMobile.View.Options
                     bool isUnSubmittedTrx = false;
                     int rowsAffected = 0;
 
-                    using (SQLiteCommand cmndActivity = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                    {
-                        cmndActivity.CommandType = CommandType.Text;
-                        cmndActivity.CommandText = "SELECT COUNT(*) FROM tActivity WHERE tActivity.ActivityStatus <> " + (int)SysCommon.ActStatus.NoChange;
+                    rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tActivity WHERE ActivityStatus <> ?", Convert.ToInt32(SysCommon.ActStatus.NoChange)));
 
-                        rowsAffected = Convert.ToInt32(cmndActivity.ExecuteScalar());
+                    if (rowsAffected > 0)
+                    {
+                        isUnSubmittedTrx = true;
+                    }
+
+                    if (!isUnSubmittedTrx)
+                    {
+                        rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tActivityItem WHERE ActivityItemStatus <> ?", Convert.ToInt32(SysCommon.ActStatus.NoChange)));
 
                         if (rowsAffected > 0)
                         {
                             isUnSubmittedTrx = true;
                         }
+                    }
 
-                        if (!isUnSubmittedTrx)
+                    if (!isUnSubmittedTrx)
+                    {
+                        rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tActivityDetail WHERE ActivityDetailStatus <> ?", Convert.ToInt32(SysCommon.ActStatus.NoChange)));
+
+                        if (rowsAffected > 0)
                         {
-                            cmndActivity.CommandText = "SELECT COUNT(*) FROM tActivityItem WHERE tActivityItem.ActivityItemStatus <> " + (int)SysCommon.ActStatus.NoChange;
-
-                            rowsAffected = Convert.ToInt32(cmndActivity.ExecuteScalar());
-
-                            if (rowsAffected > 0)
-                            {
-                                isUnSubmittedTrx = true;
-                            }
-                        }
-
-                        if (!isUnSubmittedTrx)
-                        {
-                            cmndActivity.CommandText = "SELECT COUNT(*) FROM tActivityDetail WHERE tActivityDetail.ActivityDetailStatus <> " + (int)SysCommon.ActStatus.NoChange;
-
-                            rowsAffected = Convert.ToInt32(cmndActivity.ExecuteScalar());
-
-                            if (rowsAffected > 0)
-                            {
-                                isUnSubmittedTrx = true;
-                            }
+                            isUnSubmittedTrx = true;
                         }
                     }
 
@@ -991,9 +970,9 @@ namespace dMobile.View.Options
             //}
         }
 
-        private void ChkDisconnectMode_Toggled(object sender, ToggledEventArgs e)
+        private async void ChkDisconnectMode_Toggled(object sender, ToggledEventArgs e)
         {
-            this.ValidateEntry(sender, new CancelEventArgs());
+            await this.ValidateEntry(sender, new CancelEventArgs());
             this.IdentifyChangesMade(sender, new EventArgs());
         }
 

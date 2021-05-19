@@ -19,6 +19,7 @@ using Android.Views;
 using System.Collections.ObjectModel;
 using Java.Security;
 using dMobile.View.CustomPages.Modal;
+using dMobile.Resources.Types;
 
 namespace dMobile.View.Activity
 {
@@ -35,7 +36,6 @@ namespace dMobile.View.Activity
         private BarCodeScanner.BarCodeScanner scanner;
         private bool isBarCodeHandlerRegistered = false;
         private bool isControlLoaded = false;
-        //private UserControl callingControl = null;
         private ActDetail actDetail = null;
         private SysCommon.ActSubTypes actSubType;
         private SysEnvironment sysEnv;
@@ -46,6 +46,7 @@ namespace dMobile.View.Activity
         private ReqCancelDisableHandler reqCancelDisableEvent;
         private ObservableCollection<string> itemsList = new ObservableCollection<string>();
         private ObservableCollection<object> dataGridMainActivityItemsList = new ObservableCollection<object>();
+        private bool isFirstAppearance = true;
 
         #endregion
 
@@ -73,23 +74,6 @@ namespace dMobile.View.Activity
                 this.ActDetail.ActSubType = this.ActSubType;
                 this.ActDetail.ActItem.ActSubType = this.ActSubType;
                 this.ActDetail.ActItem.ActHdr.ActSubType = this.ActSubType;
-
-                this.ActDetail.GetDataView(false);
-                this.DataGridMainActivityItemsList = this.ActDetail.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
-                this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
-
-                this.LocMap = this.ActDetail.ActItem.LocMap;
-
-                this.ActDetail.ActItem.CurrRowIdx = -1;
-
-                DataRow dr = this.ActDetail.ActItem.DataViewItems.Table.Rows[0];
-                FromProdRefno = Convert.ToInt32(dr["from_prod_fk_refno"]);
-                ToProdRefno = Convert.ToInt32(dr["to_prod_fk_refno"]);
-                ProductInfo prodInfo = new ProductInfo();
-                ToProduct = ProductInfoTasks.GetInfoFromRefno(ToProdRefno);
-                FromProduct = ProductInfoTasks.GetInfoFromRefno(FromProdRefno);
-                // fill in all the activity data
-                this.ActDetail.ActItem.ProdInfo = ToProduct;
 
                 this.Title = this.GetControlDescription();
             }
@@ -135,6 +119,35 @@ namespace dMobile.View.Activity
 
             try
             {
+                if (this.isFirstAppearance)
+                {
+                    this.isFirstAppearance = false;
+                    await this.ActDetail.GetActivityDetailList(false);
+
+                    await Device.InvokeOnMainThreadAsync(() =>
+                    {
+                        this.DataGridMainActivityItemsList = this.ActDetail.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
+                        this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
+                    });
+
+                    this.LocMap = this.ActDetail.ActItem.LocMap;
+
+                    this.ActDetail.ActItem.SelectedActivityItem = null;
+
+                    if (this.ActDetail.ActItem.ListItems[0] is ConvertProductItem convertProductItem)
+                    {
+                        FromProdRefno = convertProductItem.From_prod_fk_refno;
+                        ToProdRefno = convertProductItem.To_prod_fk_refno;
+                    }
+
+                    ProductInfo prodInfo = new ProductInfo();
+                    ToProduct = await ProductInfoTasks.GetInfoFromRefno(ToProdRefno);
+                    FromProduct = await ProductInfoTasks.GetInfoFromRefno(FromProdRefno);
+
+                    // fill in all the activity data
+                    this.ActDetail.ActItem.ProdInfo = ToProduct;
+                }
+
                 await this.ucActivityConvertProductDetail_GotFocus(this, new EventArgs());
             }
             catch (Exception ex)
@@ -700,7 +713,7 @@ namespace dMobile.View.Activity
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public XDocument GetXML()
+        public async Task<XDocument> GetXML()
         {
             string unqScheme = ProductInfoTasks.GetActUniqueSchemeIDFromSProdSchemeData(
                 this.ActDetail.ActItem.ProdInfo.Code,
@@ -851,7 +864,7 @@ namespace dMobile.View.Activity
                 // GLOBAL LOCATION IDENTIFIER SCANNED
                 if (!string.IsNullOrEmpty(parse.LocationIdentifier))
                 {
-                    this.LocMap.CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(parse.LocationIdentifier));
+                    this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(await LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(parse.LocationIdentifier));
                 }
                 else
                 {
@@ -872,7 +885,7 @@ namespace dMobile.View.Activity
                         tempFromProdUnitRefno = await SysShared.IdentifyProductScanned(this.ActSubType, parse, tempFromProdUnitRefno);
 
                         ProductInfo scannedProduct = new ProductInfo();
-                        scannedProduct = ProductInfoTasks.GetInfoFromUnitRefno(tempFromProdUnitRefno);
+                        scannedProduct = await ProductInfoTasks.GetInfoFromUnitRefno(tempFromProdUnitRefno);
 
                         //this.FromProdRefno = tempFromProdRefno;
 
@@ -1032,11 +1045,11 @@ namespace dMobile.View.Activity
                     {
                         await CreateAdjustment(xmlDoc);
 
-                    // We check if we are allowed to print on scan
-                    if (
-                            //(this.SysEnv.SysSettings.CanPrintProductLabelConvertProduct &&// TODO remove true || (workaround com server not updated with value yet)
-                            !this.sysEnv.SysSettings.IsPrintProductLabelsAsBatch &&
-                            !this.SysEnv.SysSettings.IsDisconnectedMode)
+                        // We check if we are allowed to print on scan
+                        if (
+                                //(this.SysEnv.SysSettings.CanPrintProductLabelConvertProduct &&// TODO remove true || (workaround com server not updated with value yet)
+                                !this.sysEnv.SysSettings.IsPrintProductLabelsAsBatch &&
+                                !this.SysEnv.SysSettings.IsDisconnectedMode)
                         {
                             await PrintProductLabel();
                         }
@@ -1071,7 +1084,7 @@ namespace dMobile.View.Activity
             try
             {
                 // Create adjustment
-                string request = this.ActDetail.CreateSubmitXML(data);
+                string request = await this.ActDetail.CreateSubmitXML(data);
                 string response = SysCommon.SubmitComm(request);
                 SysCommon.CheckCommResponseForErrors(response);
 
@@ -1086,9 +1099,9 @@ namespace dMobile.View.Activity
                 data.Root.Add(new XElement("itm_refno", this.ActDetail.ActItem.FKRefno));
                 data.Root.Element("ser_refno").SetValue(this.ActDetail.FKRefno);
 
-                this.ActDetail.Insert(data);
+                await this.ActDetail.Insert(data);
 
-                SelectRow(this.ActDetail.DataViewDetails.Count - 1);
+                SelectRow(this.ActDetail.ListDetails.Count - 1);
             }
             catch (Exceptions.MessageOnlyException me)
             {
@@ -1123,13 +1136,14 @@ namespace dMobile.View.Activity
                 // Create COM request to remove
                 XDocument data = new XDocument();
                 // TODO send the fk_refno to delete over
-                string sendRequest = this.ActDetail.CreateDeleteXML(data);
+                string sendRequest = await this.ActDetail.CreateDeleteXML(data);
                 string response = SysCommon.SubmitComm(sendRequest);
                 SysCommon.CheckCommResponseForErrors(response);
 
                 // Remove from grid
                 int selectedIndex = this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem);
-                this.ActDetail.DataViewDetails.Table.Rows.RemoveAt(selectedIndex);
+
+                this.ActDetail.ListDetails.RemoveAt(selectedIndex);
                 this.DataGridMainActivityItemsList = this.ActDetail.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
                 this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
 
@@ -1140,7 +1154,7 @@ namespace dMobile.View.Activity
                     selectedIndex = 0;
                 }
 
-                if (this.ActDetail.DataViewDetails.Table.Rows.Count > 0 && this.DataGridMainActivityItemsList.Count > selectedIndex)
+                if (this.ActDetail.ListDetails.Count > 0 && this.DataGridMainActivityItemsList.Count > selectedIndex)
                 {
                     this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[selectedIndex];
                 }
@@ -1169,12 +1183,10 @@ namespace dMobile.View.Activity
                 return;
             }
 
-            int count = this.ActDetail.DataViewDetails.Count;
-
-            for (int i = 0; i < count; ++i)
+            foreach (object obj in this.ActDetail.ListDetails)
             {
                 // Set the detail, item, header, product, scheme, scheme data info
-                this.ActDetail.SelectDetail(i);
+                await this.ActDetail.SelectActivityDetail(obj);
 
                 // Print using that data
                 await PrintProductLabel();
@@ -1198,7 +1210,7 @@ namespace dMobile.View.Activity
             {
                 // Create COM request to remove
                 XDocument data = new XDocument();
-                string sendRequest = this.ActDetail.CreateSubmitProductLabelXML(data);
+                string sendRequest = await this.ActDetail.CreateSubmitProductLabelXML(data);
                 string response = SysCommon.SubmitComm(sendRequest);
                 SysCommon.CheckCommResponseForErrors(response);
             }
@@ -1222,7 +1234,7 @@ namespace dMobile.View.Activity
         /// <returns>True if there are no data rows.</returns>
         private bool NoData()
         {
-            return this.ActDetail.DataViewDetails.Count == 0;
+            return this.ActDetail.ListDetails.Count == 0;
         }
 
         private bool HasData()
@@ -1287,9 +1299,7 @@ namespace dMobile.View.Activity
                 return;
             }
 
-            //this.dataGridMainActivity.UnSelect(this.dataGridMainActivity.CurrentRowIndex);
-            //this.dataGridMainActivity.Select(row);
-            this.ActDetail.ActItem.CurrRowIdx = row;
+            this.ActDetail.ActItem.SelectedActivityItem = this.ActDetail.ActItem.ListItems[row];
             this.DisplaySummary();
         }
 

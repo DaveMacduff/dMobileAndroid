@@ -685,7 +685,7 @@
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public XDocument GetXML()
+        public async Task<XDocument> GetXML()
         {
             XDocument request = XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" + "<params>" + ("<alt_qty>" + actDetailEdit.Quantity + "</alt_qty>") + ("<wt_qty>" + actDetailEdit.WeightQuantity + "</wt_qty>") + ("<base_qty>" + actDetailEdit.BaseQuantity + "</base_qty>") + "</params>");
             return request;
@@ -757,59 +757,6 @@
                 }
             }
         }
-
-        ///// <summary>
-        /////
-        ///// </summary>
-        ///// <param name="sender"></param>
-        ///// <param name="e"></param>
-        ///// <remarks></remarks>
-        //public void txtAltQty_TextChanged(object sender, EventArgs e)
-        //{
-        //    if (Information.IsNumeric(txtAltQty.Text))
-        //    {
-        //        var decQty = decimal.Parse(txtAltQty.Text);
-        //    }
-        //}
-
-        ///// <summary>
-        /////
-        ///// </summary>
-        ///// <param name="sender"></param>
-        ///// <param name="e"></param>
-        ///// <remarks></remarks>
-        //public void NumericKeyPressHandler(object sender, System.Windows.Forms.KeyPressEventArgs e)
-        //{
-        //    if (IsEnterTrapped)
-        //    {
-        //        e.Handled = true;
-        //        SelectNextControl((System.Windows.Forms.Control)sender, true, false, false, true);
-        //        IsEnterTrapped = false;
-
-        //    }
-        //    else if (IsEditTrapped)
-        //    {
-        //        e.Handled = false;
-        //        IsEditTrapped = false;
-
-        //    }
-        //    else if (IsNumericTrapped)
-        //    {
-        //        e.Handled = false;
-        //        IsNumericTrapped = false;
-
-        //    }
-        //    else if (IsEscapeTrapped)
-        //    {
-        //        e.Handled = false;
-        //        IsEscapeTrapped = false;
-
-        //    }
-        //    else
-        //    {
-        //        e.Handled = true;
-        //    }
-        //}
 
         #endregion
 

@@ -801,7 +801,7 @@ namespace dMobile.Controller
         ///
         /// </summary>
         /// <remarks></remarks>
-        public virtual void Delete()
+        public virtual Task Delete()
         {
             throw new NotImplementedException();
         }

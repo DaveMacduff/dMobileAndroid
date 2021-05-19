@@ -203,11 +203,6 @@ namespace dMobile.View.Activity
             return true;
         }
 
-        //public UserControl GetCallingControl()
-        //{
-        //    return null;
-        //}
-
         public string GetControlDescription()
         {
             return "Debox Label Count";
@@ -216,7 +211,7 @@ namespace dMobile.View.Activity
         public async Task<bool> SaveChanges()
         {
             bool saveComplete = false;
-            
+
             if (await IsReadyToSave())
             {
                 Quantity = Convert.ToInt32(this.entryQuantity.Text);
@@ -236,7 +231,7 @@ namespace dMobile.View.Activity
             return true;
         }
 
-        public XDocument GetXML()
+        public async Task<XDocument> GetXML()
         {
             XDocument result = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"

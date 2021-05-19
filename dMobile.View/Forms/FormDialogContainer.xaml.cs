@@ -315,7 +315,7 @@ namespace dMobile.View.Forms
         /// The XML.
         /// </summary>
         /// <returns></returns>
-        public XDocument GetXML()
+        public async Task<XDocument> GetXML()
         {
             if (this.DisplayControl == null)
             {
@@ -323,7 +323,7 @@ namespace dMobile.View.Forms
             }
             else
             {
-                return ((IAppArea)this.DisplayControl).GetXML();
+                return await ((IAppArea)this.DisplayControl).GetXML();
             }
         }
 
@@ -336,13 +336,13 @@ namespace dMobile.View.Forms
         {
             if (this.DisplayControl == null)
             {
-                this.ReqCloseDialogContainer(this.DisplayControl, EventArgs.Empty);
+                await this.ReqCloseDialogContainer(this.DisplayControl, EventArgs.Empty);
             }
             else
             {
                 if (await ((IAppArea)this.DisplayControl).SaveChanges())
                 {
-                    this.ReqCloseDialogContainer(this.DisplayControl, EventArgs.Empty);
+                    await this.ReqCloseDialogContainer(this.DisplayControl, EventArgs.Empty);
 
                     if (this.IsControlClosing)
                     {
@@ -771,25 +771,21 @@ namespace dMobile.View.Forms
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void ReqCloseDialogContainer(object sender, EventArgs e)
+        private async Task ReqCloseDialogContainer(object sender, EventArgs e)
         {
             this.IsControlClosing = true;
 
             if (this.DisplayControl != null)
             {
-                ((IAppArea)sender).ScannerDisable();
-                this.DisplayControlData = ((IAppArea)sender).GetXML();
+                await ((IAppArea)sender).ScannerDisable();
+                this.DisplayControlData = await ((IAppArea)sender).GetXML();
 
                 ((IAppPublisher)sender).UnregisterReqClose((IAppListener)this);
                 ((IAppPublisher)sender).UnregisterReqSaveEnable((IAppListener)this);
                 ((IAppPublisher)sender).UnregisterReqSaveDisable((IAppListener)this);
                 ((IAppPublisher)sender).UnregisterReqCancelEnable((IAppListener)this);
                 ((IAppPublisher)sender).UnregisterReqCancelDisable((IAppListener)this);
-
-                //((UserControl)sender).Dispose();
             }
-
-            //Device.BeginInvokeOnMainThread(async () => await this.Close());
         }
     }
 }

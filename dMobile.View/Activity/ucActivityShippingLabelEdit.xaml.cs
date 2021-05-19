@@ -35,6 +35,9 @@ namespace dMobile.View.Activity
         private ReqCancelDisableHandler reqCancelDisableEvent;
         private SysCommon.SLabelQuantity labelQtyEdit = new SysCommon.SLabelQuantity();
         private LocationMap locMap = LocationMap.GetInstance();
+        private bool isFirstAppearance = true;
+        Controller.Activity Activity;
+        SysCommon.ShippingLabelQuantitySelectionMode SelectMode;
 
         #endregion
 
@@ -67,41 +70,11 @@ namespace dMobile.View.Activity
 
             if (!DesignMode.IsDesignModeEnabled)
             {
+                this.Activity = activity;
+                this.SelectMode = selectMode;
                 this.LabelQtyEdit = labelQtyEdit;
                 this.SysEnv = SysEnvironment.GetInstance();
                 this.ActSubType = actSubTypes;
-
-                if (0 >= this.LocMap.CurrLocMap.WhsLocMapRefno)
-                {
-                    this.LocMap.CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(this.LocMap.LoginWhsLocMapRefno);
-                    cmdLocation.Text = LocationMapTasks.GetCurrentReadableLocation();
-                }
-                else
-                {
-                    this.cmdLocation.Text = LocationMapTasks.GetCurrentReadableLocation();
-                }
-
-                this.lblOrderNumber.Text = Convert.ToString("Order # " + activity.FKRefno.ToString());
-
-                if (selectMode == SysCommon.ShippingLabelQuantitySelectionMode.BothFullRepack || selectMode == SysCommon.ShippingLabelQuantitySelectionMode.FullOnly)
-                {
-                    this.txtFullCaseAltQty.IsEnabled = this.SysEnv.SysSettings.IsFullQuantityEnabled;
-                    this.txtFreshAltQty.IsEnabled = this.SysEnv.SysSettings.IsFreshQuantityEnabled;
-                    this.txtDryAltQty.IsEnabled = this.SysEnv.SysSettings.IsDryQuantityEnabled;
-                    this.txtLiveAltQty.IsEnabled = this.SysEnv.SysSettings.IsLiveQuantityEnabled;
-                    this.txtFrozenAltQty.IsEnabled = this.SysEnv.SysSettings.IsFrozenQuantityEnabled;
-                    this.txtPalletAltQty.IsEnabled = this.SysEnv.SysSettings.IsPalletQuantityEnabled;
-                    ////this.txtBundleAltQty.IsEnabled = this.SysEnv.SysSettings.IsLabelBundleQuantityEnabled;
-                }
-
-                if (selectMode == SysCommon.ShippingLabelQuantitySelectionMode.BothFullRepack || selectMode == SysCommon.ShippingLabelQuantitySelectionMode.RepackOnly)
-                {
-                    this.txtRepackAltQty.IsEnabled = this.SysEnv.SysSettings.IsRepackQuantityEnabled;
-                    this.txtRepackFreshAltQty.IsEnabled = this.SysEnv.SysSettings.IsFreshRepackQuantityEnabled;
-                    this.txtRepackDryAltQty.IsEnabled = this.SysEnv.SysSettings.IsDryRepackQuantityEnabled;
-                    this.txtRepackLiveAltQty.IsEnabled = this.SysEnv.SysSettings.IsLiveRepackQuantityEnabled;
-                    this.txtRepackFrozenAltQty.IsEnabled = this.SysEnv.SysSettings.IsFrozenRepackQuantityEnabled;
-                }
             }
         }
 
@@ -144,6 +117,42 @@ namespace dMobile.View.Activity
 
             try
             {
+                if (this.isFirstAppearance)
+                {
+                    this.isFirstAppearance = false;
+
+                    if (0 >= this.LocMap.CurrLocMap.WhsLocMapRefno)
+                    {
+                        this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(this.LocMap.LoginWhsLocMapRefno);
+                        await Device.InvokeOnMainThreadAsync(() => cmdLocation.Text = LocationMapTasks.GetCurrentReadableLocation());
+                    }
+                    else
+                    {
+                        await Device.InvokeOnMainThreadAsync(() => this.cmdLocation.Text = LocationMapTasks.GetCurrentReadableLocation());
+                    }
+
+                    await Device.InvokeOnMainThreadAsync(() => this.lblOrderNumber.Text = Convert.ToString("Order # " + this.Activity.FKRefno.ToString()));
+
+                    if (this.SelectMode == SysCommon.ShippingLabelQuantitySelectionMode.BothFullRepack || this.SelectMode == SysCommon.ShippingLabelQuantitySelectionMode.FullOnly)
+                    {
+                        this.txtFullCaseAltQty.IsEnabled = this.SysEnv.SysSettings.IsFullQuantityEnabled;
+                        this.txtFreshAltQty.IsEnabled = this.SysEnv.SysSettings.IsFreshQuantityEnabled;
+                        this.txtDryAltQty.IsEnabled = this.SysEnv.SysSettings.IsDryQuantityEnabled;
+                        this.txtLiveAltQty.IsEnabled = this.SysEnv.SysSettings.IsLiveQuantityEnabled;
+                        this.txtFrozenAltQty.IsEnabled = this.SysEnv.SysSettings.IsFrozenQuantityEnabled;
+                        this.txtPalletAltQty.IsEnabled = this.SysEnv.SysSettings.IsPalletQuantityEnabled;
+                    }
+
+                    if (this.SelectMode == SysCommon.ShippingLabelQuantitySelectionMode.BothFullRepack || this.SelectMode == SysCommon.ShippingLabelQuantitySelectionMode.RepackOnly)
+                    {
+                        this.txtRepackAltQty.IsEnabled = this.SysEnv.SysSettings.IsRepackQuantityEnabled;
+                        this.txtRepackFreshAltQty.IsEnabled = this.SysEnv.SysSettings.IsFreshRepackQuantityEnabled;
+                        this.txtRepackDryAltQty.IsEnabled = this.SysEnv.SysSettings.IsDryRepackQuantityEnabled;
+                        this.txtRepackLiveAltQty.IsEnabled = this.SysEnv.SysSettings.IsLiveRepackQuantityEnabled;
+                        this.txtRepackFrozenAltQty.IsEnabled = this.SysEnv.SysSettings.IsFrozenRepackQuantityEnabled;
+                    }
+                }
+
                 this.ucActivityShippingLabelEdit_GotFocus(this, new EventArgs());
             }
             catch (Exception ex)
@@ -682,7 +691,7 @@ namespace dMobile.View.Activity
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public XDocument GetXML()
+        public async Task<XDocument> GetXML()
         {
             XDocument request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
@@ -827,224 +836,6 @@ namespace dMobile.View.Activity
                 + this.LabelQtyEdit.RepackLiveQuantity
                 + this.LabelQtyEdit.RepackQuantity;
         }
-
-        ///// <summary>
-        /////
-        ///// </summary>
-        ///// <param name="sender"></param>
-        ///// <param name="e"></param>
-        ///// <remarks></remarks>
-        //private void IdentifyChangesMade(object sender, EventArgs e)
-        //{
-        //    try
-        //    {
-        //        if (this.IsControlLoaded)
-        //        {
-        //            this.IsChangesMade = true;
-
-        //            if (sender == this.cmdLocation)
-        //            {
-        //            }
-
-        //            if (sender == this.txtDryAltQty)
-        //            {
-        //            }
-
-        //            if (sender == this.txtFreshAltQty)
-        //            {
-        //            }
-
-        //            if (sender == this.txtFrozenAltQty)
-        //            {
-        //            }
-
-        //            if (sender == this.txtFullCaseAltQty)
-        //            {
-        //            }
-
-        //            if (sender == this.txtLiveAltQty)
-        //            {
-        //            }
-
-        //            if (sender == this.txtPalletAltQty)
-        //            {
-        //            }
-
-        //            if (sender == this.txtRepackAltQty)
-        //            {
-        //            }
-
-        //            if (sender == this.txtRepackDryAltQty)
-        //            {
-        //            }
-
-        //            if (sender == this.txtRepackFreshAltQty)
-        //            {
-        //            }
-
-        //            if (sender == this.txtRepackFrozenAltQty)
-        //            {
-        //            }
-
-        //            if (sender == this.txtRepackLiveAltQty)
-        //            {
-        //            }
-        //        }
-        //    }
-        //    catch (Exceptions.MessageOnlyException ex)
-        //    {
-        //        // Do not set the IsChangesMade. Exceptions.MessageOnlyException is really not and error. 
-        //        // Allow the validation to handle the setting for IsChangesMade.
-        //        ex.Show(this.ActSubType);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        this.IsChangesMade = true;
-
-        //        await Device.InvokeOnMainThreadAsync(async () =>
-        //        {
-        //            FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
-        //            await errRpt.ShowDialog();
-        //        });
-        //    }
-        //}
-
-        ///// <summary>
-        /////
-        ///// </summary>
-        ///// <param name="sender"></param>
-        ///// <param name="e"></param>
-        ///// <remarks></remarks>
-        //private void NumericKeyDownHandler(object sender, KeyEventArgs e)
-        //{
-        //    this.IsNumericTrapped = false;
-        //    this.IsEditTrapped = false;
-
-        //    const int INTERMEC_CK60_KEYCODE_DECIMAL = 190;
-        //    const int LXE_MX7II_KEYCODE_SUBTRACT = 189;
-
-        //    if (e.KeyCode == Keys.Insert)
-        //    {
-        //        this.IsEditTrapped = true;
-        //    }
-        //    else if (e.KeyCode == Keys.Back)
-        //    {
-        //        this.IsEditTrapped = true;
-        //    }
-        //    else if (e.KeyCode == Keys.Subtract || Convert.ToInt32(e.KeyCode) == LXE_MX7II_KEYCODE_SUBTRACT)
-        //    {
-        //        ////this.IsNumericTrapped = true;
-        //    }
-        //    else if (e.KeyCode == Keys.Decimal)
-        //    {
-        //        this.IsNumericTrapped = true;
-        //    }
-        //    else if (Convert.ToInt32(e.KeyCode) == INTERMEC_CK60_KEYCODE_DECIMAL)
-        //    {
-        //        this.IsNumericTrapped = true;
-        //    }
-        //    else if (e.KeyCode >= Keys.D0 && e.KeyCode <= Keys.D9)
-        //    {
-        //        this.IsNumericTrapped = true;
-        //    }
-        //}
-
-        ///// <summary>
-        /////
-        ///// </summary>
-        ///// <param name="sender"></param>
-        ///// <param name="e"></param>
-        ///// <remarks></remarks>
-        //private void NumericKeyPressHandler(object sender, System.Windows.Forms.KeyPressEventArgs e)
-        //{
-        //    if (this.IsEditTrapped)
-        //    {
-        //        e.Handled = false;
-        //        this.IsEditTrapped = false;
-        //    }
-        //    else if (this.IsNumericTrapped)
-        //    {
-        //        e.Handled = false;
-        //        this.IsNumericTrapped = false;
-        //    }
-        //    else
-        //    {
-        //        e.Handled = true;
-        //    }
-        //}
-
-        ///// <summary>
-        /////
-        ///// </summary>
-        ///// <param name="sender"></param>
-        ///// <param name="e"></param>
-        ///// <remarks></remarks>
-        //private void ValidateEntry(object sender, CancelEventArgs e)
-        //{
-        //    try
-        //    {
-        //        ////e.Cancel = True
-
-        //        if (sender == this.cmdLocation)
-        //        {
-        //        }
-
-        //        if (sender == this.txtDryAltQty)
-        //        {
-        //        }
-
-        //        if (sender == this.txtFreshAltQty)
-        //        {
-        //        }
-
-        //        if (sender == this.txtFrozenAltQty)
-        //        {
-        //        }
-
-        //        if (sender == this.txtFullCaseAltQty)
-        //        {
-        //        }
-
-        //        if (sender == this.txtLiveAltQty)
-        //        {
-        //        }
-
-        //        if (sender == this.txtPalletAltQty)
-        //        {
-        //        }
-
-        //        if (sender == this.txtRepackAltQty)
-        //        {
-        //        }
-
-        //        if (sender == this.txtRepackDryAltQty)
-        //        {
-        //        }
-
-        //        if (sender == this.txtRepackFreshAltQty)
-        //        {
-        //        }
-
-        //        if (sender == this.txtRepackFrozenAltQty)
-        //        {
-        //        }
-
-        //        if (sender == this.txtRepackLiveAltQty)
-        //        {
-        //        }
-        //    }
-        //    catch (Exceptions.MessageOnlyException ex)
-        //    {
-        //        ex.Show(this, this.ActSubType);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        using (FormErrorReport errRpt = new FormErrorReport(this.ActSubType, this, ex))
-        //        {
-        //            errRpt.ShowDialog();
-        //        }
-        //    }
-        //}
 
         /// <summary>
         ///
@@ -1484,7 +1275,7 @@ namespace dMobile.View.Activity
             {
                 if (0 >= this.LocMap.CurrLocMap.WhsLocMapRefno)
                 {
-                    this.LocMap.CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(this.LocMap.LoginWhsLocMapRefno);
+                    this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(this.LocMap.LoginWhsLocMapRefno);
                     this.cmdLocation.Text = LocationMapTasks.GetCurrentReadableLocation();
                 }
                 else
@@ -1496,7 +1287,7 @@ namespace dMobile.View.Activity
             {
                 if (this.LocMap.CurrLocMap.WhsLocMapRefno == 0)
                 {
-                    this.LocMap.CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(this.LocMap.LoginWhsLocMapRefno);
+                    this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(this.LocMap.LoginWhsLocMapRefno);
                     this.cmdLocation.Text = LocationMapTasks.GetCurrentReadableLocation();
                 }
             }

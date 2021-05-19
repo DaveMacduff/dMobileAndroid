@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data;
@@ -27,10 +28,9 @@ namespace dMobile.View.Activity
         private int selectedIndex = 0;
         private bool isChangesMade = false;
         private bool isControlLoaded = false;
-        //private UserControl callingControl = null;
-        private DataView dataViewVariants = null;
-        private DataView dataViewLots = null;
-        private DataView dataViewSerialNumbers = null;
+        private List<ProductVariant> listVariants = null;
+        private List<LotNumber> listLots = null;
+        private List<SerialNumber> listSerialNumbers = null;
         private string fullClassName = "dMobile.ucActivityDetailEdit";
         private bool isNumericTrapped = false;
         private ActDetail actDetail = null;
@@ -358,42 +358,42 @@ namespace dMobile.View.Activity
             }
         }
 
-        public DataView DataViewSerialNumbers
+        public List<SerialNumber> ListSerialNumbers
         {
             get
             {
-                return this.dataViewSerialNumbers;
+                return this.listSerialNumbers;
             }
 
             set
             {
-                this.dataViewSerialNumbers = value;
+                this.listSerialNumbers = value;
             }
         }
 
-        public DataView DataViewLots
+        public List<LotNumber> ListLots
         {
             get
             {
-                return this.dataViewLots;
+                return this.listLots;
             }
 
             set
             {
-                this.dataViewLots = value;
+                this.listLots = value;
             }
         }
 
-        public DataView DataViewVariants
+        public List<ProductVariant> ListVariants
         {
             get
             {
-                return this.dataViewVariants;
+                return this.listVariants;
             }
 
             set
             {
-                this.dataViewVariants = value;
+                this.listVariants = value;
             }
         }
 
@@ -672,16 +672,6 @@ namespace dMobile.View.Activity
             return isReadyToClose;
         }
 
-        ///// <summary>
-        /////
-        ///// </summary>
-        ///// <returns></returns>
-        ///// <remarks></remarks>
-        //public UserControl GetCallingControl()
-        //{
-        //    return null;
-        //}
-
         /// <summary>
         ///
         /// </summary>
@@ -798,7 +788,7 @@ namespace dMobile.View.Activity
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public XDocument GetXML()
+        public async Task<XDocument> GetXML()
         {
             return this.ActDetailEdit.GetXMLFromActivityDetailEdit(this.ActDetailEdit);
         }
@@ -938,7 +928,7 @@ namespace dMobile.View.Activity
                 }
                 else
                 {
-                    sendReq = this.ActDetail.CreateSubmitProductLabelXML(this.ActDetailEdit.GetXMLFromActivityDetailEdit(this.ActDetailEdit));
+                    sendReq = await this.ActDetail.CreateSubmitProductLabelXML(this.ActDetailEdit.GetXMLFromActivityDetailEdit(this.ActDetailEdit));
                     reqData = SysCommon.SubmitComm(sendReq);
 
                     if (reqData.Length > 0)
@@ -967,7 +957,7 @@ namespace dMobile.View.Activity
         ///
         /// </summary>
         /// <remarks></remarks>
-        private void LoadData()
+        private async Task LoadData()
         {
             ProductInfo prodInfo = this.ActDetail.ActItem.ProdInfo;
 
@@ -975,7 +965,7 @@ namespace dMobile.View.Activity
             {
                 if (!SysCommon.IsEmptyDateTime(this.ActDetailEdit.SchemeData.LogisticUnitBestBeforeSellByDate))
                 {
-                    this.dtBestBeforeDate.Date = this.ActDetailEdit.SchemeData.LogisticUnitBestBeforeSellByDate;
+                    await Device.InvokeOnMainThreadAsync(() => this.dtBestBeforeDate.Date = this.ActDetailEdit.SchemeData.LogisticUnitBestBeforeSellByDate);
                 }
             }
 
@@ -983,7 +973,7 @@ namespace dMobile.View.Activity
             {
                 if (!SysCommon.IsEmptyDate(this.ActDetailEdit.SchemeData.LogisticUnitProductionDate))
                 {
-                    this.dtProductionDate.Date = this.ActDetailEdit.SchemeData.LogisticUnitProductionDate;
+                    await Device.InvokeOnMainThreadAsync(() => this.dtProductionDate.Date = this.ActDetailEdit.SchemeData.LogisticUnitProductionDate);
                 }
             }
 
@@ -996,32 +986,22 @@ namespace dMobile.View.Activity
                     this.ActDetailEdit.SchemeData = schemeData;
                 }
 
-                this.cboSerialNo.Text = this.ActDetailEdit.SchemeData.SingleTradeItemSerialNumber;
-
-                //if (this.cboSerialNo.See < 0)
-                //{
-                //    this.cboSerialNo.SelectedItem = this.ActDetailEdit.SchemeData.SingleTradeItemSerialNumber;
-                //}
+                await Device.InvokeOnMainThreadAsync(() => this.cboSerialNo.Text = this.ActDetailEdit.SchemeData.SingleTradeItemSerialNumber);
             }
 
             if (prodInfo.Scheme.IsLotTracked)
             {
-                this.cboLotNo.SelectedItem = this.ActDetailEdit.SchemeData.LogisticUnitBatchLotNumber;
+                await Device.InvokeOnMainThreadAsync(() => this.cboLotNo.SelectedItem = this.ActDetailEdit.SchemeData.LogisticUnitBatchLotNumber);
 
                 if (this.cboLotNo.SelectedIndex < 0)
                 {
-                    this.cboLotNo.SelectedItem = this.ActDetailEdit.SchemeData.LogisticUnitBatchLotNumber;
+                    await Device.InvokeOnMainThreadAsync(() => this.cboLotNo.SelectedItem = this.ActDetailEdit.SchemeData.LogisticUnitBatchLotNumber);
                 }
             }
 
             if (prodInfo.Scheme.IsVariantTracked)
             {
-                this.cboVariantCode.SelectedItem = this.ActDetailEdit.SchemeData.VariantNumber;
-                ////if (this.cboVariantCode.SelectedIndex < 0)
-                ////{
-                ////  this.cboVariantCode.Text = this.ActDetailEdit.SchemeData.VariantCode + " " 
-                ////+ this.ActDetailEdit.SchemeData.VariantDescription;
-                ////}
+                await Device.InvokeOnMainThreadAsync(() => this.cboVariantCode.SelectedItem = this.ActDetailEdit.SchemeData.VariantNumber);
             }
 
             // default quantities if zero
@@ -1139,32 +1119,35 @@ namespace dMobile.View.Activity
             this.ActDetailEdit.BaseQuantity = decimal.Round(this.ActDetailEdit.BaseQuantity, 3);
             this.ActDetailEdit.WeightQuantity = decimal.Round(this.ActDetailEdit.WeightQuantity, 3);
 
-            this.txtAltQty.Text = this.ActDetailEdit.Quantity.ToString();
-            this.txtWtQty.Text = this.ActDetailEdit.WeightQuantity.ToString();
+            await Device.InvokeOnMainThreadAsync(() =>
+            {
+                this.txtAltQty.Text = this.ActDetailEdit.Quantity.ToString();
+                this.txtWtQty.Text = this.ActDetailEdit.WeightQuantity.ToString();
+            });
 
             if (!string.IsNullOrEmpty(this.ActDetail.ActExtra.Text1))
             {
-                this.txtExtraDetail1.Text = this.ActDetail.ActExtra.Text1;
+                await Device.InvokeOnMainThreadAsync(() => this.txtExtraDetail1.Text = this.ActDetail.ActExtra.Text1);
             }
 
             if (!string.IsNullOrEmpty(this.ActDetail.ActExtra.Text2))
             {
-                this.txtExtraDetail2.Text = this.ActDetail.ActExtra.Text2;
+                await Device.InvokeOnMainThreadAsync(() => this.txtExtraDetail2.Text = this.ActDetail.ActExtra.Text2);
             }
 
             if (!string.IsNullOrEmpty(this.ActDetail.ActExtra.Text3))
             {
-                this.txtExtraDetail3.Text = this.ActDetail.ActExtra.Text3;
+                await Device.InvokeOnMainThreadAsync(() => this.txtExtraDetail3.Text = this.ActDetail.ActExtra.Text3);
             }
 
             if (!string.IsNullOrEmpty(this.ActDetail.ActExtra.Text4))
             {
-                this.txtExtraDetail4.Text = this.ActDetail.ActExtra.Text4;
+                await Device.InvokeOnMainThreadAsync(() => this.txtExtraDetail4.Text = this.ActDetail.ActExtra.Text4);
             }
 
             if (!SysCommon.IsEmptyDate(this.ActDetail.ActExtra.DateTime5))
             {
-                this.dtExtraDetail5.Date = this.ActDetail.ActExtra.DateTime5;
+                await Device.InvokeOnMainThreadAsync(() => this.dtExtraDetail5.Date = this.ActDetail.ActExtra.DateTime5);
             }
         }
 
@@ -1172,63 +1155,60 @@ namespace dMobile.View.Activity
         /// 
         /// </summary>
         /// <param name="prodRefno"></param>
-        private void GetProductVariantList(int prodRefno)
+        private async Task GetProductVariantList(int prodRefno)
         {
-            this.DataViewVariants = this.ActDetailEdit.GetVariantList(prodRefno);
-            ObservableCollection<object> productVariantList = new ObservableCollection<object>();
+            this.ListVariants = await this.ActDetailEdit.GetVariantList(prodRefno);
+            ObservableCollection<object> productVariantObservableCollection = new ObservableCollection<object>();
 
-            foreach (DataRow row in this.DataViewVariants.ToTable().Rows)
+            foreach (ProductVariant productVariant in this.ListVariants)
             {
-                ProductVariant productVariant = new ProductVariant()
-                {
-                    ProductSchemeVariantCode = Convert.ToString(row["ProductSchemeVariantCode"] != DBNull.Value ? row["ProductSchemeVariantCode"] : null),
-                    ProductSchemeVariantNo = Convert.ToInt32(row["ProductSchemeVariantNo"] != DBNull.Value ? row["ProductSchemeVariantNo"] : null),
-                    ProductSchemeVariantDisplay = Convert.ToString(row["ProductSchemeVariantDisplay"] != DBNull.Value ? row["ProductSchemeVariantDisplay"] : null),
-                };
+                //ProductVariant productVariant = new ProductVariant()
+                //{
+                //    ProductSchemeVariantCode = Convert.ToString(row["ProductSchemeVariantCode"] != DBNull.Value ? row["ProductSchemeVariantCode"] : null),
+                //    ProductSchemeVariantNo = Convert.ToInt32(row["ProductSchemeVariantNo"] != DBNull.Value ? row["ProductSchemeVariantNo"] : null),
+                //    ProductSchemeVariantDisplay = Convert.ToString(row["ProductSchemeVariantDisplay"] != DBNull.Value ? row["ProductSchemeVariantDisplay"] : null),
+                //};
 
-                productVariantList.Add(productVariant);
+                productVariantObservableCollection.Add(productVariant);
             }
 
             this.cboVariantCode.ItemDisplayBinding = new Binding("ProductSchemeVariantDisplay");
-            this.cboVariantCode.ItemsSource = productVariantList;
-
-            //this.cboVariantCode.ValueMember = "ProductSchemeVariantNo";
-            //this.cboVariantCode.DisplayMember = "ProductSchemeVariantDisplay";
+            this.cboVariantCode.ItemsSource = productVariantObservableCollection;
         }
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="prodRefno"></param>
-        private void GetLotNumberList(int prodRefno)
+        private async Task GetLotNumberList(int prodRefno)
         {
-            this.DataViewLots = this.ActDetailEdit.GetLotList(prodRefno);
+            this.ListLots = await this.ActDetailEdit.GetLotList(prodRefno);
             ObservableCollection<object> lotNumberList = new ObservableCollection<object>();
 
-            foreach (DataRow row in this.DataViewLots.ToTable().Rows)
+            foreach (LotNumber lotNumber in this.ListLots)
             {
-                LotNumber lotNumber = new LotNumber()
-                {
-                    ActivityDetailLogisticUnitBatchLotNumber = Convert.ToString(row["ActivityDetailLogisticUnitBatchLotNumber"] != DBNull.Value ? row["ActivityDetailLogisticUnitBatchLotNumber"] : null)
-                };
+                //LotNumber lotNumber = new LotNumber()
+                //{
+                //    ActivityDetailLogisticUnitBatchLotNumber = Convert.ToString(row["ActivityDetailLogisticUnitBatchLotNumber"] != DBNull.Value ? row["ActivityDetailLogisticUnitBatchLotNumber"] : null)
+                //};
 
                 lotNumberList.Add(lotNumber);
             }
 
-            this.cboLotNo.ItemDisplayBinding = new Binding("ActivityDetailLogisticUnitBatchLotNumber");
-            this.cboLotNo.ItemsSource = lotNumberList;
-
-            //this.cboLotNo.ValueMember = "ActivityDetailLogisticUnitBatchLotNumber";
-            //this.cboLotNo.DisplayMember = "ActivityDetailLogisticUnitBatchLotNumber";
+            await Device.InvokeOnMainThreadAsync(() =>
+            {
+                this.cboLotNo.ItemDisplayBinding = new Binding("ActivityDetailLogisticUnitBatchLotNumber");
+                this.cboLotNo.ItemsSource = lotNumberList;
+            });
         }
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="prodRefno"></param>
-        private void GetSerialNumberList(int prodRefno)
+        private async Task GetSerialNumberList(int prodRefno)
         {
-            this.DataViewSerialNumbers = this.ActDetailEdit.GetSerialNumberList(prodRefno);
+            this.ListSerialNumbers = await this.ActDetailEdit.GetSerialNumberList(prodRefno);
             ObservableCollection<SerialNumber> serialNumberList = new ObservableCollection<SerialNumber>();
             string selectedSerialNumberItem = this.cboSerialNo.Text;
             SerialNumber selectedSerialNumber = new SerialNumber();
@@ -1239,26 +1219,20 @@ namespace dMobile.View.Activity
                 serialNumberList.Add(selectedSerialNumber);
             }
 
-            foreach (DataRow row in this.DataViewSerialNumbers.ToTable().Rows)
+            foreach (SerialNumber serialNumber in this.ListSerialNumbers)
             {
-                SerialNumber serialNumber = new SerialNumber()
-                {
-                    ActivityDetailSingleTradeItemSerialNumber = Convert.ToString(row["ActivityDetailSingleTradeItemSerialNumber"] != DBNull.Value ? row["ActivityDetailSingleTradeItemSerialNumber"] : null)
-                };
+                //SerialNumber serialNumber = new SerialNumber()
+                //{
+                //    ActivityDetailSingleTradeItemSerialNumber = Convert.ToString(row["ActivityDetailSingleTradeItemSerialNumber"] != DBNull.Value ? row["ActivityDetailSingleTradeItemSerialNumber"] : null)
+                //};
 
                 serialNumberList.Add(serialNumber);
             }
 
-            //this.cboSerialNo.ItemDisplayBinding = new Binding("ActivityDetailSingleTradeItemSerialNumber");
-            //this.cboSerialNo.ItemsSource = serialNumberList;
-
             if (selectedSerialNumber.ActivityDetailSingleTradeItemSerialNumber != null)
             {
-                this.cboSerialNo.Text = selectedSerialNumber.ActivityDetailSingleTradeItemSerialNumber;
+                await Device.InvokeOnMainThreadAsync(() => this.cboSerialNo.Text = selectedSerialNumber.ActivityDetailSingleTradeItemSerialNumber);
             }
-
-            //this.cboSerialNo.ValueMember = "ActivityDetailSingleTradeItemSerialNumber";
-            //this.cboSerialNo.DisplayMember = "ActivityDetailSingleTradeItemSerialNumber";
         }
 
         /// <summary>
@@ -1277,7 +1251,7 @@ namespace dMobile.View.Activity
             {
                 ProductVariant variant = this.cboVariantCode != null ? this.cboVariantCode.SelectedItem as ProductVariant : null;
                 s.VariantNumber = Convert.ToInt32(variant != null ? variant.ProductSchemeVariantNo : -1);
-                s = this.ActDetail.FillSchemeDataVarInfoFromSchemeDataVarNo(s);
+                s = await this.ActDetail.FillSchemeDataVarInfoFromSchemeDataVarNo(s);
             }
 
             s.LogisticUnitProductionDate = this.dtProductionDate.Date;
@@ -1290,19 +1264,6 @@ namespace dMobile.View.Activity
             this.ActDetailEdit.ActExtra.Text4 = this.txtExtraDetail4.Text ?? string.Empty;
             this.ActDetailEdit.ActExtra.DateTime5 = this.dtExtraDetail5.Date;
 
-            // Keyboard is numeric only
-            //if (!Information.IsNumeric(txtAltQty.Text))
-            //{
-            //    // TODO: Resource strings
-            //    throw new Exceptions.MessageOnlyException("Invalid quantity.");
-            //}
-            //else if (!Information.IsNumeric(txtWtQty.Text))
-            //{
-            //    // TODO: Resource strings
-            //    throw new Exceptions.MessageOnlyException("Invalid weight quantity.");
-            //}
-            //else
-            //{
             this.ActDetailEdit.Quantity = decimal.Parse(this.txtAltQty.Text);
             this.ActDetailEdit.WeightQuantity = decimal.Parse(this.txtWtQty.Text);
 
@@ -1449,13 +1410,16 @@ namespace dMobile.View.Activity
         ///
         /// </summary>
         /// <remarks></remarks>
-        private void ShowProductInfo()
+        private async Task ShowProductInfo()
         {
-            this.ItemsList.Clear();
+            await Device.InvokeOnMainThreadAsync(() =>
+            {
+                this.ItemsList.Clear();
 
-            // TODO: Resource strings
-            this.ItemsList.Add("PROD: " + this.ActDetail.ActItem.ProdInfo.Code + this.ActDetail.ActItem.ProdInfo.UnitBC + "  " + this.ActDetail.ActItem.ProdInfo.Desc);
-            this.ItemsList.Add("SIZE: " + this.ActDetail.ActItem.ProdInfo.UnitSizeDesc);
+                // TODO: Resource strings
+                this.ItemsList.Add("PROD: " + this.ActDetail.ActItem.ProdInfo.Code + this.ActDetail.ActItem.ProdInfo.UnitBC + "  " + this.ActDetail.ActItem.ProdInfo.Desc);
+                this.ItemsList.Add("SIZE: " + this.ActDetail.ActItem.ProdInfo.UnitSizeDesc);
+            });
         }
 
         /// <summary>
@@ -1540,36 +1504,33 @@ namespace dMobile.View.Activity
                                 await Device.InvokeOnMainThreadAsync(() => this.dtExtraDetail5.IsEnabled = false);
                             }
 
-                            await Device.InvokeOnMainThreadAsync(() =>
-                            {
-                                this.LoadData();
-                                this.ShowProductInfo();
+                            await this.LoadData();
+                            await this.ShowProductInfo();
 
-                                this.GetProductVariantList(prodInfo.Refno);
-                                this.GetSerialNumberList(prodInfo.Refno);
-                                this.GetLotNumberList(prodInfo.Refno);
-                            });
+                            await this.GetProductVariantList(prodInfo.Refno);
+                            await this.GetSerialNumberList(prodInfo.Refno);
+                            await this.GetLotNumberList(prodInfo.Refno);
 
                             if (this.SysEnv.SysSettings.IsDetailEditScreenSetFocus2CatchWeight)
                             {
                                 if (prodInfo.IsCatchWeight)
                                 {
-                                    //this.txtWtQty.Focus();
+                                    await Device.InvokeOnMainThreadAsync(() => this.txtWtQty.Focus());
                                 }
                                 else
                                 {
-                                    //this.txtAltQty.Focus();
+                                    await Device.InvokeOnMainThreadAsync(() => this.txtAltQty.Focus());
                                 }
                             }
                             else
                             {
                                 if (scheme.IsSerialTracked && prodInfo.IsCatchWeight)
                                 {
-                                    //this.txtWtQty.Focus();
+                                    await Device.InvokeOnMainThreadAsync(() => this.txtWtQty.Focus());
                                 }
                                 else
                                 {
-                                    //this.txtAltQty.Focus();
+                                    await Device.InvokeOnMainThreadAsync(() => this.txtAltQty.Focus());
                                 }
                             }
                         }

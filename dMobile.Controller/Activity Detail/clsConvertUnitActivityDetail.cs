@@ -153,25 +153,26 @@ namespace dMobile.Controller
             throw new NotImplementedException();
         }
 
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        ///// <param name="rowIdx"></param>
-        ///// <returns></returns>
-        //public override int GetRefno(int rowIdx)
-        //{
-        //    return Convert.ToInt32(this.DataViewDetails[rowIdx]["ActivityDetailRefno"]);
-        //}
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="rowIdx"></param>
+        /// <returns></returns>
+        public override int GetRefno(object selectedActivityDetail)
+        {
 
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        ///// <param name="rowIdx"></param>
-        ///// <returns></returns>
-        //public override int GetFKRefno(int rowIdx)
-        //{
-        //    return Convert.ToInt32(this.DataViewDetails[rowIdx]["ActivityDetailCountFKRefno"]);
-        //}
+            return (selectedActivityDetail as dynamic).ActivityDetailRefno;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="rowIdx"></param>
+        /// <returns></returns>
+        public override int GetFKRefno(object selectedActivityDetail)
+        {
+            return (selectedActivityDetail as dynamic).ActivityDetailCountFKRefno;
+        }
 
         /// <summary>
         /// 
@@ -276,7 +277,7 @@ namespace dMobile.Controller
             Grid.SetRow(gridHeader, 0);
 
             dataGridMainActivityHeader.Children.Add(gridHeader);
-            
+
             foreach (ConvertUnitDetail convertUnitDetail in observableCollection)
             {
                 double detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(convertUnitDetail.CountNumber));

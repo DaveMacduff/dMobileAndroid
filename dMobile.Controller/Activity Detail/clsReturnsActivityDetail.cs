@@ -388,25 +388,25 @@ namespace dMobile.Controller
             }
         }
 
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        ///// <param name="idx"></param>
-        ///// <returns></returns>
-        //public override int GetRefno(int idx)
-        //{
-        //    return Convert.ToInt32(this.DataViewDetails[idx]["ActivityDetailRefno"]);
-        //}
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="idx"></param>
+        /// <returns></returns>
+        public override int GetRefno(object selectedActivityDetail)
+        {
+            return (selectedActivityDetail as ReturnDetail).ActivityDetailRefno;
+        }
 
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        ///// <param name="idx"></param>
-        ///// <returns></returns>
-        //public override int GetFKRefno(int idx)
-        //{
-        //    return Convert.ToInt32(this.DataViewDetails[idx]["ActivityDetailReturnsFKRefno"]);
-        //}
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="idx"></param>
+        /// <returns></returns>
+        public override int GetFKRefno(object selectedActivityDetail)
+        {
+            return (selectedActivityDetail as ReturnDetail).ActivityDetailReturnsFKRefno;
+        }
 
         /// <summary>
         /// Get a data view of the activity detail.

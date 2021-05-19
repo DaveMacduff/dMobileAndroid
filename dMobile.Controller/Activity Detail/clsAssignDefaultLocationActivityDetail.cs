@@ -231,25 +231,25 @@ namespace dMobile.Controller
             throw new NotImplementedException();
         }
 
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        ///// <param name="idx"></param>
-        ///// <returns></returns>
-        //public override int GetRefno(object selectedActivityDetail)
-        //{
-        //    return Convert.ToInt32((selectedActivityDetail as MoveDetail).ActivityDetailRefno);
-        //}
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="idx"></param>
+        /// <returns></returns>
+        public override int GetRefno(object selectedActivityDetail)
+        {
+            return Convert.ToInt32((selectedActivityDetail as MoveDetail).ActivityDetailRefno);
+        }
 
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        ///// <param name="selectedIndex"></param>
-        ///// <returns></returns>
-        //public override int GetFKRefno(object selectedActivityDetail)
-        //{
-        //    throw new NotImplementedException();
-        //}
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="selectedIndex"></param>
+        /// <returns></returns>
+        public override int GetFKRefno(object selectedActivityDetail)
+        {
+            throw new NotImplementedException();
+        }
 
         /// <summary>
         /// Create and fill the main grid data view.

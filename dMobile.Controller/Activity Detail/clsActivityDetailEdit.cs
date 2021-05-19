@@ -7,6 +7,7 @@ namespace dMobile.Controller
     using dMobile.Bedrock;
     using System.Collections.Generic;
     using System.Threading.Tasks;
+    using dMobile.Resources.Types;
 
     public class ActDetailEdit
     {
@@ -96,7 +97,7 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="prodRefno"></param>
         /// <returns></returns>
-        public async Task<List<object>> GetVariantList(int prodRefno)
+        public async Task<List<ProductVariant>> GetVariantList(int prodRefno)
         {
             SLocMap currLocMap = LocationMap.GetInstance().CurrLocMap;
 
@@ -115,7 +116,7 @@ namespace dMobile.Controller
             s.AppendFormat(" AND tLocationMapWarehouseProductScheme.WarehouseLocationMapRefno = {0}", currLocMap.WhsLocMapRefno);
             s.Append(" ORDER BY tProductSchemeVariant.ProductSchemeVariantCode");
 
-            return await DatabaseConnection.GetInstance().SQLConn.QueryAsync<object>(s.ToString());
+            return await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ProductVariant>(s.ToString());
         }
 
         /// <summary>
@@ -123,7 +124,7 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="prodRefno"></param>
         /// <returns></returns>
-        public async Task<List<object>> GetLotList(int prodRefno)
+        public async Task<List<LotNumber>> GetLotList(int prodRefno)
         {
             // TODO Put a number of lot max check, if tProductSchemeLotNumber is > 1000 only load the Detail lots not the
             // tProductSchemeLotNumber the exception would be receiving. The supplier Lot needs to exist in the list for
@@ -140,7 +141,7 @@ namespace dMobile.Controller
             s.Append("FROM tProductSchemeLotNumber ");
             s.Append("ORDER BY ActivityDetailLogisticUnitBatchLotNumber");
 
-            return await DatabaseConnection.GetInstance().SQLConn.QueryAsync<object>(s.ToString());
+            return await DatabaseConnection.GetInstance().SQLConn.QueryAsync<LotNumber>(s.ToString());
         }
 
         /// <summary>
@@ -148,7 +149,7 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="prodRefno"></param>
         /// <returns></returns>
-        public async Task<List<object>> GetSerialNumberList(int prodRefno)
+        public async Task<List<SerialNumber>> GetSerialNumberList(int prodRefno)
         {
             StringBuilder s = new StringBuilder();
             s.Append("SELECT DISTINCT tActivityDetail.ActivityDetailSingleTradeItemSerialNumber AS ActivityDetailSingleTradeItemSerialNumber ");
@@ -158,7 +159,7 @@ namespace dMobile.Controller
             s.AppendFormat("WHERE tProduct.ProductRefno = {0} ", prodRefno);
             s.Append("ORDER BY tActivityDetail.ActivityDetailSingleTradeItemSerialNumber");
 
-            return await DatabaseConnection.GetInstance().SQLConn.QueryAsync<object>(s.ToString());
+            return await DatabaseConnection.GetInstance().SQLConn.QueryAsync<SerialNumber>(s.ToString());
         }
 
         /// <summary>

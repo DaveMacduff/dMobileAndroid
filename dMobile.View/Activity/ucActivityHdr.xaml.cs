@@ -13,6 +13,7 @@
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Data;
+    using System.Linq;
     using System.Runtime.CompilerServices;
     using System.Threading.Tasks;
     using System.Xml.Linq;
@@ -799,7 +800,7 @@
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public XDocument GetXML()
+        public async Task<XDocument> GetXML()
         {
             XDocument xmldocParams = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
@@ -819,7 +820,7 @@
             //this.lstDisplay.Items.Clear();
             this.ItemsList.Clear();
 
-            if (this.ActHdr.DataViewHdrs.Count > 0)
+            if (this.ActHdr.ListHdrs.Count > 0)
             {
                 const int LineLength = 30;
                 List<string> lines = SysCommon.WordWrap2List(dataLayerEventArgs.StatusOutMsg, LineLength);
@@ -956,13 +957,14 @@
             this.Loading = true;
 
             string message = string.Empty;
-            //int currRowIdx = this.dataGridMainActivity.CurrentRowIndex;
-            string savedViewSort = string.Empty;
+            //string savedViewSort = string.Empty;
 
             try
             {
                 this.BarParse = scanArgs.ParseInfo;
-                savedViewSort = this.ActHdr.DataViewHdrs.Sort;
+
+                // TODO: Fix sorting
+                //savedViewSort = this.ActHdr.ListHdrs.Sort;
 
                 if (!string.IsNullOrEmpty(this.BarParse.ActFKRefno))
                 {
@@ -972,20 +974,16 @@
 
                     if (!string.IsNullOrEmpty(actHdrStringFKRefno))
                     {
-                        this.ActHdr.DataViewHdrs.Sort = this.ActHdr.GetFKRefnoIdx();
+                        // TODO: Fix sorting
+                        //this.ActHdr.DataViewHdrs.Sort = this.ActHdr.GetFKRefnoIdx();
 
-                        if (this.ActHdr.DataViewHdrs.Count > 0)
+                        // TODO: Test that this returns the correct value
+                        //this.ActHdr.DataViewHdrs.Find(actHdrStringFKRefno);
+                        object selectedActivity = this.ActHdr.ListHdrs.OfType<object>().Where(activity => Convert.ToString(activity.GetType().GetProperty(this.ActHdr.GetFKRefnoIdx()).GetValue(activity)) == actHdrStringFKRefno).FirstOrDefault();
+
+                        if (selectedActivity != null)
                         {
-                            //this.dataGridMainActivity.UnSelect(currRowIdx);
-                        }
-
-                        int rowIdx = this.ActHdr.DataViewHdrs.Find(actHdrStringFKRefno);
-
-                        if (rowIdx >= 0)
-                        {
-                            //this.dataGridMainActivity.UnSelect(this.dataGridMainActivity.CurrentRowIndex);
-                            //this.dataGridMainActivity.CurrentRowIndex = rowIdx;
-                            this.ActHdr.Refno = this.ActHdr.GetRefnoFromRowIdx(rowIdx);
+                            this.ActHdr.Refno = this.ActHdr.GetRefnoFromRowIdx(selectedActivity);
 
                             await Device.InvokeOnMainThreadAsync(async () =>
                             {
@@ -993,8 +991,6 @@
                                 this.IsChangesMade = false;
                                 await form.DisplayControl.ShowDialog();
                             });
-
-                            //this.dataGridMainActivity.Select(rowIdx);
                         }
                         else
                         {
@@ -1052,7 +1048,9 @@
             finally
             {
                 this.Loading = false;
-                this.ActHdr.DataViewHdrs.Sort = savedViewSort;
+
+                // TODO: Fix sorting
+                //this.ActHdr.DataViewHdrs.Sort = savedViewSort;
                 await this.ScannerEnable();
             }
         }
@@ -1089,7 +1087,7 @@
                         try
                         {
                             this.ActHdr.RegLayerListenerProgOut(this);
-                            this.ActHdr.Refresh(this.ActHdr.XMLDataCriteria);
+                            await this.ActHdr.Refresh(this.ActHdr.XMLDataCriteria);
                         }
                         catch (Exception ex)
                         {
@@ -1105,7 +1103,7 @@
                         }
 
                         await Device.InvokeOnMainThreadAsync(() => this.ItemsList.Clear());
-                        this.ActHdr.DataViewHdrs = this.ActHdr.GetDataView(false);
+                        this.ActHdr.ListHdrs = await this.ActHdr.GetActivityList(false);
 
                         await Device.InvokeOnMainThreadAsync(() =>
                         {
@@ -1118,29 +1116,23 @@
 
                             this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
 
-                            if (this.ActHdr.DataViewHdrs.Count > 0 && this.DataGridMainActivityItemsList.Count > 0)
+                            if (this.ActHdr.ListHdrs.Count > 0 && this.DataGridMainActivityItemsList.Count > 0)
                             {
                                 if (this.dataGridMainActivity.SelectedItem == null)
                                 {
-                                    this.ActHdr.SelectHdr(0);
+                                    this.ActHdr.SelectActivity(this.DataGridMainActivityItemsList[0]);
                                     this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[0];
                                 }
                                 else
                                 {
-                                    this.ActHdr.SelectHdr(this.ActHdr.SelectedIndex);
-                                    this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[this.ActHdr.SelectedIndex];
+                                    this.ActHdr.SelectActivity(this.dataGridMainActivity.SelectedItem);
+                                    this.dataGridMainActivity.SelectedItem = this.ActHdr.SelectedActivity;
                                 }
-
-                                this.dataGridMainActivity.Focus();
                             }
 
                             this.DisplayData();
                         });
                     });
-                }
-                else
-                {
-                    Console.WriteLine("activity is still refreshing...");
                 }
             }
             catch (Exception ex)
@@ -1209,9 +1201,9 @@
 
                         if (await Device.InvokeOnMainThreadAsync(async () => await formPickSelect.DisplayControl.ShowDialog() == DialogResult.OK))
                         {
-                            XDocument xmlResult = formPickSelect.GetXML();
+                            XDocument xmlResult = await formPickSelect.GetXML();
                             LocationMap locMap = LocationMap.GetInstance();
-                            SLocMap tmpLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(int.Parse(xmlResult.Root.Element("LocationMapRefno").Value));
+                            SLocMap tmpLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(int.Parse(xmlResult.Root.Element("LocationMapRefno").Value));
                             locMap.CurrLocMap = tmpLocMap;
                             sectFKRefno = tmpLocMap.SectFKRefno;
 
@@ -1269,23 +1261,21 @@
         /// <summary>
         /// 
         /// </summary>
-        private void DisplayData()
+        private async Task DisplayData()
         {
-            int idx = this.ActHdr.SelectedIndex;
-            DataView dataViewHdrs = this.ActHdr.DataViewHdrs;
-
+            // TODO: Test this function after sql changes
             switch (this.ActSubType)
             {
                 case SysCommon.ActSubTypes.Adjustment:
                     Device.BeginInvokeOnMainThread(() => this.ItemsList.Clear());
 
-                    if (dataViewHdrs.Count > 0)
+                    if (this.ActHdr.SelectedActivity is Adjustment adjustment)
                     {
                         // TODO: Resource strings
-                        Device.BeginInvokeOnMainThread(() =>
+                        await Device.InvokeOnMainThreadAsync(() =>
                         {
-                            this.ItemsList.Add(dataViewHdrs[idx]["ActivityAdjustmentType"].ToString());
-                            this.ItemsList.Add("WHS:  " + dataViewHdrs[idx]["LocationMapWarehouseName"].ToString());
+                            this.ItemsList.Add(adjustment.ActivityAdjustmentType.ToString());
+                            this.ItemsList.Add("WHS:  " + adjustment.LocationMapWarehouseName.ToString());
                         });
                     }
 
@@ -1295,15 +1285,15 @@
                     break;
 
                 case SysCommon.ActSubTypes.BarCodeAssociation:
-                    Device.BeginInvokeOnMainThread(() => this.ItemsList.Clear());
+                    await Device.InvokeOnMainThreadAsync(() => this.ItemsList.Clear());
 
-                    if (dataViewHdrs.Count > 0)
+                    if (this.ActHdr.SelectedActivity is BarcodeAssociation barcodeAssociation)
                     {
-                        Device.BeginInvokeOnMainThread(() =>
+                        await Device.InvokeOnMainThreadAsync(() =>
                         {
                             // TODO: Resource strings
-                            this.ItemsList.Add(dataViewHdrs[idx]["ProductUnitBarCodeCode"].ToString().TrimEnd());
-                            this.ItemsList.Add(dataViewHdrs[idx]["ProductUnitBarCodeModifier1"].ToString().TrimEnd());
+                            this.ItemsList.Add(barcodeAssociation.ProductUnitBarCodeCode.TrimEnd());
+                            this.ItemsList.Add(barcodeAssociation.ProductUnitBarCodeModifier1.TrimEnd());
                         });
                     }
 
@@ -1316,14 +1306,14 @@
                     break;
 
                 case SysCommon.ActSubTypes.CycleCounts:
-                    Device.BeginInvokeOnMainThread(() =>
+                    await Device.InvokeOnMainThreadAsync(() =>
                     {
                         this.ItemsList.Clear();
 
-                        if (dataViewHdrs.Count > 0)
+                        if (this.ActHdr.SelectedActivity is Count count)
                         {
                             const int LineLength = 30;
-                            List<string> lines = SysCommon.WordWrap2List(dataViewHdrs[idx]["ActivityCountDescription"].ToString().TrimEnd(), LineLength);
+                            List<string> lines = SysCommon.WordWrap2List(count.ActivityCountDescription.TrimEnd(), LineLength);
 
                             for (int i = 0; i < lines.Count; i++)
                             {
@@ -1353,14 +1343,14 @@
                     break;
 
                 case SysCommon.ActSubTypes.PhysicalCounts:
-                    Device.BeginInvokeOnMainThread(() =>
+                    await Device.InvokeOnMainThreadAsync(() =>
                     {
                         this.ItemsList.Clear();
 
-                        if (dataViewHdrs.Count > 0)
+                        if (this.ActHdr.SelectedActivity is Count count)
                         {
                             const int LineLength = 30;
-                            List<string> lines = SysCommon.WordWrap2List(dataViewHdrs[idx]["ActivityCountDescription"].ToString().TrimEnd(), LineLength);
+                            List<string> lines = SysCommon.WordWrap2List(count.ActivityCountDescription.TrimEnd(), LineLength);
 
                             for (int i = 0; i < lines.Count; i++)
                             {
@@ -1372,60 +1362,60 @@
                     break;
 
                 case SysCommon.ActSubTypes.Picking:
-                    Device.BeginInvokeOnMainThread(() => this.ItemsList.Clear());
+                    await Device.InvokeOnMainThreadAsync(() => this.ItemsList.Clear());
 
-                    if (dataViewHdrs.Count > 0)
+                    if (this.ActHdr.SelectedActivity is Picking picking)
                     {
                         // TODO: Resource strings
-                        Device.BeginInvokeOnMainThread(() =>
+                        await Device.InvokeOnMainThreadAsync(() =>
                         {
-                            this.ItemsList.Add("CUSTOMER: " + dataViewHdrs[idx]["ActivityPickingCustomerContactName"].ToString());
-                            this.ItemsList.Add("SHIPTO:   " + dataViewHdrs[idx]["ActivityPickingCustomerShipToInfo"].ToString());
+                            this.ItemsList.Add("CUSTOMER: " + picking.ActivityPickingCustomerContactName);
+                            this.ItemsList.Add("SHIPTO:   " + picking.ActivityPickingCustomerShipToInfo);
                         });
                     }
 
                     break;
 
                 case SysCommon.ActSubTypes.PickingSingle:
-                    Device.BeginInvokeOnMainThread(() => this.ItemsList.Clear());
+                    await Device.InvokeOnMainThreadAsync(() => this.ItemsList.Clear());
 
-                    if (dataViewHdrs.Count > 0)
+                    if (this.ActHdr.SelectedActivity is Picking pickingSingle)
                     {
                         // TODO: Resource strings
-                        Device.BeginInvokeOnMainThread(() =>
+                        await Device.InvokeOnMainThreadAsync(() =>
                         {
-                            this.ItemsList.Add("CUSTOMER: " + dataViewHdrs[idx]["ActivityPickingCustomerContactName"].ToString());
-                            this.ItemsList.Add("SHIPTO:   " + dataViewHdrs[idx]["ActivityPickingCustomerShipToInfo"].ToString());
+                            this.ItemsList.Add("CUSTOMER: " + pickingSingle.ActivityPickingCustomerContactName);
+                            this.ItemsList.Add("SHIPTO:   " + pickingSingle.ActivityPickingCustomerShipToInfo);
                         });
                     }
 
                     break;
 
                 case SysCommon.ActSubTypes.TicketAddProduct:
-                    Device.BeginInvokeOnMainThread(() => this.ItemsList.Clear());
+                    await Device.InvokeOnMainThreadAsync(() => this.ItemsList.Clear());
 
-                    if (dataViewHdrs.Count > 0)
+                    if (this.ActHdr.SelectedActivity is ProductionTicketByProduct productionTicketByProduct)
                     {
                         // TODO: Resource strings
-                        Device.BeginInvokeOnMainThread(() =>
+                        await Device.InvokeOnMainThreadAsync(() =>
                         {
-                            this.ItemsList.Add(dataViewHdrs[idx]["ActivityProductionDescription"].ToString());
-                            this.ItemsList.Add("WHS:  " + dataViewHdrs[idx]["LocationMapWarehouseName"].ToString());
+                            this.ItemsList.Add(productionTicketByProduct.ActivityProductionDescription);
+                            this.ItemsList.Add("WHS:  " + productionTicketByProduct.LocationMapWarehouseName);
                         });
                     }
 
                     break;
 
                 case SysCommon.ActSubTypes.TicketFinished:
-                    Device.BeginInvokeOnMainThread(() => this.ItemsList.Clear());
+                    await Device.InvokeOnMainThreadAsync(() => this.ItemsList.Clear());
 
-                    if (dataViewHdrs.Count > 0)
+                    if (this.ActHdr.SelectedActivity is ProductionTicketFinished productionTicketFinished)
                     {
                         // TODO: Resource strings
-                        Device.BeginInvokeOnMainThread(() =>
+                        await Device.InvokeOnMainThreadAsync(() =>
                         {
-                            this.ItemsList.Add(dataViewHdrs[idx]["ActivityProductionDescription"].ToString());
-                            this.ItemsList.Add("WHS:  " + dataViewHdrs[idx]["LocationMapWarehouseName"].ToString());
+                            this.ItemsList.Add(productionTicketFinished.ActivityProductionDescription);
+                            this.ItemsList.Add("WHS:  " + productionTicketFinished.LocationMapWarehouseName);
 
                         });
                     }
@@ -1433,22 +1423,22 @@
                     break;
 
                 case SysCommon.ActSubTypes.TicketMaterial:
-                    Device.BeginInvokeOnMainThread(() => this.ItemsList.Clear());
+                    await Device.InvokeOnMainThreadAsync(() => this.ItemsList.Clear());
 
-                    if (dataViewHdrs.Count > 0)
+                    if (this.ActHdr.SelectedActivity is ProductionTicketMaterial productionTicketMaterial)
                     {
                         // TODO: Resource strings
-                        Device.BeginInvokeOnMainThread(() =>
+                        await Device.InvokeOnMainThreadAsync(() =>
                         {
-                            this.ItemsList.Add(dataViewHdrs[idx]["ActivityProductionDescription"].ToString());
-                            this.ItemsList.Add("WHS:  " + dataViewHdrs[idx]["LocationMapWarehouseName"].ToString());
+                            this.ItemsList.Add(productionTicketMaterial.ActivityProductionDescription);
+                            this.ItemsList.Add("WHS:  " + productionTicketMaterial.LocationMapWarehouseName);
                         });
                     }
 
                     break;
 
                 case SysCommon.ActSubTypes.PurchaseOrderWorkSheet:
-                    Device.BeginInvokeOnMainThread(() => this.ItemsList.Clear());
+                    await Device.InvokeOnMainThreadAsync(() => this.ItemsList.Clear());
 
                     break;
 
@@ -1459,15 +1449,15 @@
                     break;
 
                 case SysCommon.ActSubTypes.Receiving:
-                    Device.BeginInvokeOnMainThread(() => this.ItemsList.Clear());
+                    await Device.InvokeOnMainThreadAsync(() => this.ItemsList.Clear());
 
-                    if (dataViewHdrs.Count > 0)
+                    if (this.ActHdr.SelectedActivity is Receive receive)
                     {
                         // TODO: Resource strings
-                        Device.BeginInvokeOnMainThread(() =>
+                        await Device.InvokeOnMainThreadAsync(() =>
                         {
-                            this.ItemsList.Add("VENDOR:  " + dataViewHdrs[idx]["ActivityReceivingVendorContactName"].ToString());
-                            this.ItemsList.Add("SUPPLIER:  " + dataViewHdrs[idx]["ActivityReceivingVendorSupplierContactName"].ToString());
+                            this.ItemsList.Add("VENDOR:  " + receive.ActivityReceivingVendorContactName);
+                            this.ItemsList.Add("SUPPLIER:  " + receive.ActivityReceivingVendorSupplierContactName);
                         });
                     }
 
@@ -1480,30 +1470,30 @@
                     break;
 
                 case SysCommon.ActSubTypes.ReleaseByOrder:
-                    Device.BeginInvokeOnMainThread(() => this.ItemsList.Clear());
+                    await Device.InvokeOnMainThreadAsync(() => this.ItemsList.Clear());
 
-                    if (dataViewHdrs.Count > 0)
+                    if (this.ActHdr.SelectedActivity is Picking pickingReleaseByOrder)
                     {
                         // TODO: Resource strings
-                        Device.BeginInvokeOnMainThread(() =>
+                        await Device.InvokeOnMainThreadAsync(() =>
                         {
-                            this.ItemsList.Add("CUSTOMER: " + dataViewHdrs[idx]["ActivityPickingCustomerContactName"].ToString());
-                            this.ItemsList.Add("SHIPTO:   " + dataViewHdrs[idx]["ActivityPickingCustomerShipToInfo"].ToString());
+                            this.ItemsList.Add("CUSTOMER: " + pickingReleaseByOrder.ActivityPickingCustomerContactName);
+                            this.ItemsList.Add("SHIPTO:   " + pickingReleaseByOrder.ActivityPickingCustomerShipToInfo);
                         });
                     }
 
                     break;
 
                 case SysCommon.ActSubTypes.Returns:
-                    Device.BeginInvokeOnMainThread(() => this.ItemsList.Clear());
+                    await Device.InvokeOnMainThreadAsync(() => this.ItemsList.Clear());
 
-                    if (dataViewHdrs.Count > 0)
+                    if (this.ActHdr.SelectedActivity is Return returns)
                     {
                         // TODO: Resource strings
-                        Device.BeginInvokeOnMainThread(() =>
+                        await Device.InvokeOnMainThreadAsync(() =>
                         {
-                            this.ItemsList.Add("CUSTOMER: " + dataViewHdrs[idx]["ActivityReturnsCustomerContactName"].ToString());
-                            this.ItemsList.Add("SHIPTO:   " + dataViewHdrs[idx]["ActivityReturnsCustomerShipToInfo"].ToString());
+                            this.ItemsList.Add("CUSTOMER: " + returns.ActivityReturnsCustomerContactName);
+                            this.ItemsList.Add("SHIPTO:   " + returns.ActivityReturnsCustomerShipToInfo);
                         });
                     }
 
@@ -1519,15 +1509,15 @@
                     break;
 
                 case SysCommon.ActSubTypes.TransferFrom:
-                    Device.BeginInvokeOnMainThread(() => this.ItemsList.Clear());
+                    await Device.InvokeOnMainThreadAsync(() => this.ItemsList.Clear());
 
-                    if (dataViewHdrs.Count > 0)
+                    if (this.ActHdr.SelectedActivity is Transfer transfer)
                     {
                         // TODO: Resource strings
-                        Device.BeginInvokeOnMainThread(() =>
+                        await Device.InvokeOnMainThreadAsync(() =>
                         {
-                            this.ItemsList.Add(dataViewHdrs[idx]["ActivityTransferDescription"].ToString());
-                            this.ItemsList.Add("TO WHS:  " + dataViewHdrs[idx]["LocationMapWarehouseName"].ToString());
+                            this.ItemsList.Add(transfer.ActivityTransferDescription);
+                            this.ItemsList.Add("TO WHS:  " + transfer.LocationMapWarehouseName);
                         });
                     }
 
@@ -1612,11 +1602,14 @@
                     {
                         await form.SaveChanges(this, new EventArgs());
                         XDocument xmlDoc = form.DisplayControlData;
-                        this.ActHdr.DataViewHdrs.RowFilter = this.ActHdr.GetFilter(xmlDoc);
+
+                        // TODO: Fix filtering
+                        // this.ActHdr.DataViewHdrs.RowFilter = this.ActHdr.GetFilter(xmlDoc);
 
                         if (!string.IsNullOrEmpty(xmlDoc.Root.Element("sortby").Value))
                         {
-                            this.ActHdr.DataViewHdrs.Sort = xmlDoc.Root.Element("sortby").Value;
+                            // TODO: Fix sorting
+                            //this.ActHdr.DataViewHdrs.Sort = xmlDoc.Root.Element("sortby").Value;
                         }
 
                         if (!string.IsNullOrEmpty(this.txtSearchHdr.Text))
@@ -1660,7 +1653,7 @@
                     // SelectNextControl in the keypress event causes a click event to fire
                     // if a command button is the next control rather than just giving the button focus.
                     XDocument xmlDoc = null;
-                    this.ActHdr.Insert(xmlDoc);
+                    await this.ActHdr.Insert(xmlDoc);
                 }
                 catch (Exceptions.MessageOnlyException ex)
                 {
@@ -1718,7 +1711,7 @@
                         this.ReqSaveDisableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
 
                         await this.ScannerDisable();
-                        this.ActHdr.Refno = this.ActHdr.GetRefnoFromRowIdx(Convert.ToInt32(this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem)));
+                        this.ActHdr.Refno = this.ActHdr.GetRefnoFromRowIdx(this.dataGridMainActivity.SelectedItem);
 
                         if (this.SysEnv.SysSettings.IsPickSingleProd && this.ActSubType == SysCommon.ActSubTypes.PickingSingle)
                         {
@@ -1730,18 +1723,15 @@
 
                                 if (this.SysEnv.ContactLog.IsAllowedPickingModuleOverridePicker)
                                 {
-                                    //if (MessageBox.Show("Do you wish to clear the current picker?", "Picker Override", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
-
+                                    // TODO: Test
                                     if (await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Picker Override", "Do you wish to clear the current picker?", "Yes", "No")))
                                     {
                                         if (await ((PickingActivity)this.ActHdr).ClearSalesOrderBeingPicked(false))
                                         {
-                                            //MessageBox.Show("Picker cleared.", "Picker Override", MessageBoxButtons.OK, MessageBoxIcon.Hand, MessageBoxDefaultButton.Button1);
                                             await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Picker Override", "Picker cleared.", "OK"));
                                         }
                                         else
                                         {
-                                            //MessageBox.Show("Unable to clear the current picker.", "Picker Override", MessageBoxButtons.OK, MessageBoxIcon.Hand, MessageBoxDefaultButton.Button1);
                                             await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Picker Override", "Unable to clear the current picker.", "OK"));
                                         }
                                     }
@@ -1814,7 +1804,7 @@
 
                     if (this.ActSubType == SysCommon.ActSubTypes.PickingSingle && this.SysEnv.SysSettings.CanPrintShippingLabel && !this.SysEnv.SysSettings.IsDisconnectedMode)
                     {
-                        labelQuantity = this.ActHdr.GetLabelQuantity(this.SysEnv.SysSettings.IsPickSinglePrintShipLabelFullQuantity);
+                        labelQuantity = await this.ActHdr.GetLabelQuantity(this.SysEnv.SysSettings.IsPickSinglePrintShipLabelFullQuantity);
                     }
 
                     if (await Device.InvokeOnMainThreadAsync(async () => await this.ActHdr.ChangeStatus(Convert.ToInt32(this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem)))))
@@ -1838,7 +1828,7 @@
                             }
                             else
                             {
-                                this.ActHdr.DataViewHdrs.Delete(Convert.ToInt32(this.DataGridMainActivityItemsList.IndexOf(dataGridMainActivity.SelectedItem)));
+                                this.ActHdr.ListHdrs.Remove(dataGridMainActivity.SelectedItem);
                             }
                         }
                         else if (this.ActSubType == SysCommon.ActSubTypes.Adjustment)
@@ -1857,8 +1847,8 @@
                                     if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
                                     {
                                         await form.SaveChanges(sender, e);
-                                        XDocument doc = form.GetXML();
-                                        actHdr.PrintLabel(doc);
+                                        XDocument doc = await form.GetXML();
+                                        await actHdr.PrintLabel(doc);
                                     }
 
                                 }
@@ -1898,12 +1888,12 @@
 
                     if (await Device.InvokeOnMainThreadAsync(async () => await form.DisplayControl.ShowDialog() == DialogResult.OK))
                     {
-                        XDocument request = form.GetXML();
+                        XDocument request = await form.GetXML();
 
                         // The itm_refno elements is used to mark the ar_oeitm.slbl_prtd as true.
                         // If itm_refno is zero then no line is updated as printed.
                         request.Element("params").Element("whs_id").AddAfterSelf(new XElement("itm_refno", 0));
-                        this.ActHdr.PrintLabel(request);
+                        await this.ActHdr.PrintLabel(request);
                     }
                 }
                 else
@@ -1912,12 +1902,12 @@
 
                     if (await Device.InvokeOnMainThreadAsync(async () => await form.DisplayControl.ShowDialog() == DialogResult.OK))
                     {
-                        XDocument request = form.GetXML();
+                        XDocument request = await form.GetXML();
 
                         // The itm_refno elements is used to mark the ar_oeitm.slbl_prtd as true.
                         // If itm_refno is zero then no line is updated as printed.
                         request.Element("params").Element("whs_id").AddAfterSelf(new XElement("itm_refno", 0));
-                        this.ActHdr.PrintLabel(request);
+                        await this.ActHdr.PrintLabel(request);
                     }
                 }
             }
@@ -1949,10 +1939,8 @@
                         if (await Device.InvokeOnMainThreadAsync(async () => await form.DisplayControl.ShowDialog() == DialogResult.OK))
                         {
                             LocationMap locMap = LocationMap.GetInstance();
-
-                            XDocument result = form.GetXML();
-
-                            SLocMap sLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(int.Parse(result.Root.Element("LocationMapRefno").Value));
+                            XDocument result = await form.GetXML();
+                            SLocMap sLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(int.Parse(result.Root.Element("LocationMapRefno").Value));
                             locMap.CurrLocMap = sLocMap;
 
                             this.ActHdr.XMLDataCriteria = XDocument.Parse(
@@ -1987,14 +1975,12 @@
             });
         }
 
-        private void DataGridMainActivity_ItemSelected(object sender, SelectedItemChangedEventArgs e)
+        private async void DataGridMainActivity_ItemSelected(object sender, SelectedItemChangedEventArgs e)
         {
-            int index = this.DataGridMainActivityItemsList.IndexOf(e.SelectedItem);
-
-            if (index != -1)
+            if (e.SelectedItem != null)
             {
-                this.ActHdr.SelectHdr(Convert.ToInt32(index));
-                this.DisplayData();
+                await this.ActHdr.SelectActivity(e.SelectedItem);
+                await this.DisplayData();
             }
         }
 

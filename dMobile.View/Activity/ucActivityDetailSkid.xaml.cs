@@ -32,7 +32,7 @@ namespace dMobile.View.Activity
         private Color addModeHeaderColor, removeModeHeaderColor;
 
         private ActDetail actDetail;
-        private DataView dataViewActDetails;
+        private List<dynamic> dataViewActDetails;
         private LocationMap locMap = LocationMap.GetInstance();
         private BarCodeParse parse = null;
         private BarCodeScanner.BarCodeScanner scanner = null;
@@ -130,11 +130,9 @@ namespace dMobile.View.Activity
                             return;
                         }
 
-                        int index = this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem);
-
-                        if (index >= 0)
+                        if (this.dataGridMainActivity.SelectedItem != null)
                         {
-                            this.ActDetail = this.ActDetail.GetInfo(index, false);
+                            this.ActDetail = await this.ActDetail.GetInfo(this.dataGridMainActivity.SelectedItem, false);
                             await PromptRemove();
                         }
 
@@ -456,7 +454,7 @@ namespace dMobile.View.Activity
             }
         }
 
-        private DataView DataViewActivityDetails
+        private List<dynamic> ListActivityDetails
         {
             get
             {
@@ -628,9 +626,6 @@ namespace dMobile.View.Activity
 
             try
             {
-                //(this.TopLevelControl as Form).KeyPreview = savedKeyPreviewState;
-                //(this.TopLevelControl as Form).KeyUp -= new KeyEventHandler(ucActivityDetailSkid_KeyUp);
-
                 if (await this.IsReadyToSave())
                 {
                     SysCommon.SFillQuantity fillQty = this.GetActivityItemQuantity();
@@ -677,9 +672,6 @@ namespace dMobile.View.Activity
 
             try
             {
-                //(this.TopLevelControl as Form).KeyPreview = savedKeyPreviewState;
-                //(this.TopLevelControl as Form).KeyUp -= new KeyEventHandler(ucActivityDetailSkid_KeyUp);
-
                 // IsReadyToClose checks if any changes where made.
                 if (await this.IsReadyToClose())
                 {
@@ -731,7 +723,7 @@ namespace dMobile.View.Activity
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public XDocument GetXML()
+        public async Task<XDocument> GetXML()
         {
             SysCommon.SFillQuantity fillQty = this.GetActivityItemQuantity();
 
@@ -854,8 +846,8 @@ namespace dMobile.View.Activity
         private void CleanUpBarCodeHandler(int svdActDetailFKRefno, int currRowIdx)
         {
             this.ActDetail.FKRefno = svdActDetailFKRefno;
-            
-            if (this.ActDetail.DataViewDetails.Count > 0 && currRowIdx + 1 <= this.ActDetail.DataViewDetails.Count && this.DataGridMainActivityItemsList.Count > currRowIdx)
+
+            if (this.ActDetail.ListDetails.Count > 0 && currRowIdx + 1 <= this.ActDetail.ListDetails.Count && this.DataGridMainActivityItemsList.Count > currRowIdx)
             {
                 //this.dataGridMainActivity.CurrentRowIndex = currRowIdx;
                 this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[currRowIdx];
@@ -911,7 +903,7 @@ namespace dMobile.View.Activity
 
                 if (!string.IsNullOrEmpty(this.Parse.ProductIdentifier))
                 {
-                    if (!LocationMapTasks.IsCompleteLocMapRefno(this.LocMap.CurrLocMapRefno))
+                    if (!await LocationMapTasks.IsCompleteLocMapRefno(this.LocMap.CurrLocMapRefno))
                     {
                         // TODO: Resource strings
                         throw new Exceptions.MessageOnlyException("Location must be set first.");
@@ -944,15 +936,14 @@ namespace dMobile.View.Activity
                     // If add mode / else remove mode
                     if (ScannerModeAdd)
                     {
-                        this.InsertActivityDetail(currRowIdx, this.ActDetail, this.Parse, isReadyToInsertDetail);
+                        await this.InsertActivityDetail(this.ActDetail, this.Parse, isReadyToInsertDetail);
                     }
                     else // Remove
                     {
-                        RemoveActivityDetail();
+                        await RemoveActivityDetail();
                     }
 
-                    this.ActDetail.SelectDetail(currRowIdx);
-                    //dataGridMainActivity.Select(dataGridMainActivity.CurrentRowIndex);
+                    await this.ActDetail.SelectActivityDetail(this.DataGridMainActivityItemsList[currRowIdx]);
 
                     if (this.DataGridMainActivityItemsList.Count > currRowIdx)
                     {
@@ -1013,16 +1004,16 @@ namespace dMobile.View.Activity
         /// <param name="actDetail"></param>
         /// <param name="parse"></param>
         /// <param name="isInsertDetailReady"></param>
-        private void InsertActivityDetail(int currRowIdx, ActDetail actDetail, BarCodeParse parse, bool isInsertDetailReady)
+        private async Task InsertActivityDetail(ActDetail actDetail, BarCodeParse parse, bool isInsertDetailReady)
         {
             if (isInsertDetailReady)
             {
                 actDetail.FKRefno = 0;
                 XDocument xmlDoc = actDetail.GetXML(actDetail);
-                actDetail.Insert(xmlDoc);
+                await actDetail.Insert(xmlDoc);
             }
 
-            if (actDetail.DataViewDetails.Count > 0 && this.DataGridMainActivityItemsList.Count > 0)
+            if (actDetail.ListDetails.Count > 0 && this.DataGridMainActivityItemsList.Count > 0)
             {
                 this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[this.DataGridMainActivityItemsList.Count - 1];
 
@@ -1032,12 +1023,12 @@ namespace dMobile.View.Activity
         /// <summary>
         /// Remove a scanned activity detail.
         /// </summary>
-        private void RemoveActivityDetail()
+        private async Task RemoveActivityDetail()
         {
             actDetail.FKRefno = 0;
             XDocument xmlDoc = actDetail.GetXML(actDetail);
-            actDetail.FillActDetailObjFromXML(xmlDoc);
-            actDetail.Delete();
+            await actDetail.FillActDetailObjFromXML(xmlDoc);
+            await actDetail.Delete();
         }
 
         /// <summary>
@@ -1081,16 +1072,16 @@ namespace dMobile.View.Activity
         private SysCommon.SFillQuantity GetActivityItemQuantity()
         {
             SysCommon.SFillQuantity fillQty = new SysCommon.SFillQuantity();
-            
-            if (this.DataViewActivityDetails != null)
+
+            if (this.ListActivityDetails != null)
             {
-                if (this.DataViewActivityDetails.Count > 0)
+                if (this.ListActivityDetails.Count > 0)
                 {
-                    for (int i = 0; i <= this.DataViewActivityDetails.Count - 1; i++)
+                    for (int i = 0; i <= this.ListActivityDetails.Count - 1; i++)
                     {
-                        fillQty.Quantity += Convert.ToDecimal(this.DataViewActivityDetails[i]["ActivityDetailQuantity"]);
-                        fillQty.BaseQuantity += Convert.ToDecimal(this.DataViewActivityDetails[i]["ActivityDetailBaseQuantity"]);
-                        fillQty.WeightQuantity += Convert.ToDecimal(this.DataViewActivityDetails[i]["ActivityDetailWeightQuantity"]);
+                        fillQty.Quantity += Convert.ToDecimal(this.ListActivityDetails[i].ActivityDetailQuantity);
+                        fillQty.BaseQuantity += Convert.ToDecimal(this.ListActivityDetails[i].ActivityDetailBaseQuantity);
+                        fillQty.WeightQuantity += Convert.ToDecimal(this.ListActivityDetails[i].ActivityDetailWeightQuantity);
                     }
                 }
             }
@@ -1123,20 +1114,23 @@ namespace dMobile.View.Activity
             {
                 await this.ScannerDisable();
 
-                this.DataViewActivityDetails = this.ActDetail.GetDataView(false);
-                this.ActDetail.Refresh();
-                this.DataGridMainActivityItemsList = this.ActDetail.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
-                this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
+                this.ListActivityDetails = await this.ActDetail.GetActivityDetailList(false);
+                await this.ActDetail.Refresh();
 
-                this.ItemsList.Clear();
-
-                if (this.DataViewActivityDetails.Count > 0 && this.DataGridMainActivityItemsList.Count > 0)
+                await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[0];
-                    this.ActDetail.SelectDetail(0);
-                }
+                    this.DataGridMainActivityItemsList = this.ActDetail.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
+                    this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
+                    this.ItemsList.Clear();
 
-                this.DisplaySummaryData();
+                    if (this.ListActivityDetails.Count > 0 && this.DataGridMainActivityItemsList.Count > 0)
+                    {
+                        this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[0];
+                        await this.ActDetail.SelectActivityDetail(this.dataGridMainActivity.SelectedItem);
+                    }
+
+                    this.DisplaySummaryData();
+                });
             }
             catch (Exception ex)
             {
@@ -1159,9 +1153,6 @@ namespace dMobile.View.Activity
         {
             if (!SysEnvironment.GetInstance().IsApplicationExitInvoked)
             {
-                //savedKeyPreviewState = (this.TopLevelControl as Form).KeyPreview;
-                //(this.TopLevelControl as Form).KeyPreview = true;
-                //(this.TopLevelControl as Form).KeyUp += new KeyEventHandler(ucActivityDetailSkid_KeyUp);
                 UpdateScannerMode();
 
                 if (this.IsControlLoaded == false)
@@ -1250,7 +1241,7 @@ namespace dMobile.View.Activity
         private async Task UpdateQty(SysCommon.SFillQuantity fillQty, bool modifyQuantity)
         {
             XDocument data = new XDocument();
-            string xmlReq = this.ActDetail.CreateDeleteXML(data);
+            string xmlReq = await this.ActDetail.CreateDeleteXML(data);
 
             // replace default fields with fillQty
             if (modifyQuantity)
@@ -1293,30 +1284,21 @@ namespace dMobile.View.Activity
         /// <param name="fillQty"></param>
         private async Task ShowUpdateOnGrid(SysCommon.SFillQuantity fillQty)
         {
-            //if (fillQty.Quantity == 0)
-            //{
-            //    this.RefreshData();
-            //    return;
-            //}
+            dynamic selectedItem = this.dataGridMainActivity.SelectedItem;
 
-            int index = this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem);
-
-            if (index < 0)
+            if (selectedItem == null)
             {
                 return;
             }
 
-            DataRow drow = this.DataViewActivityDetails.Table.Rows[index];
-            decimal currQty = Convert.ToDecimal(drow["ActivityDetailQuantity"]);
-            decimal currBaseQty = Convert.ToDecimal(drow["ActivityDetailBaseQuantity"]);
-            decimal currWtQty = Convert.ToDecimal(drow["ActivityDetailWeightQuantity"]);
+            decimal currQty = Convert.ToDecimal(selectedItem.ActivityDetailQuantity);
+            decimal currBaseQty = Convert.ToDecimal(selectedItem.ActivityDetailBaseQuantity);
+            decimal currWtQty = Convert.ToDecimal(selectedItem.ActivityDetailWeightQuantity);
 
-            drow["ActivityDetailQuantity"] = Convert.ToString(currQty - fillQty.Quantity);
-            drow["ActivityDetailBaseQuantity"] = Convert.ToString(currBaseQty - fillQty.BaseQuantity);
-            drow["ActivityDetailWeightQuantity"] = Convert.ToString(currWtQty - fillQty.WeightQuantity);
+            selectedItem.ActivityDetailQuantity = Convert.ToString(currQty - fillQty.Quantity);
+            selectedItem.ActivityDetailBaseQuantity = Convert.ToString(currBaseQty - fillQty.BaseQuantity);
+            selectedItem.ActivityDetailWeightQuantity = Convert.ToString(currWtQty - fillQty.WeightQuantity);
 
-            //this.dataGridMainActivity.Update();
-            //this.dataGridMainActivity.Select(this.dataGridMainActivity.CurrentRowIndex);
             await this.RefreshData();
             this.DisplaySummaryData();
         }
@@ -1329,8 +1311,6 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         private void txtSearchDetail_GotFocus(object sender, EventArgs e)
         {
-            //this.txtSearchDetail.SelectAll();
-                        
             if (this.txtSearchDetail.Text != null)
             {
                 this.txtSearchDetail.CursorPosition = 0;
@@ -1368,23 +1348,12 @@ namespace dMobile.View.Activity
         {
             if (!ScannerModeAdd)
             {
-                RemoveActivityDetail();
+                await RemoveActivityDetail();
                 return;
             }
-            ////actDetailInfo = actDetail.GetInfo(dataGridMainActivity.CurrentRowIndex, True, actDetailInfo)
-
-            //try
-            //{
-            //    if (dataGridMainActivity != null && dataGridMainActivity.CurrentRowIndex != -1)
-            //        dataGridMainActivity.UnSelect(dataGridMainActivity.CurrentRowIndex);
-            //}
-            //catch (Exception)
-            //{
-            //    // Don't bother handling. If the row didnt exist, then don't do anything.
-            //}
-
+            
             // Pass 0 as the current selected row on an add, true forces it as an add not an edit
-            this.ActDetail = this.ActDetail.GetInfo(0, true);
+            this.ActDetail = await this.ActDetail.GetInfo(this.DataGridMainActivityItemsList[0], true);
 
             await this.ScannerDisable();
 
@@ -1422,9 +1391,8 @@ namespace dMobile.View.Activity
 
                 isInsertReady = await SysShared.GatherProductData(parse, this.ActSubType, this.ActDetail.ActItem, tempItemProdSchemeData, isInsertReady, this.ActDetail, true);
 
-                int index = this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem);
-                this.InsertActivityDetail(index, this.ActDetail, parse, isInsertReady);
-                this.ActDetail.SelectDetail(index);
+                await this.InsertActivityDetail(this.ActDetail, parse, isInsertReady);
+                await this.ActDetail.SelectActivityDetail(this.dataGridMainActivity.SelectedItem);
 
                 DisplaySummaryData();
             }
@@ -1459,9 +1427,9 @@ namespace dMobile.View.Activity
 
         #endregion
 
-        private void dataGridMainActivity_ItemSelected(object sender, SelectedItemChangedEventArgs e)
+        private async Task dataGridMainActivity_ItemSelected(object sender, SelectedItemChangedEventArgs e)
         {
-            this.ActDetail.SelectDetail(e.SelectedItemIndex);
+            await this.ActDetail.SelectActivityDetail(e.SelectedItem);
             this.DisplaySummaryData();
         }
 

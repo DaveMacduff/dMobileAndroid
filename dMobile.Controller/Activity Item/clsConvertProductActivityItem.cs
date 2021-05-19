@@ -71,7 +71,7 @@
         ///
         /// </summary>
         /// <remarks></remarks>
-        public override void Delete()
+        public override async Task Delete()
         {
             if (this.ListItems != null)
             {

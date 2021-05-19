@@ -12,7 +12,6 @@ namespace dMobile.Controller
     using dMobile.Resources.Services;
     using dMobile.Resources.Types;
     using Xamarin.Forms;
-    using System.Threading.Tasks;
     using System.Collections.Generic;
     using System.Linq;
 

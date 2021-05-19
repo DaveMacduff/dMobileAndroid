@@ -8,20 +8,20 @@
     using dMobile.View.CustomPages.Modal;
     using dMobile.View.Forms;
     using System;
+    using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Data;
     using System.Linq;
-    using System.Threading;
     using System.Threading.Tasks;
     using System.Xml.Linq;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
     using Color = Xamarin.Forms.Color;
 
+    [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ucSetLocationMap : DMobileTabbedModal, IAppArea, IAppPublisher
     {
         private SysCommon.ActSubTypes actSubType = SysCommon.ActSubTypes.SelectLocation;
-        //private UserControl callingControl = null;
         private bool isControlLoaded = false;
         private bool isChangesMade = false;
         private LocationMap locMap;
@@ -37,17 +37,23 @@
         private int defaultWhsLocMapRefno = 0;
         private bool lockWhsSelection = false;
 
-        private DataView dataViewWhs;
-        private DataView dataViewSections;
-        private DataView dataViewSlotCoord1;
-        private DataView dataViewSlotCoord2;
-        private DataView dataViewSlotCoord3;
+        private List<Warehouse> listWarehouse;
+        private List<Section> listSections;
+        private List<Slot> listSlotCoord1;
+        private List<Slot> listSlotCoord2;
+        private List<Slot> listSlotCoord3;
 
-        private ObservableCollection<Warehouse> warehouseList;
-        private ObservableCollection<Section> sectionList;
-        private ObservableCollection<Slot> slotCoord1List;
-        private ObservableCollection<Slot> slotCoord2List;
-        private ObservableCollection<Slot> slotCoord3List;
+        private List<Warehouse> filteredListWarehouse;
+        private List<Section> filteredListSections;
+        private List<Slot> filteredListSlotCoord1;
+        private List<Slot> filteredListSlotCoord2;
+        private List<Slot> filteredListSlotCoord3;
+
+        private ObservableCollection<Warehouse> warehouseObservableCollection;
+        private ObservableCollection<Section> sectionObservableCollection;
+        private ObservableCollection<Slot> slotCoord1ObservableCollection;
+        private ObservableCollection<Slot> slotCoord2ObservableCollection;
+        private ObservableCollection<Slot> slotCoord3ObservableCollection;
 
         /// <summary>
         /// 
@@ -78,11 +84,11 @@
 
             if (!DesignMode.IsDesignModeEnabled)
             {
-                this.WarehouseList = new ObservableCollection<Warehouse>();
-                this.SectionList = new ObservableCollection<Section>();
-                this.SlotCoord1List = new ObservableCollection<Slot>();
-                this.SlotCoord2List = new ObservableCollection<Slot>();
-                this.SlotCoord3List = new ObservableCollection<Slot>();
+                this.WarehouseObservableCollection = new ObservableCollection<Warehouse>();
+                this.SectionObservableCollection = new ObservableCollection<Section>();
+                this.SlotCoord1ObservableCollection = new ObservableCollection<Slot>();
+                this.SlotCoord2ObservableCollection = new ObservableCollection<Slot>();
+                this.SlotCoord3ObservableCollection = new ObservableCollection<Slot>();
 
                 this.LocMapInfo = new SLocMap();
                 this.LocMap = LocationMap.GetInstance();
@@ -121,11 +127,11 @@
 
             if (!DesignMode.IsDesignModeEnabled)
             {
-                this.WarehouseList = new ObservableCollection<Warehouse>();
-                this.SectionList = new ObservableCollection<Section>();
-                this.SlotCoord1List = new ObservableCollection<Slot>();
-                this.SlotCoord2List = new ObservableCollection<Slot>();
-                this.SlotCoord3List = new ObservableCollection<Slot>();
+                this.WarehouseObservableCollection = new ObservableCollection<Warehouse>();
+                this.SectionObservableCollection = new ObservableCollection<Section>();
+                this.SlotCoord1ObservableCollection = new ObservableCollection<Slot>();
+                this.SlotCoord2ObservableCollection = new ObservableCollection<Slot>();
+                this.SlotCoord3ObservableCollection = new ObservableCollection<Slot>();
 
                 this.LocMapInfo = new SLocMap();
                 this.LocMap = LocationMap.GetInstance();
@@ -175,17 +181,17 @@
                 {
                     if (this.CurrentPage.Title == this.warehouseTab.Title)
                     {
-                        if (this.dgWhs.SelectedItem != null && Convert.ToInt32(this.WarehouseList.IndexOf(this.dgWhs.SelectedItem as Warehouse)) < this.WarehouseList.Count - 1)
+                        if (this.dgWhs.SelectedItem != null && Convert.ToInt32(this.WarehouseObservableCollection.IndexOf(this.dgWhs.SelectedItem as Warehouse)) < this.WarehouseObservableCollection.Count - 1)
                         {
-                            this.dgWhs.SelectedItem = this.WarehouseList[this.WarehouseList.IndexOf(this.dgWhs.SelectedItem as Warehouse) + 1];
+                            this.dgWhs.SelectedItem = this.WarehouseObservableCollection[this.WarehouseObservableCollection.IndexOf(this.dgWhs.SelectedItem as Warehouse) + 1];
                             this.dgWhs.ScrollTo(this.dgWhs.SelectedItem, ScrollToPosition.MakeVisible, true);
                         }
                     }
-                    else if(this.CurrentPage.Title == this.sectionTab.Title)
+                    else if (this.CurrentPage.Title == this.sectionTab.Title)
                     {
-                        if (this.dgSections.SelectedItem != null && Convert.ToInt32(this.SectionList.IndexOf(this.dgSections.SelectedItem as Section)) < this.SectionList.Count - 1)
+                        if (this.dgSections.SelectedItem != null && Convert.ToInt32(this.SectionObservableCollection.IndexOf(this.dgSections.SelectedItem as Section)) < this.SectionObservableCollection.Count - 1)
                         {
-                            this.dgSections.SelectedItem = this.SectionList[this.SectionList.IndexOf(this.dgSections.SelectedItem as Section) + 1];
+                            this.dgSections.SelectedItem = this.SectionObservableCollection[this.SectionObservableCollection.IndexOf(this.dgSections.SelectedItem as Section) + 1];
                             this.dgSections.ScrollTo(this.dgSections.SelectedItem, ScrollToPosition.MakeVisible, true);
                         }
                     }
@@ -194,17 +200,17 @@
                 {
                     if (this.CurrentPage.Title == this.warehouseTab.Title)
                     {
-                        if (this.dgWhs.SelectedItem != null && Convert.ToInt32(this.WarehouseList.IndexOf(this.dgWhs.SelectedItem as Warehouse)) > 0)
+                        if (this.dgWhs.SelectedItem != null && Convert.ToInt32(this.WarehouseObservableCollection.IndexOf(this.dgWhs.SelectedItem as Warehouse)) > 0)
                         {
-                            this.dgWhs.SelectedItem = this.WarehouseList[this.WarehouseList.IndexOf(this.dgWhs.SelectedItem as Warehouse) - 1];
+                            this.dgWhs.SelectedItem = this.WarehouseObservableCollection[this.WarehouseObservableCollection.IndexOf(this.dgWhs.SelectedItem as Warehouse) - 1];
                             this.dgWhs.ScrollTo(this.dgWhs.SelectedItem, ScrollToPosition.MakeVisible, true);
                         }
                     }
                     else if (this.CurrentPage.Title == this.sectionTab.Title)
                     {
-                        if (this.dgSections.SelectedItem != null && Convert.ToInt32(this.SectionList.IndexOf(this.dgSections.SelectedItem as Section)) > 0)
+                        if (this.dgSections.SelectedItem != null && Convert.ToInt32(this.SectionObservableCollection.IndexOf(this.dgSections.SelectedItem as Section)) > 0)
                         {
-                            this.dgSections.SelectedItem = this.SectionList[this.SectionList.IndexOf(this.dgSections.SelectedItem as Section) - 1];
+                            this.dgSections.SelectedItem = this.SectionObservableCollection[this.SectionObservableCollection.IndexOf(this.dgSections.SelectedItem as Section) - 1];
                             this.dgSections.ScrollTo(this.dgSections.SelectedItem, ScrollToPosition.MakeVisible, true);
                         }
                     }
@@ -251,31 +257,31 @@
         {
             if (this.CurrentPage.Title == this.sectionTab.Title)
             {
-                if (this.dgSections.SelectedItem == null && this.SectionList.Count > 0)
+                if (this.dgSections.SelectedItem == null && this.SectionObservableCollection.Count > 0)
                 {
-                    this.dgSections.SelectedItem = this.SectionList[0];
+                    this.dgSections.SelectedItem = this.SectionObservableCollection[0];
                 }
             }
             else if (this.CurrentPage.Title == this.slotTab.Title)
             {
-                if (this.dgSections.SelectedItem == null && this.SectionList.Count > 0)
+                if (this.dgSections.SelectedItem == null && this.SectionObservableCollection.Count > 0)
                 {
-                    this.dgSections.SelectedItem = this.SectionList[0];
+                    this.dgSections.SelectedItem = this.SectionObservableCollection[0];
                 }
 
-                if (this.dgCoord1.SelectedItem == null && this.SlotCoord1List.Count > 0)
+                if (this.dgCoord1.SelectedItem == null && this.SlotCoord1ObservableCollection.Count > 0)
                 {
-                    this.dgCoord1.SelectedItem = this.SlotCoord1List[0];
+                    this.dgCoord1.SelectedItem = this.SlotCoord1ObservableCollection[0];
                 }
 
-                if (this.dgCoord2.SelectedItem == null && this.SlotCoord2List.Count > 0)
+                if (this.dgCoord2.SelectedItem == null && this.SlotCoord2ObservableCollection.Count > 0)
                 {
-                    this.dgCoord2.SelectedItem = this.SlotCoord2List[0];
+                    this.dgCoord2.SelectedItem = this.SlotCoord2ObservableCollection[0];
                 }
 
-                if (this.dgCoord3.SelectedItem == null && this.SlotCoord3List.Count > 0)
+                if (this.dgCoord3.SelectedItem == null && this.SlotCoord3ObservableCollection.Count > 0)
                 {
-                    this.dgCoord3.SelectedItem = this.SlotCoord3List[0];
+                    this.dgCoord3.SelectedItem = this.SlotCoord3ObservableCollection[0];
                 }
             }
         }
@@ -416,68 +422,68 @@
             }
         }
 
-        private DataView DataViewSlotCoord3
+        private List<Slot> ListSlotCoord3
         {
             get
             {
-                return this.dataViewSlotCoord3;
+                return this.listSlotCoord3;
             }
 
             set
             {
-                this.dataViewSlotCoord3 = value;
+                this.listSlotCoord3 = value;
             }
         }
 
-        private DataView DataViewSlotCoord2
+        private List<Slot> ListSlotCoord2
         {
             get
             {
-                return this.dataViewSlotCoord2;
+                return this.listSlotCoord2;
             }
 
             set
             {
-                this.dataViewSlotCoord2 = value;
+                this.listSlotCoord2 = value;
             }
         }
 
-        private DataView DataViewSlotCoord1
+        private List<Slot> ListSlotCoord1
         {
             get
             {
-                return this.dataViewSlotCoord1;
+                return this.listSlotCoord1;
             }
 
             set
             {
-                this.dataViewSlotCoord1 = value;
+                this.listSlotCoord1 = value;
             }
         }
 
-        private DataView DataViewSections
+        private List<Section> ListSections
         {
             get
             {
-                return this.dataViewSections;
+                return this.listSections;
             }
 
             set
             {
-                this.dataViewSections = value;
+                this.listSections = value;
             }
         }
 
-        private DataView DataViewWhs
+        private List<Warehouse> ListWarehouse
         {
             get
             {
-                return this.dataViewWhs;
+                return this.listWarehouse;
             }
 
             set
             {
-                this.dataViewWhs = value;
+                this.listWarehouse = value;
             }
         }
 
@@ -506,19 +512,6 @@
                 this.isControlLoaded = value;
             }
         }
-
-        //private UserControl CallingControl
-        //{
-        //    get
-        //    {
-        //        return this.callingControl;
-        //    }
-
-        //    set
-        //    {
-        //        this.callingControl = value;
-        //    }
-        //}
 
         private bool IsBarCodeHandlerRegistered
         {
@@ -624,11 +617,16 @@
             }
         }
 
-        public ObservableCollection<Warehouse> WarehouseList { get => warehouseList; set => warehouseList = value; }
-        public ObservableCollection<Section> SectionList { get => sectionList; set => sectionList = value; }
-        public ObservableCollection<Slot> SlotCoord1List { get => slotCoord1List; set => slotCoord1List = value; }
-        public ObservableCollection<Slot> SlotCoord2List { get => slotCoord2List; set => slotCoord2List = value; }
-        public ObservableCollection<Slot> SlotCoord3List { get => slotCoord3List; set => slotCoord3List = value; }
+        public ObservableCollection<Warehouse> WarehouseObservableCollection { get => warehouseObservableCollection; set => warehouseObservableCollection = value; }
+        public ObservableCollection<Section> SectionObservableCollection { get => sectionObservableCollection; set => sectionObservableCollection = value; }
+        public ObservableCollection<Slot> SlotCoord1ObservableCollection { get => slotCoord1ObservableCollection; set => slotCoord1ObservableCollection = value; }
+        public ObservableCollection<Slot> SlotCoord2ObservableCollection { get => slotCoord2ObservableCollection; set => slotCoord2ObservableCollection = value; }
+        public ObservableCollection<Slot> SlotCoord3ObservableCollection { get => slotCoord3ObservableCollection; set => slotCoord3ObservableCollection = value; }
+        public List<Warehouse> FilteredListWarehouse { get => filteredListWarehouse; set => filteredListWarehouse = value; }
+        public List<Section> FilteredListSections { get => filteredListSections; set => filteredListSections = value; }
+        public List<Slot> FilteredListSlotCoord1 { get => filteredListSlotCoord1; set => filteredListSlotCoord1 = value; }
+        public List<Slot> FilteredListSlotCoord2 { get => filteredListSlotCoord2; set => filteredListSlotCoord2 = value; }
+        public List<Slot> FilteredListSlotCoord3 { get => filteredListSlotCoord3; set => filteredListSlotCoord3 = value; }
 
         #region Public Members
 
@@ -732,16 +730,6 @@
             return isReadyToClose;
         }
 
-        ///// <summary>
-        /////
-        ///// </summary>
-        ///// <returns></returns>
-        ///// <remarks></remarks>
-        //public UserControl GetCallingControl()
-        //{
-        //    return this.CallingControl;
-        //}
-
         /// <summary>
         ///
         /// </summary>
@@ -841,7 +829,7 @@
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public XDocument GetXML()
+        public async Task<XDocument> GetXML()
         {
             XDocument request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
@@ -993,9 +981,6 @@
         /// <remarks></remarks>
         private void txtSearchSection_TextChanged(object sender, TextChangedEventArgs e)
         {
-            // Did not consider selected data changed
-            ////this.IsChangesMade = true;
-
             try
             {
                 // By Code
@@ -1003,16 +988,19 @@
                 {
                     if (string.Compare(txtSearchSection.Text, string.Empty) > 0)
                     {
-                        this.DataViewSections.RowFilter = "LocationMapSectionCode = " + this.txtSearchSection.Text.Trim();
+                        //this.DataViewSections.RowFilter = "LocationMapSectionCode = " + this.txtSearchSection.Text.Trim();
+                        this.FilteredListSections = this.ListSections.Where<Section>(section => Convert.ToString(section.LocationMapSectionCode) == this.txtSearchSection.Text.Trim()).ToList();
                     }
                     else
                     {
-                        this.DataViewSections.RowFilter = string.Empty;
+                        //this.DataViewSections.RowFilter = string.Empty;
+                        this.FilteredListSections = this.ListSections;
                     }
                 }
                 else
                 {
-                    this.DataViewSections.RowFilter = "LocationMapSectionName LIKE \'" + this.txtSearchSection.Text.Trim() + "%\'";
+                    //this.DataViewSections.RowFilter = "LocationMapSectionName LIKE \'" + this.txtSearchSection.Text.Trim() + "%\'";
+                    this.FilteredListSections = this.ListSections.Where<Section>(section => section.LocationMapSectionName.Contains(this.txtSearchSection.Text.Trim())).ToList();
                 }
             }
             // Setting this.DataViewSections.RowFilter = "LocationMapSectionCode = " + this.txtSearchSection.Text.Trim();
@@ -1020,12 +1008,13 @@
             catch (EvaluateException ex)
             {
                 Console.WriteLine(ex);
-                this.DataViewSections.RowFilter = "LocationMapSectionCode = -1";
+                //this.DataViewSections.RowFilter = "LocationMapSectionCode = -1";
+                this.FilteredListSections = this.ListSections.Where<Section>(section => Convert.ToString(section.LocationMapSectionCode) == Convert.ToString(-1)).ToList();
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
-                this.DataViewSections.RowFilter = string.Empty;
+                this.FilteredListSections = this.ListSections;
             }
             finally
             {
@@ -1041,29 +1030,27 @@
         /// <remarks></remarks>
         private void txtSlotCoordinate1_TextChanged(object sender, TextChangedEventArgs e)
         {
-            // Did not consider selected data changed
-            ////this.IsChangesMade = true;
-            this.DataViewSlotCoord1.RowFilter = "LocationMapSlotCoordinateCode LIKE \'%" + this.txtSlotCoordinate1.Text.Trim() + "%\'";
+            this.FilteredListSlotCoord1 = this.ListSlotCoord1.Where<Slot>(slot => slot.LocationMapSlotCoordinateCode.Contains(this.txtSlotCoordinate1.Text.Trim())).ToList();
             this.PopulateSlotCoord1List();
         }
 
         private void PopulateSlotCoord1List()
         {
-            this.SlotCoord1List = new ObservableCollection<Slot>();
+            this.SlotCoord1ObservableCollection = new ObservableCollection<Slot>();
 
-            foreach (DataRow row in this.DataViewSlotCoord1.ToTable().Rows)
+            foreach (Slot slot in this.FilteredListSlotCoord1)
             {
-                Slot slot = new Slot
-                {
-                    LocationMapSlotCoordinateCode = Convert.ToString(row["LocationMapSlotCoordinateCode"]),
-                    LocationMapSlotCoordinateRefno = Convert.ToInt32(row["LocationMapSlotCoordinateRefno"]),
-                    SectionLocationMapRefno = Convert.ToInt32(row["SectionLocationMapRefno"])
-                };
+                //Slot slot = new Slot
+                //{
+                //    LocationMapSlotCoordinateCode = Convert.ToString(row["LocationMapSlotCoordinateCode"]),
+                //    LocationMapSlotCoordinateRefno = Convert.ToInt32(row["LocationMapSlotCoordinateRefno"]),
+                //    SectionLocationMapRefno = Convert.ToInt32(row["SectionLocationMapRefno"])
+                //};
 
-                this.SlotCoord1List.Add(slot);
+                this.SlotCoord1ObservableCollection.Add(slot);
             }
 
-            this.dgCoord1.ItemsSource = this.SlotCoord1List;
+            this.dgCoord1.ItemsSource = this.SlotCoord1ObservableCollection;
         }
 
         /// <summary>
@@ -1074,29 +1061,28 @@
         /// <remarks></remarks>
         private void txtSlotCoordinate2_TextChanged(object sender, TextChangedEventArgs e)
         {
-            // Did not consider selected data changed
-            ////this.IsChangesMade = true;
-            this.DataViewSlotCoord2.RowFilter = "LocationMapSlotCoordinateCode LIKE \'%" + this.txtSlotCoordinate2.Text.Trim() + "%\'";
+            //this.DataViewSlotCoord2.RowFilter = "LocationMapSlotCoordinateCode LIKE \'%" + this.txtSlotCoordinate2.Text.Trim() + "%\'";
+            this.FilteredListSlotCoord2 = this.ListSlotCoord2.Where<Slot>(slot => slot.LocationMapSlotCoordinateCode.Contains(this.txtSlotCoordinate1.Text.Trim())).ToList();
             this.PopulateSlotCoord2List();
         }
 
         private void PopulateSlotCoord2List()
         {
-            this.SlotCoord2List = new ObservableCollection<Slot>();
+            this.SlotCoord2ObservableCollection = new ObservableCollection<Slot>();
 
-            foreach (DataRow row in this.DataViewSlotCoord2.ToTable().Rows)
+            foreach (Slot slot in this.FilteredListSlotCoord2)
             {
-                Slot slot = new Slot
-                {
-                    LocationMapSlotCoordinateCode = Convert.ToString(row["LocationMapSlotCoordinateCode"]),
-                    LocationMapSlotCoordinateRefno = Convert.ToInt32(row["LocationMapSlotCoordinateRefno"]),
-                    SectionLocationMapRefno = Convert.ToInt32(row["SectionLocationMapRefno"])
-                };
+                //Slot slot = new Slot
+                //{
+                //    LocationMapSlotCoordinateCode = Convert.ToString(row["LocationMapSlotCoordinateCode"]),
+                //    LocationMapSlotCoordinateRefno = Convert.ToInt32(row["LocationMapSlotCoordinateRefno"]),
+                //    SectionLocationMapRefno = Convert.ToInt32(row["SectionLocationMapRefno"])
+                //};
 
-                this.SlotCoord2List.Add(slot);
+                this.SlotCoord2ObservableCollection.Add(slot);
             }
 
-            this.dgCoord2.ItemsSource = this.SlotCoord2List;
+            this.dgCoord2.ItemsSource = this.SlotCoord2ObservableCollection;
         }
 
         /// <summary>
@@ -1107,29 +1093,28 @@
         /// <remarks></remarks>
         private void txtSlotCoordinate3_TextChanged(object sender, TextChangedEventArgs e)
         {
-            // Did not consider selected data changed
-            ////this.IsChangesMade = true;
-            this.DataViewSlotCoord3.RowFilter = "LocationMapSlotCoordinateCode LIKE \'%" + this.txtSlotCoordinate3.Text.Trim() + "%\'";
+            //this.DataViewSlotCoord3.RowFilter = "LocationMapSlotCoordinateCode LIKE \'%" + this.txtSlotCoordinate3.Text.Trim() + "%\'";
+            this.FilteredListSlotCoord3 = this.ListSlotCoord3.Where<Slot>(slot => slot.LocationMapSlotCoordinateCode.Contains(this.txtSlotCoordinate1.Text.Trim())).ToList();
             this.PopulateSlotCoord3List();
         }
 
         private void PopulateSlotCoord3List()
         {
-            this.SlotCoord3List = new ObservableCollection<Slot>();
+            this.SlotCoord3ObservableCollection = new ObservableCollection<Slot>();
 
-            foreach (DataRow row in this.DataViewSlotCoord3.ToTable().Rows)
+            foreach (Slot slot in this.FilteredListSlotCoord3)
             {
-                Slot slot = new Slot
-                {
-                    LocationMapSlotCoordinateCode = Convert.ToString(row["LocationMapSlotCoordinateCode"]),
-                    LocationMapSlotCoordinateRefno = Convert.ToInt32(row["LocationMapSlotCoordinateRefno"]),
-                    SectionLocationMapRefno = Convert.ToInt32(row["SectionLocationMapRefno"])
-                };
+                //Slot slot = new Slot
+                //{
+                //    LocationMapSlotCoordinateCode = Convert.ToString(row["LocationMapSlotCoordinateCode"]),
+                //    LocationMapSlotCoordinateRefno = Convert.ToInt32(row["LocationMapSlotCoordinateRefno"]),
+                //    SectionLocationMapRefno = Convert.ToInt32(row["SectionLocationMapRefno"])
+                //};
 
-                this.SlotCoord3List.Add(slot);
+                this.SlotCoord3ObservableCollection.Add(slot);
             }
 
-            this.dgCoord3.ItemsSource = this.SlotCoord3List;
+            this.dgCoord3.ItemsSource = this.SlotCoord3ObservableCollection;
         }
 
         /// <summary>
@@ -1142,54 +1127,54 @@
         {
             try
             {
-                if (this.DataViewWhs == null || this.LocMapInfo.WhsLocMapRefno == 0)
+                if (this.FilteredListWarehouse == null || this.LocMapInfo.WhsLocMapRefno == 0)
                 {
                     await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Select the warehouse first!", "OK"));
                 }
                 else
                 {
-                    if (this.DataViewSections != null)
+                    if (this.FilteredListSections != null)
                     {
-                        this.DataViewSections.RowFilter = "WarehouseLocationMapRefno = " + this.LocMapInfo.WhsLocMapRefno;
+                        this.FilteredListSections = this.ListSections.Where<Section>(section => section.WarehouseLocationMapRefno == this.LocMapInfo.WhsLocMapRefno).ToList();
 
                         this.SelectSection();
 
-                        if (this.DataViewSections.Count > 0)
+                        if (this.FilteredListSections.Count > 0)
                         {
                             if (this.dgSections.SelectedItem is Section selectedSection && this.LocMapInfo.SectLocMapRefno != selectedSection.LocationMapRefno)
                             {
-                                this.LocMapInfo = LocationMapTasks.GetSLocMapFromLocMapRefno(selectedSection.LocationMapRefno);
+                                this.LocMapInfo = await LocationMapTasks.GetSLocMapFromLocMapRefno(selectedSection.LocationMapRefno);
                             }
                         }
                     }
                 }
 
-                if (this.DataViewSections == null || this.LocMapInfo.SectLocMapRefno == 0)
+                if (this.FilteredListSections == null || this.LocMapInfo.SectLocMapRefno == 0)
                 {
                     await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Select the section first!", "OK"));
                 }
                 else
                 {
-                    if (this.DataViewSlotCoord1 != null && this.DataViewSlotCoord2 != null && this.DataViewSlotCoord3 != null)
+                    if (this.FilteredListSlotCoord1 != null && this.FilteredListSlotCoord2 != null && this.FilteredListSlotCoord3 != null)
                     {
-                        this.DataViewSlotCoord1.RowFilter = "SectionLocationMapRefno = " + this.LocMapInfo.SectLocMapRefno;
-                        this.DataViewSlotCoord2.RowFilter = "SectionLocationMapRefno = " + this.LocMapInfo.SectLocMapRefno;
-                        this.DataViewSlotCoord3.RowFilter = "SectionLocationMapRefno = " + this.LocMapInfo.SectLocMapRefno;
+                        this.FilteredListSlotCoord1 = this.ListSlotCoord1.Where<Slot>(slot => slot.SectionLocationMapRefno == this.LocMapInfo.SectLocMapRefno).ToList();
+                        this.FilteredListSlotCoord2 = this.ListSlotCoord2.Where<Slot>(slot => slot.SectionLocationMapRefno == this.LocMapInfo.SectLocMapRefno).ToList();
+                        this.FilteredListSlotCoord3 = this.ListSlotCoord3.Where<Slot>(slot => slot.SectionLocationMapRefno == this.LocMapInfo.SectLocMapRefno).ToList();
 
                         this.SelectSlotCoordinate();
 
-                        if (this.DataViewSlotCoord1.Count > 0)
+                        if (this.FilteredListSlotCoord1.Count > 0)
                         {
                             int slotLocMapRefno = 0;
 
                             if (this.dgCoord1.SelectedItem is Slot slotCoord1 && this.dgCoord2.SelectedItem is Slot slotCoord2 && this.dgCoord3.SelectedItem is Slot slotCoord3)
                             {
-                                slotLocMapRefno = LocationMapTasks.GetSlotRefnoFromCoordinates(this.LocMapInfo.SectLocMapRefno, slotCoord1.LocationMapSlotCoordinateRefno, slotCoord2.LocationMapSlotCoordinateRefno, slotCoord3.LocationMapSlotCoordinateRefno);
+                                slotLocMapRefno = await LocationMapTasks.GetSlotRefnoFromCoordinates(this.LocMapInfo.SectLocMapRefno, slotCoord1.LocationMapSlotCoordinateRefno, slotCoord2.LocationMapSlotCoordinateRefno, slotCoord3.LocationMapSlotCoordinateRefno);
                             }
 
                             if (slotLocMapRefno != 0)
                             {
-                                this.LocMapInfo = LocationMapTasks.GetSLocMapFromLocMapRefno(slotLocMapRefno);
+                                this.LocMapInfo = await LocationMapTasks.GetSLocMapFromLocMapRefno(slotLocMapRefno);
                             }
                         }
                     }
@@ -1229,13 +1214,10 @@
         ///
         /// </summary>
         /// <remarks></remarks>
-        private void LoadWhsList()
+        private async Task LoadWhsList()
         {
-            DataTable dataTableWarehouses = new DataTable();
-            LocationMapTasks.GetWhsList(ref dataTableWarehouses);
-            dataTableWarehouses.TableName = "WhsList";
-            this.DataViewWhs = dataTableWarehouses.DefaultView;
-            //this.dgWhs.DataSource = this.DataViewWhs;
+            this.ListWarehouse = await LocationMapTasks.GetWhsList();
+            this.FilteredListWarehouse = this.ListWarehouse;
             this.PopulateWarehouseList();
         }
 
@@ -1243,14 +1225,10 @@
         ///
         /// </summary>
         /// <remarks></remarks>
-        private void LoadSections()
+        private async Task LoadSections()
         {
-            DataTable dataTableSections = new DataTable();
-            LocationMapTasks.GetSectList(ref dataTableSections);
-            dataTableSections.TableName = "Sections";
-            this.DataViewSections = dataTableSections.DefaultView;
-            this.DataViewSections.RowFilter = "WarehouseLocationMapRefno = " + this.LocMapInfo.WhsLocMapRefno;
-            //this.dgSections.DataSource = this.DataViewSections;
+            this.ListSections = await LocationMapTasks.GetSectList();
+            this.FilteredListSections = this.ListSections.Where(section => section.WarehouseLocationMapRefno == this.LocMapInfo.WhsLocMapRefno).ToList();
             this.PopulateSectionList();
         }
 
@@ -1258,26 +1236,18 @@
         ///
         /// </summary>
         /// <remarks></remarks>
-        private void LoadSlots()
+        private async Task LoadSlots()
         {
-            DataTable dataTableSlots = new DataTable();
-
-            LocationMapTasks.GetSlotCoord1List(ref dataTableSlots);
-            dataTableSlots.TableName = "SlotCoord1";
-            this.DataViewSlotCoord1 = dataTableSlots.DefaultView;
-            this.DataViewSlotCoord1.RowFilter = "SectionLocationMapRefno = " + this.LocMapInfo.SectLocMapRefno;
+            this.ListSlotCoord1 = await LocationMapTasks.GetSlotCoord1List();
+            this.FilteredListSlotCoord1 = this.ListSlotCoord1.Where<Slot>(slot => slot.SectionLocationMapRefno == this.LocMapInfo.SectLocMapRefno).ToList();
             this.PopulateSlotCoord1List();
 
-            LocationMapTasks.GetSlotCoord2List(ref dataTableSlots);
-            dataTableSlots.TableName = "SlotCoord2";
-            this.DataViewSlotCoord2 = dataTableSlots.DefaultView;
-            this.DataViewSlotCoord2.RowFilter = "SectionLocationMapRefno = " + this.LocMapInfo.SectLocMapRefno;
+            this.ListSlotCoord2 = await LocationMapTasks.GetSlotCoord2List();
+            this.FilteredListSlotCoord2 = this.ListSlotCoord2.Where<Slot>(slot => slot.SectionLocationMapRefno == this.LocMapInfo.SectLocMapRefno).ToList();
             this.PopulateSlotCoord2List();
 
-            LocationMapTasks.GetSlotCoord3List(ref dataTableSlots);
-            dataTableSlots.TableName = "SlotCoord3";
-            this.DataViewSlotCoord3 = dataTableSlots.DefaultView;
-            this.DataViewSlotCoord3.RowFilter = "SectionLocationMapRefno = " + this.LocMapInfo.SectLocMapRefno;
+            this.ListSlotCoord3 = await LocationMapTasks.GetSlotCoord3List();
+            this.FilteredListSlotCoord3 = this.ListSlotCoord3.Where<Slot>(slot => slot.SectionLocationMapRefno == this.LocMapInfo.SectLocMapRefno).ToList();
             this.PopulateSlotCoord3List();
         }
 
@@ -1285,7 +1255,7 @@
         ///
         /// </summary>
         /// <remarks></remarks>
-        private void LoadData()
+        private async Task LoadData()
         {
             // Default to the login warehouse
             int locMapRefno;
@@ -1299,24 +1269,24 @@
                 }
                 else
                 {
-                    locMapRefno = LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(this.DefaultWhsLocMapRefno, 0, SysCommon.ProdLocMapTypes.Picking);
+                    locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(this.DefaultWhsLocMapRefno, 0, SysCommon.ProdLocMapTypes.Picking);
                 }
             }
             else if (0 >= this.LocMap.CurrLocMap.WhsLocMapRefno)
             {
-                locMapRefno = LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(this.LocMap.LoginWhsLocMapRefno, 0, SysCommon.ProdLocMapTypes.Picking);
+                locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(this.LocMap.LoginWhsLocMapRefno, 0, SysCommon.ProdLocMapTypes.Picking);
             }
             else
             {
                 locMapRefno = this.LocMap.CurrLocMapRefno;
             }
 
-            this.LocMapInfo = LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
+            this.LocMapInfo = await LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
 
             // Load the dataviews and apply row filters base on the current sLocationMapInfo values
-            this.LoadWhsList();
-            this.LoadSections();
-            this.LoadSlots();
+            await this.LoadWhsList();
+            await this.LoadSections();
+            await this.LoadSlots();
 
             this.SelectWarehouse();
             this.SelectSection();
@@ -1332,30 +1302,18 @@
             // Attempt to find last selected warehouse in warehouse view
             if (this.LocMapInfo.WhsLocMapRefno != 0)
             {
-                for (int rowIdx = 0; rowIdx < this.DataViewWhs.Count; rowIdx++)
+                Warehouse selectedWarehouse = this.WarehouseObservableCollection.Where<Warehouse>(warehouse => warehouse.LocationMapRefno == this.LocMapInfo.WhsLocMapRefno).FirstOrDefault();
+
+                if (selectedWarehouse != null)
                 {
-                    if (Convert.ToInt32(this.DataViewWhs[rowIdx]["LocationMapRefno"]) == this.LocMapInfo.WhsLocMapRefno)
-                    {
-                        //this.dgWhs.CurrentRowIndex = rowIdx;
-                        //this.dgWhs.Select(rowIdx);
-
-                        if (this.WarehouseList.Count > rowIdx)
-                        {
-                            this.dgWhs.SelectedItem = this.WarehouseList[rowIdx];
-                        }
-
-                        break;
-                    }
+                    this.dgWhs.SelectedItem = selectedWarehouse;
                 }
             }
             else
             {
-                //dgWhs.CurrentRowIndex = 0;
-                //dgWhs.Select(0);
-
-                if (this.WarehouseList.Count > 0)
+                if (this.WarehouseObservableCollection.Count > 0)
                 {
-                    this.dgWhs.SelectedItem = this.WarehouseList[0];
+                    this.dgWhs.SelectedItem = this.WarehouseObservableCollection[0];
                 }
             }
         }
@@ -1371,9 +1329,6 @@
                 if (this.LocMapInfo.WhsLocMapRefno == 0)
                 {
                     // TODO: Resource strings
-                    //this.lblWarehouseData.Text = "Unknown";
-                    //this.lblWarehouseData.TextColor = Color.Black;
-
                     this.warehouseLocationMapInfo.SetWarehouseDataText("Unknown");
                     this.warehouseLocationMapInfo.SetWarehouseDataTextColor(Color.Black);
                     this.sectionLocationMapInfo.SetWarehouseDataText("Unknown");
@@ -1383,9 +1338,6 @@
                 }
                 else
                 {
-                    //this.lblWarehouseData.Text = this.LocMapInfo.WhsCode + "  " + this.LocMapInfo.WhsName;
-                    //this.lblWarehouseData.TextColor = Color.Blue;
-
                     this.warehouseLocationMapInfo.SetWarehouseDataText(this.LocMapInfo.WhsCode + "  " + this.LocMapInfo.WhsName);
                     this.warehouseLocationMapInfo.SetWarehouseDataTextColor(Color.Blue);
                     this.sectionLocationMapInfo.SetWarehouseDataText(this.LocMapInfo.WhsCode + "  " + this.LocMapInfo.WhsName);
@@ -1459,7 +1411,7 @@
                 //{
                 if (this.CurrentPage.TabIndex == 2)
                 {
-                    if (this.DataViewSlotCoord1.Count > 0)
+                    if (this.FilteredListSlotCoord1.Count > 0)
                     {
                         if (this.dgCoord1.SelectedItem is Slot slot1)
                         {
@@ -1467,7 +1419,7 @@
                         }
                     }
 
-                    if (this.DataViewSlotCoord2.Count > 0)
+                    if (this.FilteredListSlotCoord2.Count > 0)
                     {
                         if (this.dgCoord2.SelectedItem is Slot slot2)
                         {
@@ -1475,7 +1427,7 @@
                         }
                     }
 
-                    if (this.DataViewSlotCoord3.Count > 0)
+                    if (this.FilteredListSlotCoord3.Count > 0)
                     {
                         if (this.dgCoord3.SelectedItem is Slot slot3)
                         {
@@ -1497,44 +1449,18 @@
                 // attempt to find last selected section in section view
                 if (this.LocMapInfo.SectLocMapRefno != 0)
                 {
-                    int index = this.dgSections.SelectedItem is Section section ? this.SectionList.IndexOf(section) : 0;
+                    Section section = this.SectionObservableCollection.Where<Section>(section => section.LocationMapRefno == this.LocMapInfo.SectLocMapRefno).FirstOrDefault();
 
-                    if (Convert.ToInt32(this.DataViewSections[index]["LocationMapRefno"]) != this.LocMapInfo.SectLocMapRefno)
+                    if (section != null)
                     {
-                        for (int rowIdx = 0; rowIdx < this.DataViewSections.Count; rowIdx++)
-                        {
-                            if (Convert.ToInt32(this.DataViewSections[rowIdx]["LocationMapRefno"]) == this.LocMapInfo.SectLocMapRefno)
-                            {
-                                //this.dgSections.CurrentRowIndex = rowIdx;
-                                //this.dgSections.Select(rowIdx);
-
-                                if (this.SectionList.Count > rowIdx)
-                                {
-                                    this.dgSections.SelectedItem = this.SectionList[rowIdx];
-                                }
-
-                                break;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        //dgSections.Select(dgSections.CurrentRowIndex);
-
-                        if (this.SectionList.Count > 0)
-                        {
-                            this.dgSections.SelectedItem = this.SectionList[0];
-                        }
+                        this.dgSections.SelectedItem = section;
                     }
                 }
                 else
                 {
-                    //dgSections.CurrentRowIndex = 0;
-                    //dgSections.Select(0);
-
-                    if (this.SectionList.Count > 0)
+                    if (this.SectionObservableCollection.Count > 0)
                     {
-                        this.dgSections.SelectedItem = this.SectionList[0];
+                        this.dgSections.SelectedItem = this.SectionObservableCollection[0];
                     }
                 }
             }
@@ -1548,17 +1474,17 @@
         {
             if (this.LocMap.CurrLocMap.IsSlotTracked)
             {
-                if (this.DataViewSlotCoord1.Count > this.SlotCoord1List.Count)
+                if (this.FilteredListSlotCoord1.Count > this.SlotCoord1ObservableCollection.Count)
                 {
                     this.PopulateSlotCoord1List();
                 }
 
-                if (this.DataViewSlotCoord2.Count > this.SlotCoord2List.Count)
+                if (this.FilteredListSlotCoord2.Count > this.SlotCoord2ObservableCollection.Count)
                 {
                     this.PopulateSlotCoord2List();
                 }
 
-                if (this.DataViewSlotCoord3.Count > this.SlotCoord3List.Count)
+                if (this.FilteredListSlotCoord3.Count > this.SlotCoord3ObservableCollection.Count)
                 {
                     this.PopulateSlotCoord3List();
                 }
@@ -1566,72 +1492,54 @@
                 // Attempt to find last selected slot coordinate in slot coordinate 1 view
                 if (this.LocMapInfo.SlotCoord1LocMapRefno != 0)
                 {
-                    for (int rowIdx = 0; rowIdx < this.DataViewSlotCoord1.Count; rowIdx++)
-                    {
-                        if (Convert.ToInt32(this.DataViewSlotCoord1[rowIdx]["LocationMapSlotCoordinateRefno"]) == this.LocMapInfo.SlotCoord1LocMapRefno)
-                        {
-                            if (this.SlotCoord1List.Count > rowIdx)
-                            {
-                                this.dgCoord1.SelectedItem = this.SlotCoord1List[rowIdx];
-                            }
+                    Slot slotCoord1 = this.SlotCoord1ObservableCollection.Where(slot => slot.LocationMapSlotCoordinateRefno == this.LocMapInfo.SlotCoord1LocMapRefno).FirstOrDefault();
 
-                            break;
-                        }
+                    if (slotCoord1 != null)
+                    {
+                        this.dgCoord1.SelectedItem = slotCoord1;
                     }
                 }
                 else
                 {
-                    if (this.SlotCoord1List.Count > 0)
+                    if (this.SlotCoord1ObservableCollection.Count > 0)
                     {
-                        this.dgCoord1.SelectedItem = this.SlotCoord1List[0];
+                        this.dgCoord1.SelectedItem = this.SlotCoord1ObservableCollection[0];
                     }
                 }
 
                 // attempt to find last selected slot coordinate in slot coordinate 2 view
                 if (this.LocMapInfo.SlotCoord2LocMapRefno != 0)
                 {
-                    for (int rowIdx = 0; rowIdx < this.DataViewSlotCoord2.Count; rowIdx++)
-                    {
-                        if (Convert.ToInt32(this.DataViewSlotCoord2[rowIdx]["LocationMapSlotCoordinateRefno"]) == this.LocMapInfo.SlotCoord2LocMapRefno)
-                        {
-                            if (this.SlotCoord2List.Count > rowIdx)
-                            {
-                                this.dgCoord2.SelectedItem = this.SlotCoord2List[rowIdx];
-                            }
+                    Slot slotCoord2 = this.SlotCoord2ObservableCollection.Where(slot => slot.LocationMapSlotCoordinateRefno == this.LocMapInfo.SlotCoord1LocMapRefno).FirstOrDefault();
 
-                            break;
-                        }
+                    if (slotCoord2 != null)
+                    {
+                        this.dgCoord2.SelectedItem = slotCoord2;
                     }
                 }
                 else
                 {
-                    if (this.SlotCoord2List.Count > 0)
+                    if (this.SlotCoord2ObservableCollection.Count > 0)
                     {
-                        this.dgCoord2.SelectedItem = this.SlotCoord2List[0];
+                        this.dgCoord2.SelectedItem = this.SlotCoord2ObservableCollection[0];
                     }
                 }
 
                 // Attempt to find last selected slot coordinate in slot coordinate 3 view
                 if (0 < this.LocMapInfo.SlotCoord3LocMapRefno)
                 {
-                    for (int rowIdx = 0; rowIdx < this.DataViewSlotCoord3.Count; rowIdx++)
-                    {
-                        if (Convert.ToInt32(this.DataViewSlotCoord3[rowIdx]["LocationMapSlotCoordinateRefno"]) == this.LocMapInfo.SlotCoord3LocMapRefno)
-                        {
-                            if (this.SlotCoord3List.Count > rowIdx)
-                            {
-                                this.dgCoord3.SelectedItem = this.SlotCoord3List[rowIdx];
-                            }
+                    Slot slotCoord3 = this.SlotCoord3ObservableCollection.Where(slot => slot.LocationMapSlotCoordinateRefno == this.LocMapInfo.SlotCoord1LocMapRefno).FirstOrDefault();
 
-                            break;
-                        }
+                    if (slotCoord3 != null)
+                    {
+                        this.dgCoord3.SelectedItem = slotCoord3;
                     }
                 }
                 else
                 {
-                    if (this.SlotCoord3List.Count > 0)
+                    if (this.SlotCoord3ObservableCollection.Count > 0)
                     {
-                        this.dgCoord3.SelectedItem = this.SlotCoord3List[0];
+                        this.dgCoord3.SelectedItem = this.SlotCoord3ObservableCollection[0];
                     }
                 }
             }
@@ -1651,44 +1559,34 @@
 
             if (!string.IsNullOrEmpty(this.Parse.ActFKRefno))
             {
-                //MessageBox.Show("Scanning an header reference # is not supported here!", this.GetControlDescription(), MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
-
                 // TODO: Resource strings
                 await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Scanning an header reference # is not supported here!", "OK"));
             }
             else if (!string.IsNullOrEmpty(this.Parse.ActItemFKRefno))
             {
-                //MessageBox.Show("Scanning an item reference # is not supported here!", this.GetControlDescription(), MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
-
                 // TODO: Resource strings
                 await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Scanning an item reference # is not supported here!", "OK"));
             }
             else if (!string.IsNullOrEmpty(this.Parse.ProductIdentifier))
             {
-                //MessageBox.Show("Scanning a product bar code is not supported here!", this.GetControlDescription(), MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
-
                 // TODO: Resource strings
                 await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Scanning a product bar code is not supported here!", "OK"));
             }
             else if (!string.IsNullOrEmpty(this.Parse.SSCC18))
             {
-                //MessageBox.Show("Scanning a shipping container bar code is not supported here!", this.GetControlDescription(), MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
-
                 // TODO: Resource strings
                 await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Scanning a shipping container bar code is not supported here!", "OK"));
             }
             else if (!string.IsNullOrEmpty(this.Parse.LocationIdentifier))
             {
-                int locMapRefno = LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(this.Parse.LocationIdentifier);
-                this.LocMapInfo = LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
+                int locMapRefno = await LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(this.Parse.LocationIdentifier);
+                this.LocMapInfo = await LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
                 this.SelectWarehouse();
                 this.SelectSection();
                 this.SelectSlotCoordinate();
             }
             else
             {
-                //MessageBox.Show("Scanned bar code type is not supported here!", this.GetControlDescription(), MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
-
                 // TODO: Resource strings
                 await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Scanned bar code type is not supported here!", "OK"));
             }
@@ -1704,12 +1602,12 @@
 
                 if (this.IsControlLoaded && e.SelectedItem is Warehouse warehouse)
                 {
-                    this.LocMapInfo = LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(warehouse.LocationMapRefno));
+                    this.LocMapInfo = await LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(warehouse.LocationMapRefno));
                     this.dgSections.SelectedItem = null;
                     this.dgCoord1.SelectedItem = null;
                     this.dgCoord2.SelectedItem = null;
                     this.dgCoord3.SelectedItem = null;
-                    this.LoadSections();
+                    await this.LoadSections();
                     await this.UpdateLocationDisplay();
                 }
             }
@@ -1721,11 +1619,11 @@
 
             if (this.IsControlLoaded && e.SelectedItem is Section section)
             {
-                this.LocMapInfo = LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(section.LocationMapRefno));
+                this.LocMapInfo = await LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(section.LocationMapRefno));
                 this.dgCoord1.SelectedItem = null;
                 this.dgCoord2.SelectedItem = null;
                 this.dgCoord3.SelectedItem = null;
-                this.LoadSlots();
+                await this.LoadSlots();
                 await this.UpdateLocationDisplay();
             }
         }
@@ -1739,12 +1637,12 @@
 
                 if (e.SelectedItem is Slot slot1 && this.dgCoord2.SelectedItem is Slot slot2 && this.dgCoord3.SelectedItem is Slot slot3)
                 {
-                    slotLocMapRefno = LocationMapTasks.GetSlotRefnoFromCoordinates(this.LocMapInfo.SectLocMapRefno, slot1.LocationMapSlotCoordinateRefno, slot2.LocationMapSlotCoordinateRefno, slot3.LocationMapSlotCoordinateRefno);
+                    slotLocMapRefno = await LocationMapTasks.GetSlotRefnoFromCoordinates(this.LocMapInfo.SectLocMapRefno, slot1.LocationMapSlotCoordinateRefno, slot2.LocationMapSlotCoordinateRefno, slot3.LocationMapSlotCoordinateRefno);
                 }
 
                 if (slotLocMapRefno != 0)
                 {
-                    this.LocMapInfo = LocationMapTasks.GetSLocMapFromLocMapRefno(slotLocMapRefno);
+                    this.LocMapInfo = await LocationMapTasks.GetSLocMapFromLocMapRefno(slotLocMapRefno);
                 }
 
                 await this.UpdateLocationDisplay();
@@ -1760,12 +1658,12 @@
 
                 if (this.dgCoord1.SelectedItem is Slot slot1 && e.SelectedItem is Slot slot2 && this.dgCoord3.SelectedItem is Slot slot3)
                 {
-                    slotLocMapRefno = LocationMapTasks.GetSlotRefnoFromCoordinates(this.LocMapInfo.SectLocMapRefno, slot1.LocationMapSlotCoordinateRefno, slot2.LocationMapSlotCoordinateRefno, slot3.LocationMapSlotCoordinateRefno);
+                    slotLocMapRefno = await LocationMapTasks.GetSlotRefnoFromCoordinates(this.LocMapInfo.SectLocMapRefno, slot1.LocationMapSlotCoordinateRefno, slot2.LocationMapSlotCoordinateRefno, slot3.LocationMapSlotCoordinateRefno);
                 }
 
                 if (slotLocMapRefno != 0)
                 {
-                    this.LocMapInfo = LocationMapTasks.GetSLocMapFromLocMapRefno(slotLocMapRefno);
+                    this.LocMapInfo = await LocationMapTasks.GetSLocMapFromLocMapRefno(slotLocMapRefno);
                 }
 
                 await this.UpdateLocationDisplay();
@@ -1781,12 +1679,12 @@
 
                 if (this.dgCoord1.SelectedItem is Slot slot1 && this.dgCoord2.SelectedItem is Slot slot2 && e.SelectedItem is Slot slot3)
                 {
-                    slotLocMapRefno = LocationMapTasks.GetSlotRefnoFromCoordinates(this.LocMapInfo.SectLocMapRefno, slot1.LocationMapSlotCoordinateRefno, slot2.LocationMapSlotCoordinateRefno, slot3.LocationMapSlotCoordinateRefno);
+                    slotLocMapRefno = await LocationMapTasks.GetSlotRefnoFromCoordinates(this.LocMapInfo.SectLocMapRefno, slot1.LocationMapSlotCoordinateRefno, slot2.LocationMapSlotCoordinateRefno, slot3.LocationMapSlotCoordinateRefno);
                 }
 
                 if (slotLocMapRefno != 0)
                 {
-                    this.LocMapInfo = LocationMapTasks.GetSLocMapFromLocMapRefno(slotLocMapRefno);
+                    this.LocMapInfo = await LocationMapTasks.GetSLocMapFromLocMapRefno(slotLocMapRefno);
                 }
 
                 await this.UpdateLocationDisplay();
@@ -1795,41 +1693,41 @@
 
         private void PopulateWarehouseList()
         {
-            this.WarehouseList = new ObservableCollection<Warehouse>();
+            this.WarehouseObservableCollection = new ObservableCollection<Warehouse>();
 
-            foreach (DataRow row in this.DataViewWhs.ToTable().Rows)
+            foreach (Warehouse warehouse in this.FilteredListWarehouse)
             {
-                Warehouse warehouse = new Warehouse
-                {
-                    LocationMapWarehouseCode = Convert.ToInt32(row["LocationMapWarehouseCode"]),
-                    LocationMapWarehouseName = Convert.ToString(row["LocationMapWarehouseName"]),
-                    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"])
-                };
+                //Warehouse warehouse = new Warehouse
+                //{
+                //    LocationMapWarehouseCode = Convert.ToInt32(row["LocationMapWarehouseCode"]),
+                //    LocationMapWarehouseName = Convert.ToString(row["LocationMapWarehouseName"]),
+                //    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"])
+                //};
 
-                this.WarehouseList.Add(warehouse);
+                this.WarehouseObservableCollection.Add(warehouse);
             }
 
-            this.dgWhs.ItemsSource = this.WarehouseList;
+            this.dgWhs.ItemsSource = this.WarehouseObservableCollection;
         }
 
         private void PopulateSectionList()
         {
-            this.SectionList = new ObservableCollection<Section>();
+            this.SectionObservableCollection = new ObservableCollection<Section>();
 
-            foreach (DataRow row in this.DataViewSections.ToTable().Rows)
+            foreach (Section section in this.FilteredListSections)
             {
-                Section section = new Section
-                {
-                    LocationMapSectionCode = Convert.ToInt32(row["LocationMapSectionCode"]),
-                    LocationMapSectionName = Convert.ToString(row["LocationMapSectionName"]),
-                    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"]),
-                    WarehouseLocationMapRefno = Convert.ToInt32(row["WarehouseLocationMapRefno"])
-                };
+                //Section section = new Section
+                //{
+                //    LocationMapSectionCode = Convert.ToInt32(row["LocationMapSectionCode"]),
+                //    LocationMapSectionName = Convert.ToString(row["LocationMapSectionName"]),
+                //    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"]),
+                //    WarehouseLocationMapRefno = Convert.ToInt32(row["WarehouseLocationMapRefno"])
+                //};
 
-                this.SectionList.Add(section);
+                this.SectionObservableCollection.Add(section);
             }
 
-            this.dgSections.ItemsSource = this.SectionList;
+            this.dgSections.ItemsSource = this.SectionObservableCollection;
         }
 
         private async void BtnSave_Clicked(object sender, EventArgs e)

@@ -12,9 +12,10 @@ using dMobile.GroundWork;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 using Color = Xamarin.Forms.Color;
-using System.Data.SQLite;
+using SQLite;
 using dMobile.Resources.Enums;
 using Android.Views;
+using dMobile.Resources.Models;
 
 namespace dMobile.View.Forms
 {
@@ -93,7 +94,7 @@ namespace dMobile.View.Forms
         protected override void OnDisappearing()
         {
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
-            
+
             base.OnDisappearing();
         }
 
@@ -221,30 +222,16 @@ namespace dMobile.View.Forms
             {
                 if (!string.IsNullOrEmpty(this.txtLoginID.Text))
                 {
-                    using (SQLiteCommand cmndUser = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                    {
-                        cmndUser.CommandText = "SELECT * FROM tContactUser WHERE ContactUserCode = @contactUserCode";
-                        cmndUser.CommandType = CommandType.Text;
-                        //cmndUser.IndexName = "UQ_ContactUserOnContactUserCode";
-                        cmndUser.Parameters.Add(new SQLiteParameter("@contactUserCode", Convert.ToInt32(txtLoginID.Text)));
+                    List<tContactUserModel> resultsContactUser = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tContactUserModel>("SELECT * FROM tContactUser WHERE ContactUserCode = ?", Convert.ToInt32(txtLoginID.Text));
 
-                        using (SQLiteDataReader drUser = cmndUser.ExecuteReader())
-                        {
-                            //if (drUser.Seek(DbSeekOptions.FirstEqual, new object[] { Convert.ToInt32(txtLoginID.Text) }))
-                            //{
-                            if (drUser.Read())
-                            {
-                                this.Password = drUser.GetString(Convert.ToInt32(SysCommon.ContactUserFields.Password));
-                                this.UserCode = drUser.GetInt32(Convert.ToInt32(SysCommon.ContactUserFields.Code));
-                                this.IsAllowedAddManualDetail = drUser.GetBoolean(Convert.ToInt32(SysCommon.ContactUserFields.IsAllowedPickingModuleOverrideAddManualDetail));
-                            }
-                            //}
-                        }
+                    if (resultsContactUser?.Count > 0)
+                    {
+                        this.Password = resultsContactUser[0].ContactUserPassword;
+                        this.UserCode = resultsContactUser[0].ContactUserCode;
+                        this.IsAllowedAddManualDetail = resultsContactUser[0].ContactUserIsAllowedPickingModuleOverrideAddManualDetail;
                     }
                 }
 
-                //if (sender == this.txtLoginID)
-                //{
                 if (true == string.IsNullOrEmpty(this.txtLoginID.Text))
                 {
                     this.txtLoginPassword.Text = string.Empty;
@@ -259,10 +246,7 @@ namespace dMobile.View.Forms
                     // TODO: Resource strings
                     throw new MessageOnlyException(string.Format("Invalid login id {0}", this.txtLoginID.Text));
                 }
-                //}
 
-                //if (sender == this.txtLoginPassword)
-                //{
                 // Override the contact login password with the system one if bypass licenses is enabled.
                 if (this.IsEnableAllModuleBypassLicense)
                 {
@@ -283,7 +267,6 @@ namespace dMobile.View.Forms
                     // TODO: Resource strings
                     throw new MessageOnlyException("Invalid login password.");
                 }
-                //}
             }
             catch (MessageOnlyException ex)
             {

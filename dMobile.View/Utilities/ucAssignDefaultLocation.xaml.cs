@@ -19,7 +19,6 @@
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ucAssignDefaultLocation : DMobileContentPage, IAppArea, IAppPublisher
     {
-        //private UserControl callingControl = new ucUtilitiesMenu();
         private bool isControlLoaded = false;
         private bool changesMade = false;
         private SysEnvironment sysEnv;
@@ -41,6 +40,7 @@
         private ReqSaveDisableHandler reqSaveDisableEvent;
         private ReqCancelEnableHandler reqCancelEnableEvent;
         private ReqCancelDisableHandler reqCancelDisableEvent;
+        private bool isFirstAppearance = true;
 
         public ucAssignDefaultLocation()
         {
@@ -87,14 +87,6 @@
 
                 this.updnBarCodeModifier1.SelectedItem = this.SysEnv.CurrentBarCodeModifier1;
 
-                if (0 >= this.LocMap.CurrLocMap.WhsLocMapRefno)
-                {
-                    this.LocMap.CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(this.LocMap.LoginWhsLocMapRefno);
-                }
-
-                // TODO: Resource strings
-                this.cmdLocation.Text = LocationMapTasks.GetCurrentReadableLocation(true);
-
                 this.Activity = ActivityFacade.GetActivity(SysCommon.ActSubTypes.AssignDefaultLocation);
                 this.ActItem = ActItemFacade.GetActItem(this.Activity, SysCommon.ActSubTypes.AssignDefaultLocation);
                 this.ActDetail = ActDetailFacade.GetActDetail(this.ActItem, SysCommon.ActSubTypes.AssignDefaultLocation);
@@ -133,6 +125,19 @@
 
             try
             {
+                if (this.isFirstAppearance)
+                {
+                    this.isFirstAppearance = false;
+
+                    if (0 >= this.LocMap.CurrLocMap.WhsLocMapRefno)
+                    {
+                        this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(this.LocMap.LoginWhsLocMapRefno);
+                    }
+
+                    // TODO: Resource strings
+                    await Device.InvokeOnMainThreadAsync(() => this.cmdLocation.Text = LocationMapTasks.GetCurrentReadableLocation(true));
+                }
+
                 await this.AssignDefaultLocation_GotFocus(this, new EventArgs());
             }
             catch (Exception ex)
@@ -476,19 +481,6 @@
             }
         }
 
-        //private UserControl CallingControl
-        //{
-        //    get
-        //    {
-        //        return this.callingControl;
-        //    }
-
-        //    set
-        //    {
-        //        this.callingControl = value;
-        //    }
-        //}
-
         private SysEnvironment SysEnv
         {
             get
@@ -556,7 +548,7 @@
 
             try
             {
-                if (!LocationMapTasks.IsCompleteLocMapRefno(this.ActItem.LocMap.CurrLocMapRefno))
+                if (!await LocationMapTasks.IsCompleteLocMapRefno(this.ActItem.LocMap.CurrLocMapRefno))
                 {
                     if (0 >= this.LocMap.CurrLocMap.WhsLocMapRefno)
                     {
@@ -594,11 +586,6 @@
                     // TODO: Resource strings
                     string msg = "The current and the new default picking locations are the same." + Environment.NewLine + "Are you sure that you want to update the location anyway?";
 
-                    //if (MessageBox.Show(msg, "Ready To Save", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.No)
-                    //{
-                    //    isReadyToSave = false;
-                    //}
-
                     await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         bool result = await DisplayAlert("Ready To Save", msg, "Yes", "No");
@@ -615,11 +602,6 @@
                     // TODO: Resource strings
                     string msg = "The current and the new default receiving locations are the same." + Environment.NewLine + "Are you sure that you want to update the location anyway?";
 
-                    //if (MessageBox.Show(msg, "Ready To Save", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.No)
-                    //{
-                    //    isReadyToSave = false;
-                    //}
-
                     await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         bool result = await DisplayAlert("Ready To Save", msg, "Yes", "No");
@@ -634,7 +616,7 @@
             catch (Exceptions.MessageOnlyException ex)
             {
                 isReadyToSave = false;
-                ex.Show(/*this,*/ this.ActSubType);
+                ex.Show(this.ActSubType);
             }
             catch (Exception ex)
             {
@@ -667,16 +649,6 @@
 
             return !this.ChangesMade;
         }
-
-        ///// <summary>
-        /////
-        ///// </summary>
-        ///// <returns></returns>
-        ///// <remarks></remarks>
-        //public UserControl GetCallingControl()
-        //{
-        //    return this.CallingControl;
-        //}
 
         /// <summary>
         ///
@@ -731,7 +703,7 @@
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public XDocument GetXML()
+        public async Task<XDocument> GetXML()
         {
             XDocument xmldocParams = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
@@ -764,20 +736,20 @@
 
                     if (this.NewLocMapDefPickingRefno == 0)
                     {
-                        this.LocMapDefPicking = LocationMapTasks.GetSLocMapFromLocMapRefno(this.CurrLocMapDefPickingRefno);
+                        this.LocMapDefPicking = await LocationMapTasks.GetSLocMapFromLocMapRefno(this.CurrLocMapDefPickingRefno);
                     }
                     else
                     {
-                        this.LocMapDefPicking = LocationMapTasks.GetSLocMapFromLocMapRefno(this.NewLocMapDefPickingRefno);
+                        this.LocMapDefPicking = await LocationMapTasks.GetSLocMapFromLocMapRefno(this.NewLocMapDefPickingRefno);
                     }
 
                     if (this.NewLocMapDefRecvRefno == 0)
                     {
-                        this.LocMapDefRecv = LocationMapTasks.GetSLocMapFromLocMapRefno(this.CurrLocMapDefRecvRefno);
+                        this.LocMapDefRecv = await LocationMapTasks.GetSLocMapFromLocMapRefno(this.CurrLocMapDefRecvRefno);
                     }
                     else
                     {
-                        this.LocMapDefRecv = LocationMapTasks.GetSLocMapFromLocMapRefno(this.NewLocMapDefRecvRefno);
+                        this.LocMapDefRecv = await LocationMapTasks.GetSLocMapFromLocMapRefno(this.NewLocMapDefRecvRefno);
                     }
 
                     request = XDocument.Parse(
@@ -821,7 +793,7 @@
                             docError.LoadXml(data);
 
                             string errorDetail = docError.DocumentElement["detail"].InnerText;
-                            
+
                             if (errorDetail.Contains("MSGBOX-"))
                             {
                                 throw new Exceptions.MessageOnlyException(errorDetail);
@@ -833,15 +805,8 @@
                         }
                         else
                         {
-                            int origLocMapDefPickingRefno = LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(
-                                this.LocMap.CurrLocMap.WhsLocMapRefno,
-                                this.ActItem.ProdInfo.Refno,
-                                SysCommon.ProdLocMapTypes.Picking);
-
-                            int origLocMapDefRecvRefno = LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(
-                                this.LocMap.CurrLocMap.WhsLocMapRefno,
-                                this.ActItem.ProdInfo.Refno,
-                                SysCommon.ProdLocMapTypes.Receiving);
+                            int origLocMapDefPickingRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(this.LocMap.CurrLocMap.WhsLocMapRefno, this.ActItem.ProdInfo.Refno, SysCommon.ProdLocMapTypes.Picking);
+                            int origLocMapDefRecvRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(this.LocMap.CurrLocMap.WhsLocMapRefno, this.ActItem.ProdInfo.Refno, SysCommon.ProdLocMapTypes.Receiving);
 
                             XDocument dataUpdate = XDocument.Parse(
                                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
@@ -859,27 +824,16 @@
                                 + "<picking_new_location_refno>" + this.NewLocMapDefPickingRefno + "</picking_new_location_refno>"
                                 + "</param>");
 
-                            this.ActItem.Update(dataUpdate);
+                            await this.ActItem.Update(dataUpdate);
 
-                            this.CurrLocMapDefPickingRefno = LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(
-                                this.LocMap.CurrLocMap.WhsLocMapRefno,
-                                this.ActItem.ProdInfo.Refno,
-                                SysCommon.ProdLocMapTypes.Picking);
+                            this.CurrLocMapDefPickingRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(this.LocMap.CurrLocMap.WhsLocMapRefno, this.ActItem.ProdInfo.Refno, SysCommon.ProdLocMapTypes.Picking);
+                            this.LocMapDefPicking = await LocationMapTasks.GetSLocMapFromLocMapRefno(this.CurrLocMapDefPickingRefno);
+                            this.CurrLocMapDefRecvRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(this.LocMap.CurrLocMap.WhsLocMapRefno, this.ActItem.ProdInfo.Refno, SysCommon.ProdLocMapTypes.Receiving);
+                            this.LocMapDefRecv = await LocationMapTasks.GetSLocMapFromLocMapRefno(this.CurrLocMapDefRecvRefno);
 
-                            this.LocMapDefPicking = LocationMapTasks.GetSLocMapFromLocMapRefno(this.CurrLocMapDefPickingRefno);
-
-                            this.CurrLocMapDefRecvRefno = LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(
-                                this.LocMap.CurrLocMap.WhsLocMapRefno,
-                                this.ActItem.ProdInfo.Refno,
-                                SysCommon.ProdLocMapTypes.Receiving);
-
-                            this.LocMapDefRecv = LocationMapTasks.GetSLocMapFromLocMapRefno(this.CurrLocMapDefRecvRefno);
-
-                            this.DisplayData();
+                            await this.DisplayData();
                             this.lblCurrentPickingLocation.TextColor = Color.Black;
                             this.lblCurrentReceivingLocation.TextColor = Color.Black;
-
-                            //MessageBox.Show("Product default location(s) saved.", "Assign Default Location", MessageBoxButtons.OK, MessageBoxIcon.Hand, MessageBoxDefaultButton.Button1);
 
                             // TODO: Resource strings
                             await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Assign Default Location", "Product default location(s) saved.", "OK"));
@@ -1104,7 +1058,7 @@
                 }
             }
 
-            this.DisplayData();
+            await this.DisplayData();
             await this.ScannerEnable();
         }
 
@@ -1122,7 +1076,6 @@
 
             if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
             {
-                await form.SaveChanges(this, new EventArgs());
                 XDocument xmlDoc = form.DisplayControlData;
                 int prodRefno = Convert.ToInt32(xmlDoc.Root.Element("ProductRefno").Value);
 
@@ -1134,14 +1087,14 @@
 
                 if (prodRefno != 0 && this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
                 {
-                    this.ActItem.ProdInfo = ProductInfoTasks.GetInfoFromRefno(prodRefno);
-                    this.CurrLocMapDefPickingRefno = LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(this.LocMap.CurrLocMap.WhsLocMapRefno, this.ActItem.ProdInfo.Refno, SysCommon.ProdLocMapTypes.Picking);
-                    this.CurrLocMapDefRecvRefno = LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(this.LocMap.CurrLocMap.WhsLocMapRefno, this.ActItem.ProdInfo.Refno, SysCommon.ProdLocMapTypes.Receiving);
+                    this.ActItem.ProdInfo = await ProductInfoTasks.GetInfoFromRefno(prodRefno);
+                    this.CurrLocMapDefPickingRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(this.LocMap.CurrLocMap.WhsLocMapRefno, this.ActItem.ProdInfo.Refno, SysCommon.ProdLocMapTypes.Picking);
+                    this.CurrLocMapDefRecvRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(this.LocMap.CurrLocMap.WhsLocMapRefno, this.ActItem.ProdInfo.Refno, SysCommon.ProdLocMapTypes.Receiving);
 
                     // Assigning the new location map will only be done by the set location button.
                 }
 
-                this.DisplayData();
+                await this.DisplayData();
             }
 
             await this.ScannerEnable();
@@ -1169,9 +1122,9 @@
                     // Global location identifier scanned
                     if (!string.IsNullOrEmpty(parse.LocationIdentifier))
                     {
-                        int locMapRefno = LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(parse.LocationIdentifier);
+                        int locMapRefno = await LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(parse.LocationIdentifier);
 
-                        this.LocMap.CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
+                        this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
 
                         if (this.LocMap.CurrLocMap.WhsLocMapRefno == 0)
                         {
@@ -1198,7 +1151,7 @@
                             this.NewLocMapDefRecvRefno = this.CurrLocMapDefRecvRefno;
                         }
 
-                        Device.BeginInvokeOnMainThread(() => this.DisplayData());
+                        await Device.InvokeOnMainThreadAsync(async () => await this.DisplayData());
                     }
                     else
                     {
@@ -1214,23 +1167,16 @@
                             }
                             else
                             {
-                                this.ActItem.ProdInfo = ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
+                                this.ActItem.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
 
                                 if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
                                 {
-                                    this.CurrLocMapDefPickingRefno = LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(
-                                        this.LocMap.CurrLocMap.WhsLocMapRefno,
-                                        this.ActItem.ProdInfo.Refno,
-                                        SysCommon.ProdLocMapTypes.Picking);
-
-                                    this.CurrLocMapDefRecvRefno = LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(
-                                        this.LocMap.CurrLocMap.WhsLocMapRefno,
-                                        this.ActItem.ProdInfo.Refno,
-                                        SysCommon.ProdLocMapTypes.Receiving);
+                                    this.CurrLocMapDefPickingRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(this.LocMap.CurrLocMap.WhsLocMapRefno, this.ActItem.ProdInfo.Refno, SysCommon.ProdLocMapTypes.Picking);
+                                    this.CurrLocMapDefRecvRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(this.LocMap.CurrLocMap.WhsLocMapRefno, this.ActItem.ProdInfo.Refno, SysCommon.ProdLocMapTypes.Receiving);
                                 }
                             }
 
-                            this.DisplayData();
+                            await this.DisplayData();
                         }
 
                         // Activity item fk refno
@@ -1274,7 +1220,7 @@
         ///
         /// </summary>
         /// <remarks></remarks>
-        private void DisplayData()
+        private async Task DisplayData()
         {
             if (this.ActItem.ProdInfo.UnitRefno != 0)
             {
@@ -1300,7 +1246,7 @@
                 cmdLocation.Text = "Set Location";
             }
 
-            SLocMap locMap = LocationMapTasks.GetSLocMapFromLocMapRefno(this.CurrLocMapDefPickingRefno);
+            SLocMap locMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(this.CurrLocMapDefPickingRefno);
             this.lblCurrentPickingLocation.Text = LocationMapTasks.GetCurrentReadableLocation(locMap, true);
 
             if (string.IsNullOrEmpty(this.lblCurrentPickingLocation.Text))
@@ -1309,7 +1255,7 @@
                 this.lblCurrentPickingLocation.Text = "Not Set";
             }
 
-            locMap = LocationMapTasks.GetSLocMapFromLocMapRefno(this.CurrLocMapDefRecvRefno);
+            locMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(this.CurrLocMapDefRecvRefno);
             this.lblCurrentReceivingLocation.Text = LocationMapTasks.GetCurrentReadableLocation(locMap, true);
 
             if (string.IsNullOrEmpty(this.lblCurrentReceivingLocation.Text))

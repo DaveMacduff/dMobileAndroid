@@ -55,6 +55,7 @@
         private decimal activityItemPickingWeightQuantityAvailable;
         private string isActivityItemPickingComment;
         private int activityItemStatus;
+        private bool activityItemPickingIsReviewed;
 
         public int ActivityItemRefno { get => activityItemRefno; set => activityItemRefno = value; }
         public int ActivityItemPickingFKRefno { get => activityItemPickingFKRefno; set => activityItemPickingFKRefno = value; }
@@ -82,5 +83,6 @@
         public decimal ActivityItemPickingWeightQuantityAvailable { get => activityItemPickingWeightQuantityAvailable; set => activityItemPickingWeightQuantityAvailable = value; }
         public string IsActivityItemPickingComment { get => isActivityItemPickingComment; set => isActivityItemPickingComment = value; }
         public int ActivityItemStatus { get => activityItemStatus; set => activityItemStatus = value; }
+        public bool ActivityItemPickingIsReviewed { get => activityItemPickingIsReviewed; set => activityItemPickingIsReviewed = value; }
     }
 }

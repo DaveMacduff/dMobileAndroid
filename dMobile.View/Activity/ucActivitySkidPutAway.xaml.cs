@@ -43,19 +43,8 @@ namespace dMobile.View.Activity
         private ReqSaveDisableHandler reqSaveDisableEvent;
         private ReqCancelEnableHandler reqCancelEnableEvent;
         private ReqCancelDisableHandler reqCancelDisableEvent;
-        //private UserControl callingControl = new ucPurchaseOrdersMenu();
         private ObservableCollection<string> itemsList;
         private ObservableCollection<object> dataGridMainActivityItemsList;
-        //private List<string> optionsMenuItems = new List<string>();
-
-        //// cmdLocation
-        //private string cmdLocationText;
-        //private bool cmdLocationIsEnabled;
-
-        //// cmdSelectSkid
-        //private string cmdSelectSkidText;
-        //private bool cmdSelectSkidIsEnabled;
-
 
         #endregion
 
@@ -91,7 +80,7 @@ namespace dMobile.View.Activity
                 {
                     this.updnBarCodeModifier1.Items.Add(string.Empty);
                     string[] modifiers = this.SysEnv.SysSettings.ProductUnitBarCodeModifier1Codes.Split(',');
-            
+
                     foreach (string item in modifiers)
                     {
                         this.updnBarCodeModifier1.Items.Add(item);
@@ -112,44 +101,10 @@ namespace dMobile.View.Activity
                 this.ClearContents();
 
                 this.Title = this.GetControlDescription();
-                //this.PopulateOptionsMenu();
             }
         }
 
         #endregion
-
-        //protected override void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        //{
-        //    base.OnPropertyChanged(propertyName);
-
-        //    if (
-        //        propertyName == nameof(cmdLocationText) ||
-        //        propertyName == nameof(cmdLocationIsEnabled) ||
-        //        propertyName == nameof(cmdSelectSkidText) ||
-        //        propertyName == nameof(cmdSelectSkidIsEnabled)
-        //       )
-        //    {
-        //        this.PopulateOptionsMenu();
-        //    }
-        //}
-
-        ///// <summary>
-        ///// Populates a string array to be used in DisplayActionSheet
-        ///// </summary>
-        //private void PopulateOptionsMenu()
-        //{
-        //    this.optionsMenuItems.Clear();
-
-        //    if (this.cmdLocationIsEnabled)
-        //    {
-        //        this.optionsMenuItems.Add(this.cmdLocationText);
-        //    }
-
-        //    if (this.cmdSelectSkidIsEnabled)
-        //    {
-        //        this.optionsMenuItems.Add(this.cmdSelectSkidText);
-        //    }
-        //}
 
         /// <summary>
         /// The OnAppearing
@@ -186,17 +141,15 @@ namespace dMobile.View.Activity
                             //DialogResult result = MessageBox.Show("Do you wish yo delete this record?", "Put Away", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
                             if (await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Put Away", "Do you wish yo delete this record?", "Yes", "No")))
                             {
-                                this.ActDetail.DataViewDetails[this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem)].Delete();
+                                this.ActDetail.ListDetails.Remove(this.dataGridMainActivity.SelectedItem);
 
                                 // Delete needs to rebind the the grid to the proper dataview depending on the record count
-                                if (this.ActDetail.DataViewDetails.Count == 0)
+                                if (this.ActDetail.ListDetails.Count == 0)
                                 {
                                     await Device.InvokeOnMainThreadAsync(() =>
                                     {
                                         this.DataGridMainActivityItemsList = this.ActDetailOnSkid.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
                                         this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
-                                        //this.dataGridMainActivity.ForeColor = Color.Orange;
-                                        //this.dataGridMainActivity.Refresh();
                                     });
                                 }
                             }
@@ -319,19 +272,6 @@ namespace dMobile.View.Activity
                 this.origProdInfoOnSkid = value;
             }
         }
-
-        //private UserControl CallingControl
-        //{
-        //    get
-        //    {
-        //        return this.callingControl;
-        //    }
-
-        //    set
-        //    {
-        //        this.callingControl = value;
-        //    }
-        //}
 
         private BarCodeParse BarCodeParse
         {
@@ -608,9 +548,9 @@ namespace dMobile.View.Activity
                 if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
                 {
                     XDocument xmlDoc = form.DisplayControlData;
-                    this.ClearContents();
+                    await this.ClearContents();
 
-                    SysSkidInfo tmpSkidInfo = SysSkidInfo.GetSkidInfoFromXML(xmlDoc);
+                    SysSkidInfo tmpSkidInfo = await SysSkidInfo.GetSkidInfoFromXML(xmlDoc);
 
                     if (tmpSkidInfo.CurrSkid.SkidFKRefno != 0)
                     {
@@ -639,7 +579,7 @@ namespace dMobile.View.Activity
                         this.ActItem.Refno = this.Activity.SkidInfo.CurrSkid.SkidFKRefno;
                         this.ActItem.LocMap = this.LocMap;
                         this.ActItem.ProdInfo = Activity.SkidInfo.CurrSkid.ProdInfo;
-                        this.ActItem.ProdInfo.Unit2BaseUnitFactor = ProductInfoTasks.GetUnitRelationFactor(this.ActItem.ProdInfo);
+                        this.ActItem.ProdInfo.Unit2BaseUnitFactor = await ProductInfoTasks.GetUnitRelationFactor(this.ActItem.ProdInfo);
 
                         this.ActDetailOnSkid.LocMap = this.ActItem.LocMap;
                         SProductSchemeData tempSchemeData = this.ActDetailOnSkid.SchemeData;
@@ -647,8 +587,7 @@ namespace dMobile.View.Activity
                         this.ActDetailOnSkid.SchemeData = tempSchemeData;
                         this.OrigProdInfoOnSkid = this.ActDetailOnSkid.ActItem.ProdInfo;
 
-                        this.ActDetailOnSkid.Refresh();
-                        //this.dataGridMainActivity.Refresh();
+                        await this.ActDetailOnSkid.Refresh();
                     }
                 }
             }
@@ -714,8 +653,6 @@ namespace dMobile.View.Activity
                 await this.ScannerDisable();
                 this.ActItem.ProdInfo = this.OrigProdInfoOnSkid;
 
-                //DialogResult dlgResult = MessageBox.Show("Select a different unit of measure?", "Select UOM",MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2);
-                //if (dlgResult == DialogResult.Yes)
                 // TODO: Resource strings
                 if (await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Select UOM", "Select a different unit of measure?", "Yes", "No")))
                 {
@@ -725,17 +662,17 @@ namespace dMobile.View.Activity
                     {
                         XDocument xmlDoc = form.DisplayControlData;
                         int prodUnitRefno = int.Parse(xmlDoc.Root.Element("ProductUnitRefno").Value);
-                    
+
                         if (prodUnitRefno != 0)
                         {
-                            this.ActItem.ProdInfo = ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
+                            this.ActItem.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
                         }
                     }
                 }
 
                 // Clear this.ActDetail. If false is passed for parameter isAdd, attempt to read data from
                 // DataViewDetail is made which has not data. = error.
-                this.ActDetail = this.ActDetail.GetInfo(0, true);
+                this.ActDetail = await this.ActDetail.GetInfo(this.ActDetail.ListDetails[0], true);
 
                 SysCommon.SFillQuantity fillQty = SysCommon.FillQuantityStructureFromQuantity((ProductInfo)this.ActItem.ProdInfo, this.ActDetailOnSkid.Quantity);
 
@@ -749,7 +686,7 @@ namespace dMobile.View.Activity
                 this.ActDetail.ActExtra.Text2 = string.Empty;
                 this.ActDetail.ActExtra.Text3 = string.Empty;
                 this.ActDetail.ActExtra.Text4 = string.Empty;
-                this.ActDetail.ActExtra.DateTime5 = new DateTime(1900,1,1);
+                this.ActDetail.ActExtra.DateTime5 = new DateTime(1900, 1, 1);
 
                 await this.InsertActivityDetail(this.ActDetail);
                 await this.ScannerEnable();
@@ -774,25 +711,22 @@ namespace dMobile.View.Activity
                 if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
                 {
                     await Device.InvokeOnMainThreadAsync(() => this.cmdLocation.Text = LocationMapTasks.GetCurrentReadableLocation());
-                    
-                    if (this.ActDetail.DataViewDetails.Count > 0)
+
+                    if (this.ActDetail.ListDetails.Count > 0)
                     {
-                        for (int i = 0; i <= this.ActDetail.DataViewDetails.Count - 1; i++)
+                        for (int i = 0; i <= this.ActDetail.ListDetails.Count - 1; i++)
                         {
-                            this.ActDetail.DataViewDetails[i].BeginEdit();
-                            this.ActDetail.DataViewDetails[i]["LocationMapRefno"] = this.LocMap.CurrLocMapRefno;
+                            (this.ActDetail.ListDetails[i] as dynamic).LocationMapRefno = this.LocMap.CurrLocMapRefno;
 
-                            this.ActDetail.DataViewDetails[i]["ActivityDetailSchemeID"] = ProductInfoTasks.GetActSchemeIDFromSProdSchemeData(
+                            (this.ActDetail.ListDetails[i] as dynamic).ActivityDetailSchemeID = ProductInfoTasks.GetActSchemeIDFromSProdSchemeData(
                                 this.ActDetailOnSkid.ActItem.ProdInfo.Code,
                                 this.ActDetailOnSkid.ActItem.ProdInfo.Scheme,
                                 this.ActDetailOnSkid.SchemeData);
 
-                            this.ActDetail.DataViewDetails[i]["ActivityDetailUniqueSchemeID"] = ProductInfoTasks.GetActUniqueSchemeIDFromSProdSchemeData(
+                            (this.ActDetail.ListDetails[i] as dynamic).ActivityDetailUniqueSchemeID = ProductInfoTasks.GetActUniqueSchemeIDFromSProdSchemeData(
                                 this.ActDetailOnSkid.ActItem.ProdInfo.Code,
                                 this.ActDetailOnSkid.ActItem.ProdInfo.Scheme,
                                 this.ActDetailOnSkid.SchemeData);
-
-                            this.ActDetail.DataViewDetails[i].EndEdit();
                         }
                     }
                 }
@@ -810,7 +744,7 @@ namespace dMobile.View.Activity
         /// 
         /// </summary>
         /// <returns></returns>
-        public XDocument GetXML()
+        public async Task<XDocument> GetXML()
         {
             XDocument xmldocParams = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
@@ -840,16 +774,6 @@ namespace dMobile.View.Activity
             return true;
         }
 
-        ///// <summary>
-        /////
-        ///// </summary>
-        ///// <returns></returns>
-        ///// <remarks></remarks>
-        //public UserControl GetCallingControl()
-        //{
-        //    return this.CallingControl;
-        //}
-
         /// <summary>
         ///
         /// </summary>
@@ -868,12 +792,10 @@ namespace dMobile.View.Activity
                     // Clear any properties.
                     if (this.Activity.SkidInfo.CurrSkid.SkidFKRefno != 0)
                     {
-                        //if (MessageBox.Show("Do you wish to put away another skid?", "Skid Put Away",
                         if (await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Skid Put Away", "Do you wish to put away another skid?", "Yes", "No")))
                         {
-                            this.ClearContents();
+                            await this.ClearContents();
                             cancelChanges = false;
-                            //this.cmdSelectSkid.Focus();
                         }
                     }
                 }
@@ -898,7 +820,7 @@ namespace dMobile.View.Activity
             catch (Exception ex)
             {
                 cancelChanges = true;
-                
+
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errorReport = new FormErrorReport(this.ActSubType, ex);
@@ -941,7 +863,7 @@ namespace dMobile.View.Activity
 
                 if (isReadyToSave)
                 {
-                    if (this.ActDetailOnSkid.DataViewDetails.Count == 0)
+                    if (this.ActDetailOnSkid.ListDetails.Count == 0)
                     {
                         isReadyToSave = false;
                     }
@@ -949,7 +871,7 @@ namespace dMobile.View.Activity
 
                 if (isReadyToSave)
                 {
-                    if (this.ActDetail.DataViewDetails.Count == 0)
+                    if (this.ActDetail.ListDetails.Count == 0)
                     {
                         isReadyToSave = false;
                     }
@@ -962,25 +884,24 @@ namespace dMobile.View.Activity
                     if (this.ActItem.ProdInfo.UnitCode != "LB" && this.ActItem.ProdInfo.UnitCode != "KG")
                     {
                         decimal skidTotQty = 0;
-                        
-                        for (int idx = 0; idx <= this.ActDetailOnSkid.DataViewDetails.Count - 1; idx++)
+
+                        foreach (dynamic detail in this.ActDetailOnSkid.ListDetails)
                         {
-                            skidTotQty += Convert.ToDecimal(this.ActDetailOnSkid.DataViewDetails[idx]["ActivityDetailQuantity"]);
+                            skidTotQty += Convert.ToDecimal(detail.ActivityDetailQuantity);
                         }
 
                         decimal putAwaySkidTotQty = 0;
-                        
-                        for (int idx = 0; idx <= ActDetail.DataViewDetails.Count - 1; idx++)
+
+                        foreach (dynamic detail in this.ActDetail.ListDetails)
                         {
-                            putAwaySkidTotQty += Convert.ToDecimal(this.ActDetail.DataViewDetails[idx]["ActivityDetailQuantity"]);
+                            putAwaySkidTotQty += Convert.ToDecimal(detail.ActivityDetailQuantity);
                         }
 
                         if (skidTotQty != putAwaySkidTotQty)
                         {
                             // TODO: Resource strings
-                            string msg = string.Format("Total quantity of {0} {2} to be put away does not match the current skid " + "quantity of {1} {2}. Do you wish to continue?", putAwaySkidTotQty, skidTotQty, this.ActItem.ProdInfo.UnitCode);
+                            string msg = string.Format("Total quantity of {0} {2} to be put away does not match the current skid quantity of {1} {2}. Do you wish to continue?", putAwaySkidTotQty, skidTotQty, this.ActItem.ProdInfo.UnitCode);
 
-                            //if (MessageBox.Show(msg, "Skid Put Away", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.No)
                             // TODO: Resource strings
                             if (await Device.InvokeOnMainThreadAsync(async () => !await DisplayAlert("Skid Put Away", msg, "Yes", "No")))
                             {
@@ -998,7 +919,7 @@ namespace dMobile.View.Activity
             catch (Exception ex)
             {
                 isReadyToSave = false;
-                
+
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errorReport = new FormErrorReport(this.ActSubType, ex);
@@ -1023,7 +944,7 @@ namespace dMobile.View.Activity
                 if (await this.IsReadyToSave())
                 {
                     string reqData = SysCommon.SubmitComm(this.MakeSkidPutAwaySubmitString());
-                    
+
                     if (reqData.Length > 0)
                     {
                         XmlDocument xmlDoc = new XmlDocument();
@@ -1033,7 +954,7 @@ namespace dMobile.View.Activity
                         if (reqData.Contains("<message>ERROR</message>"))
                         {
                             string errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
-                            
+
                             if (errorDetail.Contains("MSGBOX-"))
                             {
                                 throw new Exceptions.MessageOnlyException(errorDetail);
@@ -1045,16 +966,14 @@ namespace dMobile.View.Activity
                         }
                         else
                         {
-                            //MessageBox.Show("Skid put away complete!", "Skid Put Away", MessageBoxButtons.OK, MessageBoxIcon.None, MessageBoxDefaultButton.Button1);
                             await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Skid Put Away", "Skid put away complete!", "Ok"));
                         }
 
-                        this.ClearContents();
+                        await this.ClearContents();
                     }
 
                     saveComplete = true;
 
-                    //if (MessageBox.Show("Do you wish to put away any more skids?", "Skid Put Away", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
                     // TODO: Resource strings
                     if (await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Skid Put Away", "Do you wish to put away any more skids?", "Yes", "No")))
                     {
@@ -1064,7 +983,6 @@ namespace dMobile.View.Activity
                 }
                 else
                 {
-                    //MessageBox.Show("Data Failed Validation. Check Your Data.");
                     // TODO: Resource strings
                     await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Skid Put Away", "Data Failed Validation. Check Your Data.", "OK"));
                 }
@@ -1077,7 +995,7 @@ namespace dMobile.View.Activity
             catch (Exception ex)
             {
                 saveComplete = false;
-                
+
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     FormErrorReport errorReport = new FormErrorReport(this.ActSubType, ex);
@@ -1092,15 +1010,17 @@ namespace dMobile.View.Activity
         ///
         /// </summary>
         /// <remarks></remarks>
-        public void ClearContents()
+        public async Task ClearContents()
         {
-            this.ItemsList.Clear();
-
-            this.cmdAddProduct.IsEnabled = false;
-            this.cmdLocation.IsEnabled = false;
-            // TODO: Resource strings
-            this.cmdSelectSkid.Text = "Select Skid";
-            this.cmdLocation.Text = "Set Location";
+            await Device.InvokeOnMainThreadAsync(() =>
+            {
+                this.ItemsList.Clear();
+                this.cmdAddProduct.IsEnabled = false;
+                this.cmdLocation.IsEnabled = false;
+                // TODO: Resource strings
+                this.cmdSelectSkid.Text = "Select Skid";
+                this.cmdLocation.Text = "Set Location";
+            });
 
             this.Activity.SkidInfo = new SysSkidInfo();
             this.Activity.FKRefno = this.Activity.SkidInfo.CurrSkid.SkidFKRefno;
@@ -1112,84 +1032,85 @@ namespace dMobile.View.Activity
 
             this.ActDetailOnSkid = ActDetailFacade.GetActDetail(this.ActItem, SysCommon.ActSubTypes.SkidInfo);
             this.ActDetailOnSkid.ActItem = this.ActItem;
-            this.ActDetailOnSkid.DataViewDetails = this.ActDetailOnSkid.GetDataView(false);
+            this.ActDetailOnSkid.ListDetails = await this.ActDetailOnSkid.GetActivityDetailList(false);
 
             this.ActDetail = ActDetailFacade.GetActDetail(this.ActItem, this.ActSubType);
-            this.ActDetail.DataViewDetails = this.ActDetail.GetDataView(false);
+            this.ActDetail.ListDetails = await this.ActDetail.GetActivityDetailList(false);
             this.ActDetail.ActItem = this.ActItem;
 
-            this.DataGridMainActivityItemsList = this.ActDetailOnSkid.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
-            this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
-            //this.dataGridMainActivity.ForeColor = Color.Orange;
-            //this.dataGridMainActivity.Refresh();
+            await Device.InvokeOnMainThreadAsync(() =>
+            {
+                this.DataGridMainActivityItemsList = this.ActDetailOnSkid.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
+                this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
+            });
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="idx"></param>
-        /// <returns></returns>
-        public string MakeProductLabelsSubmitString(int idx)
-        {
-            string production = string.Empty;
-            string bestBefore = string.Empty;
-            ProductInfo prodInfo = new ProductInfo();
-            DataView detail = this.ActDetail.DataViewDetails;
-            StringBuilder xmlString = new StringBuilder();
-            XmlWriter xml = XmlWriter.Create(xmlString);
+        // TODO: Check if this is called
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        ///// <param name="idx"></param>
+        ///// <returns></returns>
+        //public string MakeProductLabelsSubmitString(int idx)
+        //{
+        //    string production = string.Empty;
+        //    string bestBefore = string.Empty;
+        //    ProductInfo prodInfo = new ProductInfo();
+        //    DataView detail = this.ActDetail.DataViewDetails;
+        //    StringBuilder xmlString = new StringBuilder();
+        //    XmlWriter xml = XmlWriter.Create(xmlString);
 
-            prodInfo = ProductInfoTasks.GetInfoFromUnitRefno((int)detail[idx]["ProductUnitRefno"]);
-            prodInfo.Scheme = ProductInfoTasks.GetSchemeComponentsFromRefno(prodInfo.Refno);
+        //    prodInfo = ProductInfoTasks.GetInfoFromUnitRefno((int)detail[idx]["ProductUnitRefno"]);
+        //    prodInfo.Scheme = ProductInfoTasks.GetSchemeComponentsFromRefno(prodInfo.Refno);
 
-            if (prodInfo.Scheme.IsBestBeforeDateTracked)
-            {
-                bestBefore = Convert.ToDateTime(
-                    detail[idx]["ActivityDetailLogisticUnitBestBeforeSellByDate"]).ToString("MM/dd/yyyy");
-            }
+        //    if (prodInfo.Scheme.IsBestBeforeDateTracked)
+        //    {
+        //        bestBefore = Convert.ToDateTime(detail[idx]["ActivityDetailLogisticUnitBestBeforeSellByDate"]).ToString("MM/dd/yyyy");
+        //    }
 
-            if (prodInfo.Scheme.IsProductionDateTracked)
-            {
-                production = Convert.ToDateTime(
-                    detail[idx]["ActivityDetailLogisticUnitProductionDate"]).ToString("MM/dd/yyyy");
-            }
+        //    if (prodInfo.Scheme.IsProductionDateTracked)
+        //    {
+        //        production = Convert.ToDateTime(
+        //            detail[idx]["ActivityDetailLogisticUnitProductionDate"]).ToString("MM/dd/yyyy");
+        //    }
 
-            XDocument request = XDocument.Parse(
-                "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                + "<imclient>"
-                + "<command>"
-                + "<action>SUBMIT PRINT PRODUCT LABEL</action>"
-                + "<whs_id>0</whs_id>"
-                + "<sect_refno>0</sect_refno>"
-                + "</command>"
-                + SysCommon.GetRequestDefaults(false)
-                + ("<prod_id>" + prodInfo.Code + "</prod_id>")
-                + ("<is_bc>" + prodInfo.UnitIsBC + "</is_bc>")
-                + ("<whs_id>" + this.LocMap.CurrLocMap.WhsFKRefno + "</whs_id>")
-                + ("<sect_refno>" + this.LocMap.CurrLocMap.SectFKRefno + "</sect_refno>")
-                + ("<slot_refno>" + this.LocMap.CurrLocMap.SlotFKRefno + "</slot_refno>")
-                + ("<refno>" + this.ActItem.ActHdr.FKRefno + "</refno>")
-                + ("<itm_refno>" + this.ActItem.FKRefno + "</itm_refno>")
-                + ("<pono>" + this.ActItem.ActHdr.PONO + "</pono>")
-                + ("<alt_qty>" + detail[idx]["ActivityDetailQuantity"] + "</alt_qty>")
-                + ("<alt_unit>" + detail[idx]["UnitCode"] + "</alt_unit>")
-                + ("<base_qty>" + detail[idx]["ActivityDetailBaseQuantity"] + "</base_qty>")
-                + ("<base_unit>" + this.ActItem.ProdInfo.BaseUnitCode + "</base_unit>")
-                + ("<wt_qty>" + detail[idx]["ActivityDetailWeightQuantity"] + "</wt_qty>")
-                + ("<wt_unit>" + prodInfo.WeightUnitCode + "</wt_unit>")
-                + ("<serial>" + detail[idx]["ActivityDetailSingleTradeItemSerialNumber"] + "</serial>")
-                + ("<lot_no>" + detail[idx]["ActivityDetailLogisticUnitBatchLotNumber"] + "</lot_no>")
-                + ("<pdate>" + production + "</pdate>")
-                + ("<bdate>" + bestBefore + "</bdate>")
-                + ("<variant_no>" + detail[idx]["ProductSchemeVariantNo"] + "</variant_no>")
-                + ("<variant_code>" + detail[idx]["ProductSchemeVariantCode"] + "</variant_code>")
-                + "</imclient>");
+        //    XDocument request = XDocument.Parse(
+        //        "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
+        //        + "<imclient>"
+        //        + "<command>"
+        //        + "<action>SUBMIT PRINT PRODUCT LABEL</action>"
+        //        + "<whs_id>0</whs_id>"
+        //        + "<sect_refno>0</sect_refno>"
+        //        + "</command>"
+        //        + SysCommon.GetRequestDefaults(false)
+        //        + ("<prod_id>" + prodInfo.Code + "</prod_id>")
+        //        + ("<is_bc>" + prodInfo.UnitIsBC + "</is_bc>")
+        //        + ("<whs_id>" + this.LocMap.CurrLocMap.WhsFKRefno + "</whs_id>")
+        //        + ("<sect_refno>" + this.LocMap.CurrLocMap.SectFKRefno + "</sect_refno>")
+        //        + ("<slot_refno>" + this.LocMap.CurrLocMap.SlotFKRefno + "</slot_refno>")
+        //        + ("<refno>" + this.ActItem.ActHdr.FKRefno + "</refno>")
+        //        + ("<itm_refno>" + this.ActItem.FKRefno + "</itm_refno>")
+        //        + ("<pono>" + this.ActItem.ActHdr.PONO + "</pono>")
+        //        + ("<alt_qty>" + detail[idx]["ActivityDetailQuantity"] + "</alt_qty>")
+        //        + ("<alt_unit>" + detail[idx]["UnitCode"] + "</alt_unit>")
+        //        + ("<base_qty>" + detail[idx]["ActivityDetailBaseQuantity"] + "</base_qty>")
+        //        + ("<base_unit>" + this.ActItem.ProdInfo.BaseUnitCode + "</base_unit>")
+        //        + ("<wt_qty>" + detail[idx]["ActivityDetailWeightQuantity"] + "</wt_qty>")
+        //        + ("<wt_unit>" + prodInfo.WeightUnitCode + "</wt_unit>")
+        //        + ("<serial>" + detail[idx]["ActivityDetailSingleTradeItemSerialNumber"] + "</serial>")
+        //        + ("<lot_no>" + detail[idx]["ActivityDetailLogisticUnitBatchLotNumber"] + "</lot_no>")
+        //        + ("<pdate>" + production + "</pdate>")
+        //        + ("<bdate>" + bestBefore + "</bdate>")
+        //        + ("<variant_no>" + detail[idx]["ProductSchemeVariantNo"] + "</variant_no>")
+        //        + ("<variant_code>" + detail[idx]["ProductSchemeVariantCode"] + "</variant_code>")
+        //        + "</imclient>");
 
-            request.Save(xml);
-            xml.Flush();
-            xml.Close();
+        //    request.Save(xml);
+        //    xml.Flush();
+        //    xml.Close();
 
-            return xmlString.ToString();
-        }
+        //    return xmlString.ToString();
+        //}
 
         /// <summary>
         ///
@@ -1200,10 +1121,11 @@ namespace dMobile.View.Activity
         {
             string production = string.Empty;
             string bestBefore = string.Empty;
-            DataView skidDetail = this.ActDetailOnSkid.DataViewDetails;
+
+            List<dynamic> skidDetail = this.ActDetailOnSkid.ListDetails;
             StringBuilder request = new StringBuilder();
             SSkidInfo currSkid = this.Activity.SkidInfo.CurrSkid;
-            DataView detail = ActDetail.DataViewDetails;
+            List<dynamic> detail = ActDetail.ListDetails;
 
             request.Append("<?xml version=\'1.0\' encoding=\'utf-16\' standalone=\'yes\'?>");
             request.Append("<imclient>");
@@ -1214,12 +1136,12 @@ namespace dMobile.View.Activity
             {
                 if (currSkid.ProdInfo.Scheme.IsBestBeforeDateTracked)
                 {
-                    bestBefore = Convert.ToDateTime(skidDetail[idx]["ActivityDetailLogisticUnitBestBeforeSellByDate"]).ToString("MM/dd/yyyy");
+                    bestBefore = Convert.ToDateTime(skidDetail[idx].ActivityDetailLogisticUnitBestBeforeSellByDate).ToString("MM/dd/yyyy");
                 }
 
                 if (currSkid.ProdInfo.Scheme.IsProductionDateTracked)
                 {
-                    production = Convert.ToDateTime(skidDetail[idx]["ActivityDetailLogisticUnitProductionDate"]).ToString("MM/dd/yyyy");
+                    production = Convert.ToDateTime(skidDetail[idx].ActivityDetailLogisticUnitProductionDate).ToString("MM/dd/yyyy");
                 }
 
                 request.Append("<from>");
@@ -1228,19 +1150,19 @@ namespace dMobile.View.Activity
                 request.AppendFormat("<slot_refno>{0}</slot_refno>", currSkid.LocMap.SlotFKRefno);
                 request.AppendFormat("<refno></refno>", this.ActItem.ActHdr.FKRefno);
                 request.AppendFormat("<itm_refno>{0}</itm_refno>", this.ActItem.FKRefno);
-                request.AppendFormat("<prod_id>{0}</prod_id>", skidDetail[idx]["ProductCode"]);
-                request.AppendFormat("<bc>{0}</bc>", skidDetail[idx]["ProductUnitBC"]);
-                request.AppendFormat("<alt_unit>{0}</alt_unit>", skidDetail[idx]["UnitCode"]);
+                request.AppendFormat("<prod_id>{0}</prod_id>", skidDetail[idx].ProductCode);
+                request.AppendFormat("<bc>{0}</bc>", skidDetail[idx].ProductUnitBC);
+                request.AppendFormat("<alt_unit>{0}</alt_unit>", skidDetail[idx].UnitCode);
                 request.AppendFormat("<wt_unit>{0}</wt_unit>", currSkid.ProdInfo.WeightUnitCode);
-                request.AppendFormat("<serial>{0}</serial>", skidDetail[idx]["ActivityDetailSingleTradeItemSerialNumber"]);
+                request.AppendFormat("<serial>{0}</serial>", skidDetail[idx].ActivityDetailSingleTradeItemSerialNumber);
                 request.AppendFormat("<pdate>{0}</pdate>", production);
                 request.AppendFormat("<bdate>{0}</bdate>", bestBefore);
-                request.AppendFormat("<lot_no>{0}</lot_no>", skidDetail[idx]["ActivityDetailLogisticUnitBatchLotNumber"]);
-                request.AppendFormat("<variant_code>{0}</variant_code>", skidDetail[idx]["ProductSchemeVariantCode"]);
-                request.AppendFormat("<variant_no>{0}</variant_no>", skidDetail[idx]["ProductSchemeVariantNo"]);
-                request.AppendFormat("<alt_qty>{0}</alt_qty>", Convert.ToDecimal(skidDetail[idx]["ActivityDetailQuantity"]) * -1);
-                request.AppendFormat("<wt_qty>{0}</wt_qty>", Convert.ToDecimal(skidDetail[idx]["ActivityDetailWeightQuantity"]) * -1);
-                request.AppendFormat("<base_qty>{0}</base_qty>", Convert.ToDecimal(skidDetail[idx]["ActivityDetailBaseQuantity"]) * -1);
+                request.AppendFormat("<lot_no>{0}</lot_no>", skidDetail[idx].ActivityDetailLogisticUnitBatchLotNumber);
+                request.AppendFormat("<variant_code>{0}</variant_code>", skidDetail[idx].ProductSchemeVariantCode);
+                request.AppendFormat("<variant_no>{0}</variant_no>", skidDetail[idx].ProductSchemeVariantNo);
+                request.AppendFormat("<alt_qty>{0}</alt_qty>", Convert.ToDecimal(skidDetail[idx].ActivityDetailQuantity) * -1);
+                request.AppendFormat("<wt_qty>{0}</wt_qty>", Convert.ToDecimal(skidDetail[idx].ActivityDetailWeightQuantity) * -1);
+                request.AppendFormat("<base_qty>{0}</base_qty>", Convert.ToDecimal(skidDetail[idx].ActivityDetailBaseQuantity) * -1);
                 request.AppendFormat("<skid_fk_refno>{0}</skid_fk_refno>", currSkid.SkidFKRefno);
                 request.AppendFormat("<extra1>{0}</extra1>", this.ActDetailOnSkid.ActExtra.Text1);
                 request.AppendFormat("<extra2>{0}</extra2>", this.ActDetailOnSkid.ActExtra.Text2);
@@ -1254,12 +1176,12 @@ namespace dMobile.View.Activity
             {
                 if (currSkid.ProdInfo.Scheme.IsBestBeforeDateTracked)
                 {
-                    bestBefore = Convert.ToDateTime(detail[idx]["ActivityDetailLogisticUnitBestBeforeSellByDate"]).ToString("MM/dd/yyyy");
+                    bestBefore = Convert.ToDateTime(detail[idx].ActivityDetailLogisticUnitBestBeforeSellByDate).ToString("MM/dd/yyyy");
                 }
 
                 if (currSkid.ProdInfo.Scheme.IsProductionDateTracked)
                 {
-                    production = Convert.ToDateTime(detail[idx]["ActivityDetailLogisticUnitProductionDate"]).ToString("MM/dd/yyyy");
+                    production = Convert.ToDateTime(detail[idx].ActivityDetailLogisticUnitProductionDate).ToString("MM/dd/yyyy");
                 }
 
                 request.Append("<to>");
@@ -1268,19 +1190,19 @@ namespace dMobile.View.Activity
                 request.AppendFormat("<slot_refno>{0}</slot_refno>", this.LocMap.CurrLocMap.SlotFKRefno);
                 request.AppendFormat("<refno></refno>", this.ActItem.ActHdr.FKRefno);
                 request.AppendFormat("<itm_refno>{0}</itm_refno>", this.ActItem.FKRefno);
-                request.AppendFormat("<prod_id>{0}</prod_id>", detail[idx]["ProductCode"]);
-                request.AppendFormat("<bc>{0}</bc>", detail[idx]["ProductUnitBC"]);
-                request.AppendFormat("<alt_unit>{0}</alt_unit>", detail[idx]["UnitCode"]);
+                request.AppendFormat("<prod_id>{0}</prod_id>", detail[idx].ProductCode);
+                request.AppendFormat("<bc>{0}</bc>", detail[idx].ProductUnitBC);
+                request.AppendFormat("<alt_unit>{0}</alt_unit>", detail[idx].UnitCode);
                 request.AppendFormat("<wt_unit>{0}</wt_unit>", currSkid.ProdInfo.WeightUnitCode);
-                request.AppendFormat("<serial>{0}</serial>", detail[idx]["ActivityDetailSingleTradeItemSerialNumber"]);
+                request.AppendFormat("<serial>{0}</serial>", detail[idx].ActivityDetailSingleTradeItemSerialNumber);
                 request.AppendFormat("<pdate>{0}</pdate>", production);
                 request.AppendFormat("<bdate>{0}</bdate>", bestBefore);
-                request.AppendFormat("<lot_no>{0}</lot_no>", detail[idx]["ActivityDetailLogisticUnitBatchLotNumber"]);
-                request.AppendFormat("<variant_code>{0}</variant_code>", detail[idx]["ProductSchemeVariantCode"]);
-                request.AppendFormat("<variant_no>{0}</variant_no>", detail[idx]["ProductSchemeVariantNo"]);
-                request.AppendFormat("<alt_qty>{0}</alt_qty>", detail[idx]["ActivityDetailQuantity"]);
-                request.AppendFormat("<wt_qty>{0}</wt_qty>", detail[idx]["ActivityDetailWeightQuantity"]);
-                request.AppendFormat("<base_qty>{0}</base_qty>", detail[idx]["ActivityDetailBaseQuantity"]);
+                request.AppendFormat("<lot_no>{0}</lot_no>", detail[idx].ActivityDetailLogisticUnitBatchLotNumber);
+                request.AppendFormat("<variant_code>{0}</variant_code>", detail[idx].ProductSchemeVariantCode);
+                request.AppendFormat("<variant_no>{0}</variant_no>", detail[idx].ProductSchemeVariantNo);
+                request.AppendFormat("<alt_qty>{0}</alt_qty>", detail[idx].ActivityDetailQuantity);
+                request.AppendFormat("<wt_qty>{0}</wt_qty>", detail[idx].ActivityDetailWeightQuantity);
+                request.AppendFormat("<base_qty>{0}</base_qty>", detail[idx].ActivityDetailBaseQuantity);
                 request.AppendFormat("<skid_fk_refno>{0}</skid_fk_refno>", currSkid.SkidFKRefno);
                 request.AppendFormat("<extra1>{0}</extra1>", this.ActDetail.ActExtra.Text1);
                 request.AppendFormat("<extra2>{0}</extra2>", this.ActDetail.ActExtra.Text2);
@@ -1393,39 +1315,6 @@ namespace dMobile.View.Activity
 
         #region Private Members
 
-        ///// <summary>
-        /////
-        ///// </summary>
-        ///// <param name="sender"></param>
-        ///// <param name="e"></param>
-        ///// <remarks></remarks>
-        //private void updnBarCodeModifier1_GotFocus(object sender, EventArgs e)
-        //{
-        //    SysCommon.SelectValueInDomainUpDown((UpDownBase)sender);
-        //}
-
-        ///// <summary>
-        /////
-        ///// </summary>
-        ///// <remarks></remarks>
-        //private void RefreshData()
-        //{
-            ////this.ScannerDisable()
-
-            ////this.pbarStatus.Visible = True
-
-            ////this.lstDisplay.Items.Clear()
-            ////this.lstDisplay.Items.Add("Loading item detail(s). Please wait...")
-            ////this.lstDisplay.Invalidate()
-            ////this.lstDisplay.Update()
-
-            ////this.lstDisplay.Items.Clear()
-
-            ////this.pbarStatus.Visible = False
-
-            ////this.ScannerEnable()
-        //}
-
         /// <summary>
         ///
         /// </summary>
@@ -1435,8 +1324,6 @@ namespace dMobile.View.Activity
         {
             XDocument xmlDoc = null;
             SProductSchemeData schemeData = actDetail.SchemeData;
-            //int idx = dataGridMainActivity.CurrentRowIndex;
-            int idx = this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem);
 
             xmlDoc = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
@@ -1492,21 +1379,18 @@ namespace dMobile.View.Activity
             {
                 if (!isDuplicateSchemeId)
                 {
-                    actDetail.Insert(xmlDoc);
+                    await actDetail.Insert(xmlDoc);
 
-                    if (actDetail.DataViewDetails.Count > 0)
+                    if (actDetail.ListDetails.Count > 0)
                     {
                         this.DataGridMainActivityItemsList = actDetail.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
                         this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
-                        //this.dataGridMainActivity.Focus();
-                        this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[actDetail.DataViewDetails.Count - 1];
+                        this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[actDetail.ListDetails.Count - 1];
                     }
                     else
                     {
                         this.DataGridMainActivityItemsList = this.ActDetailOnSkid.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
                         this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
-                        //this.dataGridMainActivity.ForeColor = Color.Orange;
-                        //this.dataGridMainActivity.Refresh();
                     }
                 }
             }
@@ -1531,8 +1415,8 @@ namespace dMobile.View.Activity
 
                 if (!string.IsNullOrEmpty(this.BarCodeParse.LocationIdentifier))
                 {
-                    this.LocMap.CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(this.BarCodeParse.LocationIdentifier));
-                    
+                    this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(await LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(this.BarCodeParse.LocationIdentifier));
+
                     if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
                     {
                         this.cmdLocation.Text = LocationMapTasks.GetCurrentReadableLocation();
@@ -1547,7 +1431,7 @@ namespace dMobile.View.Activity
                 {
                     if (!string.IsNullOrEmpty(this.BarCodeParse.ProductIdentifier))
                     {
-                        if (!LocationMapTasks.IsCompleteLocMapRefno(this.LocMap.CurrLocMapRefno))
+                        if (!await LocationMapTasks.IsCompleteLocMapRefno(this.LocMap.CurrLocMapRefno))
                         {
                             // TODO: Resource strings
                             throw new Exceptions.MessageOnlyException("Location must be set first.");
@@ -1561,7 +1445,7 @@ namespace dMobile.View.Activity
                             }
 
                             prodUnitRefno = await SysShared.IdentifyProductScanned(this.ActSubType, this.BarCodeParse, prodUnitRefno);
-                            
+
                             if (this.Activity.SkidInfo.CurrSkid.ProdInfo.UnitRefno != prodUnitRefno)
                             {
                                 // TODO: Resource strings
@@ -1595,9 +1479,9 @@ namespace dMobile.View.Activity
                             throw new Exceptions.MessageOnlyException("Scanning a shipping container bar code is not supported in disconnected mode.");
                         }
 
-                        this.ClearContents();
+                        await this.ClearContents();
 
-                        this.Activity.SkidInfo = SysSkidInfo.GetSkidInfoFromBarCodeOrCode(scanArgs.ParseInfo.SSCC18);
+                        this.Activity.SkidInfo = await SysSkidInfo.GetSkidInfoFromBarCodeOrCode(scanArgs.ParseInfo.SSCC18);
 
                         if (this.Activity.SkidInfo.CurrSkid.SkidFKRefno == 0)
                         {
@@ -1613,7 +1497,7 @@ namespace dMobile.View.Activity
                             this.cmdSelectSkid.Text = "Skid# " + Activity.SkidInfo.CurrSkid.SkidCode;
 
                             this.ItemsList.Clear();
-                            
+
                             // TODO: Resource strings
                             this.ItemsList.Add("Skid Product: " + ProductInfoTasks.GetCurrReadableProdBCUnit(this.Activity.SkidInfo.CurrSkid.ProdInfo));
                             this.ItemsList.Add("Skid Location: " + LocationMapTasks.GetCurrentReadableLocation(this.Activity.SkidInfo.CurrSkid.LocMap));
@@ -1628,7 +1512,7 @@ namespace dMobile.View.Activity
                             this.ActItem.Refno = this.Activity.SkidInfo.CurrSkid.SkidFKRefno;
                             this.ActItem.LocMap = this.LocMap;
                             this.ActItem.ProdInfo = this.Activity.SkidInfo.CurrSkid.ProdInfo;
-                            this.ActItem.ProdInfo.Unit2BaseUnitFactor = ProductInfoTasks.GetUnitRelationFactor(this.ActItem.ProdInfo);
+                            this.ActItem.ProdInfo.Unit2BaseUnitFactor = await ProductInfoTasks.GetUnitRelationFactor(this.ActItem.ProdInfo);
 
                             this.OrigProdInfoOnSkid = this.ActItem.ProdInfo;
 
@@ -1637,8 +1521,7 @@ namespace dMobile.View.Activity
                             tempSchemeData.LogisticUnitSkidNumber = this.ActDetailOnSkid.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode;
                             this.ActDetailOnSkid.SchemeData = tempSchemeData;
 
-                            this.ActDetailOnSkid.Refresh();
-                            //this.dataGridMainActivity.Refresh();
+                            await this.ActDetailOnSkid.Refresh();
                         }
                         else
                         {
@@ -1762,22 +1645,13 @@ namespace dMobile.View.Activity
                     + ("<ActivityDetailUniqueSchemeID>" + this.ActDetail.UniqueSchemeID + "</ActivityDetailUniqueSchemeID>")
                     + "</imclient>");
 
-                this.ActDetail.IsReadyToApply(xmlParam);
+                await this.ActDetail.IsReadyToApply(xmlParam);
 
-                //this.dataGridMainActivity.UnSelect(this.dataGridMainActivity.CurrentRowIndex);
-
-                if (this.ActDetail.DataViewDetails.Count == 0)
+                if (this.ActDetail.ListDetails.Count == 0)
                 {
                     this.DataGridMainActivityItemsList = this.ActDetail.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
                     this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
-                    //this.dataGridMainActivity.ForeColor = Color.Black;
-                    //this.dataGridMainActivity.Refresh();
                 }
-
-                //if (this.ActDetail.DataViewDetails.Count > 0)
-                //{
-                //    this.dataGridMainActivity.UnSelect(this.dataGridMainActivity.CurrentRowIndex);
-                //}
 
                 XDocument xmlDoc = XDocument.Parse(
                     "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
@@ -1794,44 +1668,20 @@ namespace dMobile.View.Activity
                     + ("<is_batch_print_product_label>" + false + "</is_batch_print_product_label>")
                     + "</params>");
 
-                this.ActDetail.Insert(xmlDoc);
+                await this.ActDetail.Insert(xmlDoc);
 
-                if (this.ActDetail.DataViewDetails.Count > 0 && this.DataGridMainActivityItemsList.Count > 0)
+                if (this.ActDetail.ListDetails.Count > 0 && this.DataGridMainActivityItemsList.Count > 0)
                 {
-                    //this.dataGridMainActivity.Focus();
-                    //this.dataGridMainActivity.CurrentRowIndex = this.ActDetail.DataViewDetails.Count - 1;
-                    this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[this.ActDetail.DataViewDetails.Count - 1];
+                    this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[this.ActDetail.ListDetails.Count - 1];
                 }
                 else
                 {
                     this.DataGridMainActivityItemsList = this.ActDetail.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
                     this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
-                    //this.dataGridMainActivity.ForeColor = Color.Orange;
-                    //this.dataGridMainActivity.Refresh();
                 }
             }
         }
 
         #endregion
-
-        //private async void OptionsMenu_Clicked(object sender, EventArgs e)
-        //{
-        //    if (this.Loading)
-        //    {
-        //        return;
-        //    }
-
-        //    // TODO: Resource strings
-        //    string result = await DisplayActionSheet("Skid Put Away", "Close", null, this.optionsMenuItems.ToArray());
-
-        //    if (result == this.cmdLocationText && this.cmdLocationIsEnabled)
-        //    {
-        //        await this.cmdLocation_Click(sender, e);
-        //    }
-        //    else if (result == this.cmdSelectSkidText && this.cmdSelectSkidIsEnabled)
-        //    {
-        //        await this.cmdSelectSkid_Click(sender, e);
-        //    }
-        //}
     }
 }

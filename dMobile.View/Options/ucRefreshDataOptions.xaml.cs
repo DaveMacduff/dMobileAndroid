@@ -610,7 +610,7 @@
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public XDocument GetXML()
+        public async Task<XDocument> GetXML()
         {
             XDocument xmldocParams = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
@@ -742,7 +742,7 @@
         {
             bool isContinueRefresh = false;
 
-            if (this.SysEnv.SysSettings.IsDisconnectedMode && SysCommon.CheckForUnSubmittedData())
+            if (this.SysEnv.SysSettings.IsDisconnectedMode && await SysCommon.CheckForUnSubmittedData())
             {
                 if (await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), Resource.WarningUnsubmittedDataExistsAndWillBeLostContinueWithRefreshData, Resource.Yes, Resource.No)))
                 {
@@ -813,9 +813,9 @@
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        private void chkSelectAll_Click(object sender, EventArgs e)
+        private async void chkSelectAll_Click(object sender, EventArgs e)
         {
-            this.chkSystemData.IsToggled = this.chkSelectAll.IsToggled && dMobile.GroundWork.Common.IsDataBaseDataExist();
+            this.chkSystemData.IsToggled = this.chkSelectAll.IsToggled && await dMobile.GroundWork.Common.IsDataBaseDataExist();
 
             if (this.SysEnv.SysSettings.IsDisconnectedMode)
             {
@@ -854,11 +854,11 @@
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        private void ClickHandler(object sender, EventArgs e)
+        private async void ClickHandler(object sender, EventArgs e)
         {
             if (!this.chkSelectAll.IsToggled && this.IsAllItemsSelected())
             {
-                this.chkSelectAll.IsToggled = dMobile.GroundWork.Common.IsDataBaseDataExist();
+                this.chkSelectAll.IsToggled = await dMobile.GroundWork.Common.IsDataBaseDataExist();
             }
             else if (this.chkSelectAll.IsToggled && !this.IsAllItemsSelected())
             {
@@ -872,7 +872,7 @@
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        private void IdentifyChangesMade(object sender, ToggledEventArgs e)
+        private async void IdentifyChangesMade(object sender, ToggledEventArgs e)
         {
             try
             {
@@ -903,9 +903,7 @@
                     }
                     else if (sender == this.chkRefreshDataChangesOnly)
                     {
-                        this.chkRefreshDataChangesOnly.IsToggled = this.chkRefreshDataChangesOnly.IsToggled
-                          && dMobile.GroundWork.Common.IsDataBaseDataExist();
-                        Console.WriteLine();
+                        this.chkRefreshDataChangesOnly.IsToggled = this.chkRefreshDataChangesOnly.IsToggled && await dMobile.GroundWork.Common.IsDataBaseDataExist();
                     }
                     else if (sender == this.chkReplenishment)
                     {
@@ -934,7 +932,7 @@
             {
                 this.IsChangesMade = true;
                 FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.RefreshData, ex);
-                errRpt.ShowDialog().ContinueWith(result => { });
+                await Device.InvokeOnMainThreadAsync(async () => await errRpt.ShowDialog());
             }
         }
 
@@ -943,7 +941,7 @@
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void ValidateEntry(object sender, CancelEventArgs e)
+        private async void ValidateEntry(object sender, CancelEventArgs e)
         {
             e.Cancel = false;
 
@@ -1000,7 +998,7 @@
                 // Do not allow the exit of control.
                 e.Cancel = true;
                 FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.RefreshData, ex);
-                errRpt.ShowDialog().ContinueWith(result => { });
+                await Device.InvokeOnMainThreadAsync(async () => await errRpt.ShowDialog());
             }
         }
 

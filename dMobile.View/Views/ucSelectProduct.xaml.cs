@@ -13,6 +13,7 @@ using dMobile.Resources.Types;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace dMobile.View
 {
@@ -24,7 +25,7 @@ namespace dMobile.View
         //private UserControl callingControl = null;
         private int prodRefno = 0;
         private bool isChangesMade = false;
-        private DataView dataViewProducts = null;
+        private List<Product> listProducts = null;
         private string prodCode = string.Empty;
         private string prodDesc = string.Empty;
         private SysCommon.ActSubTypes actSubType;
@@ -36,8 +37,8 @@ namespace dMobile.View
         private ReqCancelDisableHandler reqCancelDisableEvent;
         private bool isControlLoaded = false;
         private bool filterOnAllowConvertProduct = false;
-        private ObservableCollection<Product> productList;
-        private ObservableCollection<Product> productFilteredList;
+        private ObservableCollection<Product> productObservableCollection;
+        private ObservableCollection<Product> productFilteredObservableCollection;
 
         #endregion
 
@@ -63,8 +64,8 @@ namespace dMobile.View
                 this.cboSearch.Items.Add("Description");
                 this.cboSearch.SelectedItem = "Code";
                 this.SysEnv = SysEnvironment.GetInstance();
-                this.ProductList = new ObservableCollection<Product>();
-                this.ProductFilteredList = new ObservableCollection<Product>();
+                this.ProductObservableCollection = new ObservableCollection<Product>();
+                this.ProductFilteredObservableCollection = new ObservableCollection<Product>();
             }
         }
 
@@ -101,17 +102,17 @@ namespace dMobile.View
                 }
                 else if (keycode == Keycode.DpadDown)
                 {
-                    if (this.dgProducts.SelectedItem != null && Convert.ToInt32(this.ProductFilteredList.IndexOf(this.dgProducts.SelectedItem as Product)) < this.ProductFilteredList.Count - 1)
+                    if (this.dgProducts.SelectedItem != null && Convert.ToInt32(this.ProductFilteredObservableCollection.IndexOf(this.dgProducts.SelectedItem as Product)) < this.ProductFilteredObservableCollection.Count - 1)
                     {
-                        this.dgProducts.SelectedItem = this.ProductFilteredList[this.ProductFilteredList.IndexOf(this.dgProducts.SelectedItem as Product) + 1];
+                        this.dgProducts.SelectedItem = this.ProductFilteredObservableCollection[this.ProductFilteredObservableCollection.IndexOf(this.dgProducts.SelectedItem as Product) + 1];
                         this.dgProducts.ScrollTo(this.dgProducts.SelectedItem, ScrollToPosition.MakeVisible, true);
                     }
                 }
                 else if (keycode == Keycode.DpadUp)
                 {
-                    if (this.dgProducts.SelectedItem != null && Convert.ToInt32(this.ProductFilteredList.IndexOf(this.dgProducts.SelectedItem as Product)) > 0)
+                    if (this.dgProducts.SelectedItem != null && Convert.ToInt32(this.ProductFilteredObservableCollection.IndexOf(this.dgProducts.SelectedItem as Product)) > 0)
                     {
-                        this.dgProducts.SelectedItem = this.ProductFilteredList[this.ProductFilteredList.IndexOf(this.dgProducts.SelectedItem as Product) - 1];
+                        this.dgProducts.SelectedItem = this.ProductFilteredObservableCollection[this.ProductFilteredObservableCollection.IndexOf(this.dgProducts.SelectedItem as Product) - 1];
                         this.dgProducts.ScrollTo(this.dgProducts.SelectedItem, ScrollToPosition.MakeVisible, true);
                     }
                 }
@@ -235,7 +236,8 @@ namespace dMobile.View
                 // This allows the variable to be set back to false without causing infinite loop.
                 if (value)
                 {
-                    LoadData();
+                    // TODO: Test loading 
+                    Task.Run(async () => await LoadData()).Wait();
                 }
             }
         }
@@ -318,16 +320,16 @@ namespace dMobile.View
             }
         }
 
-        private DataView DataViewProducts
+        private List<Product> ListProducts
         {
             get
             {
-                return this.dataViewProducts;
+                return this.listProducts;
             }
 
             set
             {
-                this.dataViewProducts = value;
+                this.listProducts = value;
             }
         }
 
@@ -343,19 +345,6 @@ namespace dMobile.View
                 this.prodRefno = value;
             }
         }
-
-        //private UserControl CallingControl
-        //{
-        //    get
-        //    {
-        //        return this.callingControl;
-        //    }
-
-        //    set
-        //    {
-        //        this.callingControl = value;
-        //    }
-        //}
 
         private ReqCloseHandler ReqCloseEvent
         {
@@ -422,15 +411,15 @@ namespace dMobile.View
             }
         }
 
-        private ObservableCollection<Product> ProductList
+        private ObservableCollection<Product> ProductObservableCollection
         {
-            get => productList;
-            set => productList = value;
+            get => productObservableCollection;
+            set => productObservableCollection = value;
         }
-        private ObservableCollection<Product> ProductFilteredList
+        private ObservableCollection<Product> ProductFilteredObservableCollection
         {
-            get => productFilteredList;
-            set => productFilteredList = value;
+            get => productFilteredObservableCollection;
+            set => productFilteredObservableCollection = value;
         }
 
         #endregion
@@ -529,16 +518,6 @@ namespace dMobile.View
             return isReadyToClose;
         }
 
-        ///// <summary>
-        /////
-        ///// </summary>
-        ///// <returns></returns>
-        ///// <remarks></remarks>
-        //public UserControl GetCallingControl()
-        //{
-        //    return this.CallingControl;
-        //}
-
         /// <summary>
         ///
         /// </summary>
@@ -563,7 +542,6 @@ namespace dMobile.View
             {
                 if (await this.IsReadyToSave())
                 {
-                    ResetFilterAllowProductChange();
                     this.IsChangesMade = false;
                     saveComplete = true;
                 }
@@ -607,9 +585,6 @@ namespace dMobile.View
                 // IsReadyToClose checks if any changes where made.
                 if (await this.IsReadyToClose())
                 {
-                    // If filter on AllowProductChanges, reset that
-                    ResetFilterAllowProductChange();
-
                     // Clear any properties.
                     this.ProdRefno = 0;
                     this.ProdDesc = string.Empty;
@@ -625,7 +600,7 @@ namespace dMobile.View
                     // Methods that could be called to restore the control to a closable state.
                     // ClearProperties();
                     // DisplayData();
-                    this.LoadData();
+                    await this.LoadData();
                     cancelChanges = false;
                     this.IsChangesMade = false;
                 }
@@ -650,23 +625,11 @@ namespace dMobile.View
         }
 
         /// <summary>
-        /// Resets the data so that we can load fresh the regular data again.
-        /// </summary>
-        /// <returns></returns>
-        private void ResetFilterAllowProductChange()
-        {
-            if (FilterOnAllowConvertProduct)
-            {
-                ////Products.GetInstance().ClearData();
-            }
-        }
-
-        /// <summary>
         ///
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public XDocument GetXML()
+        public async Task<XDocument> GetXML()
         {
             XDocument request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" +
@@ -797,11 +760,11 @@ namespace dMobile.View
                     {
                         await Device.InvokeOnMainThreadAsync(() =>
                         {
-                            this.dgProducts.ItemsSource = this.ProductFilteredList;
+                            this.dgProducts.ItemsSource = this.ProductFilteredObservableCollection;
 
-                            if (this.ProductFilteredList.Count > 0)
+                            if (this.ProductFilteredObservableCollection.Count > 0)
                             {
-                                this.dgProducts.SelectedItem = this.ProductFilteredList[0];
+                                this.dgProducts.SelectedItem = this.ProductFilteredObservableCollection[0];
                             }
 
                             this.Loading = false;
@@ -819,65 +782,13 @@ namespace dMobile.View
             }
         }
 
-        ///// <summary>
-        /////
-        ///// </summary>
-        ///// <param name="sender"></param>
-        ///// <param name="e"></param>
-        ///// <remarks></remarks>
-        //private void ValidateEntry(object sender, System.ComponentModel.CancelEventArgs e)
-        //{
-        //    e.Cancel = false;
-
-        //    try
-        //    {
-        //        if (sender == this.textBoxSearchProduct)
-        //        {
-        //        }
-
-        //        if (sender == this.cboSearch)
-        //        {
-        //        }
-
-        //        if (sender == this.dgProducts)
-        //        {
-        //        }
-        //    }
-        //    catch (Exceptions.MessageOnlyException ex)
-        //    {
-        //        e.Cancel = true;
-        //        ex.Show(this.ActSubType);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        e.Cancel = false;
-
-        //        Device.BeginInvokeOnMainThread(async () =>
-        //        {
-        //            FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
-        //            await errRpt.ShowDialog();
-        //        });
-        //    }
-        //}
-
-        ///// <summary>
-        /////
-        ///// </summary>
-        ///// <param name="sender"></param>
-        ///// <param name="e"></param>
-        ///// <remarks></remarks>
-        //private void dgProducts_Select(object sender, EventArgs e)
-        //{
-        //    this.SelectProduct(this.dgProducts.CurrentRowIndex);
-        //}
-
         /// <summary>
         ///
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        private void textBoxSearchProduct_TextChanged(object sender, TextChangedEventArgs e)
+        private async void textBoxSearchProduct_TextChanged(object sender, TextChangedEventArgs e)
         {
             this.IsChangesMade = true;
 
@@ -887,25 +798,25 @@ namespace dMobile.View
                 if (this.cboSearch.SelectedIndex == 0)
                 {
                     //this.DataViewProducts.RowFilter = "ProductCode LIKE \'" + this.textBoxSearchProduct.Text.Trim() + "%\'";
-                    this.ProductFilteredList = new ObservableCollection<Product>(this.ProductList.Where((prod) => prod.ProductCode.ToLower().Contains(this.textBoxSearchProduct.Text.ToLower().Trim())));
+                    this.ProductFilteredObservableCollection = new ObservableCollection<Product>(this.ProductObservableCollection.Where((prod) => prod.ProductCode.ToLower().Contains(this.textBoxSearchProduct.Text.ToLower().Trim())));
                 }
                 else
                 {
                     //this.DataViewProducts.RowFilter = "ProductDescription LIKE \'" + this.textBoxSearchProduct.Text.Trim() + "%\'";
-                    this.ProductFilteredList = new ObservableCollection<Product>(this.ProductList.Where((prod) => prod.ProductDescription.ToLower().Contains(this.textBoxSearchProduct.Text.ToLower().Trim())));
+                    this.ProductFilteredObservableCollection = new ObservableCollection<Product>(this.ProductObservableCollection.Where((prod) => prod.ProductDescription.ToLower().Contains(this.textBoxSearchProduct.Text.ToLower().Trim())));
                 }
             }
             else
             {
-                this.ProductFilteredList = this.ProductList;
+                this.ProductFilteredObservableCollection = this.ProductObservableCollection;
             }
 
-            dgProducts.ItemsSource = this.ProductFilteredList;
+            dgProducts.ItemsSource = this.ProductFilteredObservableCollection;
 
-            if (this.ProductFilteredList.Count > 0)
+            if (this.ProductFilteredObservableCollection.Count > 0)
             {
-                this.dgProducts.SelectedItem = this.ProductFilteredList[0];
-                this.SelectProduct(this.ProductFilteredList[0]);
+                this.dgProducts.SelectedItem = this.ProductFilteredObservableCollection[0];
+                await this.SelectProduct(this.ProductFilteredObservableCollection[0]);
             }
         }
 
@@ -914,7 +825,7 @@ namespace dMobile.View
         /// </summary>
         /// <param name="iSeletedIndex"></param>
         /// <remarks></remarks>
-        private void SelectProduct(Product prod)
+        private async Task SelectProduct(Product prod)
         {
             if (prod == null)
             {
@@ -927,7 +838,7 @@ namespace dMobile.View
                 this.ProdDesc = Convert.ToString(prod.ProductDescription);
                 this.ProdCode = Convert.ToString(prod.ProductCode);
 
-                Device.BeginInvokeOnMainThread(() =>
+                await Device.InvokeOnMainThreadAsync(() =>
                 {
                     this.lblProductDescription.Text = this.ProdCode + "  " + this.ProdDesc;
                 });
@@ -943,9 +854,9 @@ namespace dMobile.View
         ///
         /// </summary>
         /// <remarks></remarks>
-        private void LoadData()
+        private async Task LoadData()
         {
-            this.LoadProductList();
+            await this.LoadProductList();
             this.AddProductToObservableCollection();
         }
 
@@ -953,40 +864,35 @@ namespace dMobile.View
         ///
         /// </summary>
         /// <remarks></remarks>
-        private void LoadProductList()
+        private async Task LoadProductList()
         {
-            DataTable dataTableProducts = new DataTable();
-
             if (FilterOnAllowConvertProduct)
             {
-                ProductInfoTasks.GetProductListAllowConvertProduct(ref dataTableProducts);
+                this.ListProducts = await ProductInfoTasks.GetProductListAllowConvertProduct();
             }
             else
             {
-                ProductInfoTasks.GetProductList(ref dataTableProducts);
+                this.ListProducts = await ProductInfoTasks.GetProductList();
             }
-
-            dataTableProducts.TableName = "Products";
-            this.DataViewProducts = dataTableProducts.DefaultView;
         }
 
         private void AddProductToObservableCollection()
         {
-            this.ProductList.Clear();
+            this.ProductObservableCollection.Clear();
 
-            foreach (DataRow row in this.DataViewProducts.ToTable().Rows)
+            foreach (Product product in this.ListProducts)
             {
-                Product prod = new Product
-                {
-                    ProductRefno = Convert.ToInt32(row["ProductRefno"]),
-                    ProductDescription = Convert.ToString(row["ProductDescription"]),
-                    ProductCode = Convert.ToString(row["ProductCode"]),
-                };
+                //Product prod = new Product
+                //{
+                //    ProductRefno = Convert.ToInt32(row["ProductRefno"]),
+                //    ProductDescription = Convert.ToString(row["ProductDescription"]),
+                //    ProductCode = Convert.ToString(row["ProductCode"]),
+                //};
 
-                this.ProductList.Add(prod);
+                this.ProductObservableCollection.Add(product);
             }
 
-            this.ProductFilteredList = this.ProductList;
+            this.ProductFilteredObservableCollection = this.ProductObservableCollection;
         }
 
         private void TextBoxSearchProduct_Focused(object sender, FocusEventArgs e)
@@ -995,10 +901,10 @@ namespace dMobile.View
             this.textBoxSearchProduct.SelectionLength = this.textBoxSearchProduct.Text != null ? this.textBoxSearchProduct.Text.Length : 0;
         }
 
-        private void DgProducts_ItemSelected(object sender, SelectedItemChangedEventArgs e)
+        private async void DgProducts_ItemSelected(object sender, SelectedItemChangedEventArgs e)
         {
             Product prod = e.SelectedItem as Product;
-            this.SelectProduct(prod);
+            await this.SelectProduct(prod);
         }
 
 
@@ -1021,48 +927,6 @@ namespace dMobile.View
                 await this.Close();
             }
         }
-
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        ///// <param name="sender"></param>
-        ///// <param name="e"></param>
-        //private void IdentifyChangesMade(object sender, EventArgs e)
-        //{
-        //    try
-        //    {
-        //        if (this.IsControlLoaded)
-        //        {
-        //            this.IsChangesMade = true;
-
-        //            if (sender == this.textBoxSearchProduct)
-        //            {
-        //                // Handled in this.textBoxSearchProduct_TextChanged
-        //            }
-
-        //            if (sender == this.cboSearch)
-        //            {
-        //            }
-
-        //            if (sender == this.dgProducts)
-        //            {
-        //            }
-        //        }
-        //    }
-        //    catch (Exceptions.MessageOnlyException ex)
-        //    {
-        //        // Do not set the IsChangesMade. Exceptions.MessageOnlyException is really not and error. 
-        //        // Allow the validation to handle the setting for IsChangesMade.
-        //        ex.Show(this.ActSubType);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Device.BeginInvokeOnMainThread(async () =>
-        //        {
-        //            FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
-        //            await errRpt.ShowDialog();
-        //        });
-        //    }
     }
 
     #endregion

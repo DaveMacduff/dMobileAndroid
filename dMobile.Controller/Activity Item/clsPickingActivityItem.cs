@@ -1,4 +1,4 @@
-namespace dMobile.Controller
+﻿namespace dMobile.Controller
 {
     using System;
     using System.Collections.ObjectModel;
@@ -777,6 +777,7 @@ namespace dMobile.Controller
                 sql.Append("tActivityItemPicking.ActivityItemPickingQuantityAvailable AS ActivityItemPickingQuantityAvailable,");
                 sql.Append("tActivityItemPicking.ActivityItemPickingBaseQuantityAvailable AS ActivityItemPickingBaseQuantityAvailable,");
                 sql.Append("tActivityItemPicking.ActivityItemPickingWeightQuantityAvailable AS ActivityItemPickingWeightQuantityAvailable,");
+                sql.Append("tActivityItemPicking.ActivityItemPickingIsReviewed AS ActivityItemPickingIsReviewed,");
                 sql.Append("CASE WHEN tActivityItemPickingComment.ActivityItemPickingCommentComment IS NULL ");
                 sql.Append("THEN \' \' ELSE \'*\' END AS IsActivityItemPickingComment,");
                 sql.Append("tActivityItem.ActivityItemStatus AS ActivityItemStatus ");
@@ -861,6 +862,7 @@ namespace dMobile.Controller
                 sql.Append("tActivityItemPicking.ActivityItemPickingQuantityAvailable AS ActivityItemPickingQuantityAvailable,");
                 sql.Append("tActivityItemPicking.ActivityItemPickingBaseQuantityAvailable AS ActivityItemPickingBaseQuantityAvailable,");
                 sql.Append("tActivityItemPicking.ActivityItemPickingWeightQuantityAvailable AS ActivityItemPickingWeightQuantityAvailable,");
+                sql.Append("tActivityItemPicking.ActivityItemPickingIsReviewed AS ActivityItemPickingIsReviewed,");
                 sql.Append("CASE WHEN tActivityItemPickingComment.ActivityItemPickingCommentComment IS NULL ");
                 sql.Append("THEN \' \' ELSE \'*\' END AS IsActivityItemPickingComment,");
                 sql.Append("tActivityItem.ActivityItemStatus AS ActivityItemStatus ");
@@ -1005,7 +1007,7 @@ namespace dMobile.Controller
         /// <summary>
         /// 
         /// </summary>
-        public override void Delete()
+        public override async Task Delete()
         {
             if (!this.SysEnv.SysSettings.IsDisconnectedMode)
             {

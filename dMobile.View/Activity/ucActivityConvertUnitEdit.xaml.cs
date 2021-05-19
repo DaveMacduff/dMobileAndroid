@@ -683,7 +683,7 @@ namespace dMobile.View.Activity
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public XDocument GetXML()
+        public async Task<XDocument> GetXML()
         {
             string unqScheme = ProductInfoTasks.GetActUniqueSchemeIDFromSProdSchemeData(
                 this.ActDetail.ActItem.ProdInfo.Code,
@@ -812,22 +812,6 @@ namespace dMobile.View.Activity
 
         #region Private Members
 
-        ///// <summary>
-        /////
-        ///// </summary>
-        ///// <param name="sender"></param>
-        ///// <param name="e"></param>
-        ///// <remarks></remarks>
-        //private void KeyPressHandler(object sender, KeyPressEventArgs e)
-        //{
-        //    if (this.IsEnterTrapped)
-        //    {
-        //        e.Handled = true;
-        //        this.SelectNextControl((System.Windows.Forms.Control)sender, true, false, false, true);
-        //        this.IsEnterTrapped = false;
-        //    }
-        //}
-
         /// <summary>
         ///
         /// </summary>
@@ -867,9 +851,9 @@ namespace dMobile.View.Activity
         {
             this.lblFromUnitDesc.Text = string.Format(
                 "{0} {1} @ {2} {3}",
-                this.ActDetail.ActItem.DataViewItems[0]["ActivityDetailQuantity"],
-                this.ActDetail.ActItem.DataViewItems[0]["UnitCode"],
-                this.ActDetail.ActItem.DataViewItems[0]["ActivityDetailWeightQuantity"],
+                (this.ActDetail.ActItem.ListItems[0] as dynamic).ActivityDetailQuantity,
+                (this.ActDetail.ActItem.ListItems[0] as dynamic).UnitCode,
+                (this.ActDetail.ActItem.ListItems[0] as dynamic).ActivityDetailWeightQuantity,
                 this.ActDetail.ActItem.ProdInfo.WeightUnitCode);
 
             this.ItemsList = new ObservableCollection<string>();

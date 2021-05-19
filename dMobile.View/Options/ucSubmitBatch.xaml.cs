@@ -9,7 +9,7 @@ using System.Xml.Linq;
 using dMobile.Bedrock;
 using dMobile.Controller;
 using dMobile.View.CustomPages;
-using System.Data.SQLite;
+using SQLite;
 using dMobile.View.Forms;
 using dMobile.Resources.Enums;
 using Android.Views;
@@ -93,7 +93,6 @@ namespace dMobile.View.Options
                     {
                         if (await this.SaveChanges())
                         {
-                            //this.CallingControl = new ucOptionsMenu();
                             this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                         }
                         else
@@ -473,16 +472,6 @@ namespace dMobile.View.Options
             return isReadyToClose;
         }
 
-        ///// <summary>
-        /////
-        ///// </summary>
-        ///// <returns></returns>
-        ///// <remarks></remarks>
-        //public UserControl GetCallingControl()
-        //{
-        //    return this.CallingControl;
-        //}
-
         /// <summary>
         ///
         /// </summary>
@@ -589,7 +578,7 @@ namespace dMobile.View.Options
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public XDocument GetXML()
+        public async Task<XDocument> GetXML()
         {
             XDocument xmldocParams = System.Xml.Linq.XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
@@ -768,7 +757,7 @@ namespace dMobile.View.Options
 
                     try
                     {
-                        this.Activity.Refresh(null);
+                        await this.Activity.Refresh(null);
                     }
                     catch (SQLiteException ex)
                     {
@@ -783,7 +772,7 @@ namespace dMobile.View.Options
                         await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "Submit Batch", ex.Message, "OK"));
                     }
 
-                    this.Activity.DataViewHdrs = this.Activity.GetDataView(true);
+                    this.Activity.ListHdrs = await this.Activity.GetActivityList(true);
 
                     await Device.InvokeOnMainThreadAsync(() =>
                     {
@@ -791,10 +780,9 @@ namespace dMobile.View.Options
                         this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
                     });
 
-                    if (Activity.DataViewHdrs.Count > 0)
+                    if (Activity.ListHdrs.Count > 0)
                     {
-                        //dataGridMainActivity.Select(0);
-                        Activity.SelectHdr(0);
+                        await Activity.SelectActivity(this.DataGridMainActivityItemsList[0]);
                     }
 
                     this.IsControlLoaded = true;
@@ -826,7 +814,6 @@ namespace dMobile.View.Options
 
             if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
             {
-                await form.SaveChanges(sender, e);
                 XDocument xmlDoc = form.DisplayControlData;
                 this.SubmitBatchSettings = this.SubmitBatchSettings.LoadData();
                 this.ItemsList.Clear();
@@ -856,13 +843,12 @@ namespace dMobile.View.Options
                 {
                     this.Loading = true;
                     await Device.InvokeOnMainThreadAsync(() => this.cmdSubmit.IsEnabled = false);
-                    //this.pbarStatus.Visible = true;
 
-                    if (this.Activity.DataViewHdrs.Count > 0)
+                    if (this.Activity.ListHdrs.Count > 0)
                     {
-                        for (int actRow = 0; actRow <= this.Activity.DataViewHdrs.Count - 1; actRow++)
+                        for (int actRow = 0; actRow <= this.Activity.ListHdrs.Count - 1; actRow++)
                         {
-                            actRefno = this.Activity.GetRefnoFromRowIdx(actRow);
+                            actRefno = this.Activity.GetRefnoFromRowIdx(this.Activity.ListHdrs[actRow]);
 
                             if (actItem == null)
                             {
@@ -921,19 +907,16 @@ namespace dMobile.View.Options
                                 }
                             }
 
-                            actItem.DataViewItems = actItem.GetDataView(true);
-                            //GC.Collect();
-                            //GC.WaitForPendingFinalizers();
+                            actItem.ListItems = await actItem.GetActivityItemList(true);
 
-                            if (actItem.DataViewItems.Count > 0)
+                            if (actItem.ListItems.Count > 0)
                             {
-                                for (int itemIdx = 0; itemIdx <= actItem.DataViewItems.Count - 1; itemIdx++)
+                                for (int itemIdx = 0; itemIdx <= actItem.ListItems.Count - 1; itemIdx++)
                                 {
-                                    actItem.SelectItem(itemIdx);
+                                    await actItem.SelectActivityItem(actItem.ListItems[itemIdx]);
                                     actItemRefno = actItem.Refno;
 
-                                    if (actDetail == null
-                                            && this.SubmitBatchSettings.eActivitySubType != SysCommon.ActSubTypes.BarCodeAssociation)
+                                    if (actDetail == null && this.SubmitBatchSettings.eActivitySubType != SysCommon.ActSubTypes.BarCodeAssociation)
                                     {
                                         switch (this.SubmitBatchSettings.eActivitySubType)
                                         {
@@ -988,91 +971,79 @@ namespace dMobile.View.Options
 
                                     if (this.SubmitBatchSettings.eActivitySubType == SysCommon.ActSubTypes.BarCodeAssociation)
                                     {
-                                        SysCommon.BarCodeSymbologies i = (SysCommon.BarCodeSymbologies)Convert.ToInt32(actItem.DataViewItems[itemIdx]["ProductUnitBarCodeSymbologyEnum"]);
+                                        SysCommon.BarCodeSymbologies i = (SysCommon.BarCodeSymbologies)Convert.ToInt32((actItem.ListItems[itemIdx] as dynamic).ProductUnitBarCodeSymbologyEnum);
                                         string symbologyPrefix = SysCommon.GetSymbologyPrefixFromSymbologyEnum(i);
 
                                         XDocument xmlParams = XDocument.Parse(
                                                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                                                 + "<params>"
-                                                + "<ProductUnitBarCodeRefno>" + actItem.DataViewItems[itemIdx]["ProductUnitBarCodeRefno"]
+                                                + "<ProductUnitBarCodeRefno>" + (actItem.ListItems[itemIdx] as dynamic).ProductUnitBarCodeRefno
                                                 + "</ProductUnitBarCodeRefno>"
-                                                + "<ProductUnitRefno>" + actItem.DataViewItems[itemIdx]["ProductUnitRefno"]
+                                                + "<ProductUnitRefno>" + (actItem.ListItems[itemIdx] as dynamic).ProductUnitRefno
                                                 + "</ProductUnitRefno>"
                                                 + "<ProductUnitBarCodeSymbologyPrefix>" + symbologyPrefix
                                                 + "</ProductUnitBarCodeSymbologyPrefix>"
-                                                + "<ProductUnitBarCodeCode>" + actItem.DataViewItems[itemIdx]["ProductUnitBarCodeCode"]
+                                                + "<ProductUnitBarCodeCode>" + (actItem.ListItems[itemIdx] as dynamic).ProductUnitBarCodeCode
                                                 + "</ProductUnitBarCodeCode>"
-                                                + "<ProductUnitIsBC>" + actItem.DataViewItems[itemIdx]["ProductUnitIsBC"]
+                                                + "<ProductUnitIsBC>" + (actItem.ListItems[itemIdx] as dynamic).ProductUnitIsBC
                                                 + "</ProductUnitIsBC>"
-                                                + "<ProductCode>" + actItem.DataViewItems[itemIdx]["ProductCode"] + "</ProductCode>"
-                                                + "<UnitCode>" + actItem.DataViewItems[itemIdx]["UnitCode"] + "</UnitCode>"
+                                                + "<ProductCode>" + (actItem.ListItems[itemIdx] as dynamic).ProductCode + "</ProductCode>"
+                                                + "<UnitCode>" + (actItem.ListItems[itemIdx] as dynamic).UnitCode + "</UnitCode>"
                                                 + "<ProductUnitBarCodeModifier1>"
-                                                + actItem.DataViewItems[itemIdx]["ProductUnitBarCodeModifier1"]
+                                                + (actItem.ListItems[itemIdx] as dynamic).ProductUnitBarCodeModifier1
                                                 + "</ProductUnitBarCodeModifier1>"
                                                 + "</params>");
 
-                                        actItem.Submit(xmlParams, itemIdx);
+                                        await actItem.Submit(xmlParams, itemIdx);
                                     }
                                     else if (this.SubmitBatchSettings.eActivitySubType == SysCommon.ActSubTypes.PurchaseOrderWorkSheet)
                                     {
                                         XDocument xmlParams = XDocument.Parse(
                                                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                                                 + "<params>"
-                                                + "<ProductUnitRefno>" + actItem.DataViewItems[itemIdx]["ProductUnitRefno"]
+                                                + "<ProductUnitRefno>" + (actItem.ListItems[itemIdx] as dynamic).ProductUnitRefno
                                                 + "</ProductUnitRefno>"
-                                                + "<ProductCode>" + actItem.DataViewItems[itemIdx]["ProductCode"] + "</ProductCode>"
-                                                + "<UnitCode>" + actItem.DataViewItems[itemIdx]["UnitCode"] + "</UnitCode>"
+                                                + "<ProductCode>" + (actItem.ListItems[itemIdx] as dynamic).ProductCode + "</ProductCode>"
+                                                + "<UnitCode>" + (actItem.ListItems[itemIdx] as dynamic).UnitCode + "</UnitCode>"
                                                 + "<ProductUnitBarCodeCode></ProductUnitBarCodeCode>"
                                                 + "<ProductUnitIsBC>" + false + "</ProductUnitIsBC>"
                                                 + "<ProductUnitBarCodeSymbologyPrefix></ProductUnitBarCodeSymbologyPrefix>"
                                                 + "<alt_qty>"
-                                                + actItem.DataViewItems[itemIdx]["ActivityItemPurchaseOrderWorkSheetQuantityOrdered"]
+                                                + (actItem.ListItems[itemIdx] as dynamic).ActivityItemPurchaseOrderWorkSheetQuantityOrdered
                                                 + "</alt_qty>"
                                                 + "<base_qty>"
-                                                + actItem.DataViewItems[itemIdx]["ActivityItemPurchaseOrderWorkSheetBaseQuantityOrdered"]
+                                                + (actItem.ListItems[itemIdx] as dynamic).ActivityItemPurchaseOrderWorkSheetBaseQuantityOrdered
                                                 + "</base_qty>"
                                                 + "<wt_qty>"
-                                                + actItem.DataViewItems[itemIdx]["ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered"]
+                                                + (actItem.ListItems[itemIdx] as dynamic).ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered
                                                 + "</wt_qty>"
-                                                + "<whs_id>" + actItem.DataViewItems[itemIdx]["LocationCode"] + "</whs_id>"
-                                                + "<refno>" + actItem.DataViewItems[itemIdx]["ActivityItemPurchaseOrderWorkSheetFKRefno"]
+                                                + "<whs_id>" + (actItem.ListItems[itemIdx] as dynamic).LocationCode + "</whs_id>"
+                                                + "<refno>" + (actItem.ListItems[itemIdx] as dynamic).ActivityItemPurchaseOrderWorkSheetFKRefno
                                                 + "</refno>"
-                                                + "<itm_refno>" + actItem.DataViewItems[itemIdx]["ActivityItemPurchaseOrderWorkSheetFKRefno"]
+                                                + "<itm_refno>" + (actItem.ListItems[itemIdx] as dynamic).ActivityItemPurchaseOrderWorkSheetFKRefno
                                                 + "</itm_refno>"
-                                                + "<alt_unit>" + actItem.DataViewItems[itemIdx]["UnitCode"] + "</alt_unit>"
+                                                + "<alt_unit>" + (actItem.ListItems[itemIdx] as dynamic).UnitCode + "</alt_unit>"
                                                 + "<base_unit>" + actItem.ProdInfo.BaseUnitCode + "</base_unit>"
                                                 + "<wt_unit>" + actItem.ProdInfo.WeightUnitCode + "</wt_unit>"
                                                 + "</params>");
 
-                                        actItem.Submit(xmlParams, itemIdx);
-                                        //GC.Collect();
-                                        //GC.WaitForPendingFinalizers();
+                                        await actItem.Submit(xmlParams, itemIdx);
+
                                         break;
                                     }
                                     else
                                     {
-                                        actDetail.DataViewDetails = actDetail.GetDataView(true);
+                                        actDetail.ListDetails = await actDetail.GetActivityDetailList(true);
 
-                                        if (actDetail.DataViewDetails.Count > 0)
+                                        if (actDetail.ListDetails.Count > 0)
                                         {
-                                            //this.pbarStatus.Maximum = actDetail.DataViewDetails.Count;
-                                            //this.pbarStatus.Minimum = 0;
-
-                                            for (int detailIdx = 0; detailIdx <= actDetail.DataViewDetails.Count - 1; detailIdx++)
+                                            for (int detailIdx = 0; detailIdx <= actDetail.ListDetails.Count - 1; detailIdx++)
                                             {
-                                                actDetail.GetInfo(detailIdx, false);
-                                                actDetail.Submit(detailIdx, null);
-
-                                                //if (detailIdx % 100 == 0)
-                                                //{
-                                                //    this.pbarStatus.Value = detailIdx;
-                                                //}
+                                                await actDetail.GetInfo(actDetail.ListDetails[detailIdx], false);
+                                                await actDetail.Submit(actDetail.ListDetails[detailIdx], null);
                                             }
                                         }
                                     }
-
-                                    //GC.Collect();
-                                    //GC.WaitForPendingFinalizers();
                                 }
                             }
                         }
@@ -1102,9 +1073,6 @@ namespace dMobile.View.Options
                         this.ItemsList.Clear();
                         this.cmdSubmit.IsEnabled = true;
                     });
-
-                    //GC.Collect();
-                    //GC.WaitForPendingFinalizers();
                 }
             });
         }

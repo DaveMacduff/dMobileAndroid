@@ -7,11 +7,13 @@
     using System;
     using System.ComponentModel;
     using System.Data;
-    using System.Data.SQLite;
+    using SQLite;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
     using dMobile.View.CustomPages.Modal;
     using Resource = dMobile.Resources.Properties.Resources;
+    using System.Collections.Generic;
+    using dMobile.Resources.Models;
 
     /// <summary>
     /// Defines the <see cref="FormAssociateBarCodeOverride" />
@@ -66,7 +68,7 @@
                 }
             }
         }
-        
+
         /// <summary>
         /// The OnDisappearing
         /// </summary>
@@ -212,24 +214,13 @@
             {
                 if (!string.IsNullOrEmpty(this.txtLoginID.Text))
                 {
-                    using (SQLiteCommand cmndUser = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                    List<tContactUserModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tContactUserModel>("SELECT * FROM tContactUser WHERE ContactUserCode = ?", Convert.ToInt32(this.txtLoginID.Text));
+
+                    if (results?.Count > 0)
                     {
-                        cmndUser.CommandText = "SELECT * FROM tContactUser WHERE ContactUserCode = @contacUserCode";
-                        cmndUser.Parameters.Add(new SQLiteParameter("@contacUserCode", Convert.ToInt32(this.txtLoginID.Text)));
-                        //cmndUser.IndexName = "UQ_ContactUserOnContactUserCode";
-                        cmndUser.CommandType = CommandType.Text;
-
-                        using (SQLiteDataReader drUser = cmndUser.ExecuteReader())
-                        {
-                            if (drUser.Read())
-                            {
-                                this.Password = drUser.GetString(Convert.ToInt32(SysCommon.ContactUserFields.Password));
-                                this.UserCode = drUser.GetInt32(Convert.ToInt32(SysCommon.ContactUserFields.Code));
-                                this.IsAllowedAssocBarCode = drUser.GetBoolean(Convert.ToInt32(SysCommon.ContactUserFields.IsAllowedAssocProdBarCode));
-                            }
-
-                            drUser.Close();
-                        }
+                        this.Password = results[0].ContactUserPassword;
+                        this.UserCode = results[0].ContactUserCode;
+                        this.IsAllowedAssocBarCode = results[0].ContactUserIsAllowedAssociateProductBarCode;
                     }
                 }
 
@@ -246,11 +237,7 @@
                     }
                     else if (true == (this.UserCode != Convert.ToInt32(this.txtLoginID.Text)))
                     {
-#if MULTILANGUAGE
-                    throw new MessageOnlyException(string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.InvalidLoginID), this.txtLoginID.Text));
-#else
                         throw new MessageOnlyException(Resource.InvalidLoginId + " " + this.txtLoginID.Text);
-#endif
                     }
                 }
 
@@ -273,11 +260,7 @@
                     }
                     else if (true == (this.Password != this.txtLoginPassword.Text))
                     {
-#if MULTILANGUAGE
-                    throw new MessageOnlyException(Translator.GetInstance().Translate(TranslatorVocabulary.InvalidLoginPassword));
-#else
                         throw new MessageOnlyException(Resource.InvalidLoginPassword);
-#endif
                     }
                 }
             }
@@ -290,7 +273,7 @@
             catch (SQLiteException ex)
             {
                 e.Cancel = true;
-                
+
                 await new FormErrorReport(ex).ShowDialog();
             }
             catch (Exception ex)

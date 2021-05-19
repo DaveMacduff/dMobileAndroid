@@ -222,25 +222,25 @@ namespace dMobile.Controller
             throw new NotImplementedException();
         }
 
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        ///// <param name="rowIdx"></param>
-        ///// <returns></returns>
-        //public override int GetRefno(object selectedActivityDetail)
-        //{
-        //    return Convert.ToInt32((selectedActivityDetail as ConvertProductDetail).ActivityDetailRefno);
-        //}
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="rowIdx"></param>
+        /// <returns></returns>
+        public override int GetRefno(object selectedActivityDetail)
+        {
+            return Convert.ToInt32((selectedActivityDetail as dynamic).ActivityDetailRefno);
+        }
 
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        ///// <param name="rowIdx"></param>
-        ///// <returns></returns>
-        //public override int GetFKRefno(object selectedActivityDetail)
-        //{
-        //    return Convert.ToInt32(this.DataViewDetails[rowIdx]["ActivityDetailCountFKRefno"]);
-        //}
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="rowIdx"></param>
+        /// <returns></returns>
+        public override int GetFKRefno(object selectedActivityDetail)
+        {
+            return Convert.ToInt32((selectedActivityDetail as dynamic).ActivityDetailCountFKRefno);
+        }
 
         /// <summary>
         /// 

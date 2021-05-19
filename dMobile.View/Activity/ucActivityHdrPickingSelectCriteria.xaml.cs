@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 using dMobile.View.Forms;
@@ -27,7 +26,6 @@ namespace dMobile.View.Activity
     {
         #region Fields
 
-        //private UserControl callingControl = null;
         private bool isControlLoaded = false;
         private bool isChangesMade = false;
         private LocationMap locMap;
@@ -35,8 +33,8 @@ namespace dMobile.View.Activity
         private BarCodeScanner.BarCodeScanner scanner = null;
         private bool isBarCodeHandlerRegistered = false;
         private SLocMap locMapInfo;
-        private DataView dataViewWhs;
-        private DataView dataViewSections;
+        private List<Warehouse> listWarehouse;
+        private List<Section> listSections;
         private ReqCloseHandler reqCloseEvent;
         private ReqSaveEnableHandler reqSaveEnableEvent;
         private ReqSaveDisableHandler reqSaveDisableEvent;
@@ -44,8 +42,10 @@ namespace dMobile.View.Activity
         private ReqCancelDisableHandler reqCancelDisableEvent;
         private SysCommon.ActSubTypes actSubType;
         private SysEnvironment sysEnv;
-        private ObservableCollection<object> warehouseList;
-        private ObservableCollection<object> sectionList;
+        private ObservableCollection<object> warehouseObservableCollection;
+        private ObservableCollection<object> sectionObservableCollection;
+        private List<Warehouse> filteredListWarehouse;
+        private List<Section> filteredListSections;
 
         #endregion
 
@@ -99,8 +99,8 @@ namespace dMobile.View.Activity
         {
             base.OnAppearing();
 
-            this.dgWhs.ItemsSource = this.WarehouseList;
-            this.dgSections.ItemsSource = this.SectionList;
+            this.dgWhs.ItemsSource = this.WarehouseObservableCollection;
+            this.dgSections.ItemsSource = this.SectionObservableCollection;
 
             MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
             {
@@ -122,17 +122,17 @@ namespace dMobile.View.Activity
                     {
                         if (this.CurrentPage.Title == this.warehouseTab.Title)
                         {
-                            if (this.dgWhs.SelectedItem != null && Convert.ToInt32(this.WarehouseList.IndexOf(this.dgWhs.SelectedItem as Warehouse)) < this.WarehouseList.Count - 1)
+                            if (this.dgWhs.SelectedItem != null && Convert.ToInt32(this.WarehouseObservableCollection.IndexOf(this.dgWhs.SelectedItem as Warehouse)) < this.WarehouseObservableCollection.Count - 1)
                             {
-                                this.dgWhs.SelectedItem = this.WarehouseList[this.WarehouseList.IndexOf(this.dgWhs.SelectedItem as Warehouse) + 1];
+                                this.dgWhs.SelectedItem = this.WarehouseObservableCollection[this.WarehouseObservableCollection.IndexOf(this.dgWhs.SelectedItem as Warehouse) + 1];
                                 this.dgWhs.ScrollTo(this.dgWhs.SelectedItem, ScrollToPosition.MakeVisible, true);
                             }
                         }
                         else if (this.CurrentPage.Title == this.sectionTab.Title)
                         {
-                            if (this.dgSections.SelectedItem != null && Convert.ToInt32(this.SectionList.IndexOf(this.dgSections.SelectedItem as Section)) < this.SectionList.Count - 1)
+                            if (this.dgSections.SelectedItem != null && Convert.ToInt32(this.SectionObservableCollection.IndexOf(this.dgSections.SelectedItem as Section)) < this.SectionObservableCollection.Count - 1)
                             {
-                                this.dgSections.SelectedItem = this.SectionList[this.SectionList.IndexOf(this.dgSections.SelectedItem as Section) + 1];
+                                this.dgSections.SelectedItem = this.SectionObservableCollection[this.SectionObservableCollection.IndexOf(this.dgSections.SelectedItem as Section) + 1];
                                 this.dgSections.ScrollTo(this.dgSections.SelectedItem, ScrollToPosition.MakeVisible, true);
                             }
                         }
@@ -141,17 +141,17 @@ namespace dMobile.View.Activity
                     {
                         if (this.CurrentPage.Title == this.warehouseTab.Title)
                         {
-                            if (this.dgWhs.SelectedItem != null && Convert.ToInt32(this.WarehouseList.IndexOf(this.dgWhs.SelectedItem as Warehouse)) > 0)
+                            if (this.dgWhs.SelectedItem != null && Convert.ToInt32(this.WarehouseObservableCollection.IndexOf(this.dgWhs.SelectedItem as Warehouse)) > 0)
                             {
-                                this.dgWhs.SelectedItem = this.WarehouseList[this.WarehouseList.IndexOf(this.dgWhs.SelectedItem as Warehouse) - 1];
+                                this.dgWhs.SelectedItem = this.WarehouseObservableCollection[this.WarehouseObservableCollection.IndexOf(this.dgWhs.SelectedItem as Warehouse) - 1];
                                 this.dgWhs.ScrollTo(this.dgWhs.SelectedItem, ScrollToPosition.MakeVisible, true);
                             }
                         }
                         else if (this.CurrentPage.Title == this.sectionTab.Title)
                         {
-                            if (this.dgSections.SelectedItem != null && Convert.ToInt32(this.SectionList.IndexOf(this.dgSections.SelectedItem as Section)) > 0)
+                            if (this.dgSections.SelectedItem != null && Convert.ToInt32(this.SectionObservableCollection.IndexOf(this.dgSections.SelectedItem as Section)) > 0)
                             {
-                                this.dgSections.SelectedItem = this.SectionList[this.SectionList.IndexOf(this.dgSections.SelectedItem as Section) - 1];
+                                this.dgSections.SelectedItem = this.SectionObservableCollection[this.SectionObservableCollection.IndexOf(this.dgSections.SelectedItem as Section) - 1];
                                 this.dgSections.ScrollTo(this.dgSections.SelectedItem, ScrollToPosition.MakeVisible, true);
                             }
                         }
@@ -171,7 +171,7 @@ namespace dMobile.View.Activity
 
             try
             {
-                this.tabLocation_GotFocus(this, new EventArgs());
+                await this.tabLocation_GotFocus(this, new EventArgs());
             }
             catch (Exception ex)
             {
@@ -433,29 +433,29 @@ namespace dMobile.View.Activity
             }
         }
 
-        private DataView DataViewSections
+        private List<Section> ListSections
         {
             get
             {
-                return this.dataViewSections;
+                return this.listSections;
             }
 
             set
             {
-                this.dataViewSections = value;
+                this.listSections = value;
             }
         }
 
-        private DataView DataViewWhs
+        private List<Warehouse> ListWarehouse
         {
             get
             {
-                return this.dataViewWhs;
+                return this.listWarehouse;
             }
 
             set
             {
-                this.dataViewWhs = value;
+                this.listWarehouse = value;
             }
         }
 
@@ -498,8 +498,10 @@ namespace dMobile.View.Activity
             }
         }
 
-        public ObservableCollection<object> WarehouseList { get => warehouseList; set => warehouseList = value; }
-        public ObservableCollection<object> SectionList { get => sectionList; set => sectionList = value; }
+        public ObservableCollection<object> WarehouseObservableCollection { get => warehouseObservableCollection; set => warehouseObservableCollection = value; }
+        public ObservableCollection<object> SectionObservableCollection { get => sectionObservableCollection; set => sectionObservableCollection = value; }
+        public List<Warehouse> FilteredListWarehouse { get => filteredListWarehouse; set => filteredListWarehouse = value; }
+        public List<Section> FilteredListSections { get => filteredListSections; set => filteredListSections = value; }
 
         #endregion
 
@@ -697,7 +699,7 @@ namespace dMobile.View.Activity
                     // Methods that could be called to restore the control to a closable state.
                     // ClearProperties();
                     // DisplayData();
-                    this.LoadData();
+                    await this.LoadData();
                     cancelChanges = false;
                     this.IsChangesMade = false;
                 }
@@ -726,7 +728,7 @@ namespace dMobile.View.Activity
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public XDocument GetXML()
+        public async Task<XDocument> GetXML()
         {
             int locMapRefno = 0;
 
@@ -863,35 +865,18 @@ namespace dMobile.View.Activity
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        public void tabLocation_GotFocus(object sender, EventArgs e)
+        public async Task tabLocation_GotFocus(object sender, EventArgs e)
         {
-            //switch (this.tabLocation.SelectedIndex)
-            //{
-            //    case 1:
-            //        if (this.DataViewWhs == null || this.LocMapInfo.WhsLocMapRefno == 0)
-            //        {
-            //            // Resource strings
-            //            await DisplayAlert(this.GetControlDescription(), "Select the warehouse first!", "OK");
-            //            this.tabLocation.SelectedIndex = 0;
-            //        }
-            //        else
-            //        {
-            //            if (this.DataViewSections == null)
-            //            {
-            //                this.tabLocation.SelectedIndex = 0;
-            //            }
-            //            else
-            //            {
-            this.DataViewSections.RowFilter = "WarehouseLocationMapRefno = " + this.LocMapInfo.WhsLocMapRefno;
+            //this.ListSections.RowFilter = "WarehouseLocationMapRefno = " +  this.LocMapInfo.WhsLocMapRefno;
+            this.FilteredListSections = this.ListSections.Where(section => section.WarehouseLocationMapRefno == this.LocMapInfo.WhsLocMapRefno).ToList();
+
             this.SelectSection();
 
-            if (this.DataViewSections.Count > 0)
+            if (this.ListSections.Count > 0)
             {
-                //this.LocMapInfo = LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(this.dgSections[this.dgSections.CurrentRowIndex, 2]));
-
                 if (this.dgSections.SelectedItem is Section section)
                 {
-                    this.LocMapInfo = LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(section.LocationMapRefno));
+                    this.LocMapInfo = await LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(section.LocationMapRefno));
                 }
             }
 
@@ -922,7 +907,7 @@ namespace dMobile.View.Activity
                 if (!this.IsControlLoaded)
                 {
                     await this.ScannerEnable();
-                    this.LoadData();
+                    await this.LoadData();
                     this.SelectWarehouse();
                     this.UpdateLocationDisplay();
 
@@ -960,15 +945,15 @@ namespace dMobile.View.Activity
                 {
                     if ((string.Compare(this.txtSearchSection.Text, string.Empty) > 0))
                     {
-                        this.DataViewSections.RowFilter = "LocationMapSectionCode = " + this.txtSearchSection.Text.Trim();
+                        //this.ListSections.RowFilter = "LocationMapSectionCode = " + this.txtSearchSection.Text.Trim();
+                        this.FilteredListSections = this.ListSections.Where(section => Convert.ToString(section.LocationMapSectionCode) == this.txtSearchSection.Text.Trim()).ToList();
                     }
                 }
                 else
                 {
-                    this.DataViewSections.RowFilter = "LocationMapSectionName LIKE \'" + this.txtSearchSection.Text.Trim() + "%\'";
+                    //this.ListSections.RowFilter = "LocationMapSectionName LIKE \'" + this.txtSearchSection.Text.Trim() + "%\'";
+                    this.FilteredListSections = this.ListSections.Where(section => section.LocationMapSectionName.Contains(this.txtSearchSection.Text.Trim())).ToList();
                 }
-
-                //this.dgSections.DataSource = this.dataViewSections;
 
                 this.PopulateSectionList();
             }
@@ -978,13 +963,10 @@ namespace dMobile.View.Activity
         ///
         /// </summary>
         /// <remarks></remarks>
-        private void LoadWhsList()
+        private async Task LoadWhsList()
         {
-            DataTable dataTableWarehouses = new DataTable();
-            LocationMapTasks.GetWhsList(ref dataTableWarehouses);
-            dataTableWarehouses.TableName = "WhsList";
-            this.DataViewWhs = dataTableWarehouses.DefaultView;
-            //this.dgWhs.DataSource = this.DataViewWhs;
+            this.ListWarehouse = await LocationMapTasks.GetWhsList();
+            this.FilteredListWarehouse = this.ListWarehouse;
 
             this.DesignGridWarehouses();
         }
@@ -993,14 +975,10 @@ namespace dMobile.View.Activity
         ///
         /// </summary>
         /// <remarks></remarks>
-        private void LoadSections()
+        private async Task LoadSections()
         {
-            DataTable dataTableSections = new DataTable();
-            LocationMapTasks.GetSectList(ref dataTableSections);
-            dataTableSections.TableName = "Sections";
-            this.DataViewSections = dataTableSections.DefaultView;
-            this.DataViewSections.RowFilter = "WarehouseLocationMapRefno = " + this.LocMapInfo.WhsLocMapRefno;
-            //this.dgSections.DataSource = this.DataViewSections;
+            this.ListSections = await LocationMapTasks.GetSectList();
+            this.FilteredListSections = this.ListSections.Where(section => section.WarehouseLocationMapRefno == this.LocMapInfo.WhsLocMapRefno).ToList();
 
             this.DesignGridSections();
         }
@@ -1009,7 +987,7 @@ namespace dMobile.View.Activity
         ///
         /// </summary>
         /// <remarks></remarks>
-        private void LoadData()
+        private async Task LoadData()
         {
             SLocMap tempLocMapInfo = this.LocMap.CurrLocMap;
 
@@ -1025,16 +1003,16 @@ namespace dMobile.View.Activity
 
             if (this.LocMap.CurrLocMap.IsSectionTracked && tempLocMapInfo.SectLocMapRefno != 0)
             {
-                this.LocMapInfo = LocationMapTasks.GetSLocMapFromLocMapRefno(tempLocMapInfo.SectLocMapRefno);
+                this.LocMapInfo = await LocationMapTasks.GetSLocMapFromLocMapRefno(tempLocMapInfo.SectLocMapRefno);
             }
             else
             {
-                this.LocMapInfo = LocationMapTasks.GetSLocMapFromLocMapRefno(tempLocMapInfo.WhsLocMapRefno);
+                this.LocMapInfo = await LocationMapTasks.GetSLocMapFromLocMapRefno(tempLocMapInfo.WhsLocMapRefno);
             }
 
             // Load the dataviews and apply row filters base on the current sLocationMapInfo values
-            this.LoadWhsList();
-            this.LoadSections();
+            await this.LoadWhsList();
+            await this.LoadSections();
         }
 
         /// <summary>
@@ -1046,24 +1024,18 @@ namespace dMobile.View.Activity
             // Attempt to find last selected warehouse in warehouse view
             if (this.LocMapInfo.WhsLocMapRefno != 0)
             {
-                for (int rowIdx = 0; rowIdx <= this.DataViewWhs.Count - 1; rowIdx++)
-                {
-                    if (Convert.ToInt32(this.DataViewWhs[rowIdx]["LocationMapRefno"]) == this.LocMapInfo.WhsLocMapRefno)
-                    {
-                        if (this.WarehouseList.Count > rowIdx)
-                        {
-                            this.dgWhs.SelectedItem = this.WarehouseList[rowIdx];
-                        }
+                Warehouse warehouse = this.FilteredListWarehouse.Where(warehouse => warehouse.LocationMapRefno == this.LocMapInfo.WhsLocMapRefno).FirstOrDefault();
 
-                        break;
-                    }
+                if (warehouse != null)
+                {
+                    this.dgWhs.SelectedItem = warehouse;
                 }
             }
             else
             {
-                if (this.WarehouseList.Count > 0)
+                if (this.WarehouseObservableCollection.Count > 0)
                 {
-                    this.dgWhs.SelectedItem = this.WarehouseList[0];
+                    this.dgWhs.SelectedItem = this.WarehouseObservableCollection[0];
                 }
             }
         }
@@ -1116,27 +1088,21 @@ namespace dMobile.View.Activity
             // Attempt to find last selected section in section view
             if (this.LocMapInfo.SectLocMapRefno != 0 && this.dgSections.SelectedItem is Section section)
             {
-                if (Convert.ToInt32(this.DataViewSections[this.SectionList.IndexOf(section)]["LocationMapRefno"]) != this.LocMapInfo.SectLocMapRefno)
+                if (section.LocationMapRefno != this.LocMapInfo.SectLocMapRefno)
                 {
-                    for (int rowIdx = 0; rowIdx <= this.DataViewSections.Count - 1; rowIdx++)
-                    {
-                        if (Convert.ToInt32(this.DataViewSections[rowIdx]["LocationMapRefno"]) == this.LocMapInfo.SectLocMapRefno)
-                        {
-                            if (this.SectionList.Count > rowIdx)
-                            {
-                                this.dgSections.SelectedItem = this.SectionList[rowIdx];
-                            }
+                    Section sect = this.FilteredListSections.Where(section => section.LocationMapRefno == this.LocMapInfo.SectLocMapRefno).FirstOrDefault();
 
-                            break;
-                        }
+                    if (sect != null)
+                    {
+                        this.dgSections.SelectedItem = sect;
                     }
                 }
             }
             else
             {
-                if (this.SectionList.Count > 0)
+                if (this.SectionObservableCollection.Count > 0)
                 {
-                    this.dgSections.SelectedItem = this.SectionList[0];
+                    this.dgSections.SelectedItem = this.SectionObservableCollection[0];
                 }
             }
         }
@@ -1177,8 +1143,8 @@ namespace dMobile.View.Activity
                 }
                 else if (!string.IsNullOrEmpty(this.BarParse.LocationIdentifier))
                 {
-                    int locMapRefno = LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(this.BarParse.LocationIdentifier);
-                    this.LocMapInfo = LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
+                    int locMapRefno = await LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(this.BarParse.LocationIdentifier);
+                    this.LocMapInfo = await LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
 
                     this.SelectWarehouse();
                     this.SelectSection();
@@ -1236,7 +1202,7 @@ namespace dMobile.View.Activity
 
             this.dataGridSectionsHeader.Children.Add(gridHeader);
 
-            foreach (Warehouse warehouse in this.WarehouseList)
+            foreach (Warehouse warehouse in this.WarehouseObservableCollection)
             {
                 double dataColumnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(warehouse.LocationMapWarehouseCode));
                 double dataColumnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(warehouse.LocationMapWarehouseName);
@@ -1284,7 +1250,7 @@ namespace dMobile.View.Activity
             });
 
             this.dgWhs.ItemTemplate = dataTemplate;
-            this.dgWhs.ItemsSource = this.WarehouseList;
+            this.dgWhs.ItemsSource = this.WarehouseObservableCollection;
         }
 
         /// <summary>
@@ -1324,7 +1290,7 @@ namespace dMobile.View.Activity
 
             this.dataGridSectionsHeader.Children.Add(gridHeader);
 
-            foreach (Section section in this.SectionList)
+            foreach (Section section in this.SectionObservableCollection)
             {
                 double dataColumnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(section.LocationMapSectionCode));
                 double dataColumnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(section.LocationMapSectionName);
@@ -1372,94 +1338,64 @@ namespace dMobile.View.Activity
             });
 
             this.dgSections.ItemTemplate = dataTemplate;
-            this.dgSections.ItemsSource = this.SectionList;
-
-            //if (this.dgSections.TableStyles.Count > 0)
-            //{
-            //    this.dgSections.TableStyles.Clear();
-            //}
-
-            //DataGridTableStyle dataGridStyle = new DataGridTableStyle();
-            //dataGridStyle.MappingName = "Sections";
-
-            //DataGridTextBoxColumn dataGridCol1 = new DataGridTextBoxColumn();
-            //dataGridCol1.MappingName = "LocationMapSectionCode";
-            //dataGridCol1.HeaderText = "Code";
-            //dataGridCol1.Width = 50;
-            //dataGridStyle.GridColumnStyles.Add(dataGridCol1);
-
-            //DataGridTextBoxColumn dataGridCol2 = new DataGridTextBoxColumn();
-            //dataGridCol2.MappingName = "LocationMapSectionName";
-            //dataGridCol2.HeaderText = "Name";
-            //dataGridCol2.Width = 173;
-            //dataGridStyle.GridColumnStyles.Add(dataGridCol2);
-
-            //DataGridTextBoxColumn dataGridCol3 = new DataGridTextBoxColumn();
-            //dataGridCol3.MappingName = "LocationMapRefno";
-            //dataGridCol3.HeaderText = "LocationMapRefno";
-            //dataGridCol3.Width = 0;
-            //dataGridStyle.GridColumnStyles.Add(dataGridCol3);
-
-            //this.dgSections.TableStyles.Add(dataGridStyle);
-            //this.dgSections.RowHeadersVisible = false;
-            //this.dgSections.ColumnHeadersVisible = true;
+            this.dgSections.ItemsSource = this.SectionObservableCollection;
         }
 
         #endregion
 
-        private void dgWhs_ItemSelected(object sender, SelectedItemChangedEventArgs e)
+        private async void dgWhs_ItemSelected(object sender, SelectedItemChangedEventArgs e)
         {
             if (this.IsControlLoaded && e.SelectedItem is Warehouse warehouse)
             {
                 this.IsChangesMade = true;
-                this.LocMapInfo = LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(warehouse.LocationMapRefno));
-                this.LoadSections();
+                this.LocMapInfo = await LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(warehouse.LocationMapRefno));
+                await this.LoadSections();
                 this.UpdateLocationDisplay();
             }
         }
 
-        private void dgSections_ItemSelected(object sender, SelectedItemChangedEventArgs e)
+        private async void dgSections_ItemSelected(object sender, SelectedItemChangedEventArgs e)
         {
             if (this.IsControlLoaded && e.SelectedItem is Section section)
             {
                 this.IsChangesMade = true;
-                this.LocMapInfo = LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(section.LocationMapRefno));
+                this.LocMapInfo = await LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(section.LocationMapRefno));
                 this.UpdateLocationDisplay();
             }
         }
 
         private void PopulateWarehouseList()
         {
-            this.WarehouseList = new ObservableCollection<object>();
+            this.WarehouseObservableCollection = new ObservableCollection<object>();
 
-            foreach (DataRow row in this.DataViewWhs.ToTable().Rows)
+            foreach (Warehouse warehouse in this.FilteredListWarehouse)
             {
-                Warehouse warehouse = new Warehouse
-                {
-                    LocationMapWarehouseCode = Convert.ToInt32(row["LocationMapWarehouseCode"]),
-                    LocationMapWarehouseName = Convert.ToString(row["LocationMapWarehouseName"]),
-                    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"])
-                };
+                //Warehouse warehouse = new Warehouse
+                //{
+                //    LocationMapWarehouseCode = Convert.ToInt32(row["LocationMapWarehouseCode"]),
+                //    LocationMapWarehouseName = Convert.ToString(row["LocationMapWarehouseName"]),
+                //    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"])
+                //};
 
-                this.WarehouseList.Add(warehouse);
+                this.WarehouseObservableCollection.Add(warehouse);
             }
         }
 
         private void PopulateSectionList()
         {
-            this.SectionList = new ObservableCollection<object>();
+            this.SectionObservableCollection = new ObservableCollection<object>();
 
-            foreach (DataRow row in this.DataViewSections.ToTable().Rows)
+            foreach (Section section in this.FilteredListSections)
             {
-                Section section = new Section
-                {
-                    LocationMapSectionCode = Convert.ToInt32(row["LocationMapSectionCode"]),
-                    LocationMapSectionName = Convert.ToString(row["LocationMapSectionName"]),
-                    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"]),
-                    WarehouseLocationMapRefno = Convert.ToInt32(row["WarehouseLocationMapRefno"])
-                };
+                //Section section = new Section
+                //{
+                //    LocationMapSectionCode = Convert.ToInt32(row["LocationMapSectionCode"]),
+                //    LocationMapSectionName = Convert.ToString(row["LocationMapSectionName"]),
+                //    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"]),
+                //    WarehouseLocationMapRefno = Convert.ToInt32(row["WarehouseLocationMapRefno"])
+                //};
 
-                this.SectionList.Add(section);
+                this.SectionObservableCollection.Add(section);
             }
         }
 

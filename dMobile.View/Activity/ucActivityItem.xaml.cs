@@ -13,6 +13,7 @@
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Data;
+    using System.Linq;
     using System.IO;
     using System.Runtime.CompilerServices;
     using System.Text;
@@ -811,7 +812,7 @@
             }
             finally
             {
-               await this.ScannerEnable();
+                await this.ScannerEnable();
             }
 
             ////// Lekker requirement to check reviewed even though we are cancelling / closing.
@@ -1152,7 +1153,7 @@
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public XDocument GetXML()
+        public async Task<XDocument> GetXML()
         {
             XDocument xmldocParams = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
@@ -1418,9 +1419,10 @@
 
             if (this.SysEnv.SysSettings.IsPickMustReviewItemsBeforeRel)
             {
-                if (0 <= this.ActItem.CurrRowIdx && this.ActItem.DataViewItems.Count > this.ActItem.CurrRowIdx)
+                if (this.ActItem.SelectedActivityItem != null)
                 {
-                    isReviewed = Convert.ToBoolean(this.ActItem.DataViewItems[this.ActItem.CurrRowIdx]["ActivityItemPickingIsReviewed"]);
+                    // TODO: test
+                    isReviewed = Convert.ToBoolean((this.ActItem.SelectedActivityItem as dynamic).ActivityItemPickingIsReviewed);
                 }
 
                 if (!isReviewed)
@@ -1440,9 +1442,10 @@
 
             if (this.SysEnv.SysSettings.IsPickMustReviewItemsBeforeRel)
             {
-                for (int idx = 0; idx <= this.ActItem.DataViewItems.Count - 1; idx++)
+                for (int idx = 0; idx <= this.ActItem.ListItems.Count - 1; idx++)
                 {
-                    isReviewed = isReviewed && Convert.ToBoolean(this.ActItem.DataViewItems[idx]["ActivityItemPickingIsReviewed"]);
+                    // TODO: test
+                    isReviewed = isReviewed && Convert.ToBoolean((this.ActItem.ListItems[idx] as dynamic).ActivityItemPickingIsReviewed);
                 }
 
                 if (!isReviewed)
@@ -1462,16 +1465,18 @@
         {
             if (this.SysEnv.SysSettings.PickQtyUnderWarn != SysCommon.ActPickingQtyUnderValLevels.NoValidationOrWarning)
             {
-                DataView dvItems = this.ActItem.DataViewItems;
                 decimal available = 0;
                 decimal shipped = 0;
                 decimal ordered = 0;
 
-                for (int currIdx = 0; currIdx <= this.ActItem.DataViewItems.Count - 1; currIdx++)
+                for (int currIdx = 0; currIdx <= this.ActItem.ListItems.Count - 1; currIdx++)
                 {
-                    available = Convert.ToDecimal(dvItems[currIdx]["ActivityItemPickingBaseQuantityAvailable"]);
-                    shipped = Convert.ToDecimal(dvItems[currIdx]["ActivityItemPickingQuantityShipped"]);
-                    ordered = Convert.ToDecimal(dvItems[currIdx]["ActivityItemPickingQuantityOrdered"]);
+                    // TODO: Test
+                    dynamic selectedItem = this.ActItem.ListItems[currIdx];
+
+                    available = Convert.ToDecimal(selectedItem.ActivityItemPickingBaseQuantityAvailable);
+                    shipped = Convert.ToDecimal(selectedItem.ActivityItemPickingQuantityShipped);
+                    ordered = Convert.ToDecimal(selectedItem.ActivityItemPickingQuantityOrdered);
 
                     if (this.SysEnv.SysSettings.IsPickShowItemQtyAvail)
                     {
@@ -1501,18 +1506,16 @@
         /// <remarks>Line items must exist, one needs to be selected.</remarks>
         private void ItemQuantityUnderCheck()
         {
-            if (this.ActItem.DataViewItems != null)
+            if (this.ActItem.ListItems != null)
             {
                 if (this.SysEnv.SysSettings.PickQtyUnderWarn != SysCommon.ActPickingQtyUnderValLevels.NoValidationOrWarning)
                 {
-                    int currIdx = this.ActItem.CurrRowIdx;
-
-                    if (0 <= currIdx && this.ActItem.DataViewItems.Count > currIdx)
+                    if (this.ActItem.SelectedActivityItem != null)
                     {
-                        DataView dvItems = this.ActItem.DataViewItems;
-                        decimal available = Convert.ToDecimal(dvItems[currIdx]["ActivityItemPickingBaseQuantityAvailable"]);
-                        decimal shipped = Convert.ToDecimal(dvItems[currIdx]["ActivityItemPickingQuantityShipped"]);
-                        decimal ordered = Convert.ToDecimal(dvItems[currIdx]["ActivityItemPickingQuantityOrdered"]);
+                        dynamic selectedItem = this.ActItem.SelectedActivityItem;
+                        decimal available = Convert.ToDecimal(selectedItem.ActivityItemPickingBaseQuantityAvailable);
+                        decimal shipped = Convert.ToDecimal(selectedItem.ActivityItemPickingQuantityShipped);
+                        decimal ordered = Convert.ToDecimal(selectedItem.ActivityItemPickingQuantityOrdered);
 
                         if (this.SysEnv.SysSettings.IsPickShowItemQtyAvail)
                         {
@@ -1525,12 +1528,12 @@
                                 if (this.SysEnv.SysSettings.IsPickQtyUnderShowBaseQtyAvail)
                                 {
                                     // TODO: Resource strings
-                                    msg = string.Format("The quantity shipped is less than the quantity ordered." + Environment.NewLine + "On Hand {0} {1}", Convert.ToDecimal(dvItems[currIdx]["ActivityItemPickingBaseQuantityAvailable"]), Convert.ToString(dvItems[currIdx]["BaseUnitCode"]));
+                                    msg = string.Format("The quantity shipped is less than the quantity ordered." + Environment.NewLine + "On Hand {0} {1}", Convert.ToDecimal(selectedItem.ActivityItemPickingBaseQuantityAvailable), Convert.ToString(selectedItem.BaseUnitCode));
                                 }
                                 else
                                 {
                                     // TODO: Resource strings
-                                    msg = string.Format("The quantity shipped is less than the quantity ordered." + Environment.NewLine + "On Hand {0} {1}", Convert.ToDecimal(dvItems[currIdx]["ActivityItemPickingQuantityAvailable"]), Convert.ToString(dvItems[currIdx]["UnitCode"]));
+                                    msg = string.Format("The quantity shipped is less than the quantity ordered." + Environment.NewLine + "On Hand {0} {1}", Convert.ToDecimal(selectedItem.ActivityItemPickingQuantityAvailable), Convert.ToString(selectedItem.UnitCode));
                                 }
 
                                 throw new Exceptions.MessageOnlyException(msg);
@@ -1573,7 +1576,7 @@
                     {
                         Console.WriteLine("this.ActItem.Refresh");
                         this.firstLoad = false;
-                        this.ActItem.Refresh(this.ActItem.ActHdr.XMLDataCriteria);
+                        await this.ActItem.Refresh(this.ActItem.ActHdr.XMLDataCriteria);
                     }
 
                     //This prevents UI lag when pushing modal into view
@@ -1645,22 +1648,8 @@
         /// <remarks></remarks>
         private async Task ucActivityItem_LostFocus(object sender, EventArgs e)
         {
-            //if (this.tmrActivityItemLoaded.Enabled == false)
-            //{
             await this.ScannerDisable();
-            //}
         }
-
-        ///// <summary>
-        /////
-        ///// </summary>
-        ///// <param name="sender"></param>
-        ///// <param name="e"></param>
-        ///// <remarks></remarks>
-        //private void txtSearchItem_GotFocus(object sender, EventArgs e)
-        //{
-        //    //this.txtSearchItem.SelectAll();
-        //}
 
         /// <summary>
         ///
@@ -1670,7 +1659,6 @@
         /// <remarks></remarks>
         private void updnBarCodeModifier1_GotFocus(object sender, EventArgs e)
         {
-            //SysCommon.SelectValueInDomainUpDown((UpDownBase)sender);
         }
 
         /// <summary>
@@ -1693,14 +1681,14 @@
                     {
                         if (0 >= this.LocMap.CurrLocMap.WhsLocMapRefno)
                         {
-                            this.LocMap.CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(this.LocMap.LoginWhsLocMapRefno);
+                            this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(this.LocMap.LoginWhsLocMapRefno);
                         }
                     }
                     else
                     {
                         if (this.LocMap.CurrLocMap.WhsLocMapRefno == 0)
                         {
-                            this.LocMap.CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(this.LocMap.LoginWhsLocMapRefno);
+                            this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(this.LocMap.LoginWhsLocMapRefno);
                         }
                     }
                 }
@@ -1742,40 +1730,38 @@
 
                 FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucSkidInfo, this.ActItem, this.ActSubType);
 
-                await form.DisplayControl.ShowDialog().ContinueWith(async (result) =>
+                if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
                 {
-                    await form.SaveChanges(this, new EventArgs());
-                });
+                    XDocument xmlDoc = form.DisplayControlData;
+                    this.ActItem.ActHdr.SkidInfo = await SysSkidInfo.GetSkidInfoFromXML(xmlDoc);
 
-                XDocument xmlDoc = form.DisplayControlData;
-                this.ActItem.ActHdr.SkidInfo = SysSkidInfo.GetSkidInfoFromXML(xmlDoc);
-
-                if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno == 0)
-                {
-                    // Needed to refresh the selected item location, called SelectItem.
-                    this.ActItem.SelectItem(this.ActItem.CurrRowIdx);
-                }
-                else
-                {
-                    int actItemFoundRefno = this.ActItem.GetRefnoFromProdUnitRefno(this.ActItem.ActHdr.SkidInfo.CurrSkid.ProdInfo.UnitRefno);
-                    this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
-
-                    if (actItemFoundRefno > 0)
+                    if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno == 0)
                     {
-                        int foundRowIdx = this.ActItem.DataViewItems.Find(actItemFoundRefno);
+                        // Needed to refresh the selected item location, called SelectItem.
+                        await this.ActItem.SelectActivityItem(this.ActItem.SelectedActivityItem);
+                    }
+                    else
+                    {
+                        int actItemFoundRefno = await this.ActItem.GetRefnoFromProdUnitRefno(this.ActItem.ActHdr.SkidInfo.CurrSkid.ProdInfo.UnitRefno);
 
-                        if (foundRowIdx >= 0)
+                        // TODO: Sorting example
+                        this.ActItem.ListItems = this.ActItem.ListItems.OrderBy(item => item.GetType().GetProperty("ActivityItemRefno")?.GetValue(item)).ToList();
+
+                        if (actItemFoundRefno > 0)
                         {
-                            this.ActItem.SelectItem(foundRowIdx);
-                            //this.dataGridMainActivity.UnSelect(this.dataGridMainActivity.CurrentRowIndex);
-                            //this.dataGridMainActivity.CurrentRowIndex = foundRowIdx;
+                            //int foundRowIdx = this.ActItem.ListItems.Find(actItemFoundRefno);
+                            object selectedItem = this.ActItem.ListItems.Where(act => Convert.ToString(act.GetType().GetProperty("ActivityItemRefno")?.GetValue(act)) == Convert.ToString(actItemFoundRefno)).First();
+
+                            if (selectedItem != null)
+                            {
+                                await this.ActItem.SelectActivityItem(selectedItem);
+                            }
                         }
                     }
-                }
 
-                this.DisplayData();
-                await this.ScannerEnable();
-                //this.dataGridMainActivity.Focus();
+                    this.DisplayData();
+                    await this.ScannerEnable();
+                }
             }
         }
 
@@ -1818,7 +1804,7 @@
                     if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno == 0)
                     {
                         // activity item object needs to check if a new location and product can be added, if not add a detail
-                        if (!LocationMapTasks.IsCompleteLocMapRefno(this.LocMap.CurrLocMapRefno))
+                        if (!await LocationMapTasks.IsCompleteLocMapRefno(this.LocMap.CurrLocMapRefno))
                         {
                             // TODO: Resource strings
                             throw new Exceptions.MessageOnlyException("Location must be set first.");
@@ -1856,15 +1842,19 @@
                     if (prodUnitRefno != 0)
                     {
                         // Check if the selected product to add already exists on the document.
-                        actItemFoundRefno = this.ActItem.GetRefnoFromProdUnitRefno(prodUnitRefno);
+                        actItemFoundRefno = await this.ActItem.GetRefnoFromProdUnitRefno(prodUnitRefno);
 
                         if (actItemFoundRefno > 0)
                         {
-                            string oldSort = this.ActItem.DataViewItems.Sort;
-                            this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
-                            foundRowIdx = this.ActItem.DataViewItems.Find(actItemFoundRefno);
-                            this.ActItem.CurrRowIdx = foundRowIdx;
-                            this.ActItem.DataViewItems.Sort = oldSort;
+                            // TODO: Fix sorting
+                            //string oldSort = this.ActItem.DataViewItems.Sort;
+                            //this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
+                            object selectedItem = this.ActItem.ListItems.Where(act => Convert.ToString(act.GetType().GetProperty("ActivityItemRefno")?.GetValue(act)) == Convert.ToString(actItemFoundRefno)).First();
+
+                            this.ActItem.SelectedActivityItem = selectedItem;
+
+                            // TODO: Fix sorting
+                            //this.ActItem.DataViewItems.Sort = oldSort;
                         }
                         else
                         {
@@ -1873,8 +1863,8 @@
                                 await this.ActItem.Insert(xmlDoc, false);
 
                                 // This is a little dangerous we assume that the new row idx will be the last one
-                                foundRowIdx = this.ActItem.DataViewItems.Count - 1;
-                                this.ActItem.CurrRowIdx = foundRowIdx;
+                                foundRowIdx = this.ActItem.ListItems.Count - 1;
+                                this.ActItem.SelectedActivityItem = this.ActItem.ListItems[foundRowIdx];
                                 actItemFoundRefno = this.ActItem.Refno;
                             }
                             else
@@ -1888,7 +1878,7 @@
                         if (this.SysEnv.SysSettings.IsVerifyProductLocation && (this.ActSubType == SysCommon.ActSubTypes.Picking || this.ActSubType == SysCommon.ActSubTypes.TransferFrom))
                         {
                             // LocationMapRefno is assumed to be the picking WarehouseLocationMapRefno
-                            int locMapRefno = this.ActItem.GetDefaultLocMapRefno(Convert.ToInt32(this.ActItem.DataViewItems[foundRowIdx]["LocationMapRefno"]), Convert.ToInt32(this.ActItem.DataViewItems[foundRowIdx]["ProductRefno"]));
+                            int locMapRefno = this.ActItem.GetDefaultLocMapRefno(Convert.ToInt32((this.ActItem.ListItems[foundRowIdx] as dynamic).LocationMapRefno), Convert.ToInt32((this.ActItem.ListItems[foundRowIdx] as dynamic).ProductRefno));
 
                             if (this.LocMap.CurrLocMapRefno != locMapRefno)
                             {
@@ -2032,22 +2022,22 @@
                 // if a command button is the next control rather than just giving the button focus.
                 int actItemFoundRefno = 0;
                 int prodUnitRefno = 0;
-                int foundRowIdx = 0;
+                object selectedItem = null;
 
                 try
                 {
                     await this.ScannerDisable();
 
-                    //if (MessageBox.Show("Add the ENTIRE skid to this activity?", "Add Skid", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
                     if (await DisplayAlert("Add Skid", "Add the ENTIRE skid to this activity?", "Yes", "No"))
                     {
                         prodUnitRefno = this.ActItem.ActHdr.SkidInfo.CurrSkid.ProdInfo.UnitRefno;
-                        actItemFoundRefno = this.ActItem.GetRefnoFromProdUnitRefno(prodUnitRefno);
-                        this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
+                        actItemFoundRefno = await this.ActItem.GetRefnoFromProdUnitRefno(prodUnitRefno);
+                        //this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
 
                         if (actItemFoundRefno > 0)
                         {
-                            foundRowIdx = this.ActItem.DataViewItems.Find(actItemFoundRefno);
+                            //foundRowIdx = this.ActItem.DataViewItems.Find(actItemFoundRefno);
+                            selectedItem = this.ActItem.ListItems.Where(actItem => Convert.ToString(actItem.GetType().GetProperty("ActivityItemRefno")?.GetValue(actItem)) == Convert.ToString(actItemFoundRefno)).First();
                         }
                         else
                         {
@@ -2056,7 +2046,8 @@
                                 await this.ActItem.Insert(ProductInfoTasks.GetXML(this.ActItem.ActHdr.SkidInfo.CurrSkid.ProdInfo), false);
 
                                 // This is a little dangerous we assume that the new row idx will be the last one
-                                foundRowIdx = this.ActItem.DataViewItems.Count - 1;
+                                //foundRowIdx = this.ActItem.DataViewItems.Count - 1;
+                                selectedItem = this.ActItem.ListItems.Last();
                                 actItemFoundRefno = this.ActItem.Refno;
                             }
                             else
@@ -2065,7 +2056,7 @@
                             }
                         }
 
-                        this.ActItem.CurrRowIdx = foundRowIdx;
+                        this.ActItem.SelectedActivityItem = selectedItem;
 
                         // INSERT A NEW ACTIVITY DETAIL RECORD
                         ActDetail actDetail = ActDetailFacade.GetActDetail(this.ActItem, this.ActSubType);
@@ -2090,11 +2081,10 @@
                             + "</imclient>");
 
                         await this.ActItem.IsReadyToApply(xmlParam);
-
-                        actDetail.InsertSkid(this.ActItem.ActHdr.SkidInfo);
+                        await actDetail.InsertSkid(this.ActItem.ActHdr.SkidInfo);
 
                         // Upon a save of completed data update the data view to to show new item and quantity change
-                        this.ActItem.CurrRowIdx = this.ActItem.UpdateDataViewQuantity(foundRowIdx, actDetail.Quantity, actDetail.BaseQuantity, actDetail.WeightQuantity);
+                        this.ActItem.UpdateListItemQuantity(this.ActItem.SelectedActivityItem, actDetail.Quantity, actDetail.BaseQuantity, actDetail.WeightQuantity);
                     }
                 }
                 catch (IsReadyToApplyException)
@@ -2117,23 +2107,9 @@
                 {
                     DisplayData();
                     await this.ScannerEnable();
-                    //this.dataGridMainActivity.Focus();
                 }
             }
         }
-
-        ///// <summary>
-        /////
-        ///// </summary>
-        ///// <param name="sender"></param>
-        ///// <param name="e"></param>
-        ///// <remarks></remarks>
-        //private void dataGridMainActivity_CurrentCellChanged(object sender, EventArgs e)
-        //{
-        //    //this.dataGridMainActivity.Select(this.dataGridMainActivity.CurrentRowIndex);
-        //    this.ActItem.SelectItem(this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem));
-        //    this.DisplayData();
-        //}.
 
         /// <summary>
         /// 
@@ -2152,9 +2128,9 @@
 
                     await this.ScannerDisable();
 
-                    if (0 < this.ActItem.DataViewItems.Count)
+                    if (0 < this.ActItem.ListItems.Count)
                     {
-                        this.ActItem.SelectItem(this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem));
+                        await this.ActItem.SelectActivityItem(this.dataGridMainActivity.SelectedItem);
 
                         if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
                         {
@@ -2173,11 +2149,11 @@
                         {
                             XDocument xmlDoc = form.DisplayControlData;
                             this.ActItem.RefreshQuantity(
-                                this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem),
+                                this.dataGridMainActivity.SelectedItem,
                                 Math.Round(decimal.Parse(xmlDoc.Root.Element("qty").Value), 3),
                                 Math.Round(decimal.Parse(xmlDoc.Root.Element("base_qty").Value), 3),
                                 Math.Round(decimal.Parse(xmlDoc.Root.Element("wt_qty").Value), 3));
-                            this.ActItem.UpdateQuantityFromDataView(this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem), this.ActItem.Refno);
+                            await this.ActItem.UpdateQuantityFromActivityItemList(this.dataGridMainActivity.SelectedItem, this.ActItem.Refno);
                         }
                     }
                 }
@@ -2235,7 +2211,7 @@
                         // TODO: Resource strings
                         if (await DisplayAlert("Delete Skid", string.Format("Do you wish to delete this skid \'{0}\'?", this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode), "Yes", "No"))
                         {
-                            this.ActItem.Delete();
+                            await this.ActItem.Delete();
                             await this.RefreshData();
                         }
                     }
@@ -2294,148 +2270,6 @@
         {
             await this.KeyUpF4_LaunchInvInquiry(sender, e);
         }
-
-        ///// <summary>        
-        ///// </summary>
-        ///// <param name="sender"></param>
-        ///// <param name="e"></param>
-        //private void dataGridMainActivity_KeyUp(object sender, KeyEventArgs e)
-        //{
-        //    if (this.IsControlLoaded)
-        //    {
-        //        if (e.KeyCode == Keys.Enter || e.KeyValue == 134)
-        //        {
-        //            this.DataGridMainActivity_KeyUpEnter();
-        //        }
-        //        else if (e.KeyCode == Keys.Delete || e.KeyCode == Keys.Clear || e.KeyCode == Keys.Back)
-        //        {
-        //            this.DataGridMainActivity_KeyUpDelete();
-        //        }
-        //        else if (e.KeyCode == Keys.Escape)
-        //        {
-        //            if (this.CancelChanges())
-        //            {
-        //                this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-        //            }
-        //        }
-        //        else if (e.KeyCode == Keys.F1)
-        //        {
-        //            if (this.SaveChanges())
-        //            {
-        //                this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-        //            }
-        //        }
-        //        else if (e.KeyCode == Keys.F2)
-        //        {
-        //            this.DataGridMainActivity_KeyUpF2(sender, e);
-        //        }
-        //        else if (e.KeyCode == Keys.F3)
-        //        {
-        //            this.DataGridMainActivity_KeyUpF3(sender, e);
-        //        }
-        //        else if (e.KeyCode == Keys.F4)
-        //        {
-        //            this.DataGridMainActivity_KeyUpF4(sender, e);
-        //        }
-        //    }
-        //}
-
-        ///// <summary>
-        /////
-        ///// </summary>
-        ///// <param name="sender"></param>
-        ///// <param name="e"></param>
-        ///// <remarks></remarks>
-        //private async Task cmdSelectSkid_KeyUp(object sender, KeyEventArgs e)
-        //{
-        //    if (this.IsControlLoaded)
-        //    {
-        //        if (e.KeyCode == Keys.Enter || e.KeyValue == 134)
-        //        {
-        //            await this.ScannerDisable();
-
-        //            FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucSkidInfo, this.ActItem, this.ActSubType);
-        //            await form.DisplayControl.ShowDialog();
-        //            XDocument xmlDoc = form.DisplayControlData;
-        //            this.ActItem.ActHdr.SkidInfo = SysSkidInfo.GetSkidInfoFromXML(xmlDoc);
-
-        //            if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno == 0)
-        //            {
-        //                // Needed to refresh the selected item location, called SelectItem.
-        //                this.ActItem.SelectItem(this.ActItem.CurrRowIdx);
-        //            }
-
-        //            this.DisplayData();
-        //            await this.ScannerEnable();
-        //            this.dataGridMainActivity.Focus();
-        //        }
-        //        else if (e.KeyCode == Keys.Escape)
-        //        {
-        //            if (this.CancelChanges())
-        //            {
-        //                this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-        //            }
-        //        }
-        //        else if (e.KeyCode == Keys.Delete || e.KeyCode == Keys.Clear || e.KeyCode == Keys.Back)
-        //        {
-        //            try
-        //            {
-        //                if (this.ActItem.ActHdr.SkidInfo != null)
-        //                {
-        //                    if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
-        //                    {
-        //                        //DialogResult result = MessageBox.Show(string.Format("Do you wish to delete this skid \'{0}\'?", this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode), "Delete Skid", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
-
-        //                        //if (result == DialogResult.Yes)
-        //                        if (await DisplayAlert("Delete Skid", string.Format("Do you wish to delete this skid \'{0}\'?", this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode), "Yes", "No"))
-        //                        {
-        //                            this.ActItem.Delete();
-        //                            this.RefreshData();
-        //                        }
-        //                    }
-        //                }
-        //            }
-        //            catch (Exceptions.MessageOnlyException ex)
-        //            {
-        //                ex.Show(this.ActSubType);
-        //            }
-        //            catch (Exception ex)
-        //            {
-        //                await Device.InvokeOnMainThreadAsync(async () =>
-        //                {
-        //                    FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
-        //                    await errRpt.ShowDialog();
-        //                });
-        //            }
-        //            finally
-        //            {
-        //                this.dataGridMainActivity.Focus();
-        //            }
-        //        }
-        //        else if (e.KeyCode == Keys.F1)
-        //        {
-        //            if (this.SaveChanges())
-        //            {
-        //                this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-        //            }
-        //        }
-        //        else if (e.KeyCode == Keys.Escape)
-        //        {
-        //            if (this.CancelChanges())
-        //            {
-        //                this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-        //            }
-        //        }
-        //        else if (e.KeyCode == Keys.F2)
-        //        {
-        //            this.KeyUpF2_ShowLineItemComments(sender, e);
-        //        }
-        //        else if (e.KeyCode == Keys.F3)
-        //        {
-        //            this.KeyUpF3_ShowTotalQuantity(sender, e);
-        //        }
-        //    }
-        //}
 
         /// <summary>
         /// 
@@ -2516,12 +2350,11 @@
                     throw new Exceptions.MessageOnlyException("Please select a line item to show the comments for.");
                 }
 
-                string comment = this.ActItem.GetComment(Convert.ToInt32(this.ActItem.DataViewItems[this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem)]["ActivityItemRefno"]));
+                string comment = this.ActItem.GetComment((this.dataGridMainActivity.SelectedItem as dynamic).ActivityItemRefno);
 
+                // TODO: test
                 if (!string.IsNullOrEmpty(comment))
                 {
-                    //MessageBox.Show(comment, "Item Comment", MessageBoxButtons.OK, MessageBoxIcon.None, MessageBoxDefaultButton.Button1);
-
                     // TODO: Resource strings
                     await DisplayAlert("Item Comment", comment, "OK");
                 }
@@ -2562,12 +2395,10 @@
 
                 await this.ScannerDisable();
 
-                string msg = this.ActItem.GetTotalQuantity();
+                string msg = await this.ActItem.GetTotalQuantity();
 
                 if (!string.IsNullOrEmpty(msg))
                 {
-                    //MessageBox.Show(msg, this.GetControlDescription(), MessageBoxButtons.OK, MessageBoxIcon.None, MessageBoxDefaultButton.Button1);
-
                     // TODO: Resource strings
                     await DisplayAlert(this.GetControlDescription(), msg, "OK");
 
@@ -2594,43 +2425,6 @@
             }
         }
 
-        ///// <summary>
-        ///// </summary>
-        ///// <param name="sender"></param>
-        ///// <param name="e"></param>
-        //private void KeyUpHandler(object sender, KeyEventArgs e)
-        //{
-        //    if (this.IsControlLoaded)
-        //    {
-        //        if (e.KeyCode == Keys.Escape)
-        //        {
-        //            if (this.CancelChanges())
-        //            {
-        //                this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-        //            }
-        //        }
-        //        else if (e.KeyCode == Keys.F1)
-        //        {
-        //            if (this.SaveChanges())
-        //            {
-        //                this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-        //            }
-        //        }
-        //        else if (e.KeyCode == Keys.F2)
-        //        {
-        //            this.KeyUpF2_ShowLineItemComments(sender, e);
-        //        }
-        //        else if (e.KeyCode == Keys.F3)
-        //        {
-        //            this.KeyUpF3_ShowTotalQuantity(sender, e);
-        //        }
-        //        else if (e.KeyCode == Keys.F4)
-        //        {
-        //            this.KeyUpF4_LaunchInvInquiry(sender, e);
-        //        }
-        //    }
-        //}
-
         /// <summary>
         /// 
         /// </summary>
@@ -2639,7 +2433,7 @@
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
             if (this.Loading || scanArgs == null)
-            {                
+            {
                 return;
             }
 
@@ -2648,7 +2442,7 @@
 
             int prodUnitRefno = 0;
             int currRowIdx = this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem);
-            int foundRowIdx = 0;
+            object selectedItem = null;
             int actItemFoundRefno = 0;
             SActItemSchemeData tempItemProdSchemeData = new SActItemSchemeData();
             BarCodeParse parse = null;
@@ -2660,7 +2454,7 @@
                 // GLOBAL LOCATION IDENTIFIER SCANNED
                 if (!string.IsNullOrEmpty(parse.LocationIdentifier))
                 {
-                    this.LocMap.CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(parse.LocationIdentifier));
+                    this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(await LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(parse.LocationIdentifier));
 
                     if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
                     {
@@ -2675,7 +2469,7 @@
                 }
                 else
                 {
-                    if (!LocationMapTasks.IsCompleteLocMapRefno(this.LocMap.CurrLocMapRefno)
+                    if (!await LocationMapTasks.IsCompleteLocMapRefno(this.LocMap.CurrLocMapRefno)
                             && (!this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc
                             && !(this.ActSubType == SysCommon.ActSubTypes.Picking
                             || this.ActSubType == SysCommon.ActSubTypes.Receiving
@@ -2709,14 +2503,14 @@
 
                         prodUnitRefno = await SysShared.IdentifyProductScanned(this.ActSubType, parse, prodUnitRefno);
                         ProductInfo tempProdInfo = new ProductInfo();
-                        tempProdInfo = ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
+                        tempProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
 
-                        actItemFoundRefno = this.ActItem.GetRefnoFromProdUnitRefno(prodUnitRefno);
-                        this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
+                        actItemFoundRefno = await this.ActItem.GetRefnoFromProdUnitRefno(prodUnitRefno);
+                        //this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
 
                         if (actItemFoundRefno > 0)
                         {
-                            foundRowIdx = this.ActItem.DataViewItems.Find(actItemFoundRefno);
+                            selectedItem = this.ActItem.ListItems.OfType<object>().Where(activityItem => Convert.ToString(activityItem.GetType().GetProperty("ActivityItemRefno")?.GetValue(activityItem)) == Convert.ToString(actItemFoundRefno)).First();
                         }
                         else
                         {
@@ -2726,15 +2520,6 @@
 
                                 if (this.ActItem.IsAskCreateNewItem)
                                 {
-                                    //MessageBox.Show(
-                                    //    string.Format("A line item does not exist for this warehouse {0} and product \'{1}.\'" + Environment.NewLine + "Do you wish to create one?",
-                                    //    this.LocMap.CurrLocMap.WhsCode,
-                                    //    ProductInfoTasks.GetCurrReadableProdBCUnit(tempProdInfo)),
-                                    //    this.GetControlDescription(),
-                                    //    MessageBoxButtons.YesNo,
-                                    //    MessageBoxIcon.Question,
-                                    //    MessageBoxDefaultButton.Button2) == DialogResult.Yes)
-
                                     await Device.InvokeOnMainThreadAsync(async () =>
                                     {
                                         if (await DisplayAlert(this.GetControlDescription(),
@@ -2757,7 +2542,7 @@
                                     await this.ActItem.Insert(ProductInfoTasks.GetXML(tempProdInfo), false);
 
                                     // This is a little dangerous we assume that the new row idx will be the last one
-                                    foundRowIdx = this.ActItem.DataViewItems.Count - 1;
+                                    selectedItem = this.ActItem.ListItems.Last();
                                     actItemFoundRefno = this.ActItem.Refno;
                                 }
                                 else
@@ -2775,18 +2560,19 @@
                     // ACTIVITY ITEM FK REFNO
                     if (!string.IsNullOrEmpty(parse.ActItemFKRefno) && !this.SysEnv.SysSettings.IsDisconnectedMode)
                     {
-                        this.ActItem.DataViewItems.Sort = this.ActItem.GetDataViewSortFKRefnoIdx();
+                        //this.ActItem.DataViewItems.Sort = this.ActItem.GetDataViewSortFKRefnoIdx();
 
                         if (this.ActSubType == SysCommon.ActSubTypes.Picking)
                         {
-                            foundRowIdx = this.ActItem.DataViewItems.Find(scanArgs.ParseInfo.ActItemFKRefno);
+                            selectedItem = this.ActItem.ListItems.OfType<object>().Where(activityItem => Convert.ToString(activityItem.GetType().GetProperty(this.ActItem.GetDataViewSortFKRefnoIdx())?.GetValue(activityItem)) == Convert.ToString(scanArgs.ParseInfo.ActItemFKRefno)).First();
 
-                            if (foundRowIdx >= 0)
+                            if (selectedItem != null)
                             {
-                                this.ActItem.SelectItem(foundRowIdx);
+                                await this.ActItem.SelectActivityItem(selectedItem);
                                 actItemFoundRefno = this.ActItem.Refno;
-                                this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
-                                foundRowIdx = this.ActItem.DataViewItems.Find(actItemFoundRefno);
+                                //this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
+                                //foundRowIdx = this.ActItem.DataViewItems.Find(actItemFoundRefno);
+                                selectedItem = this.ActItem.ListItems.OfType<object>().Where(activityItem => Convert.ToString(activityItem.GetType().GetProperty("ActivityItemRefno")?.GetValue(activityItem)) == Convert.ToString(actItemFoundRefno)).First();
                             }
                             else
                             {
@@ -2805,16 +2591,20 @@
                     {
                         if (this.ActSubType == SysCommon.ActSubTypes.Picking)
                         {
-                            this.ActItem.DataViewItems.Sort = this.ActItem.GetDataViewSortFKRefnoIdx();
+                            //this.ActItem.DataViewItems.Sort = this.ActItem.GetDataViewSortFKRefnoIdx();
                             tempItemProdSchemeData = this.ActItem.GetProdSchemeDataFromDetailFKRefno(int.Parse(parse.ActDetailFKRefno));
-                            foundRowIdx = this.ActItem.DataViewItems.Find(tempItemProdSchemeData.ActItemFKRefno.ToString());
+                            //foundRowIdx = this.ActItem.DataViewItems.Find(tempItemProdSchemeData.ActItemFKRefno.ToString());
 
-                            if (foundRowIdx >= 0)
+                            selectedItem = this.ActItem.ListItems.OfType<object>().Where(activityItem => Convert.ToString(activityItem.GetType().GetProperty(this.ActItem.GetDataViewSortFKRefnoIdx())?.GetValue(activityItem)) == Convert.ToString(tempItemProdSchemeData.ActItemFKRefno)).First();
+
+                            if (selectedItem != null)
                             {
-                                this.ActItem.SelectItem(foundRowIdx);
+                                await this.ActItem.SelectActivityItem(selectedItem);
                                 actItemFoundRefno = this.ActItem.Refno;
-                                this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
-                                foundRowIdx = this.ActItem.DataViewItems.Find(actItemFoundRefno);
+                                //this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
+                                //foundRowIdx = this.ActItem.DataViewItems.Find(actItemFoundRefno);
+
+                                selectedItem = this.ActItem.ListItems.OfType<object>().Where(activityItem => Convert.ToString(activityItem.GetType().GetProperty("ActivityItemRefno")?.GetValue(activityItem)) == Convert.ToString(actItemFoundRefno)).First();
                             }
                             else
                             {
@@ -2849,7 +2639,7 @@
                             throw new Exceptions.MessageOnlyException("Scanning a shipping container bar code is not supported in disconnected mode.");
                         }
 
-                        this.ActItem.ActHdr.SkidInfo = SysSkidInfo.GetSkidInfoFromBarCodeOrCode(parse.SSCC18);
+                        this.ActItem.ActHdr.SkidInfo = await SysSkidInfo.GetSkidInfoFromBarCodeOrCode(parse.SSCC18);
 
                         if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno == 0)
                         {
@@ -2858,12 +2648,13 @@
                         }
 
                         prodUnitRefno = this.ActItem.ActHdr.SkidInfo.CurrSkid.ProdInfo.UnitRefno;
-                        actItemFoundRefno = this.ActItem.GetRefnoFromProdUnitRefno(prodUnitRefno);
-                        this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
+                        actItemFoundRefno = await this.ActItem.GetRefnoFromProdUnitRefno(prodUnitRefno);
+                        //this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
 
                         if (actItemFoundRefno > 0)
                         {
-                            foundRowIdx = this.ActItem.DataViewItems.Find(actItemFoundRefno);
+                            //foundRowIdx = this.ActItem.DataViewItems.Find(actItemFoundRefno);
+                            selectedItem = this.ActItem.ListItems.OfType<object>().Where(activityItem => Convert.ToString(activityItem.GetType().GetProperty("ActivityItemRefno")?.GetValue(activityItem)) == Convert.ToString(actItemFoundRefno)).First();
                         }
                         else
                         {
@@ -2872,7 +2663,7 @@
                                 await this.ActItem.Insert(ProductInfoTasks.GetXML(this.ActItem.ActHdr.SkidInfo.CurrSkid.ProdInfo), false);
 
                                 // This is a little dangerous we assume that the new row idx will be the last one
-                                foundRowIdx = this.ActItem.DataViewItems.Count - 1;
+                                selectedItem = this.ActItem.ListItems.Last();
                                 actItemFoundRefno = this.ActItem.Refno;
                             }
                             else
@@ -2883,18 +2674,18 @@
                     }
 
                     // IF AN ACTIVITY LINE ITEM WAS FOUND
-                    if (actItemFoundRefno == 0 || foundRowIdx < 0)
+                    if (actItemFoundRefno == 0 || selectedItem == null)
                     {
                         // TODO: Resource strings
                         throw new Exceptions.MessageOnlyException("Line item not found.");
                     }
                     else
                     {
-                        this.ActItem.SelectItem(foundRowIdx);
+                        await this.ActItem.SelectActivityItem(selectedItem);
                         await Device.InvokeOnMainThreadAsync(() => this.DisplayData());
                     }
 
-                    if (!LocationMapTasks.IsCompleteLocMapRefno(this.LocMap.CurrLocMapRefno))
+                    if (!await LocationMapTasks.IsCompleteLocMapRefno(this.LocMap.CurrLocMapRefno))
                     {
                         // TODO: Resource strings
                         throw new Exceptions.MessageOnlyException("Location must be set first.");
@@ -2917,7 +2708,7 @@
                         if (this.SysEnv.SysSettings.IsVerifyProductLocation && (this.ActSubType == SysCommon.ActSubTypes.Picking || this.ActSubType == SysCommon.ActSubTypes.TransferFrom))
                         {
                             // LocationMapRefno is assumed to be the picking WarehouseLocationMapRefno
-                            int locMapRefno = this.ActItem.GetDefaultLocMapRefno(Convert.ToInt32(this.ActItem.DataViewItems[foundRowIdx]["LocationMapRefno"]), Convert.ToInt32(this.ActItem.DataViewItems[foundRowIdx]["ProductRefno"]));
+                            int locMapRefno = this.ActItem.GetDefaultLocMapRefno(Convert.ToInt32((selectedItem as dynamic).LocationMapRefno), Convert.ToInt32((selectedItem as dynamic).ProductRefno));
 
                             if (this.LocMap.CurrLocMapRefno != locMapRefno)
                             {
@@ -2966,7 +2757,7 @@
                         actDetail.SchemeData = schemeData;
 
                         isInsertReady = await SysShared.GatherProductData(parse, this.ActSubType, this.ActItem, tempItemProdSchemeData, isInsertReady, actDetail, false);
-                        this.InsertActivityDetail(ref foundRowIdx, actDetail, parse, isInsertReady);
+                        await this.InsertActivityDetail(selectedItem, actDetail, parse, isInsertReady);
                     }
                     else
                     {
@@ -2989,12 +2780,11 @@
 
                         await this.ActItem.IsReadyToApply(xmlParam);
 
-                        actDetail.InsertSkid(this.ActItem.ActHdr.SkidInfo);
+                        await actDetail.InsertSkid(this.ActItem.ActHdr.SkidInfo);
 
                         // Upon a save of completed data update the data view to to show new item and quantity change
-                        currRowIdx = this.ActItem.UpdateDataViewQuantity(foundRowIdx, actDetail.Quantity, actDetail.BaseQuantity, actDetail.WeightQuantity);
-
-                        this.ActItem.UpdateQuantityFromDataView(currRowIdx, this.ActItem.Refno);
+                        this.ActItem.UpdateListItemQuantity(selectedItem, actDetail.Quantity, actDetail.BaseQuantity, actDetail.WeightQuantity);
+                        await this.ActItem.UpdateQuantityFromActivityItemList(selectedItem, this.ActItem.Refno);
                     }
 
                     // foundRowIdx = this.dataGridMainActivity.CurrentRowIndex
@@ -3025,11 +2815,6 @@
             catch (Exceptions.MessageOnlyException ex)
             {
                 ex.Show(this.ActSubType);
-
-                if (this.ActItem.DataViewItems.Count > 0 && foundRowIdx >= 0 && foundRowIdx < this.ActItem.DataViewItems.Count)
-                {
-                    //this.dataGridMainActivity.CurrentRowIndex = foundRowIdx;
-                }
 
                 if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
                 {
@@ -3072,11 +2857,6 @@
             }
             catch (GatherProductDataException ex)
             {
-                if (this.ActItem.DataViewItems.Count > 0 && foundRowIdx >= 0 && foundRowIdx < this.ActItem.DataViewItems.Count)
-                {
-                    //this.dataGridMainActivity.CurrentRowIndex = foundRowIdx;
-                }
-
                 if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
                 {
                     await Device.InvokeOnMainThreadAsync(() =>
@@ -3127,11 +2907,6 @@
             }
             catch (IsReadyToApplyException ex)
             {
-                if (this.ActItem.DataViewItems.Count > 0 && foundRowIdx >= 0 && foundRowIdx < this.ActItem.DataViewItems.Count)
-                {
-                    //this.dataGridMainActivity.CurrentRowIndex = foundRowIdx;
-                }
-
                 if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
                 {
                     await Device.InvokeOnMainThreadAsync(() =>
@@ -3182,11 +2957,6 @@
             }
             catch (Exception ex)
             {
-                if (this.ActItem.DataViewItems.Count > 0 && foundRowIdx >= 0 && foundRowIdx < this.ActItem.DataViewItems.Count)
-                {
-                    //this.dataGridMainActivity.CurrentRowIndex = foundRowIdx;
-                }
-
                 if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
                 {
                     await Device.InvokeOnMainThreadAsync(() =>
@@ -3246,24 +3016,26 @@
         /// <param name="actDetail"></param>
         /// <param name="parse"></param>
         /// <param name="isInsertDetailReady"></param>
-        private void InsertActivityDetail(ref int currRowIdx, ActDetail actDetail, BarCodeParse parse, bool isInsertDetailReady)
+        private async Task<object> InsertActivityDetail(object selectedActivityItem, ActDetail actDetail, BarCodeParse parse, bool isInsertDetailReady)
         {
             if (isInsertDetailReady)
             {
                 XDocument xmlDoc = actDetail.GetXML(actDetail);
-                actDetail.Insert(xmlDoc);
+                await actDetail.Insert(xmlDoc);
 
                 // TODO check if actually new, if not delete and change counter
                 // Does the row exist? If not, then it has been removed due to not needing it
                 // Skip update qty.
 
-                if (currRowIdx < ActItem.DataViewItems.Count)
+                if (selectedActivityItem != null)
                 {
                     // Upon a save of completed data update the data view to to show new item and quantity change
-                    currRowIdx = this.ActItem.UpdateDataViewQuantity(currRowIdx, actDetail.Quantity, actDetail.BaseQuantity, actDetail.WeightQuantity);
-                    this.ActItem.UpdateQuantityFromDataView(currRowIdx, this.ActItem.Refno);
+                    this.ActItem.UpdateListItemQuantity(selectedActivityItem, actDetail.Quantity, actDetail.BaseQuantity, actDetail.WeightQuantity);
+                    await this.ActItem.UpdateQuantityFromActivityItemList(selectedActivityItem, this.ActItem.Refno);
                 }
             }
+
+            return selectedActivityItem;
         }
 
         /// <summary>
@@ -3273,11 +3045,11 @@
         private async Task RefreshData()
         {
             try
-            {                
+            {
                 this.ActItem.RegLayerListenerProgOut(this);
 
-                this.ActItem.DataViewItems = null;
-                this.ActItem.DataViewItems = this.ActItem.GetDataView(false);
+                this.ActItem.ListItems = null;
+                this.ActItem.ListItems = await this.ActItem.GetActivityItemList(false);
 
                 await Device.InvokeOnMainThreadAsync(() =>
                 {
@@ -3287,7 +3059,7 @@
                     this.DataGridMainActivityItemsList = this.ActItem.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
                     this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
 
-                    if (this.ActItem.DataViewItems.Count > 0 && this.DataGridMainActivityItemsList.Count > 0)
+                    if (this.ActItem.ListItems.Count > 0 && this.DataGridMainActivityItemsList.Count > 0)
                     {
                         if (this.dataGridMainActivity.SelectedItem == null)
                         {
@@ -3326,7 +3098,7 @@
         /// <summary>
         /// 
         /// </summary>
-        private void DisplayData()
+        private async Task DisplayData()
         {
             string prodLocCode = string.Empty;
             string prodLocName = string.Empty;
@@ -3335,7 +3107,6 @@
             string prodUnitSizeDesc = string.Empty;
             string prodBrandDesc = string.Empty;
             string prodCode = string.Empty;
-            int idx = this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem);
             this.ItemsList.Clear();
 
             if (0 < this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno)
@@ -3368,22 +3139,18 @@
             switch (this.ActItem.ActSubType)
             {
                 case SysCommon.ActSubTypes.Adjustment:
-                    if (idx >= 0 && this.ActItem.DataViewItems.Count > 0)
+                    if (this.dataGridMainActivity.SelectedItem is AdjustmentItem adjustmentItem)
                     {
-                        prodLocCode = this.ActItem.DataViewItems[idx]["LocationCode"].ToString();
-                        prodLocName = this.ActItem.DataViewItems[idx]["LocationName"].ToString();
-                        prodDesc = this.ActItem.DataViewItems[idx]["ProductDescription"].ToString();
-                        prodUnitSizeDesc = this.ActItem.DataViewItems[idx]["ProductUnitSizeDescription"].ToString();
+                        prodLocCode = Convert.ToString(adjustmentItem.LocationCode);
+                        prodLocName = adjustmentItem.LocationName;
+                        prodDesc = adjustmentItem.ProductDescription;
+                        prodUnitSizeDesc = adjustmentItem.ProductUnitSizeDescription;
                     }
-
-                    //this.lstDisplay.Items.Clear();
-                    //this.lstDisplay.Items.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
 
                     this.ItemsList.Clear();
                     this.ItemsList.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
 
                     // TODO: Resource strings
-                    //this.lstDisplay.Items.Add("LOCATION: " + prodLocCode.Trim() + " " + prodLocName.Trim());
                     this.ItemsList.Add("LOCATION: " + prodLocCode.Trim() + " " + prodLocName.Trim());
                     break;
 
@@ -3400,22 +3167,18 @@
                     break;
 
                 case SysCommon.ActSubTypes.CycleCounts:
-                    if (idx >= 0 && this.ActItem.DataViewItems.Count > 0)
+                    if (this.dataGridMainActivity.SelectedItem is CountItem cycleCountItem)
                     {
-                        prodLocCode = this.ActItem.DataViewItems[idx]["LocationCode"].ToString();
-                        prodLocName = this.ActItem.DataViewItems[idx]["LocationName"].ToString();
-                        prodDesc = this.ActItem.DataViewItems[idx]["ProductDescription"].ToString();
-                        prodUnitSizeDesc = this.ActItem.DataViewItems[idx]["ProductUnitSizeDescription"].ToString();
+                        prodLocCode = cycleCountItem.LocationCode;
+                        prodLocName = cycleCountItem.LocationName;
+                        prodDesc = cycleCountItem.ProductDescription;
+                        prodUnitSizeDesc = cycleCountItem.ProductUnitSizeDescription;
                     }
-
-                    //this.lstDisplay.Items.Clear();
-                    //this.lstDisplay.Items.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
 
                     this.ItemsList.Clear();
                     this.ItemsList.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
 
                     // TODO: Resource strings
-                    //this.lstDisplay.Items.Add("LOCATION: " + prodLocCode.Trim() + " " + prodLocName.Trim());
                     this.ItemsList.Add("LOCATION: " + prodLocCode.Trim() + " " + prodLocName.Trim());
                     break;
 
@@ -3423,25 +3186,20 @@
                     break;
 
                 case SysCommon.ActSubTypes.InventoryInquiry:
-                    //this.lstDisplay.Items.Clear();
                     this.ItemsList.Clear();
 
                     if (0 >= this.ActItem.ProdInfo.Refno)
                     {
                         // TODO: Resource strings
-                        //this.lstDisplay.Items.Add(string.Format("PRODUCT: {0}", "All"));
                         this.ItemsList.Add(string.Format("PRODUCT: {0}", "All"));
-
                     }
                     else
                     {
                         // TODO: Resource strings
-                        //this.lstDisplay.Items.Add(string.Format("PRODUCT: {0}", ProductInfoTasks.GetCurrReadableProdBCUnit(this.ActItem.ProdInfo)));
                         this.ItemsList.Add(string.Format("PRODUCT: {0}", ProductInfoTasks.GetCurrReadableProdBCUnit(this.ActItem.ProdInfo)));
                     }
 
                     // TODO: Resource strings
-                    //this.lstDisplay.Items.Add(string.Format("LOCATION: {0}", LocationMapTasks.GetCurrentReadableLocation()));
                     this.ItemsList.Add(string.Format("LOCATION: {0}", LocationMapTasks.GetCurrentReadableLocation()));
                     break;
 
@@ -3458,36 +3216,33 @@
                     break;
 
                 case SysCommon.ActSubTypes.PhysicalCounts:
-                    if (idx >= 0 && this.ActItem.DataViewItems.Count > 0)
+                    if (this.dataGridMainActivity.SelectedItem is CountItem physicalCountItem)
                     {
                         // Do not check if default location is enabled. Always show the default location.
-                        SLocMap tempLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(this.ActItem.DataViewItems[idx]["LocationMapRefno"]));
-                        int defLocMapRefno = LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(tempLocMap.WhsLocMapRefno, Convert.ToInt32(this.ActItem.DataViewItems[idx]["ProductRefno"]), SysCommon.ProdLocMapTypes.Picking);
-                        defProdLoc = LocationMapTasks.GetCurrentReadableLocation(LocationMapTasks.GetSLocMapFromLocMapRefno(defLocMapRefno));
+                        SLocMap tempLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(physicalCountItem.LocationMapRefno));
+                        int defLocMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(tempLocMap.WhsLocMapRefno, Convert.ToInt32(physicalCountItem.ProductRefno), SysCommon.ProdLocMapTypes.Picking);
+                        defProdLoc = LocationMapTasks.GetCurrentReadableLocation(await LocationMapTasks.GetSLocMapFromLocMapRefno(defLocMapRefno));
 
-                        prodDesc = this.ActItem.DataViewItems[idx]["ProductDescription"].ToString();
-                        prodUnitSizeDesc = this.ActItem.DataViewItems[idx]["ProductUnitSizeDescription"].ToString();
+                        prodDesc = physicalCountItem.ProductDescription.ToString();
+                        prodUnitSizeDesc = physicalCountItem.ProductUnitSizeDescription.ToString();
                     }
 
-                    //this.lstDisplay.Items.Clear();
-                    //this.lstDisplay.Items.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
                     this.ItemsList.Clear();
                     this.ItemsList.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
 
                     // TODO: Resource strings
-                    //this.lstDisplay.Items.Add("LOCATION: " + defProdLoc.Trim());
                     this.ItemsList.Add("LOCATION: " + defProdLoc.Trim());
                     break;
 
                 case SysCommon.ActSubTypes.Picking:
-                    if (idx >= 0 && this.ActItem.DataViewItems.Count > 0)
+                    if (this.dataGridMainActivity.SelectedItem is PickingItem pickingItem)
                     {
-                        prodLocCode = this.ActItem.DataViewItems[idx]["LocationCode"].ToString();
-                        prodLocName = this.ActItem.DataViewItems[idx]["LocationName"].ToString();
-                        prodCode = this.ActItem.DataViewItems[idx]["ProductCode"].ToString();
-                        prodDesc = this.ActItem.DataViewItems[idx]["ProductDescription"].ToString();
-                        prodUnitSizeDesc = this.ActItem.DataViewItems[idx]["ProductUnitSizeDescription"].ToString();
-                        prodBrandDesc = this.ActItem.DataViewItems[idx]["ProductBrandDescription"].ToString();
+                        prodLocCode = Convert.ToString(pickingItem.LocationCode);
+                        prodLocName = pickingItem.LocationName;
+                        prodCode = pickingItem.ProductCode;
+                        prodDesc = pickingItem.ProductDescription;
+                        prodUnitSizeDesc = pickingItem.ProductUnitSizeDescription;
+                        prodBrandDesc = pickingItem.ProductBrandDescription;
                     }
 
                     this.ItemsList.Clear();
@@ -3496,34 +3251,29 @@
                     {
                         case 1:
                             // TODO: Resource strings
-                            //this.lstDisplay.Items.Add("SIZE: " + prodUnitSizeDesc.Trim() + ", " + prodBrandDesc.Trim());
                             this.ItemsList.Add("SIZE: " + prodUnitSizeDesc.Trim() + ", " + prodBrandDesc.Trim());
                             break;
 
                         default:
                             // TODO: Resource strings
-                            //this.lstDisplay.Items.Add("DESC: " + prodDesc.Trim() + ", " + prodUnitSizeDesc.Trim());
                             this.ItemsList.Add("DESC: " + prodDesc.Trim() + ", " + prodUnitSizeDesc.Trim());
                             break;
                     }
 
                     // TODO: Resource strings
-                    //this.lstDisplay.Items.Add("LOCATION: " + prodLocCode.Trim() + " " + prodLocName.Trim());
                     this.ItemsList.Add("LOCATION: " + prodLocCode.Trim() + " " + prodLocName.Trim());
                     break;
 
                 case SysCommon.ActSubTypes.PickingSingle:
-                    if (idx >= 0 && this.ActItem.DataViewItems.Count > 0)
+                    if (this.dataGridMainActivity.SelectedItem is PickingItem pickingItemSingle)
                     {
-                        prodLocCode = this.ActItem.DataViewItems[idx]["LocationCode"].ToString();
-                        prodLocName = this.ActItem.DataViewItems[idx]["LocationName"].ToString();
-                        prodDesc = this.ActItem.DataViewItems[idx]["ProductDescription"].ToString();
-                        prodUnitSizeDesc = this.ActItem.DataViewItems[idx]["ProductUnitSizeDescription"].ToString();
-                        prodBrandDesc = this.ActItem.DataViewItems[idx]["ProductBrandDescription"].ToString();
+                        prodLocCode = Convert.ToString(pickingItemSingle.LocationCode);
+                        prodLocName = pickingItemSingle.LocationName;
+                        prodDesc = pickingItemSingle.ProductDescription;
+                        prodUnitSizeDesc = pickingItemSingle.ProductUnitSizeDescription;
+                        prodBrandDesc = pickingItemSingle.ProductBrandDescription;
                     }
 
-                    //this.lstDisplay.Items.Clear();
-                    //this.lstDisplay.Items.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
                     this.ItemsList.Clear();
                     this.ItemsList.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
 
@@ -3532,35 +3282,30 @@
                     break;
 
                 case SysCommon.ActSubTypes.TicketAddProduct:
-                    if (idx >= 0 && this.ActItem.DataViewItems.Count > 0)
+                    if (this.dataGridMainActivity.SelectedItem is ProductionTicketByProductItem productionTicketByProductItem)
                     {
-                        prodLocCode = this.ActItem.DataViewItems[idx]["LocationCode"].ToString();
-                        prodLocName = this.ActItem.DataViewItems[idx]["LocationName"].ToString();
-                        prodDesc = this.ActItem.DataViewItems[idx]["ProductDescription"].ToString();
-                        prodUnitSizeDesc = this.ActItem.DataViewItems[idx]["ProductUnitSizeDescription"].ToString();
+                        prodLocCode = Convert.ToString(productionTicketByProductItem.LocationCode);
+                        prodLocName = productionTicketByProductItem.LocationName;
+                        prodDesc = productionTicketByProductItem.ProductDescription;
+                        prodUnitSizeDesc = productionTicketByProductItem.ProductUnitSizeDescription;
                     }
 
-                    //this.lstDisplay.Items.Clear();
-                    //this.lstDisplay.Items.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
                     this.ItemsList.Clear();
                     this.ItemsList.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
 
                     // TODO: Resource strings
-                    //this.lstDisplay.Items.Add("LOCATION: " + prodLocCode.Trim() + " " + prodLocName.Trim());
                     this.ItemsList.Add("LOCATION: " + prodLocCode.Trim() + " " + prodLocName.Trim());
                     break;
 
                 case SysCommon.ActSubTypes.TicketFinished:
-                    if (idx >= 0 && this.ActItem.DataViewItems.Count > 0)
+                    if (this.dataGridMainActivity.SelectedItem is ProductionTicketFinishedItem productionTicketFinishedItem)
                     {
-                        prodLocCode = this.ActItem.DataViewItems[idx]["LocationCode"].ToString();
-                        prodLocName = this.ActItem.DataViewItems[idx]["LocationName"].ToString();
-                        prodDesc = this.ActItem.DataViewItems[idx]["ProductDescription"].ToString();
-                        prodUnitSizeDesc = this.ActItem.DataViewItems[idx]["ProductUnitSizeDescription"].ToString();
+                        prodLocCode = Convert.ToString(productionTicketFinishedItem.LocationCode);
+                        prodLocName = productionTicketFinishedItem.LocationName;
+                        prodDesc = productionTicketFinishedItem.ProductDescription;
+                        prodUnitSizeDesc = productionTicketFinishedItem.ProductUnitSizeDescription;
                     }
 
-                    //this.lstDisplay.Items.Clear();
-                    //this.lstDisplay.Items.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
                     this.ItemsList.Clear();
                     this.ItemsList.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
 
@@ -3570,16 +3315,14 @@
                     break;
 
                 case SysCommon.ActSubTypes.TicketMaterial:
-                    if (idx >= 0 && this.ActItem.DataViewItems.Count > 0)
+                    if (this.dataGridMainActivity.SelectedItem is ProductionTicketMaterialItem productionTicketMaterialItem)
                     {
-                        prodLocCode = this.ActItem.DataViewItems[idx]["LocationCode"].ToString();
-                        prodLocName = this.ActItem.DataViewItems[idx]["LocationName"].ToString();
-                        prodDesc = this.ActItem.DataViewItems[idx]["ProductDescription"].ToString();
-                        prodUnitSizeDesc = this.ActItem.DataViewItems[idx]["ProductUnitSizeDescription"].ToString();
+                        prodLocCode = Convert.ToString(productionTicketMaterialItem.LocationCode);
+                        prodLocName = productionTicketMaterialItem.LocationName;
+                        prodDesc = productionTicketMaterialItem.ProductDescription;
+                        prodUnitSizeDesc = productionTicketMaterialItem.ProductUnitSizeDescription;
                     }
 
-                    //this.lstDisplay.Items.Clear();
-                    //this.lstDisplay.Items.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
                     this.ItemsList.Clear();
                     this.ItemsList.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
 
@@ -3588,21 +3331,18 @@
                     break;
 
                 case SysCommon.ActSubTypes.PurchaseOrderWorkSheet:
-                    if (idx >= 0 && this.ActItem.DataViewItems.Count > 0)
+                    if (this.dataGridMainActivity.SelectedItem is PurchaseOrderWorkSheetItem purchaseOrderWorkSheetItem)
                     {
-                        prodLocCode = this.ActItem.DataViewItems[idx]["LocationCode"].ToString();
-                        prodLocName = this.ActItem.DataViewItems[idx]["LocationName"].ToString();
-                        prodDesc = this.ActItem.DataViewItems[idx]["ProductDescription"].ToString();
-                        prodUnitSizeDesc = this.ActItem.DataViewItems[idx]["ProductUnitSizeDescription"].ToString();
+                        prodLocCode = Convert.ToString(purchaseOrderWorkSheetItem.LocationCode);
+                        prodLocName = purchaseOrderWorkSheetItem.LocationName;
+                        prodDesc = purchaseOrderWorkSheetItem.ProductDescription;
+                        prodUnitSizeDesc = purchaseOrderWorkSheetItem.ProductUnitSizeDescription;
                     }
 
-                    //this.lstDisplay.Items.Clear();
-                    //this.lstDisplay.Items.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
                     this.ItemsList.Clear();
                     this.ItemsList.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
 
                     // TODO: Resource strings
-                    //this.lstDisplay.Items.Add("LOCATION: " + prodLocCode.Trim() + " " + prodLocName.Trim());
                     this.ItemsList.Add("LOCATION: " + prodLocCode.Trim() + " " + prodLocName.Trim());
                     break;
 
@@ -3613,21 +3353,18 @@
                     break;
 
                 case SysCommon.ActSubTypes.Receiving:
-                    if (idx >= 0 && this.ActItem.DataViewItems.Count > 0)
+                    if (this.dataGridMainActivity.SelectedItem is ReceiveItem receiveItem)
                     {
-                        prodLocCode = this.ActItem.DataViewItems[idx]["LocationCode"].ToString();
-                        prodLocName = this.ActItem.DataViewItems[idx]["LocationName"].ToString();
-                        prodDesc = this.ActItem.DataViewItems[idx]["ProductDescription"].ToString();
-                        prodUnitSizeDesc = this.ActItem.DataViewItems[idx]["ProductUnitSizeDescription"].ToString();
+                        prodLocCode = Convert.ToString(receiveItem.LocationCode);
+                        prodLocName = receiveItem.LocationName;
+                        prodDesc = receiveItem.ProductDescription;
+                        prodUnitSizeDesc = receiveItem.ProductUnitSizeDescription;
                     }
 
-                    //this.lstDisplay.Items.Clear();
-                    //this.lstDisplay.Items.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
                     this.ItemsList.Clear();
                     this.ItemsList.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
 
                     // TODO: Resource strings
-                    //this.lstDisplay.Items.Add("LOCATION: " + prodLocCode.Trim() + " " + prodLocName.Trim());
                     this.ItemsList.Add("LOCATION: " + prodLocCode.Trim() + " " + prodLocName.Trim());
                     break;
 
@@ -3641,24 +3378,19 @@
                     break;
 
                 case SysCommon.ActSubTypes.Returns:
-                    if (idx >= 0 && this.ActItem.DataViewItems.Count > 0)
+                    if (this.dataGridMainActivity.SelectedItem is ReturnItem returnItem)
                     {
-                        prodLocCode = this.ActItem.DataViewItems[idx]["LocationCode"].ToString();
-                        prodLocName = this.ActItem.DataViewItems[idx]["LocationName"].ToString();
-                        prodCode = this.ActItem.DataViewItems[idx]["ProductCode"].ToString();
-                        prodDesc = this.ActItem.DataViewItems[idx]["ProductDescription"].ToString();
-                        prodUnitSizeDesc = this.ActItem.DataViewItems[idx]["ProductUnitSizeDescription"].ToString();
-                        prodBrandDesc = this.ActItem.DataViewItems[idx]["ProductBrandDescription"].ToString();
+                        prodLocCode = Convert.ToString(returnItem.LocationCode);
+                        prodLocName = returnItem.LocationName;
+                        prodCode = returnItem.ProductCode;
+                        prodDesc = returnItem.ProductDescription;
+                        prodUnitSizeDesc = returnItem.ProductUnitSizeDescription;
+                        prodBrandDesc = returnItem.ProductBrandDescription;
                     }
 
-                    //this.lstDisplay.Items.Clear();
                     this.ItemsList.Clear();
 
-                    //// this.lstDisplay.Items.Add("PRODUCT: " + productCode.Trim() + " " + productDescription.Trim());
-
                     // TODO: Resource strings
-                    //this.lstDisplay.Items.Add("SIZE: " + prodUnitSizeDesc.Trim() + ", " + prodBrandDesc.Trim());
-                    //this.lstDisplay.Items.Add("LOCATION: " + prodLocCode.Trim() + " " + prodLocName.Trim());
                     this.ItemsList.Add("SIZE: " + prodUnitSizeDesc.Trim() + ", " + prodBrandDesc.Trim());
                     this.ItemsList.Add("LOCATION: " + prodLocCode.Trim() + " " + prodLocName.Trim());
                     break;
@@ -3673,116 +3405,38 @@
                     break;
 
                 case SysCommon.ActSubTypes.TransferFrom:
-                    if (idx >= 0 && this.ActItem.DataViewItems.Count > 0)
+                    if (this.dataGridMainActivity.SelectedItem is TransferItem transferItemFrom)
                     {
-                        prodLocCode = this.ActItem.DataViewItems[idx]["LocationCode"].ToString();
-                        prodLocName = this.ActItem.DataViewItems[idx]["LocationName"].ToString();
-                        prodDesc = this.ActItem.DataViewItems[idx]["ProductDescription"].ToString();
-                        prodUnitSizeDesc = this.ActItem.DataViewItems[idx]["ProductUnitSizeDescription"].ToString();
+                        prodLocCode = Convert.ToString(transferItemFrom.LocationCode);
+                        prodLocName = transferItemFrom.LocationName;
+                        prodDesc = transferItemFrom.ProductDescription;
+                        prodUnitSizeDesc = transferItemFrom.ProductUnitSizeDescription;
                     }
 
-                    //this.lstDisplay.Items.Clear();
-                    //this.lstDisplay.Items.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
                     this.ItemsList.Clear();
                     this.ItemsList.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
 
                     // TODO: Resource strings
-                    //this.lstDisplay.Items.Add("LOCATION: " + prodLocCode.Trim() + " " + prodLocName.Trim());
                     this.ItemsList.Add("LOCATION: " + prodLocCode.Trim() + " " + prodLocName.Trim());
                     break;
 
                 case SysCommon.ActSubTypes.TransferTo:
-                    if (idx >= 0 && this.ActItem.DataViewItems.Count > 0)
+                    if (this.dataGridMainActivity.SelectedItem is TransferItem transferItemTo)
                     {
-                        prodLocCode = this.ActItem.DataViewItems[idx]["LocationCode"].ToString();
-                        prodLocName = this.ActItem.DataViewItems[idx]["LocationName"].ToString();
-                        prodDesc = this.ActItem.DataViewItems[idx]["ProductDescription"].ToString();
-                        prodUnitSizeDesc = this.ActItem.DataViewItems[idx]["ProductUnitSizeDescription"].ToString();
+                        prodLocCode = Convert.ToString(transferItemTo.LocationCode);
+                        prodLocName = transferItemTo.LocationName;
+                        prodDesc = transferItemTo.ProductDescription;
+                        prodUnitSizeDesc = transferItemTo.ProductUnitSizeDescription;
                     }
 
-                    //this.lstDisplay.Items.Clear();
-                    //this.lstDisplay.Items.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
                     this.ItemsList.Clear();
                     this.ItemsList.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
 
                     // TODO: Resource strings
-                    //this.lstDisplay.Items.Add("LOCATION: " + prodLocCode.Trim() + " " + prodLocName.Trim());
                     this.ItemsList.Add("LOCATION: " + prodLocCode.Trim() + " " + prodLocName.Trim());
                     break;
             }
         }
-
-        ///// <summary>
-        /////
-        ///// </summary>
-        ///// <param name="sender"></param>
-        ///// <param name="e"></param>
-        ///// <remarks></remarks>
-        //private void IdentifyChangesMade(object sender, EventArgs e)
-        //{
-        //    try
-        //    {
-        //        if (this.IsControlLoaded)
-        //        {
-        //            if (sender == this.txtSearchItem)
-        //            {
-        //                this.IsChangesMade = true;
-        //                this.ActItem.Search(this.txtSearchItem.Text);
-        //            }
-
-        //            if (sender == this.cmdAddProduct)
-        //            {
-        //            }
-
-        //            if (sender == this.cmdAddSkid)
-        //            {
-        //            }
-
-        //            if (sender == this.cmdFilter)
-        //            {
-        //            }
-
-        //            if (sender == this.updnBarCodeModifier1)
-        //            {
-        //                this.IsChangesMade = true;
-        //                this.SysEnv.CurrentBarCodeModifier1 = this.updnBarCodeModifier1.SelectedItem.ToString();
-        //            }
-
-        //            if (sender == this.dataGridMainActivity)
-        //            {
-        //            }
-
-        //            if (sender == this.cmdLocation)
-        //            {
-        //            }
-
-        //            if (sender == this.cmdLocation)
-        //            {
-        //            }
-
-        //            if (sender == this.cmdSelectSkid)
-        //            {
-        //            }
-        //        }
-        //    }
-        //    catch (Exceptions.MessageOnlyException ex)
-        //    {
-        //        // Do not set the IsChangesMade. Exceptions.MessageOnlyException is really not and error. 
-        //        // Allow the validation to handle the setting for IsChangesMade.
-        //        ex.Show(this.ActSubType);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        this.IsChangesMade = true;
-
-        //        await Device.InvokeOnMainThreadAsync(async () =>
-        //        {
-        //            FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
-        //            await errRpt.ShowDialog();
-        //        });
-        //    }
-        //}
-
 
         private void TxtSearchItem_TextChanged(object sender, TextChangedEventArgs e)
         {
@@ -3808,8 +3462,7 @@
 
         private async void DataGridMainActivity_ItemSelected(object sender, SelectedItemChangedEventArgs e)
         {
-            this.SelectedIndex = this.DataGridMainActivityItemsList.IndexOf(e.SelectedItem);
-            this.ActItem.SelectItem(this.selectedIndex);
+            await this.ActItem.SelectActivityItem(e.SelectedItem);
             await Device.InvokeOnMainThreadAsync(() => this.DisplayData());
         }
 

@@ -329,7 +329,6 @@
             "INNER JOIN tUnit AS aUnitBase ON aUnitBase.UnitRefno = tProductUnit.BaseUnitRefno " +
             "INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno " +
             "WHERE tProductUnit.ProductUnitRefno = ?";
-            //cmndProdInfo.Parameters.Add(new SQLiteParameter("@productUnitRefno", Convert.ToInt32(productUnitRefno)));
 
             List<dynamic> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<dynamic>(query, Convert.ToInt32(productUnitRefno));
 
@@ -545,9 +544,6 @@
                 "WHERE tProductUnit.ProductRefno = ? " +
                 "AND tUnit.UnitCode = ? " +
                 "AND tBaseUnit.UnitCode = ?";
-                //cmndProdUnitRelation.Parameters.Add(new SQLiteParameter("@refno", Convert.ToInt32(productInfo.Refno)));
-                //cmndProdUnitRelation.Parameters.Add(new SQLiteParameter("@unitCode", Convert.ToString(productInfo.UnitCode)));
-                //cmndProdUnitRelation.Parameters.Add(new SQLiteParameter("@baseUnitCode", Convert.ToString(productInfo.BaseUnitCode)));
 
                 prodUnitFactor = Convert.ToDecimal(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<decimal>(query, Convert.ToInt32(productInfo.Refno), Convert.ToString(productInfo.UnitCode), Convert.ToString(productInfo.BaseUnitCode)));
 

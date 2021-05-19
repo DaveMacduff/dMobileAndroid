@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
-using System.Data.SQLite;
+using SQLite;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.Sockets;
@@ -17,15 +17,14 @@ using System.Xml.Linq;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 using Resource = dMobile.Resources.Properties.Resources;
+using dMobile.Resources.Models;
 
 namespace dMobile.View
 {
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ucLoginStartup : DMobileContentPage, IAppArea, IAppPublisher
     {
-        //private UserControl callingControl = null;
         private bool changesMade = false;
-
         private bool isControlLoaded = false;
         private SysEnvironment sysEnv;
         private bool isAllowedAssocBarCode = true;
@@ -347,7 +346,7 @@ namespace dMobile.View
 
             try
             {
-                this.LoginStartup_GotFocus(this, new EventArgs());
+                await this.LoginStartup_GotFocus();
             }
             catch (Exception ex)
             {
@@ -399,30 +398,16 @@ namespace dMobile.View
                     return isReadyToSave;
                 }
 
-                using (SQLiteCommand cmndGetContactUser = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                List<tContactUserModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tContactUserModel>("SELECT * FROM tContactUser WHERE ContactUserCode = ?", Convert.ToInt32(this.txtLoginID.Text));
+
+                if (results?.Count > 0)
                 {
-                    cmndGetContactUser.CommandText = "SELECT * FROM tContactUser WHERE ContactUserCode = @contactUserCode";
-                    //cmndGetContactUser.IndexName = "UQ_ContactUserOnContactUserCode";
-                    cmndGetContactUser.CommandType = CommandType.Text;
-                    cmndGetContactUser.Parameters.Add(new SQLiteParameter("@contactUserCode", Convert.ToInt32(this.txtLoginID.Text)));
+                    userCode = results[0].ContactUserCode;
+                    password = results[0].ContactUserPassword;
 
-                    using (SQLiteDataReader drContactUser = cmndGetContactUser.ExecuteReader())
-                    {
-                        //if (drContactUser.Seek(DbSeekOptions.FirstEqual, new object[] { Convert.ToInt32(this.txtLoginID.Text) }))
-                        //{
-                        if (drContactUser.Read())
-                        {
-                            userCode = drContactUser.GetInt32((int)SysCommon.ContactUserFields.Code);
-                            password = drContactUser.GetString((int)SysCommon.ContactUserFields.Password);
-
-                            this.IsAllowedAssocBarCode = drContactUser.GetBoolean((int)SysCommon.ContactUserFields.IsAllowedAssocProdBarCode);
-                            this.IsAllowedOverridePicker = drContactUser.GetBoolean((int)SysCommon.ContactUserFields.IsAllowedPickingOverridePicker);
-                            this.IsOverrideAddManualDetail = drContactUser.GetBoolean((int)SysCommon.ContactUserFields.IsAllowedPickingModuleOverrideAddManualDetail);
-                        }
-
-                        drContactUser.Close();
-                        //}
-                    }
+                    this.IsAllowedAssocBarCode = results[0].ContactUserIsAllowedAssociateProductBarCode;
+                    this.IsAllowedOverridePicker = results[0].ContactUserIsAllowedPickingModuleOverridePicker;
+                    this.IsOverrideAddManualDetail = results[0].ContactUserIsAllowedPickingModuleOverrideAddManualDetail;
                 }
 
                 // Override the contact login password with the system one if bypass licenses is enabled.
@@ -510,30 +495,6 @@ namespace dMobile.View
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        //public UserControl GetCallingControl()
-        //{
-        //    return this.CallingControl;
-        //}
-
-        //        /// <summary>
-        //        ///
-        //        /// </summary>
-        //        /// <returns></returns>
-        //        /// <remarks></remarks>
-        //        public string GetControlDescription()
-        //        {
-        //#if MULTILANGUAGE
-        //            return Translator.GetInstance().Translate(TranslatorVocabulary.LoginStartup);
-        //#else
-        //            return "Login Startup";
-        //#endif
-        //        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
         public async Task<bool> SaveChanges()
         {
             bool saveComplete = false;
@@ -588,14 +549,13 @@ namespace dMobile.View
                     ContactLogin tempContactLogin = this.SysEnv.ContactLog;
                     saveComplete = this.SysEnv.ContactLog.SaveData(ref tempContactLogin);
                     locMap.LoginWhsLocMapRefno = this.SysEnv.ContactLog.WarehouseLocationMapRefno;
-                    locMap.CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(locMap.LoginWhsLocMapRefno);
+                    locMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(locMap.LoginWhsLocMapRefno);
 
                     this.ChangesMade = false;
                 }
                 else
                 {
                     this.SysEnv.ContactLog.IsLoggedIn = false;
-                    //throw new Exceptions.MessageOnlyException(Resource.EnteredDataFailedValidation);
                 }
             }
             catch (Exceptions.MessageOnlyException ex)
@@ -629,7 +589,7 @@ namespace dMobile.View
             {
                 if (!await this.IsReadyToClose())
                 {
-                    this.LoadData();
+                    await this.LoadData();
                     cancelChanges = false;
                     this.ChangesMade = false;
                 }
@@ -651,7 +611,7 @@ namespace dMobile.View
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public XDocument GetXML()
+        public async Task<XDocument> GetXML()
         {
             XDocument xmldocParams = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
@@ -755,23 +715,20 @@ namespace dMobile.View
         ///
         /// </summary>
         /// <remarks></remarks>
-        private void LoadData()
+        private async Task LoadData()
         {
             List<Warehouse> dataViewLocMapWhs = new List<Warehouse>();
 
             this.txtLoginID.Text = this.SysEnv.ContactLog.LoginID.ToString();
             this.txtLoginPassword.Text = this.SysEnv.ContactLog.LoginPassword;
 
-            using (SQLiteCommand cmnd = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-            {
-                cmnd.CommandText = "SELECT LocationMapRefno, LocationMapWarehouseCode, LocationMapWarehouseName FROM tLocationMapWarehouse";
+            List<Warehouse> resultsWarehouse = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<Warehouse>("SELECT LocationMapRefno, LocationMapWarehouseCode, LocationMapWarehouseName FROM tLocationMapWarehouse");
 
-                using (SQLiteDataReader reader = cmnd.ExecuteReader())
+            if (resultsWarehouse?.Count > 0)
+            {
+                foreach (Warehouse warehouse in resultsWarehouse)
                 {
-                    while (reader.Read())
-                    {
-                        dataViewLocMapWhs.Add(new Warehouse(reader.GetInt32(0), reader.GetInt32(1), reader.GetString(2)));
-                    }
+                    dataViewLocMapWhs.Add(warehouse);
                 }
             }
 
@@ -795,13 +752,13 @@ namespace dMobile.View
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        private void LoginStartup_GotFocus(object sender, EventArgs e)
+        private async Task LoginStartup_GotFocus()
         {
             if (!SysEnvironment.GetInstance().IsApplicationExitInvoked)
             {
                 if (!this.IsControlLoaded)
                 {
-                    this.LoadData();
+                    await this.LoadData();
                     this.IsControlLoaded = true;
 
                     if (this.SysEnv.ContactLog.LoginID == 0)
@@ -847,39 +804,26 @@ namespace dMobile.View
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        private void ValidateEntry(object sender, CancelEventArgs e)
+        private async Task ValidateEntry(object sender, CancelEventArgs e)
         {
             int userCode = 0;
             string password = string.Empty;
 
             try
             {
-                using (SQLiteCommand cmndUser = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+                List<tContactUserModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tContactUserModel>("SELECT * FROM tContactUser WHERE ContactUserCode = ?", Convert.ToInt32(this.txtLoginID.Text));
+
+                if (results?.Count > 0)
                 {
-                    cmndUser.CommandText = "SELECT * FROM tContactUser WHERE ContactUserCode = @contactUserCode";
-                    //cmndUser.IndexName = "UQ_ContactUserOnContactUserCode";
-                    cmndUser.CommandType = CommandType.Text;
-                    cmndUser.Parameters.Add(new SQLiteParameter("@contactUserCode", this.txtLoginID.Text));
+                    userCode = results[0].ContactUserCode;
+                    password = results[0].ContactUserPassword;
 
-                    using (SQLiteDataReader drUser = cmndUser.ExecuteReader())
-                    {
-                        //if (drUser.Seek(DbSeekOptions.FirstEqual, new object[] { Convert.ToInt32(this.txtLoginID.Text) }))
-                        //{
-                        if (drUser.Read())
-                        {
-                            password = drUser.GetString((int)SysCommon.ContactUserFields.Password);
-                            userCode = drUser.GetInt32((int)SysCommon.ContactUserFields.Code);
+                    // TODO: Where are these used anymore?
+                    // March 28, 2016 - IsAllowedAssocBarCode is set later in this file  in function SaveChanges(); and used in SysShared.IdentifyProductScanned.
+                    this.IsAllowedAssocBarCode = results[0].ContactUserIsAllowedAssociateProductBarCode;
+                    this.IsAllowedOverridePicker = results[0].ContactUserIsAllowedPickingModuleOverridePicker;
+                    this.IsOverrideAddManualDetail = results[0].ContactUserIsAllowedPickingModuleOverrideAddManualDetail;
 
-                            // TODO: Where are these used anymore?
-                            // March 28, 2016 - IsAllowedAssocBarCode is set later in this file  in function SaveChanges(); and used in SysShared.IdentifyProductScanned.
-                            this.IsAllowedAssocBarCode = drUser.GetBoolean((int)SysCommon.ContactUserFields.IsAllowedAssocProdBarCode);
-                            this.IsAllowedOverridePicker = drUser.GetBoolean((int)SysCommon.ContactUserFields.IsAllowedPickingOverridePicker);
-                            this.IsOverrideAddManualDetail = drUser.GetBoolean((int)SysCommon.ContactUserFields.IsAllowedPickingModuleOverrideAddManualDetail);
-                        }
-
-                        drUser.Close();
-                        //}
-                    }
                 }
 
                 if (string.IsNullOrEmpty(txtLoginID.Text))
@@ -919,7 +863,6 @@ namespace dMobile.View
 
                 LocationMap locMap = LocationMap.GetInstance();
                 locMap.LoginWhsLocMapRefno = this.SysEnv.ContactLog.WarehouseLocationMapRefno;
-                //}
 
                 if (e.Cancel == false)
                 {
@@ -936,7 +879,7 @@ namespace dMobile.View
             {
                 e.Cancel = true;
                 FormErrorReport errReport = new FormErrorReport(ex);
-                errReport.ShowDialog().ContinueWith(result =>
+                await errReport.ShowDialog().ContinueWith(result =>
                 {
                     Android.OS.Process.KillProcess(Android.OS.Process.MyPid());
                 });
@@ -945,7 +888,7 @@ namespace dMobile.View
             {
                 e.Cancel = false;
                 FormErrorReport errReport = new FormErrorReport(ex);
-                errReport.ShowDialog().ContinueWith(result => { });
+                await errReport.ShowDialog();
             }
         }
 
@@ -957,28 +900,23 @@ namespace dMobile.View
         /// <remarks></remarks>
         private async void cmdLogin_Click(object sender, EventArgs e)
         {
-            this.Loading = true;
-
             try
             {
+                this.Loading = true;
+
                 await Task.Run(async () =>
                 {
-                    this.ValidateEntry(sender, new CancelEventArgs());
+                    await this.ValidateEntry(sender, new CancelEventArgs());
 
                     if (await this.SaveChanges())
                     {
                         // <WO ID="14734" Comment="Show message after login when data is older than 48 hours" />
-                        if (SysEnv == null ||
-                            SysEnv.RefreshOpt == null ||
-                            SysEnv.RefreshOpt.RefreshedDataLast == null ||
-                            (DateTime.Now - this.SysEnv.RefreshOpt.RefreshedDataLast).TotalHours > 48)
+                        if (SysEnv == null || SysEnv.RefreshOpt == null || SysEnv.RefreshOpt.RefreshedDataLast == null || (DateTime.Now - this.SysEnv.RefreshOpt.RefreshedDataLast).TotalHours > 48)
                         {
                             await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(Resource.RefreshRequired, Resource.DataIsOutOfDatePleaseRefreshImmediately, Resource.OK));
                         }
 
-                        //this.CallingControl = new ucMainMenu();
-                        Device.BeginInvokeOnMainThread(() => Application.Current.MainPage = new MainPage());
-
+                        await Device.InvokeOnMainThreadAsync(() => Application.Current.MainPage = new MainPage());
                         this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     }
                 });
@@ -987,8 +925,10 @@ namespace dMobile.View
             {
                 await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(Resource.Error, ex.Message, Resource.OK));
             }
-
-            this.Loading = false;
+            finally
+            {
+                this.Loading = false;
+            }
         }
 
         /// <summary>

@@ -55,21 +55,11 @@
             {
                 secondAttempt = false;
 
-                //cmndLocMap.CommandText = "SELECT LocationMapRefno FROM tLocationMapSection WHERE LocationMapRefno = @globalLocationIdentifier";
-                //cmndLocMap.Parameters.Add(new SQLiteParameter("@globalLocationIdentifier", globalLocationIdentifier));
-
                 List<tLocationMapSectionModel> tLocationMapSectionModelResults = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tLocationMapSectionModel>("SELECT LocationMapRefno FROM tLocationMapSection WHERE LocationMapRefno = ?", globalLocationIdentifier);
 
                 if (tLocationMapSectionModelResults != null && tLocationMapSectionModelResults.Count > 0)
                 {
-                    //if (drLocMap.Read())
-                    //{
                     locMapRefno = Convert.ToInt32(tLocationMapSectionModelResults[0].LocationMapRefno);
-                    //}
-                    //else
-                    //{
-                    //    throw new Exception("drLocMap.Read() failed.");
-                    //}
                 }
                 else
                 {
@@ -83,10 +73,6 @@
                 if (secondAttempt)
                 {
                     string barCode = globalLocationIdentifier.Substring(0, globalLocationIdentifier.TrimEnd().Length - 1);
-                    //cmndLocMap.CommandType = CommandType.Text;
-                    //cmndLocMap.IndexName = string.Empty;
-                    //cmndLocMap.CommandText = "SELECT tLocationMapSection.LocationMapRefno FROM tLocationMapSection WHERE tLocationMapSection.LocationMapSectionBarCode LIKE ?%";
-
                     locMapRefno = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.QueryScalarsAsync<tLocationMapSectionModel>("SELECT tLocationMapSection.LocationMapRefno FROM tLocationMapSection WHERE tLocationMapSection.LocationMapSectionBarCode LIKE ?%", barCode));
                 }
             }
@@ -96,23 +82,11 @@
             {
                 secondAttempt = false;
 
-                //cmndLocMap.CommandText = "SELECT LocationMapRefno FROM tLocationMapWarehouse WHERE LocationMapRefno = @globalLocationIdentifier";
-                //cmndLocMap.Parameters.Add(new SQLiteParameter("@globalLocationIdentifier", globalLocationIdentifier));
-
                 List<tLocationMapWarehouseModel> tLocationMapWarehouseModelResults = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tLocationMapWarehouseModel>("SELECT LocationMapRefno FROM tLocationMapWarehouse WHERE LocationMapRefno = ?", globalLocationIdentifier);
 
                 if (tLocationMapWarehouseModelResults != null && tLocationMapWarehouseModelResults.Count > 0)
                 {
                     locMapRefno = Convert.ToInt32(tLocationMapWarehouseModelResults[0].LocationMapRefno);
-
-                    //if (drLocMap.Read())
-                    //{
-                    //locMapRefno = Convert.ToInt32(drLocMap["LocationMapRefno"]);
-                    //}
-                    //else
-                    //{
-                    //    throw new Exception("drLocMap.Read() failed.");
-                    //}
                 }
                 else
                 {
@@ -126,9 +100,6 @@
                 if (secondAttempt)
                 {
                     string barCode = globalLocationIdentifier.Substring(0, globalLocationIdentifier.TrimEnd().Length - 1);
-
-                    //cmndLocMap.IndexName = string.Empty;
-                    //cmndLocMap.CommandText = "SELECT tLocationMapWarehouse.LocationMapRefno FROM tLocationMapWarehouse WHERE tLocationMapWarehouse.LocationMapWarehouseBarCode LIKE ?%";
                     locMapRefno = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.QueryScalarsAsync<tLocationMapWarehouseModel>("SELECT tLocationMapWarehouse.LocationMapRefno FROM tLocationMapWarehouse WHERE tLocationMapWarehouse.LocationMapWarehouseBarCode LIKE ?%", barCode));
                 }
 
@@ -141,25 +112,16 @@
         /// The GetWhsList
         /// </summary>
         /// <param name="dataTableWhsList">The dataTableWhsList<see cref="DataTable"/></param>
-        public static async Task<List<tLocationMapWarehouseModel>> GetWhsList()
+        public static async Task<List<Warehouse>> GetWhsList()
         {
-            return await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tLocationMapWarehouseModel>("SELECT LocationMapWarehouseCode, LocationMapWarehouseName, LocationMapRefno FROM tLocationMapWarehouse ORDER BY LocationMapWarehouseCode");
-
-            //using (SQLiteDataAdapter dataAdapterWhs = new SQLiteDataAdapter(sql, DatabaseConnection.GetInstance().SQLConn))
-            //{
-            //    using (DataSet dataSetWhs = new DataSet())
-            //    {
-            //        dataAdapterWhs.Fill(dataSetWhs);
-            //        dataTableWhsList = dataSetWhs.Tables[0];
-            //    }
-            //}
+            return await DatabaseConnection.GetInstance().SQLConn.QueryAsync<Warehouse>("SELECT LocationMapWarehouseCode, LocationMapWarehouseName, LocationMapRefno FROM tLocationMapWarehouse ORDER BY LocationMapWarehouseCode");
         }
 
         /// <summary>
         /// The GetSectList
         /// </summary>
         /// <param name="dataTableSectionList">The dataTableSectionList<see cref="DataTable"/></param>
-        public static async Task<List<tLocationMapSectionModel>> GetSectList()
+        public static async Task<List<Section>> GetSectList()
         {
             string sql = "SELECT LocationMapSectionCode,"
                 + "LocationMapSectionName,"
@@ -168,16 +130,7 @@
                 + "FROM tLocationMapSection "
                 + "ORDER BY LocationMapSectionCode";
 
-            return await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tLocationMapSectionModel>(sql);
-
-            //using (SQLiteDataAdapter dataAdapterSect = new SQLiteDataAdapter(sql, DatabaseConnection.GetInstance().SQLConn))
-            //{
-            //    using (DataSet dataSetSect = new DataSet())
-            //    {
-            //        dataAdapterSect.Fill(dataSetSect);
-            //        dataTableSectionList = dataSetSect.Tables[0];
-            //    }
-            //}
+            return await DatabaseConnection.GetInstance().SQLConn.QueryAsync<Section>(sql);
         }
 
         /// <summary>
@@ -187,10 +140,6 @@
         /// <returns>Name of the section.</returns>
         public static async Task<string> GetSectionName(int locMapSectFKRefno)
         {
-            //cmd.CommandType = CommandType.Text;
-            //cmd.CommandText = "SELECT tLocationMapSection.LocationMapSectionName FROM tLocationMapSection WHERE tLocationMapSection.LocationMapSectionFKRefno = @locMapSectFKRefno";
-            //cmd.Parameters.Add(new SQLiteParameter("@locMapSectFKRefno", Convert.ToInt32(locMapSectFKRefno)));
-
             return Convert.ToString(await DatabaseConnection.GetInstance().SQLConn.QueryScalarsAsync<tLocationMapSectionModel>("SELECT LocationMapSectionName FROM tLocationMapSection WHERE LocationMapSectionFKRefno = ?", Convert.ToInt32(locMapSectFKRefno)));
         }
 
@@ -201,40 +150,8 @@
         /// <returns>Name of the slot.</returns>
         public static async Task<string> GetSlotName(int locMapSlotFKRefno)
         {
-            //cmd.CommandType = CommandType.Text;
-            //cmd.CommandText = "SELECT tLocationMapSlot.LocationMapSlotName FROM tLocationMapSlot WHERE tLocationMapSlot.LocationMapSlotFKRefno = @locMapSlotFKRefno";
-            //cmd.Parameters.Add(new SQLiteParameter("@locMapSlotFKRefno", Convert.ToInt32(locMapSlotFKRefno)));
-            //result = Convert.ToString(cmd.ExecuteScalar());
-
             return Convert.ToString(await DatabaseConnection.GetInstance().SQLConn.QueryScalarsAsync<tLocationMapSlotModel>("SELECT LocationMapSlotName FROM tLocationMapSlot WHERE LocationMapSlotFKRefno = ?", Convert.ToInt32(locMapSlotFKRefno)));
         }
-
-        ///// <summary>
-        ///// The GetSlotCoordList
-        ///// </summary>
-        ///// <param name="coordinateEnum">The coordinateEnum<see cref="int"/></param>
-        ///// <param name="dataTableSlotList">The dataTableSlotList<see cref="DataTable"/></param>
-        ////public static void GetSlotCoordList(int coordinateEnum, ref DataTable dataTableSlotList)
-        ////{
-        ////    using (SQLiteCommand cmd = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-        ////    {
-        ////        cmd.CommandType = CommandType.Text;
-        ////        cmd.CommandText = "SELECT tLocationMapSlotCoordinate.LocationMapSlotCoordinateCode, tLocationMapSlotCoordinate.LocationMapSlotCoordinateRefno " +
-        ////        "FROM tLocationMapSlotCoordinate " +
-        ////        "WHERE tLocationMapSlotCoordinate.LocationMapSlotCoordinateEnum = @coordinateEnum " +
-        ////        "ORDER BY tLocationMapSlotCoordinate.LocationMapSlotCoordinateCode";
-        ////        cmd.Parameters.Add(new SQLiteParameter("@coordinateEnum", Convert.ToInt32(coordinateEnum)));
-
-        ////        using (SQLiteDataAdapter dataAdapterSlot = new SQLiteDataAdapter(cmd))
-        ////        {
-        ////            using (DataSet dataSetSlot = new DataSet())
-        ////            {
-        ////                dataAdapterSlot.Fill(dataSetSlot);
-        ////                dataTableSlotList = dataSetSlot.Tables[0];
-        ////            }
-        ////        }
-        ////    }
-        ////}
 
         /// <summary>
         /// The GetSlotCoord1List
@@ -243,28 +160,6 @@
         //public static async Task<List<Slot>> GetSlotCoord1List(ref DataTable dataTableSlotCoord1List)
         public static async Task<List<Slot>> GetSlotCoord1List()
         {
-            //cmd.CommandText = "SELECT DISTINCT tLocationMapSlotCoordinate.LocationMapSlotCoordinateCode,"
-            //+ "tLocationMapSlotCoordinate.LocationMapSlotCoordinateRefno,"
-            //+ "tLocationMapSlot.SectionLocationMapRefno "
-            //+ "FROM tLocationMapSlot "
-            //+ "INNER JOIN tLocationMapSlotCoordinate ON tLocationMapSlotCoordinate.LocationMapSlotCoordinateRefno "
-            //+ "= tLocationMapSlot.SlotCoord1LocationMapRefno "
-            //+ "WHERE tLocationMapSlotCoordinate.LocationMapSlotCoordinateEnum = @coord"
-            //+ " ORDER BY tLocationMapSlotCoordinate.LocationMapSlotCoordinateCode";
-
-            //cmd.Parameters.Add(new SQLiteParameter("@coord", Convert.ToInt32(coord)));
-
-            //using (SQLiteDataAdapter dataAdapterCoord = new SQLiteDataAdapter(cmd))
-            //{
-            //    using (DataSet dataSetCoord = new DataSet())
-            //    {
-            //        dataAdapterCoord.Fill(dataSetCoord);
-            //        dataTableSlotCoord1List = dataSetCoord.Tables[0];
-            //    }
-
-            //}
-
-            int coord = Convert.ToInt32(SysCommon.LocMapSlotCoordTypes.Coord1);
             string sql = "SELECT DISTINCT tLocationMapSlotCoordinate.LocationMapSlotCoordinateCode,"
                 + "tLocationMapSlotCoordinate.LocationMapSlotCoordinateRefno,"
                 + "tLocationMapSlot.SectionLocationMapRefno "
@@ -274,7 +169,7 @@
                 + "WHERE tLocationMapSlotCoordinate.LocationMapSlotCoordinateEnum = ?"
                 + " ORDER BY tLocationMapSlotCoordinate.LocationMapSlotCoordinateCode";
 
-            return await DatabaseConnection.GetInstance().SQLConn.QueryAsync<Slot>(sql, Convert.ToInt32(coord));
+            return await DatabaseConnection.GetInstance().SQLConn.QueryAsync<Slot>(sql, Convert.ToInt32(SysCommon.LocMapSlotCoordTypes.Coord1));
         }
 
         /// <summary>
@@ -283,30 +178,6 @@
         /// <param name="dataTableSlotCoord2List">The dataTableSlotCoord2List<see cref="DataTable"/></param>
         public static async Task<List<Slot>> GetSlotCoord2List()
         {
-            //using (SQLiteCommand cmd = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-            //{
-            //    cmd.CommandType = CommandType.Text;
-            //    cmd.CommandText = "SELECT DISTINCT tLocationMapSlotCoordinate.LocationMapSlotCoordinateCode,"
-            //    + "tLocationMapSlotCoordinate.LocationMapSlotCoordinateRefno,"
-            //    + "tLocationMapSlot.SectionLocationMapRefno "
-            //    + "FROM tLocationMapSlot "
-            //    + "INNER JOIN tLocationMapSlotCoordinate ON tLocationMapSlotCoordinate.LocationMapSlotCoordinateRefno "
-            //    + "= tLocationMapSlot.SlotCoord2LocationMapRefno "
-            //    + "WHERE tLocationMapSlotCoordinate.LocationMapSlotCoordinateEnum = @coord"
-            //    + " ORDER BY tLocationMapSlotCoordinate.LocationMapSlotCoordinateCode";
-            //    cmd.Parameters.Add(new SQLiteParameter("@coord", Convert.ToInt32(coord)));
-
-            //    using (SQLiteDataAdapter dataAdapterCoord = new SQLiteDataAdapter(cmd))
-            //    {
-            //        using (DataSet dataSetCoord = new DataSet())
-            //        {
-            //            dataAdapterCoord.Fill(dataSetCoord);
-            //            dataTableSlotCoord2List = dataSetCoord.Tables[0];
-            //        }
-            //    }
-            //}
-
-            int coord = Convert.ToInt32(SysCommon.LocMapSlotCoordTypes.Coord2);
             string sql = "SELECT DISTINCT tLocationMapSlotCoordinate.LocationMapSlotCoordinateCode,"
             + "tLocationMapSlotCoordinate.LocationMapSlotCoordinateRefno,"
             + "tLocationMapSlot.SectionLocationMapRefno "
@@ -316,7 +187,7 @@
             + "WHERE tLocationMapSlotCoordinate.LocationMapSlotCoordinateEnum = ?"
             + " ORDER BY tLocationMapSlotCoordinate.LocationMapSlotCoordinateCode";
 
-            return await DatabaseConnection.GetInstance().SQLConn.QueryAsync<Slot>(sql, Convert.ToInt32(coord));
+            return await DatabaseConnection.GetInstance().SQLConn.QueryAsync<Slot>(sql, Convert.ToInt32(SysCommon.LocMapSlotCoordTypes.Coord2));
 
         }
 
@@ -326,30 +197,6 @@
         /// <param name="dataTableSlotCoord3List">The dataTableSlotCoord3List<see cref="DataTable"/></param>
         public static async Task<List<Slot>> GetSlotCoord3List()
         {
-            //using (SQLiteCommand cmd = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-            //{
-            //    cmd.CommandType = CommandType.Text;
-            //    cmd.CommandText = "SELECT DISTINCT tLocationMapSlotCoordinate.LocationMapSlotCoordinateCode,"
-            //    + "tLocationMapSlotCoordinate.LocationMapSlotCoordinateRefno,"
-            //    + "tLocationMapSlot.SectionLocationMapRefno "
-            //    + "FROM tLocationMapSlot "
-            //    + "INNER JOIN tLocationMapSlotCoordinate ON tLocationMapSlotCoordinate.LocationMapSlotCoordinateRefno "
-            //    + "= tLocationMapSlot.SlotCoord3LocationMapRefno "
-            //    + "WHERE tLocationMapSlotCoordinate.LocationMapSlotCoordinateEnum = @coord"
-            //    + " ORDER BY tLocationMapSlotCoordinate.LocationMapSlotCoordinateCode";
-            //    cmd.Parameters.Add(new SQLiteParameter("@coord", Convert.ToInt32(coord)));
-
-            //    using (SQLiteDataAdapter dataAdapterCoord = new SQLiteDataAdapter(cmd))
-            //    {
-            //        using (DataSet dataSetCoord = new DataSet())
-            //        {
-            //            dataAdapterCoord.Fill(dataSetCoord);
-            //            dataTableSlotCoord3List = dataSetCoord.Tables[0];
-            //        }
-            //    }
-            //}
-
-            int coord = Convert.ToInt32(SysCommon.LocMapSlotCoordTypes.Coord3);
             string sql = "SELECT DISTINCT tLocationMapSlotCoordinate.LocationMapSlotCoordinateCode,"
                 + "tLocationMapSlotCoordinate.LocationMapSlotCoordinateRefno,"
                 + "tLocationMapSlot.SectionLocationMapRefno "
@@ -359,7 +206,7 @@
                 + "WHERE tLocationMapSlotCoordinate.LocationMapSlotCoordinateEnum = ?"
                 + " ORDER BY tLocationMapSlotCoordinate.LocationMapSlotCoordinateCode";
 
-            return await DatabaseConnection.GetInstance().SQLConn.QueryAsync<Slot>(sql, Convert.ToInt32(coord));
+            return await DatabaseConnection.GetInstance().SQLConn.QueryAsync<Slot>(sql, Convert.ToInt32(SysCommon.LocMapSlotCoordTypes.Coord3));
         }
 
         /// <summary>
@@ -421,7 +268,6 @@
 
             if (results != null && results.Count > 0)
             {
-                //slotLocMapRefno = Convert.ToInt32(drLocMap["LocationMapRefno"]);
                 slotLocMapRefno = Convert.ToInt32(results[0].LocationMapRefno);
             }
 

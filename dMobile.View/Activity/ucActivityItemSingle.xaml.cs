@@ -19,6 +19,7 @@ using dMobile.Resources.Enums;
 using Android.Views;
 using System.Runtime.CompilerServices;
 using System.Collections.ObjectModel;
+using dMobile.Resources.Types;
 
 namespace dMobile.View.Activity
 {
@@ -946,19 +947,19 @@ namespace dMobile.View.Activity
             {
                 if (await this.IsReadyToSave())
                 {
-                    if (this.ActItem.CurrRowIdx == this.ActItem.DataViewItems.Count - 1)
+                    if (this.ActItem.SelectedActivityItem == this.ActItem.ListItems.Last())
                     {
                         await this.FullQuantityShippingLabels();
                     }
 
-                    if (this.ActItem.CurrRowIdx >= 0 && this.ActItem.CurrRowIdx < this.ActItem.DataViewItems.Count)
+                    if (this.ActItem.SelectedActivityItem != null)
                     {
                         // update the header record as reviewed if all items were reviewed
                         bool isReviewed = true;
 
-                        for (int i = 0; i <= this.ActItem.DataViewItems.Count - 1; i++)
+                        foreach(PickingItem pickingItem in this.ActItem.ListItems)
                         {
-                            isReviewed = isReviewed && Convert.ToBoolean(this.ActItem.DataViewItems[i]["ActivityItemPickingIsReviewed"]);
+                            isReviewed = isReviewed && Convert.ToBoolean(pickingItem.ActivityItemPickingIsReviewed);
                         }
 
                         this.ActHdr.DataViewHdrs[this.ActHdr.SelectedIndex].BeginEdit();
@@ -1136,7 +1137,7 @@ namespace dMobile.View.Activity
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public XDocument GetXML()
+        public async Task<XDocument> GetXML()
         {
             XDocument xmldocParams = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"

@@ -1,7 +1,7 @@
 ﻿using dMobile.View.CustomPages.Modal;
 using System;
 using System.Collections.Generic;
-using System.Data.SQLite;
+using SQLite;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -1369,16 +1369,6 @@ namespace dMobile.View.Options
             return true;
         }
 
-        ///// <summary>
-        /////
-        ///// </summary>
-        ///// <returns></returns>
-        ///// <remarks></remarks>
-        //public UserControl GetCallingControl()
-        //{
-        //    return new ucRefreshDataOptions();
-        //}
-
         /// <summary>
         ///
         /// </summary>
@@ -1421,7 +1411,7 @@ namespace dMobile.View.Options
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public XDocument GetXML()
+        public async Task<XDocument> GetXML()
         {
             XDocument xmldocParams = System.Xml.Linq.XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
@@ -1460,7 +1450,7 @@ namespace dMobile.View.Options
             ISysSettingsEventPublisher sysSettingsEventPublisher,
             SysSettingsEventArgs sysSettingsEventArgs)
         {
-            this.StatusOut(this, null, sysSettingsEventArgs.StatusOutMsg);
+            this.StatusOut(sysSettingsEventArgs.StatusOutMsg);
         }
 
               /// <summary>
@@ -1491,7 +1481,7 @@ namespace dMobile.View.Options
             IBarCodeSettingsEventPublisher barCodeSettingsEventPublisher,
             BarCodeSettingsEventArgs barCodeSettingsEventArgs)
         {
-            this.StatusOut(this, null, barCodeSettingsEventArgs.StatusOutMsg);
+            this.StatusOut(barCodeSettingsEventArgs.StatusOutMsg);
         }
 
           /// <summary>
@@ -1522,7 +1512,7 @@ namespace dMobile.View.Options
             IPrnSettingsPublisher printerSettingsEventPublisher,
             PrnSettingsArgs printerSettingsEventArgs)
         {
-            this.StatusOut(this, null, printerSettingsEventArgs.StatusOutMsg);
+            this.StatusOut(printerSettingsEventArgs.StatusOutMsg);
         }
 
           /// <summary>
@@ -1534,7 +1524,7 @@ namespace dMobile.View.Options
           IProdSchemeLabelSettingsPublisher prodSchemeLabelSettingsPublisher,
           ProdSchemeLabelSettingsEventArgs prodSchemeLabelSettingsArgs)
         {
-            this.StatusOut(this, null, prodSchemeLabelSettingsArgs.StatusOutMsg);
+            this.StatusOut(prodSchemeLabelSettingsArgs.StatusOutMsg);
         }
 
         /// <summary>
@@ -1651,7 +1641,7 @@ namespace dMobile.View.Options
         /// <param name="databaseNubEventArgs"></param>
         public void OnNubStatOut(IDataNubPublisher databaseNubEventPublisher, DataNubEventArgs databaseNubEventArgs)
         {
-            this.StatusOut(this, null, databaseNubEventArgs.StatusOutMsg);
+            this.StatusOut(databaseNubEventArgs.StatusOutMsg);
         }
 
             /// <summary>
@@ -1663,7 +1653,7 @@ namespace dMobile.View.Options
             IDataAccessEventPublisher dataAccessEventPublisher,
             DataAccessEventArgs dataAccessEventArgs)
         {
-            this.StatusOut(this, null, dataAccessEventArgs.StatusOutMsg);
+            this.StatusOut(dataAccessEventArgs.StatusOutMsg);
         }
 
         /// <summary>
@@ -1730,7 +1720,7 @@ namespace dMobile.View.Options
                     }
                     catch (Exception ex)
                     {
-                        this.StatusOut(sender, e, Resource.DataStatusFailed);
+                        this.StatusOut(Resource.DataStatusFailed);
 
                         FormErrorReport errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex, this.FullClassName, "tmrRefreshData_Tick");
                         //Device.BeginInvokeOnMainThread(async () => await errRpt.ShowDialog());
@@ -1746,7 +1736,7 @@ namespace dMobile.View.Options
                         this.SysEnv.RefreshOpt = this.SysEnv.RefreshOpt.LoadData();
 
                         // if there is no data or we are purging reset the last refresh date
-                        if (!dMobile.GroundWork.Common.IsDataBaseDataExist())
+                        if (!await Common.IsDataBaseDataExist())
                         {
                             this.SysEnv.RefreshOpt.RefreshedDataLast = new DateTime(1900, 1, 1);
                             RefreshDataOptions tempRefreshOpt1 = this.SysEnv.RefreshOpt;
@@ -1758,7 +1748,7 @@ namespace dMobile.View.Options
 
                         if (this.SysEnv.RefreshOpt.SystemData && !this.SysEnv.RefreshOpt.RefreshDataChangesOnly && this.ActSubType != SysCommon.ActSubTypes.PurgeActivityData)
                         {
-                            this.CreateDatabase(sender, e);
+                            await this.CreateDatabase();
                             this.SysEnv.RefreshOpt.IsDataCreatedInStartUp = false;
                             this.SysEnv.RefreshOpt.RefreshedDataLast = new DateTime(1900, 1, 1);
                             RefreshDataOptions tempRefreshOpt2 = this.SysEnv.RefreshOpt;
@@ -1767,25 +1757,25 @@ namespace dMobile.View.Options
                             // Assign the last refresh date to DateSerial(1900, 1, 1) because after the database is recreated
                             // we want everything
                             refreshLast = this.SysEnv.RefreshOpt.RefreshedDataLast;
-                            this.RefreshSystemData();
+                            await this.RefreshSystemData();
                         }
                         else if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly && this.ActSubType != SysCommon.ActSubTypes.PurgeActivityData)
                         {
                             DatabaseConnection.OpenDataBaseConnection();
-                            this.RefreshSystemData();
+                            await this.RefreshSystemData();
                         }
 
                         await this.RefreshData();
 
                         if (this.ActSubType == SysCommon.ActSubTypes.PurgeActivityData)
                         {
-                            this.StatusOut(sender, e, Resource.PurgeDataCompleted);
+                            this.StatusOut(Resource.PurgeDataCompleted);
                         }
                         else
                         {
-                            this.StatusOut(sender, e, Resource.RefreshDataCompleted);
+                            this.StatusOut(Resource.RefreshDataCompleted);
                             TimeSpan span = DateTime.Now - this.RefreshTotal;
-                            this.StatusOut(sender, e, string.Format(Resource.RefreshMinutes0, span.TotalMinutes));
+                            this.StatusOut(string.Format(Resource.RefreshMinutes0, span.TotalMinutes));
                         }
 
                         this.IsRefreshComplete = true;
@@ -1797,7 +1787,7 @@ namespace dMobile.View.Options
                         this.SysEnv.RefreshOpt.RefreshedDataLast = refreshLast;
                         this.SysEnv.RefreshOpt.IsRefreshDataFailed = true;
 
-                        this.StatusOut(sender, e, Resource.RefreshDataFailed);
+                        this.StatusOut(Resource.RefreshDataFailed);
 
                         FormErrorReport errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex, this.FullClassName, "tmrRefreshData_Tick");
                         await Device.InvokeOnMainThreadAsync(async () => await errRpt.ShowDialog());
@@ -1807,7 +1797,7 @@ namespace dMobile.View.Options
                         this.SysEnv.RefreshOpt.RefreshedDataLast = refreshLast;
                         this.SysEnv.RefreshOpt.IsRefreshDataFailed = true;
 
-                        this.StatusOut(sender, e, Resource.RefreshDataFailed);
+                        this.StatusOut(Resource.RefreshDataFailed);
 
                         FormErrorReport errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex, this.FullClassName, "tmrRefreshData_Tick");
                         await Device.InvokeOnMainThreadAsync(async () => await errRpt.ShowDialog());
@@ -1829,7 +1819,7 @@ namespace dMobile.View.Options
         ///
         /// </summary>
         /// <remarks></remarks>
-        private void CreateDatabase(object sender, EventArgs e)
+        private async Task CreateDatabase()
         {
             DatabaseNub db = new DatabaseNub();
 
@@ -1839,11 +1829,11 @@ namespace dMobile.View.Options
 
                 db.RegNubListenerStatOut(this);
 
-                this.StatusOut(sender, e, Resource.LocatingDatabase);
+                this.StatusOut(Resource.LocatingDatabase);
 
                 if (File.Exists(DatabaseConnection.GetInstance().DBASCIIZ))
                 {
-                    this.StatusOut(sender, e, Resource.Found + DatabaseConnection.GetInstance().DBASCIIZ);
+                    this.StatusOut(Resource.Found + DatabaseConnection.GetInstance().DBASCIIZ);
 
                     if (this.SysEnv.RefreshOpt.IsDataCreatedInStartUp)
                     {
@@ -1852,23 +1842,23 @@ namespace dMobile.View.Options
                 }
                 else
                 {
-                    this.StatusOut(sender, e, Resource.DatabaseMissing);
+                    this.StatusOut(Resource.DatabaseMissing);
                 }
 
                 if (isCreateDatabase)
                 {
-                    this.StatusOut(sender, e, Resource.DatabaseMissing);
+                    this.StatusOut(Resource.DatabaseMissing);
 
-                    db.CreateNewDatabase();
-                    db.CreateTables();
+                    await db.CreateNewDatabase();
+                    await db.CreateTables();
 
-                    this.StatusOut(sender, e, Resource.SeedingSystemUsers);
+                    this.StatusOut(Resource.SeedingSystemUsers);
 
                     TableContactUsers users = new TableContactUsers();
-                    users.SeedContactUsersWithSystemUsers();
+                    await users.SeedContactUsersWithSystemUsers();
 
-                    this.StatusOut(sender, e, Resource.DatabaseCreationCompleted);
-                    this.StatusOut(sender, e, string.Empty);
+                    this.StatusOut(Resource.DatabaseCreationCompleted);
+                    this.StatusOut(string.Empty);
                 }
             }
             catch (Exception ex)
@@ -1891,18 +1881,17 @@ namespace dMobile.View.Options
             await this.RefreshDataAdjustments();
             await this.RefreshDataCounts();
             await this.RefreshDataProduction();
-            this.RefreshDataReceiving();
-            this.RefreshDataPurchaseOrderWorkSheet();
-            this.RefreshDataReplenishment();
-            this.RefreshDataPicking();
-            this.RefreshDataTransfers();
+            await this.RefreshDataReceiving();
+            await this.RefreshDataPurchaseOrderWorkSheet();
+            await this.RefreshDataPicking();
+            await this.RefreshDataTransfers();
         }
 
         /// <summary>
         ///
         /// </summary>
         /// <remarks></remarks>
-        private void RefreshSystemData()
+        private async Task RefreshSystemData()
         {
             this.SysEnv.SysSettings.RegisterSysSettingsListenerStatusOut((ISysSettingsEventListener)this);
             this.SysEnv.SysSettings.RegisterSysSettingsListenerProgressOut((ISysSettingsEventListener)this);
@@ -1915,7 +1904,7 @@ namespace dMobile.View.Options
 
             this.SysEnv.SysSettings.UnregisterSysSettingsListenerStatusOut((ISysSettingsEventListener)this);
             this.SysEnv.SysSettings.UnregisterSysSettingsListenerProgressOut((ISysSettingsEventListener)this);
-            this.StatusOut(this, EventArgs.Empty, string.Empty);
+            this.StatusOut(string.Empty);
 
             this.SysEnv.BarCodeSettings.RegisterBarCodeSettingsListenerStatusOut((IBarCodeSettingsEventListener)this);
             this.SysEnv.BarCodeSettings.RegisterBarCodeSettingsListenerProgressOut((IBarCodeSettingsEventListener)this);
@@ -1924,7 +1913,7 @@ namespace dMobile.View.Options
             this.SysEnv.BarCodeSettings.SaveData(ref tempBarCodeSettings);
             this.SysEnv.BarCodeSettings.UnregisterBarCodeSettingsListenerStatusOut((IBarCodeSettingsEventListener)this);
             this.SysEnv.BarCodeSettings.UnregisterBarCodeSettingsListenerProgressOut((IBarCodeSettingsEventListener)this);
-            this.StatusOut(this, EventArgs.Empty, string.Empty);
+            this.StatusOut(string.Empty);
 
             this.PrinterSettings.RegPrnSettingsListenerStatusOut((IPrnSettingsListener)this);
             this.PrinterSettings.RegPrnSettingsListenerProgressOut((IPrnSettingsListener)this);
@@ -1934,38 +1923,38 @@ namespace dMobile.View.Options
             this.PrinterSettings = tempPrinterSettings;
             this.PrinterSettings.UnregPrnSettingsListenerStatusOut((IPrnSettingsListener)this);
             this.PrinterSettings.UnregPrnSettingsListenerProgressOut((IPrnSettingsListener)this);
-            this.StatusOut(this, EventArgs.Empty, string.Empty);
+            this.StatusOut(string.Empty);
 
             this.ContactUsers.RegisterDataAccessListenerProgressOut(this);
             this.ContactUsers.RegisterDataAccessListenerStatusOut(this);
-            this.ContactUsers.PurgeTContact();
-            this.ContactUsers.Purge();
-            this.ContactUsers.Request();
+            await this.ContactUsers.PurgeTContact();
+            await this.ContactUsers.Purge();
+            await this.ContactUsers.Request();
             this.ContactUsers.UnregisterDataAccessListenerStatusOut(this);
             this.ContactUsers.UnregisterDataAccessListenerProgressOut(this);
-            this.StatusOut(this, EventArgs.Empty, string.Empty);
+            this.StatusOut(string.Empty);
 
-            this.RefreshSystemDataLocationMap();
+            await this.RefreshSystemDataLocationMap();
 
             this.Route.RegisterDataAccessListenerProgressOut(this);
             this.Route.RegisterDataAccessListenerStatusOut(this);
-            this.Route.Request();
+            await this.Route.Request();
             this.Route.UnregisterDataAccessListenerStatusOut(this);
             this.Route.UnregisterDataAccessListenerProgressOut(this);
-            this.StatusOut(this, EventArgs.Empty, string.Empty);
+            this.StatusOut(string.Empty);
 
             this.Family.RegisterDataAccessListenerProgressOut(this);
             this.Family.RegisterDataAccessListenerStatusOut(this);
-            this.Family.Request();
+            await this.Family.Request();
             this.Family.UnregisterDataAccessListenerStatusOut(this);
             this.Family.UnregisterDataAccessListenerProgressOut(this);
-            this.StatusOut(this, EventArgs.Empty, string.Empty);
+            this.StatusOut(string.Empty);
 
-            this.RefreshSystemDataProducts();
+            await this.RefreshSystemDataProducts();
 
-            if (!Common.IsDataBaseDataExist())
+            if (!await Common.IsDataBaseDataExist())
             {
-                Device.BeginInvokeOnMainThread(async () => await DisplayAlert(this.GetControlDescription(), Resource.SomeExpectedDataWasNotRefreshedRecommendRefreshingDataAgain, Resource.OK));
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), Resource.SomeExpectedDataWasNotRefreshedRecommendRefreshingDataAgain, Resource.OK));
             }
         }
 
@@ -1977,48 +1966,48 @@ namespace dMobile.View.Options
         {
             this.SysEnv.RefreshOpt = this.SysEnv.RefreshOpt.LoadData();
 
-            ItemsList.Add(Resource.LastRefresh + " " + this.SysEnv.RefreshOpt.RefreshedDataLast.ToString());
-            ItemsList.Add(Resource.RefreshChangesOnly + " " + this.SysEnv.RefreshOpt.IsRefreshedLastDataChangesOnly.ToString());
+            Device.BeginInvokeOnMainThread(() =>
+            {
+                ItemsList.Add(Resource.LastRefresh + " " + this.SysEnv.RefreshOpt.RefreshedDataLast.ToString());
+                ItemsList.Add(Resource.RefreshChangesOnly + " " + this.SysEnv.RefreshOpt.IsRefreshedLastDataChangesOnly.ToString());
+            });
 
             this.ContactUsers.RegisterDataAccessListenerProgressOut(this);
             this.ContactUsers.RegisterDataAccessListenerStatusOut(this);
-            this.ContactUsers.DataStatus();
+            await this.ContactUsers.DataStatus();
             this.ContactUsers.UnregisterDataAccessListenerStatusOut(this);
             this.ContactUsers.UnregisterDataAccessListenerProgressOut(this);
 
-            this.DataStatusLocationMap();
-            this.DataStatusProducts();
+            await this.DataStatusLocationMap();
+            await this.DataStatusProducts();
 
             this.Route.RegisterDataAccessListenerProgressOut(this);
             this.Route.RegisterDataAccessListenerStatusOut(this);
-            this.Route.DataStatus();
+            await this.Route.DataStatus();
             this.Route.UnregisterDataAccessListenerStatusOut(this);
             this.Route.UnregisterDataAccessListenerProgressOut(this);
 
             this.Family.RegisterDataAccessListenerProgressOut(this);
             this.Family.RegisterDataAccessListenerStatusOut(this);
-            this.Family.DataStatus();
+            await this.Family.DataStatus();
             this.Family.UnregisterDataAccessListenerStatusOut(this);
             this.Family.UnregisterDataAccessListenerProgressOut(this);
 
             if (this.SysEnv.SysSettings.IsDisconnectedMode)
             {
-                this.DataStatusReceiving();
-                this.DataStatusPicking();
-                this.DataStatusReturns();
-                this.DataStatusTransfers();
+                await this.DataStatusReceiving();
+                await this.DataStatusPicking();
+                await this.DataStatusReturns();
+                await this.DataStatusTransfers();
                 await this.DataStatusCounts();
-                this.DataStatusTickets();
+                await this.DataStatusTickets();
 
                 this.PurchaseOrderWorkSheetItem.RegisterDataAccessListenerProgressOut(this);
                 this.PurchaseOrderWorkSheetItem.RegisterDataAccessListenerStatusOut(this);
-                this.PurchaseOrderWorkSheetItem.DataStatus();
+                await this.PurchaseOrderWorkSheetItem.DataStatus();
                 this.PurchaseOrderWorkSheetItem.UnregisterDataAccessListenerStatusOut(this);
                 this.PurchaseOrderWorkSheetItem.UnregisterDataAccessListenerProgressOut(this);
             }
-
-            /*this.lstStatus.SelectedIndex = 0;*/ // goto to the top of the list
-            //this.lstStatus.ScrollTo(((IList)this.lstStatus.ItemsSource)[0], ScrollToPosition.Start, false);
         }
 
         /// <summary>
@@ -2027,7 +2016,7 @@ namespace dMobile.View.Options
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <param name="message"></param>
-        private void StatusOut(object sender, EventArgs e, string message)
+        private void StatusOut(string message)
         {
             Device.BeginInvokeOnMainThread(() =>
             {
@@ -2054,188 +2043,188 @@ namespace dMobile.View.Options
         /// <summary>
         /// 
         /// </summary>
-        private void RefreshSystemDataLocationMap()
+        private async Task RefreshSystemDataLocationMap()
         {
             this.LocMapWarehouse.RegisterDataAccessListenerProgressOut(this);
             this.LocMapWarehouse.RegisterDataAccessListenerStatusOut(this);
-            this.LocMapWarehouse.Request();
+            await this.LocMapWarehouse.Request();
             this.LocMapWarehouse.UnregisterDataAccessListenerStatusOut(this);
             this.LocMapWarehouse.UnregisterDataAccessListenerProgressOut(this);
-            this.StatusOut(this, EventArgs.Empty, string.Empty);
+            this.StatusOut(string.Empty);
 
             this.LocMapSection.RegisterDataAccessListenerProgressOut(this);
             this.LocMapSection.RegisterDataAccessListenerStatusOut(this);
-            this.LocMapSection.Request(0);
+            await this.LocMapSection.Request(0);
             this.LocMapSection.UnregisterDataAccessListenerStatusOut(this);
             this.LocMapSection.UnregisterDataAccessListenerProgressOut(this);
-            this.StatusOut(this, EventArgs.Empty, string.Empty);
+            this.StatusOut(string.Empty);
 
             this.LocMapSlotCoordinate.RegisterDataAccessListenerProgressOut(this);
             this.LocMapSlotCoordinate.RegisterDataAccessListenerStatusOut(this);
-            this.LocMapSlotCoordinate.Request();
+            await this.LocMapSlotCoordinate.Request();
             this.LocMapSlotCoordinate.UnregisterDataAccessListenerStatusOut(this);
             this.LocMapSlotCoordinate.UnregisterDataAccessListenerProgressOut(this);
-            this.StatusOut(this, EventArgs.Empty, string.Empty);
+            this.StatusOut(string.Empty);
 
             this.LocMapSlot.RegisterDataAccessListenerProgressOut(this);
             this.LocMapSlot.RegisterDataAccessListenerStatusOut(this);
-            this.LocMapSlot.Request(0);
+            await this.LocMapSlot.Request(0);
             this.LocMapSlot.UnregisterDataAccessListenerStatusOut(this);
             this.LocMapSlot.UnregisterDataAccessListenerProgressOut(this);
-            this.StatusOut(this, EventArgs.Empty, string.Empty);
+            this.StatusOut(string.Empty);
 
             this.LocMapType.RegisterDataAccessListenerProgressOut(this);
             this.LocMapType.RegisterDataAccessListenerStatusOut(this);
-            this.LocMapType.Request();
+            await this.LocMapType.Request();
             this.LocMapType.UnregisterDataAccessListenerStatusOut(this);
             this.LocMapType.UnregisterDataAccessListenerProgressOut(this);
-            this.StatusOut(this, EventArgs.Empty, string.Empty);
+            this.StatusOut(string.Empty);
 
             this.WhsLocMapType.RegisterDataAccessListenerProgressOut(this);
             this.WhsLocMapType.RegisterDataAccessListenerStatusOut(this);
-            this.WhsLocMapType.Request();
+            await this.WhsLocMapType.Request();
             this.WhsLocMapType.UnregisterDataAccessListenerStatusOut(this);
             this.WhsLocMapType.UnregisterDataAccessListenerProgressOut(this);
-            this.StatusOut(this, EventArgs.Empty, string.Empty);
+            this.StatusOut(string.Empty);
         }
 
         /// <summary>
         /// 
         /// </summary>
-        private void RefreshSystemDataProducts()
+        private async Task RefreshSystemDataProducts()
         {
             this.Unit.RegisterDataAccessListenerProgressOut(this);
             this.Unit.RegisterDataAccessListenerStatusOut(this);
-            this.Unit.Request();
+            await this.Unit.Request();
             this.Unit.UnregisterDataAccessListenerStatusOut(this);
             this.Unit.UnregisterDataAccessListenerProgressOut(this);
-            this.StatusOut(this, EventArgs.Empty, string.Empty);
+            this.StatusOut(string.Empty);
 
             this.ProdScheme.RegisterDataAccessListenerProgressOut(this);
             this.ProdScheme.RegisterDataAccessListenerStatusOut(this);
-            this.ProdScheme.Request();
+            await this.ProdScheme.Request();
             this.ProdScheme.UnregisterDataAccessListenerStatusOut(this);
             this.ProdScheme.UnregisterDataAccessListenerProgressOut(this);
-            this.StatusOut(this, EventArgs.Empty, string.Empty);
+            this.StatusOut(string.Empty);
 
             this.ProdSchemeVariant.RegisterDataAccessListenerProgressOut(this);
             this.ProdSchemeVariant.RegisterDataAccessListenerStatusOut(this);
-            this.ProdSchemeVariant.Request();
+            await this.ProdSchemeVariant.Request();
             this.ProdSchemeVariant.UnregisterDataAccessListenerStatusOut(this);
             this.ProdSchemeVariant.UnregisterDataAccessListenerProgressOut(this);
-            this.StatusOut(this, EventArgs.Empty, string.Empty);
+            this.StatusOut(string.Empty);
 
             this.ProdSchemeVariantXRef.RegisterDataAccessListenerProgressOut(this);
             this.ProdSchemeVariantXRef.RegisterDataAccessListenerStatusOut(this);
-            this.ProdSchemeVariantXRef.Request();
+            await this.ProdSchemeVariantXRef.Request();
             this.ProdSchemeVariantXRef.UnregisterDataAccessListenerStatusOut(this);
             this.ProdSchemeVariantXRef.UnregisterDataAccessListenerProgressOut(this);
-            this.StatusOut(this, EventArgs.Empty, string.Empty);
+            this.StatusOut(string.Empty);
 
             // This xml settings file need to be called hear not called from the refresh system data method,
             // because scheme codes must exist in there table. This routine seeks the scheme code.
             this.SchemeLabelSettings.RegProdSchemeLabelSettingsListenerStatusOut((IProdSchemeLabelSettingsListener)this);
             this.SchemeLabelSettings.RegProdSchemeLabelSettingsListenerProgressOut((IProdSchemeLabelSettingsListener)this);
-            this.SchemeLabelSettings.RequestProductSchemeLabelSettings();
+            await this.SchemeLabelSettings.RequestProductSchemeLabelSettings();
             ProdSchemeLabelSettings tempSchemeLblSettings = this.SchemeLabelSettings;
             this.SchemeLabelSettings.SaveData(ref tempSchemeLblSettings);
             this.SchemeLabelSettings = tempSchemeLblSettings;
             this.SchemeLabelSettings.UnregProdSchemeLabelSettingsListenerStatusOut((IProdSchemeLabelSettingsListener)this);
             this.SchemeLabelSettings.UnregProdSchemeLabelSettingsListenerProgressOut((IProdSchemeLabelSettingsListener)this);
-            this.StatusOut(this, EventArgs.Empty, string.Empty);
+            this.StatusOut(string.Empty);
 
             if (this.SysEnv.SysSettings.IsEnableDefaultDetailValues || this.ActSubType == SysCommon.ActSubTypes.PurgeActivityData)
             {
                 this.ProdSchemeLot.RegisterDataAccessListenerProgressOut(this);
                 this.ProdSchemeLot.RegisterDataAccessListenerStatusOut(this);
-                this.ProdSchemeLot.Request();
+                await this.ProdSchemeLot.Request();
                 this.ProdSchemeLot.UnregisterDataAccessListenerStatusOut(this);
                 this.ProdSchemeLot.UnregisterDataAccessListenerProgressOut(this);
-                this.StatusOut(this, EventArgs.Empty, string.Empty);
+                this.StatusOut(string.Empty);
 
                 this.ProdSchemeLotXRef.RegisterDataAccessListenerProgressOut(this);
                 this.ProdSchemeLotXRef.RegisterDataAccessListenerStatusOut(this);
-                this.ProdSchemeLotXRef.Request();
+                await this.ProdSchemeLotXRef.Request();
                 this.ProdSchemeLotXRef.UnregisterDataAccessListenerStatusOut(this);
                 this.ProdSchemeLotXRef.UnregisterDataAccessListenerProgressOut(this);
-                this.StatusOut(this, EventArgs.Empty, string.Empty);
+                this.StatusOut(string.Empty);
             }
 
             this.Product.RegisterDataAccessListenerProgressOut(this);
             this.Product.RegisterDataAccessListenerStatusOut(this);
-            this.Product.Request();
+            await this.Product.Request();
             this.Product.UnregisterDataAccessListenerStatusOut(this);
             this.Product.UnregisterDataAccessListenerProgressOut(this);
-            this.StatusOut(this, EventArgs.Empty, string.Empty);
+            this.StatusOut(string.Empty);
 
             this.ProdUnit.RegisterDataAccessListenerProgressOut(this);
             this.ProdUnit.RegisterDataAccessListenerStatusOut(this);
-            this.ProdUnit.Request();
+            await this.ProdUnit.Request();
             this.ProdUnit.UnregisterDataAccessListenerStatusOut(this);
             this.ProdUnit.UnregisterDataAccessListenerProgressOut(this);
-            this.StatusOut(this, EventArgs.Empty, string.Empty);
+            this.StatusOut(string.Empty);
 
             this.ProdUnitRelation.RegisterDataAccessListenerProgressOut(this);
             this.ProdUnitRelation.RegisterDataAccessListenerStatusOut(this);
-            this.ProdUnitRelation.Request();
+            await this.ProdUnitRelation.Request();
             this.ProdUnitRelation.UnregisterDataAccessListenerStatusOut(this);
             this.ProdUnitRelation.UnregisterDataAccessListenerProgressOut(this);
-            this.StatusOut(this, EventArgs.Empty, string.Empty);
+            this.StatusOut(string.Empty);
 
             this.ProdUnitBarCode.RegisterDataAccessListenerProgressOut(this);
             this.ProdUnitBarCode.RegisterDataAccessListenerStatusOut(this);
-            this.ProdUnitBarCode.Request();
+            await this.ProdUnitBarCode.Request();
             this.ProdUnitBarCode.UnregisterDataAccessListenerStatusOut(this);
             this.ProdUnitBarCode.UnregisterDataAccessListenerProgressOut(this);
-            this.StatusOut(this, EventArgs.Empty, string.Empty);
+            this.StatusOut(string.Empty);
 
             this.ProdLocMapWhsProdScheme.RegisterDataAccessListenerProgressOut(this);
             this.ProdLocMapWhsProdScheme.RegisterDataAccessListenerStatusOut(this);
-            this.ProdLocMapWhsProdScheme.Request();
+            await this.ProdLocMapWhsProdScheme.Request();
             this.ProdLocMapWhsProdScheme.UnregisterDataAccessListenerStatusOut(this);
             this.ProdLocMapWhsProdScheme.UnregisterDataAccessListenerProgressOut(this);
-            this.StatusOut(this, EventArgs.Empty, string.Empty);
+            this.StatusOut(string.Empty);
 
             this.ProdLocMapType.RegisterDataAccessListenerProgressOut(this);
             this.ProdLocMapType.RegisterDataAccessListenerStatusOut(this);
-            this.ProdLocMapType.Request();
+            await this.ProdLocMapType.Request();
             this.ProdLocMapType.UnregisterDataAccessListenerStatusOut(this);
             this.ProdLocMapType.UnregisterDataAccessListenerProgressOut(this);
-            this.StatusOut(this, EventArgs.Empty, string.Empty);
+            this.StatusOut(string.Empty);
         }
 
         /// <summary>
         /// 
         /// </summary>
-        private void DataStatusLocationMap()
+        private async Task DataStatusLocationMap()
         {
             this.LocMapWarehouse.RegisterDataAccessListenerProgressOut(this);
             this.LocMapWarehouse.RegisterDataAccessListenerStatusOut(this);
-            this.LocMapWarehouse.DataStatus();
+            await this.LocMapWarehouse.DataStatus();
             this.LocMapWarehouse.UnregisterDataAccessListenerStatusOut(this);
             this.LocMapWarehouse.UnregisterDataAccessListenerProgressOut(this);
 
             this.LocMapSection.RegisterDataAccessListenerProgressOut(this);
             this.LocMapSection.RegisterDataAccessListenerStatusOut(this);
-            this.LocMapSection.DataStatus();
+            await this.LocMapSection.DataStatus();
             this.LocMapSection.UnregisterDataAccessListenerStatusOut(this);
             this.LocMapSection.UnregisterDataAccessListenerProgressOut(this);
 
             this.LocMapSlotCoordinate.RegisterDataAccessListenerProgressOut(this);
             this.LocMapSlotCoordinate.RegisterDataAccessListenerStatusOut(this);
-            this.LocMapSlotCoordinate.DataStatus();
+            await this.LocMapSlotCoordinate.DataStatus();
             this.LocMapSlotCoordinate.UnregisterDataAccessListenerStatusOut(this);
             this.LocMapSlotCoordinate.UnregisterDataAccessListenerProgressOut(this);
 
             this.LocMapSlot.RegisterDataAccessListenerProgressOut(this);
             this.LocMapSlot.RegisterDataAccessListenerStatusOut(this);
-            this.LocMapSlot.DataStatus();
+            await this.LocMapSlot.DataStatus();
             this.LocMapSlot.UnregisterDataAccessListenerStatusOut(this);
             this.LocMapSlot.UnregisterDataAccessListenerProgressOut(this);
 
             this.WhsLocMapType.RegisterDataAccessListenerProgressOut(this);
             this.WhsLocMapType.RegisterDataAccessListenerStatusOut(this);
-            this.WhsLocMapType.DataStatus();
+            await this.WhsLocMapType.DataStatus();
             this.WhsLocMapType.UnregisterDataAccessListenerStatusOut(this);
             this.WhsLocMapType.UnregisterDataAccessListenerProgressOut(this);
         }
@@ -2243,65 +2232,65 @@ namespace dMobile.View.Options
         /// <summary>
         /// 
         /// </summary>
-        private void DataStatusProducts()
+        private async Task DataStatusProducts()
         {
             this.Unit.RegisterDataAccessListenerProgressOut(this);
             this.Unit.RegisterDataAccessListenerStatusOut(this);
-            this.Unit.DataStatus();
+            await this.Unit.DataStatus();
             this.Unit.UnregisterDataAccessListenerStatusOut(this);
             this.Unit.UnregisterDataAccessListenerProgressOut(this);
 
             this.Product.RegisterDataAccessListenerProgressOut(this);
             this.Product.RegisterDataAccessListenerStatusOut(this);
-            this.Product.DataStatus();
+            await this.Product.DataStatus();
             this.Product.UnregisterDataAccessListenerStatusOut(this);
             this.Product.UnregisterDataAccessListenerProgressOut(this);
 
             this.ProdUnit.RegisterDataAccessListenerProgressOut(this);
             this.ProdUnit.RegisterDataAccessListenerStatusOut(this);
-            this.ProdUnit.DataStatus();
+            await this.ProdUnit.DataStatus();
             this.ProdUnit.UnregisterDataAccessListenerStatusOut(this);
             this.ProdUnit.UnregisterDataAccessListenerProgressOut(this);
 
             this.ProdUnitBarCode.RegisterDataAccessListenerProgressOut(this);
             this.ProdUnitBarCode.RegisterDataAccessListenerStatusOut(this);
-            this.ProdUnitBarCode.DataStatus();
+            await this.ProdUnitBarCode.DataStatus();
             this.ProdUnitBarCode.UnregisterDataAccessListenerStatusOut(this);
             this.ProdUnitBarCode.UnregisterDataAccessListenerProgressOut(this);
 
             this.ProdScheme.RegisterDataAccessListenerProgressOut(this);
             this.ProdScheme.RegisterDataAccessListenerStatusOut(this);
-            this.ProdScheme.DataStatus();
+            await this.ProdScheme.DataStatus();
             this.ProdScheme.UnregisterDataAccessListenerStatusOut(this);
             this.ProdScheme.UnregisterDataAccessListenerProgressOut(this);
 
             this.ProdLocMapType.RegisterDataAccessListenerProgressOut(this);
             this.ProdLocMapType.RegisterDataAccessListenerStatusOut(this);
-            this.ProdLocMapType.DataStatus();
+            await this.ProdLocMapType.DataStatus();
             this.ProdLocMapType.UnregisterDataAccessListenerStatusOut(this);
             this.ProdLocMapType.UnregisterDataAccessListenerProgressOut(this);
 
             this.ProdSchemeVariant.RegisterDataAccessListenerProgressOut(this);
             this.ProdSchemeVariant.RegisterDataAccessListenerStatusOut(this);
-            this.ProdSchemeVariant.DataStatus();
+            await this.ProdSchemeVariant.DataStatus();
             this.ProdSchemeVariant.UnregisterDataAccessListenerStatusOut(this);
             this.ProdSchemeVariant.UnregisterDataAccessListenerProgressOut(this);
 
             this.ProdSchemeLot.RegisterDataAccessListenerProgressOut(this);
             this.ProdSchemeLot.RegisterDataAccessListenerStatusOut(this);
-            this.ProdSchemeLot.DataStatus();
+            await this.ProdSchemeLot.DataStatus();
             this.ProdSchemeLot.UnregisterDataAccessListenerStatusOut(this);
             this.ProdSchemeLot.UnregisterDataAccessListenerProgressOut(this);
 
             this.ProdLocMapWhsProdScheme.RegisterDataAccessListenerProgressOut(this);
             this.ProdLocMapWhsProdScheme.RegisterDataAccessListenerStatusOut(this);
-            this.ProdLocMapWhsProdScheme.DataStatus();
+            await this.ProdLocMapWhsProdScheme.DataStatus();
             this.ProdLocMapWhsProdScheme.UnregisterDataAccessListenerStatusOut(this);
             this.ProdLocMapWhsProdScheme.UnregisterDataAccessListenerProgressOut(this);
 
             this.ProdLocMapType.RegisterDataAccessListenerProgressOut(this);
             this.ProdLocMapType.RegisterDataAccessListenerStatusOut(this);
-            this.ProdLocMapType.DataStatus();
+            await this.ProdLocMapType.DataStatus();
             this.ProdLocMapType.UnregisterDataAccessListenerStatusOut(this);
             this.ProdLocMapType.UnregisterDataAccessListenerProgressOut(this);
         }
@@ -2309,23 +2298,23 @@ namespace dMobile.View.Options
         /// <summary>
         /// 
         /// </summary>
-        private void DataStatusReceiving()
+        private async Task DataStatusReceiving()
         {
             this.Receiving.RegisterDataAccessListenerProgressOut(this);
             this.Receiving.RegisterDataAccessListenerStatusOut(this);
-            this.Receiving.DataStatus();
+            await this.Receiving.DataStatus();
             this.Receiving.UnregisterDataAccessListenerStatusOut(this);
             this.Receiving.UnregisterDataAccessListenerProgressOut(this);
 
             this.ReceivingItem.RegisterDataAccessListenerProgressOut(this);
             this.ReceivingItem.RegisterDataAccessListenerStatusOut(this);
-            this.ReceivingItem.DataStatus();
+            await this.ReceivingItem.DataStatus();
             this.ReceivingItem.UnregisterDataAccessListenerStatusOut(this);
             this.ReceivingItem.UnregisterDataAccessListenerProgressOut(this);
 
             this.ReceivingDetail.RegisterDataAccessListenerProgressOut(this);
             this.ReceivingDetail.RegisterDataAccessListenerStatusOut(this);
-            this.ReceivingDetail.DataStatus();
+            await this.ReceivingDetail.DataStatus();
             this.ReceivingDetail.UnregisterDataAccessListenerStatusOut(this);
             this.ReceivingDetail.UnregisterDataAccessListenerProgressOut(this);
         }
@@ -2333,23 +2322,23 @@ namespace dMobile.View.Options
         /// <summary>
         /// 
         /// </summary>
-        private void DataStatusPicking()
+        private async Task DataStatusPicking()
         {
             this.Picking.RegisterDataAccessListenerProgressOut(this);
             this.Picking.RegisterDataAccessListenerStatusOut(this);
-            this.Picking.DataStatus();
+            await this.Picking.DataStatus();
             this.Picking.UnregisterDataAccessListenerStatusOut(this);
             this.Picking.UnregisterDataAccessListenerProgressOut(this);
 
             this.PickingItem.RegisterDataAccessListenerProgressOut(this);
             this.PickingItem.RegisterDataAccessListenerStatusOut(this);
-            this.PickingItem.DataStatus();
+            await this.PickingItem.DataStatus();
             this.PickingItem.UnregisterDataAccessListenerStatusOut(this);
             this.PickingItem.UnregisterDataAccessListenerProgressOut(this);
 
             this.PickingDetail.RegisterDataAccessListenerProgressOut(this);
             this.PickingDetail.RegisterDataAccessListenerStatusOut(this);
-            this.PickingDetail.DataStatus();
+            await this.PickingDetail.DataStatus();
             this.PickingDetail.UnregisterDataAccessListenerStatusOut(this);
             this.PickingDetail.UnregisterDataAccessListenerProgressOut(this);
         }
@@ -2357,23 +2346,23 @@ namespace dMobile.View.Options
         /// <summary>
         /// 
         /// </summary>
-        private void DataStatusReturns()
+        private async Task DataStatusReturns()
         {
             this.Returns.RegisterDataAccessListenerProgressOut(this);
             this.Returns.RegisterDataAccessListenerStatusOut(this);
-            this.Returns.DataStatus();
+            await this.Returns.DataStatus();
             this.Returns.UnregisterDataAccessListenerStatusOut(this);
             this.Returns.UnregisterDataAccessListenerProgressOut(this);
 
             this.ReturnsItem.RegisterDataAccessListenerProgressOut(this);
             this.ReturnsItem.RegisterDataAccessListenerStatusOut(this);
-            this.ReturnsItem.DataStatus();
+            await this.ReturnsItem.DataStatus();
             this.ReturnsItem.UnregisterDataAccessListenerStatusOut(this);
             this.ReturnsItem.UnregisterDataAccessListenerProgressOut(this);
 
             this.ReturnsDetail.RegisterDataAccessListenerProgressOut(this);
             this.ReturnsDetail.RegisterDataAccessListenerStatusOut(this);
-            this.ReturnsDetail.DataStatus();
+            await this.ReturnsDetail.DataStatus();
             this.ReturnsDetail.UnregisterDataAccessListenerStatusOut(this);
             this.ReturnsDetail.UnregisterDataAccessListenerProgressOut(this);
         }
@@ -2381,41 +2370,41 @@ namespace dMobile.View.Options
         /// <summary>
         /// 
         /// </summary>
-        private void DataStatusTransfers()
+        private async Task DataStatusTransfers()
         {
             this.TransferFrom.RegisterDataAccessListenerProgressOut(this);
             this.TransferFrom.RegisterDataAccessListenerStatusOut(this);
-            this.TransferFrom.DataStatus();
+            await this.TransferFrom.DataStatus();
             this.TransferFrom.UnregisterDataAccessListenerStatusOut(this);
             this.TransferFrom.UnregisterDataAccessListenerProgressOut(this);
 
             this.TransferFromItem.RegisterDataAccessListenerProgressOut(this);
             this.TransferFromItem.RegisterDataAccessListenerStatusOut(this);
-            this.TransferFromItem.DataStatus();
+            await this.TransferFromItem.DataStatus();
             this.TransferFromItem.UnregisterDataAccessListenerStatusOut(this);
             this.TransferFromItem.UnregisterDataAccessListenerProgressOut(this);
 
             this.TransferFromDetail.RegisterDataAccessListenerProgressOut(this);
             this.TransferFromDetail.RegisterDataAccessListenerStatusOut(this);
-            this.TransferFromDetail.DataStatus();
+            await this.TransferFromDetail.DataStatus();
             this.TransferFromDetail.UnregisterDataAccessListenerStatusOut(this);
             this.TransferFromDetail.UnregisterDataAccessListenerProgressOut(this);
 
             this.TransferTo.RegisterDataAccessListenerProgressOut(this);
             this.TransferTo.RegisterDataAccessListenerStatusOut(this);
-            this.TransferTo.DataStatus();
+            await this.TransferTo.DataStatus();
             this.TransferTo.UnregisterDataAccessListenerStatusOut(this);
             this.TransferTo.UnregisterDataAccessListenerProgressOut(this);
 
             this.TransferToItem.RegisterDataAccessListenerProgressOut(this);
             this.TransferToItem.RegisterDataAccessListenerStatusOut(this);
-            this.TransferToItem.DataStatus();
+            await this.TransferToItem.DataStatus();
             this.TransferToItem.UnregisterDataAccessListenerStatusOut(this);
             this.TransferToItem.UnregisterDataAccessListenerProgressOut(this);
 
             this.TransferToDetail.RegisterDataAccessListenerProgressOut(this);
             this.TransferToDetail.RegisterDataAccessListenerStatusOut(this);
-            this.TransferToDetail.DataStatus();
+            await this.TransferToDetail.DataStatus();
             this.TransferToDetail.UnregisterDataAccessListenerStatusOut(this);
             this.TransferToDetail.UnregisterDataAccessListenerProgressOut(this);
         }
@@ -2445,19 +2434,19 @@ namespace dMobile.View.Options
 
             this.PhysicalCount.RegisterDataAccessListenerProgressOut(this);
             this.PhysicalCount.RegisterDataAccessListenerStatusOut(this);
-            this.PhysicalCount.DataStatus();
+            await this.PhysicalCount.DataStatus();
             this.PhysicalCount.UnregisterDataAccessListenerStatusOut(this);
             this.PhysicalCount.UnregisterDataAccessListenerProgressOut(this);
 
             this.PhysicalCountItem.RegisterDataAccessListenerProgressOut(this);
             this.PhysicalCountItem.RegisterDataAccessListenerStatusOut(this);
-            this.PhysicalCountItem.DataStatus();
+            await this.PhysicalCountItem.DataStatus();
             this.PhysicalCountItem.UnregisterDataAccessListenerStatusOut(this);
             this.PhysicalCountItem.UnregisterDataAccessListenerProgressOut(this);
 
             this.PhysicalCountDetail.RegisterDataAccessListenerProgressOut(this);
             this.PhysicalCountDetail.RegisterDataAccessListenerStatusOut(this);
-            this.PhysicalCountDetail.DataStatus();
+            await this.PhysicalCountDetail.DataStatus();
             this.PhysicalCountDetail.UnregisterDataAccessListenerStatusOut(this);
             this.PhysicalCountDetail.UnregisterDataAccessListenerProgressOut(this);
         }
@@ -2465,47 +2454,47 @@ namespace dMobile.View.Options
         /// <summary>
         /// 
         /// </summary>
-        private void DataStatusTickets()
+        private async Task DataStatusTickets()
         {
             this.TicketFinished.RegisterDataAccessListenerProgressOut(this);
             this.TicketFinished.RegisterDataAccessListenerStatusOut(this);
-            this.TicketFinished.DataStatus();
+            await this.TicketFinished.DataStatus();
             this.TicketFinished.UnregisterDataAccessListenerStatusOut(this);
             this.TicketFinished.UnregisterDataAccessListenerProgressOut(this);
 
             this.TicketMaterial.RegisterDataAccessListenerProgressOut(this);
             this.TicketMaterial.RegisterDataAccessListenerStatusOut(this);
-            this.TicketMaterial.DataStatus();
+            await this.TicketMaterial.DataStatus();
             this.TicketMaterial.UnregisterDataAccessListenerStatusOut(this);
             this.TicketMaterial.UnregisterDataAccessListenerProgressOut(this);
 
             this.TicketByProduct.RegisterDataAccessListenerProgressOut(this);
             this.TicketByProduct.RegisterDataAccessListenerStatusOut(this);
-            this.TicketByProduct.DataStatus();
+            await this.TicketByProduct.DataStatus();
             this.TicketByProduct.UnregisterDataAccessListenerStatusOut(this);
             this.TicketByProduct.UnregisterDataAccessListenerProgressOut(this);
 
             this.TicketFinishedItem.RegisterDataAccessListenerProgressOut(this);
             this.TicketFinishedItem.RegisterDataAccessListenerStatusOut(this);
-            this.TicketFinishedItem.DataStatus();
+            await this.TicketFinishedItem.DataStatus();
             this.TicketFinishedItem.UnregisterDataAccessListenerStatusOut(this);
             this.TicketFinishedItem.UnregisterDataAccessListenerProgressOut(this);
 
             this.TicketMaterialItem.RegisterDataAccessListenerProgressOut(this);
             this.TicketMaterialItem.RegisterDataAccessListenerStatusOut(this);
-            this.TicketMaterialItem.DataStatus();
+            await this.TicketMaterialItem.DataStatus();
             this.TicketMaterialItem.UnregisterDataAccessListenerStatusOut(this);
             this.TicketMaterialItem.UnregisterDataAccessListenerProgressOut(this);
 
             this.TicketByProductItem.RegisterDataAccessListenerProgressOut(this);
             this.TicketByProductItem.RegisterDataAccessListenerStatusOut(this);
-            this.TicketByProductItem.DataStatus();
+            await this.TicketByProductItem.DataStatus();
             this.TicketByProductItem.UnregisterDataAccessListenerStatusOut(this);
             this.TicketByProductItem.UnregisterDataAccessListenerProgressOut(this);
 
             this.TicketDetailFinished.RegisterDataAccessListenerProgressOut(this);
             this.TicketDetailFinished.RegisterDataAccessListenerStatusOut(this);
-            this.TicketDetailFinished.DataStatus();
+            await this.TicketDetailFinished.DataStatus();
             this.TicketDetailFinished.UnregisterDataAccessListenerStatusOut(this);
             this.TicketDetailFinished.UnregisterDataAccessListenerProgressOut(this);
         }
@@ -2544,7 +2533,7 @@ namespace dMobile.View.Options
                 this.AdjustmentDetail.UnregisterDataAccessListenerStatusOut(this);
 
                 this.AdjustmentItem.RegisterDataAccessListenerStatusOut(this);
-                this.AdjustmentItem.Purge();
+                await this.AdjustmentItem.Purge();
                 this.AdjustmentItem.UnregisterDataAccessListenerStatusOut(this);
 
                 this.Adjustment.RegisterDataAccessListenerStatusOut(this);
@@ -2558,14 +2547,14 @@ namespace dMobile.View.Options
                     await this.Adjustment.Request();
                     this.Adjustment.UnregisterDataAccessListenerStatusOut(this);
                     this.Adjustment.UnregisterDataAccessListenerProgressOut(this);
-                    this.StatusOut(this, EventArgs.Empty, string.Empty);
+                    this.StatusOut(string.Empty);
 
                     this.AdjustmentItem.RegisterDataAccessListenerProgressOut(this);
                     this.AdjustmentItem.RegisterDataAccessListenerStatusOut(this);
                     await this.AdjustmentItem.Request(0);
                     this.AdjustmentItem.UnregisterDataAccessListenerStatusOut(this);
                     this.AdjustmentItem.UnregisterDataAccessListenerProgressOut(this);
-                    this.StatusOut(this, EventArgs.Empty, string.Empty);
+                    this.StatusOut(string.Empty);
 
                     if (this.SysEnv.SysSettings.IsDisconnectedModeLoadDetail)
                     {
@@ -2574,7 +2563,7 @@ namespace dMobile.View.Options
                         await this.AdjustmentDetail.Request(0);
                         this.AdjustmentDetail.UnregisterDataAccessListenerStatusOut(this);
                         this.AdjustmentDetail.UnregisterDataAccessListenerProgressOut(this);
-                        this.StatusOut(this, EventArgs.Empty, string.Empty);
+                        this.StatusOut(string.Empty);
                     }
                 }
             }
@@ -2588,41 +2577,41 @@ namespace dMobile.View.Options
             if (this.SysEnv.RefreshOpt.Counts || this.ActSubType == SysCommon.ActSubTypes.PurgeActivityData)
             {
                 this.PhysicalCountDetail.RegisterDataAccessListenerStatusOut(this);
-                this.PhysicalCountDetail.Purge();
+                await this.PhysicalCountDetail.Purge();
                 this.PhysicalCountDetail.UnregisterDataAccessListenerStatusOut(this);
 
                 this.PhysicalCountItem.RegisterDataAccessListenerStatusOut(this);
-                this.PhysicalCountItem.Purge();
+                await this.PhysicalCountItem.Purge();
                 this.PhysicalCountItem.UnregisterDataAccessListenerStatusOut(this);
 
                 this.PhysicalCount.RegisterDataAccessListenerStatusOut(this);
-                this.PhysicalCount.Purge();
+                await this.PhysicalCount.Purge();
                 this.PhysicalCount.UnregisterDataAccessListenerStatusOut(this);
 
                 if (this.ActSubType != SysCommon.ActSubTypes.PurgeActivityData)
                 {
                     this.PhysicalCount.RegisterDataAccessListenerProgressOut(this);
                     this.PhysicalCount.RegisterDataAccessListenerStatusOut(this);
-                    this.PhysicalCount.Request();
+                    await this.PhysicalCount.Request();
                     this.PhysicalCount.UnregisterDataAccessListenerStatusOut(this);
                     this.PhysicalCount.UnregisterDataAccessListenerProgressOut(this);
-                    this.StatusOut(this, EventArgs.Empty, string.Empty);
+                    this.StatusOut(string.Empty);
 
                     this.PhysicalCountItem.RegisterDataAccessListenerProgressOut(this);
                     this.PhysicalCountItem.RegisterDataAccessListenerStatusOut(this);
-                    this.PhysicalCountItem.Request(0);
+                    await this.PhysicalCountItem.Request(0);
                     this.PhysicalCountItem.UnregisterDataAccessListenerStatusOut(this);
                     this.PhysicalCountItem.UnregisterDataAccessListenerProgressOut(this);
-                    this.StatusOut(this, EventArgs.Empty, string.Empty);
+                    this.StatusOut(string.Empty);
 
                     if (this.SysEnv.SysSettings.IsDisconnectedModeLoadDetail)
                     {
                         this.PhysicalCountDetail.RegisterDataAccessListenerProgressOut(this);
                         this.PhysicalCountDetail.RegisterDataAccessListenerStatusOut(this);
-                        this.PhysicalCountDetail.Request(0);
+                        await this.PhysicalCountDetail.Request(0);
                         this.PhysicalCountDetail.UnregisterDataAccessListenerStatusOut(this);
                         this.PhysicalCountDetail.UnregisterDataAccessListenerProgressOut(this);
-                        this.StatusOut(this, EventArgs.Empty, string.Empty);
+                        this.StatusOut(string.Empty);
                     }
                 }
 
@@ -2645,14 +2634,14 @@ namespace dMobile.View.Options
                     await this.CycleCount.Request();
                     this.CycleCount.UnregisterDataAccessListenerStatusOut(this);
                     this.CycleCount.UnregisterDataAccessListenerProgressOut(this);
-                    this.StatusOut(this, EventArgs.Empty, string.Empty);
+                    this.StatusOut(string.Empty);
 
                     this.CycleCountItem.RegisterDataAccessListenerProgressOut(this);
                     this.CycleCountItem.RegisterDataAccessListenerStatusOut(this);
                     await this.CycleCountItem.Request(0);
                     this.CycleCountItem.UnregisterDataAccessListenerStatusOut(this);
                     this.CycleCountItem.UnregisterDataAccessListenerProgressOut(this);
-                    this.StatusOut(this, EventArgs.Empty, string.Empty);
+                    this.StatusOut(string.Empty);
 
                     if (this.SysEnv.SysSettings.IsDisconnectedModeLoadDetail)
                     {
@@ -2661,7 +2650,7 @@ namespace dMobile.View.Options
                         await this.CycleCountDetail.Request(0);
                         this.CycleCountDetail.UnregisterDataAccessListenerStatusOut(this);
                         this.CycleCountDetail.UnregisterDataAccessListenerProgressOut(this);
-                        this.StatusOut(this, EventArgs.Empty, string.Empty);
+                        this.StatusOut(string.Empty);
                     }
                 }
             }
@@ -2675,11 +2664,11 @@ namespace dMobile.View.Options
             if (this.SysEnv.RefreshOpt.ProductionTickets || this.ActSubType == SysCommon.ActSubTypes.PurgeActivityData)
             {
                 this.TicketDetailFinished.RegisterDataAccessListenerStatusOut(this);
-                this.TicketDetailFinished.Purge();
+                await this.TicketDetailFinished.Purge();
                 this.TicketDetailFinished.UnregisterDataAccessListenerStatusOut(this);
 
                 this.TicketDetailMaterial.RegisterDataAccessListenerStatusOut(this);
-                this.TicketDetailMaterial.Purge();
+                await this.TicketDetailMaterial.Purge();
                 this.TicketDetailMaterial.UnregisterDataAccessListenerStatusOut(this);
 
                 this.TicketDetailByProduct.RegisterDataAccessListenerStatusOut(this);
@@ -2687,95 +2676,95 @@ namespace dMobile.View.Options
                 this.TicketDetailByProduct.UnregisterDataAccessListenerStatusOut(this);
 
                 this.TicketFinishedItem.RegisterDataAccessListenerStatusOut(this);
-                this.TicketFinishedItem.Purge();
+                await this.TicketFinishedItem.Purge();
                 this.TicketFinishedItem.UnregisterDataAccessListenerStatusOut(this);
 
                 this.TicketMaterialItem.RegisterDataAccessListenerStatusOut(this);
-                this.TicketMaterialItem.Purge();
+                await this.TicketMaterialItem.Purge();
                 this.TicketMaterialItem.UnregisterDataAccessListenerStatusOut(this);
 
                 this.TicketByProductItem.RegisterDataAccessListenerStatusOut(this);
-                this.TicketByProductItem.Purge();
+                await this.TicketByProductItem.Purge();
                 this.TicketByProductItem.UnregisterDataAccessListenerStatusOut(this);
 
                 this.TicketFinished.RegisterDataAccessListenerStatusOut(this);
-                this.TicketFinished.Purge();
+                await this.TicketFinished.Purge();
                 this.TicketFinished.UnregisterDataAccessListenerStatusOut(this);
 
                 this.TicketMaterial.RegisterDataAccessListenerStatusOut(this);
-                this.TicketMaterial.Purge();
+                await this.TicketMaterial.Purge();
                 this.TicketMaterial.UnregisterDataAccessListenerStatusOut(this);
 
                 this.TicketByProduct.RegisterDataAccessListenerStatusOut(this);
-                this.TicketByProduct.Purge();
+                await this.TicketByProduct.Purge();
                 this.TicketByProduct.UnregisterDataAccessListenerStatusOut(this);
 
                 if (this.ActSubType != SysCommon.ActSubTypes.PurgeActivityData)
                 {
                     this.TicketFinished.RegisterDataAccessListenerProgressOut(this);
                     this.TicketFinished.RegisterDataAccessListenerStatusOut(this);
-                    this.TicketFinished.Request();
+                    await this.TicketFinished.Request();
                     this.TicketFinished.UnregisterDataAccessListenerStatusOut(this);
                     this.TicketFinished.UnregisterDataAccessListenerProgressOut(this);
-                    this.StatusOut(this, EventArgs.Empty, string.Empty);
+                    this.StatusOut(string.Empty);
 
                     this.TicketMaterial.RegisterDataAccessListenerProgressOut(this);
                     this.TicketMaterial.RegisterDataAccessListenerStatusOut(this);
-                    this.TicketMaterial.Request();
+                    await this.TicketMaterial.Request();
                     this.TicketMaterial.UnregisterDataAccessListenerStatusOut(this);
                     this.TicketMaterial.UnregisterDataAccessListenerProgressOut(this);
-                    this.StatusOut(this, EventArgs.Empty, string.Empty);
+                    this.StatusOut(string.Empty);
 
                     this.TicketByProduct.RegisterDataAccessListenerProgressOut(this);
                     this.TicketByProduct.RegisterDataAccessListenerStatusOut(this);
-                    this.TicketByProduct.Request();
+                    await this.TicketByProduct.Request();
                     this.TicketByProduct.UnregisterDataAccessListenerStatusOut(this);
                     this.TicketByProduct.UnregisterDataAccessListenerProgressOut(this);
-                    this.StatusOut(this, EventArgs.Empty, string.Empty);
+                    this.StatusOut(string.Empty);
 
                     this.TicketFinishedItem.RegisterDataAccessListenerProgressOut(this);
                     this.TicketFinishedItem.RegisterDataAccessListenerStatusOut(this);
-                    this.TicketFinishedItem.Request(0);
+                    await this.TicketFinishedItem.Request(0);
                     this.TicketFinishedItem.UnregisterDataAccessListenerStatusOut(this);
                     this.TicketFinishedItem.UnregisterDataAccessListenerProgressOut(this);
-                    this.StatusOut(this, EventArgs.Empty, string.Empty);
+                    this.StatusOut(string.Empty);
 
                     this.TicketMaterialItem.RegisterDataAccessListenerProgressOut(this);
                     this.TicketMaterialItem.RegisterDataAccessListenerStatusOut(this);
-                    this.TicketMaterialItem.Request(0);
+                    await this.TicketMaterialItem.Request(0);
                     this.TicketMaterialItem.UnregisterDataAccessListenerStatusOut(this);
                     this.TicketMaterialItem.UnregisterDataAccessListenerProgressOut(this);
-                    this.StatusOut(this, EventArgs.Empty, string.Empty);
+                    this.StatusOut(string.Empty);
 
                     this.TicketByProductItem.RegisterDataAccessListenerProgressOut(this);
                     this.TicketByProductItem.RegisterDataAccessListenerStatusOut(this);
-                    this.TicketByProductItem.Request(0);
+                    await this.TicketByProductItem.Request(0);
                     this.TicketByProductItem.UnregisterDataAccessListenerStatusOut(this);
                     this.TicketByProductItem.UnregisterDataAccessListenerProgressOut(this);
-                    this.StatusOut(this, EventArgs.Empty, string.Empty);
+                    this.StatusOut(string.Empty);
 
                     if (this.SysEnv.SysSettings.IsDisconnectedModeLoadDetail)
                     {
                         this.TicketDetailFinished.RegisterDataAccessListenerProgressOut(this);
                         this.TicketDetailFinished.RegisterDataAccessListenerStatusOut(this);
-                        this.TicketDetailFinished.Request(0);
+                        await this.TicketDetailFinished.Request(0);
                         this.TicketDetailFinished.UnregisterDataAccessListenerStatusOut(this);
                         this.TicketDetailFinished.UnregisterDataAccessListenerProgressOut(this);
-                        this.StatusOut(this, EventArgs.Empty, string.Empty);
+                        this.StatusOut(string.Empty);
 
                         this.TicketDetailMaterial.RegisterDataAccessListenerProgressOut(this);
                         this.TicketDetailMaterial.RegisterDataAccessListenerStatusOut(this);
-                        this.TicketDetailMaterial.Request(0);
+                        await this.TicketDetailMaterial.Request(0);
                         this.TicketDetailMaterial.UnregisterDataAccessListenerStatusOut(this);
                         this.TicketDetailMaterial.UnregisterDataAccessListenerProgressOut(this);
-                        this.StatusOut(this, EventArgs.Empty, string.Empty);
+                        this.StatusOut(string.Empty);
 
                         this.TicketDetailByProduct.RegisterDataAccessListenerProgressOut(this);
                         this.TicketDetailByProduct.RegisterDataAccessListenerStatusOut(this);
                         await this.TicketDetailByProduct.Request(0);
                         this.TicketDetailByProduct.UnregisterDataAccessListenerStatusOut(this);
                         this.TicketDetailByProduct.UnregisterDataAccessListenerProgressOut(this);
-                        this.StatusOut(this, EventArgs.Empty, string.Empty);
+                        this.StatusOut(string.Empty);
                     }
                 }
             }
@@ -2784,50 +2773,50 @@ namespace dMobile.View.Options
         /// <summary>
         /// 
         /// </summary>
-        private void RefreshDataReceiving()
+        private async Task RefreshDataReceiving()
         {
             if (this.SysEnv.RefreshOpt.PurchaseOrders || this.ActSubType == SysCommon.ActSubTypes.PurgeActivityData)
             {
                 this.ReceivingDetail.RegisterDataAccessListenerStatusOut(this);
-                this.ReceivingDetail.Purge();
+                await this.ReceivingDetail.Purge();
                 this.ReceivingDetail.UnregisterDataAccessListenerStatusOut(this);
 
                 this.ReceivingItemComment.RegisterDataAccessListenerStatusOut(this);
-                this.ReceivingItemComment.Purge();
+                await this.ReceivingItemComment.Purge();
                 this.ReceivingItemComment.UnregisterDataAccessListenerStatusOut(this);
 
                 this.ReceivingItem.RegisterDataAccessListenerStatusOut(this);
-                this.ReceivingItem.Purge();
+                await this.ReceivingItem.Purge();
                 this.ReceivingItem.UnregisterDataAccessListenerStatusOut(this);
 
                 this.Receiving.RegisterDataAccessListenerStatusOut(this);
-                this.Receiving.Purge();
+                await this.Receiving.Purge();
                 this.Receiving.UnregisterDataAccessListenerStatusOut(this);
 
                 if (this.ActSubType != SysCommon.ActSubTypes.PurgeActivityData)
                 {
                     this.Receiving.RegisterDataAccessListenerProgressOut(this);
                     this.Receiving.RegisterDataAccessListenerStatusOut(this);
-                    this.Receiving.Request();
+                    await this.Receiving.Request();
                     this.Receiving.UnregisterDataAccessListenerStatusOut(this);
                     this.Receiving.UnregisterDataAccessListenerProgressOut(this);
-                    this.StatusOut(this, EventArgs.Empty, string.Empty);
+                    this.StatusOut(string.Empty);
 
                     this.ReceivingItem.RegisterDataAccessListenerProgressOut(this);
                     this.ReceivingItem.RegisterDataAccessListenerStatusOut(this);
-                    this.ReceivingItem.Request(0);
+                    await this.ReceivingItem.Request(0);
                     this.ReceivingItem.UnregisterDataAccessListenerStatusOut(this);
                     this.ReceivingItem.UnregisterDataAccessListenerProgressOut(this);
-                    this.StatusOut(this, EventArgs.Empty, string.Empty);
+                    this.StatusOut(string.Empty);
 
                     if (this.SysEnv.SysSettings.IsDisconnectedModeLoadDetail)
                     {
                         this.ReceivingDetail.RegisterDataAccessListenerProgressOut(this);
                         this.ReceivingDetail.RegisterDataAccessListenerStatusOut(this);
-                        this.ReceivingDetail.Request(0);
+                        await this.ReceivingDetail.Request(0);
                         this.ReceivingDetail.UnregisterDataAccessListenerStatusOut(this);
                         this.ReceivingDetail.UnregisterDataAccessListenerProgressOut(this);
-                        this.StatusOut(this, EventArgs.Empty, string.Empty);
+                        this.StatusOut(string.Empty);
                     }
                 }
             }
@@ -2836,22 +2825,22 @@ namespace dMobile.View.Options
         /// <summary>
         /// 
         /// </summary>
-        private void RefreshDataPurchaseOrderWorkSheet()
+        private async Task RefreshDataPurchaseOrderWorkSheet()
         {
             if (this.SysEnv.RefreshOpt.PurchaseOrderWorkSheet || this.ActSubType == SysCommon.ActSubTypes.PurgeActivityData)
             {
                 this.PurchaseOrderWorkSheetItem.RegisterDataAccessListenerStatusOut(this);
-                this.PurchaseOrderWorkSheetItem.Purge();
+                await this.PurchaseOrderWorkSheetItem.Purge();
                 this.PurchaseOrderWorkSheetItem.UnregisterDataAccessListenerStatusOut(this);
 
                 if (this.ActSubType != SysCommon.ActSubTypes.PurgeActivityData)
                 {
                     this.PurchaseOrderWorkSheetItem.RegisterDataAccessListenerProgressOut(this);
                     this.PurchaseOrderWorkSheetItem.RegisterDataAccessListenerStatusOut(this);
-                    this.PurchaseOrderWorkSheetItem.Request(0);
+                    await this.PurchaseOrderWorkSheetItem.Request(0);
                     this.PurchaseOrderWorkSheetItem.UnregisterDataAccessListenerStatusOut(this);
                     this.PurchaseOrderWorkSheetItem.UnregisterDataAccessListenerProgressOut(this);
-                    this.StatusOut(this, EventArgs.Empty, string.Empty);
+                    this.StatusOut(string.Empty);
                 }
             }
         }
@@ -2859,64 +2848,54 @@ namespace dMobile.View.Options
         /// <summary>
         /// 
         /// </summary>
-        private void RefreshDataReplenishment()
-        {
-            if (this.SysEnv.RefreshOpt.Replenishment || this.ActSubType == SysCommon.ActSubTypes.PurgeActivityData)
-            {
-            }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        private void RefreshDataPicking()
+        private async Task RefreshDataPicking()
         {
             if (this.SysEnv.RefreshOpt.SalesOrders || this.ActSubType == SysCommon.ActSubTypes.PurgeActivityData)
             {
                 this.PickingDetail.RegisterDataAccessListenerStatusOut(this);
-                this.PickingDetail.Purge();
+                await this.PickingDetail.Purge();
                 this.PickingDetail.UnregisterDataAccessListenerStatusOut(this);
 
                 this.PickingItemComment.RegisterDataAccessListenerStatusOut(this);
-                this.PickingItemComment.Purge();
+                await this.PickingItemComment.Purge();
                 this.PickingItemComment.UnregisterDataAccessListenerStatusOut(this);
 
                 this.PickingItem.RegisterDataAccessListenerStatusOut(this);
-                this.PickingItem.Purge();
+                await this.PickingItem.Purge();
                 this.PickingItem.UnregisterDataAccessListenerStatusOut(this);
 
                 this.PickingRoute.RegisterDataAccessListenerStatusOut(this);
-                this.PickingRoute.Purge();
+                await this.PickingRoute.Purge();
                 this.PickingRoute.UnregisterDataAccessListenerStatusOut(this);
 
                 this.Picking.RegisterDataAccessListenerStatusOut(this);
-                this.Picking.Purge();
+                await this.Picking.Purge();
                 this.Picking.UnregisterDataAccessListenerStatusOut(this);
 
                 if (this.ActSubType != SysCommon.ActSubTypes.PurgeActivityData)
                 {
                     this.Picking.RegisterDataAccessListenerProgressOut(this);
                     this.Picking.RegisterDataAccessListenerStatusOut(this);
-                    this.Picking.RequestData(null);
+                    await this.Picking.RequestData(null);
                     this.Picking.UnregisterDataAccessListenerStatusOut(this);
                     this.Picking.UnregisterDataAccessListenerProgressOut(this);
-                    this.StatusOut(this, EventArgs.Empty, string.Empty);
+                    this.StatusOut(string.Empty);
 
                     this.PickingItem.RegisterDataAccessListenerProgressOut(this);
                     this.PickingItem.RegisterDataAccessListenerStatusOut(this);
-                    this.PickingItem.RequestData(0, null);
+                    await this.PickingItem.RequestData(0, null);
                     this.PickingItem.UnregisterDataAccessListenerStatusOut(this);
                     this.PickingItem.UnregisterDataAccessListenerProgressOut(this);
-                    this.StatusOut(this, EventArgs.Empty, string.Empty);
+                    this.StatusOut(string.Empty);
 
                     if (this.SysEnv.SysSettings.IsDisconnectedModeLoadDetail)
                     {
                         this.PickingDetail.RegisterDataAccessListenerProgressOut(this);
                         this.PickingDetail.RegisterDataAccessListenerStatusOut(this);
-                        this.PickingDetail.Request(0);
+                        await this.PickingDetail.Request(0);
                         this.PickingDetail.UnregisterDataAccessListenerStatusOut(this);
                         this.PickingDetail.UnregisterDataAccessListenerProgressOut(this);
-                        this.StatusOut(this, EventArgs.Empty, string.Empty);
+                        this.StatusOut(string.Empty);
                     }
                 }
             }
@@ -2925,79 +2904,79 @@ namespace dMobile.View.Options
         /// <summary>
         /// 
         /// </summary>
-        private void RefreshDataTransfers()
+        private async Task RefreshDataTransfers()
         {
             if (this.SysEnv.RefreshOpt.Transfers || this.ActSubType == SysCommon.ActSubTypes.PurgeActivityData)
             {
                 this.TransferFromDetail.RegisterDataAccessListenerStatusOut(this);
-                this.TransferFromDetail.Purge();
+                await this.TransferFromDetail.Purge();
                 this.TransferFromDetail.UnregisterDataAccessListenerStatusOut(this);
 
                 this.TransferFromItem.RegisterDataAccessListenerStatusOut(this);
-                this.TransferFromItem.Purge();
+                await this.TransferFromItem.Purge();
                 this.TransferFromItem.UnregisterDataAccessListenerStatusOut(this);
 
                 this.TransferFrom.RegisterDataAccessListenerStatusOut(this);
-                this.TransferFrom.Purge();
+                await this.TransferFrom.Purge();
                 this.TransferFrom.UnregisterDataAccessListenerStatusOut(this);
 
                 this.TransferToDetail.RegisterDataAccessListenerStatusOut(this);
-                this.TransferToDetail.Purge();
+                await this.TransferToDetail.Purge();
                 this.TransferToDetail.UnregisterDataAccessListenerStatusOut(this);
 
                 this.TransferToItem.RegisterDataAccessListenerStatusOut(this);
-                this.TransferToItem.Purge();
+                await this.TransferToItem.Purge();
                 this.TransferToItem.UnregisterDataAccessListenerStatusOut(this);
 
                 this.TransferTo.RegisterDataAccessListenerStatusOut(this);
-                this.TransferTo.Purge();
+                await this.TransferTo.Purge();
                 this.TransferTo.UnregisterDataAccessListenerStatusOut(this);
 
                 if (this.ActSubType != SysCommon.ActSubTypes.PurgeActivityData)
                 {
                     this.TransferFrom.RegisterDataAccessListenerProgressOut(this);
                     this.TransferFrom.RegisterDataAccessListenerStatusOut(this);
-                    this.TransferFrom.Request();
+                    await this.TransferFrom.Request();
                     this.TransferFrom.UnregisterDataAccessListenerStatusOut(this);
                     this.TransferFrom.UnregisterDataAccessListenerProgressOut(this);
-                    this.StatusOut(this, EventArgs.Empty, string.Empty);
+                    this.StatusOut(string.Empty);
 
                     this.TransferFromItem.RegisterDataAccessListenerProgressOut(this);
                     this.TransferFromItem.RegisterDataAccessListenerStatusOut(this);
-                    this.TransferFromItem.Request(0);
+                    await this.TransferFromItem.Request(0);
                     this.TransferFromItem.UnregisterDataAccessListenerStatusOut(this);
                     this.TransferFromItem.UnregisterDataAccessListenerProgressOut(this);
-                    this.StatusOut(this, EventArgs.Empty, string.Empty);
+                    this.StatusOut(string.Empty);
 
                     this.TransferTo.RegisterDataAccessListenerProgressOut(this);
                     this.TransferTo.RegisterDataAccessListenerStatusOut(this);
-                    this.TransferTo.Request();
+                    await this.TransferTo.Request();
                     this.TransferTo.UnregisterDataAccessListenerStatusOut(this);
                     this.TransferTo.UnregisterDataAccessListenerProgressOut(this);
-                    this.StatusOut(this, EventArgs.Empty, string.Empty);
+                    this.StatusOut(string.Empty);
 
                     this.TransferToItem.RegisterDataAccessListenerProgressOut(this);
                     this.TransferToItem.RegisterDataAccessListenerStatusOut(this);
-                    this.TransferToItem.Request(0);
+                    await this.TransferToItem.Request(0);
                     this.TransferToItem.UnregisterDataAccessListenerStatusOut(this);
                     this.TransferToItem.UnregisterDataAccessListenerProgressOut(this);
-                    this.StatusOut(this, EventArgs.Empty, string.Empty);
+                    this.StatusOut(string.Empty);
 
                     if (this.SysEnv.SysSettings.IsDisconnectedModeLoadDetail)
                     {
                         this.TransferFromDetail.RegisterDataAccessListenerProgressOut(this);
                         this.TransferFromDetail.RegisterDataAccessListenerStatusOut(this);
-                        this.TransferFromDetail.Request(0);
+                        await this.TransferFromDetail.Request(0);
                         this.TransferFromDetail.UnregisterDataAccessListenerStatusOut(this);
                         this.TransferFromDetail.UnregisterDataAccessListenerProgressOut(this);
-                        this.StatusOut(this, EventArgs.Empty, string.Empty);
+                        this.StatusOut(string.Empty);
 
                         this.TransferToDetail.RegisterDataAccessListenerProgressOut(this);
                         this.TransferToDetail.RegisterDataAccessListenerStatusOut(this);
-                        this.TransferToDetail.Request(0);
+                        await this.TransferToDetail.Request(0);
                         this.TransferToDetail.UnregisterDataAccessListenerStatusOut(this);
                         this.TransferToDetail.UnregisterDataAccessListenerProgressOut(this);
-                        this.StatusOut(this, EventArgs.Empty, string.Empty);
+                        this.StatusOut(string.Empty);
 
                     }
                 }

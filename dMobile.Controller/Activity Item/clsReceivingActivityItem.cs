@@ -1,4 +1,4 @@
-namespace dMobile.Controller
+﻿namespace dMobile.Controller
 {
     using System;
     using System.Collections.ObjectModel;
@@ -132,7 +132,7 @@ namespace dMobile.Controller
         /// <summary>
         /// 
         /// </summary>
-        public override void Delete()
+        public override async Task Delete()
         {
             if (!this.SysEnv.SysSettings.IsDisconnectedMode)
             {
