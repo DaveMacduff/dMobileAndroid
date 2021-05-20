@@ -947,7 +947,7 @@ namespace dMobile.View.Activity
             {
                 if (await this.IsReadyToSave())
                 {
-                    if (this.ActItem.SelectedActivityItem == this.ActItem.ListItems.Last())
+                    if (this.ActItem.SelectedActivityItem != null && this.ActItem.SelectedActivityItem == this.ActItem.ListItems.Last())
                     {
                         await this.FullQuantityShippingLabels();
                     }
@@ -957,28 +957,23 @@ namespace dMobile.View.Activity
                         // update the header record as reviewed if all items were reviewed
                         bool isReviewed = true;
 
-                        foreach(PickingItem pickingItem in this.ActItem.ListItems)
+                        foreach (PickingItem pickingItem in this.ActItem.ListItems)
                         {
                             isReviewed = isReviewed && Convert.ToBoolean(pickingItem.ActivityItemPickingIsReviewed);
                         }
 
-                        this.ActHdr.DataViewHdrs[this.ActHdr.SelectedIndex].BeginEdit();
-                        this.ActHdr.DataViewHdrs[this.ActHdr.SelectedIndex]["ActivityPickingIsReviewed"] = isReviewed;
-                        this.ActHdr.DataViewHdrs[this.ActHdr.SelectedIndex].EndEdit();
+                        (this.ActHdr.SelectedActivity as Picking).ActivityPickingIsReviewed = isReviewed;
                     }
 
                     // If any ship quantity exists do not clear the picker. Keep it locked.
                     bool hasNotBeenPicked = true;
 
-                    if (this.ActItem.CurrRowIdx >= 0 && this.ActItem.CurrRowIdx < this.ActItem.DataViewItems.Count)
+                    foreach (PickingItem pickingItem in this.ActItem.ListItems)
                     {
-                        for (int i = 0; i <= this.ActItem.DataViewItems.Count - 1; i++)
+                        if (Convert.ToDecimal(pickingItem.ActivityItemPickingBaseQuantityShipped) != 0)
                         {
-                            if (Convert.ToDecimal(this.ActItem.DataViewItems[i]["ActivityItemPickingBaseQuantityShipped"]) != 0)
-                            {
-                                hasNotBeenPicked = false;
-                                break;
-                            }
+                            hasNotBeenPicked = false;
+                            break;
                         }
                     }
 
@@ -994,7 +989,6 @@ namespace dMobile.View.Activity
                     // Print all receiving skid labels.
                     await PrintSkidLabels();
 
-                    ////ClearContents();
                     this.IsChangesMade = false;
                     isSaveComplete = true;
                 }
@@ -1045,40 +1039,33 @@ namespace dMobile.View.Activity
             {
                 if (await this.IsReadyToClose())
                 {
-                    if (this.ActItem.CurrRowIdx == this.ActItem.DataViewItems.Count - 1)
+                    if (this.ActItem.SelectedActivityItem != null && this.ActItem.SelectedActivityItem == this.ActItem.ListItems.Last())
                     {
                         await this.FullQuantityShippingLabels();
                     }
 
                     // Lekker requirement, cancel will update the reviewed header status.
-                    if (this.ActItem.CurrRowIdx >= 0 && this.ActItem.CurrRowIdx < this.ActItem.DataViewItems.Count)
+                    // update the header record as reviewed if all items were reviewed
+                    bool isReviewed = true;
+
+                    foreach (PickingItem pickingItem in this.ActItem.ListItems)
                     {
-                        // update the header record as reviewed if all items were reviewed
-                        bool isReviewed = true;
-
-                        for (int i = 0; i <= this.ActItem.DataViewItems.Count - 1; i++)
-                        {
-                            isReviewed = isReviewed && Convert.ToBoolean(this.ActItem.DataViewItems[i]["ActivityItemPickingIsReviewed"]);
-                        }
-
-                        this.ActHdr.DataViewHdrs[this.ActHdr.SelectedIndex].BeginEdit();
-                        this.ActHdr.DataViewHdrs[this.ActHdr.SelectedIndex]["ActivityPickingIsReviewed"] = isReviewed;
-                        this.ActHdr.DataViewHdrs[this.ActHdr.SelectedIndex].EndEdit();
+                        isReviewed = isReviewed && Convert.ToBoolean(pickingItem.ActivityItemPickingIsReviewed);
                     }
+
+                    (this.ActHdr.SelectedActivity as Picking).ActivityPickingIsReviewed = isReviewed;
 
                     // Clear any properties.
                     cancelChanges = true;
 
-                    ////ClearContents();
-
                     // If any ship quantity exists do not clear the picker. Keep it locked.
                     bool hasNotBeenPicked = true;
 
-                    if (this.ActItem.CurrRowIdx >= 0 && this.ActItem.CurrRowIdx < this.ActItem.DataViewItems.Count)
+                    if (this.ActItem.SelectedActivityItem != null)
                     {
-                        for (int i = 0; i <= this.ActItem.DataViewItems.Count - 1; i++)
+                        foreach (PickingItem pickingItem in this.ActItem.ListItems)
                         {
-                            if (Convert.ToDecimal(this.ActItem.DataViewItems[i]["ActivityItemPickingBaseQuantityShipped"]) != 0)
+                            if (Convert.ToDecimal(pickingItem.ActivityItemPickingBaseQuantityShipped) != 0)
                             {
                                 hasNotBeenPicked = false;
                                 break;
@@ -1094,11 +1081,6 @@ namespace dMobile.View.Activity
                             await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Clear Picker", "Unable to clear the current picker.", "OK"));
                         }
                     }
-
-                    // Print all receiving skid labels.
-                    ////PrintSkidLabels();
-
-                    // Expect the control to close.
                 }
                 else
                 {
@@ -1252,14 +1234,6 @@ namespace dMobile.View.Activity
         /// <param name="dataLayerEventArgs"></param>
         public void OnLayerStatOut(IDataLayerEventPublisher dataLayerEventPublisher, DataLayerEventArgs dataLayerEventArgs)
         {
-            ////lstDisplay.Items.Clear();
-
-            ////const int lineLength = 30;
-            ////List<string> lines = SysCommon.WordWrap2List(dataLayerEventArgs.StatusOutMsg, lineLength);
-            ////for (int i = 0; i < lines.Count; i++)
-            ////{
-            ////    lstDisplay.Items.Add(lines[i]);
-            ////}
         }
 
         /// <summary>
@@ -1269,13 +1243,6 @@ namespace dMobile.View.Activity
         /// <param name="dataLayerEventArgs"></param>
         public void OnLayerProgOut(IDataLayerEventPublisher dataLayerEventPublisher, DataLayerEventArgs dataLayerEventArgs)
         {
-            //if (dataLayerEventArgs.SetMinMaxValue)
-            //{
-            //    this.pbarStatus.Maximum = dataLayerEventArgs.MaxValue;
-            //    this.pbarStatus.Minimum = dataLayerEventArgs.MinValue;
-            //}
-
-            //this.pbarStatus.Value = dataLayerEventArgs.CurrentValue;
         }
 
         #endregion
@@ -1348,10 +1315,11 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
+            // TODO: Test barcodehandler
             string msg = string.Empty;
             int prodUnitRefno = 0;
-            int currRowIdx = this.ActItem.CurrRowIdx;
-            int foundRowIdx = this.ActItem.CurrRowIdx;
+            object currentSelectedActivityItem = this.ActItem.SelectedActivityItem;
+            object foundSelectedActivityItem = this.ActItem.SelectedActivityItem;
             int actItemFoundRefno = 0;
             BarCodeParse barCodeParse = null;
             SActItemSchemeData tempItemSchemeData = new SActItemSchemeData();
@@ -1365,7 +1333,7 @@ namespace dMobile.View.Activity
                 // Global location identifier.
                 if (!string.IsNullOrEmpty(barCodeParse.LocationIdentifier))
                 {
-                    this.LocMap.CurrLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(barCodeParse.LocationIdentifier));
+                    this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(await LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(barCodeParse.LocationIdentifier));
 
                     if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
                     {
@@ -1380,7 +1348,7 @@ namespace dMobile.View.Activity
                 }
                 else
                 {
-                    if (!LocationMapTasks.IsCompleteLocMapRefno(this.LocMap.CurrLocMapRefno) &&
+                    if (!await LocationMapTasks.IsCompleteLocMapRefno(this.LocMap.CurrLocMapRefno) &&
                         (!this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc &&
                         !(this.ActSubType == SysCommon.ActSubTypes.PickingSingle ||
                         this.ActSubType == SysCommon.ActSubTypes.Receiving)))
@@ -1408,7 +1376,7 @@ namespace dMobile.View.Activity
 
                         prodUnitRefno = await SysShared.IdentifyProductScanned(this.ActSubType, barCodeParse, prodUnitRefno);
                         ProductInfo tempProdInfo = new ProductInfo();
-                        tempProdInfo = ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
+                        tempProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
 
                         if (this.SysEnv.SysSettings.IsPickSingleScanProdMustMatchSelProd)
                         {
@@ -1423,12 +1391,13 @@ namespace dMobile.View.Activity
                             }
                         }
 
-                        actItemFoundRefno = this.ActItem.GetRefnoFromProdUnitRefno(prodUnitRefno);
-                        this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
+                        actItemFoundRefno = await this.ActItem.GetRefnoFromProdUnitRefno(prodUnitRefno);
+                        //this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
 
                         if (actItemFoundRefno > 0)
                         {
-                            foundRowIdx = this.ActItem.DataViewItems.Find(actItemFoundRefno);
+                            //foundSelectedActivityItem = this.ActItem.DataViewItems.Find(actItemFoundRefno);
+                            foundSelectedActivityItem = this.ActItem.ListItems.OfType<object>().Where(activityItem => Convert.ToString(activityItem.GetType().GetProperty("ActivityItemRefno")?.GetValue(activityItem)) == Convert.ToString(actItemFoundRefno)).First();
                         }
                         else
                         {
@@ -1438,15 +1407,6 @@ namespace dMobile.View.Activity
 
                                 if (this.ActItem.IsAskCreateNewItem)
                                 {
-                                    //if (MessageBox.Show(
-                                    //    string.Format("A line item does not exist for this warehouse {0} and product \'{1}.\'"
-                                    //    + Environment.NewLine + "Do you wish to create one?",
-                                    //     this.LocMap.CurrLocMap.WhsCode,
-                                    //    ProductInfoTasks.GetCurrReadableProdBCUnit(tempProdInfo)),
-                                    //    this.GetControlDescription(),
-                                    //    MessageBoxButtons.YesNo,
-                                    //    MessageBoxIcon.Question,
-                                    //    MessageBoxDefaultButton.Button2) == DialogResult.Yes)
                                     if (await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(
                                         this.GetControlDescription(),
                                         string.Format("A line item does not exist for this warehouse {0} and product \'{1}.\'" + Environment.NewLine + "Do you wish to create one?",
@@ -1468,7 +1428,7 @@ namespace dMobile.View.Activity
                                     await this.ActItem.Insert(ProductInfoTasks.GetXML(tempProdInfo), false);
 
                                     // This is a little dangerous we assume that the new row idx will be the last one.
-                                    foundRowIdx = this.ActItem.DataViewItems.Count - 1;
+                                    foundSelectedActivityItem = this.ActItem.ListItems.Last();
                                     actItemFoundRefno = this.ActItem.Refno;
                                 }
                                 else
@@ -1493,7 +1453,7 @@ namespace dMobile.View.Activity
                     // Activity item fk refno
                     if (!string.IsNullOrEmpty(barCodeParse.ActItemFKRefno) && !this.SysEnv.SysSettings.IsDisconnectedMode)
                     {
-                        this.ActItem.DataViewItems.Sort = this.ActItem.GetDataViewSortFKRefnoIdx();
+                        //this.ActItem.DataViewItems.Sort = this.ActItem.GetDataViewSortFKRefnoIdx();
 
                         if (this.ActSubType == SysCommon.ActSubTypes.PickingSingle)
                         {
@@ -1502,14 +1462,16 @@ namespace dMobile.View.Activity
                         }
                         else
                         {
-                            foundRowIdx = this.ActItem.DataViewItems.Find(scanArgs.ParseInfo.ActItemFKRefno);
+                            //foundSelectedActivityItem = this.ActItem.DataViewItems.Find(scanArgs.ParseInfo.ActItemFKRefno);
+                            foundSelectedActivityItem = this.ActItem.ListItems.OfType<object>().Where(activityItem => Convert.ToString(activityItem.GetType().GetProperty(this.ActItem.GetDataViewSortFKRefnoIdx())?.GetValue(activityItem)) == Convert.ToString(scanArgs.ParseInfo.ActItemFKRefno)).First();
 
-                            if (foundRowIdx >= 0)
+                            if (foundSelectedActivityItem != null)
                             {
-                                this.ActItem.SelectItem(foundRowIdx);
+                                await this.ActItem.SelectActivityItem(foundSelectedActivityItem);
                                 actItemFoundRefno = this.ActItem.Refno;
-                                this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
-                                foundRowIdx = this.ActItem.DataViewItems.Find(actItemFoundRefno);
+                                //this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
+                                //foundSelectedActivityItem = this.ActItem.DataViewItems.Find(actItemFoundRefno);
+                                foundSelectedActivityItem = this.ActItem.ListItems.OfType<object>().Where(activityItem => Convert.ToString(activityItem.GetType().GetProperty("ActivityItemRefno")?.GetValue(activityItem)) == Convert.ToString(actItemFoundRefno)).First();
                             }
                             else
                             {
@@ -1528,16 +1490,20 @@ namespace dMobile.View.Activity
                         }
                         else
                         {
-                            this.ActItem.DataViewItems.Sort = this.ActItem.GetDataViewSortFKRefnoIdx();
+                            //this.ActItem.DataViewItems.Sort = this.ActItem.GetDataViewSortFKRefnoIdx();
                             tempItemSchemeData = this.ActItem.GetProdSchemeDataFromDetailFKRefno(int.Parse(barCodeParse.ActDetailFKRefno));
-                            foundRowIdx = this.ActItem.DataViewItems.Find(tempItemSchemeData.ActItemFKRefno.ToString());
+                            //foundSelectedActivityItem = this.ActItem.DataViewItems.Find(tempItemSchemeData.ActItemFKRefno.ToString());
 
-                            if (foundRowIdx >= 0)
+                            foundSelectedActivityItem = this.ActItem.ListItems.OfType<object>().Where(activityItem =>
+                            Convert.ToString(activityItem.GetType().GetProperty(this.ActItem.GetDataViewSortFKRefnoIdx())?.GetValue(activityItem)) == Convert.ToString(tempItemSchemeData.ActItemFKRefno.ToString())).First();
+
+                            if (foundSelectedActivityItem != null)
                             {
-                                this.ActItem.SelectItem(foundRowIdx);
+                                await this.ActItem.SelectActivityItem(foundSelectedActivityItem);
                                 actItemFoundRefno = this.ActItem.Refno;
-                                this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
-                                foundRowIdx = this.ActItem.DataViewItems.Find(actItemFoundRefno);
+                                //this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
+                                //foundSelectedActivityItem = this.ActItem.DataViewItems.Find(actItemFoundRefno);
+                                foundSelectedActivityItem = this.ActItem.ListItems.OfType<object>().Where(activityItem => Convert.ToString(activityItem.GetType().GetProperty("ActivityItemRefno")?.GetValue(activityItem)) == Convert.ToString(actItemFoundRefno)).First();
                             }
                             else
                             {
@@ -1567,7 +1533,7 @@ namespace dMobile.View.Activity
                             throw new Exceptions.MessageOnlyException("Scanning a shipping container bar code is not supported in disconnected mode.");
                         }
 
-                        this.ActHdr.SkidInfo = SysSkidInfo.GetSkidInfoFromBarCodeOrCode(barCodeParse.SSCC18);
+                        this.ActHdr.SkidInfo = await SysSkidInfo.GetSkidInfoFromBarCodeOrCode(barCodeParse.SSCC18);
 
                         if (this.ActHdr.SkidInfo.CurrSkid.SkidFKRefno == 0)
                         {
@@ -1576,12 +1542,13 @@ namespace dMobile.View.Activity
                         }
 
                         prodUnitRefno = this.ActHdr.SkidInfo.CurrSkid.ProdInfo.UnitRefno;
-                        actItemFoundRefno = this.ActItem.GetRefnoFromProdUnitRefno(prodUnitRefno);
-                        this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
+                        actItemFoundRefno = await this.ActItem.GetRefnoFromProdUnitRefno(prodUnitRefno);
+                        //this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
 
                         if (actItemFoundRefno > 0)
                         {
-                            foundRowIdx = this.ActItem.DataViewItems.Find(actItemFoundRefno);
+                            //foundSelectedActivityItem = this.ActItem.DataViewItems.Find(actItemFoundRefno);
+                            foundSelectedActivityItem = this.ActItem.ListItems.OfType<object>().Where(activityItem => Convert.ToString(activityItem.GetType().GetProperty("ActivityItemRefno")?.GetValue(activityItem)) == Convert.ToString(actItemFoundRefno)).First();
                         }
                         else
                         {
@@ -1590,7 +1557,7 @@ namespace dMobile.View.Activity
                                 await this.ActItem.Insert(ProductInfoTasks.GetXML(this.ActHdr.SkidInfo.CurrSkid.ProdInfo), false);
 
                                 // This is a little dangerous we assume that the new row idx will be the last one
-                                foundRowIdx = this.ActItem.DataViewItems.Count - 1;
+                                foundSelectedActivityItem = this.ActItem.ListItems.Last();
                                 actItemFoundRefno = this.ActItem.Refno;
                             }
                             else
@@ -1610,14 +1577,14 @@ namespace dMobile.View.Activity
                     }
 
                     // If an activity line item was found
-                    if (actItemFoundRefno == 0 || foundRowIdx < 0)
+                    if (actItemFoundRefno == 0 || foundSelectedActivityItem == null)
                     {
                         // TODO: Resource strings
                         throw new Exceptions.MessageOnlyException("Line item was not found.");
                     }
                     else
                     {
-                        this.ActItem.SelectItem(foundRowIdx);
+                        await this.ActItem.SelectActivityItem(foundSelectedActivityItem);
                     }
 
                     if (this.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
@@ -1638,7 +1605,7 @@ namespace dMobile.View.Activity
                             this.ActSubType == SysCommon.ActSubTypes.TransferTo))
                         {
                             // LocationMapRefno is assumed to be the picking WarehouseLocationMapRefno
-                            int locMapRefno = this.ActItem.GetDefaultLocMapRefno(Convert.ToInt32(this.ActItem.DataViewItems[foundRowIdx]["LocationMapRefno"]), Convert.ToInt32(this.ActItem.DataViewItems[foundRowIdx]["ProductRefno"]));
+                            int locMapRefno = await this.ActItem.GetDefaultLocMapRefno(Convert.ToInt32((foundSelectedActivityItem as dynamic).LocationMapRefno), Convert.ToInt32((foundSelectedActivityItem as dynamic).ProductRefno));
 
                             if (this.LocMap.CurrLocMapRefno != locMapRefno)
                             {
@@ -1688,7 +1655,7 @@ namespace dMobile.View.Activity
                         actDetail.SchemeData = schemeData;
 
                         isInsertReady = await SysShared.GatherProductData(barCodeParse, this.ActSubType, this.ActItem, tempItemSchemeData, isInsertReady, actDetail, false);
-                        this.InsertActivityDetail(ref foundRowIdx, actDetail, barCodeParse, isInsertReady);
+                        await this.InsertActivityDetail(foundSelectedActivityItem, actDetail, barCodeParse, isInsertReady);
                     }
                     else
                     {
@@ -1718,19 +1685,15 @@ namespace dMobile.View.Activity
 
                         await this.ActItem.IsReadyToApply(xmlParam);
 
-                        actDetail.InsertSkid(this.ActHdr.SkidInfo);
+                        await actDetail.InsertSkid(this.ActHdr.SkidInfo);
 
                         // Upon a save of completed data update the data view to to show new item and quantity change
-                        currRowIdx = this.ActItem.UpdateDataViewQuantity(
-                            foundRowIdx,
-                            actDetail.Quantity,
-                            actDetail.BaseQuantity,
-                            actDetail.WeightQuantity);
-
-                        this.ActItem.UpdateQuantityFromDataView(currRowIdx, this.ActItem.Refno);
+                        this.ActItem.UpdateListItemQuantity(foundSelectedActivityItem, actDetail.Quantity, actDetail.BaseQuantity, actDetail.WeightQuantity);
+                        currentSelectedActivityItem = foundSelectedActivityItem;
+                        await this.ActItem.UpdateQuantityFromActivityItemList(currentSelectedActivityItem, this.ActItem.Refno);
                     }
 
-                    this.DisplayData();
+                    await this.DisplayData();
 
                     if (this.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
                     {
@@ -1759,9 +1722,9 @@ namespace dMobile.View.Activity
                     });
                 }
 
-                if (this.ActItem.DataViewItems.Count > 0 && foundRowIdx >= 0 && foundRowIdx < this.ActItem.DataViewItems.Count)
+                if (foundSelectedActivityItem != null)
                 {
-                    this.ActItem.CurrRowIdx = foundRowIdx;
+                    this.ActItem.SelectedActivityItem = foundSelectedActivityItem;
                 }
             }
             catch (GatherProductDataException ex)
@@ -1775,18 +1738,18 @@ namespace dMobile.View.Activity
                     });
                 }
 
-                if (this.ActItem.DataViewItems.Count > 0 && foundRowIdx >= 0 && foundRowIdx < this.ActItem.DataViewItems.Count)
+                if (foundSelectedActivityItem != null)
                 {
-                    this.ActItem.CurrRowIdx = foundRowIdx;
+                    this.ActItem.SelectedActivityItem = foundSelectedActivityItem;
                 }
             }
             catch (Exceptions.MessageOnlyException ex)
             {
                 ex.Show(this.ActSubType);
 
-                if (this.ActItem.DataViewItems.Count > 0 && foundRowIdx >= 0 && foundRowIdx < this.ActItem.DataViewItems.Count)
+                if (foundSelectedActivityItem != null)
                 {
-                    this.ActItem.CurrRowIdx = foundRowIdx;
+                    this.ActItem.SelectedActivityItem = foundSelectedActivityItem;
                 }
             }
             catch (Exception ex)
@@ -1797,9 +1760,9 @@ namespace dMobile.View.Activity
                     await errRpt.ShowDialog();
                 });
 
-                if (this.ActItem.DataViewItems.Count > 0 && foundRowIdx >= 0 && foundRowIdx < this.ActItem.DataViewItems.Count)
+                if (foundSelectedActivityItem != null)
                 {
-                    this.ActItem.CurrRowIdx = foundRowIdx;
+                    this.ActItem.SelectedActivityItem = foundSelectedActivityItem;
                 }
             }
             finally
@@ -1812,11 +1775,11 @@ namespace dMobile.View.Activity
         ///
         /// </summary>
         /// <remarks></remarks>
-        private void DisplayData()
+        private async Task DisplayData()
         {
             if (0 < this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno)
             {
-                Device.InvokeOnMainThreadAsync(() =>
+                await Device.InvokeOnMainThreadAsync(() =>
                 {
                     this.cmdAddSkidIsEnabled = true;
                     this.cmdLocationIsEnabled = false;
@@ -1827,7 +1790,7 @@ namespace dMobile.View.Activity
             }
             else
             {
-                Device.InvokeOnMainThreadAsync(() =>
+                await Device.InvokeOnMainThreadAsync(() =>
                 {
                     this.cmdLocationIsEnabled = true;
                     this.cmdAddSkidIsEnabled = false;
@@ -1840,71 +1803,60 @@ namespace dMobile.View.Activity
             if (0 < this.LocMap.CurrLocMap.WhsLocMapRefno)
             {
                 string currentReadableLocation = LocationMapTasks.GetCurrentReadableLocation();
-                Device.BeginInvokeOnMainThread(() => this.cmdLocationText = "Location: " + Environment.NewLine + currentReadableLocation);
+                await Device.InvokeOnMainThreadAsync(() => this.cmdLocationText = "Location: " + Environment.NewLine + currentReadableLocation);
             }
             else
             {
                 // TODO: Resource strings
-                Device.BeginInvokeOnMainThread(() => this.cmdLocationText = "Set Location");
+                await Device.InvokeOnMainThreadAsync(() => this.cmdLocationText = "Set Location");
             }
 
             // TODO: Resource strings
-            Device.BeginInvokeOnMainThread(() => this.lblProductBCUnit.Text = "Product: " + ProductInfoTasks.GetCurrReadableProdBCUnit(this.ActItem.ProdInfo));
+            await Device.InvokeOnMainThreadAsync(() => this.lblProductBCUnit.Text = "Product: " + ProductInfoTasks.GetCurrReadableProdBCUnit(this.ActItem.ProdInfo));
 
-            ////lstDisplay.Items.Clear()
+            PickingItem selectedActivityItem = this.ActItem.SelectedActivityItem as PickingItem;
 
-            int idx = this.ActItem.CurrRowIdx;
-            DataView items = this.ActItem.DataViewItems;
-
-            if (idx >= 0)
+            if (selectedActivityItem != null)
             {
-                decimal ordQty = Convert.ToDecimal(items[idx]["ActivityItemPickingQuantityOrdered"]);
-                decimal ordWtQty = Convert.ToDecimal(items[idx]["ActivityItemPickingWeightQuantityOrdered"]);
+                decimal ordQty = Convert.ToDecimal(selectedActivityItem.ActivityItemPickingQuantityOrdered);
+                decimal ordWtQty = Convert.ToDecimal(selectedActivityItem.ActivityItemPickingWeightQuantityOrdered);
 
                 // TODO: Resource strings
-                Device.BeginInvokeOnMainThread(() => this.lblOrderedQuantity.Text = "Ordered: " + SysCommon.NiceQuantityReadableString(this.ActItem.ProdInfo, ordQty, ordWtQty));
+                await Device.InvokeOnMainThreadAsync(() => this.lblOrderedQuantity.Text = "Ordered: " + SysCommon.NiceQuantityReadableString(this.ActItem.ProdInfo, ordQty, ordWtQty));
 
-                decimal shpQty = Convert.ToDecimal(this.ActItem.DataViewItems[idx]["ActivityItemPickingQuantityShipped"]);
-                decimal shpWtQty = Convert.ToDecimal(this.ActItem.DataViewItems[idx]["ActivityItemPickingWeightQuantityShipped"]);
+                decimal shpQty = Convert.ToDecimal(selectedActivityItem.ActivityItemPickingQuantityShipped);
+                decimal shpWtQty = Convert.ToDecimal(selectedActivityItem.ActivityItemPickingWeightQuantityShipped);
 
                 // TODO: Resource strings
-                Device.BeginInvokeOnMainThread(() => this.lblShippedQuantity.Text = "Shipped: " + SysCommon.NiceQuantityReadableString(this.ActItem.ProdInfo, shpQty, shpWtQty));
+                await Device.InvokeOnMainThreadAsync(() => this.lblShippedQuantity.Text = "Shipped: " + SysCommon.NiceQuantityReadableString(this.ActItem.ProdInfo, shpQty, shpWtQty));
 
-                if (Convert.ToString(items[idx]["IsActivityItemPickingComment"]) == "*")
+                if (Convert.ToString(selectedActivityItem.IsActivityItemPickingComment) == "*")
                 {
-                    Device.InvokeOnMainThreadAsync(() => this.lblIsItemComment.Text = "C");
+                    await Device.InvokeOnMainThreadAsync(() => this.lblIsItemComment.Text = "C");
                 }
                 else
                 {
-                    Device.BeginInvokeOnMainThread(() => this.lblIsItemComment.Text = string.Empty);
+                    await Device.InvokeOnMainThreadAsync(() => this.lblIsItemComment.Text = string.Empty);
                 }
 
-                items[idx].BeginEdit();
-
-                if (!items.Table.Columns.Contains("ActivityItemPickingIsReviewed"))
-                {
-                    items.Table.Columns.Add("ActivityItemPickingIsReviewed");
-                }
-
-                items[idx]["ActivityItemPickingIsReviewed"] = true;
-                items[idx].EndEdit();
+                selectedActivityItem.ActivityItemPickingIsReviewed = true;
 
                 if (this.SysEnv.SysSettings.IsPickPopupCmnt)
                 {
-                    if (Convert.ToString(items[idx]["IsActivityItemPickingComment"]) == "*")
+                    if (Convert.ToString(selectedActivityItem.IsActivityItemPickingComment) == "*")
                     {
                         // TODO: Resource strings
-                        Device.BeginInvokeOnMainThread(() => DisplayAlert("Comment", this.ActItem.GetComment(this.ActItem.Refno), "OK"));
+                        await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Comment", await this.ActItem.GetComment(this.ActItem.Refno), "OK"));
                     }
                 }
 
-                string locCode = Convert.ToString(items[idx]["LocationCode"]);
-                string locName = Convert.ToString(items[idx]["LocationName"]);
-                string prodDesc = Convert.ToString(items[idx]["ProductDescription"]);
-                string prodUnitSizeDesc = Convert.ToString(items[idx]["ProductUnitSizeDescription"]);
-                string prodBrandDesc = Convert.ToString(items[idx]["ProductBrandDescription"]);
+                string locCode = Convert.ToString(selectedActivityItem.LocationCode);
+                string locName = Convert.ToString(selectedActivityItem.LocationName);
+                string prodDesc = Convert.ToString(selectedActivityItem.ProductDescription);
+                string prodUnitSizeDesc = Convert.ToString(selectedActivityItem.ProductUnitSizeDescription);
+                string prodBrandDesc = Convert.ToString(selectedActivityItem.ProductBrandDescription);
 
-                Device.InvokeOnMainThreadAsync(() =>
+                await Device.InvokeOnMainThreadAsync(() =>
                 {
                     // TODO: Resource strings
                     this.ItemsList.Clear();
@@ -1914,22 +1866,22 @@ namespace dMobile.View.Activity
                 });
             }
 
-            if (idx == items.Count - 1)
+            if (selectedActivityItem == this.ActItem.ListItems.Last())
             {
-                Device.BeginInvokeOnMainThread(() => this.cmdNext.IsEnabled = false);
+                await Device.InvokeOnMainThreadAsync(() => this.cmdNext.IsEnabled = false);
             }
             else
             {
-                Device.BeginInvokeOnMainThread(() => this.cmdNext.IsEnabled = true);
+                await Device.InvokeOnMainThreadAsync(() => this.cmdNext.IsEnabled = true);
             }
 
-            if (idx == 0 || items.Count <= 0)
+            if (selectedActivityItem == this.ActItem.ListItems.First() || this.ActItem.ListItems.Count == 0)
             {
-                Device.BeginInvokeOnMainThread(() => this.cmdPrevious.IsEnabled = false);
+                await Device.InvokeOnMainThreadAsync(() => this.cmdPrevious.IsEnabled = false);
             }
             else
             {
-                Device.BeginInvokeOnMainThread(() => this.cmdPrevious.IsEnabled = true);
+                await Device.InvokeOnMainThreadAsync(() => this.cmdPrevious.IsEnabled = true);
             }
         }
 
@@ -1940,27 +1892,22 @@ namespace dMobile.View.Activity
         /// <param name="actDetail"></param>
         /// <param name="barCodeParse"></param>
         /// <remarks></remarks>
-        private void InsertActivityDetail(ref int currRowIdx, ActDetail actDetail, BarCodeParse barCodeParse, bool isInsertDetailReady)
+        private async Task InsertActivityDetail(object selectedActivityItem, ActDetail actDetail, BarCodeParse barCodeParse, bool isInsertDetailReady)
         {
             if (isInsertDetailReady)
             {
                 XDocument xmlDoc = actDetail.GetXML(actDetail);
-                actDetail.Insert(xmlDoc);
+                await actDetail.Insert(xmlDoc);
 
                 // Upon a save of completed data update the data view to to show new item
                 // and quantity change
-                currRowIdx = this.ActItem.UpdateDataViewQuantity(
-                    currRowIdx,
-                    actDetail.Quantity,
-                    actDetail.BaseQuantity,
-                    actDetail.WeightQuantity);
-
-                this.ActItem.UpdateQuantityFromDataView(currRowIdx, this.ActItem.Refno);
+                this.ActItem.UpdateListItemQuantity(selectedActivityItem, actDetail.Quantity, actDetail.BaseQuantity, actDetail.WeightQuantity);
+                await this.ActItem.UpdateQuantityFromActivityItemList(selectedActivityItem, this.ActItem.Refno);
             }
 
-            this.ActItem.CurrRowIdx = currRowIdx;
+            this.ActItem.SelectedActivityItem = selectedActivityItem;
 
-            this.DisplayData();
+            await this.DisplayData();
         }
 
         /// <summary>
@@ -1972,9 +1919,9 @@ namespace dMobile.View.Activity
 
             if (this.SysEnv.SysSettings.IsPickMustReviewItemsBeforeRel)
             {
-                if (0 <= this.ActItem.CurrRowIdx && this.ActItem.DataViewItems.Count > this.ActItem.CurrRowIdx)
+                if (this.ActItem.SelectedActivityItem is PickingItem pickingItem)
                 {
-                    isReviewed = Convert.ToBoolean(this.ActItem.DataViewItems[this.ActItem.CurrRowIdx]["ActivityItemPickingIsReviewed"]);
+                    isReviewed = pickingItem.ActivityItemPickingIsReviewed;
                 }
 
                 if (!isReviewed)
@@ -1994,9 +1941,9 @@ namespace dMobile.View.Activity
 
             if (this.SysEnv.SysSettings.IsPickMustReviewItemsBeforeRel)
             {
-                for (int idx = 0; idx <= this.ActItem.DataViewItems.Count - 1; idx++)
+                foreach (PickingItem pickingItem in this.ActItem.ListItems)
                 {
-                    isReviewed = isReviewed && Convert.ToBoolean(this.ActItem.DataViewItems[idx]["ActivityItemPickingIsReviewed"]);
+                    isReviewed = isReviewed && pickingItem.ActivityItemPickingIsReviewed;
                 }
 
                 if (!isReviewed)
@@ -2016,16 +1963,15 @@ namespace dMobile.View.Activity
         {
             if (this.SysEnv.SysSettings.PickQtyUnderWarn != SysCommon.ActPickingQtyUnderValLevels.NoValidationOrWarning)
             {
-                DataView dvItems = this.ActItem.DataViewItems;
                 decimal available = 0;
                 decimal shipped = 0;
                 decimal ordered = 0;
 
-                for (int currIdx = 0; currIdx <= this.ActItem.DataViewItems.Count - 1; currIdx++)
+                foreach (PickingItem pickingItem in this.ActItem.ListItems)
                 {
-                    available = Convert.ToDecimal(dvItems[currIdx]["ActivityItemPickingBaseQuantityAvailable"]);
-                    shipped = Convert.ToDecimal(dvItems[currIdx]["ActivityItemPickingQuantityShipped"]);
-                    ordered = Convert.ToDecimal(dvItems[currIdx]["ActivityItemPickingQuantityOrdered"]);
+                    available = pickingItem.ActivityItemPickingBaseQuantityAvailable;
+                    shipped = pickingItem.ActivityItemPickingQuantityShipped;
+                    ordered = pickingItem.ActivityItemPickingQuantityOrdered;
 
                     if (this.SysEnv.SysSettings.IsPickShowItemQtyAvail)
                     {
@@ -2105,7 +2051,7 @@ namespace dMobile.View.Activity
                                         + ("<total_alt_qty>" + formLblQty.Quantity + "</total_alt_qty>")
                                         + "</params>");
 
-                                    this.ActHdr.PrintLabel(request);
+                                    await this.ActHdr.PrintLabel(request);
                                 }
                             }
                         }
@@ -2135,7 +2081,7 @@ namespace dMobile.View.Activity
                                 + ("<total_alt_qty>" + totalQty + "</total_alt_qty>")
                                 + "</params>");
 
-                            this.ActHdr.PrintLabel(request);
+                            await this.ActHdr.PrintLabel(request);
                         }
                     }
                 }
@@ -2151,13 +2097,11 @@ namespace dMobile.View.Activity
         {
             if (this.SysEnv.SysSettings.PickQtyUnderWarn != SysCommon.ActPickingQtyUnderValLevels.NoValidationOrWarning)
             {
-                int currIdx = this.ActItem.CurrRowIdx;
-                if (0 <= currIdx && this.ActItem.DataViewItems.Count > currIdx)
+                if (this.ActItem.SelectedActivityItem is PickingItem pickingItem)
                 {
-                    DataView dvItems = this.ActItem.DataViewItems;
-                    decimal available = Convert.ToDecimal(dvItems[currIdx]["ActivityItemPickingBaseQuantityAvailable"]);
-                    decimal shipped = Convert.ToDecimal(dvItems[currIdx]["ActivityItemPickingQuantityShipped"]);
-                    decimal ordered = Convert.ToDecimal(dvItems[currIdx]["ActivityItemPickingQuantityOrdered"]);
+                    decimal available = pickingItem.ActivityItemPickingBaseQuantityAvailable;
+                    decimal shipped = pickingItem.ActivityItemPickingQuantityShipped;
+                    decimal ordered = pickingItem.ActivityItemPickingQuantityOrdered;
 
                     if (this.SysEnv.SysSettings.IsPickShowItemQtyAvail)
                     {
@@ -2169,12 +2113,13 @@ namespace dMobile.View.Activity
                             if (this.SysEnv.SysSettings.IsPickQtyUnderShowBaseQtyAvail)
                             {
                                 // TODO: Resource strings
-                                msg = string.Format("The quantity shipped is less than the quantity ordered." + Environment.NewLine + "On Hand {0} {1}", Convert.ToDecimal(dvItems[currIdx]["ActivityItemPickingBaseQuantityAvailable"]), Convert.ToString(dvItems[currIdx]["BaseUnitCode"]));
+                                // TODO: UnitCode should be baseUnitCode, check where this is in table
+                                msg = string.Format("The quantity shipped is less than the quantity ordered." + Environment.NewLine + "On Hand {0} {1}", Convert.ToDecimal(pickingItem.ActivityItemPickingBaseQuantityAvailable), Convert.ToString(pickingItem.UnitCode));
                             }
                             else
                             {
                                 // TODO: Resource strings
-                                msg = string.Format("The quantity shipped is less than the quantity ordered." + Environment.NewLine + "On Hand {0} {1}", Convert.ToDecimal(dvItems[currIdx]["ActivityItemPickingQuantityAvailable"]), Convert.ToString(dvItems[currIdx]["UnitCode"]));
+                                msg = string.Format("The quantity shipped is less than the quantity ordered." + Environment.NewLine + "On Hand {0} {1}", Convert.ToDecimal(pickingItem.ActivityItemPickingQuantityAvailable), Convert.ToString(pickingItem.UnitCode));
                             }
 
                             throw new Exceptions.MessageOnlyException(msg);
@@ -2202,7 +2147,7 @@ namespace dMobile.View.Activity
 
             try
             {
-                this.ActItem.Refresh(this.ActHdr.XMLDataCriteria);
+                await this.ActItem.Refresh(this.ActHdr.XMLDataCriteria);
             }
             catch (Exception ex)
             {
@@ -2211,22 +2156,13 @@ namespace dMobile.View.Activity
 
             }
 
-            ////If iCount > 50 And DateAndTime.Hour(DateTime.Now) Mod 2 = 0 And DateAndTime.Minute(DateTime.Now) Mod 2 = 0 Then
-            ////  'use relection to get the current assembly path for the database
-            ////  Dim strAppDir As String = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase)
-            ////  Dim strFullPathToMyFile As String = Path.Combine(strAppDir, "dMobileResource01.wav")
-            ////  Dim oElevatorMusic As clsSound = New clsSound(strFullPathToMyFile)
-            ////  oElevatorMusic.Play()
-            ////End If
+            this.ActItem.ListItems = await this.ActItem.GetActivityItemList(false);
 
-            this.ActItem.DataViewItems = this.ActItem.GetDataView(false);
-
-            if (this.ActItem.DataViewItems.Count > 0)
+            if (this.ActItem.ListItems.Count > 0)
             {
-                this.ActItem.CurrRowIdx = 0;
-                this.ActItem.SelectItem(this.ActItem.CurrRowIdx);
+                await this.ActItem.SelectActivityItem(this.ActItem.ListItems[0]);
 
-                string cmnt = this.ActItem.GetComment(Convert.ToInt32(this.ActItem.DataViewItems[this.ActItem.CurrRowIdx]["ActivityItemRefno"]));
+                string cmnt = await this.ActItem.GetComment(Convert.ToInt32((this.ActItem.SelectedActivityItem as PickingItem).ActivityItemRefno));
 
                 if (!string.IsNullOrEmpty(cmnt))
                 {
@@ -2270,7 +2206,7 @@ namespace dMobile.View.Activity
                 });
             }
 
-            this.DisplayData();
+            await this.DisplayData();
             await this.ScannerEnable();
         }
 
@@ -2290,7 +2226,7 @@ namespace dMobile.View.Activity
 
                 if (this.IsControlLoaded == false)
                 {
-                    this.ActItem.CurrRowIdx = -1;
+                    this.ActItem.SelectedActivityItem = null;
 
                     if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
                     {
@@ -2350,8 +2286,6 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         private void txtSearchItem_GotFocus(object sender, EventArgs e)
         {
-            //this.txtSearchItem.SelectAll();
-
             if (this.txtSearchItem.Text != null)
             {
                 this.txtSearchItem.CursorPosition = 0;
@@ -2376,7 +2310,7 @@ namespace dMobile.View.Activity
                     // if cycle by slot
                     FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucSelectLocationMap, SysCommon.ActSubTypes.NotApplicable);
 
-                    if (await form.DisplayControl.ShowDialog() == dMobile.Resources.Enums.DialogResult.OK)
+                    if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
                     {
                         if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
                         {
@@ -2428,7 +2362,7 @@ namespace dMobile.View.Activity
                         await form.DisplayControl.ShowDialog();
                         await form.SaveChanges(sender, e);
                         XDocument xmlDoc = form.DisplayControlData;
-                        this.ActHdr.SkidInfo = SysSkidInfo.GetSkidInfoFromXML(xmlDoc);
+                        this.ActHdr.SkidInfo = await SysSkidInfo.GetSkidInfoFromXML(xmlDoc);
 
                         if (this.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
                         {
@@ -2488,7 +2422,6 @@ namespace dMobile.View.Activity
                 {
                     int itemFoundRefno = 0;
                     int prodUnitRefno = 0;
-                    int foundRowIdx = 0;
 
                     await this.ScannerDisable();
 
@@ -2511,7 +2444,7 @@ namespace dMobile.View.Activity
                     if (this.ActHdr.SkidInfo.CurrSkid.SkidFKRefno == 0)
                     {
                         // activity item object needs to check if a new location and product can be added, if not add a detail
-                        if (!LocationMapTasks.IsCompleteLocMapRefno(this.LocMap.CurrLocMapRefno))
+                        if (!await LocationMapTasks.IsCompleteLocMapRefno(this.LocMap.CurrLocMapRefno))
                         {
                             // TODO: Resource strings
                             throw new Exceptions.MessageOnlyException("The location must be set.");
@@ -2548,15 +2481,15 @@ namespace dMobile.View.Activity
 
                     if (prodUnitRefno != 0)
                     {
-                        itemFoundRefno = this.ActItem.GetRefnoFromProdUnitRefno(prodUnitRefno);
+                        itemFoundRefno = await this.ActItem.GetRefnoFromProdUnitRefno(prodUnitRefno);
 
                         if (itemFoundRefno > 0)
                         {
-                            string oldSort = this.ActItem.DataViewItems.Sort;
-                            this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
-                            foundRowIdx = this.ActItem.DataViewItems.Find(itemFoundRefno);
-                            this.ActItem.CurrRowIdx = foundRowIdx;
-                            this.ActItem.DataViewItems.Sort = oldSort;
+                            //this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
+                            //foundRowIdx = this.ActItem.DataViewItems.Find(itemFoundRefno);
+                            //this.ActItem.CurrRowIdx = foundRowIdx;
+
+                            this.ActItem.SelectedActivityItem = this.ActItem.ListItems.OfType<object>().Where(activityItem => Convert.ToString(activityItem.GetType().GetProperty("ActivityItemRefno")?.GetValue(activityItem)) == Convert.ToString(itemFoundRefno)).First();
                         }
                         else
                         {
@@ -2566,8 +2499,7 @@ namespace dMobile.View.Activity
 
                                 // This is a little dangerous we assume that the new row idx 
                                 // will be the last one
-                                foundRowIdx = this.ActItem.DataViewItems.Count - 1;
-                                this.ActItem.CurrRowIdx = foundRowIdx;
+                                this.ActItem.SelectedActivityItem = this.ActItem.ListItems.Last();
                                 itemFoundRefno = this.ActItem.Refno;
                             }
                             else
@@ -2585,8 +2517,8 @@ namespace dMobile.View.Activity
                         {
                             // LocationMapRefno is assumed to be the picking WarehouseLocationMapRefno
                             int locMapRefno = this.ActItem.GetDefaultLocMapRefno(
-                                Convert.ToInt32(this.ActItem.DataViewItems[foundRowIdx]["LocationMapRefno"]),
-                                Convert.ToInt32(this.ActItem.DataViewItems[foundRowIdx]["ProductRefno"]));
+                                Convert.ToInt32((this.ActItem.SelectedActivityItem as dynamic).LocationMapRefno),
+                                Convert.ToInt32((this.ActItem.SelectedActivityItem as dynamic).ProductRefno));
 
                             if (this.LocMap.CurrLocMapRefno != locMapRefno)
                             {
@@ -2723,7 +2655,7 @@ namespace dMobile.View.Activity
                 }
                 finally
                 {
-                    DisplayData();
+                    await DisplayData();
                     await this.ScannerEnable();
                 }
             }
@@ -2737,13 +2669,14 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         private async Task cmdAddSkid_Click(object sender, EventArgs e)
         {
+            // TODO: Test
             if (this.IsControlLoaded)
             {
                 try
                 {
                     int actItemFoundRefno = 0;
                     int prodUnitRefno = 0;
-                    int foundRowIdx = 0;
+                    object foundObject = 0;
                     string message = string.Empty;
 
                     await this.ScannerDisable();
@@ -2752,11 +2685,13 @@ namespace dMobile.View.Activity
                     if (await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Skid", "Add the ENTIRE skid to this activity?", "Yes", "No")))
                     {
                         prodUnitRefno = this.ActHdr.SkidInfo.CurrSkid.ProdInfo.UnitRefno;
-                        actItemFoundRefno = this.ActItem.GetRefnoFromProdUnitRefno(prodUnitRefno);
-                        this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
+                        actItemFoundRefno = await this.ActItem.GetRefnoFromProdUnitRefno(prodUnitRefno);
+                        //this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
+
                         if (actItemFoundRefno > 0)
                         {
-                            foundRowIdx = this.ActItem.DataViewItems.Find(actItemFoundRefno);
+                            //foundObject = this.ActItem.DataViewItems.Find(actItemFoundRefno);
+                            foundObject = this.ActItem.ListItems.OfType<object>().Where(activityItem => Convert.ToString(activityItem.GetType().GetProperty("ActivityItemRefno")?.GetValue(activityItem)) == Convert.ToString(actItemFoundRefno)).First();
                         }
                         else
                         {
@@ -2766,7 +2701,7 @@ namespace dMobile.View.Activity
 
                                 // This is a little dangerous we assume that the new row idx 
                                 // will be the last one
-                                foundRowIdx = this.ActItem.DataViewItems.Count - 1;
+                                foundObject = this.ActItem.ListItems.Last();
                                 actItemFoundRefno = this.ActItem.Refno;
                             }
                             else
@@ -2782,7 +2717,7 @@ namespace dMobile.View.Activity
                             }
                         }
 
-                        this.ActItem.CurrRowIdx = foundRowIdx;
+                        this.ActItem.SelectedActivityItem = foundObject;
 
                         // Insert a new activity detail record
                         ActDetail actDetail = ActDetailFacade.GetActDetail(this.ActItem, this.ActSubType);
@@ -2809,19 +2744,18 @@ namespace dMobile.View.Activity
                             + "</imclient>");
 
                         await this.ActItem.IsReadyToApply(xmlParam);
-
-                        actDetail.InsertSkid(this.ActHdr.SkidInfo);
+                        await actDetail.InsertSkid(this.ActHdr.SkidInfo);
 
                         // upon a save of completed data update the data view to to show new item 
                         // and quantity change
-                        this.ActItem.CurrRowIdx = this.ActItem.UpdateDataViewQuantity(
-                            foundRowIdx,
+                        this.ActItem.UpdateListItemQuantity(
+                            foundObject,
                             actDetail.Quantity,
                             actDetail.BaseQuantity,
                             actDetail.WeightQuantity);
 
-                        this.ActItem.UpdateQuantityFromDataView(foundRowIdx, this.ActItem.Refno);
-                        this.DisplayData();
+                        await this.ActItem.UpdateQuantityFromActivityItemList(foundObject, this.ActItem.Refno);
+                        await this.DisplayData();
                     }
                 }
                 catch (IsReadyToApplyException)
@@ -2860,7 +2794,7 @@ namespace dMobile.View.Activity
                 try
                 {
                     await this.ScannerDisable();
-                    this.ActItem.SelectItem(this.ActItem.CurrRowIdx);
+                    await this.ActItem.SelectActivityItem(this.ActItem.SelectedActivityItem);
 
                     if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
                     {
@@ -2879,12 +2813,12 @@ namespace dMobile.View.Activity
                     XDocument xmlDoc = form.DisplayControlData;
 
                     this.ActItem.RefreshQuantity(
-                        this.ActItem.CurrRowIdx,
+                        this.ActItem.SelectedActivityItem,
                         Math.Round(decimal.Parse(xmlDoc.Root.Element("qty").Value), 3),
                         Math.Round(decimal.Parse(xmlDoc.Root.Element("base_qty").Value), 3),
                         Math.Round(decimal.Parse(xmlDoc.Root.Element("wt_qty").Value), 3));
 
-                    this.ActItem.UpdateQuantityFromDataView(this.ActItem.CurrRowIdx, this.ActItem.Refno);
+                    await this.ActItem.UpdateQuantityFromActivityItemList(this.ActItem.SelectedActivityItem, this.ActItem.Refno);
 
                     if (this.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
                     {
@@ -2903,7 +2837,7 @@ namespace dMobile.View.Activity
                         this.cmdLocationIsEnabled = true;
                     }
 
-                    this.DisplayData();
+                    await this.DisplayData();
                 }
                 catch (Exceptions.MessageOnlyException ex)
                 {
@@ -2940,7 +2874,7 @@ namespace dMobile.View.Activity
 
                     if (this.ActSubType == SysCommon.ActSubTypes.PickingSingle)
                     {
-                        if (this.ActItem.CurrRowIdx < this.ActItem.DataViewItems.Count)
+                        if (this.ActItem.SelectedActivityItem != null)
                         {
                             try
                             {
@@ -2979,15 +2913,9 @@ namespace dMobile.View.Activity
                     {
                         await this.FullQuantityShippingLabels();
 
-                        this.ActItem.CurrRowIdx++;
-                        if (this.ActItem.CurrRowIdx >= this.ActItem.DataViewItems.Count)
+                        if (this.ActItem.SelectedActivityItem != null)
                         {
-                            this.ActItem.CurrRowIdx = this.ActItem.DataViewItems.Count - 1;
-                        }
-
-                        if (this.ActItem.CurrRowIdx >= 0)
-                        {
-                            this.ActItem.SelectItem(this.ActItem.CurrRowIdx);
+                            await this.ActItem.SelectActivityItem(this.ActItem.SelectedActivityItem);
                         }
 
                         if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
@@ -3019,7 +2947,7 @@ namespace dMobile.View.Activity
                 }
                 finally
                 {
-                    this.DisplayData();
+                    await this.DisplayData();
                 }
             }
         }
@@ -3071,15 +2999,9 @@ namespace dMobile.View.Activity
                     {
                         await this.FullQuantityShippingLabels();
 
-                        this.ActItem.CurrRowIdx--;
-                        if (this.ActItem.CurrRowIdx < 0)
+                        if (this.ActItem.SelectedActivityItem != null)
                         {
-                            this.ActItem.CurrRowIdx = 0;
-                        }
-
-                        if (this.ActItem.CurrRowIdx >= 0)
-                        {
-                            this.ActItem.SelectItem(this.ActItem.CurrRowIdx);
+                            await this.ActItem.SelectActivityItem(this.ActItem.SelectedActivityItem);
                         }
 
                         if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
@@ -3111,7 +3033,7 @@ namespace dMobile.View.Activity
                 }
                 finally
                 {
-                    this.DisplayData();
+                    await this.DisplayData();
                 }
             }
         }
@@ -3130,13 +3052,13 @@ namespace dMobile.View.Activity
 
                 await this.ScannerDisable();
 
-                if (0 > this.ActItem.CurrRowIdx)
+                if (this.ActItem.SelectedActivityItem == null)
                 {
                     // TODO: Resource strings
                     throw new Exceptions.MessageOnlyException("Please select and line item to show the comments for.");
                 }
 
-                string comment = this.ActItem.GetComment(Convert.ToInt32(this.ActItem.DataViewItems[this.ActItem.CurrRowIdx]["ActivityItemRefno"]));
+                string comment = await this.ActItem.GetComment(Convert.ToInt32((this.ActItem.SelectedActivityItem as dynamic).ActivityItemRefno));
 
                 if (!string.IsNullOrEmpty(comment))
                 {
@@ -3179,7 +3101,7 @@ namespace dMobile.View.Activity
 
                 await this.ScannerDisable();
 
-                string msg = this.ActItem.GetTotalQuantity();
+                string msg = await this.ActItem.GetTotalQuantity();
 
                 if (!string.IsNullOrEmpty(msg))
                 {

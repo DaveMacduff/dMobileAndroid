@@ -1427,7 +1427,7 @@ namespace dMobile.View.Activity
 
         #endregion
 
-        private async Task dataGridMainActivity_ItemSelected(object sender, SelectedItemChangedEventArgs e)
+        private async void dataGridMainActivity_ItemSelected(object sender, SelectedItemChangedEventArgs e)
         {
             await this.ActDetail.SelectActivityDetail(e.SelectedItem);
             this.DisplaySummaryData();
