@@ -310,7 +310,7 @@
                                 {
                                     transaction.Execute("INSERT INTO tLocationMap (LocationMapSubType) VALUES (?)", Convert.ToInt32(SysCommon.LocMapSubTypes.Warehouse));
 
-                                    locMapRefno = Convert.ToInt32(transaction.QueryScalars<int>("SELECT last_insert_rowid() FROM tLocationMap"));
+                                    locMapRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tLocationMap"));
 
                                     string queryInsert = "INSERT INTO tLocationMapWarehouse (" +
                                     "LocationMapRefno, " +
@@ -353,7 +353,7 @@
                                     "?, " +
                                     "?" +
                                     ")";
-                                    List<object> parametersInsert = new List<object>()
+                                    object[] parametersInsert = new object[]
                                     {
                                         locMapRefno,
                                         Convert.ToInt32(SysCommon.LocMapSubTypes.Warehouse),

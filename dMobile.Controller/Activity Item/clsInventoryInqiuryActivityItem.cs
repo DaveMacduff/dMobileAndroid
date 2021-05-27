@@ -23,6 +23,7 @@
         private double columnWidth4 = 0;
         private double columnWidth5 = 0;
         private ResourceDictionary resourceDictionary = new ResourceDictionary();
+        List<InventoryInquiryItem> listInventoryInquiryItems = new List<InventoryInquiryItem>();
 
         #region Constructors
 
@@ -226,10 +227,10 @@
 
                 detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(inventoryInquiryItem.Productcode);
                 detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(inventoryInquiryItem.Productunitbc);
-                detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", inventoryInquiryItem.Activityitemquantity));
-                detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(inventoryInquiryItem.Unitcode);
-                detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", inventoryInquiryItem.Activityitemweightquantity));
-                detailWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(inventoryInquiryItem.Weightunitcode);
+                detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", inventoryInquiryItem.ActivityItemQuantity));
+                detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(inventoryInquiryItem.UnitCode);
+                detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(string.Format("{0:F3}", inventoryInquiryItem.ActivityItemWeightQuantity));
+                detailWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(inventoryInquiryItem.WeightUnitCode);
 
                 if (detailWidth0 > columnWidth0)
                 {
@@ -289,7 +290,8 @@
             dataTableItems.Columns.Add("activityitemquantity", Type.GetType("System.Decimal"));
             dataTableItems.Columns.Add("activityitemweightquantity", Type.GetType("System.Decimal"));
 
-            this.ListItems = dataTableItems.Select().ToList<object>();
+            this.listInventoryInquiryItems = dataTableItems.Rows.Cast<InventoryInquiryItem>().ToList();
+            this.ListItems = this.listInventoryInquiryItems.Cast<object>().ToList();
             return this.ListItems;
         }
 

@@ -134,7 +134,7 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="filterData"></param>
         /// <returns></returns>
-        public override string GetFilter(XDocument filterData)
+        public override void GetFilter(XDocument filterData)
         {
             throw new NotImplementedException();
         }
@@ -144,9 +144,9 @@ namespace dMobile.Controller
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public override string GetFilter()
+        public override void GetFilter()
         {
-            return string.Empty;
+            //return string.Empty;
         }
 
         #endregion

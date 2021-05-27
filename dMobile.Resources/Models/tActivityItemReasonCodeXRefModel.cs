@@ -35,10 +35,10 @@ namespace dMobile.Resources.Models
     [Table("tActivityItemReasonCodeXRef")]
     public class tActivityItemReasonCodeXRefModel
     {
-        [NotNull, ForeignKey(typeof(tActivityItemModel)), OneToMany(CascadeOperations = CascadeOperation.All), Indexed(Name = "FK_ActivityItemReasonCodeXRefOnActivityItemRefno", Order = 1, Unique = false)]
+        [NotNull, ForeignKey(typeof(tActivityItemModel)), Indexed(Name = "FK_ActivityItemReasonCodeXRefOnActivityItemRefno", Order = 1, Unique = false)]
         public int ActivityItemRefno { get; set; }
 
-        [NotNull, ForeignKey(typeof(tReasonCodeModel)), OneToMany(CascadeOperations = CascadeOperation.All), Indexed(Name = "FK_ActivityItemReasonCodeXRefOnReasonCodeRefno", Order = 1, Unique = false)]
+        [NotNull, ForeignKey(typeof(tReasonCodeModel)), Indexed(Name = "FK_ActivityItemReasonCodeXRefOnReasonCodeRefno", Order = 1, Unique = false)]
         public int ReasonCodeRefno { get; set; }
     }
 }

@@ -23,6 +23,7 @@ namespace dMobile.Controller
         private double columnWidth2 = 0;
         private double columnWidth3 = 0;
         private ResourceDictionary resourceDictionary = new ResourceDictionary();
+        List<ProductionTicketMaterialDetail> listProductionTicketMaterialDetail = new List<ProductionTicketMaterialDetail>();
 
         #region Constructors
 
@@ -746,7 +747,8 @@ namespace dMobile.Controller
                 sql.Append("ORDER BY tActivityDetail.ActivityDetailRefno");
             }
 
-            this.ListDetails = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<object>(sql.ToString());
+            this.listProductionTicketMaterialDetail = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ProductionTicketMaterialDetail>(sql.ToString());
+            this.ListDetails = this.listProductionTicketMaterialDetail.Cast<object>().ToList();
             return this.ListDetails;
         }
 
@@ -891,7 +893,7 @@ namespace dMobile.Controller
         public override ObservableCollection<object> Search(string searchText)
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
-            this.ListDetails = (List<object>)this.ListDetails.OfType<ProductionTicketMaterialDetail>().Where(productionTicketMaterialDetail => productionTicketMaterialDetail.ActivityDetailProductionMaterialFKRefno.ToString().Contains(searchText.Trim()));
+            this.ListDetails = this.listProductionTicketMaterialDetail.Where(productionTicketMaterialDetail => productionTicketMaterialDetail.ActivityDetailProductionMaterialFKRefno.ToString().Contains(searchText.Trim())).Cast<object>().ToList();
 
             foreach (ProductionTicketMaterialDetail productionTicketMaterialDetail in this.ListDetails)
             {

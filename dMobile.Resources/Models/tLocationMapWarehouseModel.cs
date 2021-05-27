@@ -56,7 +56,7 @@ namespace dMobile.Resources.Models
     [Table("tLocationMapWarehouse")]
     public class tLocationMapWarehouseModel
     {
-        [PrimaryKey, NotNull, ForeignKey(typeof(tLocationMapModel)), OneToOne(CascadeOperations = CascadeOperation.All), Indexed(Name = "UQ_LocationMapWarehouseOnLocationMapRefnoAndLocationMapSubType", Order = 1, Unique = true)]
+        [PrimaryKey, NotNull, ForeignKey(typeof(tLocationMapModel)), Indexed(Name = "UQ_LocationMapWarehouseOnLocationMapRefnoAndLocationMapSubType", Order = 1, Unique = true)]
         public int LocationMapRefno { get; set; }
 
         [NotNull, Indexed(Name = "UQ_LocationMapWarehouseOnLocationMapRefnoAndLocationMapSubType", Order = 2, Unique = true)]

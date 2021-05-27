@@ -47,7 +47,7 @@ namespace dMobile.Resources.Models
     [Table("tLocationMapSection")]
     public class tLocationMapSectionModel
     {
-        [PrimaryKey, NotNull, ForeignKey(typeof(tLocationMapModel)), OneToOne(CascadeOperations = CascadeOperation.All), Indexed(Name = "UQ_LocationMapSectionOnLocationMapRefnoAndLocationMapSubType", Order = 1, Unique = true)]
+        [PrimaryKey, NotNull, ForeignKey(typeof(tLocationMapModel)), Indexed(Name = "UQ_LocationMapSectionOnLocationMapRefnoAndLocationMapSubType", Order = 1, Unique = true)]
         public int LocationMapRefno { get; set; }
 
         [NotNull, Indexed(Name = "UQ_LocationMapSectionOnLocationMapRefnoAndLocationMapSubType", Order = 2, Unique = true)]

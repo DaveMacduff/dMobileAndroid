@@ -1087,7 +1087,7 @@ namespace dMobile.Controller
                     "?" +
                     ")";
 
-                List<object> parameters = new List<object>()
+                object[] parameters = new object[]
                 {
                     Convert.ToInt32(this.ActSubType),
                     Convert.ToInt32(SysCommon.ActStatus.Inserted),
@@ -1111,7 +1111,7 @@ namespace dMobile.Controller
 
                 await conn.ExecuteAsync(query, parameters);
 
-                actDetailRefno = Convert.ToInt32(await conn.QueryScalarsAsync<int>("SELECT last_insert_rowid() FROM tActivityDetail"));
+                actDetailRefno = Convert.ToInt32(await conn.ExecuteScalarAsync<int>("SELECT last_insert_rowid() FROM tActivityDetail"));
                 this.FKRefno = actDetailRefno * -1;
 
                 if (0 < this.SchemeData.VariantNumber)
@@ -1150,7 +1150,7 @@ namespace dMobile.Controller
                         "?" +
                         ")";
 
-                    List<object> parametersExtra = new List<object>()
+                    object[] parametersExtra = new object[]
                     {
                         Convert.ToInt32(actDetailRefno),
                         Convert.ToInt32(this.ActSubType),

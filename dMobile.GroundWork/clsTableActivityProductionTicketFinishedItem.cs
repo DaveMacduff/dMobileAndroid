@@ -1,4 +1,4 @@
-namespace dMobile.GroundWork
+﻿namespace dMobile.GroundWork
 {
     using dMobile.Bedrock;
     using System;
@@ -241,7 +241,7 @@ namespace dMobile.GroundWork
 
                                 transaction.Execute("INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (?, ?, ?)", Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished), Convert.ToInt32(SysCommon.ActStatus.NoChange), Convert.ToInt32(actRefno));
 
-                                actItemRefno = Convert.ToInt32(transaction.QueryScalars<int>("SELECT last_insert_rowid() FROM tActivityItem"));
+                                actItemRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityItem"));
                                 prodUnitRefno = this.GetProductUnitRefnoFromDataRow(drow, transaction, ref errMsg, false);
 
                                 string queryActivityItemProduction = "INSERT INTO tActivityItemProduction (" +
@@ -269,8 +269,7 @@ namespace dMobile.GroundWork
                                     "?, " +
                                     "?" +
                                     ")";
-
-                                List<object> parametersActivityItemProduction = new List<object>()
+                                object[] parametersActivityItemProduction = new object[]
                                 {
                                     actItemRefno,
                                     Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished),

@@ -42,7 +42,7 @@ namespace dMobile.Resources.Models
         [NotNull]
         public int ActivityItemStatus { get; set; }
 
-        [Indexed(Name = "FK_ActivityItemOnActivityRefno", Order = 1, Unique = true), NotNull, ForeignKey(typeof(tActivityModel)), OneToMany(CascadeOperations = CascadeOperation.All)]
+        [Indexed(Name = "FK_ActivityItemOnActivityRefno", Order = 1, Unique = false), NotNull, ForeignKey(typeof(tActivityModel))]
         public int ActivityRefno { get; set; }
     }
 }

@@ -105,6 +105,7 @@ namespace dMobile.View.Options
         private ReqSaveDisableHandler reqSaveDisableEvent;
         private ReqCancelEnableHandler reqCancelEnableEvent;
         private ReqCancelDisableHandler reqCancelDisableEvent;
+        private bool isFirstAppearance = true;
 
         public ucRefreshDataStatus()
         {
@@ -139,7 +140,7 @@ namespace dMobile.View.Options
                 this.prodUnitRelation = new TableProductUnitRelation();
                 this.prodUnitBarCode = new TableProductUnitBarCode();
                 this.prodLocMapType = new TableProductLocationMapType();
-                this.prodLocMapWhsProdScheme  = new TableLocationMapWarehouseProductScheme();
+                this.prodLocMapWhsProdScheme = new TableLocationMapWarehouseProductScheme();
                 this.contactUsers = new TableContactUsers();
                 this.physicalCount = new TableActivityPhysicalCount();
                 this.physicalCountItem = new TableActivityPhysicalCountItem();
@@ -189,17 +190,16 @@ namespace dMobile.View.Options
             }
 
             this.ActSubType = actSubTypes;
-
-            this.lstStatus.ItemsSource = this.ItemsList;
-            Task.Run(async () => await this.tmrRefreshData_Tick(this, new EventArgs()));
         }
 
         /// <summary>
         /// The OnAppearing
         /// </summary>
-        protected override void OnAppearing()
+        protected override async void OnAppearing()
         {
             base.OnAppearing();
+
+            this.lstStatus.ItemsSource = this.ItemsList;
 
             MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
             {
@@ -219,6 +219,12 @@ namespace dMobile.View.Options
                     }
                 }
             });
+
+            if (this.isFirstAppearance)
+            {
+                this.isFirstAppearance = false;
+                await this.tmrRefreshData_Tick(this, new EventArgs());
+            }
         }
 
         /// <summary>
@@ -237,7 +243,7 @@ namespace dMobile.View.Options
         public delegate void ReqCancelEnableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
         public delegate void ReqSaveEnableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
 
-         public event ReqCloseHandler ReqClose
+        public event ReqCloseHandler ReqClose
         {
             add
             {
@@ -302,7 +308,7 @@ namespace dMobile.View.Options
             }
         }
 
-          private ReqCloseHandler ReqCloseEvent
+        private ReqCloseHandler ReqCloseEvent
         {
             get
             {
@@ -1290,7 +1296,7 @@ namespace dMobile.View.Options
             }
         }
 
-        
+
         public ObservableCollection<string> ItemsList
         {
             get
@@ -1317,7 +1323,7 @@ namespace dMobile.View.Options
             }
         }
 
-              /// <summary>
+        /// <summary>
         /// Unregister the bar code scan event handler and disable the scanner.
         /// </summary>
         /// <remarks></remarks>
@@ -1422,7 +1428,7 @@ namespace dMobile.View.Options
             return xmldocParams;
         }
 
-               /// <summary>
+        /// <summary>
         ///
         /// </summary>
         /// <param name="sysSettingsEventPublisher"></param>
@@ -1453,7 +1459,7 @@ namespace dMobile.View.Options
             this.StatusOut(sysSettingsEventArgs.StatusOutMsg);
         }
 
-              /// <summary>
+        /// <summary>
         ///
         /// </summary>
         /// <param name="BarCodeSettingsEventPublisher"></param>
@@ -1484,7 +1490,7 @@ namespace dMobile.View.Options
             this.StatusOut(barCodeSettingsEventArgs.StatusOutMsg);
         }
 
-          /// <summary>
+        /// <summary>
         ///
         /// </summary>
         /// <param name="PrinterSettingsEventPublisher"></param>
@@ -1515,7 +1521,7 @@ namespace dMobile.View.Options
             this.StatusOut(printerSettingsEventArgs.StatusOutMsg);
         }
 
-          /// <summary>
+        /// <summary>
         /// 
         /// </summary>
         /// <param name="prodSchemeLabelSettingsPublisher"></param>
@@ -1544,7 +1550,7 @@ namespace dMobile.View.Options
                 prodSchemeLabelSettingsArgs.MaxValue);
         }
 
-            /// <summary>
+        /// <summary>
         /// 
         /// </summary>
         /// <param name="appEventListener"></param>
@@ -1634,7 +1640,7 @@ namespace dMobile.View.Options
             this.ReqSaveDisable -= new ReqSaveDisableHandler(appEventListener.ReqCancelDisable);
         }
 
-           /// <summary>
+        /// <summary>
         /// 
         /// </summary>
         /// <param name="databaseNubEventPublisher"></param>
@@ -1644,7 +1650,7 @@ namespace dMobile.View.Options
             this.StatusOut(databaseNubEventArgs.StatusOutMsg);
         }
 
-            /// <summary>
+        /// <summary>
         /// 
         /// </summary>
         /// <param name="dataAccessEventPublisher"></param>
@@ -1700,18 +1706,12 @@ namespace dMobile.View.Options
         /// <remarks></remarks>
         private async Task tmrRefreshData_Tick(object sender, EventArgs e)
         {
-            //DateTime refreshLast = DateAndTime.DateSerial(1900, 1, 1);
             DateTime refreshLast = new DateTime(1900, 1, 1);
 
             this.Loading = true;
 
-            await Task.Run(async () => {
-                //this.TotalTicks = this.TotalTicks + this.tmrRefreshData.Interval;
-
-                //if (this.tmrRefreshData.Enabled && this.TotalTicks >= 1000)
-                //{
-                //this.tmrRefreshData.Enabled = false;
-
+            await Task.Run(async () =>
+            {
                 if (this.ActSubType == SysCommon.ActSubTypes.DataStatus)
                 {
                     try
@@ -1723,7 +1723,6 @@ namespace dMobile.View.Options
                         this.StatusOut(Resource.DataStatusFailed);
 
                         FormErrorReport errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex, this.FullClassName, "tmrRefreshData_Tick");
-                        //Device.BeginInvokeOnMainThread(async () => await errRpt.ShowDialog());
                         await Device.InvokeOnMainThreadAsync(async () => await errRpt.ShowDialog());
                     }
                 }

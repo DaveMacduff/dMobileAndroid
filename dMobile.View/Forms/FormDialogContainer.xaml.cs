@@ -367,17 +367,15 @@ namespace dMobile.View.Forms
 
             if (this.DisplayControl == null)
             {
-                this.ReqCloseDialogContainer(this.DisplayControl, EventArgs.Empty);
+                await this.ReqCloseDialogContainer(this.DisplayControl, EventArgs.Empty);
             }
             else
             {
                 if (await ((IAppArea)this.DisplayControl).CancelChanges())
                 {
-                    this.ReqCloseDialogContainer(this.DisplayControl, EventArgs.Empty);
+                    await this.ReqCloseDialogContainer(this.DisplayControl, EventArgs.Empty);
                 }
             }
-
-            //this.menuItemCancel.Enabled = true;
         }
 
         /// <summary>
@@ -461,9 +459,9 @@ namespace dMobile.View.Forms
         /// </summary>
         /// <param name="appEventPub"></param>
         /// <param name="appEventArgs"></param>
-        public void ReqClose(IAppPublisher appEventPub, AppEventArgs appEventArgs)
+        public async void ReqClose(IAppPublisher appEventPub, AppEventArgs appEventArgs)
         {
-            this.ReqCloseDialogContainer(appEventPub, appEventArgs);
+            await this.ReqCloseDialogContainer(appEventPub, appEventArgs);
         }
 
         /// <summary>

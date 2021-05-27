@@ -23,6 +23,7 @@ using System.Collections.ObjectModel;
 using System.Threading;
 using dMobile.Resources.Types;
 using dMobile.Resources.Models;
+using dMobile.Resources.QueryResults;
 
 namespace dMobile.View.Activity
 {
@@ -877,7 +878,7 @@ namespace dMobile.View.Activity
                         string prodIdentifier = scanArgs.ParseInfo.ProductIdentifier;
                         string queryProductUnitBarcode = "SELECT tProductUnit.ProductUnitRefno,"
                             + "tProductUnitBarCode.ProductUnitBarCodeRefno,"
-                            + "tLocationMapWarehouseProductScheme.ProductSchemeRefno,"
+                            + "tLocationMapWarehouseProductScheme.ProductSchemeRefno AS WarehouseProductSchemeRefno,"
                             + "tProduct.ProductSchemeRefno,"
                             + "tProduct.ProductCode,"
                             + "tProduct.ProductDescription,"
@@ -892,14 +893,14 @@ namespace dMobile.View.Activity
                             + "AND tLocationMapWarehouseProductScheme.WarehouseLocationMapRefno = ? "
                             + "AND tProductUnitBarCode.ProductUnitBarCodeModifier1 = ?";
 
-                        List<dynamic> resultsProductUnitBarcode = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<dynamic>(queryProductUnitBarcode, prodIdentifier, currLocMap.WhsLocMapRefno, this.SysEnv.CurrentBarCodeModifier1);
+                        List<ProductUnitBarcodeQueryResult> resultsProductUnitBarcode = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ProductUnitBarcodeQueryResult>(queryProductUnitBarcode, prodIdentifier, currLocMap.WhsLocMapRefno, this.SysEnv.CurrentBarCodeModifier1);
 
                         if (resultsProductUnitBarcode?.Count > 0)
                         {
-                            this.UnitRefno = Convert.ToInt32(resultsProductUnitBarcode[0].ProductUnitRefno);
-                            this.UnitBarCodeRefno = Convert.ToInt32(resultsProductUnitBarcode[0].ProductUnitBarCodeRefno);
-                            prodSchemeRefno = Convert.ToInt32(resultsProductUnitBarcode[0].ProductSchemeRefno);
-                            prodCode = Convert.ToString(resultsProductUnitBarcode[0].ProductCode);
+                            this.UnitRefno = resultsProductUnitBarcode[0].ProductUnitRefno;
+                            this.UnitBarCodeRefno = resultsProductUnitBarcode[0].ProductUnitBarCodeRefno;
+                            prodSchemeRefno = resultsProductUnitBarcode[0].ProductSchemeRefno;
+                            prodCode = resultsProductUnitBarcode[0].ProductCode;
 
                             // If product was found associated display it.  'ProductID+BC+UOM'
 
@@ -957,7 +958,7 @@ namespace dMobile.View.Activity
                                 else
                                 {
                                     string queryProductUnit = "SELECT tProductUnit.ProductUnitRefno,"
-                                    + "tLocationMapWarehouseProductScheme.ProductSchemeRefno,"
+                                    + "tLocationMapWarehouseProductScheme.ProductSchemeRefno AS WarehouseProductSchemeRefno,"
                                     + "tProduct.ProductCode,"
                                     + "tProductUnit.ProductUnitBC,"
                                     + "tUnit.UnitCode "
@@ -968,7 +969,7 @@ namespace dMobile.View.Activity
                                     + "WHERE tProductUnit.ProductUnitRefno = ? "
                                     + "AND tLocationMapWarehouseProductScheme.WarehouseLocationMapRefno = ?";
 
-                                    List<dynamic> resultsProductUnit = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<dynamic>(queryProductUnit, this.UnitRefno, currLocMap.WhsLocMapRefno);
+                                    List<ProductUnitBarcodeQueryResult> resultsProductUnit = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ProductUnitBarcodeQueryResult>(queryProductUnit, this.UnitRefno, currLocMap.WhsLocMapRefno);
 
                                     if (resultsProductUnit?.Count > 0)
                                     {
@@ -1039,15 +1040,15 @@ namespace dMobile.View.Activity
 
                             if (resultsProductScheme?.Count > 0)
                             {
-                                isSerialTracked = Convert.ToBoolean(resultsProductScheme[0].ProductSchemeIsSerialTracked);
-                                isProductionDateTracked = Convert.ToBoolean(resultsProductScheme[0].ProductSchemeIsProductionDateTracked);
-                                isLotTracked = Convert.ToBoolean(resultsProductScheme[0].ProductSchemeIsLotTracked);
-                                isBestBeforeDateTracked = Convert.ToBoolean(resultsProductScheme[0].ProductSchemeIsBestBeforeDateTracked);
-                                isVariantTracked = Convert.ToBoolean(resultsProductScheme[0].ProductSchemeIsVariantTracked);
-                                isLotUniqueComponent = Convert.ToBoolean(resultsProductScheme[0].ProductSchemeIsLotUniqueComponent);
-                                isProductionDateUniqueComponent = Convert.ToBoolean(resultsProductScheme[0].ProductSchemeIsProductionDateUniqueComponent);
-                                isBestBeforeDateUniqueComponent = Convert.ToBoolean(resultsProductScheme[0].ProductSchemeIsBestBeforeDateUniqueComponent);
-                                isVariantUniqueComponent = Convert.ToBoolean(resultsProductScheme[0].ProductSchemeIsVariantUniqueComponent);
+                                isSerialTracked = resultsProductScheme[0].ProductSchemeIsSerialTracked;
+                                isProductionDateTracked = resultsProductScheme[0].ProductSchemeIsProductionDateTracked;
+                                isLotTracked = resultsProductScheme[0].ProductSchemeIsLotTracked;
+                                isBestBeforeDateTracked = resultsProductScheme[0].ProductSchemeIsBestBeforeDateTracked;
+                                isVariantTracked = resultsProductScheme[0].ProductSchemeIsVariantTracked;
+                                isLotUniqueComponent = resultsProductScheme[0].ProductSchemeIsLotUniqueComponent;
+                                isProductionDateUniqueComponent = resultsProductScheme[0].ProductSchemeIsProductionDateUniqueComponent;
+                                isBestBeforeDateUniqueComponent = resultsProductScheme[0].ProductSchemeIsBestBeforeDateUniqueComponent;
+                                isVariantUniqueComponent = resultsProductScheme[0].ProductSchemeIsVariantUniqueComponent;
                             }
                             else
                             {

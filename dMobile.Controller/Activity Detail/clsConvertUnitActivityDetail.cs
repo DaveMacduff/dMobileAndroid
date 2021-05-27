@@ -18,6 +18,7 @@ namespace dMobile.Controller
         private double columnWidth1 = 0;
         private double columnWidth2 = 0;
         private ResourceDictionary resourceDictionary = new ResourceDictionary();
+        List<ConvertUnitDetail> listConvertUnitDetails = new List<ConvertUnitDetail>();
 
         #region Constructors
 
@@ -161,7 +162,7 @@ namespace dMobile.Controller
         public override int GetRefno(object selectedActivityDetail)
         {
 
-            return (selectedActivityDetail as dynamic).ActivityDetailRefno;
+            return (selectedActivityDetail as ConvertUnitDetail).ActivityDetailRefno;
         }
 
         /// <summary>
@@ -205,7 +206,8 @@ namespace dMobile.Controller
             table.Columns.Add("ActivityDetailFKRefno", Type.GetType("System.Int32"));
             table.Columns.Add("ActivityDetailRefno", Type.GetType("System.Int32"));
 
-            this.ListDetails = table.Select().ToList<object>();
+            this.listConvertUnitDetails = table.Rows.Cast<ConvertUnitDetail>().ToList();
+            this.ListDetails = this.listConvertUnitDetails.Cast<object>().ToList();
             return this.ListDetails;
         }
 

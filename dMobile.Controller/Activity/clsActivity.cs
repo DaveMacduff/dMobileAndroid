@@ -5,7 +5,6 @@ namespace dMobile.Controller
     using SQLite;
     using System;
     using System.Collections.ObjectModel;
-    using SQLite;
     using System.Threading.Tasks;
     using System.Xml.Linq;
     using Xamarin.Forms;
@@ -23,7 +22,7 @@ namespace dMobile.Controller
         private SysEnvironment sysEnv;
         private int fkRefno = 0;
         private string pono = string.Empty;
-        private string actFilter = string.Empty;
+        //private string actFilter = string.Empty;
         private XDocument xmlDataCriteria = null;
         private SysSkidInfo skidInfo = new SysSkidInfo();
         private DataLayerEventArgs dataEventArgs = new DataLayerEventArgs();
@@ -105,21 +104,21 @@ namespace dMobile.Controller
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        public string ActFilter
-        {
-            get
-            {
-                return this.actFilter;
-            }
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        //public string ActFilter
+        //{
+        //    get
+        //    {
+        //        return this.actFilter;
+        //    }
 
-            set
-            {
-                this.actFilter = value;
-            }
-        }
+        //    set
+        //    {
+        //        this.actFilter = value;
+        //    }
+        //}
 
         /// <summary>
         /// 
@@ -314,14 +313,14 @@ namespace dMobile.Controller
         /// 
         /// </summary>
         /// <returns></returns>
-        public abstract string GetFilter();
+        public abstract void GetFilter();
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="xmlParams"></param>
         /// <returns></returns>
-        public abstract string GetFilter(XDocument data);
+        public abstract void GetFilter(XDocument data);
 
         /// <summary>
         /// 
@@ -360,18 +359,11 @@ namespace dMobile.Controller
         {
             try
             {
-                //cmndAct.CommandType = CommandType.Text;
-                //cmndAct.Parameters.Add(new SQLiteParameter("@activityStatus", Convert.ToInt32(SysCommon.ActStatus.Inserted)));
-                //cmndAct.Parameters.Add(new SQLiteParameter("@activitySubType", Convert.ToInt32(actSubType)));
-                //recAct.SetInt32((int)SysCommon.ActFields.SubType, (int)actSubType);
-                //recAct.SetInt32((int)SysCommon.ActFields.Status, (int)SysCommon.ActStatus.Inserted);
-                //rsAct.Insert(recAct);
-                
                 string sql = "INSERT INTO tActivity (ActivityStatus, ActivitySubType) VALUES (?, ?)";
                 await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityModel>(sql, Convert.ToInt32(SysCommon.ActStatus.Inserted), Convert.ToInt32(actSubType));
                 
                 string queryID = "SELECT last_insert_rowid() FROM tActivity";
-                this.Refno = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.QueryScalarsAsync<int>(queryID));
+                this.Refno = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>(queryID));
             }
             catch (SQLiteException ex)
             {

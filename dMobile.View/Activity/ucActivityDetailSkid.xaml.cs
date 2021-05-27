@@ -32,7 +32,7 @@ namespace dMobile.View.Activity
         private Color addModeHeaderColor, removeModeHeaderColor;
 
         private ActDetail actDetail;
-        private List<dynamic> dataViewActDetails;
+        private List<object> listActDetails;
         private LocationMap locMap = LocationMap.GetInstance();
         private BarCodeParse parse = null;
         private BarCodeScanner.BarCodeScanner scanner = null;
@@ -454,16 +454,16 @@ namespace dMobile.View.Activity
             }
         }
 
-        private List<dynamic> ListActivityDetails
+        private List<object> ListActivityDetails
         {
             get
             {
-                return this.dataViewActDetails;
+                return this.listActDetails;
             }
 
             set
             {
-                this.dataViewActDetails = value;
+                this.listActDetails = value;
             }
         }
 
@@ -1079,9 +1079,9 @@ namespace dMobile.View.Activity
                 {
                     for (int i = 0; i <= this.ListActivityDetails.Count - 1; i++)
                     {
-                        fillQty.Quantity += Convert.ToDecimal(this.ListActivityDetails[i].ActivityDetailQuantity);
-                        fillQty.BaseQuantity += Convert.ToDecimal(this.ListActivityDetails[i].ActivityDetailBaseQuantity);
-                        fillQty.WeightQuantity += Convert.ToDecimal(this.ListActivityDetails[i].ActivityDetailWeightQuantity);
+                        fillQty.Quantity += Convert.ToDecimal(this.ListActivityDetails[i].GetType().GetProperty("ActivityDetailQuantity")?.GetValue(this.ListActivityDetails[i]));
+                        fillQty.BaseQuantity += Convert.ToDecimal(this.ListActivityDetails[i].GetType().GetProperty("ActivityDetailBaseQuantity")?.GetValue(this.ListActivityDetails[i]));
+                        fillQty.WeightQuantity += Convert.ToDecimal(this.ListActivityDetails[i].GetType().GetProperty("ActivityDetailWeightQuantity")?.GetValue(this.ListActivityDetails[i]));
                     }
                 }
             }

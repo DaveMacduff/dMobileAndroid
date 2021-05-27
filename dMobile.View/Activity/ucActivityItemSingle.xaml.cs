@@ -1397,7 +1397,7 @@ namespace dMobile.View.Activity
                         if (actItemFoundRefno > 0)
                         {
                             //foundSelectedActivityItem = this.ActItem.DataViewItems.Find(actItemFoundRefno);
-                            foundSelectedActivityItem = this.ActItem.ListItems.OfType<object>().Where(activityItem => Convert.ToString(activityItem.GetType().GetProperty("ActivityItemRefno")?.GetValue(activityItem)) == Convert.ToString(actItemFoundRefno)).First();
+                            foundSelectedActivityItem = this.ActItem.ListItems.OfType<object>().Where(activityItem => Convert.ToString(activityItem.GetType().GetProperty("ActivityItemRefno")?.GetValue(activityItem)) == Convert.ToString(actItemFoundRefno)).FirstOrDefault();
                         }
                         else
                         {
@@ -1463,7 +1463,7 @@ namespace dMobile.View.Activity
                         else
                         {
                             //foundSelectedActivityItem = this.ActItem.DataViewItems.Find(scanArgs.ParseInfo.ActItemFKRefno);
-                            foundSelectedActivityItem = this.ActItem.ListItems.OfType<object>().Where(activityItem => Convert.ToString(activityItem.GetType().GetProperty(this.ActItem.GetDataViewSortFKRefnoIdx())?.GetValue(activityItem)) == Convert.ToString(scanArgs.ParseInfo.ActItemFKRefno)).First();
+                            foundSelectedActivityItem = this.ActItem.ListItems.OfType<object>().Where(activityItem => Convert.ToString(activityItem.GetType().GetProperty(this.ActItem.GetDataViewSortFKRefnoIdx())?.GetValue(activityItem)) == Convert.ToString(scanArgs.ParseInfo.ActItemFKRefno)).FirstOrDefault();
 
                             if (foundSelectedActivityItem != null)
                             {
@@ -1471,7 +1471,7 @@ namespace dMobile.View.Activity
                                 actItemFoundRefno = this.ActItem.Refno;
                                 //this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
                                 //foundSelectedActivityItem = this.ActItem.DataViewItems.Find(actItemFoundRefno);
-                                foundSelectedActivityItem = this.ActItem.ListItems.OfType<object>().Where(activityItem => Convert.ToString(activityItem.GetType().GetProperty("ActivityItemRefno")?.GetValue(activityItem)) == Convert.ToString(actItemFoundRefno)).First();
+                                foundSelectedActivityItem = this.ActItem.ListItems.OfType<object>().Where(activityItem => Convert.ToString(activityItem.GetType().GetProperty("ActivityItemRefno")?.GetValue(activityItem)) == Convert.ToString(actItemFoundRefno)).FirstOrDefault();
                             }
                             else
                             {
@@ -1495,7 +1495,7 @@ namespace dMobile.View.Activity
                             //foundSelectedActivityItem = this.ActItem.DataViewItems.Find(tempItemSchemeData.ActItemFKRefno.ToString());
 
                             foundSelectedActivityItem = this.ActItem.ListItems.OfType<object>().Where(activityItem =>
-                            Convert.ToString(activityItem.GetType().GetProperty(this.ActItem.GetDataViewSortFKRefnoIdx())?.GetValue(activityItem)) == Convert.ToString(tempItemSchemeData.ActItemFKRefno.ToString())).First();
+                            Convert.ToString(activityItem.GetType().GetProperty(this.ActItem.GetDataViewSortFKRefnoIdx())?.GetValue(activityItem)) == Convert.ToString(tempItemSchemeData.ActItemFKRefno.ToString())).FirstOrDefault();
 
                             if (foundSelectedActivityItem != null)
                             {
@@ -1503,7 +1503,7 @@ namespace dMobile.View.Activity
                                 actItemFoundRefno = this.ActItem.Refno;
                                 //this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
                                 //foundSelectedActivityItem = this.ActItem.DataViewItems.Find(actItemFoundRefno);
-                                foundSelectedActivityItem = this.ActItem.ListItems.OfType<object>().Where(activityItem => Convert.ToString(activityItem.GetType().GetProperty("ActivityItemRefno")?.GetValue(activityItem)) == Convert.ToString(actItemFoundRefno)).First();
+                                foundSelectedActivityItem = this.ActItem.ListItems.OfType<object>().Where(activityItem => Convert.ToString(activityItem.GetType().GetProperty("ActivityItemRefno")?.GetValue(activityItem)) == Convert.ToString(actItemFoundRefno)).FirstOrDefault();
                             }
                             else
                             {
@@ -1548,7 +1548,7 @@ namespace dMobile.View.Activity
                         if (actItemFoundRefno > 0)
                         {
                             //foundSelectedActivityItem = this.ActItem.DataViewItems.Find(actItemFoundRefno);
-                            foundSelectedActivityItem = this.ActItem.ListItems.OfType<object>().Where(activityItem => Convert.ToString(activityItem.GetType().GetProperty("ActivityItemRefno")?.GetValue(activityItem)) == Convert.ToString(actItemFoundRefno)).First();
+                            foundSelectedActivityItem = this.ActItem.ListItems.OfType<object>().Where(activityItem => Convert.ToString(activityItem.GetType().GetProperty("ActivityItemRefno")?.GetValue(activityItem)) == Convert.ToString(actItemFoundRefno)).FirstOrDefault();
                         }
                         else
                         {
@@ -2489,7 +2489,7 @@ namespace dMobile.View.Activity
                             //foundRowIdx = this.ActItem.DataViewItems.Find(itemFoundRefno);
                             //this.ActItem.CurrRowIdx = foundRowIdx;
 
-                            this.ActItem.SelectedActivityItem = this.ActItem.ListItems.OfType<object>().Where(activityItem => Convert.ToString(activityItem.GetType().GetProperty("ActivityItemRefno")?.GetValue(activityItem)) == Convert.ToString(itemFoundRefno)).First();
+                            this.ActItem.SelectedActivityItem = this.ActItem.ListItems.OfType<object>().Where(activityItem => Convert.ToString(activityItem.GetType().GetProperty("ActivityItemRefno")?.GetValue(activityItem)) == Convert.ToString(itemFoundRefno)).FirstOrDefault();
                         }
                         else
                         {
@@ -2691,7 +2691,7 @@ namespace dMobile.View.Activity
                         if (actItemFoundRefno > 0)
                         {
                             //foundObject = this.ActItem.DataViewItems.Find(actItemFoundRefno);
-                            foundObject = this.ActItem.ListItems.OfType<object>().Where(activityItem => Convert.ToString(activityItem.GetType().GetProperty("ActivityItemRefno")?.GetValue(activityItem)) == Convert.ToString(actItemFoundRefno)).First();
+                            foundObject = this.ActItem.ListItems.OfType<object>().Where(activityItem => Convert.ToString(activityItem.GetType().GetProperty("ActivityItemRefno")?.GetValue(activityItem)) == Convert.ToString(actItemFoundRefno)).FirstOrDefault();
                         }
                         else
                         {

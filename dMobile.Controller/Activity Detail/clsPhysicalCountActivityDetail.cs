@@ -14,7 +14,6 @@ namespace dMobile.Controller
     using dMobile.Resources.Services;
     using dMobile.Resources.Types;
     using Xamarin.Forms;
-    using System.Threading.Tasks;
     using System.Linq;
 
     public class PhysicalCountActDetail : ActDetail
@@ -24,6 +23,7 @@ namespace dMobile.Controller
         private double columnWidth2 = 0;
         private double columnWidth3 = 0;
         private ResourceDictionary resourceDictionary = new ResourceDictionary();
+        List<CountDetail> listCountDetails = new List<CountDetail>();
 
         #region Constructors
 
@@ -390,7 +390,7 @@ namespace dMobile.Controller
         /// <returns></returns>
         public override int GetRefno(object selectedActivityDetail)
         {
-            
+
             return (selectedActivityDetail as CountDetail).ActivityDetailRefno;
         }
 
@@ -753,7 +753,8 @@ namespace dMobile.Controller
                 sql.Append("ORDER BY tActivityDetail.ActivityDetailRefno");
             }
 
-            this.ListDetails = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<object>(sql.ToString());
+            this.listCountDetails = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<CountDetail>(sql.ToString());
+            this.ListDetails = this.listCountDetails.Cast<object>().ToList();
             return this.ListDetails;
         }
 
@@ -818,7 +819,7 @@ namespace dMobile.Controller
             Label labelWeightHeader = new Label { Text = "Weight", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             Label labelUnitCodeHeader = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             Label labelSchemeIDHeader = new Label { Text = "Scheme ID", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-                        
+
             columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelQtyHeader.Text);
             columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelWeightHeader.Text);
             columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelUnitCodeHeader.Text);
@@ -899,7 +900,7 @@ namespace dMobile.Controller
         public override ObservableCollection<object> Search(string searchText)
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
-            this.ListDetails = (List<object>)this.ListDetails.OfType<CountDetail>().Where(countDetail => countDetail.ActivityDetailCountFKRefno.ToString().Contains(searchText.Trim()));
+            this.ListDetails = this.listCountDetails.Where(countDetail => countDetail.ActivityDetailCountFKRefno.ToString().Contains(searchText.Trim())).Cast<object>().ToList();
 
             foreach (CountDetail countDetail in this.ListDetails)
             {
@@ -974,7 +975,7 @@ namespace dMobile.Controller
                 this.ActExtra.Text2 = Convert.ToString(countDetail.ActivityDetailExtra2Text);
                 this.ActExtra.Text3 = Convert.ToString(countDetail.ActivityDetailExtra3Text);
                 this.ActExtra.Text4 = Convert.ToString(countDetail.ActivityDetailExtra4Text);
-                
+
                 if (DateTime.TryParse(Convert.ToString(countDetail.ActivityDetailExtra5Date), out _))
                 {
                     this.ActExtra.DateTime5 = Convert.ToDateTime(countDetail.ActivityDetailExtra5Date);

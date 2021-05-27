@@ -910,26 +910,26 @@ namespace dMobile.View.Activity
             string sendReq = string.Empty;
             string errDetail = string.Empty;
             string data = string.Empty;
-            List<dynamic> detail = this.ActDetail.ListDetails;
+            List<object> detail = this.ActDetail.ListDetails;
 
             for (int rowIdx = 0; rowIdx <= detail.Count - 1; rowIdx++)
             {
-                if (Convert.ToBoolean(detail[rowIdx].IsBatchProductLabel))
+                if (Convert.ToBoolean(detail[rowIdx].GetType().GetProperty("IsBatchProductLabel")?.GetValue(detail[rowIdx])))
                 {
                     try
                     {
                         XDocument request = XDocument.Parse(
                             "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                             + "<params>"
-                            + ("<serial>" + detail[rowIdx].ActivityDetailSingleTradeItemSerialNumber + "</serial>")
-                            + ("<pdate>" + detail[rowIdx].ActivityDetailLogisticUnitProductionDate + "</pdate>")
-                            + ("<lot_no>" + detail[rowIdx].ActivityDetailLogisticUnitBatchLotNumber + "</lot_no>")
-                            + ("<bdate>" + detail[rowIdx].ActivityDetailLogisticUnitBestBeforeSellByDate + "</bdate>")
-                            + ("<variant_code>" + detail[rowIdx].ProductSchemeVariantCode + "</variant_code>")
-                            + ("<variant_no>" + detail[rowIdx].ProductSchemeVariantNo + "</variant_no>")
-                            + ("<alt_qty>" + detail[rowIdx].ActivityDetailQuantity + "</alt_qty>")
-                            + ("<wt_qty>" + detail[rowIdx].ActivityDetailBaseQuantity + "</wt_qty>")
-                            + ("<base_qty>" + detail[rowIdx].ActivityDetailWeightQuantity + "</base_qty>")
+                            + ("<serial>" + detail[rowIdx].GetType().GetProperty("ActivityDetailSingleTradeItemSerialNumber")?.GetValue(detail[rowIdx]) + "</serial>")
+                            + ("<pdate>" + detail[rowIdx].GetType().GetProperty("ActivityDetailLogisticUnitProductionDate")?.GetValue(detail[rowIdx]) + "</pdate>")
+                            + ("<lot_no>" + detail[rowIdx].GetType().GetProperty("ActivityDetailLogisticUnitBatchLotNumber")?.GetValue(detail[rowIdx]) + "</lot_no>")
+                            + ("<bdate>" + detail[rowIdx].GetType().GetProperty("ActivityDetailLogisticUnitBestBeforeSellByDate")?.GetValue(detail[rowIdx]) + "</bdate>")
+                            + ("<variant_code>" + detail[rowIdx].GetType().GetProperty("ProductSchemeVariantCode")?.GetValue(detail[rowIdx]) + "</variant_code>")
+                            + ("<variant_no>" + detail[rowIdx].GetType().GetProperty("ProductSchemeVariantNo")?.GetValue(detail[rowIdx]) + "</variant_no>")
+                            + ("<alt_qty>" + detail[rowIdx].GetType().GetProperty("ActivityDetailQuantity")?.GetValue(detail[rowIdx]) + "</alt_qty>")
+                            + ("<wt_qty>" + detail[rowIdx].GetType().GetProperty("ActivityDetailBaseQuantity")?.GetValue(detail[rowIdx]) + "</wt_qty>")
+                            + ("<base_qty>" + detail[rowIdx].GetType().GetProperty("ActivityDetailWeightQuantity")?.GetValue(detail[rowIdx]) + "</base_qty>")
                             + "</params>");
 
                         // CreateSubmitProductLabelXML assumes actItem and 
@@ -964,7 +964,7 @@ namespace dMobile.View.Activity
 
                         if (string.IsNullOrEmpty(errDetail))
                         {
-                            detail[rowIdx].IsBatchProductLabel = Convert.ToBoolean(false);
+                            detail[rowIdx].GetType().GetProperty("IsBatchProductLabel")?.SetValue(detail[rowIdx], false);
                         }
                         else
                         {

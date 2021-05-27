@@ -129,7 +129,7 @@ namespace dMobile.GroundWork
 
             try
             {
-                rowsAffected = Convert.ToInt32(DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tProductUnitRelation"));
+                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tProductUnitRelation"));
 
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} product unit relations.", rowsAffected), false);
@@ -324,7 +324,7 @@ namespace dMobile.GroundWork
 
                                 if (resultsUnit?.Count > 0)
                                 {
-                                    unitCode1Refno = resultsUnit[0].UnitRefno;
+                                    unitCode2Refno = resultsUnit[0].UnitRefno;
                                     unitLookup.Add(unitCode2, unitCode2Refno);
                                 }
                                 else

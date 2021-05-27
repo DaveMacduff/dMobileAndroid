@@ -33,7 +33,7 @@ namespace dMobile.Resources.Models
     [Table("tActivityDetailExtra")]
     public class tActivityDetailExtraModel
     {
-        [PrimaryKey, Indexed(Name = "UQ_ActivityDetailExtraOnActivityDetailRefnoAndActivityDetailSubType", Order = 1, Unique = true), NotNull, ForeignKey(typeof(tActivityDetailModel)), OneToOne(CascadeOperations = CascadeOperation.All)]
+        [PrimaryKey, Indexed(Name = "UQ_ActivityDetailExtraOnActivityDetailRefnoAndActivityDetailSubType", Order = 1, Unique = true), NotNull, ForeignKey(typeof(tActivityDetailModel))]
         public int ActivityDetailRefno { get; set; }
 
         [Indexed(Name = "UQ_ActivityDetailExtraOnActivityDetailRefnoAndActivityDetailSubType", Order = 2, Unique = true), NotNull]

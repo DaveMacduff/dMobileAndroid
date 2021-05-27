@@ -41,7 +41,10 @@ namespace dMobile.Droid.CustomRenderers
 
         private void Control_TextChanged(object sender, Android.Text.TextChangedEventArgs e)
         {
-			(this.Element as CustomPicker).Text = this.Control.Text;
+			if (this.Control != null && this.Element != null)
+            {
+				(this.Element as CustomPicker).Text = this.Control.Text;
+            }
         }
 
         public LayerDrawable AddPickerStyles(string imagePath)

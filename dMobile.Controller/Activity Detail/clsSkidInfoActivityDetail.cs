@@ -23,6 +23,7 @@ namespace dMobile.Controller
         private double columnWidth2 = 0;
         private double columnWidth3 = 0;
         private ResourceDictionary resourceDictionary = new ResourceDictionary();
+        List<SkidInfoDetail> listSkidInfoDetails = new List<SkidInfoDetail>();
 
         #region Constructors
 
@@ -425,7 +426,8 @@ namespace dMobile.Controller
             table.Columns.Add("ActivityDetailFKRefno", Type.GetType("System.Int32"));
             table.Columns.Add("ActivityDetailRefno", Type.GetType("System.Int32"));
 
-            this.ListDetails = table.Select().ToList<object>();
+            this.listSkidInfoDetails = table.Rows.Cast<SkidInfoDetail>().ToList();
+            this.ListDetails = this.listSkidInfoDetails.Cast<object>().ToList();
             return this.ListDetails;
         }
 

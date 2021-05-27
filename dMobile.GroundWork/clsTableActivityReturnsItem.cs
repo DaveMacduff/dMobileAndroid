@@ -1,4 +1,4 @@
-namespace dMobile.GroundWork
+﻿namespace dMobile.GroundWork
 {
     using System;
     using System.Collections.Generic;
@@ -228,7 +228,7 @@ namespace dMobile.GroundWork
 
                                 transaction.Execute("INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (?, ?, ?)", Convert.ToInt32(SysCommon.ActSubTypes.Returns), 0, actRefno);
 
-                                actItemRefno = Convert.ToInt32(transaction.QueryScalars<int>("SELECT last_insert_rowid() FROM tActivityItem"));
+                                actItemRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityItem"));
                                 prodUnitRefno = this.GetProductUnitRefnoFromDataRow(drow, transaction, ref errMsg, false);
                                 locMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, ref errMsg, transaction);
 
@@ -260,7 +260,7 @@ namespace dMobile.GroundWork
                                     "?, " +
                                     "?" +
                                     ")";
-                                List<object> parametersInsertItem = new List<object>()
+                                object[] parametersInsertItem = new object[]
                                 {
                                     Convert.ToInt32(actItemRefno),
                                     Convert.ToInt32(SysCommon.ActSubTypes.Returns),

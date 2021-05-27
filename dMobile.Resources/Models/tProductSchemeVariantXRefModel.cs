@@ -1,5 +1,4 @@
-﻿using System;
-using SQLite;
+﻿using SQLite;
 using SQLiteNetExtensions.Attributes;
 
 namespace dMobile.Resources.Models
@@ -35,10 +34,10 @@ namespace dMobile.Resources.Models
     [Table("tProductSchemeVariantXRef")]
     public class tProductSchemeVariantXRefModel
     {
-        [NotNull, ForeignKey(typeof(tProductSchemeModel)), OneToMany(CascadeOperations = CascadeOperation.All), Indexed(Name = "FK_ProductSchemeVariantXRefOnProductSchemeRefno", Order = 1, Unique = false)]
+        [NotNull, ForeignKey(typeof(tProductSchemeModel)), Indexed(Name = "FK_ProductSchemeVariantXRefOnProductSchemeRefno", Order = 1, Unique = false)]
         public int ProductSchemeRefno { get; set; }
 
-        [NotNull, ForeignKey(typeof(tProductSchemeVariantModel)), OneToMany(CascadeOperations = CascadeOperation.All), Indexed(Name = "FK_ProductSchemeVariantXRefOnProductSchemeVariantRefno", Order = 1, Unique = false)]
+        [NotNull, ForeignKey(typeof(tProductSchemeVariantModel)), Indexed(Name = "FK_ProductSchemeVariantXRefOnProductSchemeVariantRefno", Order = 1, Unique = false)]
         public int ProductSchemeVariantRefno { get; set; }
     }
 }

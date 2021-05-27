@@ -71,13 +71,13 @@ namespace dMobile.Resources.Models
         [NotNull]
         public int ActivityDetailStatus { get; set; }
 
-        [Indexed(Name = "FK_ActivityDetailOnActivityItemRefno", Order = 1, Unique = false), ForeignKey(typeof(tContactModel)), OneToMany(CascadeOperations = CascadeOperation.All), NotNull]
+        [Indexed(Name = "FK_ActivityDetailOnActivityItemRefno", Order = 1, Unique = false), ForeignKey(typeof(tContactModel)), NotNull]
         public int ActivityItemRefno { get; set; }
 
-        [Indexed(Name = "FK_ActivityDetailOnLocationMapRefno", Order = 1, Unique = false), ForeignKey(typeof(tLocationMapModel)), OneToMany(CascadeOperations = CascadeOperation.All), NotNull]
+        [Indexed(Name = "FK_ActivityDetailOnLocationMapRefno", Order = 1, Unique = false), ForeignKey(typeof(tLocationMapModel)), NotNull]
         public int LocationMapRefno { get; set; }
 
-        [ForeignKey(typeof(tProductUnitModel)), OneToMany(CascadeOperations = CascadeOperation.All), NotNull]
+        [ForeignKey(typeof(tProductUnitModel)), NotNull]
 
         [Indexed(Name = "FK_ActivityDetailOnProductUnitRefno", Order = 1, Unique = false)]
         public int ProductUnitRefno { get; set; }

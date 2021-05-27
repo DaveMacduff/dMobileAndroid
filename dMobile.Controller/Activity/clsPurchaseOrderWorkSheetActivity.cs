@@ -14,6 +14,7 @@ namespace dMobile.Controller
     using Xamarin.Forms.Internals;
     using System.Threading.Tasks;
     using System.Collections.Generic;
+    using System.Linq;
 
     public class POWorkSheetActivity : Activity
     {
@@ -21,6 +22,7 @@ namespace dMobile.Controller
         private double columnWidth1 = 0;
         private double columnWidth2 = 0;
         private ResourceDictionary resourceDictionary = new ResourceDictionary();
+        private List<PurchaseOrderWorkSheetItem> listPurchaseOrderWorkSheetItems = new List<PurchaseOrderWorkSheetItem>();
 
         #region Constructors
 
@@ -96,7 +98,7 @@ namespace dMobile.Controller
         public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity)
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
-            
+
             foreach (PurchaseOrderWorkSheetItem purchaseOrderWorkSheetItem in this.ListHdrs)
             {
                 //PurchaseOrderWorkSheetItem purchaseOrderWorkSheetItem = new PurchaseOrderWorkSheetItem
@@ -156,7 +158,7 @@ namespace dMobile.Controller
             Grid.SetRow(gridHeader, 0);
 
             dataGridMainActivityHeader.Children.Add(gridHeader);
-            
+
             foreach (PurchaseOrderWorkSheetItem purchaseOrderWorkSheetItem in observableCollection)
             {
                 double detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(purchaseOrderWorkSheetItem.ProductCode);
@@ -259,7 +261,8 @@ namespace dMobile.Controller
                 sql.Append(" ORDER BY tActivityItemPurchaseOrderWorkSheet.ActivityItemRefno");
             }
 
-            this.ListHdrs = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<object>(sql.ToString());
+            this.listPurchaseOrderWorkSheetItems = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<PurchaseOrderWorkSheetItem>(sql.ToString());
+            this.ListHdrs = this.listPurchaseOrderWorkSheetItems.Cast<object>().ToList();
             return this.ListHdrs;
         }
 
@@ -347,7 +350,7 @@ namespace dMobile.Controller
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public override string GetFilter()
+        public override void GetFilter()
         {
             throw new NotImplementedException();
         }
@@ -358,7 +361,7 @@ namespace dMobile.Controller
         /// <param name="xmlDoc"></param>
         /// <returns></returns>
         /// <remarks></remarks>
-        public override string GetFilter(XDocument data)
+        public override void GetFilter(XDocument data)
         {
             throw new NotImplementedException();
         }

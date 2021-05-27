@@ -377,7 +377,7 @@
                                         "?, " +
                                         "?, " +
                                         "?)";
-                                    List<object> parametersInsert = new List<object>()
+                                    object[] parametersInsert = new object[]
                                     {
                                         schemeCode,
                                         Convert.ToBoolean(drow["ProductSchemeIsSerialTracked"]),
@@ -394,11 +394,11 @@
                                         Convert.ToInt32(drow["ProductSchemeExtra3Type"]),
                                         Convert.ToInt32(drow["ProductSchemeExtra4Type"]),
                                         Convert.ToInt32(drow["ProductSchemeExtra5Type"]),
-                                        drow["ProductSchemeExtra1Caption"].ToString(),
-                                        drow["ProductSchemeExtra2Caption"].ToString(),
-                                        drow["ProductSchemeExtra3Caption"].ToString(),
-                                        drow["ProductSchemeExtra4Caption"].ToString(),
-                                        drow["ProductSchemeExtra5Caption"].ToString(),
+                                        Convert.ToString(drow["ProductSchemeExtra1Caption"]),
+                                        Convert.ToString(drow["ProductSchemeExtra2Caption"]),
+                                        Convert.ToString(drow["ProductSchemeExtra3Caption"]),
+                                        Convert.ToString(drow["ProductSchemeExtra4Caption"]),
+                                        Convert.ToString(drow["ProductSchemeExtra5Caption"]),
                                         Convert.ToBoolean(drow["ProductSchemeExtra1IsRequired"]),
                                         Convert.ToBoolean(drow["ProductSchemeExtra2IsRequired"]),
                                         Convert.ToBoolean(drow["ProductSchemeExtra3IsRequired"]),

@@ -458,9 +458,9 @@
                                     }
                                 }
 
-                                transaction.Execute(queryInsertDetail, parametersInsertDetail);
+                                transaction.Execute(queryInsertDetail, parametersInsertDetail.ToArray());
 
-                                actDetailRefno = Convert.ToInt32(transaction.QueryScalars<int>("SELECT last_insert_rowid() FROM tActivityDetail"));
+                                actDetailRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityDetail"));
                                 actDetailAdjFKRefno = Convert.ToInt32(drow["ActivityDetailAdjustmentFKRefno"]);
 
                                 // TODO: Resource strings
@@ -532,17 +532,12 @@
                                     parametersExtra.Add(drow["ActivityDetailExtra5"].ToString());
                                 }
 
-                                transaction.Execute(queryExtra, parametersExtra);
+                                transaction.Execute(queryExtra, parametersExtra.ToArray());
 
                                 progValue++;
                                 if (progValue % 10 == 0)
                                 {
-                                    this.DataAccessProgressOutHandler(
-                                        this,
-                                        EventArgs.Empty,
-                                        progValue,
-                                        0,
-                                        progMax);
+                                    this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
                                 }
                             }
 

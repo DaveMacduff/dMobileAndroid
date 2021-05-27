@@ -930,11 +930,11 @@ namespace dMobile.View
                     + "WHERE tProductSchemeLotNumberXRef.ProductSchemeRefno = ? "
                     + "ORDER BY ProductSchemeLotNumberCode DESC";
 
-                List<dynamic> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<dynamic>(query, schemeRefno);
+                List<tProductSchemeLotNumberModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tProductSchemeLotNumberModel>(query, schemeRefno);
 
                 if (results?.Count > 0)
                 {
-                    foreach (dynamic xRef in results)
+                    foreach (tProductSchemeLotNumberModel xRef in results)
                     {
                         if (gtin.Contains(Convert.ToString(xRef.ProductSchemeLotNumberCode).TrimEnd()))
                         {

@@ -23,6 +23,7 @@ namespace dMobile.Controller
         private double columnWidth2 = 0;
         private double columnWidth3 = 0;
         private ResourceDictionary resourceDictionary = new ResourceDictionary();
+        List<CountDetail> listCountDetails = new List<CountDetail>();
 
         #region Constructors
 
@@ -592,9 +593,9 @@ namespace dMobile.Controller
                 // This large query failed on large datasets like Prairie most of the time. Out of memory exception.
                 // The queries are identical other than Slot, Section, Warehouse location labels
                 // Run 3 seperate queries and then join them afterwards.
-                List<object> slotList = await GetSlotDetails(ActItem.Refno);
-                List<object> sectionList = await GetSectionDetails(ActItem.Refno);
-                List<object> warehouseList = await GetWarehouseDetails(ActItem.Refno);
+                List<CountDetail> slotList = await GetSlotDetails(ActItem.Refno);
+                List<CountDetail> sectionList = await GetSectionDetails(ActItem.Refno);
+                List<CountDetail> warehouseList = await GetWarehouseDetails(ActItem.Refno);
 
                 //slotTable.Merge(sectionTable, true, MissingSchemaAction.Ignore);
                 //slotTable.Merge(warehouseTable, true, MissingSchemaAction.Ignore);
@@ -606,11 +607,13 @@ namespace dMobile.Controller
                 //DataViewDetails = view;
                 //DataViewDetails.Table.TableName = MainGridMappingName;
 
-                this.ListDetails = slotList;
+                this.listCountDetails = slotList.Cast<CountDetail>().ToList();
+                this.ListDetails = this.listCountDetails.Cast<object>().ToList();
                 return this.ListDetails;
             }
 
-            this.ListDetails = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<object>(sql.ToString());
+            this.listCountDetails = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<CountDetail>(sql.ToString());
+            this.ListDetails = this.listCountDetails.Cast<object>().ToList();
             return this.ListDetails;
         }
 
@@ -618,7 +621,7 @@ namespace dMobile.Controller
         /// Gets all slot details for the refno.
         /// </summary>
         /// <returns></returns>
-        private async Task<List<object>> GetSlotDetails(int refno)
+        private async Task<List<CountDetail>> GetSlotDetails(int refno)
         {
             string slotQuery = "SELECT tActivityDetail.ActivityDetailRefno AS ActivityDetailRefno, " +
             "tActivityDetail.LocationMapRefno AS LocationMapRefno, " +
@@ -675,10 +678,10 @@ namespace dMobile.Controller
            "WHERE tActivityDetail.ActivityItemRefno = " + refno +
            " AND tActivityDetail.ActivityDetailSubType = " + Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts);
 
-            return await DatabaseConnection.GetInstance().SQLConn.QueryAsync<object>(slotQuery);
+            return await DatabaseConnection.GetInstance().SQLConn.QueryAsync<CountDetail>(slotQuery);
         }
 
-        private async Task<List<object>> GetSectionDetails(int refno)
+        private async Task<List<CountDetail>> GetSectionDetails(int refno)
         {
             string sectionQuery = "SELECT tActivityDetail.ActivityDetailRefno AS ActivityDetailRefno, " +
              "tActivityDetail.LocationMapRefno AS LocationMapRefno, " +
@@ -735,10 +738,10 @@ namespace dMobile.Controller
             "WHERE tActivityDetail.ActivityItemRefno = " + refno +
             " AND tActivityDetail.ActivityDetailSubType = " + Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts);
 
-            return await DatabaseConnection.GetInstance().SQLConn.QueryAsync<object>(sectionQuery);
+            return await DatabaseConnection.GetInstance().SQLConn.QueryAsync<CountDetail>(sectionQuery);
         }
 
-        private async Task<List<object>> GetWarehouseDetails(int refno)
+        private async Task<List<CountDetail>> GetWarehouseDetails(int refno)
         {
             string warehouseQuery =
                 "SELECT tActivityDetail.ActivityDetailRefno AS ActivityDetailRefno, " +
@@ -796,7 +799,7 @@ namespace dMobile.Controller
                 "WHERE tActivityDetail.ActivityItemRefno = " + refno +
                 " AND tActivityDetail.ActivityDetailSubType = " + Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts);
 
-            return await DatabaseConnection.GetInstance().SQLConn.QueryAsync<object>(warehouseQuery);
+            return await DatabaseConnection.GetInstance().SQLConn.QueryAsync<CountDetail>(warehouseQuery);
         }
 
         public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity)
@@ -940,7 +943,7 @@ namespace dMobile.Controller
         public override ObservableCollection<object> Search(string searchText)
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
-            this.ListDetails = (List<object>)this.ListDetails.OfType<CountDetail>().Where(countDetail => countDetail.ActivityDetailCountFKRefno.ToString().Contains(searchText.Trim()));
+            this.ListDetails = this.listCountDetails.Where(countDetail => countDetail.ActivityDetailCountFKRefno.ToString().Contains(searchText.Trim())).Cast<object>().ToList();
 
             foreach (CountDetail countDetail in this.ListDetails)
             {

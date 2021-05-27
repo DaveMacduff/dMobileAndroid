@@ -27,6 +27,7 @@
         double columnWidth5 = 0;
         double columnWidth6 = 0;
         private ResourceDictionary resourceDictionary = new ResourceDictionary();
+        List<PickingItem> listPickingItems = new List<PickingItem>();
 
         #region Constructors
 
@@ -429,7 +430,7 @@
                         {
                             transaction.Execute("INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (?, ?, ?)", Convert.ToInt32(SysCommon.ActSubTypes.Picking), Convert.ToInt32(SysCommon.ActStatus.NoChange), Convert.ToInt32(this.ActHdr.Refno));
 
-                            this.Refno = Convert.ToInt32(transaction.QueryScalars<int>("SELECT last_insert_rowid() FROM tActivityItem"));
+                            this.Refno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityItem"));
 
                             string query = "INSERT INTO tActivityItemPicking (" +
                                 "ActivityItemRefno, " +
@@ -470,7 +471,7 @@
                                 "?, " +
                                 "?" +
                                 ")";
-                            List<object> parameters = new List<object>()
+                            object[] parameters = new object[]
                             {
                                 Convert.ToInt32(this.Refno),
                                 Convert.ToInt32(SysCommon.ActSubTypes.Picking),
@@ -894,7 +895,8 @@
             //    }
             //}
 
-            this.ListItems = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<object>(sql.ToString());
+            this.listPickingItems = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<PickingItem>(sql.ToString());
+            this.ListItems = this.listPickingItems.Cast<object>().ToList();
             return this.ListItems;
         }
 
@@ -907,15 +909,15 @@
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
-            if (string.IsNullOrEmpty(this.ActItemFilter))
-            {
-                this.ListItems = (List<object>)this.ListItems.OfType<PickingItem>().Where(pickingItem => pickingItem.ProductCode.Contains(searchText.Trim()));
-            }
-            else
-            {
-                // TODO: Fix filtering
-                //this.DataViewItems.RowFilter = this.ActItemFilter + " AND ProductCode LIKE \'%" + searchText.Trim() + "%\'";
-            }
+            //if (string.IsNullOrEmpty(this.ActItemFilter))
+            //{
+            this.ListItems = this.listPickingItems.Where(pickingItem => pickingItem.ProductCode.ToString().Contains(searchText.Trim())).Cast<object>().ToList();
+            //}
+            //else
+            //{
+            // TODO: Fix filtering
+            //this.DataViewItems.RowFilter = this.ActItemFilter + " AND ProductCode LIKE \'%" + searchText.Trim() + "%\'";
+            //}
 
             foreach (PickingItem pickingItem in this.ListItems)
             {
@@ -1165,7 +1167,7 @@
             if (selectedActivityItem is PickingItem pickingItem)
             {
                 string query = "UPDATE tActivityItemPicking SET ActivityItemPickingQuantityShipped = ?, ActivityItemPickingBaseQuantityShipped = ?, ActivityItemPickingWeightQuantityShipped = ? WHERE tActivityItemPicking.ActivityItemRefno = ?";
-                List<object> parameters = new List<object>() { pickingItem.ActivityItemPickingQuantityShipped, pickingItem.ActivityItemPickingBaseQuantityShipped, pickingItem.ActivityItemPickingWeightQuantityShipped, actItemRefno };
+                object[] parameters = new object[] { pickingItem.ActivityItemPickingQuantityShipped, pickingItem.ActivityItemPickingBaseQuantityShipped, pickingItem.ActivityItemPickingWeightQuantityShipped, actItemRefno };
 
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, parameters);
             }

@@ -5,6 +5,7 @@
     using System.Data;
     using System.Threading.Tasks;
     using dMobile.Resources.Models;
+    using dMobile.Resources.QueryResults;
     using dMobile.Resources.Types;
     using SQLite;
 
@@ -46,7 +47,7 @@
             if (secondAttempt)
             {
                 string barCode = globalLocationIdentifier.Substring(0, globalLocationIdentifier.TrimEnd().Length - 1);
-                locMapRefno = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.QueryScalarsAsync<tLocationMapSlotModel>("SELECT LocationMapRefno FROM tLocationMapSlot WHERE LocationMapSlotBarCode LIKE ?%", barCode));
+                locMapRefno = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<tLocationMapSlotModel>("SELECT LocationMapRefno FROM tLocationMapSlot WHERE LocationMapSlotBarCode LIKE ?%", barCode));
             }
 
 
@@ -73,7 +74,7 @@
                 if (secondAttempt)
                 {
                     string barCode = globalLocationIdentifier.Substring(0, globalLocationIdentifier.TrimEnd().Length - 1);
-                    locMapRefno = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.QueryScalarsAsync<tLocationMapSectionModel>("SELECT tLocationMapSection.LocationMapRefno FROM tLocationMapSection WHERE tLocationMapSection.LocationMapSectionBarCode LIKE ?%", barCode));
+                    locMapRefno = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<tLocationMapSectionModel>("SELECT tLocationMapSection.LocationMapRefno FROM tLocationMapSection WHERE tLocationMapSection.LocationMapSectionBarCode LIKE ?%", barCode));
                 }
             }
 
@@ -100,7 +101,7 @@
                 if (secondAttempt)
                 {
                     string barCode = globalLocationIdentifier.Substring(0, globalLocationIdentifier.TrimEnd().Length - 1);
-                    locMapRefno = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.QueryScalarsAsync<tLocationMapWarehouseModel>("SELECT tLocationMapWarehouse.LocationMapRefno FROM tLocationMapWarehouse WHERE tLocationMapWarehouse.LocationMapWarehouseBarCode LIKE ?%", barCode));
+                    locMapRefno = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<tLocationMapWarehouseModel>("SELECT tLocationMapWarehouse.LocationMapRefno FROM tLocationMapWarehouse WHERE tLocationMapWarehouse.LocationMapWarehouseBarCode LIKE ?%", barCode));
                 }
 
             }
@@ -140,7 +141,7 @@
         /// <returns>Name of the section.</returns>
         public static async Task<string> GetSectionName(int locMapSectFKRefno)
         {
-            return Convert.ToString(await DatabaseConnection.GetInstance().SQLConn.QueryScalarsAsync<tLocationMapSectionModel>("SELECT LocationMapSectionName FROM tLocationMapSection WHERE LocationMapSectionFKRefno = ?", Convert.ToInt32(locMapSectFKRefno)));
+            return Convert.ToString(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<tLocationMapSectionModel>("SELECT LocationMapSectionName FROM tLocationMapSection WHERE LocationMapSectionFKRefno = ?", Convert.ToInt32(locMapSectFKRefno)));
         }
 
         /// <summary>
@@ -150,7 +151,7 @@
         /// <returns>Name of the slot.</returns>
         public static async Task<string> GetSlotName(int locMapSlotFKRefno)
         {
-            return Convert.ToString(await DatabaseConnection.GetInstance().SQLConn.QueryScalarsAsync<tLocationMapSlotModel>("SELECT LocationMapSlotName FROM tLocationMapSlot WHERE LocationMapSlotFKRefno = ?", Convert.ToInt32(locMapSlotFKRefno)));
+            return Convert.ToString(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<tLocationMapSlotModel>("SELECT LocationMapSlotName FROM tLocationMapSlot WHERE LocationMapSlotFKRefno = ?", Convert.ToInt32(locMapSlotFKRefno)));
         }
 
         /// <summary>
@@ -264,7 +265,7 @@
                 throw new Exception("Location map tracking map settings are not set.");
             }
 
-            List<tLocationMapSlotModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tLocationMapSlotModel>(query, parameters);
+            List<tLocationMapSlotModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tLocationMapSlotModel>(query, parameters.ToArray());
 
             if (results != null && results.Count > 0)
             {
@@ -518,15 +519,10 @@
             SLocMap locMapInfo = new SLocMap();
             SysCommon.LocMapSubTypes locMapSubType = default(SysCommon.LocMapSubTypes);
 
-            //cmndLocMap.CommandType = CommandType.Text;
-            //cmndLocMap.CommandText = "SELECT * FROM tLocationMap WHERE LocationMapRefno = @locMapRefno";
-            //cmndLocMap.Parameters.Add(new SQLiteParameter("@locMapRefno", Convert.ToInt32(locMapRefno)));
-
             List<tLocationMapModel> tLocationMapResults = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tLocationMapModel>("SELECT * FROM tLocationMap WHERE LocationMapRefno = ?", Convert.ToInt32(locMapRefno));
 
             if (tLocationMapResults != null && tLocationMapResults.Count > 0)
             {
-                //locMapSubType = (SysCommon.LocMapSubTypes)Convert.ToInt32(drLocMap["LocationMapSubType"]);
                 locMapSubType = (SysCommon.LocMapSubTypes)tLocationMapResults[0].LocationMapSubType;
             }
 
@@ -564,39 +560,38 @@
                     + "INNER JOIN tLocationMapSection ON tLocationMapSection.LocationMapRefno = tLocationMapSlot.SectionLocationMapRefno "
                     + "INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = tLocationMapSection.WarehouseLocationMapRefno "
                     + "WHERE tLocationMapSlot.LocationMapRefno = ?";
-                //cmndLocMap.Parameters.Add(new SQLiteParameter("@locMapRefno", Convert.ToInt32(locMapRefno)));
 
-                List<dynamic> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<dynamic>(query, Convert.ToInt32(locMapRefno));
+                List<tLocationMapSlotQueryResult> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tLocationMapSlotQueryResult>(query, Convert.ToInt32(locMapRefno));
 
                 if (results != null && results.Count > 0)
                 {
-                    locMapInfo.SlotLocMapRefno = Convert.ToInt32(results[0].LocationMapRefno);
-                    locMapInfo.SlotCode = Convert.ToInt32(results[0].LocationMapSlotCode);
-                    locMapInfo.SlotName = Convert.ToString(results[0].LocationMapSlotName);
-                    locMapInfo.SlotFKRefno = Convert.ToInt32(results[0].LocationMapSlotFKRefno);
-                    locMapInfo.SlotCoord1LocMapRefno = Convert.ToInt32(results[0].SlotCoord1LocationMapRefno);
-                    locMapInfo.SlotCoord2LocMapRefno = Convert.ToInt32(results[0].SlotCoord2LocationMapRefno);
-                    locMapInfo.SlotCoord3LocMapRefno = Convert.ToInt32(results[0].SlotCoord3LocationMapRefno);
-                    locMapInfo.SectLocMapRefno = Convert.ToInt32(results[0].SectionLocationMapRefno);
-                    locMapInfo.SectCode = Convert.ToInt32(results[0].LocationMapSectionCode);
-                    locMapInfo.SectName = Convert.ToString(results[0].LocationMapSectionName);
-                    locMapInfo.SectFKRefno = Convert.ToInt32(results[0].LocationMapSectionFKRefno);
-                    locMapInfo.WhsLocMapRefno = Convert.ToInt32(results[0].WarehouseLocationMapRefno);
-                    locMapInfo.WhsName = Convert.ToString(results[0].LocationMapWarehouseName);
-                    locMapInfo.WhsCode = Convert.ToInt32(results[0].LocationMapWarehouseCode);
-                    locMapInfo.IsWhsWMS = Convert.ToBoolean(results[0].LocationMapWarehouseIsWMS);
-                    locMapInfo.WhsFKRefno = Convert.ToInt32(results[0].LocationMapWarehouseFKRefno);
-                    locMapInfo.WhsCodeMask = Convert.ToString(results[0].LocationMapWarehouseMask);
-                    locMapInfo.SectMask = Convert.ToString(results[0].LocationMapWarehouseSectionMask);
-                    locMapInfo.IsSectionTracked = Convert.ToBoolean(results[0].LocationMapWarehouseIsSectionTracked);
-                    locMapInfo.IsSlotTracked = Convert.ToBoolean(results[0].LocationMapWarehouseIsSlotTracked);
-                    locMapInfo.SlotCoord1Name = Convert.ToString(results[0].LocationMapWarehouseSlotCoordinate1Name);
-                    locMapInfo.SlotCoord2Name = Convert.ToString(results[0].LocationMapWarehouseSlotCoordinate2Name);
-                    locMapInfo.SlotCoord3Name = Convert.ToString(results[0].LocationMapWarehouseSlotCoordinate3Name);
-                    locMapInfo.SlotMask = Convert.ToString(results[0].LocationMapWarehouseSlotMask);
-                    locMapInfo.SlotCoord1Mask = Convert.ToString(results[0].LocationMapWarehouseSlotCoordinate1Mask);
-                    locMapInfo.SlotCoord2Mask = Convert.ToString(results[0].LocationMapWarehouseSlotCoordinate2Mask);
-                    locMapInfo.SlotCoord3Mask = Convert.ToString(results[0].LocationMapWarehouseSlotCoordinate3Mask);
+                    locMapInfo.SlotLocMapRefno = results[0].LocationMapRefno;
+                    locMapInfo.SlotCode = results[0].LocationMapSlotCode;
+                    locMapInfo.SlotName = results[0].LocationMapSlotName;
+                    locMapInfo.SlotFKRefno = results[0].LocationMapSlotFKRefno;
+                    locMapInfo.SlotCoord1LocMapRefno = results[0].SlotCoord1LocationMapRefno;
+                    locMapInfo.SlotCoord2LocMapRefno = results[0].SlotCoord2LocationMapRefno;
+                    locMapInfo.SlotCoord3LocMapRefno = results[0].SlotCoord3LocationMapRefno;
+                    locMapInfo.SectLocMapRefno = results[0].SectionLocationMapRefno;
+                    locMapInfo.SectCode = results[0].LocationMapSectionCode;
+                    locMapInfo.SectName = results[0].LocationMapSectionName;
+                    locMapInfo.SectFKRefno = results[0].LocationMapSectionFKRefno;
+                    locMapInfo.WhsLocMapRefno = results[0].WarehouseLocationMapRefno;
+                    locMapInfo.WhsName = results[0].LocationMapWarehouseName;
+                    locMapInfo.WhsCode = results[0].LocationMapWarehouseCode;
+                    locMapInfo.IsWhsWMS = results[0].LocationMapWarehouseIsWMS;
+                    locMapInfo.WhsFKRefno = results[0].LocationMapWarehouseFKRefno;
+                    locMapInfo.WhsCodeMask = results[0].LocationMapWarehouseMask;
+                    locMapInfo.SectMask = results[0].LocationMapWarehouseSectionMask;
+                    locMapInfo.IsSectionTracked = results[0].LocationMapWarehouseIsSectionTracked;
+                    locMapInfo.IsSlotTracked = results[0].LocationMapWarehouseIsSlotTracked;
+                    locMapInfo.SlotCoord1Name = results[0].LocationMapWarehouseSlotCoordinate1Name;
+                    locMapInfo.SlotCoord2Name = results[0].LocationMapWarehouseSlotCoordinate2Name;
+                    locMapInfo.SlotCoord3Name = results[0].LocationMapWarehouseSlotCoordinate3Name;
+                    locMapInfo.SlotMask = results[0].LocationMapWarehouseSlotMask;
+                    locMapInfo.SlotCoord1Mask = results[0].LocationMapWarehouseSlotCoordinate1Mask;
+                    locMapInfo.SlotCoord2Mask = results[0].LocationMapWarehouseSlotCoordinate2Mask;
+                    locMapInfo.SlotCoord3Mask = results[0].LocationMapWarehouseSlotCoordinate3Mask;
                 }
             }
             else if (locMapSubType == SysCommon.LocMapSubTypes.Section)
@@ -626,32 +621,31 @@
                     + "INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno "
                     + "= tLocationMapSection.WarehouseLocationMapRefno "
                     + "WHERE tLocationMapSection.LocationMapRefno = ?";
-                //cmndLocMap.Parameters.Add(new SQLiteParameter("@locMapRefno", Convert.ToInt32(locMapRefno)));
 
-                List<dynamic> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<dynamic>(query, Convert.ToInt32(locMapRefno));
+                List<tLocationMapSectionQueryResult> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tLocationMapSectionQueryResult>(query, Convert.ToInt32(locMapRefno));
 
                 if (results != null && results.Count > 0)
                 {
-                    locMapInfo.SectLocMapRefno = Convert.ToInt32(results[0].LocationMapRefno);
-                    locMapInfo.SectCode = Convert.ToInt32(results[0].LocationMapSectionCode);
-                    locMapInfo.SectName = Convert.ToString(results[0].LocationMapSectionName);
-                    locMapInfo.SectFKRefno = Convert.ToInt32(results[0].LocationMapSectionFKRefno);
-                    locMapInfo.WhsLocMapRefno = Convert.ToInt32(results[0].WarehouseLocationMapRefno);
-                    locMapInfo.WhsName = Convert.ToString(results[0].LocationMapWarehouseName);
-                    locMapInfo.WhsCode = Convert.ToInt32(results[0].LocationMapWarehouseCode);
-                    locMapInfo.IsWhsWMS = Convert.ToBoolean(results[0].LocationMapWarehouseIsWMS);
-                    locMapInfo.WhsFKRefno = Convert.ToInt32(results[0].LocationMapWarehouseFKRefno);
-                    locMapInfo.WhsCodeMask = Convert.ToString(results[0].LocationMapWarehouseMask);
-                    locMapInfo.SectMask = Convert.ToString(results[0].LocationMapWarehouseSectionMask);
-                    locMapInfo.IsSectionTracked = Convert.ToBoolean(results[0].LocationMapWarehouseIsSectionTracked);
-                    locMapInfo.IsSlotTracked = Convert.ToBoolean(results[0].LocationMapWarehouseIsSlotTracked);
-                    locMapInfo.SlotCoord1Name = Convert.ToString(results[0].LocationMapWarehouseSlotCoordinate1Name);
-                    locMapInfo.SlotCoord2Name = Convert.ToString(results[0].LocationMapWarehouseSlotCoordinate2Name);
-                    locMapInfo.SlotCoord3Name = Convert.ToString(results[0].LocationMapWarehouseSlotCoordinate3Name);
-                    locMapInfo.SlotMask = Convert.ToString(results[0].LocationMapWarehouseSlotMask);
-                    locMapInfo.SlotCoord1Mask = Convert.ToString(results[0].LocationMapWarehouseSlotCoordinate1Mask);
-                    locMapInfo.SlotCoord2Mask = Convert.ToString(results[0].LocationMapWarehouseSlotCoordinate2Mask);
-                    locMapInfo.SlotCoord3Mask = Convert.ToString(results[0].LocationMapWarehouseSlotCoordinate3Mask);
+                    locMapInfo.SectLocMapRefno = results[0].LocationMapRefno;
+                    locMapInfo.SectCode = results[0].LocationMapSectionCode;
+                    locMapInfo.SectName = results[0].LocationMapSectionName;
+                    locMapInfo.SectFKRefno = results[0].LocationMapSectionFKRefno;
+                    locMapInfo.WhsLocMapRefno = results[0].WarehouseLocationMapRefno;
+                    locMapInfo.WhsName = results[0].LocationMapWarehouseName;
+                    locMapInfo.WhsCode = results[0].LocationMapWarehouseCode;
+                    locMapInfo.IsWhsWMS = results[0].LocationMapWarehouseIsWMS;
+                    locMapInfo.WhsFKRefno = results[0].LocationMapWarehouseFKRefno;
+                    locMapInfo.WhsCodeMask = results[0].LocationMapWarehouseMask;
+                    locMapInfo.SectMask = results[0].LocationMapWarehouseSectionMask;
+                    locMapInfo.IsSectionTracked = results[0].LocationMapWarehouseIsSectionTracked;
+                    locMapInfo.IsSlotTracked = results[0].LocationMapWarehouseIsSlotTracked;
+                    locMapInfo.SlotCoord1Name = results[0].LocationMapWarehouseSlotCoordinate1Name;
+                    locMapInfo.SlotCoord2Name = results[0].LocationMapWarehouseSlotCoordinate2Name;
+                    locMapInfo.SlotCoord3Name = results[0].LocationMapWarehouseSlotCoordinate3Name;
+                    locMapInfo.SlotMask = results[0].LocationMapWarehouseSlotMask;
+                    locMapInfo.SlotCoord1Mask = results[0].LocationMapWarehouseSlotCoordinate1Mask;
+                    locMapInfo.SlotCoord2Mask = results[0].LocationMapWarehouseSlotCoordinate2Mask;
+                    locMapInfo.SlotCoord3Mask = results[0].LocationMapWarehouseSlotCoordinate3Mask;
                 }
             }
             else if (locMapSubType == SysCommon.LocMapSubTypes.Warehouse)
@@ -675,9 +669,8 @@
                     + "tLocationMapWarehouse.LocationMapWarehouseAdhocEnabled "
                     + "FROM tLocationMapWarehouse "
                     + "WHERE tLocationMapWarehouse.LocationMapRefno = ?";
-                //cmndLocMap.Parameters.Add(new SQLiteParameter("@locMapRefno", Convert.ToInt32(locMapRefno)));
 
-                List<dynamic> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<dynamic>(query, Convert.ToInt32(locMapRefno));
+                List<tLocationMapWarehouseModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tLocationMapWarehouseModel>(query, Convert.ToInt32(locMapRefno));
 
                 if (results != null && results.Count > 0)
                 {
@@ -950,7 +943,7 @@
                     //cmndProdLocMapType.Parameters.Add(new SQLiteParameter("@defaultWhsLocMapRefno", Convert.ToInt32(defaultWhsLocMapRefno)));
 
                     //defaultSlotLocMapRefno = Convert.ToInt32(cmndProdLocMapType.ExecuteScalar());
-                    defaultSlotLocMapRefno = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.QueryScalarsAsync<dynamic>(query, Convert.ToInt32(prodRefno), Convert.ToInt32(prodLocMapType), Convert.ToInt32(defaultWhsLocMapRefno)));
+                    defaultSlotLocMapRefno = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<dynamic>(query, Convert.ToInt32(prodRefno), Convert.ToInt32(prodLocMapType), Convert.ToInt32(defaultWhsLocMapRefno)));
                 }
 
                 if (defaultSlotLocMapRefno == 0)
@@ -962,7 +955,7 @@
                     //cmndWhsLocMapType.Parameters.Add(new SQLiteParameter("@prodLocMapType", Convert.ToInt32(prodLocMapType)));
                     //cmndWhsLocMapType.Parameters.Add(new SQLiteParameter("@defaultWhsLocMapRefno", Convert.ToInt32(defaultWhsLocMapRefno)));
 
-                    defaultSlotLocMapRefno = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.QueryScalarsAsync<tWarehouseLocationMapTypeModel>(query, Convert.ToInt32(prodLocMapType), Convert.ToInt32(defaultWhsLocMapRefno)));
+                    defaultSlotLocMapRefno = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<tWarehouseLocationMapTypeModel>(query, Convert.ToInt32(prodLocMapType), Convert.ToInt32(defaultWhsLocMapRefno)));
                 }
             }
 
@@ -981,7 +974,7 @@
                     //cmndProdLocMapType.Parameters.Add(new SQLiteParameter("@prodLocMapType", Convert.ToInt32(prodLocMapType)));
                     //cmndProdLocMapType.Parameters.Add(new SQLiteParameter("@defaultWhsLocMapRefno", Convert.ToInt32(defaultWhsLocMapRefno)));
 
-                    defaultSectLocMapRefno = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.QueryScalarsAsync<dynamic>(query, Convert.ToInt32(prodRefno), Convert.ToInt32(prodLocMapType), Convert.ToInt32(defaultWhsLocMapRefno)));
+                    defaultSectLocMapRefno = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<dynamic>(query, Convert.ToInt32(prodRefno), Convert.ToInt32(prodLocMapType), Convert.ToInt32(defaultWhsLocMapRefno)));
                 }
 
                 if (defaultSectLocMapRefno == 0)
@@ -993,7 +986,7 @@
                     //cmndWhsLocMapType.Parameters.Add(new SQLiteParameter("@prodLocMapType", Convert.ToInt32(prodLocMapType)));
                     //cmndWhsLocMapType.Parameters.Add(new SQLiteParameter("@defaultWhsLocMapRefno", defaultWhsLocMapRefno));
 
-                    defaultSectLocMapRefno = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.QueryScalarsAsync<tWarehouseLocationMapTypeModel>(query, Convert.ToInt32(prodLocMapType), defaultWhsLocMapRefno));
+                    defaultSectLocMapRefno = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<tWarehouseLocationMapTypeModel>(query, Convert.ToInt32(prodLocMapType), defaultWhsLocMapRefno));
                 }
             }
 
@@ -1030,7 +1023,7 @@
             // Perform SQL query to lookup subtype
             int locationSubType = 0;
 
-            locationSubType = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.QueryScalarsAsync<tLocationMapModel>("SELECT LocationMapSubType FROM tLocationMap WHERE LocationMapRefno = ?", locMapRefno));
+            locationSubType = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<tLocationMapModel>("SELECT LocationMapSubType FROM tLocationMap WHERE LocationMapRefno = ?", locMapRefno));
 
             switch ((SysCommon.LocMapSubTypes)locationSubType)
             {
@@ -1040,11 +1033,11 @@
 
                 case SysCommon.LocMapSubTypes.Section:
                     // Access Section table for WarehouseLocationMapRefno
-                    return Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.QueryScalarsAsync<tLocationMapSectionModel>("SELECT WarehouseLocationMapRefno FROM tLocationMapSection WHERE LocationMapRefno = ?", Convert.ToInt32(locationSubType)));
+                    return Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<tLocationMapSectionModel>("SELECT WarehouseLocationMapRefno FROM tLocationMapSection WHERE LocationMapRefno = ?", Convert.ToInt32(locationSubType)));
 
                 case SysCommon.LocMapSubTypes.Slot:
                     // Access Slot table for WarehouseLocationMapRefno
-                    return Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.QueryScalarsAsync<tLocationMapSlotModel>("SELECT WarehouseLocationMapRefno FROM tLocationMapSlot WHERE LocationMapRefno = ?", Convert.ToInt32(locationSubType)));
+                    return Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<tLocationMapSlotModel>("SELECT WarehouseLocationMapRefno FROM tLocationMapSlot WHERE LocationMapRefno = ?", Convert.ToInt32(locationSubType)));
 
                 case SysCommon.LocMapSubTypes.Warehouse:
                     // It already is a WarehouseLocationMapRefno

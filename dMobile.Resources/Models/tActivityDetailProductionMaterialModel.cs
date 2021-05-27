@@ -28,7 +28,7 @@ namespace dMobile.Resources.Models
     [Table("tActivityDetailProductionMaterial")]
     public class tActivityDetailProductionMaterialModel
     {
-        [PrimaryKey, NotNull, ForeignKey(typeof(tActivityDetailModel)), OneToOne(CascadeOperations = CascadeOperation.All)]
+        [PrimaryKey, NotNull, ForeignKey(typeof(tActivityDetailModel))]
         public int ActivityDetailRefno { get; set; }
 
         [NotNull, Indexed(Name = "UQ_ActivityDetailProductionMaterialOnActivityDetailProductionMaterialFKRefno", Order = 1, Unique = true)]

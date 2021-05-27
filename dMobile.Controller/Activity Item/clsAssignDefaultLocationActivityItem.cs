@@ -195,7 +195,7 @@
             if (bool.Parse(data.Root.Element("picking_is_update").Value))
             {
                 string query = "SELECT * FROM tProductLocationMapType WHERE ProductRefno = ? AND LocationMapRefno = ? AND ProductLocationMapTypeEnum = ?";
-                List<object> parameters = new List<object>()
+                object[] parameters = new object[]
                 {
                     Convert.ToInt32(int.Parse(data.Root.Element("prod_refno").Value)),
                     Convert.ToInt32(int.Parse(data.Root.Element("picking_old_location_refno").Value)),
@@ -207,7 +207,7 @@
                 if (results != null && results.Count > 0)
                 {
                     string queryUpdate = "UPDATE tProductLocationMapType SET LocationMapRefno = ? WHERE ProductRefno = ? AND WarehouseLocationMapRefno = ? AND LocationMapRefno = ? AND ProductLocationMapTypeEnum = ?";
-                    List<object> parametersUpdate = new List<object>()
+                    object[] parametersUpdate = new object[]
                     {
                         Convert.ToInt32(int.Parse(data.Root.Element("picking_new_location_refno").Value)),
                         Convert.ToInt32(int.Parse(data.Root.Element("prod_refno").Value)),
@@ -221,7 +221,7 @@
                 else
                 {
                     string queryInsert = "INSERT INTO tProductLocationMapType (ProductRefno, WarehouseLocationMapRefno, LocationMapRefno, ProductLocationMapTypeEnum) VALUES (?, ?, ?, ?)";
-                    List<object> parametersInsert = new List<object>()
+                    object[] parametersInsert = new object[]
                     {
                         Convert.ToInt32(int.Parse(data.Root.Element("prod_refno").Value)),
                         Convert.ToInt32(int.Parse(data.Root.Element("picking_warehouse_location_refno").Value)),
@@ -236,7 +236,7 @@
             if (bool.Parse(data.Root.Element("receiving_is_update").Value))
             {
                 string query = "SELECT * FROM tProductLocationMapType WHERE ProductRefno = ? AND LocationMapRefno = ? AND ProductLocationMapTypeEnum = ?";
-                List<object> parameters = new List<object>()
+                object[] parameters = new object[]
                 {
                     Convert.ToInt32(int.Parse(data.Root.Element("prod_refno").Value)),
                     Convert.ToInt32(int.Parse(data.Root.Element("receiving_old_location_refno").Value)),
@@ -248,7 +248,7 @@
                 if (results != null && results.Count > 0)
                 {
                     string queryUpdate = "UPDATE tProductLocationMapType SET LocationMapRefno = ? WHERE ProductRefno = ? AND WarehouseLocationMapRefno = ? AND LocationMapRefno = ? AND ProductLocationMapTypeEnum = ?";
-                    List<object> parametersUpdate = new List<object>()
+                    object[] parametersUpdate = new object[]
                     {
                         Convert.ToInt32(int.Parse(data.Root.Element("receiving_new_location_refno").Value)),
                         Convert.ToInt32(int.Parse(data.Root.Element("prod_refno").Value)),
@@ -262,7 +262,7 @@
                 else
                 {
                     string queryInsert = "INSERT INTO tProductLocationMapType (ProductRefno, WarehouseLocationMapRefno, LocationMapRefno, ProductLocationMapTypeEnum) VALUES (?, ?, ?, ?)";
-                    List<object> parametersInsert = new List<object>()
+                    object[] parametersInsert = new object[]
                     {
                         Convert.ToInt32(int.Parse(data.Root.Element("prod_refno").Value)),
                         Convert.ToInt32(int.Parse(data.Root.Element("receiving_warehouse_location_refno").Value)),

@@ -29,7 +29,7 @@ namespace dMobile.Resources.Models
     [Table("tActivityItemProductionByProduct")]
     public class tActivityItemProductionByProductModel
     {
-        [PrimaryKey, NotNull, ForeignKey(typeof(tActivityItemProductionModel)), OneToOne(CascadeOperations = CascadeOperation.All)]
+        [PrimaryKey, NotNull, ForeignKey(typeof(tActivityItemProductionModel))]
         public int ActivityItemRefno { get; set; }
 
         [NotNull, Indexed(Name = "UQ_ActivityItemProductionByProductOnActivityItemProductionByProductFKRefno", Order = 1, Unique = true)]

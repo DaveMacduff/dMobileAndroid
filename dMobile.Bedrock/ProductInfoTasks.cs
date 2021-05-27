@@ -11,6 +11,7 @@
     using System.Threading.Tasks;
     using dMobile.Resources.Models;
     using dMobile.Resources.Types;
+    using dMobile.Resources.QueryResults;
 
     public static class ProductInfoTasks
     {
@@ -138,35 +139,32 @@
                 "WHERE tProduct.ProductCode = ? " +
                 "AND tProductUnit.ProductUnitBC = ? " +
                 "AND tUnit.UnitCode = ?";
-                //cmndProdInfo.Parameters.Add(new SQLiteParameter("@productCode", productCode));
-                //cmndProdInfo.Parameters.Add(new SQLiteParameter("@productUnitBC", productUnitBC));
-                //cmndProdInfo.Parameters.Add(new SQLiteParameter("@unitCode", unitCode));
 
-                List<dynamic> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<dynamic>(query, productCode, productUnitBC, unitCode);
+                List<ProductInfoQueryResult> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ProductInfoQueryResult>(query, productCode, productUnitBC, unitCode);
 
                 if (results != null && results.Count > 0)
                 {
-                    prodInfo.UnitRefno = Convert.ToInt32(results[0].ProductUnitRefno);
-                    prodInfo.Refno = Convert.ToInt32(results[0].ProductRefno);
-                    prodInfo.FKRefno = Convert.ToInt32(results[0].ProductFKRefno);
-                    prodInfo.Code = Convert.ToString(results[0].ProductCode);
-                    prodInfo.Desc = Convert.ToString(results[0].ProductDescription);
-                    prodInfo.UnitCode = Convert.ToString(results[0].UnitCode);
-                    prodInfo.BaseUnitCode = Convert.ToString(results[0].BaseUnitCode);
-                    prodInfo.WeightUnitCode = Convert.ToString(results[0].WeightUnitCode);
-                    prodInfo.UnitSizeDesc = Convert.ToString(results[0].ProductUnitSizeDescription);
-                    prodInfo.UnitIsBC = Convert.ToBoolean(results[0].ProductUnitIsBC);
-                    prodInfo.UnitBC = Convert.ToString(results[0].ProductUnitBC);
-                    prodInfo.IsCatchAsk = Convert.ToBoolean(results[0].ProductIsCatchAsk);
-                    prodInfo.IsCatchAskZero = Convert.ToBoolean(results[0].ProductIsCatchAskZero);
-                    prodInfo.IsAllowConvertProduct = Convert.ToBoolean(results[0].ProductAllowConvertProduct);
-                    prodInfo.IsCatchCount = Convert.ToBoolean(results[0].ProductIsCatchCount);
-                    prodInfo.IsCatchWeight = Convert.ToBoolean(results[0].ProductIsCatchWeight);
-                    prodInfo.UnitWeight = Convert.ToDecimal(results[0].ProductUnitWeight);
-                    prodInfo.BrandDesc = Convert.ToString(results[0].ProductBrandDescription);
-                    prodInfo.UnitIsDefault = Convert.ToBoolean(results[0].ProductUnitIsDefault);
-                    prodInfo.UnitIsSellUnit = Convert.ToBoolean(results[0].ProductUnitIsSellUnit);
-                    prodInfo.BoxCount = Convert.ToDecimal(results[0].ProductUnitBoxCount);
+                    prodInfo.UnitRefno = results[0].ProductUnitRefno;
+                    prodInfo.Refno = results[0].ProductRefno;
+                    prodInfo.FKRefno = results[0].ProductFKRefno;
+                    prodInfo.Code = results[0].ProductCode;
+                    prodInfo.Desc = results[0].ProductDescription;
+                    prodInfo.UnitCode = results[0].UnitCode;
+                    prodInfo.BaseUnitCode = results[0].BaseUnitCode;
+                    prodInfo.WeightUnitCode = results[0].WeightUnitCode;
+                    prodInfo.UnitSizeDesc = results[0].ProductUnitSizeDescription;
+                    prodInfo.UnitIsBC = results[0].ProductUnitIsBC;
+                    prodInfo.UnitBC = results[0].ProductUnitBC;
+                    prodInfo.IsCatchAsk = results[0].ProductIsCatchAsk;
+                    prodInfo.IsCatchAskZero = results[0].ProductIsCatchAskZero;
+                    prodInfo.IsAllowConvertProduct = results[0].ProductAllowConvertProduct;
+                    prodInfo.IsCatchCount = results[0].ProductIsCatchCount;
+                    prodInfo.IsCatchWeight = results[0].ProductIsCatchWeight;
+                    prodInfo.UnitWeight = results[0].ProductUnitWeight;
+                    prodInfo.BrandDesc = results[0].ProductBrandDescription;
+                    prodInfo.UnitIsDefault = results[0].ProductUnitIsDefault;
+                    prodInfo.UnitIsSellUnit = results[0].ProductUnitIsSellUnit;
+                    prodInfo.BoxCount = results[0].ProductUnitBoxCount;
                 }
 
                 prodInfo.Unit2BaseUnitFactor = await ProductInfoTasks.GetUnitRelationFactor(prodInfo);
@@ -330,31 +328,31 @@
             "INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno " +
             "WHERE tProductUnit.ProductUnitRefno = ?";
 
-            List<dynamic> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<dynamic>(query, Convert.ToInt32(productUnitRefno));
+            List<ProductInfoQueryResult> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ProductInfoQueryResult>(query, Convert.ToInt32(productUnitRefno));
 
             if (results != null && results.Count > 0)
             {
-                prodInfo.UnitRefno = Convert.ToInt32(results[0].ProductUnitRefno);
-                prodInfo.Refno = Convert.ToInt32(results[0].ProductRefno);
-                prodInfo.FKRefno = Convert.ToInt32(results[0].ProductFKRefno);
-                prodInfo.Code = Convert.ToString(results[0].ProductCode);
-                prodInfo.Desc = Convert.ToString(results[0].ProductDescription);
-                prodInfo.UnitCode = Convert.ToString(results[0].UnitCode);
-                prodInfo.BaseUnitCode = Convert.ToString(results[0].BaseUnitCode);
-                prodInfo.WeightUnitCode = Convert.ToString(results[0].WeightUnitCode);
-                prodInfo.UnitSizeDesc = Convert.ToString(results[0].ProductUnitSizeDescription);
-                prodInfo.UnitIsBC = Convert.ToBoolean(results[0].ProductUnitIsBC);
-                prodInfo.UnitBC = Convert.ToString(results[0].ProductUnitBC);
-                prodInfo.IsCatchAsk = Convert.ToBoolean(results[0].ProductIsCatchAsk);
-                prodInfo.IsCatchAskZero = Convert.ToBoolean(results[0].ProductIsCatchAskZero);
-                prodInfo.IsAllowConvertProduct = Convert.ToBoolean(results[0].ProductAllowConvertProduct);
-                prodInfo.IsCatchCount = Convert.ToBoolean(results[0].ProductIsCatchCount);
-                prodInfo.IsCatchWeight = Convert.ToBoolean(results[0].ProductIsCatchWeight);
-                prodInfo.UnitWeight = Convert.ToDecimal(results[0].ProductUnitWeight);
-                prodInfo.BrandDesc = Convert.ToString(results[0].ProductBrandDescription);
-                prodInfo.UnitIsDefault = Convert.ToBoolean(results[0].ProductUnitIsDefault);
-                prodInfo.UnitIsSellUnit = Convert.ToBoolean(results[0].ProductUnitIsSellUnit);
-                prodInfo.BoxCount = Convert.ToDecimal(results[0].ProductUnitBoxCount);
+                prodInfo.UnitRefno = results[0].ProductUnitRefno;
+                prodInfo.Refno = results[0].ProductRefno;
+                prodInfo.FKRefno = results[0].ProductFKRefno;
+                prodInfo.Code = results[0].ProductCode;
+                prodInfo.Desc = results[0].ProductDescription;
+                prodInfo.UnitCode = results[0].UnitCode;
+                prodInfo.BaseUnitCode = results[0].BaseUnitCode;
+                prodInfo.WeightUnitCode = results[0].WeightUnitCode;
+                prodInfo.UnitSizeDesc = results[0].ProductUnitSizeDescription;
+                prodInfo.UnitIsBC = results[0].ProductUnitIsBC;
+                prodInfo.UnitBC = results[0].ProductUnitBC;
+                prodInfo.IsCatchAsk = results[0].ProductIsCatchAsk;
+                prodInfo.IsCatchAskZero = results[0].ProductIsCatchAskZero;
+                prodInfo.IsAllowConvertProduct = results[0].ProductAllowConvertProduct;
+                prodInfo.IsCatchCount = results[0].ProductIsCatchCount;
+                prodInfo.IsCatchWeight = results[0].ProductIsCatchWeight;
+                prodInfo.UnitWeight = results[0].ProductUnitWeight;
+                prodInfo.BrandDesc = results[0].ProductBrandDescription;
+                prodInfo.UnitIsDefault = results[0].ProductUnitIsDefault;
+                prodInfo.UnitIsSellUnit = results[0].ProductUnitIsSellUnit;
+                prodInfo.BoxCount = results[0].ProductUnitBoxCount;
             }
 
             prodInfo.Unit2BaseUnitFactor = await ProductInfoTasks.GetUnitRelationFactor(prodInfo);
@@ -400,33 +398,32 @@
             "INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno " +
             "WHERE tProduct.ProductRefno = ? " +
             "AND tProductUnit.ProductUnitIsDefault = 1"; // true
-            //cmndProdInfo.Parameters.Add(new SQLiteParameter("@productRefno", Convert.ToInt32(productRefno)));
 
-            List<dynamic> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<dynamic>(query, Convert.ToInt32(productRefno));
+            List<ProductInfoQueryResult> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ProductInfoQueryResult>(query, Convert.ToInt32(productRefno));
 
             if (results != null && results.Count > 0)
             {
-                prodInfo.UnitRefno = Convert.ToInt32(results[0].ProductUnitRefno);
-                prodInfo.Refno = Convert.ToInt32(results[0].ProductRefno);
-                prodInfo.FKRefno = Convert.ToInt32(results[0].ProductFKRefno);
-                prodInfo.Code = Convert.ToString(results[0].ProductCode);
-                prodInfo.Desc = Convert.ToString(results[0].ProductDescription);
-                prodInfo.UnitCode = Convert.ToString(results[0].UnitCode);
-                prodInfo.BaseUnitCode = Convert.ToString(results[0].BaseUnitCode);
-                prodInfo.WeightUnitCode = Convert.ToString(results[0].WeightUnitCode);
-                prodInfo.UnitSizeDesc = Convert.ToString(results[0].ProductUnitSizeDescription);
-                prodInfo.UnitIsBC = Convert.ToBoolean(results[0].ProductUnitIsBC);
-                prodInfo.UnitBC = Convert.ToString(results[0].ProductUnitBC);
-                prodInfo.IsCatchAsk = Convert.ToBoolean(results[0].ProductIsCatchAsk);
-                prodInfo.IsCatchAskZero = Convert.ToBoolean(results[0].ProductIsCatchAskZero);
-                prodInfo.IsAllowConvertProduct = Convert.ToBoolean(results[0].ProductAllowConvertProduct);
-                prodInfo.IsCatchCount = Convert.ToBoolean(results[0].ProductIsCatchCount);
-                prodInfo.IsCatchWeight = Convert.ToBoolean(results[0].ProductIsCatchWeight);
-                prodInfo.UnitWeight = Convert.ToDecimal(results[0].ProductUnitWeight);
-                prodInfo.BrandDesc = Convert.ToString(results[0].ProductBrandDescription);
-                prodInfo.UnitIsDefault = Convert.ToBoolean(results[0].ProductUnitIsDefault);
-                prodInfo.UnitIsSellUnit = Convert.ToBoolean(results[0].ProductUnitIsSellUnit);
-                prodInfo.BoxCount = Convert.ToDecimal(results[0].ProductUnitBoxCount);
+                prodInfo.UnitRefno = results[0].ProductUnitRefno;
+                prodInfo.Refno = results[0].ProductRefno;
+                prodInfo.FKRefno = results[0].ProductFKRefno;
+                prodInfo.Code = results[0].ProductCode;
+                prodInfo.Desc = results[0].ProductDescription;
+                prodInfo.UnitCode = results[0].UnitCode;
+                prodInfo.BaseUnitCode = results[0].BaseUnitCode;
+                prodInfo.WeightUnitCode = results[0].WeightUnitCode;
+                prodInfo.UnitSizeDesc = results[0].ProductUnitSizeDescription;
+                prodInfo.UnitIsBC = results[0].ProductUnitIsBC;
+                prodInfo.UnitBC = results[0].ProductUnitBC;
+                prodInfo.IsCatchAsk = results[0].ProductIsCatchAsk;
+                prodInfo.IsCatchAskZero = results[0].ProductIsCatchAskZero;
+                prodInfo.IsAllowConvertProduct = results[0].ProductAllowConvertProduct;
+                prodInfo.IsCatchCount = results[0].ProductIsCatchCount;
+                prodInfo.IsCatchWeight = results[0].ProductIsCatchWeight;
+                prodInfo.UnitWeight = results[0].ProductUnitWeight;
+                prodInfo.BrandDesc = results[0].ProductBrandDescription;
+                prodInfo.UnitIsDefault = results[0].ProductUnitIsDefault;
+                prodInfo.UnitIsSellUnit = results[0].ProductUnitIsSellUnit;
+                prodInfo.BoxCount = results[0].ProductUnitBoxCount;
             }
 
             prodInfo.Unit2BaseUnitFactor = await ProductInfoTasks.GetUnitRelationFactor(prodInfo);
@@ -478,10 +475,8 @@
             "AND tLocationMapWarehouseProductScheme.WarehouseLocationMapRefno = ? " +
             "INNER JOIN tProductScheme ON tProductScheme.ProductSchemeRefno = tLocationMapWarehouseProductScheme.ProductSchemeRefno " +
             "WHERE tProduct.ProductRefno = ?";
-            //cmndProductSchemeComponents.Parameters.Add(new SQLiteParameter("@whsLocMapRefno", Convert.ToInt32(LocationMap.GetInstance().CurrLocMap.WhsLocMapRefno)));
-            //cmndProductSchemeComponents.Parameters.Add(new SQLiteParameter("@productRefno", Convert.ToInt32(productRefno)));
 
-            List<dynamic> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<dynamic>(query, Convert.ToInt32(LocationMap.GetInstance().CurrLocMap.WhsLocMapRefno), Convert.ToInt32(productRefno));
+            List<tProductSchemeModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tProductSchemeModel>(query, Convert.ToInt32(LocationMap.GetInstance().CurrLocMap.WhsLocMapRefno), Convert.ToInt32(productRefno));
 
             if (results != null && results.Count > 0)
             {
@@ -489,33 +484,33 @@
 
                 if (LocationMap.GetInstance().CurrLocMap.IsWhsWMS)
                 {
-                    scheme.IsSerialTracked = Convert.ToBoolean(results[0].ProductSchemeIsSerialTracked);
-                    scheme.IsProductionDateTracked = Convert.ToBoolean(results[0].ProductSchemeIsProductionDateTracked);
-                    scheme.IsLotTracked = Convert.ToBoolean(results[0].ProductSchemeIsLotTracked);
-                    scheme.IsBestBeforeDateTracked = Convert.ToBoolean(results[0].ProductSchemeIsBestBeforeDateTracked);
-                    scheme.IsVariantTracked = Convert.ToBoolean(results[0].ProductSchemeIsVariantTracked);
-                    scheme.IsLotUniqueComponent = Convert.ToBoolean(results[0].ProductSchemeIsLotUniqueComponent);
-                    scheme.IsProductionDateUniqueComponent = Convert.ToBoolean(results[0].ProductSchemeIsProductionDateUniqueComponent);
-                    scheme.IsBestBeforeDateUniqueComponent = Convert.ToBoolean(results[0].ProductSchemeIsBestBeforeDateUniqueComponent);
-                    scheme.IsVariantUniqueComponent = Convert.ToBoolean(results[0].ProductSchemeIsVariantUniqueComponent);
-                    scheme.Extra1Type = Convert.ToInt32(results[0].ProductSchemeExtra1Type);
-                    scheme.Extra2Type = Convert.ToInt32(results[0].ProductSchemeExtra2Type);
-                    scheme.Extra3Type = Convert.ToInt32(results[0].ProductSchemeExtra3Type);
-                    scheme.Extra4Type = Convert.ToInt32(results[0].ProductSchemeExtra4Type);
-                    scheme.Extra5Type = Convert.ToInt32(results[0].ProductSchemeExtra5Type);
-                    scheme.Extra1Caption = Convert.ToString(results[0].ProductSchemeExtra1Caption);
-                    scheme.Extra2Caption = Convert.ToString(results[0].ProductSchemeExtra2Caption);
-                    scheme.Extra3Caption = Convert.ToString(results[0].ProductSchemeExtra3Caption);
-                    scheme.Extra4Caption = Convert.ToString(results[0].ProductSchemeExtra4Caption);
-                    scheme.Extra5Caption = Convert.ToString(results[0].ProductSchemeExtra5Caption);
-                    scheme.Extra1IsRequired = Convert.ToBoolean(results[0].ProductSchemeExtra1IsRequired);
-                    scheme.Extra2IsRequired = Convert.ToBoolean(results[0].ProductSchemeExtra2IsRequired);
-                    scheme.Extra3IsRequired = Convert.ToBoolean(results[0].ProductSchemeExtra3IsRequired);
-                    scheme.Extra4IsRequired = Convert.ToBoolean(results[0].ProductSchemeExtra4IsRequired);
-                    scheme.Extra5IsRequired = Convert.ToBoolean(results[0].ProductSchemeExtra5IsRequired);
-                    scheme.IsLotTrackedDefault = Convert.ToBoolean(results[0].ProductSchemeIsLotTrackedDefault);
-                    scheme.IsProductionDateTrackedDefault = Convert.ToBoolean(results[0].ProductSchemeIsProductionDateTrackedDefault);
-                    scheme.IsBestBeforeDateTrackedDefault = Convert.ToBoolean(results[0].ProductSchemeIsBestBeforeDateTrackedDefault);
+                    scheme.IsSerialTracked = results[0].ProductSchemeIsSerialTracked;
+                    scheme.IsProductionDateTracked = results[0].ProductSchemeIsProductionDateTracked;
+                    scheme.IsLotTracked = results[0].ProductSchemeIsLotTracked;
+                    scheme.IsBestBeforeDateTracked = results[0].ProductSchemeIsBestBeforeDateTracked;
+                    scheme.IsVariantTracked = results[0].ProductSchemeIsVariantTracked;
+                    scheme.IsLotUniqueComponent = results[0].ProductSchemeIsLotUniqueComponent;
+                    scheme.IsProductionDateUniqueComponent = results[0].ProductSchemeIsProductionDateUniqueComponent;
+                    scheme.IsBestBeforeDateUniqueComponent = results[0].ProductSchemeIsBestBeforeDateUniqueComponent;
+                    scheme.IsVariantUniqueComponent = results[0].ProductSchemeIsVariantUniqueComponent;
+                    scheme.Extra1Type = results[0].ProductSchemeExtra1Type;
+                    scheme.Extra2Type = results[0].ProductSchemeExtra2Type;
+                    scheme.Extra3Type = results[0].ProductSchemeExtra3Type;
+                    scheme.Extra4Type = results[0].ProductSchemeExtra4Type;
+                    scheme.Extra5Type = results[0].ProductSchemeExtra5Type;
+                    scheme.Extra1Caption = results[0].ProductSchemeExtra1Caption;
+                    scheme.Extra2Caption = results[0].ProductSchemeExtra2Caption;
+                    scheme.Extra3Caption = results[0].ProductSchemeExtra3Caption;
+                    scheme.Extra4Caption = results[0].ProductSchemeExtra4Caption;
+                    scheme.Extra5Caption = results[0].ProductSchemeExtra5Caption;
+                    scheme.Extra1IsRequired = results[0].ProductSchemeExtra1IsRequired;
+                    scheme.Extra2IsRequired = results[0].ProductSchemeExtra2IsRequired;
+                    scheme.Extra3IsRequired = results[0].ProductSchemeExtra3IsRequired;
+                    scheme.Extra4IsRequired = results[0].ProductSchemeExtra4IsRequired;
+                    scheme.Extra5IsRequired = results[0].ProductSchemeExtra5IsRequired;
+                    scheme.IsLotTrackedDefault = results[0].ProductSchemeIsLotTrackedDefault;
+                    scheme.IsProductionDateTrackedDefault = results[0].ProductSchemeIsProductionDateTrackedDefault;
+                    scheme.IsBestBeforeDateTrackedDefault = results[0].ProductSchemeIsBestBeforeDateTrackedDefault;
 
                     scheme.LabelInfo = labelScheme.GetSchemeInfoFromSchemeRefno(scheme.SchemeRefno);
                 }
@@ -577,9 +572,6 @@
             "WHERE tProductUnit.ProductRefno = ? " +
             "AND aUnit1.UnitCode = ? " +
             "AND aUnit2.UnitCode = ?";
-            //cmndProdUnitRelation.Parameters.Add(new SQLiteParameter("@prodRefno", prodRefno));
-            //cmndProdUnitRelation.Parameters.Add(new SQLiteParameter("@prodUnit1Code", prodUnit1Code));
-            //cmndProdUnitRelation.Parameters.Add(new SQLiteParameter("@prodUnit2Code", prodUnit2Code));
 
             prodUnitFactor = Convert.ToDecimal(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<decimal>(query, prodRefno, prodUnit1Code, prodUnit2Code));
 
@@ -672,15 +664,6 @@
                 INNER JOIN tUnit AS aUnitBase ON aUnitBase.UnitRefno = tProductUnit.BaseUnitRefno
                 ORDER BY tProduct.ProductCode, tProductUnit.ProductUnitBC, tUnit.UnitCode";
 
-            //using (SQLiteDataAdapter dataAdapterProdUnit = new SQLiteDataAdapter(sql, DatabaseConnection.GetInstance().SQLConn))
-            //{
-            //    using (DataSet dataSetProdUnit = new DataSet())
-            //    {
-            //        dataAdapterProdUnit.Fill(dataSetProdUnit);
-            //        dataTableProdUnit = dataSetProdUnit.Tables[0];
-            //    }
-            //}
-
             return await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ProductUnit>(sql);
         }
 
@@ -690,18 +673,7 @@
         /// <param name="dataTableProd"></param>
         public static async Task<List<Product>> GetProductList()
         {
-            string sql = @"SELECT ProductRefno, ProductCode, ProductDescription FROM tProduct ORDER BY ProductCode";
-
-            //using (SQLiteDataAdapter dataAdapterProd = new SQLiteDataAdapter(sql, DatabaseConnection.GetInstance().SQLConn))
-            //{
-            //    using (DataSet dataSetProd = new DataSet())
-            //    {
-            //        dataAdapterProd.Fill(dataSetProd);
-            //        dataTableProd = dataSetProd.Tables[0];
-            //    }
-            //}
-
-            return await DatabaseConnection.GetInstance().SQLConn.QueryAsync<Product>(sql);
+            return await DatabaseConnection.GetInstance().SQLConn.QueryAsync<Product>("SELECT ProductRefno, ProductCode, ProductDescription FROM tProduct ORDER BY ProductCode");
         }
 
         /// <summary>
@@ -717,16 +689,6 @@
             "FROM tProduct " +
             "WHERE ProductAllowConvertProduct = 1 " +
             "ORDER BY ProductCode";
-
-            //DataSet ds = new DataSet();
-            //using (SQLiteDataAdapter dataAdapterProd = new SQLiteDataAdapter(sql, DatabaseConnection.GetInstance().SQLConn))
-            //{
-            //    using (DataSet dataSetProd = new DataSet())
-            //    {
-            //        dataAdapterProd.Fill(dataSetProd);
-            //        dataTableProd = dataSetProd.Tables[0];
-            //    }
-            //}
 
             return await DatabaseConnection.GetInstance().SQLConn.QueryAsync<Product>(sql);
         }

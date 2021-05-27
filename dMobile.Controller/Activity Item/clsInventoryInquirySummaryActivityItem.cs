@@ -28,6 +28,7 @@
         private double columnWidth9 = 0;
         private double columnWidth10 = 0;
         private ResourceDictionary resourceDictionary = new ResourceDictionary();
+        List<InventoryInquiryItem> listInventoryInquiryItems = new List<InventoryInquiryItem>();
 
         #region Constructors
 
@@ -493,7 +494,8 @@
             dataTableItems.Columns.Add("activityitemquantity", Type.GetType("System.Decimal"));
             dataTableItems.Columns.Add("activityitemweightquantity", Type.GetType("System.Decimal"));
 
-            this.ListItems = dataTableItems.Select().ToList<object>();
+            this.listInventoryInquiryItems = dataTableItems.Rows.Cast<InventoryInquiryItem>().ToList();
+            this.ListItems = this.listInventoryInquiryItems.Cast<object>().ToList();
             return this.ListItems;
         }
 

@@ -15,6 +15,8 @@
 
     public class ConvertUnitActItem : ActItem
     {
+        List<ConvertUnitItem> listConvertUnitItems = new List<ConvertUnitItem>();
+
         #region Constructors
 
         public ConvertUnitActItem(Activity activity)
@@ -185,7 +187,8 @@
             moveTable.Columns.Add("ActivityDetailFKRefno", Type.GetType("System.Int32"));
             moveTable.Columns.Add("ActivityDetailRefno", Type.GetType("System.Int32"));
 
-            this.ListItems = moveTable.Select().ToList<object>();
+            this.listConvertUnitItems = moveTable.Rows.Cast<ConvertUnitItem>().ToList();
+            this.ListItems = this.listConvertUnitItems.Cast<object>().ToList();
             return this.ListItems;
         }
 

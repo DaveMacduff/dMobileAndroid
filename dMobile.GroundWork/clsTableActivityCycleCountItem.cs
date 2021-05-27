@@ -1,4 +1,4 @@
-namespace dMobile.GroundWork
+﻿namespace dMobile.GroundWork
 {
     using dMobile.Bedrock;
     using dMobile.Resources.Models;
@@ -236,7 +236,7 @@ namespace dMobile.GroundWork
 
                                 transaction.Execute("INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (?, ?, ?)", Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts), 0, actRefno);
 
-                                actItemRefno = Convert.ToInt32(transaction.QueryScalars<int>("SELECT last_insert_rowid() FROM tActivityItem"));
+                                actItemRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityItem"));
                                 prodUnitRefno = this.GetProductUnitRefnoFromDataRow(drow, transaction, ref errMsg, true);
 
                                 // Cannot use this.SaveDetailLocation() f00 tags are not the same.
@@ -317,7 +317,7 @@ namespace dMobile.GroundWork
                                 "?" +
                                 ")";
 
-                                List<object> parameters = new List<object>()
+                                object[] parameters = new object[]
                                 {
                                     actItemRefno,
                                     Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts),

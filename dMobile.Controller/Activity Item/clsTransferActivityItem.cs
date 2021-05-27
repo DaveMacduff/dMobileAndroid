@@ -25,6 +25,7 @@
         private double columnWidth4 = 0;
         private double columnWidth5 = 0;
         private ResourceDictionary resourceDictionary = new ResourceDictionary();
+        List<TransferItem> listTransferItems = new List<TransferItem>();
 
         #region Constructors
 
@@ -226,9 +227,9 @@
                 parametersActivityItem.Add(Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 parametersActivityItem.Add(Convert.ToInt32(this.ActHdr.Refno));
 
-                transaction.Execute(queryActivityItem, parametersActivityItem);
+                transaction.Execute(queryActivityItem, parametersActivityItem.ToArray());
 
-                this.Refno = Convert.ToInt32(transaction.QueryScalars<int>("SELECT last_insert_rowid() FROM tActivityItem"));
+                this.Refno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityItem"));
                 this.FKRefno = this.Refno * -1;
 
                 string queryTransferItem = "INSERT INTO tActivityItemTransfer (" +
@@ -275,7 +276,7 @@
                 parametersTransferItem.Add(Convert.ToInt32(0));
                 parametersTransferItem.Add(Convert.ToInt32(0));
 
-                transaction.Execute(queryTransferItem, parametersTransferItem);
+                transaction.Execute(queryTransferItem, parametersTransferItem.ToArray());
 
                 this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
                 this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
@@ -602,13 +603,14 @@
             //        this.DataViewItems.AllowNew = true;
             //        this.DataViewItems.AllowEdit = true;
             //        this.DataViewItems.AllowDelete = true;
-            //        TODO: Fix sorting
             //        this.DataViewItems.Sort = "ActivityItemRefno";
             //    }
             //}
 
-            this.ListItems = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<object>(sql.ToString());
+            this.listTransferItems = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<TransferItem>(sql.ToString());
+            this.ListItems = this.listTransferItems.Cast<object>().ToList();
             return this.ListItems;
+
         }
 
         /// <summary>
@@ -620,15 +622,15 @@
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
-            if (string.IsNullOrEmpty(this.ActItemFilter))
-            {
-                this.ListItems = (List<object>)this.ListItems.OfType<TransferItem>().Where(transferItem => transferItem.ProductCode.Contains(searchText.Trim()));
-            }
-            else
-            {
+            //if (string.IsNullOrEmpty(this.ActItemFilter))
+            //{
+            this.ListItems = this.listTransferItems.Where(transferItem => transferItem.ProductCode.ToString().Contains(searchText.Trim())).Cast<object>().ToList();
+            //}
+            //else
+            //{
                 // TODO: Fix filtering
                 //this.DataViewItems.RowFilter = this.ActItemFilter + " AND ProductCode LIKE \'%" + searchText.Trim() + "%\'";
-            }
+            //}
 
             foreach (TransferItem transferItem in this.ListItems)
             {
@@ -789,7 +791,7 @@
             if (selectedActivityItem is TransferItem transferItem)
             {
                 string query = "UPDATE tActivityItemTransfer SET ActivityItemTransferQuantity = ?, ActivityItemTransferBaseQuantity = ?, ActivityItemTransferWeightQuantity = ? WHERE ActivityItemRefno = ?";
-                List<object> parameters = new List<object>() { transferItem.ActivityItemTransferQuantity, transferItem.ActivityItemTransferBaseQuantity, transferItem.ActivityItemTransferWeightQuantity, actItemRefno };
+                object[] parameters = new object[] { transferItem.ActivityItemTransferQuantity, transferItem.ActivityItemTransferBaseQuantity, transferItem.ActivityItemTransferWeightQuantity, actItemRefno };
 
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, parameters);
             }

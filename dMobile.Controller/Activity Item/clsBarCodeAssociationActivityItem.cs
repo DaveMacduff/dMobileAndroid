@@ -13,9 +13,12 @@
     using System.Collections.Generic;
     using dMobile.Resources.Types;
     using dMobile.Resources.Models;
+    using System.Linq;
 
     public class BarCodeActItem : ActItem
     {
+        List<BarcodeAssociationItem> listBarcodeAssociationItems = new List<BarcodeAssociationItem>();
+
         #region Constructors
 
         public BarCodeActItem(Activity activity)
@@ -137,102 +140,97 @@
 
             if (!isProdUnitBarCodeFound)
             {
-                //using (SQLiteCommand cmndProdUnitBarCode = conn.CreateCommand())
-                //using (SQLiteCommand cmndProdUnitBarCodeID = conn.CreateCommand())
-                //using (SQLiteCommand cmndItemBarCode = conn.CreateCommand())
-                //using (SQLiteTransaction transaction = conn.BeginTransaction())
-
                 await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(async (transaction) =>
-            {
-                try
                 {
-                    await this.ActHdr.Create(SysCommon.ActSubTypes.BarCodeAssociation);
-                    await this.Create(SysCommon.ActSubTypes.BarCodeAssociation);
-
-                    // Add the new Bar Code to Product Unit Bar Codes                            
-                    string queryInsertProdUnitBarcode = "INSERT INTO tProductUnitBarCode ("
-                        + "ProductUnitRefno,"
-                        + "ProductUnitBarCodeCode,"
-                        + "ProductUnitBarCodeRaw,"
-                        + "ProductUnitBarCodeSymbologyEnum,"
-                        + "ProductUnitBarCodeModifier1,"
-                        + "ProductUnitBarCodeStatus" +
-                        " ) VALUES ( " +
-                        "?, " +
-                        "?, " +
-                        "?, " +
-                        "?, " +
-                        "?, " +
-                        "?)";
-                    List<object> parametersInsertProdUnitBarcode = new List<object>()
+                    try
                     {
+                        await this.ActHdr.Create(SysCommon.ActSubTypes.BarCodeAssociation);
+                        await this.Create(SysCommon.ActSubTypes.BarCodeAssociation);
+
+                        // Add the new Bar Code to Product Unit Bar Codes                            
+                        string queryInsertProdUnitBarcode = "INSERT INTO tProductUnitBarCode ("
+                            + "ProductUnitRefno,"
+                            + "ProductUnitBarCodeCode,"
+                            + "ProductUnitBarCodeRaw,"
+                            + "ProductUnitBarCodeSymbologyEnum,"
+                            + "ProductUnitBarCodeModifier1,"
+                            + "ProductUnitBarCodeStatus" +
+                            " ) VALUES ( " +
+                            "?, " +
+                            "?, " +
+                            "?, " +
+                            "?, " +
+                            "?, " +
+                            "?)";
+                        object[] parametersInsertProdUnitBarcode = new object[]
+                        {
                         Convert.ToInt32(prodUnitRefno),
                         Convert.ToString(data.Root.Element("ProductIdentifier").Value),
                         Convert.ToString(data.Root.Element("RawData").Value),
                         Convert.ToString(data.Root.Element("enumBarCodeSymbology").Value),
                         Convert.ToString(SysEnv.CurrentBarCodeModifier1),
                         Convert.ToInt32(SysCommon.ActStatus.Inserted)
-                    };
+                        };
 
-                    transaction.Execute(queryInsertProdUnitBarcode, parametersInsertProdUnitBarcode);
+                        transaction.Execute(queryInsertProdUnitBarcode, parametersInsertProdUnitBarcode);
 
-                    prodUnitBarCodeRefno = Convert.ToInt32(transaction.QueryScalars<int>("SELECT last_insert_rowid() FROM tProductUnitBarCode"));
+                        prodUnitBarCodeRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tProductUnitBarCode"));
 
-                    // Create Activity to Bar Code XRef
-                    transaction.Execute("INSERT INTO tActivityItemBarCodeAssociationXRef (ActivityItemRefno, ProductUnitBarCodeRefno) VALUES (?, ?)", Convert.ToInt32(this.Refno), Convert.ToInt32(prodUnitBarCodeRefno));
-                    transaction.Commit();
+                        // Create Activity to Bar Code XRef
+                        transaction.Execute("INSERT INTO tActivityItemBarCodeAssociationXRef (ActivityItemRefno, ProductUnitBarCodeRefno) VALUES (?, ?)", Convert.ToInt32(this.Refno), Convert.ToInt32(prodUnitBarCodeRefno));
+                        transaction.Commit();
 
-                    data = XDocument.Parse(
-                        "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                        + "<params>"
-                        + "<ProductUnitBarCodeRefno>" + prodUnitBarCodeRefno + "</ProductUnitBarCodeRefno>"
-                        + "<ProductUnitRefno>" + prodUnitRefno + "</ProductUnitRefno>"
-                        + "<ProductUnitBarCodeSymbologyPrefix>" + data.Root.Element("BarCodeSymbologyPrefix").Value
-                        + "</ProductUnitBarCodeSymbologyPrefix>"
-                        + "<ProductUnitBarCodeCode>" + data.Root.Element("ProductIdentifier").Value
-                        + "</ProductUnitBarCodeCode>"
-                        + "<ProductUnitIsBC>" + prodUnitIsBC + "</ProductUnitIsBC>"
-                        + "<ProductCode>" + prodCode + "</ProductCode>"
-                        + "<UnitCode>" + unitCode + "</UnitCode>"
-                        + "<ProductUnitBarCodeModifier1>" + this.SysEnv.CurrentBarCodeModifier1
-                        + "</ProductUnitBarCodeModifier1>"
-                        + "</params>");
+                        data = XDocument.Parse(
+                            "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
+                            + "<params>"
+                            + "<ProductUnitBarCodeRefno>" + prodUnitBarCodeRefno + "</ProductUnitBarCodeRefno>"
+                            + "<ProductUnitRefno>" + prodUnitRefno + "</ProductUnitRefno>"
+                            + "<ProductUnitBarCodeSymbologyPrefix>" + data.Root.Element("BarCodeSymbologyPrefix").Value
+                            + "</ProductUnitBarCodeSymbologyPrefix>"
+                            + "<ProductUnitBarCodeCode>" + data.Root.Element("ProductIdentifier").Value
+                            + "</ProductUnitBarCodeCode>"
+                            + "<ProductUnitIsBC>" + prodUnitIsBC + "</ProductUnitIsBC>"
+                            + "<ProductCode>" + prodCode + "</ProductCode>"
+                            + "<UnitCode>" + unitCode + "</UnitCode>"
+                            + "<ProductUnitBarCodeModifier1>" + this.SysEnv.CurrentBarCodeModifier1
+                            + "</ProductUnitBarCodeModifier1>"
+                            + "</params>");
 
-                    if (!this.SysEnv.SysSettings.IsDisconnectedMode)
-                    {
-                        string reqData = SysCommon.SubmitComm(this.CreateSubmitXML(data));
-                        if (reqData.Length > 0)
+                        if (!this.SysEnv.SysSettings.IsDisconnectedMode)
                         {
-                            // Check if result is an error message
-                            if (reqData.Contains("<message>ERROR</message>"))
+                            string reqData = SysCommon.SubmitComm(this.CreateSubmitXML(data));
+                            if (reqData.Length > 0)
                             {
-                                XmlDocument docError = new XmlDocument();
-                                docError.LoadXml(reqData);
-                                string errorDetail = docError.DocumentElement["detail"].InnerText;
+                                // Check if result is an error message
+                                if (reqData.Contains("<message>ERROR</message>"))
+                                {
+                                    XmlDocument docError = new XmlDocument();
+                                    docError.LoadXml(reqData);
+                                    string errorDetail = docError.DocumentElement["detail"].InnerText;
 
-                                if (errorDetail.Contains("MSGBOX-"))
-                                {
-                                    throw new MessageOnlyException(errorDetail);
-                                }
-                                else
-                                {
-                                    throw new Exception(errorDetail);
+                                    if (errorDetail.Contains("MSGBOX-"))
+                                    {
+                                        throw new MessageOnlyException(errorDetail);
+                                    }
+                                    else
+                                    {
+                                        throw new Exception(errorDetail);
+                                    }
                                 }
                             }
                         }
                     }
-                }
-                catch (SQLiteException ex)
-                {
-                    transaction.Rollback();
-                    Console.WriteLine(ex);
-                    throw ex;
-                }
-                catch (Exception ex)
-                {
-                    throw ex;
-                }
-            });
+                    catch (SQLiteException ex)
+                    {
+                        transaction.Rollback();
+                        Console.WriteLine(ex);
+                        throw ex;
+                    }
+                    catch (Exception ex)
+                    {
+                        throw ex;
+                    }
+                });
             }
         }
 
@@ -325,7 +323,8 @@
             //    }
             //}
 
-            this.ListItems = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<object>(sql.ToString());
+            this.listBarcodeAssociationItems = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<BarcodeAssociationItem>(sql.ToString());
+            this.ListItems = this.listBarcodeAssociationItems.Cast<object>().ToList();
             return this.ListItems;
         }
 

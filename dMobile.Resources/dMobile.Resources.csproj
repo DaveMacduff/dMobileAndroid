@@ -24,4 +24,7 @@
       <HintPath>..\..\..\..\..\Library\Frameworks\Xamarin.Android.framework\Versions\Current\lib\xamarin.android\xbuild-frameworks\MonoAndroid\v8.1\Mono.Android.dll</HintPath>
     </Reference>
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="QueryResults\" />
+  </ItemGroup>
 </Project>

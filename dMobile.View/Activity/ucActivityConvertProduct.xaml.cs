@@ -912,19 +912,19 @@ namespace dMobile.View.Activity
             string production = string.Empty;
             string bestBefore = string.Empty;
             ProductInfo prodInfo = new ProductInfo();
-            List<dynamic> detail = this.ActDetail.ListDetails;
+            List<object> detail = this.ActDetail.ListDetails;
 
-            prodInfo = await ProductInfoTasks.GetInfoFromUnitRefno((int)detail[idx]["ProductUnitRefno"]);
+            prodInfo = await ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(detail[idx].GetType().GetProperty("ProductUnitRefno")?.GetValue(detail[idx])));
             prodInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(prodInfo.Refno);
 
             if (prodInfo.Scheme.IsBestBeforeDateTracked)
             {
-                bestBefore = Convert.ToDateTime(detail[idx].ActivityDetailLogisticUnitBestBeforeSellByDate).ToString("MM/dd/yyyy");
+                bestBefore = Convert.ToDateTime(detail[idx].GetType().GetProperty("ActivityDetailLogisticUnitBestBeforeSellByDate")?.GetValue(detail[idx])).ToString("MM/dd/yyyy");
             }
 
             if (prodInfo.Scheme.IsProductionDateTracked)
             {
-                production = Convert.ToDateTime(detail[idx].ActivityDetailLogisticUnitProductionDate).ToString("MM/dd/yyyy");
+                production = Convert.ToDateTime(detail[idx].GetType().GetProperty("ActivityDetailLogisticUnitProductionDate")?.GetValue(detail[idx])).ToString("MM/dd/yyyy");
             }
 
             StringBuilder req = new StringBuilder();
@@ -937,19 +937,19 @@ namespace dMobile.View.Activity
             req.AppendFormat("<slot_refno>{0}</slot_refno>", this.LocMap.CurrLocMap.SlotFKRefno);
             req.AppendFormat("<refno>{0}</refno>", this.ActItem.ActHdr.FKRefno);
             req.AppendFormat("<itm_refno>{0}</itm_refno>", this.ActItem.FKRefno);
-            req.AppendFormat("<prod_id>{0}</prod_id>", detail[idx].ProductCode);
-            req.AppendFormat("<bc>{0}</bc>", detail[idx].ProductUnitBC);
-            req.AppendFormat("<alt_unit>{0}</alt_unit>", detail[idx].UnitCode);
+            req.AppendFormat("<prod_id>{0}</prod_id>", detail[idx].GetType().GetProperty("ProductCode")?.GetValue(detail[idx]));
+            req.AppendFormat("<bc>{0}</bc>", detail[idx].GetType().GetProperty("ProductUnitBC")?.GetValue(detail[idx]));
+            req.AppendFormat("<alt_unit>{0}</alt_unit>", detail[idx].GetType().GetProperty("UnitCode")?.GetValue(detail[idx]));
             req.AppendFormat("<wt_unit>{0}</wt_unit>", prodInfo.WeightUnitCode);
-            req.AppendFormat("<serial>{0}</serial>", detail[idx].ActivityDetailSingleTradeItemSerialNumber);
+            req.AppendFormat("<serial>{0}</serial>", detail[idx].GetType().GetProperty("ActivityDetailSingleTradeItemSerialNumber")?.GetValue(detail[idx]));
             req.AppendFormat("<pdate>{0}</pdate>", production);
             req.AppendFormat("<bdate>{0}</bdate>", bestBefore);
-            req.AppendFormat("<lot_no>{0}</lot_no>", detail[idx].ActivityDetailLogisticUnitBatchLotNumber);
-            req.AppendFormat("<variant_code>{0}</variant_code>", detail[idx].ProductSchemeVariantCode);
-            req.AppendFormat("<variant_no>{0}</variant_no>", detail[idx].ProductSchemeVariantNumber);
-            req.AppendFormat("<alt_qty>{0}</alt_qty>", detail[idx].ActivityDetailQuantity);
-            req.AppendFormat("<wt_qty>{0}</wt_qty>", detail[idx].ActivityDetailWeightQuantity);
-            req.AppendFormat("<base_qty>{0}</base_qty>", detail[idx].ActivityDetailBaseQuantity);
+            req.AppendFormat("<lot_no>{0}</lot_no>", detail[idx].GetType().GetProperty("ActivityDetailLogisticUnitBatchLotNumber")?.GetValue(detail[idx]));
+            req.AppendFormat("<variant_code>{0}</variant_code>", detail[idx].GetType().GetProperty("ProductSchemeVariantCode")?.GetValue(detail[idx]));
+            req.AppendFormat("<variant_no>{0}</variant_no>", detail[idx].GetType().GetProperty("ProductSchemeVariantNumber")?.GetValue(detail[idx]));
+            req.AppendFormat("<alt_qty>{0}</alt_qty>", detail[idx].GetType().GetProperty("ActivityDetailQuantity")?.GetValue(detail[idx]));
+            req.AppendFormat("<wt_qty>{0}</wt_qty>", detail[idx].GetType().GetProperty("ActivityDetailWeightQuantity")?.GetValue(detail[idx]));
+            req.AppendFormat("<base_qty>{0}</base_qty>", detail[idx].GetType().GetProperty("ActivityDetailBaseQuantity")?.GetValue(detail[idx]));
             req.Append("</imclient>");
 
             return req.ToString();
@@ -1407,7 +1407,7 @@ namespace dMobile.View.Activity
         private SysCommon.SFillQuantity GetActivityItemQuantity()
         {
             SysCommon.SFillQuantity fillQty = new SysCommon.SFillQuantity();
-            List<dynamic> detailList = this.ActDetail.ListDetails;
+            List<object> detailList = this.ActDetail.ListDetails;
 
             if (detailList != null)
             {
@@ -1417,9 +1417,9 @@ namespace dMobile.View.Activity
                 {
                     for (int i = 0; i < count; i++)
                     {
-                        fillQty.Quantity += Convert.ToDecimal(detailList[i].ActivityDetailQuantity);
-                        fillQty.BaseQuantity += Convert.ToDecimal(detailList[i].ActivityDetailBaseQuantity);
-                        fillQty.WeightQuantity += Convert.ToDecimal(detailList[i].ActivityDetailWeightQuantity);
+                        fillQty.Quantity += Convert.ToDecimal(detailList[i].GetType().GetProperty("ActivityDetailQuantity")?.GetValue(detailList[i]));
+                        fillQty.BaseQuantity += Convert.ToDecimal(detailList[i].GetType().GetProperty("ActivityDetailBaseQuantity")?.GetValue(detailList[i]));
+                        fillQty.WeightQuantity += Convert.ToDecimal(detailList[i].GetType().GetProperty("ActivityDetailWeightQuantity")?.GetValue(detailList[i]));
                     }
                 }
             }

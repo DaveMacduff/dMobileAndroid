@@ -44,7 +44,7 @@ namespace dMobile.Resources.Models
     [Table("tProductLocationMapType")]
     public class tProductLocationMapTypeModel
     {
-        [NotNull, ForeignKey(typeof(tProductModel)), OneToMany(CascadeOperations = CascadeOperation.All), Indexed(Name = "FK_ProductLocationMapTypeOnProductRefno", Order = 1, Unique = false)]
+        [NotNull, ForeignKey(typeof(tProductModel)), Indexed(Name = "FK_ProductLocationMapTypeOnProductRefno", Order = 1, Unique = false)]
         public int ProductRefno { get; set; }
 
         [NotNull, ForeignKey(typeof(tLocationMapModel)), Indexed(Name = "FK_ProductLocationMapTypeOnWarehouseLocationMapRefno", Order = 1, Unique = false)]
@@ -53,7 +53,7 @@ namespace dMobile.Resources.Models
         [NotNull, Indexed(Name = "FK_ProductLocationMapTypeOnProductLocationMapTypeEnum", Order = 1, Unique = false)]
         public int ProductLocationMapTypeEnum { get; set; }
 
-        [NotNull, ForeignKey(typeof(tLocationMapModel)), OneToMany(CascadeOperations = CascadeOperation.All), Indexed(Name = "FK_ProductLocationMapTypeOnLocationMapRefno", Order = 1, Unique = false)]
+        [NotNull, ForeignKey(typeof(tLocationMapModel)), Indexed(Name = "FK_ProductLocationMapTypeOnLocationMapRefno", Order = 1, Unique = false)]
         public int LocationMapRefno { get; set; }
     }
 }

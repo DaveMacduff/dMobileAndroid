@@ -25,6 +25,7 @@ namespace dMobile.Controller
         private double columnWidth3 = 0;
         private double columnWidth4 = 0;
         private ResourceDictionary resourceDictionary = new ResourceDictionary();
+        List<ReturnDetail> listReturnDetails = new List<ReturnDetail>();
 
         #region Constructors
 
@@ -782,7 +783,8 @@ namespace dMobile.Controller
                 sql.Append("ORDER BY tActivityDetail.ActivityDetailRefno");
             }
 
-            this.ListDetails = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<object>(sql.ToString());
+            this.listReturnDetails = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ReturnDetail>(sql.ToString());
+            this.ListDetails = this.listReturnDetails.Cast<object>().ToList();
             return this.ListDetails;
         }
 
@@ -950,7 +952,7 @@ namespace dMobile.Controller
         public override ObservableCollection<object> Search(string searchText)
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
-            this.ListDetails = (List<object>)this.ListDetails.OfType<ReturnDetail>().Where(returnDetail => returnDetail.ActivityDetailReturnsFKRefno.ToString().Contains(searchText.Trim()));
+            this.ListDetails = this.listReturnDetails.Where(returnDetail => returnDetail.ActivityDetailReturnsFKRefno.ToString().Contains(searchText.Trim())).Cast<object>().ToList();
 
             foreach (ReturnDetail returnDetail in this.ListDetails)
             {

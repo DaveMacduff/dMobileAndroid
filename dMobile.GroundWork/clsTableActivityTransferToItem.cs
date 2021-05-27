@@ -235,7 +235,7 @@
 
                                 transaction.Execute("INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (?, ?, ?)", Convert.ToInt32(SysCommon.ActSubTypes.TransferTo), 0, Convert.ToInt32(actRefno));
 
-                                actItemRefno = Convert.ToInt32(transaction.QueryScalars<int>("SELECT last_insert_rowid() FROM tActivityItem"));
+                                actItemRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityItem"));
                                 prodUnitRefno = this.GetProductUnitRefnoFromDataRow(drow, transaction, ref errMsg, false);
                                 locMapRefno = 0;
                                 locMapWhsFKRefno = Convert.ToInt32(drow["TransferFromLocationMapWarehouseFKRefno"]);
@@ -280,7 +280,7 @@
                                 "?, " +
                                 "?" +
                                 ")";
-                                List<object> parameters = new List<object>()
+                                object[] parameters = new object[]
                                 {
                                     Convert.ToInt32(actItemRefno),
                                     Convert.ToInt32(SysCommon.ActSubTypes.TransferTo),

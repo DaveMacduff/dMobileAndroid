@@ -800,7 +800,7 @@
                 }
                 else
                 {
-                    this.LoadData();
+                    await this.LoadData();
                     cancelChanges = false;
                     this.IsChangesMade = false;
                 }
@@ -953,7 +953,7 @@
                 if (!this.IsControlLoaded)
                 {
                     await this.ScannerEnable();
-                    this.LoadData();
+                    await this.LoadData();
                     this.SelectWarehouse();
 
                     // Selecting the section and slot are required here even if the section / slot grids are not display 

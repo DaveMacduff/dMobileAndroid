@@ -41,7 +41,7 @@ namespace dMobile.Resources.Models
     [Table("tContactUser")]
     public class tContactUserModel
     {
-        [PrimaryKey, NotNull, ForeignKey(typeof(tContactModel)), OneToOne(CascadeOperations = CascadeOperation.All)]
+        [PrimaryKey, NotNull, ForeignKey(typeof(tContactModel))]
         public int ContactRefno { get; set; }
 
         [NotNull]

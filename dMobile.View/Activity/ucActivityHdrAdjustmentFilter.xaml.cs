@@ -1,6 +1,7 @@
 ﻿using Android.Views;
 using dMobile.Bedrock;
 using dMobile.Resources.Enums;
+using dMobile.Resources.Types;
 using dMobile.View.CustomPages.Modal;
 using dMobile.View.Forms;
 using System;
@@ -35,7 +36,7 @@ namespace dMobile.View.Activity
         private ReqSaveDisableHandler reqSaveDisableEvent;
         private ReqCancelEnableHandler reqCancelEnableEvent;
         private ReqCancelDisableHandler reqCancelDisableEvent;
-        private Dictionary<string, string> filters = new Dictionary<string, string>();
+        private Dictionary<string, Sort> filters = new Dictionary<string, Sort>();
         private Dictionary<string, string> adjustmentTypeFilters = new Dictionary<string, string>();
 
         #endregion
@@ -73,51 +74,48 @@ namespace dMobile.View.Activity
             // At least one sort option must be selected
             // TODO: Resource strings
             this.SortBy1.Clear();
-            this.SortBy1.Add(new ComboBoxMembers("Adjustment # Ascending", "ActivityAdjustmentFKRefno ASC"));
-            this.SortBy1.Add(new ComboBoxMembers("Adjustment # Descending", "ActivityAdjustmentFKRefno DESC"));
-            this.SortBy1.Add(new ComboBoxMembers("Adjustment Type # Ascending", "ActivityAdjustmentType ASC"));
-            this.SortBy1.Add(new ComboBoxMembers("Adjustment Type # Descending", "ActivityAdjustmentType DESC"));
-            this.SortBy1.Add(new ComboBoxMembers("Adjustment Date Ascending", "ActivityAdjustmentDateTime ASC"));
-            this.SortBy1.Add(new ComboBoxMembers("Adjustment Date Descending", "ActivityAdjustmentDateTime DESC"));
+            this.SortBy1.Add("Adjustment # Ascending");
+            this.SortBy1.Add("Adjustment # Descending");
+            this.SortBy1.Add("Adjustment Type # Ascending");
+            this.SortBy1.Add("Adjustment Type # Descending");
+            this.SortBy1.Add("Adjustment Date Ascending");
+            this.SortBy1.Add("Adjustment Date Descending");
             this.cboSortBy1.ItemsSource = this.SortBy1;
-            this.cboSortBy1.ItemDisplayBinding = new Binding("DisplayMember");
             this.cboSortBy1.SelectedIndex = this.AdjSettings.SortBy1Index;
 
             // TODO: Resource strings
             this.SortBy2.Clear();
-            this.SortBy2.Add(new ComboBoxMembers(string.Empty, string.Empty));
-            this.SortBy2.Add(new ComboBoxMembers("Adjustment # Ascending", "ActivityAdjustmentFKRefno ASC"));
-            this.SortBy2.Add(new ComboBoxMembers("Adjustment # Descending", "ActivityAdjustmentFKRefno DESC"));
-            this.SortBy2.Add(new ComboBoxMembers("Adjustment Type # Ascending", "ActivityAdjustmentType ASC"));
-            this.SortBy2.Add(new ComboBoxMembers("Adjustment Type # Descending", "ActivityAdjustmentType DESC"));
-            this.SortBy2.Add(new ComboBoxMembers("Adjustment Date Ascending", "ActivityAdjustmentDateTime ASC"));
-            this.SortBy2.Add(new ComboBoxMembers("Adjustment Date Descending", "ActivityAdjustmentDateTime DESC"));
+            this.SortBy2.Add(string.Empty);
+            this.SortBy2.Add("Adjustment # Ascending");
+            this.SortBy2.Add("Adjustment # Descending");
+            this.SortBy2.Add("Adjustment Type # Ascending");
+            this.SortBy2.Add("Adjustment Type # Descending");
+            this.SortBy2.Add("Adjustment Date Ascending");
+            this.SortBy2.Add("Adjustment Date Descending");
             this.cboSortBy2.ItemsSource = this.SortBy2;
-            this.cboSortBy2.ItemDisplayBinding = new Binding("DisplayMember");
             this.cboSortBy2.SelectedIndex = this.AdjSettings.SortBy2Index;
 
             // TODO: Resource strings
             this.SortBy3.Clear();
-            this.SortBy3.Add(new ComboBoxMembers(string.Empty, string.Empty));
-            this.SortBy3.Add(new ComboBoxMembers("Adjustment # Ascending", "ActivityAdjustmentFKRefno ASC"));
-            this.SortBy3.Add(new ComboBoxMembers("Adjustment # Descending", "ActivityAdjustmentFKRefno DESC"));
-            this.SortBy3.Add(new ComboBoxMembers("Adjustment Type # Ascending", "ActivityAdjustmentType ASC"));
-            this.SortBy3.Add(new ComboBoxMembers("Adjustment Type # Descending", "ActivityAdjustmentType DESC"));
-            this.SortBy3.Add(new ComboBoxMembers("Adjustment Date Ascending", "ActivityAdjustmentDateTime ASC"));
-            this.SortBy3.Add(new ComboBoxMembers("Adjustment Date Descending", "ActivityAdjustmentDateTime DESC"));
+            this.SortBy3.Add(string.Empty);
+            this.SortBy3.Add("Adjustment # Ascending");
+            this.SortBy3.Add("Adjustment # Descending");
+            this.SortBy3.Add("Adjustment Type # Ascending");
+            this.SortBy3.Add("Adjustment Type # Descending");
+            this.SortBy3.Add("Adjustment Date Ascending");
+            this.SortBy3.Add("Adjustment Date Descending");
             this.cboSortBy3.ItemsSource = this.SortBy3;
-            this.cboSortBy3.ItemDisplayBinding = new Binding("DisplayMember");
             this.cboSortBy3.SelectedIndex = this.AdjSettings.SortBy3Index;
 
             // TODO: Resource strings
             this.filters.Clear();
-            this.filters.Add(string.Empty, string.Empty);
-            this.filters.Add("Adjustment # Ascending", "ActivityAdjustmentFKRefno ASC");
-            this.filters.Add("Adjustment # Descending", "ActivityAdjustmentFKRefno DESC");
-            this.filters.Add("Adjustment Type # Ascending", "ActivityAdjustmentType ASC");
-            this.filters.Add("Adjustment Type # Descending", "ActivityAdjustmentType DESC");
-            this.filters.Add("Adjustment Date Ascending", "ActivityAdjustmentDateTime ASC");
-            this.filters.Add("Adjustment Date Descending", "ActivityAdjustmentDateTime DESC");
+            this.filters.Add(string.Empty, null);
+            this.filters.Add("Adjustment # Ascending", new Sort() { SortValue = "ActivityAdjustmentFKRefno", SortOrder = SortOrder.ASC });
+            this.filters.Add("Adjustment # Descending", new Sort() { SortValue = "ActivityAdjustmentFKRefno", SortOrder = SortOrder.DESC });
+            this.filters.Add("Adjustment Type # Ascending", new Sort() { SortValue = "ActivityAdjustmentType", SortOrder = SortOrder.ASC });
+            this.filters.Add("Adjustment Type # Descending", new Sort() { SortValue = "ActivityAdjustmentType", SortOrder = SortOrder.DESC });
+            this.filters.Add("Adjustment Date Ascending", new Sort() { SortValue = "ActivityAdjustmentDateTime", SortOrder = SortOrder.ASC });
+            this.filters.Add("Adjustment Date Descending", new Sort() { SortValue = "ActivityAdjustmentDateTime", SortOrder = SortOrder.DESC });
         }
 
         /// <summary>
@@ -128,7 +126,7 @@ namespace dMobile.View.Activity
             // KLUDGE: these choices must be in the same order as the ActivityAdjustmentTypes definition.
             // The clsAdjustmentActivity.SelectActivity Method set the oAdjustmentSettings.iAdjustmentTypeIdx property
             // based on the enumeration value
-            
+
             // TODO: Resource strings
             this.AdjTypes.Clear();
             this.AdjTypes.Add(new ComboBoxMembers("Inventory", Convert.ToInt32(SysCommon.AdjTypes.Inventory).ToString()));
@@ -697,14 +695,13 @@ namespace dMobile.View.Activity
                 {
                     if (this.chkApplyAdjustmentType.IsToggled && this.cboAdjustmentType.SelectedIndex > -1)
                     {
-                        //this.AdjSettings.AdjustmentType = (SysCommon.AdjTypes)(Convert.ToInt32(((ComboBoxMembers)(this.cboAdjustmentType.Items[this.cboAdjustmentType.SelectedIndex])).ValueMember));
                         this.AdjSettings.AdjustmentType = (SysCommon.AdjTypes)Convert.ToInt32(this.adjustmentTypeFilters[this.cboAdjustmentType.Items[this.cboAdjustmentType.SelectedIndex]]);
                     }
 
                     this.AdjSettings.IsApplyAdjustmentType = this.chkApplyAdjustmentType.IsToggled;
                     this.AdjSettings.NegateScanQuantity = this.chkNegateScanQuantity.IsToggled;
                     this.AdjSettings.IsApplyAdjustmentDate = this.chkApplyAdjustmentDate.IsToggled;
-                    
+
                     if (this.chkApplyAdjustmentDate.IsToggled)
                     {
                         this.AdjSettings.AdjustmentDate = this.dtpAdjustmentDate.Date;
@@ -900,23 +897,24 @@ namespace dMobile.View.Activity
         private void MakeSQLSortBy()
         {
             //((ComboBoxMembers)this.cboSortBy1.Items[this.cboSortBy1.SelectedIndex]).ValueMember.Trim();
-            this.SQLSortBy = this.filters[cboSortBy1.Items[cboSortBy1.SelectedIndex]].Trim();
-            this.AdjSettings.SortBy1Value = this.filters[cboSortBy1.Items[cboSortBy1.SelectedIndex]].Trim();
+            this.SQLSortBy = this.filters[cboSortBy1.Items[cboSortBy1.SelectedIndex]].SortValue;
+            this.AdjSettings.SortBy1Value = this.filters[cboSortBy1.Items[cboSortBy1.SelectedIndex]];
 
             if (this.cboSortBy2.SelectedIndex >= 0)
             {
-                this.AdjSettings.SortBy2Value =  this.filters[cboSortBy2.Items[cboSortBy2.SelectedIndex]].Trim();
-                
-                if (!string.IsNullOrEmpty(this.AdjSettings.SortBy2Value))
+                this.AdjSettings.SortBy2Value = this.filters[cboSortBy2.Items[cboSortBy2.SelectedIndex]];
+
+                if (this.AdjSettings.SortBy2Value != null && !string.IsNullOrEmpty(this.AdjSettings.SortBy2Value.SortValue))
                 {
-                    this.SQLSortBy = this.SQLSortBy + ", " + this.AdjSettings.SortBy2Value;
+                    this.SQLSortBy = this.SQLSortBy + ", " + this.AdjSettings.SortBy2Value.SortValue;
                 }
             }
 
             if (this.cboSortBy3.SelectedIndex >= 0)
             {
-                this.AdjSettings.SortBy3Value =  this.filters[cboSortBy3.Items[cboSortBy3.SelectedIndex]].Trim();
-                if (!string.IsNullOrEmpty(this.AdjSettings.SortBy3Value))
+                this.AdjSettings.SortBy3Value = this.filters[cboSortBy3.Items[cboSortBy3.SelectedIndex]];
+
+                if (this.AdjSettings.SortBy2Value != null && !string.IsNullOrEmpty(this.AdjSettings.SortBy3Value.SortValue))
                 {
                     this.SQLSortBy = this.SQLSortBy + ", " + this.AdjSettings.SortBy3Value;
                 }
@@ -941,15 +939,20 @@ namespace dMobile.View.Activity
         }
 
         #endregion
-        
+
         private async void btnSave_Clicked(object sender, EventArgs e)
         {
-            this.DialogResult = DialogResult.OK;
-            await this.Close();
+            if (await this.SaveChanges())
+            {
+                this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                this.DialogResult = DialogResult.OK;
+                await this.Close();
+            }
         }
 
         private async void btnClose_Clicked(object sender, EventArgs e)
         {
+            await this.CancelChanges();
             this.DialogResult = DialogResult.None;
             await this.Close();
         }

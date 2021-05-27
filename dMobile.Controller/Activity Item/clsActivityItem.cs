@@ -1,4 +1,4 @@
-namespace dMobile.Controller
+﻿namespace dMobile.Controller
 {
     using System;
     using System.Collections.ObjectModel;
@@ -229,7 +229,7 @@ namespace dMobile.Controller
         private LocationMap locMap;
         private Activity actHdr = null;
         private bool isAllowAddItem = false;
-        private string actItemFilter = string.Empty;
+        //private string actItemFilter = string.Empty;
         private DataLayerEventArgs dataEventArgs = new DataLayerEventArgs();
         private string fullClassName = typeof(ActItem).FullName;
         private bool isAskCreateNewItem = true;
@@ -316,21 +316,21 @@ namespace dMobile.Controller
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        public string ActItemFilter
-        {
-            get
-            {
-                return this.actItemFilter;
-            }
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        //public string ActItemFilter
+        //{
+        //    get
+        //    {
+        //        return this.actItemFilter;
+        //    }
 
-            set
-            {
-                this.actItemFilter = value;
-            }
-        }
+        //    set
+        //    {
+        //        this.actItemFilter = value;
+        //    }
+        //}
 
         /// <summary>
         /// 
@@ -616,16 +616,14 @@ namespace dMobile.Controller
         /// <param name="idx"></param>
         public virtual async Task SelectActivityItem(object selectedActivityItem)
         {
-            dynamic item = selectedActivityItem;
-
-            if (selectedActivityItem == null || item == null)
+            if (selectedActivityItem == null)
             {
                 return;
             }
 
             this.SelectedActivityItem = selectedActivityItem;
-            this.Refno = Convert.ToInt32(item.ActivityItemRefno);
-            this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(item.ProductUnitRefno));
+            this.Refno = Convert.ToInt32(this.SelectedActivityItem.GetType().GetProperty("ActivityItemRefno")?.GetValue(this.SelectedActivityItem));
+            this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(this.SelectedActivityItem.GetType().GetProperty("ProductUnitRefno")?.GetValue(this.SelectedActivityItem)));
 
             bool clearSkidFlag = SysEnv.SysSettings.DoesSelectingADifferentProductClearSkid;
             bool hasSkidData = this.ActHdr.SkidInfo.CurrSkid.SkidFKRefno > 0;
@@ -647,8 +645,8 @@ namespace dMobile.Controller
                 {
                     // Use a tmpLocMap to get the WarehouseLocationMapRefno. 
                     // The count LocationMapRefno could be a warehouse, section or slot location map refno.
-                    SLocMap tmpLocMap = LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(item.LocationMapRefno));
-                    int tmpDefaultLocMap = this.GetDefaultLocMapRefno(tmpLocMap.WhsLocMapRefno,Convert.ToInt32(item.ProductRefno));
+                    SLocMap tmpLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(this.SelectedActivityItem.GetType().GetProperty("LocationMapRefno")?.GetValue(this.SelectedActivityItem)));
+                    int tmpDefaultLocMap = await this.GetDefaultLocMapRefno(tmpLocMap.WhsLocMapRefno,Convert.ToInt32(this.SelectedActivityItem.GetType().GetProperty("ProductRefno")?.GetValue(this.SelectedActivityItem)));
                     this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(tmpDefaultLocMap);
 
                     // clear the skid
@@ -869,7 +867,7 @@ namespace dMobile.Controller
                 SQLiteAsyncConnection conn = DatabaseConnection.GetInstance().SQLConn;
 
                 await conn.ExecuteAsync("INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (?, ?, ?)", Convert.ToInt32(actSubTypes), Convert.ToInt32(SysCommon.ActStatus.Inserted), Convert.ToInt32(this.ActHdr.Refno));
-                this.Refno = Convert.ToInt32(conn.QueryScalarsAsync<int>("SELECT last_insert_rowid() FROM tActivityItem"));
+                this.Refno = Convert.ToInt32(conn.ExecuteScalarAsync<int>("SELECT last_insert_rowid() FROM tActivityItem"));
             }
             catch (SQLiteException ex)
             {

@@ -21,6 +21,7 @@ namespace dMobile.Controller
         private double columnWidth1 = 0;
         private double columnWidth2 = 0;
         private ResourceDictionary resourceDictionary = new ResourceDictionary();
+        List<Return> listReturns = new List<Return>();
 
         #region Constructors
 
@@ -278,7 +279,8 @@ namespace dMobile.Controller
             //    }
             //}
 
-            this.ListHdrs = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<object>(sql.ToString());
+            this.listReturns = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<Return>(sql.ToString());
+            this.ListHdrs = this.listReturns.Cast<object>().ToList();
             return this.ListHdrs;
         }
 
@@ -291,15 +293,15 @@ namespace dMobile.Controller
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
-            if (string.IsNullOrEmpty(this.ActFilter))
-            {
+            //if (string.IsNullOrEmpty(this.ActFilter))
+            //{
                 //this.DataViewHdrs.RowFilter = "ActivityReturnsStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
-                this.ListHdrs = (List<object>)this.ListHdrs.OfType<Return>().Where(returns => returns.ActivityReturnsStringFKRefno.Contains(searchText.Trim()));
-            }
-            else
-            {
+                this.ListHdrs = this.listReturns.Where(returns => returns.ActivityReturnsStringFKRefno.Contains(searchText.Trim())).Cast<object>().ToList();
+            //}
+            //else
+            //{
                 //this.DataViewHdrs.RowFilter = this.ActFilter + " AND ActivityReturnsStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
-            }
+            //}
 
             foreach (Return returns in this.ListHdrs)
             {
@@ -404,9 +406,9 @@ namespace dMobile.Controller
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public override string GetFilter()
+        public override void GetFilter()
         {
-            return string.Empty;
+            //return string.Empty;
         }
 
         /// <summary>
@@ -415,7 +417,7 @@ namespace dMobile.Controller
         /// <param name="xmlDoc"></param>
         /// <returns></returns>
         /// <remarks></remarks>
-        public override string GetFilter(XDocument data)
+        public override void GetFilter(XDocument data)
         {
             string filter = string.Empty;
             ReturnsSettings returnSettings = new ReturnsSettings().LoadData();
@@ -454,9 +456,9 @@ namespace dMobile.Controller
                 }
             }
 
-            this.ActFilter = filter;
-
-            return filter;
+            // TODO: Get filter
+            //this.ActFilter = filter;
+            //return filter;
         }
 
         #endregion

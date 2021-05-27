@@ -56,6 +56,6 @@ namespace dMobile.Resources.Types
         public string LocationName { get => locationName; set => locationName = value; }
         public decimal ActivityItemReceivingQuantityReceivedToDate { get => activityItemReceivingQuantityReceivedToDate; set => activityItemReceivingQuantityReceivedToDate = value; }
         public decimal ActivityItemReceivingWeightQuantityReceivedToDate { get => activityItemReceivingWeightQuantityReceivedToDate; set => activityItemReceivingWeightQuantityReceivedToDate = value; }
-        public string IsActivityItemReceivingCommentString { get => isActivityItemReceivingComment; set => isActivityItemReceivingComment = value; }
+        public string IsActivityItemReceivingComment { get => isActivityItemReceivingComment; set => isActivityItemReceivingComment = value; }
     }
 }

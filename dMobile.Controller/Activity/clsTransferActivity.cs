@@ -23,6 +23,7 @@ namespace dMobile.Controller
         private double columnWidth2 = 0;
         private double columnWidth3 = 0;
         private ResourceDictionary resourceDictionary = new ResourceDictionary();
+        List<Transfer> listTransfers = new List<Transfer>();
 
         #region Constructors
 
@@ -79,7 +80,7 @@ namespace dMobile.Controller
         #endregion
 
         #region Public Members
-        
+
         /// <summary>
         ///
         /// </summary>
@@ -122,7 +123,7 @@ namespace dMobile.Controller
         public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity)
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
-            
+
             foreach (Transfer transfer in this.ListHdrs)
             {
                 //Transfer transfer = new Transfer
@@ -147,7 +148,7 @@ namespace dMobile.Controller
             Label labelWhsHeader = new Label { Text = "Whs", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             Label labelDateHeader = new Label { Text = "Date", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             Label labelArrivedHeader = new Label { Text = "Arrived", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            
+
             columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelTransferNumberHeader.Text);
             columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelWhsHeader.Text);
             columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelDateHeader.Text);
@@ -181,7 +182,7 @@ namespace dMobile.Controller
             Grid.SetRow(gridHeader, 0);
 
             dataGridMainActivityHeader.Children.Add(gridHeader);
-            
+
             foreach (Transfer transfer in observableCollection)
             {
                 double detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(transfer.ActivityTransferStringFKRefno);
@@ -316,7 +317,8 @@ namespace dMobile.Controller
             //    }
             //}
 
-            this.ListHdrs = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<object>(sql.ToString());
+            this.listTransfers = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<Transfer>(sql.ToString());
+            this.ListHdrs = this.listTransfers.Cast<object>().ToList();
             return this.ListHdrs;
         }
 
@@ -325,21 +327,21 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="searchText"></param>
         /// <returns></returns>
-        public override ObservableCollection<object> Search( string searchText)
+        public override ObservableCollection<object> Search(string searchText)
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
-            if (string.IsNullOrEmpty(this.ActFilter))
-            {
-                //this.DataViewHdrs.RowFilter = "ActivityTransferStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
-                this.ListHdrs = (List<object>)this.ListHdrs.OfType<Transfer>().Where(transfer => transfer.ActivityTransferStringFKRefno.Contains(searchText.Trim()));
-            }
-            else
-            {
-                // TODO: Fix filtering
-                //this.DataViewHdrs.RowFilter = this.ActFilter + " AND ActivityTransferStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
-            }
-            
+            //if (string.IsNullOrEmpty(this.ActFilter))
+            //{
+            //this.DataViewHdrs.RowFilter = "ActivityTransferStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
+            this.ListHdrs = this.listTransfers.Where(transfer => transfer.ActivityTransferStringFKRefno.Contains(searchText.Trim())).Cast<object>().ToList();
+            //}
+            //else
+            //{
+            // TODO: Fix filtering
+            //this.DataViewHdrs.RowFilter = this.ActFilter + " AND ActivityTransferStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
+            //}
+
             foreach (Transfer transfer in this.ListHdrs)
             {
                 //Transfer transfer = new Transfer
@@ -464,7 +466,7 @@ namespace dMobile.Controller
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public override string GetFilter()
+        public override void GetFilter()
         {
             string filter = string.Empty;
             TransferSettings transferSettings = new TransferSettings().LoadData();
@@ -497,9 +499,9 @@ namespace dMobile.Controller
                 }
             }
 
-            this.ActFilter = filter;
-
-            return filter;
+            // TODO: Get filter
+            //this.ActFilter = filter;
+            //return filter;
         }
 
         /// <summary>
@@ -507,7 +509,7 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public override string GetFilter(XDocument data)
+        public override void GetFilter(XDocument data)
         {
             string filter = string.Empty;
             TransferSettings transferSettings = new TransferSettings().LoadData();
@@ -540,9 +542,9 @@ namespace dMobile.Controller
                 }
             }
 
-            this.ActFilter = filter;
-
-            return filter;
+            // TODO: Get filter
+            //this.ActFilter = filter;
+            //return filter;
         }
 
         #endregion

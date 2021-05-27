@@ -27,7 +27,7 @@ namespace dMobile.Resources.Models
     [Table("tActivityDetailAdjustment")]
     public class tActivityDetailAdjustmentModel
     {
-        [PrimaryKey, NotNull, ForeignKey(typeof(tActivityDetailModel)), OneToOne(CascadeOperations = CascadeOperation.All)]
+        [PrimaryKey, NotNull, ForeignKey(typeof(tActivityDetailModel))]
         public int ActivityDetailRefno { get; set; }
 
         [NotNull, Indexed(Name = "UQ_ActivityDetailAdjustmentOnActivityDetailAdjustmentFKRefno", Order = 1, Unique = true)]

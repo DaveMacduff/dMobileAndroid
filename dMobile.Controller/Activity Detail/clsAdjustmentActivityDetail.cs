@@ -1,4 +1,4 @@
-namespace dMobile.Controller
+﻿namespace dMobile.Controller
 {
     using System;
     using System.Collections.ObjectModel;
@@ -23,6 +23,7 @@ namespace dMobile.Controller
         private double columnWidth2 = 0;
         private double columnWidth3 = 0;
         private ResourceDictionary resourceDictionary = new ResourceDictionary();
+        List<AdjustmentDetail> listAdjustmentDetails = new List<AdjustmentDetail>();
 
         #region Constructors
 
@@ -267,7 +268,6 @@ namespace dMobile.Controller
             //this.DataViewDetails.Sort = "ActivityDetailAdjustmentFKRefno";
 
             AdjustmentDetail adj = this.ListDetails.OfType<AdjustmentDetail>().Where(adjItem => adjItem.ActivityDetailAdjustmentFKRefno == FKRefno).FirstOrDefault();
-
 
             if (adj != null)
             {
@@ -752,7 +752,8 @@ namespace dMobile.Controller
             //    }
             //}
 
-            this.ListDetails = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<object>(sql.ToString());
+            this.listAdjustmentDetails = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<AdjustmentDetail>(sql.ToString());
+            this.ListDetails = this.listAdjustmentDetails.Cast<object>().ToList();
             return this.ListDetails;
         }
 
@@ -897,7 +898,7 @@ namespace dMobile.Controller
         public override ObservableCollection<object> Search(string searchText)
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
-            this.ListDetails = (List<object>)this.ListDetails.OfType<AdjustmentDetail>().Where(adjustmentDetail => adjustmentDetail.ActivityDetailAdjustmentFKRefno.ToString().Contains(searchText.Trim()));
+            this.ListDetails = this.listAdjustmentDetails.Where(adjDetail => adjDetail.ActivityDetailAdjustmentFKRefno.ToString().Contains(searchText.Trim())).Cast<object>().ToList();
 
             foreach (AdjustmentDetail adjustmentDetail in this.ListDetails)
             {
@@ -975,9 +976,9 @@ namespace dMobile.Controller
                 this.ActExtra.Text2 = Convert.ToString(adjustmentDetail.ActivityDetailExtra2Text);
                 this.ActExtra.Text3 = Convert.ToString(adjustmentDetail.ActivityDetailExtra3Text);
                 this.ActExtra.Text4 = Convert.ToString(adjustmentDetail.ActivityDetailExtra4Text);
-                
+
                 if (!string.IsNullOrEmpty(Convert.ToString(adjustmentDetail.ActivityDetailExtra5Date)) && DateTime.TryParse(Convert.ToString(adjustmentDetail.ActivityDetailExtra5Date), out DateTime _))
-                {    
+                {
                     this.ActExtra.DateTime5 = Convert.ToDateTime(adjustmentDetail.ActivityDetailExtra5Date);
                 }
                 else
@@ -1004,7 +1005,7 @@ namespace dMobile.Controller
             SysCommon.AdjTypes adjType = SysCommon.AdjTypes.Inventory;
             AdjustmentSettings adjSettings = new AdjustmentSettings().LoadData();
 
-            adjType = (SysCommon.AdjTypes)Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.QueryScalarsAsync<int>("SELECT ActivityAdjustmentType FROM tActivityAdjustment WHERE ActivityRefno = ?", this.ActItem.ActHdr.Refno));
+            adjType = (SysCommon.AdjTypes)Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT ActivityAdjustmentType FROM tActivityAdjustment WHERE ActivityRefno = ?", this.ActItem.ActHdr.Refno));
 
             XDocument request = null;
             if (data.Document.Root.Element("skid_data") == null)
@@ -1066,7 +1067,7 @@ namespace dMobile.Controller
             XmlWriter xml = XmlWriter.Create(xmlString);
             SysCommon.AdjTypes adjType = SysCommon.AdjTypes.Inventory;
 
-            adjType = (SysCommon.AdjTypes)Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.QueryScalarsAsync<int>("SELECT ActivityAdjustmentType FROM tActivityAdjustment WHERE ActivityRefno = ?", this.ActItem.ActHdr.Refno));
+            adjType = (SysCommon.AdjTypes)Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT ActivityAdjustmentType FROM tActivityAdjustment WHERE ActivityRefno = ?", this.ActItem.ActHdr.Refno));
 
             XDocument request = null;
             if (data.Document.Root.Element("skid_data") == null)

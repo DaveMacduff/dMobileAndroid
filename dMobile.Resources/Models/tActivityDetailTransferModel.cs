@@ -30,7 +30,7 @@ namespace dMobile.Resources.Models
     [Table("tActivityDetailTransfer")]
     public class tActivityDetailTransferModel
     {
-        [PrimaryKey, NotNull, ForeignKey(typeof(tActivityDetailModel)), OneToOne(CascadeOperations = CascadeOperation.All)]
+        [PrimaryKey, NotNull, ForeignKey(typeof(tActivityDetailModel))]
         public int ActivityDetailRefno { get; set; }
 
         [NotNull]

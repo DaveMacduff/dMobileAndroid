@@ -39,7 +39,7 @@ namespace dMobile.Resources.Models
         [PrimaryKey, NotNull]
         public int ProductUnitBarCodeRefno { get; set; }
 
-        [NotNull, ForeignKey(typeof(tProductUnitModel)), OneToMany(CascadeOperations = CascadeOperation.All), Indexed(Name = "FK_ProductUnitBarCodeOnProductUnitRefno", Order = 1, Unique = false)]
+        [NotNull, ForeignKey(typeof(tProductUnitModel)), Indexed(Name = "FK_ProductUnitBarCodeOnProductUnitRefno", Order = 1, Unique = false)]
         public int ProductUnitRefno { get; set; }
 
         [NotNull, Indexed(Name = "UQ_ProductUnitBarCodeOnProductUnitBarCodeCodeAndProductUnitBarCodeModifier1", Order = 1, Unique = true)]

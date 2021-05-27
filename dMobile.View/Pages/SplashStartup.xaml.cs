@@ -726,14 +726,14 @@
                 this.StartUpStatusOut(sender, e, "Database missing.");
                 this.StartUpStatusOut(sender, e, "Creating database.");
 
-                db.CreateNewDatabase();
-                db.CreateTables();
+                await db.CreateNewDatabase();
+                await db.CreateTables();
 
                 // TODO: Resource Strings
                 this.StartUpStatusOut(sender, e, "Seeding system users.");
 
                 TableContactUsers users = new TableContactUsers();
-                users.SeedContactUsersWithSystemUsers();
+                await users.SeedContactUsersWithSystemUsers();
 
                 this.IsErrorRaised = db.ErrorRaised;
 

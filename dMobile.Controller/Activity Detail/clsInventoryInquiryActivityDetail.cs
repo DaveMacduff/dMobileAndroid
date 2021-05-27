@@ -21,6 +21,7 @@ namespace dMobile.Controller
         private double columnWidth2 = 0;
         private double columnWidth3 = 0;
         private ResourceDictionary resourceDictionary = new ResourceDictionary();
+        List<InventoryInquiryDetail> listInventoryInquiryDetails = new List<InventoryInquiryDetail>();
 
         /// <summary>
         /// 
@@ -118,10 +119,9 @@ namespace dMobile.Controller
         {
             await base.GetInfo(selectedActivityDetail, isAdd);
 
-            dynamic detail = selectedActivityDetail;
-            if (!isAdd && detail != null)
+            if (!isAdd && selectedActivityDetail != null)
             {
-                this.FKRefno = Convert.ToInt32(detail.ActivityDetailFKRefno);
+                this.FKRefno = Convert.ToInt32(selectedActivityDetail.GetType().GetProperty("ActivityDetailFKRefno")?.GetValue(selectedActivityDetail));
             }
 
             return this;
@@ -152,7 +152,7 @@ namespace dMobile.Controller
                 string reqData = SysCommon.SubmitComm(await this.CreateSubmitXML(xmldocParams));
 
                 this.ListDetails = await this.GetActivityDetailList(false);
-                
+
                 if (reqData.Length > 0)
                 {
                     if (reqData.Contains("<message>ERROR</message>"))
@@ -160,7 +160,7 @@ namespace dMobile.Controller
                         XmlDocument xmlDoc = new XmlDocument();
                         xmlDoc.LoadXml(reqData);
                         string errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
-                        
+
                         if (errorDetail.Contains("MSGBOX-"))
                         {
                             throw new MessageOnlyException(errorDetail);
@@ -175,11 +175,11 @@ namespace dMobile.Controller
                         using (DataSet ds = new DataSet())
                         {
                             ds.ReadXml(SysCommon.GetXmlReader(ref reqData), XmlReadMode.Auto);
-                            
+
                             if (ds.Tables.Count != 0)
                             {
                                 // TODO: Test
-                                this.ListDetails = ds.Tables["tActivityDetail"].Rows.OfType<object>().ToList();
+                                this.ListDetails = ds.Tables["tActivityDetail"].Rows.Cast<object>().ToList();
                             }
                         }
                     }
@@ -229,7 +229,8 @@ namespace dMobile.Controller
             dataTableDetails.Columns.Add("ActivityDetailWeightQuantity", Type.GetType("System.Decimal"));
             dataTableDetails.Columns.Add("ActivityDetailSchemeID", Type.GetType("System.String"));
 
-            this.ListDetails = dataTableDetails.Select().ToList<object>();
+            this.listInventoryInquiryDetails = dataTableDetails.Rows.Cast<InventoryInquiryDetail>().ToList();
+            this.ListDetails = this.listInventoryInquiryDetails.Cast<object>().ToList();
             return this.ListDetails;
         }
 

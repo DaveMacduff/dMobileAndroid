@@ -44,7 +44,7 @@ namespace dMobile.Resources.Models
     [Table("tActivityCount")]
     public class tActivityCountModel
     {
-        [PrimaryKey, NotNull, Indexed(Name = "UQ_ActivityCountOnActivityRefnoAndActivitySubType", Order = 1, Unique = true), ForeignKey(typeof(tActivityModel)), OneToOne(CascadeOperations = CascadeOperation.All)]
+        [PrimaryKey, NotNull, Indexed(Name = "UQ_ActivityCountOnActivityRefnoAndActivitySubType", Order = 1, Unique = true), ForeignKey(typeof(tActivityModel))]
         public int ActivityRefno { get; set; }
 
         [NotNull, Indexed(Name = "UQ_ActivityCountOnActivityRefnoAndActivitySubType", Order = 2, Unique = true)]
@@ -56,7 +56,7 @@ namespace dMobile.Resources.Models
         [NotNull]
         public string ActivityCountStringFKRefno { get; set; }
 
-        [NotNull, Indexed(Name = "FK_ActivityCountOnWarehouseLocationMapRefno", Order = 1, Unique = false), ForeignKey(typeof(tLocationMapWarehouseModel)), OneToOne(CascadeOperations = CascadeOperation.All)]
+        [NotNull, Indexed(Name = "FK_ActivityCountOnWarehouseLocationMapRefno", Order = 1, Unique = false), ForeignKey(typeof(tLocationMapWarehouseModel))]
         public int WarehouseLocationMapRefno { get; set; }
 
         [NotNull]

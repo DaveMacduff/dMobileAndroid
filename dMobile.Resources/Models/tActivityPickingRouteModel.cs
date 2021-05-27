@@ -38,10 +38,10 @@ namespace dMobile.Resources.Models
     [Table("tActivityPickingRoute")]
     public class tActivityPickingRouteModel
     {
-        [PrimaryKey, NotNull, ForeignKey(typeof(tActivityPickingModel)), OneToOne(CascadeOperations = CascadeOperation.All), Indexed(Name = "UQ_ActivityPickingRouteOnPickingActivityRefnoAndRouteRefno", Order = 1, Unique = true)]
+        [PrimaryKey, NotNull, ForeignKey(typeof(tActivityPickingModel)), Indexed(Name = "UQ_ActivityPickingRouteOnPickingActivityRefnoAndRouteRefno", Order = 1, Unique = true)]
         public int PickingActivityRefno {get; set;}
 
-        [NotNull, ForeignKey(typeof(tRouteModel)), OneToMany(CascadeOperations = CascadeOperation.All), Indexed(Name = "UQ_ActivityPickingRouteOnPickingActivityRefnoAndRouteRefno", Order = 2, Unique = true)]
+        [NotNull, ForeignKey(typeof(tRouteModel)), Indexed(Name = "UQ_ActivityPickingRouteOnPickingActivityRefnoAndRouteRefno", Order = 2, Unique = true)]
         public int RouteRefno { get; set; }
 
         [NotNull, Indexed(Name = "FK_ActivityPickingRouteOnRouteRefno", Order = 1, Unique = false)]

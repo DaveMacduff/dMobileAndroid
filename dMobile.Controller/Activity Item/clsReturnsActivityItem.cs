@@ -26,6 +26,7 @@
         private double columnWidth3 = 0;
         private double columnWidth4 = 0;
         private ResourceDictionary resourceDictionary = new ResourceDictionary();
+        private List<ReturnItem> listReturnItems = new List<ReturnItem>();
 
         #region Constructors
 
@@ -391,8 +392,8 @@
                 "tActivityItemReturns.WarehouseLocationMapRefno " +
                 "LEFT JOIN tActivityItemReturnsComment ON tActivityItemReturnsComment.ActivityItemRefno = " +
                 "tActivityItemReturns.ActivityItemRefno " +
-                "WHERE tActivityItem.ActivityRefno = @Refno " +
-                "AND tActivityItem.ActivityItemStatus <> @ActStatus " +
+                "WHERE tActivityItem.ActivityRefno = ? " +
+                "AND tActivityItem.ActivityItemStatus <> ? " +
                 "UNION " +
                 "SELECT tActivityItemReturns.ActivityItemRefno, " +
                 "tActivityItemReturns.ActivityItemReturnsFKRefno, " +
@@ -482,12 +483,12 @@
             //        this.DataViewItems.AllowNew = true;
             //        this.DataViewItems.AllowEdit = true;
             //        this.DataViewItems.AllowDelete = true;
-            //        TODO: Fix sorting
             //        this.DataViewItems.Sort = "ActivityItemRefno";
             //    }
             //}
 
-            this.ListItems = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<object>(query, parameters);
+            this.listReturnItems = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ReturnItem>(query, parameters.ToArray());
+            this.ListItems = this.listReturnItems.Cast<object>().ToList();
             return this.ListItems;
         }
 
@@ -500,15 +501,15 @@
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
-            if (string.IsNullOrEmpty(this.ActItemFilter))
-            {
-                this.ListItems = (List<object>)this.ListItems.OfType<ReturnItem>().Where(returnItem => returnItem.ProductCode.Contains(searchText.Trim()));
-            }
-            else
-            {
-                // TODO: Fix filtering
-                //this.DataViewItems.RowFilter = this.ActItemFilter + " AND ProductCode LIKE \'" + searchText.Trim() + "%\'";
-            }
+            //if (string.IsNullOrEmpty(this.ActItemFilter))
+            //{
+            this.ListItems = this.listReturnItems.Where(returnItem => returnItem.ProductCode.ToString().Contains(searchText.Trim())).Cast<object>().ToList();
+            //}
+            //else
+            //{
+            // TODO: Fix filtering
+            //this.DataViewItems.RowFilter = this.ActItemFilter + " AND ProductCode LIKE \'" + searchText.Trim() + "%\'";
+            //}
 
             foreach (ReturnItem returnItem in this.ListItems)
             {
@@ -687,7 +688,7 @@
                     "ActivityItemReturnsBaseQuantityReturned = ?, " +
                     "ActivityItemReturnsWeightQuantityReturned = ? " +
                     "WHERE ActivityItemRefno = ?";
-                List<object> parameters = new List<object>()
+                object[] parameters = new object[]
                 {
                     returnItem.ActivityItemReturnsQuantityReturned,
                     returnItem.ActivityItemReturnsBaseQuantityReturned,

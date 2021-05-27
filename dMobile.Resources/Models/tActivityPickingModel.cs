@@ -46,7 +46,7 @@ namespace dMobile.Resources.Models
     [Table("tActivityPicking")]
     public class tActivityPickingModel
     {
-        [Indexed(Name = "UQ_ActivityPickingOnActivityRefnoAndActivitySubType", Order = 1, Unique = true), PrimaryKey, NotNull, ForeignKey(typeof(tActivityModel)), OneToOne(CascadeOperations = CascadeOperation.All)]
+        [Indexed(Name = "UQ_ActivityPickingOnActivityRefnoAndActivitySubType", Order = 1, Unique = true), PrimaryKey, NotNull, ForeignKey(typeof(tActivityModel))]
         public int ActivityRefno { get; set; }
 
         [Indexed(Name = "UQ_ActivityPickingOnActivityRefnoAndActivitySubType", Order = 2, Unique = true), NotNull]
@@ -58,7 +58,7 @@ namespace dMobile.Resources.Models
         [NotNull]
         public string ActivityPickingStringFKRefno { get; set; }
 
-        [Indexed(Name = "FK_ActivityPickingOnWarehouseLocationMapRefno", Order = 1, Unique = false), ForeignKey(typeof(tLocationMapWarehouseModel)), OneToMany(CascadeOperations = CascadeOperation.All), NotNull]
+        [Indexed(Name = "FK_ActivityPickingOnWarehouseLocationMapRefno", Order = 1, Unique = false), ForeignKey(typeof(tLocationMapWarehouseModel)), NotNull]
         public int WarehouseLocationMapRefno { get; set; }
 
         [NotNull]

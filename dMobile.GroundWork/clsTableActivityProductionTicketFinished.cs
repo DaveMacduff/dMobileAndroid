@@ -1,4 +1,4 @@
-namespace dMobile.GroundWork
+﻿namespace dMobile.GroundWork
 {
     using dMobile.Bedrock;
     using System;
@@ -165,7 +165,7 @@ namespace dMobile.GroundWork
 
                                 transaction.Execute("INSERT INTO tActivity (ActivityStatus, ActivitySubType) VALUES (?, ?)", 0, Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished));
 
-                                actRefno = Convert.ToInt32(transaction.QueryScalars<int>("SELECT last_insert_rowid() FROM tActivity"));
+                                actRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivity"));
 
                                 string queryActivityProduction = "INSERT INTO tActivityProduction (" +
                                     "ActivityRefno, " +
@@ -194,7 +194,7 @@ namespace dMobile.GroundWork
                                 parametersActivityProduction.Add(dt);
                                 parametersActivityProduction.Add(drow["ActivityProductionDescription"].ToString());
 
-                                transaction.Execute(queryActivityProduction, parametersActivityProduction);
+                                transaction.Execute(queryActivityProduction, parametersActivityProduction.ToArray());
 
                                 int actProductionFKRefno = Convert.ToInt32(drow["ActivityProductionFKRefno"]);
                                 errMsg += Environment.NewLine + "FK refno " + actProductionFKRefno;
@@ -210,7 +210,7 @@ namespace dMobile.GroundWork
                                     "?, " +
                                     "?" +
                                     ")";
-                                List<object> parametersActivityProductionFinished = new List<object>()
+                                object[] parametersActivityProductionFinished = new object[]
                                 {
                                     actRefno,
                                     actProductionFKRefno,

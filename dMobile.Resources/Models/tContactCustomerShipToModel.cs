@@ -42,7 +42,7 @@ namespace dMobile.Resources.Models
     [Table("tContactCustomerShipTo")]
     public class tContactCustomerShipToModel
     {
-        [PrimaryKey, NotNull, ForeignKey(typeof(tContactModel)), OneToOne(CascadeOperations = CascadeOperation.All), Indexed(Name = "UQ_ContactCustomerShipToOnContactRefnoAndContactSubType", Order = 1, Unique = true)]
+        [PrimaryKey, NotNull, ForeignKey(typeof(tContactModel)), Indexed(Name = "UQ_ContactCustomerShipToOnContactRefnoAndContactSubType", Order = 1, Unique = true)]
         public int ContactRefno { get; set; }
 
         [NotNull, Indexed(Name = "UQ_ContactCustomerShipToOnContactRefnoAndContactSubType", Order = 2, Unique = true)]

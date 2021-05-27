@@ -27,6 +27,7 @@ namespace dMobile.Controller
         private double columnWidth5 = 0;
         private double columnWidth6 = 0;
         private ResourceDictionary resourceDictionary = new ResourceDictionary();
+        List<ConvertProductDetail> listConvertProductDetails = new List<ConvertProductDetail>();
 
         public int ID
         {
@@ -265,7 +266,8 @@ namespace dMobile.Controller
             table.Columns.Add("ActivityItemFKRefno", Type.GetType("System.Int32"));
             table.Columns.Add("ActivityHdrFKRefno", Type.GetType("System.Int32"));
 
-            this.ListDetails = table.Select().ToList<object>();
+            this.listConvertProductDetails = table.Rows.Cast<ConvertProductDetail>().ToList();
+            this.ListDetails = this.listConvertProductDetails.Cast<object>().ToList();
             return this.ListDetails;
         }
 

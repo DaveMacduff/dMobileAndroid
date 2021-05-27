@@ -26,6 +26,7 @@ namespace dMobile.Controller
         private double columnWidth6 = 0;
         private double columnWidth7 = 0;
         private ResourceDictionary resourceDictionary = new ResourceDictionary();
+        List<Skid> listSkids = new List<Skid>();
 
         #endregion
 
@@ -127,9 +128,9 @@ namespace dMobile.Controller
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public override string GetFilter()
+        public override void GetFilter()
         {
-            return string.Empty;
+            //return string.Empty;
         }
 
         /// <summary>
@@ -262,7 +263,8 @@ namespace dMobile.Controller
             //this.DataViewHdrs = table.DefaultView;
             //this.DataViewHdrs.Table.TableName = this.MainGridMappingName;
 
-            this.ListHdrs = table.Select().ToList<object>();
+            this.listSkids = table.Rows.Cast<Skid>().ToList();
+            this.ListHdrs = this.listSkids.Cast<object>().ToList();
             return this.ListHdrs;
         }
 
@@ -465,7 +467,7 @@ namespace dMobile.Controller
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public override string GetFilter(XDocument data)
+        public override void GetFilter(XDocument data)
         {
             throw new NotImplementedException();
         }

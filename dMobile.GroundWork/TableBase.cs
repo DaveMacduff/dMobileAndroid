@@ -582,7 +582,7 @@ namespace dMobile.GroundWork
                 }
             }
 
-            conn.Execute(query, parameters);
+            conn.Execute(query, parameters.ToArray());
         }
 
         /// <summary>

@@ -301,9 +301,9 @@
                                 parametersInsertDetail.Add(productUnitRefno);
                                 parametersInsertDetail.AddRange(this.SaveDetail(drow, transaction, false));
 
-                                transaction.Execute(queryInsertDetail, parametersInsertDetail);
+                                transaction.Execute(queryInsertDetail, parametersInsertDetail.ToArray());
 
-                                actDetailRefno = Convert.ToInt32(transaction.QueryScalars<int>("SELECT last_insert_rowid() FROM tActivityDetail"));
+                                actDetailRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityDetail"));
                                 recvDetailFKRefno = Convert.ToInt32(drow["ActivityDetailPurchaseOrderFKRefno"]);
                                 errMsg += Environment.NewLine + "Detail fk refno " + recvDetailFKRefno;
 

@@ -420,6 +420,7 @@ namespace dMobile.View.Activity
             {
                 RecvSettings.dtIssuedDateFilter = DateTime.Now;
             }
+
             IsControlLoaded = true;
         }
 

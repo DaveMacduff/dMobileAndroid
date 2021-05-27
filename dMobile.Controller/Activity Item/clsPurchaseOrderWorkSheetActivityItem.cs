@@ -26,6 +26,7 @@
         private double columnWidth1 = 0;
         private double columnWidth2 = 0;
         private ResourceDictionary resourceDictionary = new ResourceDictionary();
+        List<PurchaseOrderWorkSheetItem> listPurchaseOrderWorkSheetItems = new List<PurchaseOrderWorkSheetItem>();
 
         #endregion
 
@@ -200,13 +201,13 @@
                         {
                             transaction.Execute("INSERT INTO tActivity (ActivityStatus, ActivitySubType) VALUES (?, ?)", Convert.ToInt32(SysCommon.ActStatus.Inserted), Convert.ToInt32(SysCommon.ActSubTypes.PurchaseOrderWorkSheet));
 
-                            actRefno = Convert.ToInt32(transaction.QueryScalars<int>("SELECT last_insert_rowid() FROM tActivity"));
+                            actRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivity"));
                             this.ActHdr.Refno = actRefno;
                             this.ActHdr.FKRefno = actRefno;
 
                             transaction.Execute("INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (?, ?, ?)", Convert.ToInt32(SysCommon.ActSubTypes.PurchaseOrderWorkSheet), Convert.ToInt32(SysCommon.ActStatus.Inserted), Convert.ToInt32(this.ActHdr.Refno));
 
-                            this.Refno = Convert.ToInt32(transaction.QueryScalars<int>("SELECT last_insert_rowid() FROM tActivityItem"));
+                            this.Refno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityItem"));
 
                             string queryActSheetItem = "INSERT INTO tActivityItemPurchaseOrderWorkSheet (" +
                                 "ActivityItemRefno, " +
@@ -229,7 +230,7 @@
                                 "?, " +
                                 "?" +
                                 ")";
-                            List<object> parametersActSheetItem = new List<object>()
+                            object[] parametersActSheetItem = new object[]
                             {
                                 Convert.ToInt32(this.Refno),
                                 Convert.ToInt32(SysCommon.ActSubTypes.PurchaseOrderWorkSheet),
@@ -708,7 +709,6 @@
             //        da.Fill(ds);
             //        this.DataViewItems = ds.Tables[0].DefaultView;
             //        this.DataViewItems.Table.TableName = this.MainGridMappingName;
-            //        TODO: Fix sorting
             //        this.DataViewItems.Sort = "ActivityItemPurchaseOrderWorkSheetFKRefno";
             //        this.DataViewItems.AllowNew = true;
             //        this.DataViewItems.AllowEdit = true;
@@ -716,7 +716,8 @@
             //    }
             //}
 
-            this.ListItems = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<object>(sql.ToString());
+            this.listPurchaseOrderWorkSheetItems = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<PurchaseOrderWorkSheetItem>(sql.ToString());
+            this.ListItems = this.listPurchaseOrderWorkSheetItems.OrderBy(poItem => poItem.ActivityItemPurchaseOrderWorkSheetFKRefno).Cast<object>().ToList();
             return this.ListItems;
         }
 
@@ -730,15 +731,15 @@
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
-            if (string.IsNullOrEmpty(this.ActItemFilter))
-            {
-                this.ListItems = (List<object>)this.ListItems.OfType<PurchaseOrderWorkSheetItem>().Where(purchaseOrderWorkSheetItem => purchaseOrderWorkSheetItem.ProductCode.Contains(searchText.Trim()));
-            }
-            else
-            {
-                // TODO: Fix filtering
-                //this.DataViewItems.RowFilter = this.ActItemFilter + " AND ProductCode LIKE \'%" + searchText.Trim() + "%\'";
-            }
+            //if (string.IsNullOrEmpty(this.ActItemFilter))
+            //{
+            this.ListItems = this.listPurchaseOrderWorkSheetItems.Where(purchaseOrderWorkSheetItem => purchaseOrderWorkSheetItem.ProductCode.ToString().Contains(searchText.Trim())).Cast<object>().ToList();
+            //}
+            //else
+            //{
+            // TODO: Fix filtering
+            //this.DataViewItems.RowFilter = this.ActItemFilter + " AND ProductCode LIKE \'%" + searchText.Trim() + "%\'";
+            //}
 
             foreach (PurchaseOrderWorkSheetItem purchaseOrderWorkSheetItem in this.ListItems)
             {
@@ -914,7 +915,7 @@
                     "ActivityItemPurchaseOrderWorkSheetBaseQuantityOrdered = ?, " +
                     "ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered = ? " +
                     "WHERE ActivityItemRefno = ?";
-                List<object> parameters = new List<object>()
+                object[] parameters = new object[]
                 {
                     purchaseOrderWorkSheetItem.ActivityItemPurchaseOrderWorkSheetQuantityOrdered,
                     purchaseOrderWorkSheetItem.ActivityItemPurchaseOrderWorkSheetBaseQuantityOrdered,

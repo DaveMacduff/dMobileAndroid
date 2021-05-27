@@ -24,6 +24,7 @@ namespace dMobile.Controller
         private double columnWidth3 = 0;
         private double columnWidth4 = 0;
         private ResourceDictionary resourceDictionary = new ResourceDictionary();
+        private List<Picking> listPicking = new List<Picking>();
 
         #region Constructors
 
@@ -121,7 +122,7 @@ namespace dMobile.Controller
                     xml.Close();
 
                     string reqData = SysCommon.SubmitComm(xmlString.ToString());
-                    
+
                     if (reqData.Length > 0)
                     {
                         if (reqData.Contains("<message>ERROR</message>"))
@@ -129,7 +130,7 @@ namespace dMobile.Controller
                             XmlDocument docError = new XmlDocument();
                             docError.LoadXml(reqData);
                             string errorDetail = docError.DocumentElement["detail"].InnerText;
-                            
+
                             // TODO: Resource strings
                             throw new Exception(string.Format("Release order # {0} to invoice status failed." + Environment.NewLine + errorDetail, this.FKRefno, null));
                         }
@@ -273,7 +274,7 @@ namespace dMobile.Controller
                     columnWidth3 = detailWidth3;
                     gridHeader.ColumnDefinitions[3].Width = columnWidth3;
                 }
-                
+
                 if (detailWidth4 > columnWidth4)
                 {
                     columnWidth4 = detailWidth4;
@@ -416,7 +417,8 @@ namespace dMobile.Controller
             //    }
             //}
 
-            this.ListHdrs = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<object>(sql.ToString());
+            this.listPicking = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<Picking>(sql.ToString());
+            this.ListHdrs = this.listPicking.Cast<object>().ToList();
             return this.ListHdrs;
         }
 
@@ -430,16 +432,16 @@ namespace dMobile.Controller
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
-            if (string.IsNullOrEmpty(ActFilter))
-            {
+            //if (string.IsNullOrEmpty(ActFilter))
+            //{
                 //this.DataViewHdrs.RowFilter = "ActivityPickingStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
-                this.ListHdrs = (List<object>)this.ListHdrs.OfType<Picking>().Where(picking => picking.ActivityPickingStringFKRefno.Contains(searchText.Trim()));
-            }
-            else
-            {
+                this.ListHdrs = this.listPicking.Where(picking => picking.ActivityPickingStringFKRefno.Contains(searchText.Trim())).Cast<object>().ToList();
+            //}
+            //else
+            //{
                 // TODO: Fix filtering
                 //this.DataViewHdrs.RowFilter = ActFilter + " AND ActivityPickingStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
-            }
+            //}
 
             foreach (Picking picking in this.ListHdrs)
             {
@@ -546,7 +548,7 @@ namespace dMobile.Controller
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public override string GetFilter()
+        public override void GetFilter()
         {
             string filter = string.Empty;
             PickingSettings pickingSettings = new PickingSettings().LoadData();
@@ -622,9 +624,9 @@ namespace dMobile.Controller
                 }
             }
 
-            this.ActFilter = filter;
-
-            return filter;
+            // TODO: Get filter
+            //this.ActFilter = filter;
+            //return filter;
         }
 
         /// <summary>
@@ -633,7 +635,7 @@ namespace dMobile.Controller
         /// <param name="xmlDoc"></param>
         /// <returns></returns>
         /// <remarks></remarks>
-        public override string GetFilter(XDocument data)
+        public override void GetFilter(XDocument data)
         {
             string filter = string.Empty;
             PickingSettings pickingSettings = new PickingSettings().LoadData();
@@ -709,9 +711,9 @@ namespace dMobile.Controller
                 }
             }
 
-            this.ActFilter = filter;
-
-            return filter;
+            // TODO: Get filter
+            //this.ActFilter = filter;
+            //return filter;
         }
 
         #endregion

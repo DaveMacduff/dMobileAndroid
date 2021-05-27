@@ -1,6 +1,5 @@
 ﻿namespace dMobile.View.Activity
 {
-    using Android.Util;
     using Android.Views;
     using dMobile.BarCodeScanner;
     using dMobile.Bedrock;
@@ -43,6 +42,7 @@
         private string filterText;
         private bool filterIsEnabled;
         private bool isRefreshing;
+        private int selectedIndex = 0;
 
         // For handling double click on listview item
         private int numTaps = 0;
@@ -124,13 +124,6 @@
                     {
                         await this.DataGridMainActivity_KeyUpEnter();
                     }
-                    //else if (keycode == Keycode.Escape)
-                    //{
-                    //    if (await this.CancelChanges())
-                    //    {
-                    //        this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-                    //    }
-                    //}
                     else if (keycode == Keycode.F1)
                     {
                         if (await this.SaveChanges())
@@ -489,6 +482,8 @@
         public string FilterText { get => filterText; set { filterText = value; this.OnPropertyChanged(); } }
         public bool FilterIsEnabled { get => filterIsEnabled; set { filterIsEnabled = value; this.OnPropertyChanged(); } }
 
+        public int SelectedIndex { get => selectedIndex; set => selectedIndex = value; }
+
         /// <summary>
         /// Unregister the bar code scan event handler and disable the scanner.
         /// </summary>
@@ -609,92 +604,6 @@
 
             return isReadyToClose;
         }
-
-        //        /// <summary>
-        //        ///
-        //        /// </summary>
-        //        /// <returns></returns>
-        //        /// <remarks></remarks>
-        //        public UserControl GetCallingControl()
-        //        {
-        //            UserControl control = null;
-
-        //            switch (this.ActSubType)
-        //            {
-        //                case SysCommon.ActSubTypes.Adjustment:
-        //                    bool controlSet = false;
-        //                    AdjActivity adjAct = (actHdr as AdjActivity);
-
-        //                    if (adjAct != null)
-        //                    {
-        //                        AdjustmentSettings settings = adjAct.AdjSettings;
-
-        //                        if (settings != null && settings.AdjustmentType == SysCommon.AdjTypes.Debox)
-        //                        {
-        //                            control = new ucProductionTicketMenu();
-        //                            controlSet = true;
-        //                        }
-        //                    }
-
-        //                    if (!controlSet)
-        //                        control = new ucInventoryAdjustmentsMenu();
-        //                    break;
-
-        //                case SysCommon.ActSubTypes.PhysicalCounts:
-        //                    control = new ucInventoryCountsMenu();
-        //                    break;
-
-        //                case SysCommon.ActSubTypes.CycleCounts:
-        //                    control = new ucInventoryCountsMenu();
-        //                    break;
-
-        //                case SysCommon.ActSubTypes.Picking:
-        //                    control = new ucSalesOrdersMenu();
-        //                    break;
-
-        //                case SysCommon.ActSubTypes.PickingSingle:
-        //                    control = new ucSalesOrdersMenu();
-        //                    break;
-
-        //                case SysCommon.ActSubTypes.Returns:
-        //                    control = new ucSalesOrdersMenu();
-        //                    break;
-
-        //                case SysCommon.ActSubTypes.Receiving:
-        //                    control = new ucPurchaseOrdersMenu();
-        //                    break;
-
-        //                case SysCommon.ActSubTypes.Transfers:
-        //                    control = new ucInventoryMovementMenu();
-        //                    break;
-
-        //                case SysCommon.ActSubTypes.TicketFinished:
-        //                    control = new ucProductionTicketMenu();
-        //                    break;
-
-        //                case SysCommon.ActSubTypes.TicketMaterial:
-        //                    control = new ucProductionTicketMenu();
-        //                    break;
-
-        //                case SysCommon.ActSubTypes.TicketAddProduct:
-        //                    control = new ucProductionTicketMenu();
-        //                    break;
-
-        //            }
-
-        //            if (control == null)
-        //            {
-        //#if MULTILANGUAGE
-        //        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.CaseStatementForActsubtype) + this.ActSubType
-        //            + Translator.GetInstance().Translate(TranslatorVocabulary.WasNotDefinedInGetcallingcontrol));
-        //#else
-        //                throw new Exception("Case statement for ActSubType '" + this.ActSubType
-        //                    + "' was not defined in GetCallingControl.");
-        //#endif
-        //            }
-
-        //            return control;
-        //        }
 
         /// <summary>
         ///
@@ -840,13 +749,6 @@
         /// <param name="dataLayerEventArgs"></param>
         public void OnLayerProgOut(IDataLayerEventPublisher dataLayerEventPublisher, DataLayerEventArgs dataLayerEventArgs)
         {
-            //if (dataLayerEventArgs.SetMinMaxValue)
-            //{
-            //    this.pbarStatus.Minimum = dataLayerEventArgs.MinValue;
-            //    this.pbarStatus.Maximum = dataLayerEventArgs.MaxValue;
-            //}
-
-            //this.pbarStatus.Value = dataLayerEventArgs.CurrentValue;
         }
 
 
@@ -1105,7 +1007,7 @@
                         await Device.InvokeOnMainThreadAsync(() => this.ItemsList.Clear());
                         this.ActHdr.ListHdrs = await this.ActHdr.GetActivityList(false);
 
-                        await Device.InvokeOnMainThreadAsync(() =>
+                        await Device.InvokeOnMainThreadAsync(async () =>
                         {
                             this.DataGridMainActivityItemsList = this.ActHdr.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
 
@@ -1120,17 +1022,18 @@
                             {
                                 if (this.dataGridMainActivity.SelectedItem == null)
                                 {
-                                    this.ActHdr.SelectActivity(this.DataGridMainActivityItemsList[0]);
                                     this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[0];
                                 }
                                 else
                                 {
-                                    this.ActHdr.SelectActivity(this.dataGridMainActivity.SelectedItem);
-                                    this.dataGridMainActivity.SelectedItem = this.ActHdr.SelectedActivity;
+                                    if (this.SelectedIndex > -1)
+                                    {
+                                        this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[this.SelectedIndex];
+                                    }
                                 }
                             }
 
-                            this.DisplayData();
+                            await this.DisplayData();
                         });
                     });
                 }
@@ -1267,17 +1170,17 @@
             switch (this.ActSubType)
             {
                 case SysCommon.ActSubTypes.Adjustment:
-                    Device.BeginInvokeOnMainThread(() => this.ItemsList.Clear());
-
-                    if (this.ActHdr.SelectedActivity is Adjustment adjustment)
+                    await Device.InvokeOnMainThreadAsync(() =>
                     {
-                        // TODO: Resource strings
-                        await Device.InvokeOnMainThreadAsync(() =>
+                        this.ItemsList.Clear();
+
+                        if (this.ActHdr.SelectedActivity is Adjustment adjustment)
                         {
+                            // TODO: Resource strings
                             this.ItemsList.Add(adjustment.ActivityAdjustmentType.ToString());
                             this.ItemsList.Add("WHS:  " + adjustment.LocationMapWarehouseName.ToString());
-                        });
-                    }
+                        }
+                    });
 
                     break;
 
@@ -1285,17 +1188,17 @@
                     break;
 
                 case SysCommon.ActSubTypes.BarCodeAssociation:
-                    await Device.InvokeOnMainThreadAsync(() => this.ItemsList.Clear());
-
-                    if (this.ActHdr.SelectedActivity is BarcodeAssociation barcodeAssociation)
+                    await Device.InvokeOnMainThreadAsync(() =>
                     {
-                        await Device.InvokeOnMainThreadAsync(() =>
+                        this.ItemsList.Clear();
+
+                        if (this.ActHdr.SelectedActivity is BarcodeAssociation barcodeAssociation)
                         {
                             // TODO: Resource strings
                             this.ItemsList.Add(barcodeAssociation.ProductUnitBarCodeCode.TrimEnd());
                             this.ItemsList.Add(barcodeAssociation.ProductUnitBarCodeModifier1.TrimEnd());
-                        });
-                    }
+                        }
+                    });
 
                     break;
 
@@ -1362,78 +1265,78 @@
                     break;
 
                 case SysCommon.ActSubTypes.Picking:
-                    await Device.InvokeOnMainThreadAsync(() => this.ItemsList.Clear());
-
-                    if (this.ActHdr.SelectedActivity is Picking picking)
+                    await Device.InvokeOnMainThreadAsync(() =>
                     {
-                        // TODO: Resource strings
-                        await Device.InvokeOnMainThreadAsync(() =>
+                        this.ItemsList.Clear();
+
+                        if (this.ActHdr.SelectedActivity is Picking picking)
                         {
+                            // TODO: Resource strings
                             this.ItemsList.Add("CUSTOMER: " + picking.ActivityPickingCustomerContactName);
                             this.ItemsList.Add("SHIPTO:   " + picking.ActivityPickingCustomerShipToInfo);
-                        });
-                    }
+                        }
+                    });
 
                     break;
 
                 case SysCommon.ActSubTypes.PickingSingle:
-                    await Device.InvokeOnMainThreadAsync(() => this.ItemsList.Clear());
-
-                    if (this.ActHdr.SelectedActivity is Picking pickingSingle)
+                    await Device.InvokeOnMainThreadAsync(() =>
                     {
-                        // TODO: Resource strings
-                        await Device.InvokeOnMainThreadAsync(() =>
+                        this.ItemsList.Clear();
+
+                        if (this.ActHdr.SelectedActivity is Picking pickingSingle)
                         {
+                            // TODO: Resource strings
+
                             this.ItemsList.Add("CUSTOMER: " + pickingSingle.ActivityPickingCustomerContactName);
                             this.ItemsList.Add("SHIPTO:   " + pickingSingle.ActivityPickingCustomerShipToInfo);
-                        });
-                    }
+                        }
+                    });
 
                     break;
 
                 case SysCommon.ActSubTypes.TicketAddProduct:
-                    await Device.InvokeOnMainThreadAsync(() => this.ItemsList.Clear());
-
-                    if (this.ActHdr.SelectedActivity is ProductionTicketByProduct productionTicketByProduct)
+                    await Device.InvokeOnMainThreadAsync(() =>
                     {
-                        // TODO: Resource strings
-                        await Device.InvokeOnMainThreadAsync(() =>
+                        this.ItemsList.Clear();
+
+                        if (this.ActHdr.SelectedActivity is ProductionTicketByProduct productionTicketByProduct)
                         {
+                            // TODO: Resource strings
                             this.ItemsList.Add(productionTicketByProduct.ActivityProductionDescription);
                             this.ItemsList.Add("WHS:  " + productionTicketByProduct.LocationMapWarehouseName);
-                        });
-                    }
+                        }
+                    });
 
                     break;
 
                 case SysCommon.ActSubTypes.TicketFinished:
-                    await Device.InvokeOnMainThreadAsync(() => this.ItemsList.Clear());
-
-                    if (this.ActHdr.SelectedActivity is ProductionTicketFinished productionTicketFinished)
+                    await Device.InvokeOnMainThreadAsync(() =>
                     {
-                        // TODO: Resource strings
-                        await Device.InvokeOnMainThreadAsync(() =>
+                        this.ItemsList.Clear();
+
+                        if (this.ActHdr.SelectedActivity is ProductionTicketFinished productionTicketFinished)
                         {
+                            // TODO: Resource strings
                             this.ItemsList.Add(productionTicketFinished.ActivityProductionDescription);
                             this.ItemsList.Add("WHS:  " + productionTicketFinished.LocationMapWarehouseName);
-
-                        });
-                    }
+                        }
+                    });
 
                     break;
 
                 case SysCommon.ActSubTypes.TicketMaterial:
-                    await Device.InvokeOnMainThreadAsync(() => this.ItemsList.Clear());
-
-                    if (this.ActHdr.SelectedActivity is ProductionTicketMaterial productionTicketMaterial)
+                    await Device.InvokeOnMainThreadAsync(() =>
                     {
-                        // TODO: Resource strings
-                        await Device.InvokeOnMainThreadAsync(() =>
+                        this.ItemsList.Clear();
+
+                        if (this.ActHdr.SelectedActivity is ProductionTicketMaterial productionTicketMaterial)
                         {
+                            // TODO: Resource strings
                             this.ItemsList.Add(productionTicketMaterial.ActivityProductionDescription);
                             this.ItemsList.Add("WHS:  " + productionTicketMaterial.LocationMapWarehouseName);
-                        });
-                    }
+                        }
+                    });
 
                     break;
 
@@ -1449,17 +1352,17 @@
                     break;
 
                 case SysCommon.ActSubTypes.Receiving:
-                    await Device.InvokeOnMainThreadAsync(() => this.ItemsList.Clear());
-
-                    if (this.ActHdr.SelectedActivity is Receive receive)
+                    await Device.InvokeOnMainThreadAsync(() =>
                     {
-                        // TODO: Resource strings
-                        await Device.InvokeOnMainThreadAsync(() =>
+                        this.ItemsList.Clear();
+
+                        if (this.ActHdr.SelectedActivity is Receive receive)
                         {
+                            // TODO: Resource strings
                             this.ItemsList.Add("VENDOR:  " + receive.ActivityReceivingVendorContactName);
                             this.ItemsList.Add("SUPPLIER:  " + receive.ActivityReceivingVendorSupplierContactName);
-                        });
-                    }
+                        }
+                    });
 
                     break;
 
@@ -1470,32 +1373,32 @@
                     break;
 
                 case SysCommon.ActSubTypes.ReleaseByOrder:
-                    await Device.InvokeOnMainThreadAsync(() => this.ItemsList.Clear());
-
-                    if (this.ActHdr.SelectedActivity is Picking pickingReleaseByOrder)
+                    await Device.InvokeOnMainThreadAsync(() =>
                     {
-                        // TODO: Resource strings
-                        await Device.InvokeOnMainThreadAsync(() =>
+                        this.ItemsList.Clear();
+
+                        if (this.ActHdr.SelectedActivity is Picking pickingReleaseByOrder)
                         {
+                            // TODO: Resource strings
                             this.ItemsList.Add("CUSTOMER: " + pickingReleaseByOrder.ActivityPickingCustomerContactName);
                             this.ItemsList.Add("SHIPTO:   " + pickingReleaseByOrder.ActivityPickingCustomerShipToInfo);
-                        });
-                    }
+                        }
+                    });
 
                     break;
 
                 case SysCommon.ActSubTypes.Returns:
-                    await Device.InvokeOnMainThreadAsync(() => this.ItemsList.Clear());
-
-                    if (this.ActHdr.SelectedActivity is Return returns)
+                    await Device.InvokeOnMainThreadAsync(() =>
                     {
-                        // TODO: Resource strings
-                        await Device.InvokeOnMainThreadAsync(() =>
+                        this.ItemsList.Clear();
+
+                        if (this.ActHdr.SelectedActivity is Return returns)
                         {
+                            // TODO: Resource strings
                             this.ItemsList.Add("CUSTOMER: " + returns.ActivityReturnsCustomerContactName);
                             this.ItemsList.Add("SHIPTO:   " + returns.ActivityReturnsCustomerShipToInfo);
-                        });
-                    }
+                        }
+                    });
 
                     break;
 
@@ -1509,17 +1412,17 @@
                     break;
 
                 case SysCommon.ActSubTypes.TransferFrom:
-                    await Device.InvokeOnMainThreadAsync(() => this.ItemsList.Clear());
-
-                    if (this.ActHdr.SelectedActivity is Transfer transfer)
+                    await Device.InvokeOnMainThreadAsync(() =>
                     {
-                        // TODO: Resource strings
-                        await Device.InvokeOnMainThreadAsync(() =>
+                        this.ItemsList.Clear();
+
+                        if (this.ActHdr.SelectedActivity is Transfer transfer)
                         {
+                            // TODO: Resource strings
                             this.ItemsList.Add(transfer.ActivityTransferDescription);
                             this.ItemsList.Add("TO WHS:  " + transfer.LocationMapWarehouseName);
-                        });
-                    }
+                        }
+                    });
 
                     break;
             }
@@ -1600,7 +1503,6 @@
 
                     if (dialogResult == DialogResult.OK)
                     {
-                        await form.SaveChanges(this, new EventArgs());
                         XDocument xmlDoc = form.DisplayControlData;
 
                         // TODO: Fix filtering
@@ -1979,6 +1881,7 @@
         {
             if (e.SelectedItem != null)
             {
+                this.SelectedIndex = e.SelectedItemIndex;
                 await this.ActHdr.SelectActivity(e.SelectedItem);
                 await this.DisplayData();
             }

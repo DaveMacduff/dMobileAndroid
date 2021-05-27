@@ -24,6 +24,7 @@ namespace dMobile.Controller
         private double columnWidth1 = 0;
         private double columnWidth2 = 0;
         private ResourceDictionary resourceDictionary = new ResourceDictionary();
+        private List<Count> listCounts = new List<Count>();
 
         #region Constructors
 
@@ -192,6 +193,7 @@ namespace dMobile.Controller
         /// <remarks></remarks>
         public override async Task<List<object>> GetActivityList(bool isSubmitBatch)
         {
+            PhysicalCountSettings countSettings = new PhysicalCountSettings().LoadData();
             StringBuilder sql = new StringBuilder();
 
             if (isSubmitBatch)
@@ -281,14 +283,28 @@ namespace dMobile.Controller
 
             //        this.DataViewHdrs = dataSetPhysical.Tables[0].DefaultView;
             //        this.DataViewHdrs.Table.TableName = this.MainGridMappingName;
-            //        // TODO: fid sorying and filter
-            //        PhysicalCountSettings countSettings = new PhysicalCountSettings().LoadData();
             //        this.DataViewHdrs.Sort = countSettings.GetDataViewSortBy();
             //        this.DataViewHdrs.RowFilter = this.GetFilter();
             //    }
             //}
 
-            this.ListHdrs = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<object>(sql.ToString());
+            this.listCounts = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<Count>(sql.ToString());
+
+            foreach (Sort sort in countSettings.GetDataViewSortBy())
+            {
+                if (sort.SortOrder == Resources.Enums.SortOrder.ASC)
+                {
+                    this.listCounts = this.listCounts.OrderBy(adj => adj.GetType().GetProperty(sort.SortValue).GetValue(adj)).ToList();
+                }
+                else
+                {
+                    this.listCounts = this.listCounts.OrderByDescending(adj => adj.GetType().GetProperty(sort.SortValue).GetValue(adj)).ToList();
+                }
+            }
+
+            this.GetFilter();
+
+            this.ListHdrs = this.listCounts.Cast<object>().ToList();
             return this.ListHdrs;
         }
 
@@ -302,16 +318,7 @@ namespace dMobile.Controller
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
-            if (string.IsNullOrEmpty(this.ActFilter))
-            {
-                //this.DataViewHdrs.RowFilter = "ActivityCountStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
-                this.ListHdrs = (List<object>)this.ListHdrs.OfType<Count>().Where(count => count.ActivityCountStringFKRefno.Contains(searchText.Trim()));
-            }
-            else
-            {
-                //this.DataViewHdrs.RowFilter = this.ActFilter + " AND ActivityCountStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
-                this.ListHdrs = (List<object>)this.ListHdrs.OfType<Count>().Where(count => this.ActFilter.Contains(searchText.Trim()) && count.ActivityCountStringFKRefno.Contains(searchText.Trim()));
-            }
+            this.ListHdrs = this.listCounts.Where(count => count.ActivityCountStringFKRefno.Contains(searchText.Trim())).Cast<object>().ToList();
 
             foreach (Count count in this.ListHdrs)
             {
@@ -322,13 +329,6 @@ namespace dMobile.Controller
                 {
                     description = descriptionSubstring[0] + " " + descriptionSubstring[1];
                 }
-
-                //Count count = new Count
-                //{
-                //    ActivityRefno = Convert.ToInt32(row["ActivityCountStringFKRefno"]),
-                //    ActivityCountDateTime = Convert.ToDateTime(row["ActivityCountDateTime"]),
-                //    ActivityCountTypeDescription = description,
-                //};
 
                 observableCollection.Add(count);
             }
@@ -364,7 +364,7 @@ namespace dMobile.Controller
         /// <remarks></remarks>
         public override int GetRefnoFromRowIdx(object selectedItem)
         {
-            if(selectedItem is Count count)
+            if (selectedItem is Count count)
             {
                 this.FKRefno = Convert.ToInt32(count.ActivityCountFKRefno);
                 this.Refno = Convert.ToInt32(count.ActivityRefno);
@@ -417,7 +417,7 @@ namespace dMobile.Controller
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public override string GetFilter()
+        public override void GetFilter()
         {
             string filter = string.Empty;
             PhysicalCountSettings countSettings = new PhysicalCountSettings().LoadData();
@@ -427,32 +427,12 @@ namespace dMobile.Controller
                 if (!SysCommon.IsEmptyDate(countSettings.dtCountDate))
                 {
                     DateTime dt = countSettings.dtCountDate;
+                    DateTime minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
+                    DateTime maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
 
-                    // BETWEEN '2009-07-26 00:00:00.000' AND '2010-07-26 23:59:59.997'
-                    if (string.IsNullOrEmpty(filter))
-                    {
-                        filter = string.Format(
-                            "ActivityCountDateTime >= '{0}-{1}-{2} 00:00:00.000' "
-                            + "AND ActivityCountDateTime <= '{0}-{1}-{2} 23:59:59.997'",
-                            dt.Year,
-                            dt.Month,
-                            dt.Day);
-                    }
-                    else
-                    {
-                        filter += string.Format(
-                            " AND ActivityCountDateTime >= '{0}-{1}-{2} 00:00:00.000' "
-                            + " AND ActivityCountDateTime <= '{0}-{1}-{2} 23:59:59.997'",
-                            dt.Year,
-                            dt.Month,
-                            dt.Day);
-                    }
+                    this.listCounts = this.listCounts.Where(count => count.ActivityCountDateTime >= minDate && count.ActivityCountDateTime <= maxDate).ToList();
                 }
             }
-
-            this.ActFilter = filter;
-
-            return filter;
         }
 
         /// <summary>
@@ -461,7 +441,7 @@ namespace dMobile.Controller
         /// <param name="xmlDoc"></param>
         /// <returns></returns>
         /// <remarks></remarks>
-        public override string GetFilter(XDocument data)
+        public override void GetFilter(XDocument data)
         {
             string filter = string.Empty;
             PhysicalCountSettings countSettings = new PhysicalCountSettings().LoadData();
@@ -471,32 +451,12 @@ namespace dMobile.Controller
                 if (string.Compare(data.Root.Element("count_date").Value, string.Empty) > 0)
                 {
                     DateTime dt = DateTime.Parse(data.Root.Element("count_date").Value);
+                    DateTime minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
+                    DateTime maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
 
-                    // BETWEEN '2009-07-26 00:00:00.000' AND '2010-07-26 23:59:59.997'
-                    if (string.IsNullOrEmpty(filter))
-                    {
-                        filter = string.Format(
-                            "ActivityCountDateTime >= '{0}-{1}-{2} 00:00:00.000' "
-                            + "AND ActivityCountDateTime <= '{0}-{1}-{2} 23:59:59.997'",
-                            dt.Year,
-                            dt.Month,
-                            dt.Day);
-                    }
-                    else
-                    {
-                        filter += string.Format(
-                            " AND ActivityCountDateTime >= '{0}-{1}-{2} 00:00:00.000' "
-                            + "AND ActivityCountDateTime <= '{0}-{1}-{2} 23:59:59.997'",
-                            dt.Year,
-                            dt.Month,
-                            dt.Day);
-                    }
+                    this.listCounts = this.listCounts.Where(count => count.ActivityCountDateTime >= minDate && count.ActivityCountDateTime <= maxDate).ToList();
                 }
             }
-
-            this.ActFilter = filter;
-
-            return filter;
         }
 
         #endregion

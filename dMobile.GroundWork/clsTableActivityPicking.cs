@@ -1,4 +1,4 @@
-namespace dMobile.GroundWork
+﻿namespace dMobile.GroundWork
 {
     using dMobile.Bedrock;
     using System;
@@ -176,7 +176,7 @@ namespace dMobile.GroundWork
 
                                 transaction.Execute("INSERT INTO tActivity (ActivityStatus, ActivitySubType) VALUES (?, ?)", 0, Convert.ToInt32(SysCommon.ActSubTypes.Picking));
 
-                                actRefno = Convert.ToInt32(transaction.QueryScalars<int>("SELECT last_insert_rowid() FROM tActivity"));
+                                actRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivity"));
                                 actPickFKRefno = Convert.ToInt32(drow["ActivityPickingFKRefno"]);
                                 errMsg += Environment.NewLine + "FK refno " + actPickFKRefno;
                                 whsLocMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, ref errMsg, transaction);
@@ -204,19 +204,19 @@ namespace dMobile.GroundWork
                                     "?, " +
                                     "?" +
                                     ")";
-                                List<object> parametersInsertPicking = new List<object>()
-                            {
-                                actRefno,
-                                Convert.ToInt32(SysCommon.ActSubTypes.Picking),
-                                actPickFKRefno,
-                                Convert.ToString(actPickFKRefno),
-                                whsLocMapRefno,
-                                Convert.ToDateTime(drow["ActivityPickingOrderedDateTime"]),
-                                Convert.ToDateTime(drow["ActivityPickingDeliveryDateTime"]),
-                                Convert.ToString(drow["ActivityPickingCustomerContactName"]),
-                                Convert.ToString(drow["ActivityPickingCustomerShipToInfo"]),
-                                false
-                            };
+                                object[] parametersInsertPicking = new object[]
+                                {
+                                    actRefno,
+                                    Convert.ToInt32(SysCommon.ActSubTypes.Picking),
+                                    actPickFKRefno,
+                                    Convert.ToString(actPickFKRefno),
+                                    whsLocMapRefno,
+                                    Convert.ToDateTime(drow["ActivityPickingOrderedDateTime"]),
+                                    Convert.ToDateTime(drow["ActivityPickingDeliveryDateTime"]),
+                                    Convert.ToString(drow["ActivityPickingCustomerContactName"]),
+                                    Convert.ToString(drow["ActivityPickingCustomerShipToInfo"]),
+                                    false
+                                };
 
                                 transaction.Execute(queryInsertPicking, parametersInsertPicking);
 

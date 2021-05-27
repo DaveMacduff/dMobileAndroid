@@ -1,4 +1,4 @@
-namespace dMobile.GroundWork
+﻿namespace dMobile.GroundWork
 {
     using dMobile.Bedrock;
     using SQLite;
@@ -165,7 +165,7 @@ namespace dMobile.GroundWork
                                 errMsg = "Arguments:";
 
                                 transaction.Execute("INSERT INTO tActivity (ActivityStatus, ActivitySubType) VALUES (?, ?)", 0, Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts));
-                                actRefno = Convert.ToInt32(transaction.QueryScalars<int>("SELECT last_insert_rowid() FROM tActivity"));
+                                actRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivity"));
 
                                 countFKRefno = Convert.ToInt32(drow["ActivityCountFKRefno"]);
                                 errMsg += Environment.NewLine + "FK refno " + countFKRefno;
@@ -239,7 +239,7 @@ namespace dMobile.GroundWork
                                     "?" +
                                     ")";
 
-                                List<object> parameters = new List<object>()
+                                object[] parameters = new object[]
                                 {
                                     actRefno,
                                     Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts),

@@ -40,13 +40,13 @@ namespace dMobile.Resources.Models
     [Table("tLocationMapWarehouseProductScheme")]
     public class tLocationMapWarehouseProductSchemeModel
     {
-        [NotNull, ForeignKey(typeof(tLocationMapWarehouseModel)), OneToMany(CascadeOperations = CascadeOperation.All), Indexed(Name = "FK_WhsProdSchemeOnWarehouseLocationMapRefno", Order = 1, Unique = false)]
+        [NotNull, ForeignKey(typeof(tLocationMapWarehouseModel)), Indexed(Name = "FK_WhsProdSchemeOnWarehouseLocationMapRefno", Order = 1, Unique = false)]
         public int WarehouseLocationMapRefno { get; set; }
 
-        [NotNull, ForeignKey(typeof(tProductModel)), OneToMany(CascadeOperations = CascadeOperation.All), Indexed(Name = "FK_WhsProdSchemeOnProductRefno", Order = 1, Unique = false)]
+        [NotNull, ForeignKey(typeof(tProductModel)), Indexed(Name = "FK_WhsProdSchemeOnProductRefno", Order = 1, Unique = false)]
         public int ProductRefno { get; set; }
 
-        [NotNull, ForeignKey(typeof(tProductSchemeModel)), OneToMany(CascadeOperations = CascadeOperation.All), Indexed(Name = "FK_WhsProdSchemeOnProductSchemeRefno", Order = 1, Unique = false)]
+        [NotNull, ForeignKey(typeof(tProductSchemeModel)), Indexed(Name = "FK_WhsProdSchemeOnProductSchemeRefno", Order = 1, Unique = false)]
         public int ProductSchemeRefno { get; set; }
     }
 }

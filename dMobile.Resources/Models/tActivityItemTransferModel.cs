@@ -44,7 +44,7 @@ namespace dMobile.Resources.Models
     [Table("tActivityItemTransfer")]
     public class tActivityItemTransferModel
     {
-        [PrimaryKey, NotNull, ForeignKey(typeof(tActivityItemModel)), OneToOne(CascadeOperations = CascadeOperation.All), Indexed(Name = "UQ_ActivityItemTransferOnActivityItemRefno", Order = 1, Unique = true)]
+        [PrimaryKey, NotNull, ForeignKey(typeof(tActivityItemModel)), Indexed(Name = "UQ_ActivityItemTransferOnActivityItemRefno", Order = 1, Unique = true)]
         public int ActivityItemRefno { get; set; }
 
         [NotNull, Indexed(Name = "UQ_ActivityItemTransferOnActivityItemSubType", Order = 1, Unique = true)]
@@ -56,10 +56,10 @@ namespace dMobile.Resources.Models
         [NotNull]
         public string ActivityItemTransferStringFKRefno { get; set; }
 
-        [NotNull, ForeignKey(typeof(tProductUnitModel)), OneToMany(CascadeOperations = CascadeOperation.All),]
+        [NotNull, ForeignKey(typeof(tProductUnitModel))]
         public int ProductUnitRefno { get; set; }
 
-        [NotNull, ForeignKey(typeof(tLocationMapWarehouseModel)), OneToMany(CascadeOperations = CascadeOperation.All), Indexed(Name = "FK_ActivityItemTransferOnTransferFromWarehouseLocationMapRefno", Order = 1, Unique = false)]
+        [NotNull, ForeignKey(typeof(tLocationMapWarehouseModel)), Indexed(Name = "FK_ActivityItemTransferOnTransferFromWarehouseLocationMapRefno", Order = 1, Unique = false)]
         public int TransferFromWarehouseLocationMapRefno { get; set; }
 
         [NotNull]

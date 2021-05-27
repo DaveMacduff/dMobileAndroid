@@ -160,7 +160,7 @@
 
             try
             {
-                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.QueryScalarsAsync<int>("SELECT COUNT(ActivityItemRefno) FROM tActivityItem WHERE ActivityItemSubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.TicketAddProduct)));
+                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(ActivityItemRefno) FROM tActivityItem WHERE ActivityItemSubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.TicketAddProduct)));
 
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} ticket add-product items.", rowsAffected), true);
@@ -241,7 +241,7 @@
 
                                 transaction.Execute("INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (?, ?, ?)", Convert.ToInt32(SysCommon.ActSubTypes.TicketAddProduct), Convert.ToInt32(SysCommon.ActStatus.NoChange), actRefno);
 
-                                actItemRefno = Convert.ToInt32(transaction.QueryScalars<int>("SELECT last_insert_rowid() FROM tActivityItem"));
+                                actItemRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityItem"));
                                 actItemProductionFKRefno = Convert.ToInt32(drow["ActivityItemProductionFKRefno"]);
                                 errMsg += Environment.NewLine + "Item fk refno " + actItemProductionFKRefno;
 
@@ -277,7 +277,7 @@
                                     "?" +
                                     ")";
 
-                                List<object> parametersActivityItemProduction = new List<object>()
+                                object[] parametersActivityItemProduction = new object[]
                                 {
                                     actItemRefno,
                                     Convert.ToInt32(SysCommon.ActSubTypes.TicketAddProduct),
@@ -304,7 +304,7 @@
                                     "?, " +
                                     "?" +
                                     ")";
-                                List<object> parametersActivityItemProductionByProduct = new List<object>()
+                                object[] parametersActivityItemProductionByProduct = new object[]
                                 {
                                     actItemRefno,
                                     actItemProductionFKRefno,

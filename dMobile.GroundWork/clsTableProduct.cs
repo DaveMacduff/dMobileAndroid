@@ -354,7 +354,7 @@ namespace dMobile.GroundWork
                                     " ProductIsCatchAskZero = ?," +
                                     " ProductAllowConvertProduct = ?" +
                                     " WHERE ProductFKRefno = ?";
-                                    List<object> parametersUpdate = new List<object>()
+                                    object[] parametersUpdate = new object[]
                                     {
                                         familyRefno,
                                         prodCode,
@@ -387,18 +387,18 @@ namespace dMobile.GroundWork
                                 "ProductBrandDescription, " +
                                 "ProductAllowConvertProduct) " +
                                 "VALUES " +
-                                "(@productSchemeRefno, " +
-                                "@familyRefno, " +
-                                "@productCode, " +
-                                "@productFKRefno, " +
-                                "@productDescription, " +
-                                "@productIsCatchCount, " +
-                                "@productIsCatchWeight, " +
-                                "@productIsCatchAsk, " +
-                                "@productIsCatchAskZero, " +
-                                "@productBrandDescription, " +
-                                "@productAllowConvertProduct)";
-                                List<object> parametersInsert = new List<object>()
+                                "(?, " +
+                                "?, " +
+                                "?, " +
+                                "?, " +
+                                "?, " +
+                                "?, " +
+                                "?, " +
+                                "?, " +
+                                "?, " +
+                                "?, " +
+                                "?)";
+                                object[] parametersInsert = new object[]
                                 {
                                     schemeRefno,
                                     familyRefno,

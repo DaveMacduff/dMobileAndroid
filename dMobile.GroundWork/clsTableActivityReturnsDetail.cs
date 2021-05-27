@@ -162,7 +162,7 @@
 
             try
             {
-                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.QueryScalarsAsync<int>("SELECT COUNT(ActivityDetailRefno) FROM tActivityDetail WHERE ActivityDetailSubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.Returns)));
+                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(ActivityDetailRefno) FROM tActivityDetail WHERE ActivityDetailSubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.Returns)));
 
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} sales return details.", rowsAffected), true);
@@ -299,9 +299,9 @@
                                 parametersInsertDetail.Add(results[0].ProductUnitRefno);
                                 parametersInsertDetail.AddRange(this.SaveDetail(drow, transaction, false));
 
-                                transaction.Execute(queryInsertDetail, parametersInsertDetail);
+                                transaction.Execute(queryInsertDetail, parametersInsertDetail.ToArray());
 
-                                actDetailRefno = Convert.ToInt32(transaction.QueryScalars<int>("SELECT last_insert_rowid() FROM tActivityDetail"));
+                                actDetailRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityDetail"));
                                 detailRetFKRefno = Convert.ToInt32(drow["ActivityDetailReturnsFKRefno"]);
                                 errMsg += Environment.NewLine + "Detail fk refno " + detailRetFKRefno;
 

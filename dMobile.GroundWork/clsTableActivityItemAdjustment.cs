@@ -231,7 +231,7 @@
 
                                 transaction.Execute("INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (?, ?, ?)", Convert.ToInt32(SysCommon.ActSubTypes.Adjustment), Convert.ToInt32(SysCommon.ActStatus.NoChange), actRefno);
 
-                                actItemRefno = Convert.ToInt32(transaction.QueryScalars<int>("SELECT last_insert_rowid() FROM tActivityItem"));
+                                actItemRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityItem"));
                                 prodUnitRefno = this.GetProductUnitRefnoFromDataRow(drow, transaction, ref errMsg, false);
                                 locMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, ref errMsg, transaction);
                                 actItemAdjFKRefno = Convert.ToInt32(drow["ActivityItemAdjustmentFKRefno"]);
@@ -261,8 +261,7 @@
                                     "?, " +
                                     "?, " +
                                     "?)";
-
-                                List<object> parameters = new List<object>()
+                                object[] parameters = new object[]
                                 {
                                     actItemRefno,
                                     Convert.ToInt32(SysCommon.ActSubTypes.Adjustment),
@@ -273,7 +272,7 @@
                                     Convert.ToDecimal(drow["ActivityItemAdjustmentQuantity"]),
                                     Convert.ToDecimal(drow["ActivityItemAdjustmentBaseQuantity"]),
                                     Convert.ToDecimal(drow["ActivityItemAdjustmentWeightQuantity"]),
-                                    drow["ActivityItemAdjustmentDescription"].ToString(),
+                                    Convert.ToString(drow["ActivityItemAdjustmentDescription"]),
                                 };
 
                                 transaction.Execute(query, parameters);

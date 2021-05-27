@@ -23,6 +23,7 @@ namespace dMobile.Controller
         private double columnWidth2 = 0;
         private double columnWidth3 = 0;
         private ResourceDictionary resourceDictionary = new ResourceDictionary();
+        List<ReceiveDetail> listReceiveDetails = new List<ReceiveDetail>();
 
         #region Constructors
 
@@ -63,7 +64,7 @@ namespace dMobile.Controller
                 gridData.Children.Add(labelActivityDetailQuantityReceiveDetail);
                 gridData.Children.Add(labelActivityDetailWeightQuantityReceiveDetail);
                 gridData.Children.Add(labelUnitCodeReceiveDetail);
-                gridData.Children.Add(labelActivityDetailSchemeIDReceiveDetail);    
+                gridData.Children.Add(labelActivityDetailSchemeIDReceiveDetail);
 
                 Grid.SetColumn(labelActivityDetailQuantityReceiveDetail, 0);
                 Grid.SetColumn(labelActivityDetailWeightQuantityReceiveDetail, 1);
@@ -260,7 +261,7 @@ namespace dMobile.Controller
 
             if (this.SysEnv.SysSettings.IsDisconnectedMode)
             {
-                int actDetailRefno = await this.InsertDetailDisconnected();                
+                int actDetailRefno = await this.InsertDetailDisconnected();
                 string query = "INSERT INTO tActivityDetailReceiving (ActivityDetailRefno, ActivityDetailReceivingFKRefno) VALUES (?, ?)";
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(actDetailRefno), Convert.ToInt32(this.FKRefno));
                 this.IsUpdateView = true;
@@ -825,7 +826,8 @@ namespace dMobile.Controller
                 sql.Append("ORDER BY tActivityDetail.ActivityDetailRefno");
             }
 
-            this.ListDetails = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<object>(sql.ToString());
+            this.listReceiveDetails = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ReceiveDetail>(sql.ToString());
+            this.ListDetails = this.listReceiveDetails.Cast<object>().ToList();
             return this.ListDetails;
         }
 
@@ -963,7 +965,7 @@ namespace dMobile.Controller
         public override ObservableCollection<object> Search(string searchText)
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
-            this.ListDetails = (List<object>)this.ListDetails.OfType<ReceiveDetail>().Where(receiveDetail => receiveDetail.ActivityDetailReceivingFKRefno.ToString().Contains(searchText.Trim()));
+            this.ListDetails = this.listReceiveDetails.Where(receiveDetail => receiveDetail.ActivityDetailReceivingFKRefno.ToString().Contains(searchText.Trim())).Cast<object>().ToList();
 
             foreach (ReceiveDetail receiveDetail in this.ListDetails)
             {

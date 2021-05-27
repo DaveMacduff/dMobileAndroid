@@ -164,7 +164,7 @@
 
                                 transaction.Execute("INSERT INTO tActivity (ActivityStatus, ActivitySubType) VALUES (?, ?)", 0, Convert.ToInt32(SysCommon.ActSubTypes.TicketAddProduct));
 
-                                actRefno = Convert.ToInt32(transaction.QueryScalars<int>("SELECT last_insert_rowid() FROM tActivity"));
+                                actRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivity"));
                                 whsLocMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, ref errMsg, transaction);
 
                                 // To remove time - convert twice
@@ -187,7 +187,7 @@
                                     "?, " +
                                     "?" +
                                     ")";
-                                List<object> parametersActivityProduction = new List<object>()
+                                object[] parametersActivityProduction = new object[]
                                 {
                                     actRefno,
                                     Convert.ToInt32(SysCommon.ActSubTypes.TicketAddProduct),
@@ -210,7 +210,7 @@
                                     "?, " +
                                     "?" +
                                     ")";
-                                List<object> parametersActivityProductionByProduct = new List<object>()
+                                object[] parametersActivityProductionByProduct = new object[]
                                 {
                                     actRefno,
                                     productionFKRefno,

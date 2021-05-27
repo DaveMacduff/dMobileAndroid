@@ -30,7 +30,7 @@ namespace dMobile.Resources.Models
     [Table("tLocationMapType")]
     public class tLocationMapTypeModel
     {
-        [NotNull, ForeignKey(typeof(tLocationMapModel)), OneToMany(CascadeOperations = CascadeOperation.All), Indexed(Name = "FK_LocationMapTypeOnLocationMapRefno", Order = 1, Unique = false)]
+        [NotNull, ForeignKey(typeof(tLocationMapModel)), Indexed(Name = "FK_LocationMapTypeOnLocationMapRefno", Order = 1, Unique = false)]
         public int LocationMapRefno { get; set; }
 
         [NotNull, Indexed(Name = "PK_LocationMapTypeOnLocationMapTypeEnum", Order = 1, Unique = false)]

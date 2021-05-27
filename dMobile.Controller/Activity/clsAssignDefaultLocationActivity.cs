@@ -101,15 +101,6 @@ namespace dMobile.Controller
             throw new NotImplementedException();
         }
 
-        ///// <summary>
-        /////
-        ///// </summary>
-        ///// <remarks></remarks>
-        //public override void DesignDataGrid(DataGrid dataGridMain)
-        //{
-        //  throw new NotImplementedException();
-        //}
-
         public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity)
         {
             throw new NotImplementedException();
@@ -133,9 +124,9 @@ namespace dMobile.Controller
         /// <param name="xmlParams"></param>
         /// <returns></returns>
         /// <remarks></remarks>
-        public override string GetFilter(XDocument data)
+        public override void GetFilter(XDocument data)
         {
-            return string.Empty;
+            //return string.Empty;
         }
 
         /// <summary>
@@ -143,9 +134,9 @@ namespace dMobile.Controller
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public override string GetFilter()
+        public override void GetFilter()
         {
-            return string.Empty;
+            //return string.Empty;
         }
 
         #endregion

@@ -296,9 +296,9 @@
                                 parametersInsertDetail.Add(resultsActivityItemTransfer[0].ProductUnitRefno);
                                 parametersInsertDetail.AddRange(this.SaveDetail(drow, transaction, false));
 
-                                transaction.Execute(queryInsertDetail, parametersInsertDetail);
+                                transaction.Execute(queryInsertDetail, parametersInsertDetail.ToArray());
 
-                                actDetailRefno = Convert.ToInt32(transaction.QueryScalars<int>("SELECT last_insert_rowid() FROM tActivityDetail"));
+                                actDetailRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityDetail"));
                                 actDetailTransferFKRefno = Convert.ToInt32(drow["ActivityDetailTransferFKRefno"]);
                                 errMsg += Environment.NewLine + "Detail fk refno " + actDetailTransferFKRefno;
 
@@ -313,7 +313,7 @@
                                     "?, " +
                                     "?" +
                                     ")";
-                                List<object> parametersInsertDetailTransfer = new List<object>()
+                                object[] parametersInsertDetailTransfer = new object[]
                                 {
                                     Convert.ToInt32(actDetailRefno),
                                     Convert.ToInt32(actDetailTransferFKRefno),

@@ -27,7 +27,7 @@ namespace dMobile.Resources.Models
 
     public class tActivityItemProductionMaterialModel
     {
-        [PrimaryKey, NotNull, ForeignKey(typeof(tActivityItemProductionModel)), OneToOne(CascadeOperations = CascadeOperation.All)]
+        [PrimaryKey, NotNull, ForeignKey(typeof(tActivityItemProductionModel))]
         public int ActivityItemRefno { get; set; }
 
         [NotNull, Indexed(Name = "UQ_ActivityItemProductionMaterialOnActivityItemProductionMaterialFKRefno", Order = 1, Unique = true)]

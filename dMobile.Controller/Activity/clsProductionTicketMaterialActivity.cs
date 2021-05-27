@@ -21,6 +21,7 @@ namespace dMobile.Controller
         private double columnWidth1 = 0;
         private double columnWidth2 = 0;
         private ResourceDictionary resourceDictionary = new ResourceDictionary();
+        private List<ProductionTicketMaterial> listProductionTicketMaterial = new List<ProductionTicketMaterial>();
 
         #region Constructors
 
@@ -284,8 +285,9 @@ namespace dMobile.Controller
             //        this.DataViewHdrs.Sort = ticketSettings.GetDataViewSortBy();
             //    }
             //}
-            
-            this.ListHdrs = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<object>(sql.ToString());
+
+            this.listProductionTicketMaterial = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ProductionTicketMaterial>(sql.ToString());
+            this.ListHdrs = this.listProductionTicketMaterial.Cast<object>().ToList();
             return this.ListHdrs;
         }
 
@@ -299,16 +301,16 @@ namespace dMobile.Controller
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
-            if (string.IsNullOrEmpty(this.ActFilter))
-            {
+            //if (string.IsNullOrEmpty(this.ActFilter))
+            //{
                 //this.DataViewHdrs.RowFilter = "ActivityProductionStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
-                this.ListHdrs = (List<object>)this.ListHdrs.OfType<ProductionTicketMaterial>().Where(ticket => ticket.ActivityProductionStringFKRefno.Contains(searchText.Trim()));
-            }
-            else
-            {
+                this.ListHdrs = this.listProductionTicketMaterial.Where(prodTicket => prodTicket.ActivityProductionStringFKRefno.Contains(searchText.Trim())).Cast<object>().ToList();
+            //}
+            //else
+            //{
                 // TODO: Fix filtering
                 //this.DataViewHdrs.RowFilter = this.ActFilter + " AND ActivityProductionStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
-            }
+            //}
 
             foreach (ProductionTicketMaterial productionTicket in this.ListHdrs)
             {
@@ -415,7 +417,7 @@ namespace dMobile.Controller
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public override string GetFilter()
+        public override void GetFilter()
         {
             string filter = string.Empty;
             ProductionTicketSettings ticketSettings = new ProductionTicketSettings().LoadData();
@@ -448,9 +450,9 @@ namespace dMobile.Controller
                 }
             }
 
-            this.ActFilter = filter;
-
-            return filter;
+            // TODO: Get filter
+            //this.ActFilter = filter;
+            //return filter;
         }
 
         /// <summary>
@@ -459,7 +461,7 @@ namespace dMobile.Controller
         /// <param name="xmlDoc"></param>
         /// <returns></returns>
         /// <remarks></remarks>
-        public override string GetFilter(XDocument data)
+        public override void GetFilter(XDocument data)
         {
             string filter = string.Empty;
             ProductionTicketSettings ticketSettings = new ProductionTicketSettings().LoadData();
@@ -492,9 +494,9 @@ namespace dMobile.Controller
                 }
             }
 
-            this.ActFilter = filter;
-
-            return filter;
+            // TODO: Get filter
+            //this.ActFilter = filter;
+            //return filter;
         }
 
         #endregion

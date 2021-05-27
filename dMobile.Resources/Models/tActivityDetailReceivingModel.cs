@@ -28,7 +28,7 @@ namespace dMobile.Resources.Models
     [Table("tActivityDetailReceiving")]
     public class tActivityDetailReceivingModel
     {
-        [PrimaryKey, NotNull, ForeignKey(typeof(tActivityDetailModel)), OneToOne(CascadeOperations = CascadeOperation.All)]
+        [PrimaryKey, NotNull, ForeignKey(typeof(tActivityDetailModel))]
         public int ActivityDetailRefno { get; set; }
 
         [Indexed(Name = "UQ_ActivityDetailReceivingOnActivityDetailReceivingFKRefno", Order = 1, Unique = true), NotNull]

@@ -7,8 +7,11 @@
 namespace dMobile.Bedrock
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Xml.Serialization;
+    using dMobile.Resources.Enums;
+    using dMobile.Resources.Types;
 
     /// <summary>
     /// Adjustment Settings Class
@@ -66,7 +69,7 @@ namespace dMobile.Bedrock
         /// <summary>
         /// Contains first sort option selected index value.
         /// </summary>
-        private string sortBy1Value = "ActivityAdjustmentFKRefno ASC";
+        private Sort sortBy1Value = new Sort() { SortValue = "ActivityAdjustmentFKRefno", SortOrder = SortOrder.ASC };
 
         /// <summary>
         /// Contains second sort option selected index.
@@ -76,7 +79,7 @@ namespace dMobile.Bedrock
         /// <summary>
         /// Contains second sort option selected index value.
         /// </summary>
-        private string sortBy2Value = string.Empty;
+        private Sort sortBy2Value = null;
 
         /// <summary>
         /// Contains third sort option selected index.
@@ -86,7 +89,7 @@ namespace dMobile.Bedrock
         /// <summary>
         /// Contains third sort option selected index value.
         /// </summary>
-        private string sortBy3Value = string.Empty;
+        private Sort sortBy3Value = null;
 
         /// <summary>
         /// Contains setting if scan quantity is negated for the adjustment type.
@@ -215,7 +218,7 @@ namespace dMobile.Bedrock
         /// <summary>
         /// Gets or sets the first sort by value.
         /// </summary>
-        public string SortBy1Value
+        public Sort SortBy1Value
         {
             get { return this.sortBy1Value; }
             set { this.sortBy1Value = value; }
@@ -233,7 +236,7 @@ namespace dMobile.Bedrock
         /// <summary>
         /// Gets or sets the second sort by value.
         /// </summary>
-        public string SortBy2Value
+        public Sort SortBy2Value
         {
             get { return this.sortBy2Value; }
             set { this.sortBy2Value = value; }
@@ -251,7 +254,7 @@ namespace dMobile.Bedrock
         /// <summary>
         /// Gets or sets the third sort by value.
         /// </summary>
-        public string SortBy3Value
+        public Sort SortBy3Value
         {
             get { return this.sortBy3Value; }
             set { this.sortBy3Value = value; }
@@ -263,18 +266,20 @@ namespace dMobile.Bedrock
         /// Get the data view sort by value.
         /// </summary>
         /// <returns>Sort by data view expression.</returns>
-        public string GetDataViewSortBy()
+        public List<Sort> GetDataViewSortBy()
         {
-            string sortBy = this.SortBy1Value;
+            List<Sort> sortBy = new List<Sort>();
 
-            if (!string.IsNullOrEmpty(this.SortBy2Value))
+            sortBy.Add(this.SortBy1Value);
+
+            if (this.SortBy2Value != null && !string.IsNullOrEmpty(this.SortBy2Value.SortValue))
             {
-                sortBy = sortBy + ", " + this.SortBy2Value;
+                sortBy.Add(this.SortBy2Value);
             }
 
-            if (!string.IsNullOrEmpty(this.SortBy3Value))
+            if (this.SortBy3Value != null && !string.IsNullOrEmpty(this.SortBy3Value.SortValue))
             {
-                sortBy = sortBy + ", " + this.SortBy3Value;
+                sortBy.Add(this.SortBy3Value);
             }
 
             return sortBy;

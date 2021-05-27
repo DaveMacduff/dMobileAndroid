@@ -1,4 +1,4 @@
-namespace dMobile.GroundWork
+﻿namespace dMobile.GroundWork
 {
     using System;
     using System.Data;
@@ -163,7 +163,7 @@ namespace dMobile.GroundWork
 
                                 transaction.Execute("INSERT INTO tActivity (ActivitySubType, ActivityStatus) VALUES (?, ?)", Convert.ToInt32(SysCommon.ActSubTypes.Returns), 0);
 
-                                actRefno = Convert.ToInt32(transaction.QueryScalars<int>("SELECT last_insert_rowid() FROM tActivity"));
+                                actRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivity"));
                                 returnsFKRefno = Convert.ToInt32(drow["ActivityReturnsFKRefno"]);
                                 errMsg += Environment.NewLine + "FK refno " + returnsFKRefno;
                                 whsLocMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, ref errMsg, transaction);
@@ -179,17 +179,17 @@ namespace dMobile.GroundWork
                                     "ActivityReturnsCustomerContactName, " +
                                     "ActivityReturnsCustomerShipToInfo" +
                                     ") VALUES (" +
-                                    "@activityRefno, " +
-                                    "@activitySubType, " +
-                                    "@activityReturnsFKRefno, " +
-                                    "@activityReturnsStringFKRefno, " +
-                                    "@warehouseLocationMapRefno, " +
-                                    "@activityReturnsOrderedDateTime, " +
-                                    "@activityReturnsDeliveryDateTime, " +
-                                    "@activityReturnsCustomerContactName, " +
-                                    "@activityReturnsCustomerShipToInfo" +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?, " +
+                                    "?" +
                                     ")";
-                                List<object> parameters = new List<object>()
+                                object[] parameters = new object[]
                                 {
                                     Convert.ToInt32(actRefno),
                                     Convert.ToInt32(SysCommon.ActSubTypes.Returns),

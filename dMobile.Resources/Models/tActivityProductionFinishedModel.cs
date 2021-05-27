@@ -32,7 +32,7 @@ namespace dMobile.Resources.Models
     [Table("tActivityProductionFinished")]
     public class tActivityProductionFinishedModel
     {
-        [NotNull, ForeignKey(typeof(tActivityProductionModel)), OneToOne(CascadeOperations = CascadeOperation.All), Indexed(Name = "PK_ActivityProductionFinishedOnActivityRefno", Order = 1, Unique = true)]
+        [NotNull, ForeignKey(typeof(tActivityProductionModel)), Indexed(Name = "PK_ActivityProductionFinishedOnActivityRefno", Order = 1, Unique = true)]
         public int ActivityRefno { get; set; }
 
         [NotNull, Indexed(Name = "UQ_ActivityProductionFinishedOnActivityProductionFKRefno", Order = 1, Unique = true)]

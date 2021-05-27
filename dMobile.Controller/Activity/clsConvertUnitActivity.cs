@@ -126,9 +126,9 @@ namespace dMobile.Controller
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public override string GetFilter()
+        public override void GetFilter()
         {
-            return string.Empty;
+            //return string.Empty;
         }
 
         /// <summary>
@@ -137,9 +137,9 @@ namespace dMobile.Controller
         /// <param name="xmlParams"></param>
         /// <returns></returns>
         /// <remarks></remarks>
-        public override string GetFilter(XDocument data)
+        public override void GetFilter(XDocument data)
         {
-            return string.Empty;
+            //return string.Empty;
         }
 
         #endregion

@@ -39,10 +39,10 @@ namespace dMobile.Resources.Models
     [Table("tActivityItemBarCodeAssociationXRef")]
     public class tActivityItemBarCodeAssociationXRefModel
     {
-        [Indexed(Name = "FK_ActivityItemBarCodeAssociationXRefOnActivityItemRefno", Order = 1, Unique = true), NotNull, ForeignKey(typeof(tActivityItemModel)), OneToMany(CascadeOperations = CascadeOperation.All)]
+        [Indexed(Name = "FK_ActivityItemBarCodeAssociationXRefOnActivityItemRefno", Order = 1, Unique = true), NotNull, ForeignKey(typeof(tActivityItemModel))]
         public int ActivityItemRefno { get; set; }
 
-        [Indexed(Name = "FK_ActivityItemBarCodeAssociationXRefOnProductUnitBarCodeRefno", Order = 1, Unique = true), NotNull, ForeignKey(typeof(tProductUnitBarCodeModel)), OneToMany(CascadeOperations = CascadeOperation.All)]
+        [Indexed(Name = "FK_ActivityItemBarCodeAssociationXRefOnProductUnitBarCodeRefno", Order = 1, Unique = true), NotNull, ForeignKey(typeof(tProductUnitBarCodeModel))]
         public int ProductUnitBarCodeRefno { get; set; }
     }
 }

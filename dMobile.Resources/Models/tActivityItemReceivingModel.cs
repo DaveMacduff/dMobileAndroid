@@ -50,7 +50,7 @@ namespace dMobile.Resources.Models
     [Table("tActivityItemReceiving")]
     public class tActivityItemReceivingModel
     {
-        [PrimaryKey, NotNull, ForeignKey(typeof(tActivityItemModel)), OneToOne(CascadeOperations = CascadeOperation.All)]
+        [PrimaryKey, NotNull, ForeignKey(typeof(tActivityItemModel))]
         public int ActivityItemRefno { get; set; }
 
         [NotNull]
@@ -62,10 +62,10 @@ namespace dMobile.Resources.Models
         [NotNull]
         public string ActivityItemReceivingStringFKRefno { get; set; }
 
-        [NotNull, ForeignKey(typeof(tProductUnitModel)), OneToMany(CascadeOperations = CascadeOperation.All)]
+        [NotNull, ForeignKey(typeof(tProductUnitModel))]
         public int ProductUnitRefno { get; set; }
 
-        [NotNull, ForeignKey(typeof(tLocationMapWarehouseModel)), OneToMany(CascadeOperations = CascadeOperation.All)]
+        [NotNull, ForeignKey(typeof(tLocationMapWarehouseModel))]
         public int WarehouseLocationMapRefno { get; set; }
 
         [NotNull]

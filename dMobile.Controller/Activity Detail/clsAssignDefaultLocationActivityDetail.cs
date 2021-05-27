@@ -24,6 +24,7 @@ namespace dMobile.Controller
         private double columnWidth4 = 0;
         private double columnWidth5 = 0;
         private ResourceDictionary resourceDictionary = new ResourceDictionary();
+        List<MoveDetail> listMoveDetails = new List<MoveDetail>();
 
         #region Constructors
 
@@ -282,7 +283,8 @@ namespace dMobile.Controller
             table.Columns.Add("ActivityDetailFKRefno", Type.GetType("System.Int32"));
             table.Columns.Add("ActivityDetailRefno", Type.GetType("System.Int32"));
 
-            this.ListDetails = table.Select().ToList<object>();
+            this.listMoveDetails = table.Rows.Cast<MoveDetail>().ToList();
+            this.ListDetails = this.listMoveDetails.Cast<object>().ToList();
             return this.ListDetails;
         }
 

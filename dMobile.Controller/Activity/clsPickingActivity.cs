@@ -1,4 +1,4 @@
-namespace dMobile.Controller
+﻿namespace dMobile.Controller
 {
     using System;
     using System.Collections.ObjectModel;
@@ -28,6 +28,7 @@ namespace dMobile.Controller
         double columnWidth3 = 0;
         double columnWidth4 = 0;
         private ResourceDictionary resourceDictionary = new ResourceDictionary();
+        private List<Picking> listPicking = new List<Picking>();
 
         #region Constructors
 
@@ -469,7 +470,7 @@ namespace dMobile.Controller
                     + "AND tActivityItemPicking.ActivityItemPickingQuantityShipped "
                     + "< tActivityItemPicking.ActivityItemPickingQuantityOrdered";
 
-                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.QueryScalarsAsync<object>(query));
+                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<object>(query));
 
                 // Do not warn if product is out of stock WO# 12054
                 if (rowsAffected > 0)
@@ -939,7 +940,8 @@ namespace dMobile.Controller
             //    }
             //}
 
-            this.ListHdrs = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<object>(sql.ToString());
+            this.listPicking = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<Picking>(sql.ToString());
+            this.ListHdrs = this.listPicking.Cast<object>().ToList();
             return this.ListHdrs;
         }
 
@@ -953,16 +955,16 @@ namespace dMobile.Controller
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
-            if (string.IsNullOrEmpty(this.ActFilter))
-            {
+            //if (string.IsNullOrEmpty(this.ActFilter))
+            //{
                 //this.DataViewHdrs.RowFilter = "ActivityPickingStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
-                this.ListHdrs = (List<object>)this.ListHdrs.OfType<Picking>().Where(pick => pick.ActivityPickingStringFKRefno.Contains(searchText.Trim()));
-            }
-            else
-            {
+                this.ListHdrs = this.listPicking.Where(picking => picking.ActivityPickingStringFKRefno.Contains(searchText.Trim())).Cast<object>().ToList();
+            //}
+            //else
+            //{
                 // TODO: Fix filter
                 //this.DataViewHdrs.RowFilter = this.ActFilter + " AND ActivityPickingStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
-            }
+            //}
 
             foreach (Picking picking in this.ListHdrs)
             {
@@ -1084,7 +1086,7 @@ namespace dMobile.Controller
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public override string GetFilter()
+        public override void GetFilter()
         {
             string filter = string.Empty;
             PickingSettings pickingSettings = new PickingSettings().LoadData();
@@ -1160,9 +1162,9 @@ namespace dMobile.Controller
                 }
             }
 
-            this.ActFilter = filter;
-
-            return filter;
+            // TODO: Get filter
+            //this.ActFilter = filter;
+            //return filter;
         }
 
         /// <summary>
@@ -1171,7 +1173,7 @@ namespace dMobile.Controller
         /// <param name="xmlDoc"></param>
         /// <returns></returns>
         /// <remarks></remarks>
-        public override string GetFilter(XDocument data)
+        public override void GetFilter(XDocument data)
         {
             string filter = string.Empty;
             PickingSettings pickingSettings = new PickingSettings().LoadData();
@@ -1247,9 +1249,9 @@ namespace dMobile.Controller
                 }
             }
 
-            this.ActFilter = filter;
-
-            return filter;
+            // TODO: Get filter
+            //this.ActFilter = filter;
+            //return filter;
         }
 
         #endregion

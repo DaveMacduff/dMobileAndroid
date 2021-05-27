@@ -853,7 +853,7 @@ namespace dMobile.View.Activity
             // TODO: Resource strings
             if (await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Do You Wish To Consume This Entire Skid?", "Yes", "No")))
             {
-                this.ActDetail.Delete();
+                await this.ActDetail.Delete();
 
                 if (this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid.IsConsumed)
                 {

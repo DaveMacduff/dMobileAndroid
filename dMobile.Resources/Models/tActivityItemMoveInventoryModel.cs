@@ -32,7 +32,7 @@ namespace dMobile.Resources.Models
     [Table("tActivityItemMoveInventory")]
     public class tActivityItemMoveInventoryModel
     {
-        [PrimaryKey, NotNull, ForeignKey(typeof(tActivityItemModel)), OneToOne(CascadeOperations = CascadeOperation.All), Indexed(Name = "UQ_ActivityItemMoveInventoryOnActivityItemRefnoAndActivityItemSubType", Order = 1, Unique = true)]
+        [PrimaryKey, NotNull, ForeignKey(typeof(tActivityItemModel)), Indexed(Name = "UQ_ActivityItemMoveInventoryOnActivityItemRefnoAndActivityItemSubType", Order = 1, Unique = true)]
         public int ActivityItemRefno { get; set; }
 
         [NotNull, Indexed(Name = "UQ_ActivityItemMoveInventoryOnActivityItemRefnoAndActivityItemSubType", Order = 2, Unique = true)]
@@ -41,7 +41,7 @@ namespace dMobile.Resources.Models
         [NotNull]
         public int ActivityItemMoveInventoryType { get; set; }
 
-        [NotNull, ForeignKey(typeof(tProductUnitModel)), OneToMany(CascadeOperations = CascadeOperation.All)]
+        [NotNull, ForeignKey(typeof(tProductUnitModel))]
         public int ProductUnitRefno { get; set; }
     }
 }

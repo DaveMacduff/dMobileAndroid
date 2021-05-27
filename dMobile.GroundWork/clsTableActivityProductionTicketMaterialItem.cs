@@ -241,7 +241,7 @@
 
                                 transaction.Execute("INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (?, ?, ?)", Convert.ToInt32(SysCommon.ActSubTypes.TicketMaterial), Convert.ToInt32(SysCommon.ActStatus.NoChange), actRefno);
 
-                                actItemRefno = Convert.ToInt32(transaction.QueryScalars<int>("SELECT last_insert_rowid() FROM tActivityItem"));
+                                actItemRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityItem"));
                                 prodUnitRefno = this.GetProductUnitRefnoFromDataRow(drow, transaction, ref errMsg, false);
                                 locMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, ref errMsg, transaction);
 
@@ -270,7 +270,7 @@
                                 "?, " +
                                 "?" +
                                 ")";
-                                List<object> parametersActivityItemProduction = new List<object>()
+                                object[] parametersActivityItemProduction = new object[]
                                 {
                                     actItemRefno,
                                     Convert.ToInt32(SysCommon.ActSubTypes.TicketMaterial),

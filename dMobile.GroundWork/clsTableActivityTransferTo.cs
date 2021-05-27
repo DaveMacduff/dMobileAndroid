@@ -187,7 +187,7 @@
 
                                 transaction.Execute("INSERT INTO tActivity (ActivityStatus, ActivitySubType) VALUES (?, ?)", 0, Convert.ToInt32(SysCommon.ActSubTypes.TransferTo));
 
-                                actRefno = Convert.ToInt32(transaction.QueryScalars<int>("SELECT last_insert_rowid() FROM tActivity"));
+                                actRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivity"));
 
                                 string query = "INSERT INTO tActivityTransfer (" +
                                     "ActivityRefno, " +
@@ -208,7 +208,7 @@
                                     "?, " +
                                     "?" +
                                     ")";
-                                List<object> parameters = new List<object>()
+                                object[] parameters = new object[]
                                 {
                                     Convert.ToInt32(actRefno),
                                     Convert.ToInt32(SysCommon.ActSubTypes.TransferTo),

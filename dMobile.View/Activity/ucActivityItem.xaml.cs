@@ -211,13 +211,6 @@
                             await this.DataGridMainActivity_KeyUpEnter();
                         }
                     }
-                    //else if (keycode == Keycode.Escape)
-                    //{
-                    //    if (await this.CancelChanges())
-                    //    {
-                    //        this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-                    //    }
-                    //}
                     else if (keycode == Keycode.Grave)
                     {
                         if (await this.CancelChanges())
@@ -1706,9 +1699,8 @@
                 }
                 finally
                 {
-                    DisplayData();
+                    await DisplayData();
                     await this.ScannerEnable();
-                    this.dataGridMainActivity.Focus();
                 }
             }
         }
@@ -1750,7 +1742,7 @@
                         if (actItemFoundRefno > 0)
                         {
                             //int foundRowIdx = this.ActItem.ListItems.Find(actItemFoundRefno);
-                            object selectedItem = this.ActItem.ListItems.Where(act => Convert.ToString(act.GetType().GetProperty("ActivityItemRefno")?.GetValue(act)) == Convert.ToString(actItemFoundRefno)).First();
+                            object selectedItem = this.ActItem.ListItems.Where(act => Convert.ToString(act.GetType().GetProperty("ActivityItemRefno")?.GetValue(act)) == Convert.ToString(actItemFoundRefno)).FirstOrDefault();
 
                             if (selectedItem != null)
                             {
@@ -1759,7 +1751,7 @@
                         }
                     }
 
-                    this.DisplayData();
+                    await this.DisplayData();
                     await this.ScannerEnable();
                 }
             }
@@ -1849,7 +1841,7 @@
                             // TODO: Fix sorting
                             //string oldSort = this.ActItem.DataViewItems.Sort;
                             //this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
-                            object selectedItem = this.ActItem.ListItems.Where(act => Convert.ToString(act.GetType().GetProperty("ActivityItemRefno")?.GetValue(act)) == Convert.ToString(actItemFoundRefno)).First();
+                            object selectedItem = this.ActItem.ListItems.Where(act => Convert.ToString(act.GetType().GetProperty("ActivityItemRefno")?.GetValue(act)) == Convert.ToString(actItemFoundRefno)).FirstOrDefault();
 
                             this.ActItem.SelectedActivityItem = selectedItem;
 
@@ -2000,9 +1992,8 @@
                 }
                 finally
                 {
-                    DisplayData();
+                    await DisplayData();
                     await this.ScannerEnable();
-                    //this.dataGridMainActivity.Focus();
                 }
             }
         }
@@ -2037,7 +2028,7 @@
                         if (actItemFoundRefno > 0)
                         {
                             //foundRowIdx = this.ActItem.DataViewItems.Find(actItemFoundRefno);
-                            selectedItem = this.ActItem.ListItems.Where(actItem => Convert.ToString(actItem.GetType().GetProperty("ActivityItemRefno")?.GetValue(actItem)) == Convert.ToString(actItemFoundRefno)).First();
+                            selectedItem = this.ActItem.ListItems.Where(actItem => Convert.ToString(actItem.GetType().GetProperty("ActivityItemRefno")?.GetValue(actItem)) == Convert.ToString(actItemFoundRefno)).FirstOrDefault();
                         }
                         else
                         {
@@ -2105,7 +2096,7 @@
                 }
                 finally
                 {
-                    DisplayData();
+                    await DisplayData();
                     await this.ScannerEnable();
                 }
             }
@@ -2172,10 +2163,10 @@
                 finally
                 {
                     this.Loading = false;
-                    await Device.InvokeOnMainThreadAsync(() =>
+                    await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         this.dataGridMainActivity.IsEnabled = true;
-                        this.DisplayData();
+                        await this.DisplayData();
                     });
 
                     await this.ScannerEnable();
@@ -2441,7 +2432,6 @@
             this.Loading = true;
 
             int prodUnitRefno = 0;
-            int currRowIdx = this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem);
             object selectedItem = null;
             int actItemFoundRefno = 0;
             SActItemSchemeData tempItemProdSchemeData = new SActItemSchemeData();
@@ -2510,7 +2500,7 @@
 
                         if (actItemFoundRefno > 0)
                         {
-                            selectedItem = this.ActItem.ListItems.OfType<object>().Where(activityItem => Convert.ToString(activityItem.GetType().GetProperty("ActivityItemRefno")?.GetValue(activityItem)) == Convert.ToString(actItemFoundRefno)).First();
+                            selectedItem = this.ActItem.ListItems.OfType<object>().Where(activityItem => Convert.ToString(activityItem.GetType().GetProperty("ActivityItemRefno")?.GetValue(activityItem)) == Convert.ToString(actItemFoundRefno)).FirstOrDefault();
                         }
                         else
                         {
@@ -2564,7 +2554,7 @@
 
                         if (this.ActSubType == SysCommon.ActSubTypes.Picking)
                         {
-                            selectedItem = this.ActItem.ListItems.OfType<object>().Where(activityItem => Convert.ToString(activityItem.GetType().GetProperty(this.ActItem.GetDataViewSortFKRefnoIdx())?.GetValue(activityItem)) == Convert.ToString(scanArgs.ParseInfo.ActItemFKRefno)).First();
+                            selectedItem = this.ActItem.ListItems.OfType<object>().Where(activityItem => Convert.ToString(activityItem.GetType().GetProperty(this.ActItem.GetDataViewSortFKRefnoIdx())?.GetValue(activityItem)) == Convert.ToString(scanArgs.ParseInfo.ActItemFKRefno)).FirstOrDefault();
 
                             if (selectedItem != null)
                             {
@@ -2572,7 +2562,7 @@
                                 actItemFoundRefno = this.ActItem.Refno;
                                 //this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
                                 //foundRowIdx = this.ActItem.DataViewItems.Find(actItemFoundRefno);
-                                selectedItem = this.ActItem.ListItems.OfType<object>().Where(activityItem => Convert.ToString(activityItem.GetType().GetProperty("ActivityItemRefno")?.GetValue(activityItem)) == Convert.ToString(actItemFoundRefno)).First();
+                                selectedItem = this.ActItem.ListItems.OfType<object>().Where(activityItem => Convert.ToString(activityItem.GetType().GetProperty("ActivityItemRefno")?.GetValue(activityItem)) == Convert.ToString(actItemFoundRefno)).FirstOrDefault();
                             }
                             else
                             {
@@ -2595,7 +2585,7 @@
                             tempItemProdSchemeData = this.ActItem.GetProdSchemeDataFromDetailFKRefno(int.Parse(parse.ActDetailFKRefno));
                             //foundRowIdx = this.ActItem.DataViewItems.Find(tempItemProdSchemeData.ActItemFKRefno.ToString());
 
-                            selectedItem = this.ActItem.ListItems.OfType<object>().Where(activityItem => Convert.ToString(activityItem.GetType().GetProperty(this.ActItem.GetDataViewSortFKRefnoIdx())?.GetValue(activityItem)) == Convert.ToString(tempItemProdSchemeData.ActItemFKRefno)).First();
+                            selectedItem = this.ActItem.ListItems.OfType<object>().Where(activityItem => Convert.ToString(activityItem.GetType().GetProperty(this.ActItem.GetDataViewSortFKRefnoIdx())?.GetValue(activityItem)) == Convert.ToString(tempItemProdSchemeData.ActItemFKRefno)).FirstOrDefault();
 
                             if (selectedItem != null)
                             {
@@ -2604,7 +2594,7 @@
                                 //this.ActItem.DataViewItems.Sort = "ActivityItemRefno";
                                 //foundRowIdx = this.ActItem.DataViewItems.Find(actItemFoundRefno);
 
-                                selectedItem = this.ActItem.ListItems.OfType<object>().Where(activityItem => Convert.ToString(activityItem.GetType().GetProperty("ActivityItemRefno")?.GetValue(activityItem)) == Convert.ToString(actItemFoundRefno)).First();
+                                selectedItem = this.ActItem.ListItems.OfType<object>().Where(activityItem => Convert.ToString(activityItem.GetType().GetProperty("ActivityItemRefno")?.GetValue(activityItem)) == Convert.ToString(actItemFoundRefno)).FirstOrDefault();
                             }
                             else
                             {
@@ -2654,7 +2644,7 @@
                         if (actItemFoundRefno > 0)
                         {
                             //foundRowIdx = this.ActItem.DataViewItems.Find(actItemFoundRefno);
-                            selectedItem = this.ActItem.ListItems.OfType<object>().Where(activityItem => Convert.ToString(activityItem.GetType().GetProperty("ActivityItemRefno")?.GetValue(activityItem)) == Convert.ToString(actItemFoundRefno)).First();
+                            selectedItem = this.ActItem.ListItems.OfType<object>().Where(activityItem => Convert.ToString(activityItem.GetType().GetProperty("ActivityItemRefno")?.GetValue(activityItem)) == Convert.ToString(actItemFoundRefno)).FirstOrDefault();
                         }
                         else
                         {
@@ -3462,8 +3452,9 @@
 
         private async void DataGridMainActivity_ItemSelected(object sender, SelectedItemChangedEventArgs e)
         {
+            this.SelectedIndex = e.SelectedItemIndex;
             await this.ActItem.SelectActivityItem(e.SelectedItem);
-            await Device.InvokeOnMainThreadAsync(() => this.DisplayData());
+            await Device.InvokeOnMainThreadAsync(async () => await this.DisplayData());
         }
 
         private async Task CmdFilter_Clicked(object sender, EventArgs e)

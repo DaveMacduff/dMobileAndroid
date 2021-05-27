@@ -1,4 +1,4 @@
-namespace dMobile.GroundWork
+﻿namespace dMobile.GroundWork
 {
     using dMobile.Bedrock;
     using System;
@@ -148,7 +148,7 @@ namespace dMobile.GroundWork
 
             try
             {
-                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.QueryScalarsAsync<int>("SELECT COUNT(ActivityItemRefno) FROM tActivityItem WHERE ActivityItemSubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.Picking)));
+                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(ActivityItemRefno) FROM tActivityItem WHERE ActivityItemSubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.Picking)));
 
                 // TODO: Resource strings
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, string.Format("{0} Sales order items.", rowsAffected), true);
@@ -232,7 +232,7 @@ namespace dMobile.GroundWork
 
                                 transaction.Execute("INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (?, ?, ?)", Convert.ToInt32(SysCommon.ActSubTypes.Picking), 0, actRefno);
 
-                                actItemRefno = Convert.ToInt32(transaction.QueryScalars<int>("SELECT last_insert_rowid() FROM tActivityItem"));
+                                actItemRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityItem"));
                                 actItemPickFKRefno = Convert.ToInt32(drow["ActivityItemPickingFKRefno"]);
                                 errMsg += Environment.NewLine + "Item fk refno " + actItemPickFKRefno;
 
@@ -278,7 +278,7 @@ namespace dMobile.GroundWork
                                     "?," +
                                     "?" +
                                     ")";
-                                List<object> parametersInsertItemPicking = new List<object>()
+                                object[] parametersInsertItemPicking = new object[]
                                 {
                                     actItemRefno,
                                     Convert.ToInt32(SysCommon.ActSubTypes.Picking),

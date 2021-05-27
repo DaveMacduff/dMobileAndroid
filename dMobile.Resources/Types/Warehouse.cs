@@ -10,18 +10,6 @@
         private int locationMapWarehouseFKRefno;
         private string locationMapWarehouseBarCode;
 
-        public Warehouse()
-        {
-        }
-
-        public Warehouse(int locationMapRefno, int locationMapWarehouseCode, string locationMapWarehouseName)
-        {
-            this.LocationMapRefno = locationMapRefno;
-            this.LocationMapWarehouseName = locationMapWarehouseName;
-            this.LocationMapWarehouseCode = locationMapWarehouseCode;
-            this.DisplayName = this.LocationMapWarehouseCode + " " + this.LocationMapWarehouseName;
-        }
-
         public string DisplayName { get => this.displayName; set => this.displayName = value; }
         public int LocationMapRefno { get => locationMapRefno; set => locationMapRefno = value; }
         public int LocationMapSubType { get => locationMapSubType; set => locationMapSubType = value; }

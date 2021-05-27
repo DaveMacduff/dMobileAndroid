@@ -82,7 +82,7 @@
                 string query = "DELETE FROM tActivityAdjustment WHERE tActivityAdjustment.ActivitySubType = ?";
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.Adjustment));
 
-                query = "DELETE FROM tActivity WHERE tActivity.ActivitySubType = = ?";
+                query = "DELETE FROM tActivity WHERE tActivity.ActivitySubType = ?";
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.Adjustment));
 
                 // TODO: Resource strings
@@ -301,7 +301,7 @@
                                 "?, " +
                                 "?)";
 
-                                List<object> parameters = new List<object>()
+                                object[] parameters = new object[]
                                 {
                                     actRefno,
                                     Convert.ToInt32(SysCommon.ActSubTypes.Adjustment),

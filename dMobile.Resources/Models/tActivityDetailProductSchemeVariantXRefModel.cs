@@ -42,9 +42,9 @@ namespace dMobile.Resources.Models
     public class tActivityDetailProductSchemeVariantXRefModel
     {
         // TODO: Can only support one index right now
-        [Indexed(Name = "UQ_ActivityDetailProductSchemeVariantXRefOnActivityDetailRefno", Order = 1, Unique = true), NotNull, ForeignKey(typeof(tActivityDetailModel)), OneToOne(CascadeOperations = CascadeOperation.All)]
+        [Indexed(Name = "UQ_ActivityDetailProductSchemeVariantXRefOnActivityDetailRefno", Order = 1, Unique = true), NotNull, ForeignKey(typeof(tActivityDetailModel))]
         public int ActivityDetailRefno { get; set; }
-        [Indexed(Name = "FK_ActivityDetailProductSchemeVariantXRefOnProductSchemeVariantRefno", Order = 1, Unique = true), NotNull, ForeignKey(typeof(tProductSchemeVariantModel)), OneToOne(CascadeOperations = CascadeOperation.All)]
+        [Indexed(Name = "FK_ActivityDetailProductSchemeVariantXRefOnProductSchemeVariantRefno", Order = 1, Unique = true), NotNull, ForeignKey(typeof(tProductSchemeVariantModel))]
         public int ProductSchemeVariantRefno { get; set; }
     }
 }

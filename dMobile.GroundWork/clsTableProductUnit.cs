@@ -408,7 +408,7 @@ namespace dMobile.GroundWork
                                              WHERE ProductRefno = ?
                                              AND UnitRefno = ?
                                              AND ProductUnitIsBC = ?";
-                                    List<object> parametersUpdate = new List<object>()
+                                    object[] parametersUpdate = new object[]
                                     {
                                         Convert.ToInt32(baseUnitRefno),
                                         Convert.ToInt32(wtUnitRefno),
@@ -452,7 +452,7 @@ namespace dMobile.GroundWork
                                     "?, " +
                                     "?, " +
                                     "?)";
-                                List<object> parametersInsert = new List<object>()
+                                object[] parametersInsert = new object[]
                                 {
                                     Convert.ToInt32(prodRefno),
                                     Convert.ToInt32(unitRefno),

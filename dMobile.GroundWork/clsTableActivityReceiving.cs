@@ -158,7 +158,7 @@
 
                                 transaction.Execute("INSERT INTO tActivity (ActivityStatus, ActivitySubType) VALUES (?, ?)", 0, Convert.ToInt32(SysCommon.ActSubTypes.Receiving));
 
-                                actRefno = Convert.ToInt32(transaction.QueryScalars<int>("SELECT last_insert_rowid() FROM tActivity"));
+                                actRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivity"));
                                 recvFKRefno = Convert.ToInt32(drow["ActivityPurchaseOrderFKRefno"]);
                                 errMsg += Environment.NewLine + "Recv fk refno " + recvFKRefno;
                                 recvPONumber = drow["ActivityPurchaseOrderPONumber"].ToString();
@@ -190,7 +190,7 @@
                                     "?, " +
                                     "?" +
                                     ")";
-                                List<object> parameters = new List<object>()
+                                object[] parameters = new object[]
                                 {
                                     actRefno,
                                     Convert.ToInt32(SysCommon.ActSubTypes.Receiving),

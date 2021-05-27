@@ -29,7 +29,7 @@ namespace dMobile.Resources.Models
     [Table("tActivityDetailPicking")]
     public class tActivityDetailPickingModel
     {
-        [PrimaryKey, NotNull, ForeignKey(typeof(tActivityDetailModel)), OneToOne(CascadeOperations = CascadeOperation.All)]
+        [PrimaryKey, NotNull, ForeignKey(typeof(tActivityDetailModel))]
         public int ActivityDetailRefno { get; set; }
 
         [NotNull, Indexed(Name = "UQ_ActivityDetailPickingOnActivityDetailPickingFKRefno", Order = 1, Unique = true)]

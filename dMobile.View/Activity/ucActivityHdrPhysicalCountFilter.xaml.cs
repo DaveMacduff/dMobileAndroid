@@ -13,6 +13,7 @@ using System.Threading;
 using dMobile.View.Forms;
 using dMobile.Resources.Enums;
 using Android.Views;
+using dMobile.Resources.Types;
 
 namespace dMobile.View.Activity
 {
@@ -35,7 +36,7 @@ namespace dMobile.View.Activity
         private ReqSaveDisableHandler reqSaveDisableEvent;
         private ReqCancelEnableHandler reqCancelEnableEvent;
         private ReqCancelDisableHandler reqCancelDisableEvent;
-        private Dictionary<string, string> filters = new Dictionary<string, string>();
+        private Dictionary<string, Sort> filters = new Dictionary<string, Sort>();
 
         #endregion
 
@@ -57,30 +58,28 @@ namespace dMobile.View.Activity
 
             // TODO: Resource strings
             aSortBy1.Clear();
-            aSortBy1.Add(new ComboBoxMembers("Count # Ascending", "ActivityCountFKRefno ASC"));
-            aSortBy1.Add(new ComboBoxMembers("Count # Descending", "ActivityCountFKRefno DESC"));
-            aSortBy1.Add(new ComboBoxMembers("Count Date Ascending", "ActivityCountDateTime ASC"));
-            aSortBy1.Add(new ComboBoxMembers("Count Date Descending", "ActivityCountDateTime DESC"));
+            aSortBy1.Add("Count # Ascending");
+            aSortBy1.Add("Count # Descending");
+            aSortBy1.Add("Count Date Ascending");
+            aSortBy1.Add("Count Date Descending");
             cboSortBy1.ItemsSource = aSortBy1;
-            cboSortBy1.ItemDisplayBinding = new Binding("DisplayMember");
             cboSortBy1.SelectedIndex = CountSettings.iSortBy1Index;
 
             // TODO: Resource strings
             aSortBy2.Clear();
-            aSortBy2.Add(new ComboBoxMembers("", ""));
-            aSortBy2.Add(new ComboBoxMembers("Count # Ascending", "ActivityCountFKRefno ASC"));
-            aSortBy2.Add(new ComboBoxMembers("Count # Descending", "ActivityCountFKRefno DESC"));
-            aSortBy2.Add(new ComboBoxMembers("Count Date Ascending", "ActivityCountDateTime ASC"));
-            aSortBy2.Add(new ComboBoxMembers("Count Date Descending", "ActivityCountDateTime DESC"));
+            aSortBy2.Add(string.Empty);
+            aSortBy2.Add("Count # Ascending");
+            aSortBy2.Add("Count # Descending");
+            aSortBy2.Add("Count Date Ascending");
+            aSortBy2.Add("Count Date Descending");
             cboSortBy2.ItemsSource = aSortBy2;
-            cboSortBy2.ItemDisplayBinding = new Binding("DisplayMember");
             cboSortBy2.SelectedIndex = CountSettings.iSortBy2Index;
 
-            filters.Add("", "");
-            filters.Add("Count # Ascending", "ActivityCountFKRefno ASC");
-            filters.Add("Count # Descending", "ActivityCountFKRefno DESC");
-            filters.Add("Count Date Ascending", "ActivityCountDateTime ASC");
-            filters.Add("Count Date Descending", "ActivityCountDateTime DESC");
+            filters.Add(string.Empty, null);
+            filters.Add("Count # Ascending", new Sort() { SortValue = "ActivityCountFKRefno", SortOrder = SortOrder.ASC });
+            filters.Add("Count # Descending", new Sort() { SortValue = "ActivityCountFKRefno", SortOrder = SortOrder.DESC });
+            filters.Add("Count Date Ascending", new Sort() { SortValue = "ActivityCountDateTime", SortOrder = SortOrder.ASC });
+            filters.Add("Count Date Descending", new Sort() { SortValue = "ActivityCountDateTime", SortOrder = SortOrder.DESC });
         }
 
         #endregion
@@ -103,7 +102,7 @@ namespace dMobile.View.Activity
                 {
                     if (keycode == Keycode.Escape || keycode == Keycode.F1)
                     {
-                        if (await IsReadyToClose())
+                        if (await SaveChanges())
                         {
                             ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                         }
@@ -352,16 +351,16 @@ namespace dMobile.View.Activity
         private void MakeSQLSortBy()
         {
             //((ComboBoxMembers)(cboSortBy1.Items[cboSortBy1.SelectedIndex])).ValueMember.Trim();
-            strSQLSortBy = this.filters[cboSortBy1.Items[cboSortBy1.SelectedIndex]].Trim();
-            CountSettings.strSortBy1Value = this.filters[cboSortBy1.Items[cboSortBy1.SelectedIndex]].Trim();
+            strSQLSortBy = this.filters[cboSortBy1.Items[cboSortBy1.SelectedIndex]].SortValue;
+            CountSettings.SortBy1Value = this.filters[cboSortBy1.Items[cboSortBy1.SelectedIndex]];
 
             if (cboSortBy2.SelectedIndex >= 0)
             {
-                CountSettings.strSortBy2Value = this.filters[cboSortBy2.Items[cboSortBy2.SelectedIndex]].Trim();
-                
-                if (!string.IsNullOrEmpty(CountSettings.strSortBy2Value))
+                CountSettings.SortBy2Value = this.filters[cboSortBy2.Items[cboSortBy2.SelectedIndex]];
+
+                if (CountSettings.SortBy2Value != null && !string.IsNullOrEmpty(CountSettings.SortBy2Value.SortValue))
                 {
-                    strSQLSortBy = strSQLSortBy + ", " + CountSettings.strSortBy2Value;
+                    strSQLSortBy = strSQLSortBy + ", " + CountSettings.SortBy2Value;
                 }
             }
         }
@@ -412,7 +411,7 @@ namespace dMobile.View.Activity
                 {
                     LoadData();
                 }
-                
+
                 chkApplyCountDate.IsToggled = CountSettings.IsApplyCountDate;
                 dtpCountDate.Date = CountSettings.dtCountDate;
 
@@ -707,9 +706,12 @@ namespace dMobile.View.Activity
 
         private async void btnSave_Clicked(object sender, EventArgs e)
         {
-            await this.SaveChanges();
-            this.DialogResult = DialogResult.OK;
-            await this.Close();
+            if (await SaveChanges())
+            {
+                ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                this.DialogResult = DialogResult.OK;
+                await this.Close();
+            }
         }
 
         private async void btnClose_Clicked(object sender, EventArgs e)

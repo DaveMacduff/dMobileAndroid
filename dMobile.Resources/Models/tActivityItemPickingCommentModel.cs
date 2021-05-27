@@ -24,7 +24,7 @@ namespace dMobile.Resources.Models
     [Table("tActivityItemPickingComment")]
     public class tActivityItemPickingCommentModel
     {
-        [PrimaryKey, NotNull, ForeignKey(typeof(tActivityItemPickingModel)), OneToOne(CascadeOperations = CascadeOperation.All)]
+        [PrimaryKey, NotNull, ForeignKey(typeof(tActivityItemPickingModel))]
         public int ActivityItemRefno { get; set; }
 
         [NotNull]

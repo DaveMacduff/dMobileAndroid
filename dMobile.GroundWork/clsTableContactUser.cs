@@ -156,7 +156,7 @@
                     {
                         transaction.Execute("INSERT INTO tContact (ContactSubType) VALUES (?)", Convert.ToInt32(SysCommon.ContactSubTypes.User));
 
-                        int contactRefno = Convert.ToInt32(transaction.QueryScalars<int>("SELECT last_insert_rowid() FROM tContact"));
+                        int contactRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tContact"));
                         int contactCode = SysCommon.SystemLoginID;
                         string contactName = "InterSect";
                         errMsg = "Code " + contactCode;
@@ -182,7 +182,7 @@
                             "?, " +
                             "?, " +
                             "?)";
-                        List<object> parametersContactUserSystemLogin = new List<object>()
+                        object[] parametersContactUserSystemLogin = new object[]
                         {
                             contactRefno,
                             Convert.ToInt32(SysCommon.ContactSubTypes.User),
@@ -200,14 +200,14 @@
                         // Create User 99
                         transaction.Execute("INSERT INTO tContact (ContactSubType) VALUES (?)", Convert.ToInt32(SysCommon.ContactSubTypes.User));
 
-                        contactRefno = Convert.ToInt32(transaction.QueryScalars<int>("SELECT last_insert_rowid() FROM tContact"));
+                        contactRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tContact"));
                         contactCode = SysCommon.SetupLoginID;
 
                         errMsg = "Code " + contactCode;
                         contactName = "Setup User";
                         errMsg += Environment.NewLine + "Name \'" + contactName + "\'";
 
-                        List<object> parametersContactUserSetupLogin = new List<object>()
+                        object[] parametersContactUserSetupLogin = new object[]
                         {
                             contactRefno,
                             Convert.ToInt32(SysCommon.ContactSubTypes.User),
@@ -294,14 +294,14 @@
                             {
                                 transaction.Execute("INSERT INTO tContact (ContactSubType) VALUES (?)", Convert.ToInt32(SysCommon.ContactSubTypes.User));
 
-                                contactRefno = Convert.ToInt32(transaction.QueryScalars<int>("SELECT last_insert_rowid() FROM tContact"));
+                                contactRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tContact"));
 
                                 contactCode = Convert.ToInt32(drow["ContactUserCode"]);
                                 errMsg = "Code " + contactCode;
                                 contactName = drow["ContactUserName"].ToString();
                                 errMsg += Environment.NewLine + "Name \'" + contactName + "\'";
 
-                                List<object> parametersInsertContactUser = new List<object>()
+                                object[] parametersInsertContactUser = new object[]
                                 {
                                     contactRefno,
                                     Convert.ToInt32(SysCommon.ContactSubTypes.User),

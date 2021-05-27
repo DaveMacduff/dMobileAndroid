@@ -7,19 +7,12 @@ namespace dMobile.Controller
     using System;
     using System.Collections.ObjectModel;
     using System.Data;
-    using SQLite;
     using System.Text;
     using System.Xml.Linq;
     using System.Linq;
-    using dMobile.Bedrock;
-    using dMobile.GroundWork;
     using System.Xml;
     using System.Threading.Tasks;
-    using System.Xml;
-    using System.Xml.Linq;
     using Xamarin.Forms;
-    using dMobile.Resources.Types;
-    using dMobile.Resources.Services;
     using System.Collections.Generic;
     using static dMobile.Bedrock.LocationMapTasks;
 
@@ -35,6 +28,7 @@ namespace dMobile.Controller
         private double columnWidth1 = 0;
         private double columnWidth2 = 0;
         private ResourceDictionary resourceDictionary = new ResourceDictionary();
+        private List<Adjustment> listAdjustments = new List<Adjustment>();
 
         #endregion
 
@@ -85,7 +79,7 @@ namespace dMobile.Controller
         #endregion
 
         #region Properties
-        
+
         public AdjustmentSettings AdjSettings
         {
             get
@@ -181,22 +175,22 @@ namespace dMobile.Controller
 
             dataGridMainActivityHeader.Children.Add(gridHeader);
 
-            foreach (dynamic row in this.ListHdrs)
+            foreach (Adjustment adjustment in this.ListHdrs)
             {
-                Adjustment adjustment = new Adjustment
-                {
-                    ActivityRefno = Convert.ToInt32(row["ActivityRefno"] != DBNull.Value ? row["ActivityRefno"] : null),
-                    ActivityAdjustmentFKRefno = Convert.ToInt32(row["ActivityAdjustmentFKRefno"] != DBNull.Value ? row["ActivityAdjustmentFKRefno"] : null),
-                    ActivityAdjustmentType = Convert.ToInt32(row["ActivityAdjustmentType"] != DBNull.Value ? row["ActivityAdjustmentType"] : null),
-                    LocationMapWarehouseFKRefno = Convert.ToInt32(row["LocationMapWarehouseFKRefno"] != DBNull.Value ? row["LocationMapWarehouseFKRefno"] : null),
-                    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
-                    ActivityStatus = Convert.ToInt32(row["ActivityStatus"] != DBNull.Value ? row["ActivityStatus"] : null),
-                    ActivityAdjustmentStringFKRefno = Convert.ToString(row["ActivityAdjustmentStringFKRefno"] != DBNull.Value ? row["ActivityAdjustmentStringFKRefno"] : null),
-                    ActivityAdjustmentDescription = Convert.ToString(row["ActivityAdjustmentDescription"] != DBNull.Value ? row["ActivityAdjustmentDescription"] : null),
-                    ActivityAdjustmentTypeDescription = Convert.ToString(row["ActivityAdjustmentTypeDescription"] != DBNull.Value ? row["ActivityAdjustmentTypeDescription"] : null),
-                    LocationMapWarehouseName = Convert.ToString(row["LocationMapWarehouseName"] != DBNull.Value ? row["LocationMapWarehouseName"] : null),
-                    ActivityAdjustmentDateTime = Convert.ToDateTime(row["ActivityAdjustmentDateTime"] != DBNull.Value ? row["ActivityAdjustmentDateTime"] : null)
-                };
+                //Adjustment adjustment = new Adjustment
+                //{
+                //    ActivityRefno = Convert.ToInt32(row["ActivityRefno"] != DBNull.Value ? row["ActivityRefno"] : null),
+                //    ActivityAdjustmentFKRefno = Convert.ToInt32(row["ActivityAdjustmentFKRefno"] != DBNull.Value ? row["ActivityAdjustmentFKRefno"] : null),
+                //    ActivityAdjustmentType = Convert.ToInt32(row["ActivityAdjustmentType"] != DBNull.Value ? row["ActivityAdjustmentType"] : null),
+                //    LocationMapWarehouseFKRefno = Convert.ToInt32(row["LocationMapWarehouseFKRefno"] != DBNull.Value ? row["LocationMapWarehouseFKRefno"] : null),
+                //    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
+                //    ActivityStatus = Convert.ToInt32(row["ActivityStatus"] != DBNull.Value ? row["ActivityStatus"] : null),
+                //    ActivityAdjustmentStringFKRefno = Convert.ToString(row["ActivityAdjustmentStringFKRefno"] != DBNull.Value ? row["ActivityAdjustmentStringFKRefno"] : null),
+                //    ActivityAdjustmentDescription = Convert.ToString(row["ActivityAdjustmentDescription"] != DBNull.Value ? row["ActivityAdjustmentDescription"] : null),
+                //    ActivityAdjustmentTypeDescription = Convert.ToString(row["ActivityAdjustmentTypeDescription"] != DBNull.Value ? row["ActivityAdjustmentTypeDescription"] : null),
+                //    LocationMapWarehouseName = Convert.ToString(row["LocationMapWarehouseName"] != DBNull.Value ? row["LocationMapWarehouseName"] : null),
+                //    ActivityAdjustmentDateTime = Convert.ToDateTime(row["ActivityAdjustmentDateTime"] != DBNull.Value ? row["ActivityAdjustmentDateTime"] : null)
+                //};
 
                 observableCollection.Add(adjustment);
 
@@ -321,13 +315,26 @@ namespace dMobile.Controller
             //        dataAdapterAdj.Fill(dataSetAdj);
             //        this.DataViewHdrs = dataSetAdj.Tables[0].DefaultView;
             //        this.DataViewHdrs.Table.TableName = this.MainGridMappingName;
-            //        TODO: Fix sorting
-            //        this.DataViewHdrs.Sort = adjSettings.GetDataViewSortBy();
-            //        this.DataViewHdrs.RowFilter = this.GetFilter();
             //    }
             //}
 
-            this.ListHdrs = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<object>(sql.ToString());
+            this.listAdjustments = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<Adjustment>(sql.ToString());
+
+            foreach (Sort sort in adjSettings.GetDataViewSortBy())
+            {
+                if (sort.SortOrder == Resources.Enums.SortOrder.ASC)
+                {
+                    this.listAdjustments = this.listAdjustments.OrderBy(adj => adj.GetType().GetProperty(sort.SortValue).GetValue(adj)).ToList();
+                }
+                else
+                {
+                    this.listAdjustments = this.listAdjustments.OrderByDescending(adj => adj.GetType().GetProperty(sort.SortValue).GetValue(adj)).ToList();
+                }
+            }
+
+            this.GetFilter();
+
+            this.ListHdrs = this.listAdjustments.Cast<object>().ToList();
             return this.ListHdrs;
         }
 
@@ -342,17 +349,17 @@ namespace dMobile.Controller
             // TODO: Test search
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
-            if (string.IsNullOrEmpty(this.ActFilter))
-            {
-                //this.DataViewHdrs.RowFilter = "ActivityAdjustmentStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
-                this.ListHdrs = (List<object>)this.ListHdrs.OfType<Adjustment>().Where(adj => adj.ActivityAdjustmentStringFKRefno.Contains(searchText.Trim()));
+            //if (string.IsNullOrEmpty(this.ActFilter))
+            //{
+            //    this.ListHdrs = this.listAdjustments.Where(adjustment => adjustment.ActivityAdjustmentStringFKRefno.Contains(searchText.Trim())).Cast<object>().ToList();
+            //}
+            //else
+            //{
+            //    // TODO: Fix filtering
+            //    //this.DataViewHdrs.RowFilter = this.ActFilter + " AND ActivityAdjustmentStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
+            //}
 
-            }
-            else
-            {
-                // TODO: Fix filtering
-                //this.DataViewHdrs.RowFilter = this.ActFilter + " AND ActivityAdjustmentStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
-            }
+            this.ListHdrs = this.listAdjustments.Where(adjustment => adjustment.ActivityAdjustmentStringFKRefno.Contains(searchText.Trim())).Cast<object>().ToList();
 
             foreach (Adjustment adjustment in this.ListHdrs)
             {
@@ -388,8 +395,6 @@ namespace dMobile.Controller
             if (selectedActivity is Adjustment adjustment)
             {
                 this.SelectedActivity = adjustment;
-                //this.FKRefno = Convert.ToInt32(this.DataViewHdrs[idx]["ActivityAdjustmentFKRefno"]);
-                //this.Refno = Convert.ToInt32(this.DataViewHdrs[idx]["ActivityRefno"]);
                 this.FKRefno = adjustment.ActivityAdjustmentFKRefno;
                 this.Refno = adjustment.ActivityRefno;
 
@@ -458,21 +463,23 @@ namespace dMobile.Controller
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public override string GetFilter()
+        public override void GetFilter()
         {
             string filter = string.Empty;
             AdjustmentSettings adjSettings = new AdjustmentSettings().LoadData();
 
             if (adjSettings.IsApplyAdjustmentType)
             {
-                if (string.IsNullOrEmpty(filter))
-                {
-                    filter += string.Format("ActivityAdjustmentType = {0}", Convert.ToInt32(adjSettings.AdjustmentType));
-                }
-                else
-                {
-                    filter += string.Format(" AND ActivityAdjustmentType = {0}", Convert.ToInt32(adjSettings.AdjustmentType));
-                }
+                //if (string.IsNullOrEmpty(filter))
+                //{
+                // filter += string.Format("ActivityAdjustmentType = {0}", Convert.ToInt32(adjSettings.AdjustmentType));
+                //}
+                //else
+                //{
+                //    filter += string.Format(" AND ActivityAdjustmentType = {0}", Convert.ToInt32(adjSettings.AdjustmentType));
+                //}
+
+                this.listAdjustments = this.listAdjustments.Where(adj => adj.ActivityAdjustmentType == Convert.ToInt32(adjSettings.AdjustmentType)).ToList();
             }
 
             if (adjSettings.IsApplyAdjustmentDate)
@@ -480,32 +487,25 @@ namespace dMobile.Controller
                 if (!SysCommon.IsEmptyDate(adjSettings.AdjustmentDate))
                 {
                     DateTime dt = adjSettings.AdjustmentDate;
+                    DateTime minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
+                    DateTime maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
 
-                    // BETWEEN '2009-07-26 00:00:00.000' AND '2010-07-26 23:59:59.997'
-                    if (string.IsNullOrEmpty(filter))
-                    {
-                        filter = string.Format(
-                            "ActivityAdjustmentDateTime >= '{0}-{1}-{2} 00:00:00.000' "
-                            + "AND ActivityAdjustmentDateTime <= '{0}-{1}-{2} 23:59:59.997'",
-                            dt.Year,
-                            dt.Month,
-                            dt.Day);
-                    }
-                    else
-                    {
-                        filter += string.Format(
-                            " AND ActivityAdjustmentDateTime >= '{0}-{1}-{2} 00:00:00.000' "
-                            + "AND ActivityAdjustmentDateTime <= '{0}-{1}-{2} 23:59:59.997'",
-                            dt.Year,
-                            dt.Month,
-                            dt.Day);
-                    }
+                    //// BETWEEN '2009-07-26 00:00:00.000' AND '2010-07-26 23:59:59.997'
+                    //if (string.IsNullOrEmpty(filter))
+                    //{
+                    //    filter = string.Format("ActivityAdjustmentDateTime >= '{0}-{1}-{2} 00:00:00.000' AND ActivityAdjustmentDateTime <= '{0}-{1}-{2} 23:59:59.997'", dt.Year, dt.Month, dt.Day);
+                    //}
+                    //else
+                    //{
+                    //    filter += string.Format(" AND ActivityAdjustmentDateTime >= '{0}-{1}-{2} 00:00:00.000' AND ActivityAdjustmentDateTime <= '{0}-{1}-{2} 23:59:59.997'", dt.Year, dt.Month, dt.Day);
+                    //}
+
+                    this.listAdjustments = this.listAdjustments.Where(adj => adj.ActivityAdjustmentDateTime >= minDate && adj.ActivityAdjustmentDateTime <= maxDate).ToList();
                 }
             }
 
-            this.ActFilter = filter;
-
-            return filter;
+            //this.ActFilter = filter;
+            //return filter;
         }
 
         /// <summary>
@@ -514,7 +514,7 @@ namespace dMobile.Controller
         /// <param name="xmlDoc"></param>
         /// <returns></returns>
         /// <remarks></remarks>
-        public override string GetFilter(XDocument xmlDoc)
+        public override void GetFilter(XDocument xmlDoc)
         {
             string filter = string.Empty;
             AdjustmentSettings adjSettings = new AdjustmentSettings().LoadData();
@@ -523,14 +523,16 @@ namespace dMobile.Controller
             {
                 if (string.Compare(xmlDoc.Root.Element("adjustment_type").Value, string.Empty) > 0)
                 {
-                    if (string.IsNullOrEmpty(filter))
-                    {
-                        filter = Convert.ToString(("ActivityAdjustmentType = " + xmlDoc.Root.Element("adjustment_type").Value));
-                    }
-                    else
-                    {
-                        filter += " AND ActivityAdjustmentType = " + xmlDoc.Root.Element("adjustment_type").Value;
-                    }
+                    //if (string.IsNullOrEmpty(filter))
+                    //{
+                    //    filter = Convert.ToString(("ActivityAdjustmentType = " + xmlDoc.Root.Element("adjustment_type").Value));
+                    //}
+                    //else
+                    //{
+                    //    filter += " AND ActivityAdjustmentType = " + xmlDoc.Root.Element("adjustment_type").Value;
+                    //}
+
+                    this.listAdjustments = this.listAdjustments.Where(adj => adj.ActivityAdjustmentType == Convert.ToInt32(xmlDoc.Root.Element("adjustment_type").Value)).ToList();
                 }
             }
 
@@ -539,32 +541,26 @@ namespace dMobile.Controller
                 if (string.Compare(xmlDoc.Root.Element("adjustment_date").Value, string.Empty) > 0)
                 {
                     DateTime dt = DateTime.Parse(xmlDoc.Root.Element("adjustment_date").Value);
+                    DateTime minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
+                    DateTime maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
 
-                    // BETWEEN '2009-07-26 00:00:00.000' AND '2010-07-26 23:59:59.997'
-                    if (string.IsNullOrEmpty(filter))
-                    {
-                        filter = string.Format(
-                            "ActivityAdjustmentDateTime >= '{0}-{1}-{2} 00:00:00.000' "
-                            + "AND ActivityAdjustmentDateTime <= '{0}-{1}-{2} 23:59:59.997'",
-                            dt.Year,
-                            dt.Month,
-                            dt.Day);
-                    }
-                    else
-                    {
-                        filter = filter + string.Format(
-                            " AND ActivityAdjustmentDateTime >= '{0}-{1}-{2} 00:00:00.000' "
-                            + "AND ActivityAdjustmentDateTime <= '{0}-{1}-{2} 23:59:59.997'",
-                            dt.Year,
-                            dt.Month,
-                            dt.Day);
-                    }
+                    //// BETWEEN '2009-07-26 00:00:00.000' AND '2010-07-26 23:59:59.997'
+                    //if (string.IsNullOrEmpty(filter))
+                    //{
+                    //    filter = string.Format("ActivityAdjustmentDateTime >= '{0}-{1}-{2} 00:00:00.000' AND ActivityAdjustmentDateTime <= '{0}-{1}-{2} 23:59:59.997'", dt.Year, dt.Month, dt.Day);
+                    //}
+                    //else
+                    //{
+                    //    filter += string.Format(" AND ActivityAdjustmentDateTime >= '{0}-{1}-{2} 00:00:00.000' " + "AND ActivityAdjustmentDateTime <= '{0}-{1}-{2} 23:59:59.997'", dt.Year, dt.Month, dt.Day);
+                    //}
+
+                    this.listAdjustments = this.listAdjustments.Where(adj => adj.ActivityAdjustmentDateTime >= minDate && adj.ActivityAdjustmentDateTime <= maxDate).ToList();
                 }
             }
 
-            this.ActFilter = filter;
-
-            return filter;
+            // TODO: Get filter
+            //this.ActFilter = filter;
+            //return filter;
         }
 
         public override async Task PrintLabel(XDocument data)
@@ -603,7 +599,7 @@ namespace dMobile.Controller
                     + "</imclient>";
 
                     reqData = SysCommon.SubmitComm(request);
-     
+
                     if (reqData.Length > 0)
                     {
                         // check if result is an error message
@@ -640,7 +636,7 @@ namespace dMobile.Controller
                       + "</imclient>";
 
                 string reqData = SysCommon.SubmitComm(xml);
-                
+
                 if (reqData.Length > 0)
                 {
                     if (reqData.Contains("<message>ERROR</message>"))
@@ -648,7 +644,7 @@ namespace dMobile.Controller
                         XmlDocument docError = new XmlDocument();
                         docError.LoadXml(reqData);
                         string errorDetail = docError.DocumentElement["detail"].InnerText;
-                        
+
                         throw new Exception(string.Format("Debox failed. {0}", Environment.NewLine + errorDetail));
                     }
                 }

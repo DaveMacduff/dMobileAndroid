@@ -26,6 +26,7 @@
         private double columnWidth4 = 0;
         private double columnWidth5 = 0;
         private ResourceDictionary resourceDictionary = new ResourceDictionary();
+        private List<ReceiveItem> listReceiveItems = new List<ReceiveItem>();
 
         #region Constructors
 
@@ -64,7 +65,7 @@
                 Label labelActivityItemReceivingQuantityOrderedItem = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
                 Label labelActivityItemReceivingQuantityReceivedItem = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
 
-                labelIsActivityItemReceivingCommentItem.SetBinding(Label.TextProperty, new Binding("IsActivityItemReceivingCommentString"));
+                labelIsActivityItemReceivingCommentItem.SetBinding(Label.TextProperty, new Binding("IsActivityItemReceivingComment"));
                 labelProductCodeItem.SetBinding(Label.TextProperty, new Binding("ProductCode"));
                 labelProductUnitBCItem.SetBinding(Label.TextProperty, new Binding("ProductUnitBC"));
                 labelUnitCodeItem.SetBinding(Label.TextProperty, new Binding("UnitCode"));
@@ -339,7 +340,7 @@
                 //    LocationName = Convert.ToString(row["LocationName"]!= DBNull.Value ? row["LocationName"] : null),
                 //    ActivityItemReceivingQuantityReceivedToDate = Convert.ToDecimal(row["ActivityItemReceivingQuantityReceivedToDate"]!= DBNull.Value ? row["ActivityItemReceivingQuantityReceivedToDate"] : null),
                 //    ActivityItemReceivingWeightQuantityReceivedToDate = Convert.ToDecimal(row["ActivityItemReceivingWeightQuantityReceivedToDate"]!= DBNull.Value ? row["ActivityItemReceivingWeightQuantityReceivedToDate"] : null),
-                //    IsActivityItemReceivingCommentString = !string.IsNullOrWhiteSpace(Convert.ToString(row["IsActivityItemReceivingComment"])) ? "X" : ""
+                //    IsActivityItemReceivingComment = !string.IsNullOrWhiteSpace(Convert.ToString(row["IsActivityItemReceivingComment"])) ? "X" : ""
                 //};
 
                 observableCollection.Add(receiveItem);
@@ -397,7 +398,7 @@
 
             foreach (ReceiveItem receiveItem in observableCollection)
             {
-                double detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(receiveItem.IsActivityItemReceivingCommentString);
+                double detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(receiveItem.IsActivityItemReceivingComment);
                 double detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(receiveItem.ProductCode);
                 double detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(receiveItem.ProductUnitBC);
                 double detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(receiveItem.UnitCode);
@@ -616,12 +617,12 @@
             //        this.DataViewItems.AllowNew = true;
             //        this.DataViewItems.AllowEdit = true;
             //        this.DataViewItems.AllowDelete = true;
-            //        TODO: Fix sorting
             //        this.DataViewItems.Sort = "ActivityItemRefno";
             //    }
             //}
 
-            this.ListItems = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<object>(sql.ToString());
+            this.listReceiveItems = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ReceiveItem>(sql.ToString());
+            this.ListItems = this.listReceiveItems.Cast<object>().ToList();
             return this.ListItems;
         }
 
@@ -634,15 +635,15 @@
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
-            if (string.IsNullOrEmpty(this.ActItemFilter))
-            {
-                this.ListItems = (List<object>)this.ListItems.OfType<ReceiveItem>().Where(receiveItem => receiveItem.ProductCode.Contains(searchText.Trim()));
-            }
-            else
-            {
+            //if (string.IsNullOrEmpty(this.ActItemFilter))
+            //{
+            this.ListItems = this.listReceiveItems.Where(receiveItem => receiveItem.ProductCode.Contains(searchText.Trim())).Cast<object>().ToList();
+            //}
+            //else
+            //{
                 // TODO: Fix filtering
                 //this.DataViewItems.RowFilter = this.ActItemFilter + " AND ProductCode LIKE \'%" + searchText.Trim() + "%\'";
-            }
+            //}
 
             foreach (ReceiveItem receiveItem in this.ListItems)
             {
@@ -812,7 +813,7 @@
             if (selectedActivityItem is ReceiveItem receiveItem)
             {
                 string query = "UPDATE tActivityItemReceiving SET ActivityItemReceivingQuantityReceived = ?, ActivityItemReceivingBaseQuantityReceived = ?, ActivityItemReceivingWeightQuantityReceived = ? WHERE ActivityItemRefno = ?";
-                List<object> parameters = new List<object>() { receiveItem.ActivityItemReceivingQuantityReceived, receiveItem.ActivityItemReceivingBaseQuantityReceived, receiveItem.ActivityItemReceivingWeightQuantityReceived, actItemRefno };
+                object[] parameters = new object[] { receiveItem.ActivityItemReceivingQuantityReceived, receiveItem.ActivityItemReceivingBaseQuantityReceived, receiveItem.ActivityItemReceivingWeightQuantityReceived, actItemRefno };
 
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, parameters);
             }

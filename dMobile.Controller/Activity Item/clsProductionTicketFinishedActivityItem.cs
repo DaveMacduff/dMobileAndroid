@@ -24,6 +24,7 @@
         private double columnWidth3 = 0;
         private double columnWidth4 = 0;
         private ResourceDictionary resourceDictionary = new ResourceDictionary();
+        List<ProductionTicketFinishedItem> listProductionTicketFinishedItems = new List<ProductionTicketFinishedItem>();
 
         #region Constructors
 
@@ -198,7 +199,7 @@
                                 Convert.ToInt32(SysCommon.ActStatus.NoChange),
                                 Convert.ToInt32(this.ActHdr.Refno));
 
-                            this.Refno = Convert.ToInt32(transaction.QueryScalars<int>("SELECT last_insert_rowid() FROM tActivityItem"));
+                            this.Refno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityItem"));
 
                             string querytItemProduction = "INSERT INTO tActivityItemProduction (" +
                                 "ActivityItemRefno, " +
@@ -225,7 +226,7 @@
                                 "?, " +
                                 "?" +
                                 ")";
-                            List<object> parametersItemProduction = new List<object>()
+                            object[] parametersItemProduction = new object[]
                             {
                                 Convert.ToInt32(this.Refno),
                                 Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished),
@@ -645,12 +646,12 @@
             //        this.DataViewItems.AllowNew = true;
             //        this.DataViewItems.AllowEdit = true;
             //        this.DataViewItems.AllowDelete = true;
-            //        TODO: Fix sorting
             //        this.DataViewItems.Sort = "ActivityItemRefno";
             //    }
             //}
 
-            this.ListItems = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<object>(sql.ToString());
+            this.listProductionTicketFinishedItems = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ProductionTicketFinishedItem>(sql.ToString());
+            this.ListItems = this.listProductionTicketFinishedItems.Cast<object>().ToList();
             return this.ListItems;
         }
 
@@ -663,15 +664,15 @@
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
-            if (string.IsNullOrEmpty(this.ActItemFilter))
-            {
-                this.ListItems = (List<object>)this.ListItems.OfType<ProductionTicketFinishedItem>().Where(productionTicketFinishedItem => productionTicketFinishedItem.ProductCode.Contains(searchText.Trim()));
-            }
-            else
-            {
+            //if (string.IsNullOrEmpty(this.ActItemFilter))
+            //{
+            this.ListItems = this.listProductionTicketFinishedItems.Where(productionTicketFinishedItem => productionTicketFinishedItem.ProductCode.ToString().Contains(searchText.Trim())).Cast<object>().ToList();
+            //}
+            //else
+            //{
                 // TODO: Fix filtering
                 //this.DataViewItems.RowFilter = this.ActItemFilter + " AND ProductCode LIKE \'%" + searchText.Trim() + "%\'";
-            }
+            //}
 
             // Add all items in dataview to observable collection for display
             foreach (ProductionTicketFinishedItem productionTicketFinishedItem in this.ListItems)
@@ -843,7 +844,7 @@
             if (selectedActivityItem is ProductionTicketFinishedItem productionTicketFinishedItem)
             {
                 string query = "UPDATE tActivityItemProduction SET ActivityItemProductionQuantity = ?, ActivityItemProductionBaseQuantity = ?, ActivityItemProductionWeightQuantity = ? WHERE ActivityItemRefno = ?";
-                List<object> parameters = new List<object>() { productionTicketFinishedItem.ActivityItemProductionQuantity, productionTicketFinishedItem.ActivityItemProductionBaseQuantity, productionTicketFinishedItem.ActivityItemProductionWeightQuantity, actItemRefno };
+                object[] parameters = new object[] { productionTicketFinishedItem.ActivityItemProductionQuantity, productionTicketFinishedItem.ActivityItemProductionBaseQuantity, productionTicketFinishedItem.ActivityItemProductionWeightQuantity, actItemRefno };
 
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, parameters);
             }

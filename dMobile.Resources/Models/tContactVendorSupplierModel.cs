@@ -41,7 +41,7 @@ namespace dMobile.Resources.Models
     [Table("tContactVendorSupplier")]
     public class tContactVendorSupplierModel
     {
-        [PrimaryKey, NotNull, ForeignKey(typeof(tContactModel)), OneToOne(CascadeOperations = CascadeOperation.All), Indexed(Name = "UQ_ContactVendorSupplierOnContactRefnoAndContactSubType", Order = 1, Unique = true)]
+        [PrimaryKey, NotNull, ForeignKey(typeof(tContactModel)), Indexed(Name = "UQ_ContactVendorSupplierOnContactRefnoAndContactSubType", Order = 1, Unique = true)]
         public int ContactRefno { get; set; }
 
         [NotNull, Indexed(Name = "UQ_ContactVendorSupplierOnContactRefnoAndContactSubType", Order = 2, Unique = true)]

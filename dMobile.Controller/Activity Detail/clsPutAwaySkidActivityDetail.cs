@@ -21,6 +21,7 @@ namespace dMobile.Controller
         private double columnWidth2 = 0;
         private double columnWidth3 = 0;
         private ResourceDictionary resourceDictionary = new ResourceDictionary();
+        List<SkidPutAwayDetail> listSkidPutAwayDetail = new List<SkidPutAwayDetail>();
 
         #region Constructors
 
@@ -305,7 +306,8 @@ namespace dMobile.Controller
             table.Columns.Add("LocationCode", Type.GetType("System.String"));
             table.Columns.Add("LocationName", Type.GetType("System.String"));
 
-            this.ListDetails = table.Select().ToList<object>();
+            this.listSkidPutAwayDetail = table.Rows.Cast<SkidPutAwayDetail>().ToList();
+            this.ListDetails = this.listSkidPutAwayDetail.Cast<object>().ToList();
             return this.ListDetails;
         }
 

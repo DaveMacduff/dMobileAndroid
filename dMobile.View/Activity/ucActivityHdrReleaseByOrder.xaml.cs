@@ -624,7 +624,8 @@ namespace dMobile.View.Activity
             {
                 await form.SaveChanges(sender, e);
                 XDocument xmlDoc = form.DisplayControlData;
-                string filter = this.Activity.GetFilter(xmlDoc);
+                //string filter = this.Activity.GetFilter(xmlDoc);
+                this.Activity.GetFilter(xmlDoc);
 
                 // TODO: Fix filtering
                 //this.Activity.DataViewHdrs.RowFilter = filter;

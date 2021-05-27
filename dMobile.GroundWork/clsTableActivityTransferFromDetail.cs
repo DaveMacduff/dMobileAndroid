@@ -301,11 +301,11 @@
                                 parametersInsertDetail.Add(results[0].ProductUnitRefno);
                                 parametersInsertDetail.AddRange(this.SaveDetail(drow, transaction, false));
 
-                                transaction.Execute(queryInsertDetail, parametersInsertDetail);
+                                transaction.Execute(queryInsertDetail, parametersInsertDetail.ToArray());
 
                                 actDetailTransferFKRefno = Convert.ToInt32(drow["ActivityDetailTransferFKRefno"]);
                                 errMsg += Environment.NewLine + "Detail fk refno " + actDetailTransferFKRefno;
-                                actDetailRefno = Convert.ToInt32(transaction.QueryScalars<int>("SELECT last_insert_rowid() FROM tActivityDetail"));
+                                actDetailRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityDetail"));
 
                                 string queryInsertTransferDetail = "INSERT INTO tActivityDetailTransfer (ActivityDetailRefno, " +
                                     "ActivityDetailTransferFKRefno, " +
@@ -316,7 +316,7 @@
                                     "?, " +
                                     "?, " +
                                     "?)";
-                                List<object> parametersInsertTransferDetail = new List<object>()
+                                object[] parametersInsertTransferDetail = new object[]
                                 {
                                     Convert.ToInt32(actDetailRefno),
                                     Convert.ToInt32(actDetailTransferFKRefno),

@@ -13,6 +13,7 @@ using System.Threading;
 using dMobile.View.Forms;
 using dMobile.Resources.Enums;
 using Android.Views;
+using dMobile.Resources.Types;
 
 namespace dMobile.View.Activity
 {
@@ -34,7 +35,7 @@ namespace dMobile.View.Activity
         private ReqSaveDisableHandler reqSaveDisableEvent;
         private ReqCancelEnableHandler reqCancelEnableEvent;
         private ReqCancelDisableHandler reqCancelDisableEvent;
-        private Dictionary<string, string> filters = new Dictionary<string, string>();
+        private Dictionary<string, Sort> filters = new Dictionary<string, Sort>();
 
         #endregion
 
@@ -48,7 +49,7 @@ namespace dMobile.View.Activity
             this.Title = this.GetControlDescription();
             this.lblApplyCountDate.Text = "Apply Date Filter";
             this.lblDate.Text = "Count Date";
-            this.lblSort.Text = "Sort By";            
+            this.lblSort.Text = "Sort By";
             this.lbl1.Text = "1";
             this.lbl2.Text = "2";
             this.btnSave.Text = "Save";
@@ -57,30 +58,28 @@ namespace dMobile.View.Activity
             //At least one sort option must be selected
             // TODO: Resource strings
             this.SortBy1.Clear();
-            this.SortBy1.Add(new ComboBoxMembers("Count # Ascending", "ActivityCountFKRefno ASC"));
-            this.SortBy1.Add(new ComboBoxMembers("Count # Descending", "ActivityCountFKRefno DESC"));
-            this.SortBy1.Add(new ComboBoxMembers("Count Date Ascending", "ActivityCountDateTime ASC"));
-            this.SortBy1.Add(new ComboBoxMembers("Count Date Descending", "ActivityCountDateTime DESC"));
+            this.SortBy1.Add("Count # Ascending");
+            this.SortBy1.Add("Count # Descending");
+            this.SortBy1.Add("Count Date Ascending");
+            this.SortBy1.Add("Count Date Descending");
             this.cboSortBy1.ItemsSource = this.SortBy1;
-            this.cboSortBy1.ItemDisplayBinding = new Binding("DisplayMember");
             this.cboSortBy1.SelectedIndex = CountSettings.iSortBy1Index;
 
             // TODO: Resource strings
             this.SortBy2.Clear();
-            this.SortBy2.Add(new ComboBoxMembers(string.Empty, string.Empty));
-            this.SortBy2.Add(new ComboBoxMembers("Count # Ascending", "ActivityCountFKRefno ASC"));
-            this.SortBy2.Add(new ComboBoxMembers("Count # Descending", "ActivityCountFKRefno DESC"));
-            this.SortBy2.Add(new ComboBoxMembers("Count Date Ascending", "ActivityCountDateTime ASC"));
-            this.SortBy2.Add(new ComboBoxMembers("Count Date Descending", "ActivityCountDateTime DESC"));
+            this.SortBy2.Add(string.Empty);
+            this.SortBy2.Add("Count # Ascending");
+            this.SortBy2.Add("Count # Descending");
+            this.SortBy2.Add("Count Date Ascending");
+            this.SortBy2.Add("Count Date Descending");
             this.cboSortBy2.ItemsSource = this.SortBy2;
-            this.cboSortBy2.ItemDisplayBinding = new Binding("DisplayMember");
             this.cboSortBy2.SelectedIndex = CountSettings.iSortBy2Index;
 
-            filters.Add("", "");
-            filters.Add("Count # Ascending", "ActivityCountFKRefno ASC");
-            filters.Add("Count # Descending", "ActivityCountFKRefno DESC");
-            filters.Add("Count Date Ascending", "ActivityCountDateTime ASC");
-            filters.Add("Count Date Descending", "ActivityCountDateTime DESC");
+            filters.Add(string.Empty, null);
+            filters.Add("Count # Ascending", new Sort() { SortValue = "ActivityCountFKRefno", SortOrder = SortOrder.ASC });
+            filters.Add("Count # Descending", new Sort() { SortValue = "ActivityCountFKRefno", SortOrder = SortOrder.DESC });
+            filters.Add("Count Date Ascending", new Sort() { SortValue = "ActivityCountDateTime", SortOrder = SortOrder.ASC });
+            filters.Add("Count Date Descending", new Sort() { SortValue = "ActivityCountDateTime", SortOrder = SortOrder.DESC });
         }
 
         #endregion
@@ -113,7 +112,7 @@ namespace dMobile.View.Activity
                 {
                     if (keycode == Keycode.Escape || keycode == Keycode.F1)
                     {
-                        if (await IsReadyToClose())
+                        if (await SaveChanges())
                         {
                             ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                         }
@@ -719,16 +718,16 @@ namespace dMobile.View.Activity
         private void MakeSQLSortBy()
         {
             //(ComboBoxMembers)this.cboSortBy1.Items[this.cboSortBy1.SelectedIndex];
-            this.SQLSortBy = this.filters[cboSortBy1.Items[cboSortBy1.SelectedIndex]].Trim();
-            this.CountSettings.strSortBy1Value = this.filters[cboSortBy1.Items[cboSortBy1.SelectedIndex]].Trim();
+            this.SQLSortBy = this.filters[cboSortBy1.Items[cboSortBy1.SelectedIndex]].SortValue;
+            this.CountSettings.SortBy1Value = this.filters[cboSortBy1.Items[cboSortBy1.SelectedIndex]];
 
             if (this.cboSortBy2.SelectedIndex >= 0)
             {
-                this.CountSettings.strSortBy2Value = this.filters[cboSortBy2.Items[cboSortBy2.SelectedIndex]].Trim();
+                this.CountSettings.SortBy2Value = this.filters[cboSortBy2.Items[cboSortBy2.SelectedIndex]];
 
-                if (!string.IsNullOrEmpty(this.CountSettings.strSortBy2Value))
+                if (this.CountSettings.SortBy2Value != null && !string.IsNullOrEmpty(this.CountSettings.SortBy2Value.SortValue))
                 {
-                    this.SQLSortBy = this.SQLSortBy + ", " + this.CountSettings.strSortBy2Value;
+                    this.SQLSortBy = this.SQLSortBy + ", " + this.CountSettings.SortBy2Value;
                 }
             }
         }
@@ -752,12 +751,17 @@ namespace dMobile.View.Activity
 
         private async void btnSave_Clicked(object sender, EventArgs e)
         {
-            this.DialogResult = DialogResult.OK;
-            await this.Close();
+            if (await SaveChanges())
+            {
+                ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                this.DialogResult = DialogResult.OK;
+                await this.Close();
+            }
         }
 
         private async void btnClose_Clicked(object sender, EventArgs e)
         {
+            await CancelChanges();
             this.DialogResult = DialogResult.None;
             await this.Close();
         }

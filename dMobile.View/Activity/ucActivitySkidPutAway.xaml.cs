@@ -45,6 +45,7 @@ namespace dMobile.View.Activity
         private ReqCancelDisableHandler reqCancelDisableEvent;
         private ObservableCollection<string> itemsList;
         private ObservableCollection<object> dataGridMainActivityItemsList;
+        private bool isFirstAppearance = true;
 
         #endregion
 
@@ -96,10 +97,7 @@ namespace dMobile.View.Activity
 
                 this.ActSubType = SysCommon.ActSubTypes.PutAwaySkid;
                 this.Scanner = BarCodeSingleton.GetInstance().Scanner;
-
                 this.Activity = ActivityFacade.GetActivity(this.ActSubType);
-                this.ClearContents();
-
                 this.Title = this.GetControlDescription();
             }
         }
@@ -138,7 +136,6 @@ namespace dMobile.View.Activity
                     {
                         if (this.DataGridMainActivityItemsList.Count > 0 && this.dataGridMainActivity.SelectedItem != null)
                         {
-                            //DialogResult result = MessageBox.Show("Do you wish yo delete this record?", "Put Away", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
                             if (await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Put Away", "Do you wish yo delete this record?", "Yes", "No")))
                             {
                                 this.ActDetail.ListDetails.Remove(this.dataGridMainActivity.SelectedItem);
@@ -160,6 +157,12 @@ namespace dMobile.View.Activity
 
             try
             {
+                if (this.isFirstAppearance)
+                {
+                    this.isFirstAppearance = false;
+                    await this.ClearContents();
+                }
+
                 await this.ucActivitySkidPutAway_GotFocus(this, new EventArgs());
             }
             catch (Exception ex)
@@ -1122,10 +1125,10 @@ namespace dMobile.View.Activity
             string production = string.Empty;
             string bestBefore = string.Empty;
 
-            List<dynamic> skidDetail = this.ActDetailOnSkid.ListDetails;
+            List<object> skidDetail = this.ActDetailOnSkid.ListDetails;
             StringBuilder request = new StringBuilder();
             SSkidInfo currSkid = this.Activity.SkidInfo.CurrSkid;
-            List<dynamic> detail = ActDetail.ListDetails;
+            List<object> detail = ActDetail.ListDetails;
 
             request.Append("<?xml version=\'1.0\' encoding=\'utf-16\' standalone=\'yes\'?>");
             request.Append("<imclient>");
@@ -1136,12 +1139,12 @@ namespace dMobile.View.Activity
             {
                 if (currSkid.ProdInfo.Scheme.IsBestBeforeDateTracked)
                 {
-                    bestBefore = Convert.ToDateTime(skidDetail[idx].ActivityDetailLogisticUnitBestBeforeSellByDate).ToString("MM/dd/yyyy");
+                    bestBefore = Convert.ToDateTime(skidDetail[idx].GetType().GetProperty("ActivityDetailLogisticUnitBestBeforeSellByDate")?.GetValue(skidDetail[idx])).ToString("MM/dd/yyyy");
                 }
 
                 if (currSkid.ProdInfo.Scheme.IsProductionDateTracked)
                 {
-                    production = Convert.ToDateTime(skidDetail[idx].ActivityDetailLogisticUnitProductionDate).ToString("MM/dd/yyyy");
+                    production = Convert.ToDateTime(skidDetail[idx].GetType().GetProperty("ActivityDetailLogisticUnitProductionDate")?.GetValue(skidDetail[idx])).ToString("MM/dd/yyyy");
                 }
 
                 request.Append("<from>");
@@ -1150,19 +1153,19 @@ namespace dMobile.View.Activity
                 request.AppendFormat("<slot_refno>{0}</slot_refno>", currSkid.LocMap.SlotFKRefno);
                 request.AppendFormat("<refno></refno>", this.ActItem.ActHdr.FKRefno);
                 request.AppendFormat("<itm_refno>{0}</itm_refno>", this.ActItem.FKRefno);
-                request.AppendFormat("<prod_id>{0}</prod_id>", skidDetail[idx].ProductCode);
-                request.AppendFormat("<bc>{0}</bc>", skidDetail[idx].ProductUnitBC);
-                request.AppendFormat("<alt_unit>{0}</alt_unit>", skidDetail[idx].UnitCode);
+                request.AppendFormat("<prod_id>{0}</prod_id>", skidDetail[idx].GetType().GetProperty("ProductCode")?.GetValue(skidDetail[idx]));
+                request.AppendFormat("<bc>{0}</bc>", skidDetail[idx].GetType().GetProperty("ProductUnitBC")?.GetValue(skidDetail[idx]));
+                request.AppendFormat("<alt_unit>{0}</alt_unit>", skidDetail[idx].GetType().GetProperty("UnitCode")?.GetValue(skidDetail[idx]));
                 request.AppendFormat("<wt_unit>{0}</wt_unit>", currSkid.ProdInfo.WeightUnitCode);
-                request.AppendFormat("<serial>{0}</serial>", skidDetail[idx].ActivityDetailSingleTradeItemSerialNumber);
+                request.AppendFormat("<serial>{0}</serial>", skidDetail[idx].GetType().GetProperty("ActivityDetailSingleTradeItemSerialNumber")?.GetValue(skidDetail[idx]));
                 request.AppendFormat("<pdate>{0}</pdate>", production);
                 request.AppendFormat("<bdate>{0}</bdate>", bestBefore);
-                request.AppendFormat("<lot_no>{0}</lot_no>", skidDetail[idx].ActivityDetailLogisticUnitBatchLotNumber);
-                request.AppendFormat("<variant_code>{0}</variant_code>", skidDetail[idx].ProductSchemeVariantCode);
-                request.AppendFormat("<variant_no>{0}</variant_no>", skidDetail[idx].ProductSchemeVariantNo);
-                request.AppendFormat("<alt_qty>{0}</alt_qty>", Convert.ToDecimal(skidDetail[idx].ActivityDetailQuantity) * -1);
-                request.AppendFormat("<wt_qty>{0}</wt_qty>", Convert.ToDecimal(skidDetail[idx].ActivityDetailWeightQuantity) * -1);
-                request.AppendFormat("<base_qty>{0}</base_qty>", Convert.ToDecimal(skidDetail[idx].ActivityDetailBaseQuantity) * -1);
+                request.AppendFormat("<lot_no>{0}</lot_no>", skidDetail[idx].GetType().GetProperty("ActivityDetailLogisticUnitBatchLotNumber")?.GetValue(skidDetail[idx]));
+                request.AppendFormat("<variant_code>{0}</variant_code>", skidDetail[idx].GetType().GetProperty("ProductSchemeVariantCode")?.GetValue(skidDetail[idx]));
+                request.AppendFormat("<variant_no>{0}</variant_no>", skidDetail[idx].GetType().GetProperty("ProductSchemeVariantNo")?.GetValue(skidDetail[idx]));
+                request.AppendFormat("<alt_qty>{0}</alt_qty>", Convert.ToDecimal(skidDetail[idx].GetType().GetProperty("ActivityDetailQuantity")?.GetValue(skidDetail[idx])) * -1);
+                request.AppendFormat("<wt_qty>{0}</wt_qty>", Convert.ToDecimal(skidDetail[idx].GetType().GetProperty("ActivityDetailWeightQuantity")?.GetValue(skidDetail[idx])) * -1);
+                request.AppendFormat("<base_qty>{0}</base_qty>", Convert.ToDecimal(skidDetail[idx].GetType().GetProperty("ActivityDetailBaseQuantity")?.GetValue(skidDetail[idx])) * -1);
                 request.AppendFormat("<skid_fk_refno>{0}</skid_fk_refno>", currSkid.SkidFKRefno);
                 request.AppendFormat("<extra1>{0}</extra1>", this.ActDetailOnSkid.ActExtra.Text1);
                 request.AppendFormat("<extra2>{0}</extra2>", this.ActDetailOnSkid.ActExtra.Text2);
@@ -1176,12 +1179,12 @@ namespace dMobile.View.Activity
             {
                 if (currSkid.ProdInfo.Scheme.IsBestBeforeDateTracked)
                 {
-                    bestBefore = Convert.ToDateTime(detail[idx].ActivityDetailLogisticUnitBestBeforeSellByDate).ToString("MM/dd/yyyy");
+                    bestBefore = Convert.ToDateTime(detail[idx].GetType().GetProperty("ActivityDetailLogisticUnitBestBeforeSellByDate").GetValue(detail[idx])).ToString("MM/dd/yyyy");
                 }
 
                 if (currSkid.ProdInfo.Scheme.IsProductionDateTracked)
                 {
-                    production = Convert.ToDateTime(detail[idx].ActivityDetailLogisticUnitProductionDate).ToString("MM/dd/yyyy");
+                    production = Convert.ToDateTime(detail[idx].GetType().GetProperty("ActivityDetailLogisticUnitProductionDate").GetValue(detail[idx])).ToString("MM/dd/yyyy");
                 }
 
                 request.Append("<to>");
@@ -1190,19 +1193,19 @@ namespace dMobile.View.Activity
                 request.AppendFormat("<slot_refno>{0}</slot_refno>", this.LocMap.CurrLocMap.SlotFKRefno);
                 request.AppendFormat("<refno></refno>", this.ActItem.ActHdr.FKRefno);
                 request.AppendFormat("<itm_refno>{0}</itm_refno>", this.ActItem.FKRefno);
-                request.AppendFormat("<prod_id>{0}</prod_id>", detail[idx].ProductCode);
-                request.AppendFormat("<bc>{0}</bc>", detail[idx].ProductUnitBC);
-                request.AppendFormat("<alt_unit>{0}</alt_unit>", detail[idx].UnitCode);
+                request.AppendFormat("<prod_id>{0}</prod_id>", detail[idx].GetType().GetProperty("ProductCode").GetValue(detail[idx]));
+                request.AppendFormat("<bc>{0}</bc>", detail[idx].GetType().GetProperty("ProductUnitBC").GetValue(detail[idx]));
+                request.AppendFormat("<alt_unit>{0}</alt_unit>", detail[idx].GetType().GetProperty("UnitCode").GetValue(detail[idx]));
                 request.AppendFormat("<wt_unit>{0}</wt_unit>", currSkid.ProdInfo.WeightUnitCode);
-                request.AppendFormat("<serial>{0}</serial>", detail[idx].ActivityDetailSingleTradeItemSerialNumber);
+                request.AppendFormat("<serial>{0}</serial>", detail[idx].GetType().GetProperty("ActivityDetailSingleTradeItemSerialNumber").GetValue(detail[idx]));
                 request.AppendFormat("<pdate>{0}</pdate>", production);
                 request.AppendFormat("<bdate>{0}</bdate>", bestBefore);
-                request.AppendFormat("<lot_no>{0}</lot_no>", detail[idx].ActivityDetailLogisticUnitBatchLotNumber);
-                request.AppendFormat("<variant_code>{0}</variant_code>", detail[idx].ProductSchemeVariantCode);
-                request.AppendFormat("<variant_no>{0}</variant_no>", detail[idx].ProductSchemeVariantNo);
-                request.AppendFormat("<alt_qty>{0}</alt_qty>", detail[idx].ActivityDetailQuantity);
-                request.AppendFormat("<wt_qty>{0}</wt_qty>", detail[idx].ActivityDetailWeightQuantity);
-                request.AppendFormat("<base_qty>{0}</base_qty>", detail[idx].ActivityDetailBaseQuantity);
+                request.AppendFormat("<lot_no>{0}</lot_no>", detail[idx].GetType().GetProperty("ActivityDetailLogisticUnitBatchLotNumber").GetValue(detail[idx]));
+                request.AppendFormat("<variant_code>{0}</variant_code>", detail[idx].GetType().GetProperty("ProductSchemeVariantCode").GetValue(detail[idx]));
+                request.AppendFormat("<variant_no>{0}</variant_no>", detail[idx].GetType().GetProperty("ProductSchemeVariantNo").GetValue(detail[idx]));
+                request.AppendFormat("<alt_qty>{0}</alt_qty>", detail[idx].GetType().GetProperty("ActivityDetailQuantity").GetValue(detail[idx]));
+                request.AppendFormat("<wt_qty>{0}</wt_qty>", detail[idx].GetType().GetProperty("ActivityDetailWeightQuantity").GetValue(detail[idx]));
+                request.AppendFormat("<base_qty>{0}</base_qty>", detail[idx].GetType().GetProperty("ActivityDetailBaseQuantity").GetValue(detail[idx]));
                 request.AppendFormat("<skid_fk_refno>{0}</skid_fk_refno>", currSkid.SkidFKRefno);
                 request.AppendFormat("<extra1>{0}</extra1>", this.ActDetail.ActExtra.Text1);
                 request.AppendFormat("<extra2>{0}</extra2>", this.ActDetail.ActExtra.Text2);

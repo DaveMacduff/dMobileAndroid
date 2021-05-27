@@ -153,19 +153,6 @@ namespace dMobile.View
             }
         }
 
-        //private UserControl CallingControl
-        //{
-        //  get
-        //  {
-        //    return this.callingControl;
-        //  }
-
-        //  set
-        //  {
-        //    this.callingControl = value;
-        //  }
-        //}
-
         private ReqCloseHandler ReqCloseEvent
         {
             get
@@ -717,8 +704,6 @@ namespace dMobile.View
         /// <remarks></remarks>
         private async Task LoadData()
         {
-            List<Warehouse> dataViewLocMapWhs = new List<Warehouse>();
-
             this.txtLoginID.Text = this.SysEnv.ContactLog.LoginID.ToString();
             this.txtLoginPassword.Text = this.SysEnv.ContactLog.LoginPassword;
 
@@ -728,15 +713,12 @@ namespace dMobile.View
             {
                 foreach (Warehouse warehouse in resultsWarehouse)
                 {
-                    dataViewLocMapWhs.Add(warehouse);
+                    warehouse.DisplayName = warehouse.LocationMapWarehouseCode + " " + warehouse.LocationMapWarehouseName;
                 }
-            }
 
-            if (dataViewLocMapWhs.Count > 0)
-            {
-                this.lstWarehouse.ItemsSource = dataViewLocMapWhs;
+                this.lstWarehouse.ItemsSource = resultsWarehouse;
                 this.lstWarehouse.ItemDisplayBinding = new Binding("DisplayName");
-                Warehouse selectedWarehouse = dataViewLocMapWhs.Where(warehouse => warehouse.LocationMapRefno == this.SysEnv.ContactLog.WarehouseLocationMapRefno).FirstOrDefault();
+                Warehouse selectedWarehouse = resultsWarehouse.Where(warehouse => warehouse.LocationMapRefno == this.SysEnv.ContactLog.WarehouseLocationMapRefno).FirstOrDefault();
 
                 if (selectedWarehouse != null)
                 {
@@ -768,10 +750,6 @@ namespace dMobile.View
                     else if (this.SysEnv.ContactLog.LoginPassword == string.Empty)
                     {
                         this.txtLoginPassword.Focus();
-                    }
-                    else if (this.lstWarehouse.SelectedIndex != -1)
-                    {
-                        this.lstWarehouse.Focus();
                     }
                     else
                     {
@@ -846,11 +824,10 @@ namespace dMobile.View
                     throw new Exceptions.MessageOnlyException(Resource.InvalidLoginPassword);
                 }
 
-                //if (sender == this.lstWarehouse)
-                //{
                 if (this.lstWarehouse.Items.Count > 0)
                 {
                     this.SysEnv.ContactLog.WarehouseLocationMapRefno = Convert.ToInt32(this.lstWarehouse.SelectedValue);
+
                     if (Convert.ToInt32(this.lstWarehouse.SelectedValue) <= 0)
                     {
                         throw new Exceptions.MessageOnlyException(Resource.SelectedWarehouseRequired);
