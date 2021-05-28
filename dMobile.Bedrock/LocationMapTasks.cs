@@ -943,7 +943,12 @@
                     //cmndProdLocMapType.Parameters.Add(new SQLiteParameter("@defaultWhsLocMapRefno", Convert.ToInt32(defaultWhsLocMapRefno)));
 
                     //defaultSlotLocMapRefno = Convert.ToInt32(cmndProdLocMapType.ExecuteScalar());
-                    defaultSlotLocMapRefno = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<dynamic>(query, Convert.ToInt32(prodRefno), Convert.ToInt32(prodLocMapType), Convert.ToInt32(defaultWhsLocMapRefno)));
+                    List<tProductLocationMapTypeModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tProductLocationMapTypeModel>(query, Convert.ToInt32(prodRefno), Convert.ToInt32(prodLocMapType), Convert.ToInt32(defaultWhsLocMapRefno));
+
+                    if (results?.Count > 0)
+                    {
+                        defaultSlotLocMapRefno = results[0].LocationMapRefno;
+                    }
                 }
 
                 if (defaultSlotLocMapRefno == 0)
@@ -955,7 +960,12 @@
                     //cmndWhsLocMapType.Parameters.Add(new SQLiteParameter("@prodLocMapType", Convert.ToInt32(prodLocMapType)));
                     //cmndWhsLocMapType.Parameters.Add(new SQLiteParameter("@defaultWhsLocMapRefno", Convert.ToInt32(defaultWhsLocMapRefno)));
 
-                    defaultSlotLocMapRefno = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<tWarehouseLocationMapTypeModel>(query, Convert.ToInt32(prodLocMapType), Convert.ToInt32(defaultWhsLocMapRefno)));
+                    List<tWarehouseLocationMapTypeModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tWarehouseLocationMapTypeModel>(query, Convert.ToInt32(prodLocMapType), Convert.ToInt32(defaultWhsLocMapRefno));
+
+                    if (results?.Count > 0)
+                    {
+                        defaultSlotLocMapRefno = results[0].LocationMapRefno;
+                    }
                 }
             }
 
@@ -974,7 +984,12 @@
                     //cmndProdLocMapType.Parameters.Add(new SQLiteParameter("@prodLocMapType", Convert.ToInt32(prodLocMapType)));
                     //cmndProdLocMapType.Parameters.Add(new SQLiteParameter("@defaultWhsLocMapRefno", Convert.ToInt32(defaultWhsLocMapRefno)));
 
-                    defaultSectLocMapRefno = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<dynamic>(query, Convert.ToInt32(prodRefno), Convert.ToInt32(prodLocMapType), Convert.ToInt32(defaultWhsLocMapRefno)));
+                    List<tProductLocationMapTypeModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tProductLocationMapTypeModel>(query, Convert.ToInt32(prodRefno), Convert.ToInt32(prodLocMapType), Convert.ToInt32(defaultWhsLocMapRefno));
+
+                    if (results?.Count > 0)
+                    {
+                        defaultSectLocMapRefno = results[0].LocationMapRefno;
+                    }
                 }
 
                 if (defaultSectLocMapRefno == 0)
@@ -986,7 +1001,12 @@
                     //cmndWhsLocMapType.Parameters.Add(new SQLiteParameter("@prodLocMapType", Convert.ToInt32(prodLocMapType)));
                     //cmndWhsLocMapType.Parameters.Add(new SQLiteParameter("@defaultWhsLocMapRefno", defaultWhsLocMapRefno));
 
-                    defaultSectLocMapRefno = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<tWarehouseLocationMapTypeModel>(query, Convert.ToInt32(prodLocMapType), defaultWhsLocMapRefno));
+                    List<tWarehouseLocationMapTypeModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tWarehouseLocationMapTypeModel>(query, Convert.ToInt32(prodLocMapType), Convert.ToInt32(defaultWhsLocMapRefno));
+
+                    if (results?.Count > 0)
+                    {
+                        defaultSectLocMapRefno = results[0].LocationMapRefno;
+                    }
                 }
             }
 

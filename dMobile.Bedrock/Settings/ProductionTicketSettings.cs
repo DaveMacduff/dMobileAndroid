@@ -1,8 +1,11 @@
 ﻿namespace dMobile.Bedrock
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Xml.Serialization;
+    using dMobile.Resources.Enums;
+    using dMobile.Resources.Types;
 
     [Serializable]
     public class ProductionTicketSettings
@@ -21,11 +24,11 @@
         [NonSerialized]
         private readonly object readLockObject = new object();
         private Int32 m_iSortBy1Index = 0;
-        private string m_strSortBy1Value = "ActivityProductionFKRefno ASC";
+        private Sort sortBy1Value = new Sort() { SortValue = "ActivityProductionFKRefno", SortOrder = SortOrder.ASC };
         private Int32 m_iSortBy2Index = -1;
-        private string m_strSortBy2Value = string.Empty;
+        private Sort sortBy2Value = null;
         private Int32 m_iSortBy3Index = -1;
-        private string m_strSortBy3Value = string.Empty;
+        private Sort sortBy3Value = null;
         private DateTime productionDateFilter = new System.DateTime(1900, 1, 1);
         private bool isApplyProductionDateFilter = false;
 
@@ -65,30 +68,30 @@
             get { return m_iSortBy1Index; }
             set { m_iSortBy1Index = value; }
         }
-        public string strSortBy1Value
+        public Sort SortBy1Value
         {
-            get { return m_strSortBy1Value; }
-            set { m_strSortBy1Value = value; }
+            get { return sortBy1Value; }
+            set { sortBy1Value = value; }
         }
         public Int32 iSortBy2Index
         {
             get { return m_iSortBy2Index; }
             set { m_iSortBy2Index = value; }
         }
-        public string strSortBy2Value
+        public Sort SortBy2Value
         {
-            get { return m_strSortBy2Value; }
-            set { m_strSortBy2Value = value; }
+            get { return sortBy2Value; }
+            set { sortBy2Value = value; }
         }
         public Int32 iSortBy3Index
         {
             get { return m_iSortBy3Index; }
             set { m_iSortBy3Index = value; }
         }
-        public string strSortBy3Value
+        public Sort SortBy3Value
         {
-            get { return m_strSortBy3Value; }
-            set { m_strSortBy3Value = value; }
+            get { return sortBy3Value; }
+            set { sortBy3Value = value; }
         }
 
         //METHODS
@@ -108,15 +111,18 @@
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public string GetDataViewSortBy()
+        public List<Sort> GetDataViewSortBy()
         {
-            string strSortBy = strSortBy1Value;
+            List<Sort> sortBy = new List<Sort>();
 
-            if (!string.IsNullOrEmpty(strSortBy2Value))
+            sortBy.Add(SortBy1Value);
+
+            if (SortBy2Value != null && !string.IsNullOrEmpty(SortBy2Value.SortValue))
             {
-                strSortBy = strSortBy + ", " + strSortBy2Value;
+                sortBy.Add(SortBy2Value);
             }
-            return strSortBy;
+
+            return sortBy;
         }
 
         /// <summary>

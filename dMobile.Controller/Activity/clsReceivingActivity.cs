@@ -143,7 +143,7 @@ namespace dMobile.Controller
             Grid.SetRow(gridHeader, 0);
 
             dataGridMainActivityHeader.Children.Add(gridHeader);
-            
+
             foreach (Receive receive in observableCollection)
             {
                 double detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(receive.ActivityReceivingPONumber);
@@ -297,6 +297,21 @@ namespace dMobile.Controller
             //}
 
             this.listReceives = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<Receive>(sql.ToString());
+
+            foreach (Sort sort in receiveSettings.GetDataViewSortBy())
+            {
+                if (sort.SortOrder == Resources.Enums.SortOrder.ASC)
+                {
+                    this.listReceives = this.listReceives.OrderBy(receive => receive.GetType().GetProperty(sort.SortValue).GetValue(receive)).ToList();
+                }
+                else
+                {
+                    this.listReceives = this.listReceives.OrderByDescending(receive => receive.GetType().GetProperty(sort.SortValue).GetValue(receive)).ToList();
+                }
+            }
+
+            this.GetFilter();
+
             this.ListHdrs = this.listReceives.Cast<object>().ToList();
             return this.ListHdrs;
         }
@@ -312,12 +327,12 @@ namespace dMobile.Controller
 
             //if (string.IsNullOrEmpty(this.ActFilter))
             //{
-                this.ListHdrs = this.listReceives.Where(receive => receive.ActivityReceivingPONumber.Contains(searchText.Trim())).Cast<object>().ToList();
+            this.ListHdrs = this.listReceives.Where(receive => receive.ActivityReceivingPONumber.Contains(searchText.Trim())).Cast<object>().ToList();
             //}
             //else
             //{
-                // TODO: Fix filtering
-                //this.DataViewHdrs.RowFilter = this.ActFilter + " AND ActivityReceivingPONumber LIKE \'%" + searchText.Trim() + "%\'";
+            // TODO: Fix filtering
+            //this.DataViewHdrs.RowFilter = this.ActFilter + " AND ActivityReceivingPONumber LIKE \'%" + searchText.Trim() + "%\'";
             //}
 
             foreach (Receive receive in this.ListHdrs)
@@ -420,7 +435,6 @@ namespace dMobile.Controller
         /// <remarks></remarks>
         public override void GetFilter()
         {
-            string filter = string.Empty;
             ReceivingSettings recvSettings = new ReceivingSettings().LoadData();
 
             if (recvSettings.IsApplyIssuedDateFilter)
@@ -428,26 +442,10 @@ namespace dMobile.Controller
                 if (!SysCommon.IsEmptyDate(recvSettings.dtIssuedDateFilter))
                 {
                     DateTime dt = recvSettings.dtIssuedDateFilter;
+                    DateTime minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
+                    DateTime maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
 
-                    // BETWEEN '2009-07-26 00:00:00.000' AND '2010-07-26 23:59:59.997'
-                    if (string.IsNullOrEmpty(filter))
-                    {
-                        filter = string.Format(
-                            "ActivityReceivingIssuedDateTime >= '{0}-{1}-{2} 00:00:00.000' "
-                            + "AND ActivityReceivingIssuedDateTime <= '{0}-{1}-{2} 23:59:59.997'",
-                            dt.Year,
-                            dt.Month,
-                            dt.Day);
-                    }
-                    else
-                    {
-                        filter += string.Format(
-                            " AND ActivityReceivingIssuedDateTime >= '{0}-{1}-{2} 00:00:00.000' "
-                            + "AND ActivityReceivingIssuedDateTime <= '{0}-{1}-{2} 23:59:59.997'",
-                            dt.Year,
-                            dt.Month,
-                            dt.Day);
-                    }
+                    this.listReceives = this.listReceives.Where(receive => receive.ActivityReceivingIssuedDateTime >= minDate && receive.ActivityReceivingIssuedDateTime <= maxDate).ToList();
                 }
             }
 
@@ -456,32 +454,12 @@ namespace dMobile.Controller
                 if (!SysCommon.IsEmptyDate(recvSettings.dtArrivalDateFilter))
                 {
                     DateTime dt = recvSettings.dtArrivalDateFilter;
+                    DateTime minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
+                    DateTime maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
 
-                    // BETWEEN '2009-07-26 00:00:00.000' AND '2010-07-26 23:59:59.997'
-                    if (string.IsNullOrEmpty(filter))
-                    {
-                        filter = string.Format(
-                            "ActivityReceivingArrivalDateTime >= '{0}-{1}-{2} 00:00:00.000' "
-                            + "AND ActivityReceivingArrivalDateTime <= '{0}-{1}-{2} 23:59:59.997'",
-                            dt.Year,
-                            dt.Month,
-                            dt.Day);
-                    }
-                    else
-                    {
-                        filter += string.Format(
-                            " AND ActivityReceivingArrivalDateTime >= '{0}-{1}-{2} 00:00:00.000' "
-                            + "AND ActivityReceivingArrivalDateTime <= '{0}-{1}-{2} 23:59:59.997'",
-                            dt.Year,
-                            dt.Month,
-                            dt.Day);
-                    }
+                    this.listReceives = this.listReceives.Where(receive => receive.ActivityReceivingArrivalDateTime >= minDate && receive.ActivityReceivingArrivalDateTime <= maxDate).ToList();
                 }
             }
-
-            // TODO: Get filter
-            //this.ActFilter = filter;
-            //return filter;
         }
 
         /// <summary>
@@ -492,7 +470,6 @@ namespace dMobile.Controller
         /// <remarks></remarks>
         public override void GetFilter(XDocument data)
         {
-            string filter = string.Empty;
             ReceivingSettings recvSettings = new ReceivingSettings().LoadData();
 
             if (recvSettings.IsApplyIssuedDateFilter)
@@ -500,26 +477,10 @@ namespace dMobile.Controller
                 if ((string.Compare(data.Root.Element("issued_date").Value, string.Empty) > 0))
                 {
                     DateTime dt = DateTime.Parse(data.Root.Element("issued_date").Value);
+                    DateTime minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
+                    DateTime maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
 
-                    // BETWEEN '2009-07-26 00:00:00.000' AND '2010-07-26 23:59:59.997'
-                    if (string.IsNullOrEmpty(filter))
-                    {
-                        filter = string.Format(
-                            "ActivityReceivingIssuedDateTime >= '{0}-{1}-{2} 00:00:00.000' "
-                            + "AND ActivityReceivingIssuedDateTime <= '{0}-{1}-{2} 23:59:59.997'",
-                            dt.Year,
-                            dt.Month,
-                            dt.Day);
-                    }
-                    else
-                    {
-                        filter += string.Format(
-                            " AND ActivityReceivingIssuedDateTime >= '{0}-{1}-{2} 00:00:00.000' "
-                            + "AND ActivityReceivingIssuedDateTime <= '{0}-{1}-{2} 23:59:59.997'",
-                            dt.Year,
-                            dt.Month,
-                            dt.Day);
-                    }
+                    this.listReceives = this.listReceives.Where(receive => receive.ActivityReceivingIssuedDateTime >= minDate && receive.ActivityReceivingIssuedDateTime <= maxDate).ToList();
                 }
             }
 
@@ -528,32 +489,12 @@ namespace dMobile.Controller
                 if ((string.Compare(data.Root.Element("arrival_date").Value, string.Empty) > 0))
                 {
                     DateTime dt = DateTime.Parse(data.Root.Element("arrival_date").Value);
+                    DateTime minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
+                    DateTime maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
 
-                    // BETWEEN '2009-07-26 00:00:00.000' AND '2010-07-26 23:59:59.997'
-                    if (string.IsNullOrEmpty(filter))
-                    {
-                        filter = string.Format(
-                            "ActivityReceivingArrivalDateTime >= '{0}-{1}-{2} 00:00:00.000' "
-                            + "AND ActivityReceivingArrivalDateTime <= '{0}-{1}-{2} 23:59:59.997'",
-                            dt.Year,
-                            dt.Month,
-                            dt.Day);
-                    }
-                    else
-                    {
-                        filter += string.Format(
-                            " AND ActivityReceivingArrivalDateTime >= '{0}-{1}-{2} 00:00:00.000' "
-                            + "AND ActivityReceivingArrivalDateTime <= '{0}-{1}-{2} 23:59:59.997'",
-                            dt.Year,
-                            dt.Month,
-                            dt.Day);
-                    }
+                    this.listReceives = this.listReceives.Where(receive => receive.ActivityReceivingArrivalDateTime >= minDate && receive.ActivityReceivingArrivalDateTime <= maxDate).ToList();
                 }
             }
-
-            // TODO: Get filter
-            //this.ActFilter = filter;
-            //return filter;
         }
 
         #endregion

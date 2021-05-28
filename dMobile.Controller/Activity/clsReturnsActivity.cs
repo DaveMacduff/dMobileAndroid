@@ -121,7 +121,7 @@ namespace dMobile.Controller
             Label labelReturnNumber = new Label { Text = "Return #", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             Label labelReturnEntered = new Label { Text = "Entered", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             Label labelReturnReturned = new Label { Text = "Returned", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            
+
             columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelReturnNumber.Text);
             columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelReturnEntered.Text);
             columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelReturnReturned.Text);
@@ -150,7 +150,7 @@ namespace dMobile.Controller
             Grid.SetRow(gridHeader, 0);
 
             dataGridMainActivityHeader.Children.Add(gridHeader);
-            
+
             foreach (Return returns in observableCollection)
             {
                 double detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(returns.ActivityReturnsStringFKRefno);
@@ -280,6 +280,21 @@ namespace dMobile.Controller
             //}
 
             this.listReturns = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<Return>(sql.ToString());
+
+            foreach (Sort sort in new ReturnsSettings().LoadData().GetDataViewSortBy())
+            {
+                if (sort.SortOrder == Resources.Enums.SortOrder.ASC)
+                {
+                    this.listReturns = this.listReturns.OrderBy(ret => ret.GetType().GetProperty(sort.SortValue).GetValue(ret)).ToList();
+                }
+                else
+                {
+                    this.listReturns = this.listReturns.OrderByDescending(ret => ret.GetType().GetProperty(sort.SortValue).GetValue(ret)).ToList();
+                }
+            }
+
+            this.GetFilter();
+
             this.ListHdrs = this.listReturns.Cast<object>().ToList();
             return this.ListHdrs;
         }
@@ -293,15 +308,7 @@ namespace dMobile.Controller
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
-            //if (string.IsNullOrEmpty(this.ActFilter))
-            //{
-                //this.DataViewHdrs.RowFilter = "ActivityReturnsStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
-                this.ListHdrs = this.listReturns.Where(returns => returns.ActivityReturnsStringFKRefno.Contains(searchText.Trim())).Cast<object>().ToList();
-            //}
-            //else
-            //{
-                //this.DataViewHdrs.RowFilter = this.ActFilter + " AND ActivityReturnsStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
-            //}
+            this.ListHdrs = this.listReturns.Where(returns => returns.ActivityReturnsStringFKRefno.Contains(searchText.Trim())).Cast<object>().ToList();
 
             foreach (Return returns in this.ListHdrs)
             {
@@ -342,7 +349,7 @@ namespace dMobile.Controller
                 {
                     LocationMap.GetInstance().CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(returns.LocationMapRefno));
                 }
-            } 
+            }
         }
 
         /// <summary>
@@ -406,10 +413,7 @@ namespace dMobile.Controller
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public override void GetFilter()
-        {
-            //return string.Empty;
-        }
+        public override void GetFilter() { }
 
         /// <summary>
         ///
@@ -419,23 +423,13 @@ namespace dMobile.Controller
         /// <remarks></remarks>
         public override void GetFilter(XDocument data)
         {
-            string filter = string.Empty;
             ReturnsSettings returnSettings = new ReturnsSettings().LoadData();
 
             if (returnSettings.IsApplyReturnedDateFilter)
             {
                 if (string.Compare(data.Root.Element("returned_date").Value, string.Empty) > 0)
                 {
-                    if (string.IsNullOrEmpty(filter))
-                    {
-                        filter = "ActivityReturnsDeliveryDateTime = \'" + DateTime.Parse(
-                            data.Root.Element("returned_date").Value).ToString() + "\'";
-                    }
-                    else
-                    {
-                        filter = filter + " AND ActivityReturnsDeliveryDateTime = \'" + DateTime.Parse(
-                            data.Root.Element("returned_date").Value).ToString() + "\'";
-                    }
+                    this.listReturns = this.listReturns.Where(ret => ret.ActivityReturnsDeliveryDateTime == DateTime.Parse(data.Root.Element("returned_date").Value)).ToList();
                 }
             }
 
@@ -443,22 +437,9 @@ namespace dMobile.Controller
             {
                 if (string.Compare(data.Root.Element("entered_date").Value, string.Empty) > 0)
                 {
-                    if (string.IsNullOrEmpty(filter))
-                    {
-                        filter = "ActivityReturnsOrderedDateTime = \'" + DateTime.Parse(
-                            data.Root.Element("entered_date").Value).ToString() + "\'";
-                    }
-                    else
-                    {
-                        filter = filter + " AND ActivityReturnsOrderedDateTime = \'" + DateTime.Parse(
-                            data.Root.Element("entered_date").Value).ToString() + "\'";
-                    }
+                    this.listReturns = this.listReturns.Where(ret => ret.ActivityReturnsOrderedDateTime == DateTime.Parse(data.Root.Element("entered_date").Value)).ToList();
                 }
             }
-
-            // TODO: Get filter
-            //this.ActFilter = filter;
-            //return filter;
         }
 
         #endregion

@@ -137,7 +137,7 @@
                 <Label x:Name="lblSlotCoordinate2" Grid.Row="0" Grid.Column="1" Text="Coord 2"/>
                 <Entry x:Name="txtSlotCoordinate2" TextChanged="txtSlotCoordinate2_TextChanged" Grid.Row="1" Grid.Column="1"/>
                 <Frame VerticalOptions="Start" Grid.Row="2" Grid.Column="1" OutlineColor="{DynamicResource BorderColor}">
-                    <ListView x:Name="dgCoord2" ItemSelected="dgCoord2_ItemSelected" Grid.Row="3" Grid.Column="1" HasUnevenRows="True" HeightRequest="100">
+                    <ListView x:Name="dgCoord2" ItemSelected="dgCoord2_ItemSelected" Grid.Row="3" Grid.Column="1" HasUnevenRows="True">
                         <ListView.ItemTemplate>
                             <DataTemplate>
                                 <ViewCell>
@@ -154,7 +154,7 @@
                 <Label x:Name="lblSlotCoordinate3" Grid.Row="0" Grid.Column="2" Text="Coord 3"/>
                 <Entry x:Name="txtSlotCoordinate3" TextChanged="txtSlotCoordinate3_TextChanged" Grid.Row="1" Grid.Column="2"/>
                 <Frame VerticalOptions="Start" Grid.Row="2" Grid.Column="2" OutlineColor="{DynamicResource BorderColor}">
-                    <ListView x:Name="dgCoord3" ItemSelected="dgCoord3_ItemSelected" Grid.Row="3" Grid.Column="2" HasUnevenRows="True" HeightRequest="100">
+                    <ListView x:Name="dgCoord3" ItemSelected="dgCoord3_ItemSelected" Grid.Row="3" Grid.Column="2" HasUnevenRows="True">
                         <ListView.ItemTemplate>
                             <DataTemplate>
                                 <ViewCell>

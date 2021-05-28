@@ -11,6 +11,7 @@ using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 using dMobile.Resources.Enums;
 using Android.Views;
+using dMobile.Resources.Types;
 
 namespace dMobile.View.Activity
 {
@@ -32,7 +33,7 @@ namespace dMobile.View.Activity
         private ReqSaveDisableHandler reqSaveDisableEvent;
         private ReqCancelEnableHandler reqCancelEnableEvent;
         private ReqCancelDisableHandler reqCancelDisableEvent;
-        private Dictionary<string, string> filters = new Dictionary<string, string>();
+        private Dictionary<string, Sort> filters = new Dictionary<string, Sort>();
 
         #endregion
 
@@ -58,53 +59,47 @@ namespace dMobile.View.Activity
                 // TODO: Resource strings
                 //At least one sort option must be selected
                 aSortBy1.Clear();
-                aSortBy1.Add(new ComboBoxMembers("Purchase Order # Ascending", "ActivityReceivingPONumber ASC"));
-                aSortBy1.Add(new ComboBoxMembers("Purchase Order # Descending", "ActivityReceivingPONumber DESC"));
-                aSortBy1.Add(new ComboBoxMembers("Issued Date Ascending", "ActivityReceivingIssuedDateTime ASC"));
-                aSortBy1.Add(new ComboBoxMembers("Issued Date Descending", "ActivityReceivingIssuedDateTime DESC"));
-                aSortBy1.Add(new ComboBoxMembers("Arrival Ascending", "ActivityReceivingArrivalDateTime ASC"));
-                aSortBy1.Add(new ComboBoxMembers("Arrival Descending", "ActivityReceivingArrivalDateTime DESC"));
+                aSortBy1.Add("Purchase Order # Ascending");
+                aSortBy1.Add("Purchase Order # Descending");
+                aSortBy1.Add("Issued Date Ascending");
+                aSortBy1.Add("Issued Date Descending");
+                aSortBy1.Add("Arrival Ascending");
+                aSortBy1.Add("Arrival Descending");
 
                 cboSortBy1.ItemsSource = aSortBy1;
-                cboSortBy1.ItemDisplayBinding = new Binding("DisplayMember");
-                //cboSortBy1.ValueMember = "ValueMember";
                 cboSortBy1.SelectedIndex = RecvSettings.iSortBy1Index;
 
                 aSortBy2.Clear();
-                aSortBy2.Add(new ComboBoxMembers("", ""));
-                aSortBy2.Add(new ComboBoxMembers("Purchase Order # Ascending", "ActivityReceivingPONumber ASC"));
-                aSortBy2.Add(new ComboBoxMembers("Purchase Order # Descending", "ActivityReceivingPONumber DESC"));
-                aSortBy2.Add(new ComboBoxMembers("Issued Date Ascending", "ActivityReceivingIssuedDateTime ASC"));
-                aSortBy2.Add(new ComboBoxMembers("Issued Date Descending", "ActivityReceivingIssuedDateTime DESC"));
-                aSortBy2.Add(new ComboBoxMembers("Arrival Ascending", "ActivityReceivingArrivalDateTime ASC"));
-                aSortBy2.Add(new ComboBoxMembers("Arrival Descending", "ActivityReceivingArrivalDateTime DESC"));
+                aSortBy2.Add(string.Empty);
+                aSortBy2.Add("Purchase Order # Ascending");
+                aSortBy2.Add("Purchase Order # Descending");
+                aSortBy2.Add("Issued Date Ascending");
+                aSortBy2.Add("Issued Date Descending");
+                aSortBy2.Add("Arrival Ascending");
+                aSortBy2.Add("Arrival Descending");
 
                 cboSortBy2.ItemsSource = aSortBy2;
-                cboSortBy2.ItemDisplayBinding = new Binding("DisplayMember");
-                //cboSortBy2.ValueMember = "ValueMember";
                 cboSortBy2.SelectedIndex = RecvSettings.iSortBy2Index;
 
                 aSortBy3.Clear();
-                aSortBy3.Add(new ComboBoxMembers("", ""));
-                aSortBy3.Add(new ComboBoxMembers("Purchase Order # Ascending", "ActivityReceivingPONumber ASC"));
-                aSortBy3.Add(new ComboBoxMembers("Purchase Order # Descending", "ActivityReceivingPONumber DESC"));
-                aSortBy3.Add(new ComboBoxMembers("Issued Date Ascending", "ActivityReceivingIssuedDateTime ASC"));
-                aSortBy3.Add(new ComboBoxMembers("Issued Date Descending", "ActivityReceivingIssuedDateTime DESC"));
-                aSortBy3.Add(new ComboBoxMembers("Arrival Ascending", "ActivityReceivingArrivalDateTime ASC"));
-                aSortBy3.Add(new ComboBoxMembers("Arrival Descending", "ActivityReceivingArrivalDateTime DESC"));
+                aSortBy3.Add(string.Empty);
+                aSortBy3.Add("Purchase Order # Ascending");
+                aSortBy3.Add("Purchase Order # Descending");
+                aSortBy3.Add("Issued Date Ascending");
+                aSortBy3.Add("Issued Date Descending");
+                aSortBy3.Add("Arrival Ascending");
+                aSortBy3.Add("Arrival Descending");
 
                 cboSortBy3.ItemsSource = aSortBy3;
-                cboSortBy3.ItemDisplayBinding = new Binding("DisplayMember");
-                //cboSortBy3.ValueMember = "ValueMember";
                 cboSortBy3.SelectedIndex = RecvSettings.iSortBy3Index;
 
-                filters.Add("", "");
-                filters.Add("Purchase Order # Ascending", "ActivityReceivingPONumber ASC");
-                filters.Add("Purchase Order # Descending", "ActivityReceivingPONumber DESC");
-                filters.Add("Issued Date Ascending", "ActivityReceivingIssuedDateTime ASC");
-                filters.Add("Issued Date Descending", "ActivityReceivingIssuedDateTime DESC");
-                filters.Add("Arrival Ascending", "ActivityReceivingArrivalDateTime ASC");
-                filters.Add("Arrival Descending", "ActivityReceivingArrivalDateTime DESC");
+                filters.Add(string.Empty, null);
+                filters.Add("Purchase Order # Ascending", new Sort() { SortValue = "ActivityReceivingPONumber", SortOrder = SortOrder.ASC });
+                filters.Add("Purchase Order # Descending", new Sort() { SortValue = "ActivityReceivingPONumber", SortOrder = SortOrder.DESC });
+                filters.Add("Issued Date Ascending", new Sort() { SortValue = "ActivityReceivingIssuedDateTime", SortOrder = SortOrder.ASC });
+                filters.Add("Issued Date Descending", new Sort() { SortValue = "ActivityReceivingIssuedDateTime", SortOrder = SortOrder.DESC });
+                filters.Add("Arrival Ascending", new Sort() { SortValue = "ActivityReceivingArrivalDateTime", SortOrder = SortOrder.ASC });
+                filters.Add("Arrival Descending", new Sort() { SortValue = "ActivityReceivingArrivalDateTime", SortOrder = SortOrder.DESC });
             }
         }
 
@@ -378,27 +373,26 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         private void MakeSQLSortBy()
         {
-            //((ComboBoxMembers)cboSortBy1.Items[cboSortBy1.SelectedIndex]).ValueMember.Trim();
-            strSQLSortBy = this.filters[cboSortBy1.Items[cboSortBy1.SelectedIndex]].Trim();
-            RecvSettings.strSortBy1Value = this.filters[cboSortBy1.Items[cboSortBy1.SelectedIndex]].Trim();
+            strSQLSortBy = this.filters[cboSortBy1.Items[cboSortBy1.SelectedIndex]].SortValue;
+            RecvSettings.SortBy1Value = this.filters[cboSortBy1.Items[cboSortBy1.SelectedIndex]];
 
             if (cboSortBy2.SelectedIndex >= 0)
             {
-                RecvSettings.strSortBy2Value = this.filters[cboSortBy2.Items[cboSortBy2.SelectedIndex]].Trim();
+                RecvSettings.SortBy2Value = this.filters[cboSortBy2.Items[cboSortBy2.SelectedIndex]];
 
-                if (!string.IsNullOrEmpty(RecvSettings.strSortBy2Value))
+                if (RecvSettings.SortBy2Value != null && !string.IsNullOrEmpty(RecvSettings.SortBy2Value.SortValue))
                 {
-                    strSQLSortBy = strSQLSortBy + ", " + RecvSettings.strSortBy2Value;
+                    strSQLSortBy = strSQLSortBy + ", " + RecvSettings.SortBy2Value;
                 }
             }
 
             if (cboSortBy3.SelectedIndex >= 0)
             {
-                RecvSettings.strSortBy3Value = this.filters[cboSortBy3.Items[cboSortBy3.SelectedIndex]].Trim();
+                RecvSettings.SortBy3Value = this.filters[cboSortBy3.Items[cboSortBy3.SelectedIndex]];
 
-                if (!string.IsNullOrEmpty(RecvSettings.strSortBy3Value))
+                if (RecvSettings.SortBy3Value != null && !string.IsNullOrEmpty(RecvSettings.SortBy3Value.SortValue))
                 {
-                    strSQLSortBy = strSQLSortBy + ", " + RecvSettings.strSortBy3Value;
+                    strSQLSortBy = strSQLSortBy + ", " + RecvSettings.SortBy3Value;
                 }
             }
         }
@@ -516,16 +510,6 @@ namespace dMobile.View.Activity
             return !bChangesMade;
         }
 
-        ///// <summary>
-        /////
-        ///// </summary>
-        ///// <returns></returns>
-        ///// <remarks></remarks>
-        //public UserControl GetCallingControl()
-        //{
-        //    return ucCallingControl;
-        //}
-
         /// <summary>
         ///
         /// </summary>
@@ -534,7 +518,7 @@ namespace dMobile.View.Activity
         public string GetControlDescription()
         {
             // TODO: Resource strings
-            return "dMobile Activity Receiving Filter";
+            return "Activity Receiving Filter";
         }
 
         /// <summary>
@@ -627,10 +611,6 @@ namespace dMobile.View.Activity
             }
             catch (Exception)
             {
-                //if (SysCommon.ErrorReportAndRequestContinue(m_strFullClassName, "CancelChanges", Ex) == false)
-                //{
-                //    Application.Exit();
-                //}
                 bCancelChanges = false;
             }
 
@@ -671,10 +651,6 @@ namespace dMobile.View.Activity
             }
             catch (Exception)
             {
-                //if (SysCommon.ErrorReportAndRequestContinue(m_strFullClassName, "IdentifyChangesMade", Ex) == false)
-                //{
-                //    Application.Exit();
-                //}
             }
         }
 
@@ -776,12 +752,17 @@ namespace dMobile.View.Activity
 
         private async void BtnSave_Clicked(object sender, EventArgs e)
         {
-            this.DialogResult = DialogResult.OK;
-            await this.Close();
+            if (await SaveChanges())
+            {
+                this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                this.DialogResult = DialogResult.OK;
+                await this.Close();
+            }
         }
 
         private async void BtnClose_Clicked(object sender, EventArgs e)
         {
+            await CancelChanges();
             this.DialogResult = DialogResult.None;
             await this.Close();
         }

@@ -1499,26 +1499,28 @@
                     }
 
                     FormDialogContainer form = new FormDialogContainer(dlgType, this.ActSubType);
-                    DialogResult dialogResult = await form.DisplayControl.ShowDialog();
 
-                    if (dialogResult == DialogResult.OK)
+                    await Device.InvokeOnMainThreadAsync(async () =>
                     {
-                        XDocument xmlDoc = form.DisplayControlData;
-
-                        // TODO: Fix filtering
-                        // this.ActHdr.DataViewHdrs.RowFilter = this.ActHdr.GetFilter(xmlDoc);
-
-                        if (!string.IsNullOrEmpty(xmlDoc.Root.Element("sortby").Value))
+                        if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
                         {
-                            // TODO: Fix sorting
-                            //this.ActHdr.DataViewHdrs.Sort = xmlDoc.Root.Element("sortby").Value;
-                        }
+                            XDocument xmlDoc = form.DisplayControlData;
 
-                        if (!string.IsNullOrEmpty(this.txtSearchHdr.Text))
-                        {
-                            this.DataGridMainActivityItemsList = this.ActHdr.Search(this.txtSearchHdr.Text);
+                            // TODO: Fix filtering
+                            // this.ActHdr.DataViewHdrs.RowFilter = this.ActHdr.GetFilter(xmlDoc);
+
+                            if (!string.IsNullOrEmpty(xmlDoc.Root.Element("sortby").Value))
+                            {
+                                // TODO: Fix sorting
+                                //this.ActHdr.DataViewHdrs.Sort = xmlDoc.Root.Element("sortby").Value;
+                            }
+
+                            if (!string.IsNullOrEmpty(this.txtSearchHdr.Text))
+                            {
+                                this.DataGridMainActivityItemsList = this.ActHdr.Search(this.txtSearchHdr.Text);
+                            }
                         }
-                    }
+                    });
 
                     await this.ScannerEnable();
                 }

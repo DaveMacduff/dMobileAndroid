@@ -1151,7 +1151,7 @@
 
                 if (this.FilteredListSections == null || this.LocMapInfo.SectLocMapRefno == 0)
                 {
-                    await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Select the section first!", "OK"));
+                    //await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Select the section first!", "OK"));
                 }
                 else
                 {

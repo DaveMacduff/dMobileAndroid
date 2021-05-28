@@ -13,6 +13,7 @@ using dMobile.View.Forms;
 using dMobile.Resources.Enums;
 using Android.Views;
 using dMobile.View.CustomPages.Modal;
+using dMobile.Resources.Types;
 
 namespace dMobile.View.Activity
 {
@@ -36,7 +37,7 @@ namespace dMobile.View.Activity
         private ReqCancelEnableHandler reqCancelEnableEvent;
         private ReqCancelDisableHandler reqCancelDisableEvent;
         private SysCommon.ActSubTypes actSubType = SysCommon.ActSubTypes.Returns;
-        private Dictionary<string, string> filters = new Dictionary<string, string>();
+        private Dictionary<string, Sort> filters = new Dictionary<string, Sort>();
 
         #endregion
 
@@ -66,49 +67,46 @@ namespace dMobile.View.Activity
             // At least one sort option must be selected
             // TODO: Resource strings
             this.SortBy1.Clear();
-            this.SortBy1.Add(new ComboBoxMembers("Order # Ascending", "ActivityReturnsFKRefno ASC"));
-            this.SortBy1.Add(new ComboBoxMembers("Order # Descending", "ActivityReturnsFKRefno DESC"));
-            this.SortBy1.Add(new ComboBoxMembers("Entered Date Ascending", "ActivityReturnsOrderedDateTime ASC"));
-            this.SortBy1.Add(new ComboBoxMembers("Entered Date Descending", "ActivityReturnsOrderedDateTime DESC"));
-            this.SortBy1.Add(new ComboBoxMembers("Returned Ascending", "ActivityReturnsDeliveryDateTime ASC"));
-            this.SortBy1.Add(new ComboBoxMembers("Returned Descending", "ActivityReturnsDeliveryDateTime DESC"));
+            this.SortBy1.Add("Order # Ascending");
+            this.SortBy1.Add("Order # Descending");
+            this.SortBy1.Add("Entered Date Ascending");
+            this.SortBy1.Add("Entered Date Descending");
+            this.SortBy1.Add("Returned Ascending");
+            this.SortBy1.Add("Returned Descending");
             this.cboSortBy1.ItemsSource = this.SortBy1;
-            this.cboSortBy1.ItemDisplayBinding = new Binding("DisplayMember");
             this.cboSortBy1.SelectedIndex = this.RetSettings.iSortBy1Index;
 
             // TODO: Resource strings
             this.SortBy2.Clear();
-            this.SortBy2.Add(new ComboBoxMembers(string.Empty, string.Empty));
-            this.SortBy2.Add(new ComboBoxMembers("Order # Ascending", "ActivityReturnsFKRefno ASC"));
-            this.SortBy2.Add(new ComboBoxMembers("Order # Descending", "ActivityReturnsFKRefno DESC"));
-            this.SortBy2.Add(new ComboBoxMembers("Entered Date Ascending", "ActivityReturnsOrderedDateTime ASC"));
-            this.SortBy2.Add(new ComboBoxMembers("Entered Date Descending", "ActivityReturnsOrderedDateTime DESC"));
-            this.SortBy2.Add(new ComboBoxMembers("Returned Ascending", "ActivityReturnsDeliveryDateTime ASC"));
-            this.SortBy2.Add(new ComboBoxMembers("Returned Descending", "ActivityReturnsDeliveryDateTime DESC"));
+            this.SortBy2.Add(string.Empty);
+            this.SortBy2.Add("Order # Ascending");
+            this.SortBy2.Add("Order # Descending");
+            this.SortBy2.Add("Entered Date Ascending");
+            this.SortBy2.Add("Entered Date Descending");
+            this.SortBy2.Add("Returned Ascending");
+            this.SortBy2.Add("Returned Descending");
             this.cboSortBy2.ItemsSource = this.SortBy2;
-            this.cboSortBy2.ItemDisplayBinding = new Binding("DisplayMember");
             this.cboSortBy2.SelectedIndex = this.RetSettings.iSortBy2Index;
 
             // TODO: Resource strings
             this.SortBy3.Clear();
-            this.SortBy3.Add(new ComboBoxMembers(string.Empty, string.Empty));
-            this.SortBy3.Add(new ComboBoxMembers("Order # Ascending", "ActivityReturnsFKRefno ASC"));
-            this.SortBy3.Add(new ComboBoxMembers("Order # Descending", "ActivityReturnsFKRefno DESC"));
-            this.SortBy3.Add(new ComboBoxMembers("Entered Date Ascending", "ActivityReturnsOrderedDateTime ASC"));
-            this.SortBy3.Add(new ComboBoxMembers("Entered Date Descending", "ActivityReturnsOrderedDateTime DESC"));
-            this.SortBy3.Add(new ComboBoxMembers("Returned Ascending", "ActivityReturnsDeliveryDateTime ASC"));
-            this.SortBy3.Add(new ComboBoxMembers("Returned Descending", "ActivityReturnsDeliveryDateTime DESC"));
+            this.SortBy3.Add(string.Empty);
+            this.SortBy3.Add("Order # Ascending");
+            this.SortBy3.Add("Order # Descending");
+            this.SortBy3.Add("Entered Date Ascending");
+            this.SortBy3.Add("Entered Date Descending");
+            this.SortBy3.Add("Returned Ascending");
+            this.SortBy3.Add("Returned Descending");
             this.cboSortBy3.ItemsSource = this.SortBy3;
-            this.cboSortBy3.ItemDisplayBinding = new Binding("DisplayMember");
             this.cboSortBy3.SelectedIndex = this.RetSettings.iSortBy3Index;
 
-            filters.Add("", "");
-            this.filters.Add("Order # Ascending", "ActivityReturnsFKRefno ASC");
-            this.filters.Add("Order # Descending", "ActivityReturnsFKRefno DESC");
-            this.filters.Add("Entered Date Ascending", "ActivityReturnsOrderedDateTime ASC");
-            this.filters.Add("Entered Date Descending", "ActivityReturnsOrderedDateTime DESC");
-            this.filters.Add("Returned Ascending", "ActivityReturnsDeliveryDateTime ASC");
-            this.filters.Add("Returned Descending", "ActivityReturnsDeliveryDateTime DESC");
+            filters.Add(string.Empty, null);
+            this.filters.Add("Order # Ascending", new Sort() { SortValue = "ActivityReturnsFKRefno", SortOrder = SortOrder.ASC });
+            this.filters.Add("Order # Descending", new Sort() { SortValue = "ActivityReturnsFKRefno", SortOrder = SortOrder.DESC });
+            this.filters.Add("Entered Date Ascending", new Sort() { SortValue = "ActivityReturnsOrderedDateTime", SortOrder = SortOrder.ASC });
+            this.filters.Add("Entered Date Descending", new Sort() { SortValue = "ActivityReturnsOrderedDateTime", SortOrder = SortOrder.DESC });
+            this.filters.Add("Returned Ascending", new Sort() { SortValue = "ActivityReturnsDeliveryDateTime", SortOrder = SortOrder.ASC });
+            this.filters.Add("Returned Descending", new Sort() { SortValue = "ActivityReturnsDeliveryDateTime", SortOrder = SortOrder.DESC });
         }
 
         #endregion
@@ -830,27 +828,26 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         private void MakeSQLSortBy()
         {
-            //((ComboBoxMembers)(this.cboSortBy1.Items[cboSortBy1.SelectedIndex])).ValueMember.Trim();
-            this.SQLSortBy = this.filters[cboSortBy1.Items[cboSortBy1.SelectedIndex]].Trim();
-            this.RetSettings.strSortBy1Value = this.filters[cboSortBy1.Items[cboSortBy1.SelectedIndex]].Trim();
+            this.SQLSortBy = this.filters[cboSortBy1.Items[cboSortBy1.SelectedIndex]].SortValue;
+            this.RetSettings.SortBy1Value = this.filters[cboSortBy1.Items[cboSortBy1.SelectedIndex]];
 
             if (this.cboSortBy2.SelectedIndex >= 0)
             {
-                this.RetSettings.strSortBy2Value = this.filters[cboSortBy2.Items[cboSortBy2.SelectedIndex]].Trim();
+                this.RetSettings.SortBy2Value = this.filters[cboSortBy2.Items[cboSortBy2.SelectedIndex]];
 
-                if (!string.IsNullOrEmpty(this.RetSettings.strSortBy2Value))
+                if (this.RetSettings.SortBy2Value != null && !string.IsNullOrEmpty(this.RetSettings.SortBy2Value.SortValue))
                 {
-                    this.SQLSortBy = this.SQLSortBy + ", " + this.RetSettings.strSortBy2Value;
+                    this.SQLSortBy = this.SQLSortBy + ", " + this.RetSettings.SortBy2Value;
                 }
             }
 
             if (this.cboSortBy3.SelectedIndex >= 0)
             {
-                this.RetSettings.strSortBy3Value = this.filters[cboSortBy3.Items[cboSortBy3.SelectedIndex]].Trim();
+                this.RetSettings.SortBy3Value = this.filters[cboSortBy3.Items[cboSortBy3.SelectedIndex]];
 
-                if (!string.IsNullOrEmpty(this.RetSettings.strSortBy3Value))
+                if (this.RetSettings.SortBy3Value != null && !string.IsNullOrEmpty(this.RetSettings.SortBy3Value.SortValue))
                 {
-                    this.SQLSortBy = this.SQLSortBy + ", " + this.RetSettings.strSortBy3Value;
+                    this.SQLSortBy = this.SQLSortBy + ", " + this.RetSettings.SortBy3Value;
                 }
             }
         }
@@ -878,14 +875,22 @@ namespace dMobile.View.Activity
 
         private async void btnSave_Clicked(object sender, EventArgs e)
         {
-            this.DialogResult = DialogResult.OK;
-            await this.Close();
+            if (await this.SaveChanges())
+            {
+                this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                this.DialogResult = DialogResult.OK;
+                await this.Close();
+            }
         }
 
         private async void btnClose_Clicked(object sender, EventArgs e)
         {
-            this.DialogResult = DialogResult.None;
-            await this.Close();
+            if (await this.CancelChanges())
+            {
+                this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                this.DialogResult = DialogResult.None;
+                await this.Close();
+            }
         }
 
         #endregion

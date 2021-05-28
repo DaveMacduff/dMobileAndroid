@@ -622,9 +622,7 @@ namespace dMobile.View.Activity
 
             if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
             {
-                await form.SaveChanges(sender, e);
                 XDocument xmlDoc = form.DisplayControlData;
-                //string filter = this.Activity.GetFilter(xmlDoc);
                 this.Activity.GetFilter(xmlDoc);
 
                 // TODO: Fix filtering

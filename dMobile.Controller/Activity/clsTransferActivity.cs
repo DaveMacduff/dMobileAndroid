@@ -318,6 +318,21 @@ namespace dMobile.Controller
             //}
 
             this.listTransfers = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<Transfer>(sql.ToString());
+
+            foreach (Sort sort in new TransferSettings().LoadData().GetDataViewSortBy())
+            {
+                if (sort.SortOrder == Resources.Enums.SortOrder.ASC)
+                {
+                    this.listTransfers = this.listTransfers.OrderBy(transfer => transfer.GetType().GetProperty(sort.SortValue).GetValue(transfer)).ToList();
+                }
+                else
+                {
+                    this.listTransfers = this.listTransfers.OrderByDescending(transfer => transfer.GetType().GetProperty(sort.SortValue).GetValue(transfer)).ToList();
+                }
+            }
+
+            this.GetFilter();
+
             this.ListHdrs = this.listTransfers.Cast<object>().ToList();
             return this.ListHdrs;
         }
@@ -331,16 +346,7 @@ namespace dMobile.Controller
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
-            //if (string.IsNullOrEmpty(this.ActFilter))
-            //{
-            //this.DataViewHdrs.RowFilter = "ActivityTransferStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
             this.ListHdrs = this.listTransfers.Where(transfer => transfer.ActivityTransferStringFKRefno.Contains(searchText.Trim())).Cast<object>().ToList();
-            //}
-            //else
-            //{
-            // TODO: Fix filtering
-            //this.DataViewHdrs.RowFilter = this.ActFilter + " AND ActivityTransferStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
-            //}
 
             foreach (Transfer transfer in this.ListHdrs)
             {
@@ -468,7 +474,6 @@ namespace dMobile.Controller
         /// <remarks></remarks>
         public override void GetFilter()
         {
-            string filter = string.Empty;
             TransferSettings transferSettings = new TransferSettings().LoadData();
 
             if (transferSettings.IsApplyTransferDateFilter)
@@ -476,32 +481,12 @@ namespace dMobile.Controller
                 if (!SysCommon.IsEmptyDate(transferSettings.TransferDateFilter))
                 {
                     DateTime dt = transferSettings.TransferDateFilter;
+                    DateTime minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
+                    DateTime maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
 
-                    // BETWEEN '2009-07-26 00:00:00.000' AND '2010-07-26 23:59:59.997'
-                    if (string.IsNullOrEmpty(filter))
-                    {
-                        filter = string.Format(
-                            "ActivityTransferDateTime >= '{0}-{1}-{2} 00:00:00.000' "
-                            + "AND ActivityTransferDateTime <= '{0}-{1}-{2} 23:59:59.997'",
-                            dt.Year,
-                            dt.Month,
-                            dt.Day);
-                    }
-                    else
-                    {
-                        filter += string.Format(
-                            " AND ActivityTransferDateTime >= '{0}-{1}-{2} 00:00:00.000' "
-                            + "AND ActivityTransferDateTime <= '{0}-{1}-{2} 23:59:59.997'",
-                            dt.Year,
-                            dt.Month,
-                            dt.Day);
-                    }
+                    this.listTransfers = this.listTransfers.Where(transfer => transfer.ActivityTransferDateTime >= minDate && transfer.ActivityTransferDateTime <= maxDate).ToList();
                 }
             }
-
-            // TODO: Get filter
-            //this.ActFilter = filter;
-            //return filter;
         }
 
         /// <summary>
@@ -511,7 +496,6 @@ namespace dMobile.Controller
         /// <returns></returns>
         public override void GetFilter(XDocument data)
         {
-            string filter = string.Empty;
             TransferSettings transferSettings = new TransferSettings().LoadData();
 
             if (transferSettings.IsApplyTransferDateFilter)
@@ -519,32 +503,12 @@ namespace dMobile.Controller
                 if (string.Compare(data.Root.Element("transfer_date").Value, string.Empty) > 0)
                 {
                     DateTime dt = DateTime.Parse(data.Root.Element("transfer_date").Value);
+                    DateTime minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
+                    DateTime maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
 
-                    // BETWEEN '2009-07-26 00:00:00.000' AND '2010-07-26 23:59:59.997'
-                    if (string.IsNullOrEmpty(filter))
-                    {
-                        filter = string.Format(
-                            "ActivityTransferDateTime >= '{0}-{1}-{2} 00:00:00.000' "
-                            + "AND ActivityTransferDateTime <= '{0}-{1}-{2} 23:59:59.997'",
-                            dt.Year,
-                            dt.Month,
-                            dt.Day);
-                    }
-                    else
-                    {
-                        filter += string.Format(
-                            " AND ActivityTransferDateTime >= '{0}-{1}-{2} 00:00:00.000' "
-                            + "AND ActivityTransferDateTime <= '{0}-{1}-{2} 23:59:59.997'",
-                            dt.Year,
-                            dt.Month,
-                            dt.Day);
-                    }
+                    this.listTransfers = this.listTransfers.Where(transfer => transfer.ActivityTransferDateTime >= minDate && transfer.ActivityTransferDateTime <= maxDate).ToList();
                 }
             }
-
-            // TODO: Get filter
-            //this.ActFilter = filter;
-            //return filter;
         }
 
         #endregion

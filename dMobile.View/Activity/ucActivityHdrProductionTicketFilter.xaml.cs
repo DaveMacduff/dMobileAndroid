@@ -1,6 +1,7 @@
 ﻿using Android.Views;
 using dMobile.Bedrock;
 using dMobile.Resources.Enums;
+using dMobile.Resources.Types;
 using dMobile.View.CustomPages.Modal;
 using System;
 using System.Collections;
@@ -33,7 +34,7 @@ namespace dMobile.View.Activity
         private ReqSaveDisableHandler reqSaveDisableEvent;
         private ReqCancelEnableHandler reqCancelEnableEvent;
         private ReqCancelDisableHandler reqCancelDisableEvent;
-        private Dictionary<string, string> filters = new Dictionary<string, string>();
+        private Dictionary<string, Sort> filters = new Dictionary<string, Sort>();
 
         #endregion
 
@@ -57,45 +58,42 @@ namespace dMobile.View.Activity
             //At least one sort option must be selected
             // TODO: Resource strings
             aSortBy1.Clear();
-            aSortBy1.Add(new ComboBoxMembers("Production # Ascending", "ActivityProductionFKRefno ASC"));
-            aSortBy1.Add(new ComboBoxMembers("Production # Descending", "ActivityProductionFKRefno DESC"));
-            aSortBy1.Add(new ComboBoxMembers("Production Date Ascending", "ActivityProductionDateTime ASC"));
-            aSortBy1.Add(new ComboBoxMembers("Production Date Descending", "ActivityProductionDateTime DESC"));
+            aSortBy1.Add("Production # Ascending");
+            aSortBy1.Add("Production # Descending");
+            aSortBy1.Add("Production Date Ascending");
+            aSortBy1.Add("Production Date Descending");
             cboSortBy1.ItemsSource = aSortBy1;
-            cboSortBy1.ItemDisplayBinding = new Binding("DisplayMember");
             cboSortBy1.SelectedIndex = TicketSettings.iSortBy1Index;
 
             // TODO: Resource strings
             aSortBy2.Clear();
-            aSortBy2.Add(new ComboBoxMembers("", ""));
-            aSortBy2.Add(new ComboBoxMembers("Production # Ascending", "ActivityProductionFKRefno ASC"));
-            aSortBy2.Add(new ComboBoxMembers("Production # Descending", "ActivityProductionFKRefno DESC"));
-            aSortBy2.Add(new ComboBoxMembers("Production Date Ascending", "ActivityProductionDateTime ASC"));
-            aSortBy2.Add(new ComboBoxMembers("Production Date Descending", "ActivityProductionDateTime DESC"));
+            aSortBy2.Add(string.Empty);
+            aSortBy2.Add("Production # Ascending");
+            aSortBy2.Add("Production # Descending");
+            aSortBy2.Add("Production Date Ascending");
+            aSortBy2.Add("Production Date Descending");
             cboSortBy2.ItemsSource = aSortBy2;
-            cboSortBy2.ItemDisplayBinding = new Binding("DisplayMember");
             cboSortBy2.SelectedIndex = TicketSettings.iSortBy2Index;
 
             // TODO: Resource strings
             aSortBy3.Clear();
-            aSortBy3.Add(new ComboBoxMembers("", ""));
-            aSortBy3.Add(new ComboBoxMembers("Production # Ascending", "ActivityProductionFKRefno ASC"));
-            aSortBy3.Add(new ComboBoxMembers("Production # Descending", "ActivityProductionFKRefno DESC"));
-            aSortBy3.Add(new ComboBoxMembers("Production Date Ascending", "ActivityProductionDateTime ASC"));
-            aSortBy3.Add(new ComboBoxMembers("Production Date Descending", "ActivityProductionDateTime DESC"));
+            aSortBy3.Add(string.Empty);
+            aSortBy3.Add("Production # Ascending");
+            aSortBy3.Add("Production # Descending");
+            aSortBy3.Add("Production Date Ascending");
+            aSortBy3.Add("Production Date Descending");
             cboSortBy3.ItemsSource = aSortBy3;
-            cboSortBy3.ItemDisplayBinding = new Binding("DisplayMember");
             cboSortBy3.SelectedIndex = TicketSettings.iSortBy3Index;
 
             // TODO: Resource strings
-            this.filters.Add("Production # Ascending", "ActivityProductionFKRefno ASC");
-            this.filters.Add("Production # Descending", "ActivityProductionFKRefno DESC");
-            this.filters.Add("Production Date Ascending", "ActivityProductionDateTime ASC");
-            this.filters.Add("Production Date Descending", "ActivityProductionDateTime DESC");
+            this.filters.Add("Production # Ascending", new Sort() { SortValue = "ActivityProductionFKRefno", SortOrder = SortOrder.ASC });
+            this.filters.Add("Production # Descending", new Sort() { SortValue = "ActivityProductionFKRefno", SortOrder = SortOrder.DESC });
+            this.filters.Add("Production Date Ascending", new Sort() { SortValue = "ActivityProductionDateTime", SortOrder = SortOrder.ASC });
+            this.filters.Add("Production Date Descending", new Sort() { SortValue = "ActivityProductionDateTime", SortOrder = SortOrder.DESC });
         }
 
         #endregion
-        
+
         #region OnAppearing/OnDisappearing
 
         /// <summary>
@@ -390,25 +388,26 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         private void MakeSQLSortBy()
         {
-            strSQLSortBy =  this.filters[cboSortBy1.Items[cboSortBy1.SelectedIndex]].Trim();
-            TicketSettings.strSortBy1Value =  this.filters[cboSortBy1.Items[cboSortBy1.SelectedIndex]].Trim();
+            strSQLSortBy = this.filters[cboSortBy1.Items[cboSortBy1.SelectedIndex]].SortValue;
+            TicketSettings.SortBy1Value = this.filters[cboSortBy1.Items[cboSortBy1.SelectedIndex]];
 
             if (cboSortBy2.SelectedIndex >= 0)
             {
-                TicketSettings.strSortBy2Value =  this.filters[cboSortBy2.Items[cboSortBy2.SelectedIndex]].Trim();
-                
-                if (!string.IsNullOrEmpty(TicketSettings.strSortBy2Value))
+                TicketSettings.SortBy2Value = this.filters[cboSortBy2.Items[cboSortBy2.SelectedIndex]];
+
+                if (TicketSettings.SortBy2Value != null && !string.IsNullOrEmpty(TicketSettings.SortBy2Value.SortValue))
                 {
-                    strSQLSortBy = strSQLSortBy + ", " + TicketSettings.strSortBy2Value;
+                    strSQLSortBy = strSQLSortBy + ", " + TicketSettings.SortBy2Value;
                 }
             }
 
             if (cboSortBy3.SelectedIndex >= 0)
             {
-                TicketSettings.strSortBy3Value =  this.filters[cboSortBy3.Items[cboSortBy3.SelectedIndex]].Trim();
-                if (!string.IsNullOrEmpty(TicketSettings.strSortBy3Value))
+                TicketSettings.SortBy3Value = this.filters[cboSortBy3.Items[cboSortBy3.SelectedIndex]];
+
+                if (TicketSettings.SortBy3Value != null && !string.IsNullOrEmpty(TicketSettings.SortBy3Value.SortValue))
                 {
-                    strSQLSortBy = strSQLSortBy + ", " + TicketSettings.strSortBy3Value;
+                    strSQLSortBy = strSQLSortBy + ", " + TicketSettings.SortBy3Value;
                 }
             }
         }
@@ -571,7 +570,7 @@ namespace dMobile.View.Activity
         public async Task<bool> SaveChanges()
         {
             bool bSaveComplete = false;
-            
+
             try
             {
                 if (await IsReadyToSave())
@@ -733,15 +732,20 @@ namespace dMobile.View.Activity
         }
 
         #endregion
-        
+
         private async void btnSave_Clicked(object sender, EventArgs e)
         {
-            this.DialogResult = DialogResult.OK;
-            await this.Close();
+            if (await SaveChanges())
+            {
+                ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs()); ;
+                this.DialogResult = DialogResult.OK;
+                await this.Close();
+            }
         }
 
         private async void btnClose_Clicked(object sender, EventArgs e)
         {
+            await CancelChanges();
             this.DialogResult = DialogResult.None;
             await this.Close();
         }

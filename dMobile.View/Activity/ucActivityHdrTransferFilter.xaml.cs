@@ -11,6 +11,7 @@ using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 using dMobile.Resources.Enums;
 using Android.Views;
+using dMobile.Resources.Types;
 
 namespace dMobile.View.Activity
 {
@@ -34,7 +35,7 @@ namespace dMobile.View.Activity
         private ReqSaveDisableHandler reqSaveDisableEvent;
         private ReqCancelEnableHandler reqCancelEnableEvent;
         private ReqCancelDisableHandler reqCancelDisableEvent;
-        private Dictionary<string, string> filters = new Dictionary<string, string>();
+        private Dictionary<string, Sort> filters = new Dictionary<string, Sort>();
 
         #endregion
 
@@ -64,72 +65,68 @@ namespace dMobile.View.Activity
             //At least one sort option must be selected
             // TODO: Resource strings
             aSortBy1.Clear();
-            aSortBy1.Add(new ComboBoxMembers("Transfer # Ascending", "ActivityTransferFKRefno ASC"));
-            aSortBy1.Add(new ComboBoxMembers("Transfer # Descending", "ActivityTransferFKRefno DESC"));
-            aSortBy1.Add(new ComboBoxMembers("Date Ascending", "ActivityTransferDateTime ASC"));
-            aSortBy1.Add(new ComboBoxMembers("Date Descending", "ActivityTransferDateTime DESC"));
-            aSortBy1.Add(new ComboBoxMembers("Whs # Ascending", "LocationMapWarehouseFKRefno ASC"));
-            aSortBy1.Add(new ComboBoxMembers("Whs # Descending", "LocationMapWarehouseFKRefno DESC"));
-            aSortBy1.Add(new ComboBoxMembers("Arrival Ascending", "LocationMapArrivalDateTime ASC"));
-            aSortBy1.Add(new ComboBoxMembers("Arrival Descending", "LocationMapArrivalDateTime DESC"));
+            aSortBy1.Add("Transfer # Ascending");
+            aSortBy1.Add("Transfer # Descending");
+            aSortBy1.Add("Date Ascending");
+            aSortBy1.Add("Date Descending");
+            aSortBy1.Add("Whs # Ascending");
+            aSortBy1.Add("Whs # Descending");
+            aSortBy1.Add("Arrival Ascending");
+            aSortBy1.Add("Arrival Descending");
             this.cboSortBy1.ItemsSource = this.aSortBy1;
-            this.cboSortBy1.ItemDisplayBinding = new Binding("DisplayMember");
             this.cboSortBy1.SelectedIndex = TransSettings.iSortBy1Index;
 
             // TODO: Resource strings
             aSortBy2.Clear();
-            aSortBy2.Add(new ComboBoxMembers("", ""));
-            aSortBy2.Add(new ComboBoxMembers("Transfer # Ascending", "ActivityTransferFKRefno ASC"));
-            aSortBy2.Add(new ComboBoxMembers("Transfer # Descending", "ActivityTransferFKRefno DESC"));
-            aSortBy2.Add(new ComboBoxMembers("Date Ascending", "ActivityTransferDateTime ASC"));
-            aSortBy2.Add(new ComboBoxMembers("Date Descending", "ActivityTransferDateTime DESC"));
-            aSortBy2.Add(new ComboBoxMembers("Whs # Ascending", "LocationMapWarehouseFKRefno ASC"));
-            aSortBy2.Add(new ComboBoxMembers("Whs # Descending", "LocationMapWarehouseFKRefno DESC"));
-            aSortBy2.Add(new ComboBoxMembers("Arrival Ascending", "LocationMapArrivalDateTime ASC"));
-            aSortBy2.Add(new ComboBoxMembers("Arrival Descending", "LocationMapArrivalDateTime DESC"));
+            aSortBy2.Add(string.Empty);
+            aSortBy2.Add("Transfer # Ascending");
+            aSortBy2.Add("Transfer # Descending");
+            aSortBy2.Add("Date Ascending");
+            aSortBy2.Add("Date Descending");
+            aSortBy2.Add("Whs # Ascending");
+            aSortBy2.Add("Whs # Descending");
+            aSortBy2.Add("Arrival Ascending");
+            aSortBy2.Add("Arrival Descending");
             this.cboSortBy2.ItemsSource = this.aSortBy2;
-            this.cboSortBy2.ItemDisplayBinding = new Binding("DisplayMember");
             this.cboSortBy2.SelectedIndex = TransSettings.iSortBy2Index;
 
             // TODO: Resource strings
             aSortBy3.Clear();
-            aSortBy3.Add(new ComboBoxMembers("", ""));
-            aSortBy3.Add(new ComboBoxMembers("Transfer # Ascending", "ActivityTransferFKRefno ASC"));
-            aSortBy3.Add(new ComboBoxMembers("Transfer # Descending", "ActivityTransferFKRefno DESC"));
-            aSortBy3.Add(new ComboBoxMembers("Date Ascending", "ActivityTransferDateTime ASC"));
-            aSortBy3.Add(new ComboBoxMembers("Date Descending", "ActivityTransferDateTime DESC"));
-            aSortBy3.Add(new ComboBoxMembers("Whs # Ascending", "LocationMapWarehouseFKRefno ASC"));
-            aSortBy3.Add(new ComboBoxMembers("Whs # Descending", "LocationMapWarehouseFKRefno DESC"));
-            aSortBy3.Add(new ComboBoxMembers("Arrival Ascending", "LocationMapArrivalDateTime ASC"));
-            aSortBy3.Add(new ComboBoxMembers("Arrival Descending", "LocationMapArrivalDateTime DESC"));
+            aSortBy3.Add(string.Empty);
+            aSortBy3.Add("Transfer # Ascending");
+            aSortBy3.Add("Transfer # Descending");
+            aSortBy3.Add("Date Ascending");
+            aSortBy3.Add("Date Descending");
+            aSortBy3.Add("Whs # Ascending");
+            aSortBy3.Add("Whs # Descending");
+            aSortBy3.Add("Arrival Ascending");
+            aSortBy3.Add("Arrival Descending");
             this.cboSortBy3.ItemsSource = this.aSortBy3;
-            this.cboSortBy3.ItemDisplayBinding = new Binding("DisplayMember");
             this.cboSortBy3.SelectedIndex = TransSettings.iSortBy3Index;
 
             // TODO: Resource strings
             aSortBy4.Clear();
-            aSortBy4.Add(new ComboBoxMembers("", ""));
-            aSortBy4.Add(new ComboBoxMembers("Transfer # Ascending", "ActivityTransferFKRefno ASC"));
-            aSortBy4.Add(new ComboBoxMembers("Transfer # Descending", "ActivityTransferFKRefno DESC"));
-            aSortBy4.Add(new ComboBoxMembers("Date Ascending", "ActivityTransferDateTime ASC"));
-            aSortBy4.Add(new ComboBoxMembers("Date Descending", "ActivityTransferDateTime DESC"));
-            aSortBy4.Add(new ComboBoxMembers("Whs # Ascending", "LocationMapWarehouseFKRefno ASC"));
-            aSortBy4.Add(new ComboBoxMembers("Whs # Descending", "LocationMapWarehouseFKRefno DESC"));
-            aSortBy4.Add(new ComboBoxMembers("Arrival Ascending", "LocationMapArrivalDateTime ASC"));
-            aSortBy4.Add(new ComboBoxMembers("Arrival Descending", "LocationMapArrivalDateTime DESC"));
+            aSortBy4.Add(string.Empty);
+            aSortBy4.Add("Transfer # Ascending");
+            aSortBy4.Add("Transfer # Descending");
+            aSortBy4.Add("Date Ascending");
+            aSortBy4.Add("Date Descending");
+            aSortBy4.Add("Whs # Ascending");
+            aSortBy4.Add("Whs # Descending");
+            aSortBy4.Add("Arrival Ascending");
+            aSortBy4.Add("Arrival Descending");
             this.cboSortBy4.ItemsSource = this.aSortBy4;
-            this.cboSortBy4.ItemDisplayBinding = new Binding("DisplayMember");
             this.cboSortBy4.SelectedIndex = TransSettings.iSortBy4Index;
 
-            this.filters.Add("", "");
-            this.filters.Add("Transfer # Ascending", "ActivityTransferFKRefno ASC");
-            this.filters.Add("Transfer # Descending", "ActivityTransferFKRefno DESC");
-            this.filters.Add("Date Ascending", "ActivityTransferDateTime ASC");
-            this.filters.Add("Date Descending", "ActivityTransferDateTime DESC");
-            this.filters.Add("Whs # Ascending", "LocationMapWarehouseFKRefno ASC");
-            this.filters.Add("Whs # Descending", "LocationMapWarehouseFKRefno DESC");
-            this.filters.Add("Arrival Ascending", "LocationMapArrivalDateTime ASC");
-            this.filters.Add("Arrival Descending", "LocationMapArrivalDateTime DESC");
+            this.filters.Add(string.Empty, null);
+            this.filters.Add("Transfer # Ascending", new Sort() { SortValue = "ActivityTransferFKRefno", SortOrder = SortOrder.ASC });
+            this.filters.Add("Transfer # Descending", new Sort() { SortValue = "ActivityTransferFKRefno", SortOrder = SortOrder.DESC });
+            this.filters.Add("Date Ascending", new Sort() { SortValue = "ActivityTransferDateTime", SortOrder = SortOrder.ASC });
+            this.filters.Add("Date Descending", new Sort() { SortValue = "ActivityTransferDateTime", SortOrder = SortOrder.DESC });
+            this.filters.Add("Whs # Ascending", new Sort() { SortValue = "LocationMapWarehouseFKRefno", SortOrder = SortOrder.ASC });
+            this.filters.Add("Whs # Descending", new Sort() { SortValue = "LocationMapWarehouseFKRefno", SortOrder = SortOrder.DESC });
+            this.filters.Add("Arrival Ascending", new Sort() { SortValue = "LocationMapArrivalDateTime", SortOrder = SortOrder.ASC });
+            this.filters.Add("Arrival Descending", new Sort() { SortValue = "LocationMapArrivalDateTime", SortOrder = SortOrder.DESC });
         }
 
         #endregion
@@ -420,36 +417,36 @@ namespace dMobile.View.Activity
 
         private void MakeSQLSortBy()
         {
-            strSQLSortBy = this.filters[cboSortBy1.Items[cboSortBy1.SelectedIndex]].Trim();
-            TransSettings.strSortBy1Value = this.filters[cboSortBy1.Items[cboSortBy1.SelectedIndex]].Trim();
+            strSQLSortBy = this.filters[cboSortBy1.Items[cboSortBy1.SelectedIndex]].SortValue;
+            TransSettings.SortBy1Value = this.filters[cboSortBy1.Items[cboSortBy1.SelectedIndex]];
 
             if (cboSortBy2.SelectedIndex >= 0)
             {
-                TransSettings.strSortBy2Value = this.filters[cboSortBy2.Items[cboSortBy2.SelectedIndex]].Trim();
+                TransSettings.SortBy2Value = this.filters[cboSortBy2.Items[cboSortBy2.SelectedIndex]];
 
-                if (!string.IsNullOrEmpty(TransSettings.strSortBy2Value))
+                if (TransSettings.SortBy2Value != null && !string.IsNullOrEmpty(TransSettings.SortBy2Value.SortValue))
                 {
-                    strSQLSortBy = strSQLSortBy + ", " + TransSettings.strSortBy2Value;
+                    strSQLSortBy = strSQLSortBy + ", " + TransSettings.SortBy2Value;
                 }
             }
 
             if (cboSortBy3.SelectedIndex >= 0)
             {
-                TransSettings.strSortBy3Value = this.filters[cboSortBy3.Items[cboSortBy3.SelectedIndex]].Trim();
+                TransSettings.SortBy3Value = this.filters[cboSortBy3.Items[cboSortBy3.SelectedIndex]];
 
-                if (!string.IsNullOrEmpty(TransSettings.strSortBy3Value))
+                if (TransSettings.SortBy3Value != null && !string.IsNullOrEmpty(TransSettings.SortBy3Value.SortValue))
                 {
-                    strSQLSortBy = strSQLSortBy + ", " + TransSettings.strSortBy3Value;
+                    strSQLSortBy = strSQLSortBy + ", " + TransSettings.SortBy3Value;
                 }
             }
 
             if (cboSortBy4.SelectedIndex >= 0)
             {
-                TransSettings.strSortBy4Value = this.filters[cboSortBy4.Items[cboSortBy4.SelectedIndex]].Trim();
+                TransSettings.SortBy4Value = this.filters[cboSortBy4.Items[cboSortBy4.SelectedIndex]];
 
-                if (!string.IsNullOrEmpty(TransSettings.strSortBy4Value))
+                if (TransSettings.SortBy4Value != null && !string.IsNullOrEmpty(TransSettings.SortBy4Value.SortValue))
                 {
-                    strSQLSortBy = strSQLSortBy + ", " + TransSettings.strSortBy4Value;
+                    strSQLSortBy = strSQLSortBy + ", " + TransSettings.SortBy4Value;
                 }
             }
         }
@@ -798,12 +795,17 @@ namespace dMobile.View.Activity
 
         private async void btnSave_Clicked(object sender, EventArgs e)
         {
-            this.DialogResult = DialogResult.OK;
-            await this.Close();
+            if (await SaveChanges())
+            {
+                ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                this.DialogResult = DialogResult.OK;
+                await this.Close();
+            }
         }
 
         private async void btnClose_Clicked(object sender, EventArgs e)
         {
+            await CancelChanges();
             this.DialogResult = DialogResult.None;
             await this.Close();
         }

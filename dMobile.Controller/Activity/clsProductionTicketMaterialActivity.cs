@@ -287,6 +287,21 @@ namespace dMobile.Controller
             //}
 
             this.listProductionTicketMaterial = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ProductionTicketMaterial>(sql.ToString());
+
+            foreach (Sort sort in ticketSettings.GetDataViewSortBy())
+            {
+                if (sort.SortOrder == Resources.Enums.SortOrder.ASC)
+                {
+                    this.listProductionTicketMaterial = this.listProductionTicketMaterial.OrderBy(prodTicket => prodTicket.GetType().GetProperty(sort.SortValue).GetValue(prodTicket)).ToList();
+                }
+                else
+                {
+                    this.listProductionTicketMaterial = this.listProductionTicketMaterial.OrderByDescending(prodTicket => prodTicket.GetType().GetProperty(sort.SortValue).GetValue(prodTicket)).ToList();
+                }
+            }
+
+            this.GetFilter();
+
             this.ListHdrs = this.listProductionTicketMaterial.Cast<object>().ToList();
             return this.ListHdrs;
         }
@@ -303,13 +318,13 @@ namespace dMobile.Controller
 
             //if (string.IsNullOrEmpty(this.ActFilter))
             //{
-                //this.DataViewHdrs.RowFilter = "ActivityProductionStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
-                this.ListHdrs = this.listProductionTicketMaterial.Where(prodTicket => prodTicket.ActivityProductionStringFKRefno.Contains(searchText.Trim())).Cast<object>().ToList();
+            //this.DataViewHdrs.RowFilter = "ActivityProductionStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
+            this.ListHdrs = this.listProductionTicketMaterial.Where(prodTicket => prodTicket.ActivityProductionStringFKRefno.Contains(searchText.Trim())).Cast<object>().ToList();
             //}
             //else
             //{
-                // TODO: Fix filtering
-                //this.DataViewHdrs.RowFilter = this.ActFilter + " AND ActivityProductionStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
+            // TODO: Fix filtering
+            //this.DataViewHdrs.RowFilter = this.ActFilter + " AND ActivityProductionStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
             //}
 
             foreach (ProductionTicketMaterial productionTicket in this.ListHdrs)
@@ -419,7 +434,6 @@ namespace dMobile.Controller
         /// <remarks></remarks>
         public override void GetFilter()
         {
-            string filter = string.Empty;
             ProductionTicketSettings ticketSettings = new ProductionTicketSettings().LoadData();
 
             if (ticketSettings.IsApplyProductionDateFilter)
@@ -427,32 +441,12 @@ namespace dMobile.Controller
                 if (!SysCommon.IsEmptyDateTime(ticketSettings.ProductionDateFilter))
                 {
                     DateTime dt = ticketSettings.ProductionDateFilter;
+                    DateTime minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
+                    DateTime maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
 
-                    // BETWEEN '2009-07-26 00:00:00.000' AND '2010-07-26 23:59:59.997'
-                    if (string.IsNullOrEmpty(filter))
-                    {
-                        filter = string.Format(
-                            "ActivityProductionDateTime >= '{0}-{1}-{2} 00:00:00.000' "
-                            + "AND ActivityProductionDateTime <= '{0}-{1}-{2} 23:59:59.997'",
-                            dt.Year,
-                            dt.Month,
-                            dt.Day);
-                    }
-                    else
-                    {
-                        filter += string.Format(
-                            " AND ActivityProductionDateTime >= '{0}-{1}-{2} 00:00:00.000' "
-                            + "AND ActivityProductionDateTime <= '{0}-{1}-{2} 23:59:59.997'",
-                            dt.Year,
-                            dt.Month,
-                            dt.Day);
-                    }
+                    this.listProductionTicketMaterial = this.listProductionTicketMaterial.Where(prodTicket => prodTicket.ActivityProductionDateTime >= minDate && prodTicket.ActivityProductionDateTime <= maxDate).ToList();
                 }
             }
-
-            // TODO: Get filter
-            //this.ActFilter = filter;
-            //return filter;
         }
 
         /// <summary>
@@ -463,7 +457,6 @@ namespace dMobile.Controller
         /// <remarks></remarks>
         public override void GetFilter(XDocument data)
         {
-            string filter = string.Empty;
             ProductionTicketSettings ticketSettings = new ProductionTicketSettings().LoadData();
 
             if (ticketSettings.IsApplyProductionDateFilter)
@@ -471,32 +464,12 @@ namespace dMobile.Controller
                 if (string.Compare(data.Root.Element("production_date").Value, string.Empty) > 0)
                 {
                     DateTime dt = DateTime.Parse(data.Root.Element("production_date").Value);
+                    DateTime minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
+                    DateTime maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
 
-                    // BETWEEN '2009-07-26 00:00:00.000' AND '2010-07-26 23:59:59.997'
-                    if (string.IsNullOrEmpty(filter))
-                    {
-                        filter = string.Format(
-                            "ActivityProductionDateTime >= '{0}-{1}-{2} 00:00:00.000' "
-                            + "AND ActivityProductionDateTime <= '{0}-{1}-{2} 23:59:59.997'",
-                            dt.Year,
-                            dt.Month,
-                            dt.Day);
-                    }
-                    else
-                    {
-                        filter += string.Format(
-                            " AND ActivityProductionDateTime >= '{0}-{1}-{2} 00:00:00.000' "
-                            + "AND ActivityProductionDateTime <= '{0}-{1}-{2} 23:59:59.997'",
-                            dt.Year,
-                            dt.Month,
-                            dt.Day);
-                    }
+                    this.listProductionTicketMaterial = this.listProductionTicketMaterial.Where(prodTicket => prodTicket.ActivityProductionDateTime >= minDate && prodTicket.ActivityProductionDateTime <= maxDate).ToList();
                 }
             }
-
-            // TODO: Get filter
-            //this.ActFilter = filter;
-            //return filter;
         }
 
         #endregion

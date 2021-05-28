@@ -724,8 +724,8 @@
 
                 detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(picking.ActivityPickingStringFKRefno);
                 detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(picking.ActivityPickingDeliveryDateTime.ToString("MM/dd/yyyy"));
-                detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(picking.RouteCode);
-                detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(picking.RouteStop));
+                detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(picking.RouteCode ?? string.Empty);
+                detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(picking.RouteStop) ?? string.Empty);
                 detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(picking.ActivityPickingCustomerShipToInfo);
 
                 if (detailWidth0 > columnWidth0)
@@ -934,13 +934,27 @@
 
             //        this.DataViewHdrs = ds.Tables[0].DefaultView;
             //        this.DataViewHdrs.Table.TableName = this.MainGridMappingName;
-            //        // TODO: Sorting and filtering
             //        this.DataViewHdrs.Sort = pickingSettings.GetDataViewSortBy();
             //        this.DataViewHdrs.RowFilter = this.GetFilter();
             //    }
             //}
 
             this.listPicking = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<Picking>(sql.ToString());
+
+            foreach (Sort sort in pickingSettings.GetDataViewSortBy())
+            {
+                if (sort.SortOrder == Resources.Enums.SortOrder.ASC)
+                {
+                    this.listPicking = this.listPicking.OrderBy(picking => picking.GetType().GetProperty(sort.SortValue).GetValue(picking)).ToList();
+                }
+                else
+                {
+                    this.listPicking = this.listPicking.OrderByDescending(picking => picking.GetType().GetProperty(sort.SortValue).GetValue(picking)).ToList();
+                }
+            }
+
+            this.GetFilter();
+
             this.ListHdrs = this.listPicking.Cast<object>().ToList();
             return this.ListHdrs;
         }
@@ -955,16 +969,7 @@
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
-            //if (string.IsNullOrEmpty(this.ActFilter))
-            //{
-                //this.DataViewHdrs.RowFilter = "ActivityPickingStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
-                this.ListHdrs = this.listPicking.Where(picking => picking.ActivityPickingStringFKRefno.Contains(searchText.Trim())).Cast<object>().ToList();
-            //}
-            //else
-            //{
-                // TODO: Fix filter
-                //this.DataViewHdrs.RowFilter = this.ActFilter + " AND ActivityPickingStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
-            //}
+            this.ListHdrs = this.listPicking.Where(picking => picking.ActivityPickingStringFKRefno.Contains(searchText.Trim())).Cast<object>().ToList();
 
             foreach (Picking picking in this.ListHdrs)
             {
@@ -1095,14 +1100,7 @@
             {
                 if (!string.IsNullOrEmpty(pickingSettings.strRouteCodeSelectedValue))
                 {
-                    if (string.IsNullOrEmpty(filter))
-                    {
-                        filter += string.Format("RouteCode = \'{0}\'", pickingSettings.strRouteCodeSelectedValue);
-                    }
-                    else
-                    {
-                        filter += string.Format(" AND RouteCode = \'{0}\'", pickingSettings.strRouteCodeSelectedValue);
-                    }
+                    this.listPicking = this.listPicking.Where(pick => pick.RouteCode == pickingSettings.strRouteCodeSelectedValue).ToList();
                 }
             }
 
@@ -1111,26 +1109,10 @@
                 if (!SysCommon.IsEmptyDate(pickingSettings.dtOrderedDateFilter))
                 {
                     DateTime dt = pickingSettings.dtOrderedDateFilter;
+                    DateTime minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
+                    DateTime maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
 
-                    // BETWEEN '2009-07-26 00:00:00.000' AND '2010-07-26 23:59:59.997'
-                    if (string.IsNullOrEmpty(filter))
-                    {
-                        filter = string.Format(
-                            "ActivityPickingOrderedDateTime >= '{0}-{1}-{2} 00:00:00.000' "
-                            + "AND ActivityPickingOrderedDateTime <= '{0}-{1}-{2} 23:59:59.997'",
-                            dt.Year,
-                            dt.Month,
-                            dt.Day);
-                    }
-                    else
-                    {
-                        filter += string.Format(
-                            " AND ActivityPickingOrderedDateTime >= '{0}-{1}-{2} 00:00:00.000' "
-                            + "AND ActivityPickingOrderedDateTime <= '{0}-{1}-{2} 23:59:59.997'",
-                            dt.Year,
-                            dt.Month,
-                            dt.Day);
-                    }
+                    this.listPicking = this.listPicking.Where(pick => pick.ActivityPickingOrderedDateTime >= minDate && pick.ActivityPickingOrderedDateTime <= maxDate).ToList();
                 }
             }
 
@@ -1139,26 +1121,10 @@
                 if (!SysCommon.IsEmptyDate(pickingSettings.dtDeliveryDateFilter))
                 {
                     DateTime dt = pickingSettings.dtDeliveryDateFilter;
+                    DateTime minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
+                    DateTime maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
 
-                    // BETWEEN '2009-07-26 00:00:00.000' AND '2010-07-26 23:59:59.997'
-                    if (string.IsNullOrEmpty(filter))
-                    {
-                        filter = string.Format(
-                            "ActivityPickingDeliveryDateTime >= '{0}-{1}-{2} 00:00:00.000' "
-                            + "AND ActivityPickingDeliveryDateTime <= '{0}-{1}-{2} 23:59:59.997'",
-                            dt.Year,
-                            dt.Month,
-                            dt.Day);
-                    }
-                    else
-                    {
-                        filter += string.Format(
-                            " AND ActivityPickingDeliveryDateTime >= '{0}-{1}-{2} 00:00:00.000' "
-                            + "AND ActivityPickingDeliveryDateTime <= '{0}-{1}-{2} 23:59:59.997'",
-                            dt.Year,
-                            dt.Month,
-                            dt.Day);
-                    }
+                    this.listPicking = this.listPicking.Where(pick => pick.ActivityPickingDeliveryDateTime >= minDate && pick.ActivityPickingDeliveryDateTime <= maxDate).ToList();
                 }
             }
 
@@ -1182,14 +1148,7 @@
             {
                 if (string.Compare(data.Root.Element("route_code").Value, string.Empty) > 0)
                 {
-                    if (string.IsNullOrEmpty(filter))
-                    {
-                        filter = "RouteCode = \'" + data.Root.Element("route_code").Value + "\'";
-                    }
-                    else
-                    {
-                        filter = filter + " AND RouteCode = \'" + data.Root.Element("route_code").Value + "\'";
-                    }
+                    this.listPicking = this.listPicking.Where(pick => pick.RouteCode == data.Root.Element("route_code").Value).ToList();
                 }
             }
 
@@ -1198,26 +1157,10 @@
                 if (string.Compare(data.Root.Element("ordered_date").Value, string.Empty) > 0)
                 {
                     DateTime dt = DateTime.Parse(data.Root.Element("ordered_date").Value);
+                    DateTime minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
+                    DateTime maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
 
-                    // BETWEEN '2009-07-26 00:00:00.000' AND '2010-07-26 23:59:59.997'
-                    if (string.IsNullOrEmpty(filter))
-                    {
-                        filter = string.Format(
-                            "ActivityPickingOrderedDateTime >= '{0}-{1}-{2} 00:00:00.000' "
-                            + "AND ActivityPickingOrderedDateTime <= '{0}-{1}-{2} 23:59:59.997'",
-                            dt.Year,
-                            dt.Month,
-                            dt.Day);
-                    }
-                    else
-                    {
-                        filter += string.Format(
-                            " AND ActivityPickingOrderedDateTime >= '{0}-{1}-{2} 00:00:00.000' "
-                            + "AND ActivityPickingOrderedDateTime <= '{0}-{1}-{2} 23:59:59.997'",
-                            dt.Year,
-                            dt.Month,
-                            dt.Day);
-                    }
+                    this.listPicking = this.listPicking.Where(pick => pick.ActivityPickingOrderedDateTime >= minDate && pick.ActivityPickingOrderedDateTime <= maxDate).ToList();
                 }
             }
 
@@ -1226,32 +1169,12 @@
                 if (string.Compare(data.Root.Element("delivery_date").Value, string.Empty) > 0)
                 {
                     DateTime dt = DateTime.Parse(data.Root.Element("delivery_date").Value);
+                    DateTime minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
+                    DateTime maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
 
-                    // BETWEEN '2009-07-26 00:00:00.000' AND '2010-07-26 23:59:59.997'
-                    if (string.IsNullOrEmpty(filter))
-                    {
-                        filter = string.Format(
-                            "ActivityPickingDeliveryDateTime >= '{0}-{1}-{2} 00:00:00.000' "
-                            + "AND ActivityPickingDeliveryDateTime <= '{0}-{1}-{2} 23:59:59.997'",
-                            dt.Year,
-                            dt.Month,
-                            dt.Day);
-                    }
-                    else
-                    {
-                        filter += string.Format(
-                            " AND ActivityPickingDeliveryDateTime >= '{0}-{1}-{2} 00:00:00.000' "
-                            + "AND ActivityPickingDeliveryDateTime <= '{0}-{1}-{2} 23:59:59.997'",
-                            dt.Year,
-                            dt.Month,
-                            dt.Day);
-                    }
+                    this.listPicking = this.listPicking.Where(pick => pick.ActivityPickingDeliveryDateTime >= minDate && pick.ActivityPickingDeliveryDateTime <= maxDate).ToList();
                 }
             }
-
-            // TODO: Get filter
-            //this.ActFilter = filter;
-            //return filter;
         }
 
         #endregion
