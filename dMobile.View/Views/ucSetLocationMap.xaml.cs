@@ -1308,6 +1308,10 @@
                 {
                     this.dgWhs.SelectedItem = selectedWarehouse;
                 }
+                else if (this.WarehouseObservableCollection.Count > 0)
+                {
+                    this.dgWhs.SelectedItem = this.WarehouseObservableCollection[0];
+                }
             }
             else
             {

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Data;
 using System.Threading.Tasks;
 using System.Xml;
@@ -1172,8 +1171,11 @@ namespace dMobile.View.Activity
                 productVariantObservableCollection.Add(productVariant);
             }
 
-            this.cboVariantCode.ItemDisplayBinding = new Binding("ProductSchemeVariantDisplay");
-            this.cboVariantCode.ItemsSource = productVariantObservableCollection;
+            await Device.InvokeOnMainThreadAsync(() =>
+            {
+                this.cboVariantCode.ItemDisplayBinding = new Binding("ProductSchemeVariantDisplay");
+                this.cboVariantCode.ItemsSource = productVariantObservableCollection;
+            });
         }
 
         /// <summary>
