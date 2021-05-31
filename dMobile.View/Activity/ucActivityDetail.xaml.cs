@@ -1110,7 +1110,6 @@ namespace dMobile.View.Activity
                         if (!await LocationMapTasks.IsCompleteLocMapRefno(locMap.CurrLocMapRefno))
                         {
                             // TODO: Resource strings
-                            //MessageBox.Show("Location must be set first.", this.GetControlDescription(), MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
                             await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Location must be set first.", "OK"));
                         }
                         else
@@ -1216,7 +1215,7 @@ namespace dMobile.View.Activity
             }
             finally
             {
-                this.DisplayData();
+                await Device.InvokeOnMainThreadAsync(() => this.DisplayData());
                 await this.ScannerEnable();
 
                 this.Loading = false;
@@ -1429,7 +1428,7 @@ namespace dMobile.View.Activity
                             await this.ActDetail.SelectActivityDetail(null);
                         }
 
-                        this.DisplayData();
+                        await Device.InvokeOnMainThreadAsync(() => this.DisplayData());
                     }
                 }
                 else
@@ -1437,7 +1436,7 @@ namespace dMobile.View.Activity
                     if (0 <= this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem))
                     {
                         int currIdx = this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem);
-                        SysSkidInfo skidInfo = await SysSkidInfo.GetSkidInfoFromBarCodeOrCode(Convert.ToString((this.ActDetail.ListDetails[currIdx] as dynamic).ActivityDetailLogisticUnitSkidNumber));
+                        SysSkidInfo skidInfo = await SysSkidInfo.GetSkidInfoFromBarCodeOrCode(Convert.ToString(this.ActDetail.ListDetails[currIdx].GetType().GetProperty("ActivityDetailLogisticUnitSkidNumber")?.GetValue(this.ActDetail.ListDetails[currIdx])));
 
                         if (await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), string.Format("Do you wish to delete this entire skid \'{0}\'?", skidInfo.CurrSkid.SkidCode), "Yes", "No")))
                         {
@@ -2252,10 +2251,10 @@ namespace dMobile.View.Activity
             }
         }
 
-        private void DataGridMainActivity_ItemSelected(object sender, SelectedItemChangedEventArgs e)
+        private async void DataGridMainActivity_ItemSelected(object sender, SelectedItemChangedEventArgs e)
         {
-            this.ActDetail.SelectActivityDetail(this.dataGridMainActivity.SelectedItem);
-            this.DisplayData();
+            await this.ActDetail.SelectActivityDetail(this.dataGridMainActivity.SelectedItem);
+            await Device.InvokeOnMainThreadAsync(() => this.DisplayData());
         }
 
         #endregion

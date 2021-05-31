@@ -11,6 +11,8 @@ namespace dMobile.Controller
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using dMobile.Resources.Models;
+    using System.Linq;
+    using System.Dynamic;
 
     /// <summary>
     ///
@@ -872,41 +874,33 @@ namespace dMobile.Controller
                 dynamic detail = null;
                 bool detailToBeAdded = false;
                 //string oldSort = this.DataViewDetails.Sort;
-                int rowIdx = 0;
                 //this.DataViewDetails.Sort = dataViewSortKey;
 
                 if (this.FKRefno > 0)
                 {
                     // TODO: Test that this returns the expected value
-                    rowIdx = this.ListDetails.FindIndex(obj => Convert.ToInt32(obj.GetType().GetProperty(actDetailFKRefnoFldName).GetValue(obj, null)) == this.FKRefno);
-
-                    if (rowIdx > -1)
-                    {
-                        detail = this.ListDetails[rowIdx];
-                    }
+                    detail = this.ListDetails.Where(obj => Convert.ToInt32(obj.GetType().GetProperty(actDetailFKRefnoFldName).GetValue(obj, null)) == this.FKRefno).FirstOrDefault();
                 }
 
                 if (detail == null)
                 {
                     detailToBeAdded = true;
 
-                    detail = new
-                    {
-                        ActivityDetailRefno = 0,
-                        ProductRefno = this.ActItem.ProdInfo.Refno,
-                        ProductCode = this.ActItem.ProdInfo.Code,
-                        ProductUnitBC = this.ActItem.ProdInfo.UnitBC,
-                        ProductUnitIsBC = this.ActItem.ProdInfo.UnitIsBC,
-                        ProductDescription = this.ActItem.ProdInfo.Desc,
-                        ProductUnitSizeDescription = this.ActItem.ProdInfo.UnitSizeDesc,
-                        UnitCode = this.ActItem.ProdInfo.UnitCode,
-                        BaseUnitCode = this.ActItem.ProdInfo.BaseUnitCode,
-                        WtUnitCode = this.ActItem.ProdInfo.WeightUnitCode,
-                        ActivityDetailQuantity = 0,
-                        ActivityDetailBaseQuantity = 0,
-                        ActivityDetailWeightQuantity = 0,
-                        actDetailFKRefnoFldName = this.FKRefno
-                    };
+                    detail = new ExpandoObject();
+                    detail.ActivityDetailRefno = 0;
+                    detail.ProductRefno = this.ActItem.ProdInfo.Refno;
+                    detail.ProductCode = this.ActItem.ProdInfo.Code;
+                    detail.ProductUnitBC = this.ActItem.ProdInfo.UnitBC;
+                    detail.ProductUnitIsBC = this.ActItem.ProdInfo.UnitIsBC;
+                    detail.ProductDescription = this.ActItem.ProdInfo.Desc;
+                    detail.ProductUnitSizeDescription = this.ActItem.ProdInfo.UnitSizeDesc;
+                    detail.UnitCode = this.ActItem.ProdInfo.UnitCode;
+                    detail.BaseUnitCode = this.ActItem.ProdInfo.BaseUnitCode;
+                    detail.WtUnitCode = this.ActItem.ProdInfo.WeightUnitCode;
+                    detail.ActivityDetailQuantity = 0;
+                    detail.ActivityDetailBaseQuantity = 0;
+                    detail.ActivityDetailWeightQuantity = 0;
+                    detail.actDetailFKRefnoFldName = this.FKRefno;
                 }
 
                 detail.LocationMapRefno = this.LocMap.CurrLocMapRefno;
@@ -915,14 +909,11 @@ namespace dMobile.Controller
                 detail.ActivityDetailWeightQuantity = Convert.ToDecimal(detail.ActivityDetailWeightQuantity) + Math.Round(this.WeightQuantity, 3);
                 detail.ProductSchemeVariantCode = this.SchemeData.VariantCode;
                 detail.ProductSchemeVariantNo = this.SchemeData.VariantNumber;
-
-                // " tProductSchemeVariant.ProductSchemeVariantDescription " & _
                 detail.ActivityDetailSingleTradeItemSerialNumber = this.SchemeData.SingleTradeItemSerialNumber;
                 detail.ActivityDetailLogisticUnitBestBeforeSellByDate = this.SchemeData.LogisticUnitBestBeforeSellByDate;
                 detail.ActivityDetailLogisticUnitBatchLotNumber = this.SchemeData.LogisticUnitBatchLotNumber;
                 detail.ActivityDetailLogisticUnitProductionDate = this.SchemeData.LogisticUnitProductionDate;
                 detail.ActivityDetailLogisticUnitSkidNumber = this.SchemeData.LogisticUnitSkidNumber;
-
                 detail.ActivityDetailExtra1Text = this.ActExtra.Text1;
                 detail.ActivityDetailExtra2Text = this.ActExtra.Text2;
                 detail.ActivityDetailExtra3Text = this.ActExtra.Text3;

@@ -239,7 +239,7 @@
 
                             List<tActivityItemReceivingModel> results = transaction.Query<tActivityItemReceivingModel>("SELECT * FROM tActivityItemReceiving WHERE ActivityItemRefno = ?", actItemRecvRefno);
 
-                            if (results == null || results?.Count > 0)
+                            if (results == null || results?.Count == 0)
                             {
                                 // TODO: Resource strings
                                 throw new Exception("No results in tActivityItemReceiving for ActivityItemRefno " + actItemRecvRefno + " " + this.FullClassName);
