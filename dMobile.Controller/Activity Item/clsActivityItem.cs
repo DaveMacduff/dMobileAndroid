@@ -867,7 +867,7 @@
                 SQLiteAsyncConnection conn = DatabaseConnection.GetInstance().SQLConn;
 
                 await conn.ExecuteAsync("INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (?, ?, ?)", Convert.ToInt32(actSubTypes), Convert.ToInt32(SysCommon.ActStatus.Inserted), Convert.ToInt32(this.ActHdr.Refno));
-                this.Refno = Convert.ToInt32(conn.ExecuteScalarAsync<int>("SELECT last_insert_rowid() FROM tActivityItem"));
+                this.Refno = Convert.ToInt32(await conn.ExecuteScalarAsync<int>("SELECT last_insert_rowid() FROM tActivityItem"));
             }
             catch (SQLiteException ex)
             {

@@ -215,6 +215,7 @@
                     {
                         if (await this.CancelChanges())
                         {
+                            this.DialogResult = DialogResult.None;
                             this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                             await this.Close();
                         }
@@ -223,6 +224,7 @@
                     {
                         if (await this.CancelChanges())
                         {
+                            this.DialogResult = DialogResult.None;
                             this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                         }
                     }
@@ -234,6 +236,7 @@
                     {
                         if (await this.SaveChanges())
                         {
+                            this.DialogResult = DialogResult.OK;
                             this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                         }
                     }
@@ -297,6 +300,7 @@
             {
                 if (await this.CancelChanges())
                 {
+                    this.DialogResult = DialogResult.None;
                     base.OnBackButtonPressed();
                     this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     await this.Close();

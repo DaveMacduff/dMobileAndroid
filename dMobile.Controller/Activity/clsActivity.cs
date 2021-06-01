@@ -360,7 +360,7 @@ namespace dMobile.Controller
             try
             {
                 string sql = "INSERT INTO tActivity (ActivityStatus, ActivitySubType) VALUES (?, ?)";
-                await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityModel>(sql, Convert.ToInt32(SysCommon.ActStatus.Inserted), Convert.ToInt32(actSubType));
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(sql, Convert.ToInt32(SysCommon.ActStatus.Inserted), Convert.ToInt32(actSubType));
                 
                 string queryID = "SELECT last_insert_rowid() FROM tActivity";
                 this.Refno = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>(queryID));

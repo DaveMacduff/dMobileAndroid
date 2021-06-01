@@ -1587,7 +1587,6 @@ namespace dMobile.View.Activity
 
             if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
             {
-                await form.SaveChanges(this, new EventArgs());
                 XDocument xmlDoc = form.DisplayControlData;
                 this.UnitRefno = int.Parse(xmlDoc.Root.Element("ProductUnitRefno").Value);
 

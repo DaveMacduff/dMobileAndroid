@@ -901,7 +901,6 @@
                 this.ReqSaveEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
 
                 this.IsControlLoaded = true;
-                //this.dgProducts.Focus();
             }
         }
 
@@ -924,12 +923,12 @@
                             if (this.cboSearch.SelectedIndex == 0)
                             {
                                 //this.ListProdUnits.RowFilter = "ProductUnitRefno <> " + this.ProdUnitRefnoFilter + " AND ProductCode LIKE \'%%" + search.Trim() + "%\' AND ProductUnitIsSellUnit AND ProductUnitIsBC";
-                                this.FilteredListProdUnits = this.ListProdUnits.Where(productUnit => productUnit.ProductUnitRefno != this.ProdUnitRefnoFilter && productUnit.ProductCode.Contains(search.Trim()) && productUnit.ProductUnitIsSellUnit && productUnit.ProductUnitIsBC).ToList();
+                                this.FilteredListProdUnits = this.ListProdUnits.Where(productUnit => productUnit.ProductUnitRefno != this.ProdUnitRefnoFilter && productUnit.ProductCode.ToLower().Contains(search.ToLower().Trim()) && productUnit.ProductUnitIsSellUnit && productUnit.ProductUnitIsBC).ToList();
                             }
                             else
                             {
                                 //this.ListProdUnits.RowFilter = "ProductUnitRefno <> " + this.ProdUnitRefnoFilter + " AND ProductDescription LIKE \'%" + search.Trim() + "%\' AND ProductUnitIsSellUnit" + " AND ProductUnitIsBC";
-                                this.FilteredListProdUnits = this.ListProdUnits.Where(productUnit => productUnit.ProductUnitRefno != this.ProdUnitRefnoFilter && productUnit.ProductDescription.Contains(search.Trim()) && productUnit.ProductUnitIsSellUnit && productUnit.ProductUnitIsBC).ToList();
+                                this.FilteredListProdUnits = this.ListProdUnits.Where(productUnit => productUnit.ProductUnitRefno != this.ProdUnitRefnoFilter && productUnit.ProductDescription.ToLower().Contains(search.ToLower().Trim()) && productUnit.ProductUnitIsSellUnit && productUnit.ProductUnitIsBC).ToList();
                             }
 
                             //this.ListProdUnits.Sort = "UnitCode, ProductUnitBC DESC";
@@ -943,12 +942,12 @@
                                 if (this.cboSearch.SelectedIndex == 0)
                                 {
                                     //this.ListProdUnits.RowFilter = "ProductUnitRefno <> " + this.ProdUnitRefnoFilter + " AND ProductCode LIKE \'%" + search.Trim() + "%\' AND ProductUnitIsSellUnit" + " AND ProductUnitIsBC";
-                                    this.FilteredListProdUnits = this.ListProdUnits.Where(productUnit => productUnit.ProductUnitRefno != this.ProdUnitRefnoFilter && productUnit.ProductCode.Contains(search.Trim()) && productUnit.ProductUnitIsSellUnit && productUnit.ProductUnitIsBC).ToList();
+                                    this.FilteredListProdUnits = this.ListProdUnits.Where(productUnit => productUnit.ProductUnitRefno != this.ProdUnitRefnoFilter && productUnit.ProductCode.ToLower().Contains(search.ToLower().Trim()) && productUnit.ProductUnitIsSellUnit && productUnit.ProductUnitIsBC).ToList();
                                 }
                                 else
                                 {
                                     //this.ListProdUnits.RowFilter = "ProductUnitRefno <> " + this.ProdUnitRefnoFilter + " AND ProductDescription LIKE \'%" + search.Trim() + "%\' AND ProductUnitIsSellUnit" + " AND ProductUnitIsBC";
-                                    this.FilteredListProdUnits = this.ListProdUnits.Where(productUnit => productUnit.ProductUnitRefno != this.ProdUnitRefnoFilter && productUnit.ProductDescription.Contains(search.Trim()) && productUnit.ProductUnitIsSellUnit && productUnit.ProductUnitIsBC).ToList();
+                                    this.FilteredListProdUnits = this.ListProdUnits.Where(productUnit => productUnit.ProductUnitRefno != this.ProdUnitRefnoFilter && productUnit.ProductDescription.ToLower().Contains(search.ToLower().Trim()) && productUnit.ProductUnitIsSellUnit && productUnit.ProductUnitIsBC).ToList();
                                 }
                             }
                             else
@@ -957,12 +956,12 @@
                                 if (this.cboSearch.SelectedIndex == 0)
                                 {
                                     //this.ListProdUnits.RowFilter = "ProductUnitRefno <> " + this.ProdUnitRefnoFilter + " AND ProductCode LIKE \'%" + search.Trim() + "%\'";
-                                    this.FilteredListProdUnits = this.ListProdUnits.Where(productUnit => productUnit.ProductUnitRefno != this.ProdUnitRefnoFilter && productUnit.ProductCode.Contains(search.Trim())).ToList();
+                                    this.FilteredListProdUnits = this.ListProdUnits.Where(productUnit => productUnit.ProductUnitRefno != this.ProdUnitRefnoFilter && productUnit.ProductCode.ToLower().Contains(search.ToLower().Trim())).ToList();
                                 }
                                 else
                                 {
                                     //this.ListProdUnits.RowFilter = "ProductUnitRefno <> " + this.ProdUnitRefnoFilter + " AND ProductDescription LIKE \'%" + search.Trim() + "%\'";
-                                    this.FilteredListProdUnits = this.ListProdUnits.Where(productUnit => productUnit.ProductUnitRefno != this.ProdUnitRefnoFilter && productUnit.ProductDescription.Contains(search.Trim())).ToList();
+                                    this.FilteredListProdUnits = this.ListProdUnits.Where(productUnit => productUnit.ProductUnitRefno != this.ProdUnitRefnoFilter && productUnit.ProductDescription.ToLower().Contains(search.ToLower().Trim())).ToList();
                                 }
                             }
                         }
@@ -975,12 +974,12 @@
                             if (this.cboSearch.SelectedIndex == 0)
                             {
                                 //this.ListProdUnits.RowFilter = "ProductCode LIKE \'%" + search.Trim() + "%\' AND ProductUnitIsSellUnit";
-                                this.FilteredListProdUnits = this.ListProdUnits.Where(productUnit => productUnit.ProductCode.Contains(search.Trim()) && productUnit.ProductUnitIsSellUnit).ToList();
+                                this.FilteredListProdUnits = this.ListProdUnits.Where(productUnit => productUnit.ProductCode.ToLower().Contains(search.ToLower().Trim()) && productUnit.ProductUnitIsSellUnit).ToList();
                             }
                             else
                             {
                                 //this.ListProdUnits.RowFilter = "ProductDescription LIKE \'%" + search.Trim() + "%\' AND ProductUnitIsSellUnit";
-                                this.FilteredListProdUnits = this.ListProdUnits.Where(productUnit => productUnit.ProductDescription.Contains(search.Trim()) && productUnit.ProductUnitIsSellUnit).ToList();
+                                this.FilteredListProdUnits = this.ListProdUnits.Where(productUnit => productUnit.ProductDescription.ToLower().Contains(search.ToLower().Trim()) && productUnit.ProductUnitIsSellUnit).ToList();
                             }
 
                             //this.ListProdUnits.Sort = "UnitCode, ProductUnitBC DESC";
@@ -992,12 +991,12 @@
                             if (this.cboSearch.SelectedIndex == 0)
                             {
                                 //this.ListProdUnits.RowFilter = "ProductCode LIKE \'%" + search.Trim() + "%\'";
-                                this.FilteredListProdUnits = this.ListProdUnits.Where(productUnit => productUnit.ProductCode.Contains(search.Trim())).ToList();
+                                this.FilteredListProdUnits = this.ListProdUnits.Where(productUnit => productUnit.ProductCode.ToLower().Contains(search.ToLower().Trim())).ToList();
                             }
                             else
                             {
                                 //this.ListProdUnits.RowFilter = "ProductDescription LIKE \'%" + search.Trim() + "%\'";
-                                this.FilteredListProdUnits = this.ListProdUnits.Where(productUnit => productUnit.ProductDescription.Contains(search.Trim())).ToList();
+                                this.FilteredListProdUnits = this.ListProdUnits.Where(productUnit => productUnit.ProductDescription.ToLower().Contains(search.ToLower().Trim())).ToList();
                             }
                         }
                     }
@@ -1015,7 +1014,7 @@
                                 //this.ListProdUnits.RowFilter = "ProductRefno = " + this.ProdRefnoFilter + " AND ProductUnitRefno <> " + this.ProdUnitRefnoFilter + " AND ProductCode LIKE \'%" + search.Trim() + "%\' AND ProductUnitIsSellUnit" + " AND ProductUnitIsBC";
                                 this.FilteredListProdUnits = this.ListProdUnits.Where(productUnit => productUnit.ProductRefno == this.ProdRefnoFilter &&
                                 productUnit.ProductUnitRefno != this.ProdUnitRefnoFilter &&
-                                productUnit.ProductCode.Contains(search.Trim()) &&
+                                productUnit.ProductCode.ToLower().Contains(search.ToLower().Trim()) &&
                                 productUnit.ProductUnitIsSellUnit &&
                                 productUnit.ProductUnitIsBC).ToList();
                             }
@@ -1024,7 +1023,7 @@
                                 //this.ListProdUnits.RowFilter = "ProductRefno = " + this.ProdRefnoFilter + " AND ProductUnitRefno <> " + this.ProdUnitRefnoFilter + " AND ProductDescription LIKE \'%" + search.Trim() + "%\' AND ProductUnitIsSellUnit" + " AND ProductUnitIsBC";
                                 this.FilteredListProdUnits = this.ListProdUnits.Where(productUnit => productUnit.ProductRefno == this.ProdRefnoFilter &&
                                 productUnit.ProductUnitRefno == this.ProdUnitRefnoFilter &&
-                                productUnit.ProductDescription.Contains(search.Trim()) &&
+                                productUnit.ProductDescription.ToLower().Contains(search.ToLower().Trim()) &&
                                 productUnit.ProductUnitIsSellUnit &&
                                 productUnit.ProductUnitIsBC).ToList();
                             }
@@ -1035,12 +1034,12 @@
                             if (this.cboSearch.SelectedIndex == 0)
                             {
                                 //this.ListProdUnits.RowFilter = "ProductRefno = " + this.ProdRefnoFilter + " AND ProductUnitRefno <> " + this.ProdUnitRefnoFilter + " AND ProductCode LIKE \'%" + search.Trim() + "%\'";
-                                this.FilteredListProdUnits = this.ListProdUnits.Where(productUnit => productUnit.ProductRefno == this.ProdRefnoFilter && productUnit.ProductUnitRefno != this.ProdUnitRefnoFilter && productUnit.ProductCode.Contains(search.Trim())).ToList();
+                                this.FilteredListProdUnits = this.ListProdUnits.Where(productUnit => productUnit.ProductRefno == this.ProdRefnoFilter && productUnit.ProductUnitRefno != this.ProdUnitRefnoFilter && productUnit.ProductCode.ToLower().Contains(search.ToLower().Trim())).ToList();
                             }
                             else
                             {
                                 //this.ListProdUnits.RowFilter = "ProductRefno = " + this.ProdRefnoFilter + " AND ProductUnitRefno <> " + this.ProdUnitRefnoFilter + " AND ProductDescription LIKE \'%" + search.Trim() + "%\'";
-                                this.FilteredListProdUnits = this.ListProdUnits.Where(productUnit => productUnit.ProductRefno == this.ProdRefnoFilter && productUnit.ProductUnitRefno != this.ProdUnitRefnoFilter && productUnit.ProductDescription.Contains(search.Trim())).ToList();
+                                this.FilteredListProdUnits = this.ListProdUnits.Where(productUnit => productUnit.ProductRefno == this.ProdRefnoFilter && productUnit.ProductUnitRefno != this.ProdUnitRefnoFilter && productUnit.ProductDescription.ToLower().Contains(search.ToLower().Trim())).ToList();
                             }
                         }
                     }
@@ -1052,12 +1051,12 @@
                             if (this.cboSearch.SelectedIndex == 0)
                             {
                                 //this.ListProdUnits.RowFilter = "ProductRefno = " + this.ProdRefnoFilter + " AND ProductCode LIKE \'%" + search.Trim() + "%\' AND ProductUnitIsSellUnit";
-                                this.FilteredListProdUnits = this.ListProdUnits.Where(productUnit => productUnit.ProductRefno == this.ProdRefnoFilter && productUnit.ProductCode.Contains(search.Trim()) && productUnit.ProductUnitIsSellUnit).ToList();
+                                this.FilteredListProdUnits = this.ListProdUnits.Where(productUnit => productUnit.ProductRefno == this.ProdRefnoFilter && productUnit.ProductCode.ToLower().Contains(search.ToLower().Trim()) && productUnit.ProductUnitIsSellUnit).ToList();
                             }
                             else
                             {
                                 //this.ListProdUnits.RowFilter = "ProductRefno = " + this.ProdRefnoFilter + " AND ProductDescription LIKE \'%" + search.Trim() + "%\' AND ProductUnitIsSellUnit";
-                                this.FilteredListProdUnits = this.ListProdUnits.Where(productUnit => productUnit.ProductRefno == this.ProdRefnoFilter && productUnit.ProductDescription.Contains(search.Trim()) && productUnit.ProductUnitIsSellUnit).ToList();
+                                this.FilteredListProdUnits = this.ListProdUnits.Where(productUnit => productUnit.ProductRefno == this.ProdRefnoFilter && productUnit.ProductDescription.ToLower().Contains(search.ToLower().Trim()) && productUnit.ProductUnitIsSellUnit).ToList();
                             }
                         }
                         else
@@ -1066,12 +1065,12 @@
                             if (this.cboSearch.SelectedIndex == 0)
                             {
                                 //this.ListProdUnits.RowFilter = "ProductRefno = " + this.ProdRefnoFilter + " AND ProductCode LIKE \'%" + search.Trim() + "%\'";
-                                this.FilteredListProdUnits = this.ListProdUnits.Where(productUnit => productUnit.ProductRefno == this.ProdRefnoFilter && productUnit.ProductCode.Contains(search.Trim())).ToList();
+                                this.FilteredListProdUnits = this.ListProdUnits.Where(productUnit => productUnit.ProductRefno == this.ProdRefnoFilter && productUnit.ProductCode.ToLower().Contains(search.ToLower().Trim())).ToList();
                             }
                             else
                             {
                                 //this.ListProdUnits.RowFilter = "ProductRefno = " + this.ProdRefnoFilter + " AND ProductDescription LIKE \'%" + search.Trim() + "%\'";
-                                this.FilteredListProdUnits = this.ListProdUnits.Where(productUnit => productUnit.ProductRefno == this.ProdRefnoFilter && productUnit.ProductDescription.Contains(search.Trim())).ToList();
+                                this.FilteredListProdUnits = this.ListProdUnits.Where(productUnit => productUnit.ProductRefno == this.ProdRefnoFilter && productUnit.ProductDescription.ToLower().Contains(search.ToLower().Trim())).ToList();
                             }
                         }
                     }

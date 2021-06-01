@@ -164,12 +164,12 @@
                             "?)";
                         object[] parametersInsertProdUnitBarcode = new object[]
                         {
-                        Convert.ToInt32(prodUnitRefno),
-                        Convert.ToString(data.Root.Element("ProductIdentifier").Value),
-                        Convert.ToString(data.Root.Element("RawData").Value),
-                        Convert.ToString(data.Root.Element("enumBarCodeSymbology").Value),
-                        Convert.ToString(SysEnv.CurrentBarCodeModifier1),
-                        Convert.ToInt32(SysCommon.ActStatus.Inserted)
+                            Convert.ToInt32(prodUnitRefno),
+                            Convert.ToString(data.Root.Element("ProductIdentifier").Value),
+                            Convert.ToString(data.Root.Element("RawData").Value),
+                            Convert.ToString(data.Root.Element("enumBarCodeSymbology").Value),
+                            Convert.ToString(SysEnv.CurrentBarCodeModifier1),
+                            Convert.ToInt32(SysCommon.ActStatus.Inserted)
                         };
 
                         transaction.Execute(queryInsertProdUnitBarcode, parametersInsertProdUnitBarcode);
