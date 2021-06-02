@@ -24,7 +24,7 @@
     using Xamarin.Forms.Xaml;
 
     [XamlCompilation(XamlCompilationOptions.Compile)]
-    public partial class ucActivityItem : DMobileModal, IAppArea, IAppPublisher, IDataLayerEventListener
+    public partial class ucActivityItem : DMobileModal, IAppArea, IDataLayerEventListener
     {
         private LocationMap locMap;
         private ActItem actItem;
@@ -32,14 +32,8 @@
         private BarCodeScanner scanner = null;
         private bool isRefreshed = false;
         private int totalTicks = 0;
-        //private UserControl callingControl = null;
         private bool isBarCodeHandlerRegistered = false;
         private SysEnvironment sysEnv;
-        private ReqCloseHandler reqCloseEvent;
-        private ReqSaveEnableHandler reqSaveEnableEvent;
-        private ReqSaveDisableHandler reqSaveDisableEvent;
-        private ReqCancelEnableHandler reqCancelEnableEvent;
-        private ReqCancelDisableHandler reqCancelDisableEvent;
         private bool isChangesMade = false;
         private bool isControlLoaded = false;
         private bool isShowDataValidMsg = true;
@@ -216,7 +210,6 @@
                         if (await this.CancelChanges())
                         {
                             this.DialogResult = DialogResult.None;
-                            this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                             await this.Close();
                         }
                     }
@@ -225,7 +218,6 @@
                         if (await this.CancelChanges())
                         {
                             this.DialogResult = DialogResult.None;
-                            this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                         }
                     }
                     else if (keycode == Keycode.Del)
@@ -237,7 +229,6 @@
                         if (await this.SaveChanges())
                         {
                             this.DialogResult = DialogResult.OK;
-                            this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                         }
                     }
                     else if (keycode == Keycode.F2)
@@ -298,11 +289,16 @@
         {
             Device.BeginInvokeOnMainThread(async () =>
             {
-                if (await this.CancelChanges())
+                base.OnBackButtonPressed();
+
+                if (await this.SaveChanges())
+                {
+                    this.DialogResult = DialogResult.OK;
+                    await this.Close();
+                }
+                else if (await this.CancelChanges())
                 {
                     this.DialogResult = DialogResult.None;
-                    base.OnBackButtonPressed();
-                    this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     await this.Close();
                 }
             });
@@ -377,79 +373,6 @@
             }
         }
 
-        public delegate void ReqCloseHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
-        public delegate void ReqCancelDisableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
-        public delegate void ReqSaveDisableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
-        public delegate void ReqCancelEnableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
-        public delegate void ReqSaveEnableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
-
-        public event ReqCloseHandler ReqClose
-        {
-            add
-            {
-                this.ReqCloseEvent = (ReqCloseHandler)Delegate.Combine(this.ReqCloseEvent, value);
-            }
-
-            remove
-            {
-                this.ReqCloseEvent = (ReqCloseHandler)Delegate.Remove(this.ReqCloseEvent, value);
-            }
-        }
-
-        public event ReqSaveEnableHandler ReqSaveEnable
-        {
-            add
-            {
-                this.ReqSaveEnableEvent = (ReqSaveEnableHandler)Delegate.Combine(this.ReqSaveEnableEvent, value);
-            }
-
-            remove
-            {
-                this.ReqSaveEnableEvent = (ReqSaveEnableHandler)Delegate.Remove(this.ReqSaveEnableEvent, value);
-            }
-        }
-
-        public event ReqSaveDisableHandler ReqSaveDisable
-        {
-            add
-            {
-                this.ReqSaveDisableEvent = (ReqSaveDisableHandler)Delegate.Combine(this.ReqSaveDisableEvent, value);
-            }
-
-            remove
-            {
-                this.ReqSaveDisableEvent = (ReqSaveDisableHandler)Delegate.Remove(this.ReqSaveDisableEvent, value);
-            }
-        }
-
-        public event ReqCancelEnableHandler ReqCancelEnable
-        {
-            add
-            {
-                this.ReqCancelEnableEvent = (ReqCancelEnableHandler)Delegate.Combine(this.ReqCancelEnableEvent, value);
-            }
-
-            remove
-            {
-                this.ReqCancelEnableEvent = (ReqCancelEnableHandler)Delegate.Remove(this.ReqCancelEnableEvent, value);
-            }
-        }
-
-        public event ReqCancelDisableHandler ReqCancelDisable
-        {
-            add
-            {
-                this.ReqCancelDisableEvent = (ReqCancelDisableHandler)Delegate.Combine(this.ReqCancelDisableEvent, value);
-            }
-
-            remove
-            {
-                this.ReqCancelDisableEvent = (ReqCancelDisableHandler)Delegate.Remove(this.ReqCancelDisableEvent, value);
-            }
-        }
-
-
-
         private bool IsShowDataValidMsg
         {
             get
@@ -488,19 +411,6 @@
                 this.isChangesMade = value;
             }
         }
-
-        //private UserControl CallingControl
-        //{
-        //    get
-        //    {
-        //        return this.callingControl;
-        //    }
-
-        //    set
-        //    {
-        //        this.callingControl = value;
-        //    }
-        //}
 
         private LocationMap LocMap
         {
@@ -606,71 +516,6 @@
             }
         }
 
-        private ReqCloseHandler ReqCloseEvent
-        {
-            get
-            {
-                return this.reqCloseEvent;
-            }
-
-            set
-            {
-                this.reqCloseEvent = value;
-            }
-        }
-
-        private ReqSaveEnableHandler ReqSaveEnableEvent
-        {
-            get
-            {
-                return this.reqSaveEnableEvent;
-            }
-
-            set
-            {
-                this.reqSaveEnableEvent = value;
-            }
-        }
-
-        private ReqSaveDisableHandler ReqSaveDisableEvent
-        {
-            get
-            {
-                return this.reqSaveDisableEvent;
-            }
-
-            set
-            {
-                this.reqSaveDisableEvent = value;
-            }
-        }
-
-        private ReqCancelEnableHandler ReqCancelEnableEvent
-        {
-            get
-            {
-                return this.reqCancelEnableEvent;
-            }
-
-            set
-            {
-                this.reqCancelEnableEvent = value;
-            }
-        }
-
-        private ReqCancelDisableHandler ReqCancelDisableEvent
-        {
-            get
-            {
-                return this.reqCancelDisableEvent;
-            }
-
-            set
-            {
-                this.reqCancelDisableEvent = value;
-            }
-        }
-
         public ObservableCollection<string> ItemsList { get => itemsList; set => itemsList = value; }
         public ObservableCollection<object> DataGridMainActivityItemsList { get => dataGridMainActivityItemsList; set => dataGridMainActivityItemsList = value; }
         public int SelectedIndex { get => selectedIndex; set => selectedIndex = value; }
@@ -739,7 +584,6 @@
                         switch (this.SysEnv.SysSettings.PickQtyUnderWarn)
                         {
                             case SysCommon.ActPickingQtyUnderValLevels.ValidateWarnAndContinue:
-                                //if (MessageBox.Show(ex.Message + Environment.NewLine + "Continue?", "Quantity Validation", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.No)
                                 // TODO: Resource strings
                                 if (await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Quantity Validation", "Continue?", "Yes", "No") == false))
                                 {
@@ -750,7 +594,6 @@
                                 break;
 
                             case SysCommon.ActPickingQtyUnderValLevels.ValidateWarnAndStop:
-                                //MessageBox.Show(ex.Message, "Quantity Validation", MessageBoxButtons.OK, MessageBoxIcon.Hand, MessageBoxDefaultButton.Button1);
                                 // TODO: Resource strings
                                 await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Quantity Validation", ex.Message, "OK"));
                                 isReadyToSave = false;
@@ -811,37 +654,6 @@
             {
                 await this.ScannerEnable();
             }
-
-            ////// Lekker requirement to check reviewed even though we are cancelling / closing.
-            ////if (this.ActSubType == SysCommon.ActSubTypes.Picking)
-            ////{
-            ////  if (isReadyToClose)
-            ////  {
-            ////    try
-            ////    {
-            ////      this.IsItemReviewed();
-
-            ////      // Added extra check for Lekker, check all items.
-            ////      this.IsAllItemsReviewed();
-            ////    }
-            ////    catch (Exceptions.MessageOnlyException ex)
-            ////    {
-            ////      isReadyToClose = false;
-            ////      ex.Show(this, this.ActSubType);
-            ////    }
-            ////    catch (Exception ex)
-            ////    {
-            ////      isReadyToClose = false;
-            ////      using (FormErrorReport errRpt = new FormErrorReport(
-            ////          this.ActSubType,
-            ////          this,
-            ////          ex))
-            ////      {
-            ////        errRpt.ShowDialog();
-            ////      }
-            ////    }
-            ////  }
-            ////}
 
             // Prairie meats like Lekker requirement to check quantity under even though we are cancelling / closing.
             // See WO# 12080
@@ -1159,100 +971,6 @@
             return xmldocParams;
         }
 
-
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void RegisterReqClose(IAppListener appEventListener)
-        {
-            this.ReqClose += new ReqCloseHandler(appEventListener.ReqClose);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void UnregisterReqClose(IAppListener appEventListener)
-        {
-            this.ReqClose -= new ReqCloseHandler(appEventListener.ReqClose);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void RegisterReqSaveEnable(IAppListener appEventListener)
-        {
-            this.ReqSaveEnable += new ReqSaveEnableHandler(appEventListener.ReqSaveEnable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void UnregisterReqSaveEnable(IAppListener appEventListener)
-        {
-            this.ReqSaveEnable -= new ReqSaveEnableHandler(appEventListener.ReqSaveEnable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void RegisterReqSaveDisable(IAppListener appEventListener)
-        {
-            this.ReqSaveDisable += new ReqSaveDisableHandler(appEventListener.ReqSaveDisable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void UnregisterReqSaveDisable(IAppListener appEventListener)
-        {
-            this.ReqSaveDisable -= new ReqSaveDisableHandler(appEventListener.ReqSaveDisable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void RegisterReqCancelEnable(IAppListener appEventListener)
-        {
-            this.ReqCancelEnable += new ReqCancelEnableHandler(appEventListener.ReqCancelEnable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void UnregisterReqCancelEnable(IAppListener appEventListener)
-        {
-            this.ReqCancelEnable -= new ReqCancelEnableHandler(appEventListener.ReqCancelEnable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void RegisterReqCancelDisable(IAppListener appEventListener)
-        {
-            this.ReqSaveDisable += new ReqSaveDisableHandler(appEventListener.ReqCancelDisable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void UnregisterReqCancelDisable(IAppListener appEventListener)
-        {
-            this.ReqSaveDisable -= new ReqSaveDisableHandler(appEventListener.ReqCancelDisable);
-        }
-
-
-
         /// <summary>
         /// 
         /// </summary>
@@ -1285,9 +1003,6 @@
 
             //this.pbarStatus.Value = dataLayerEventArgs.CurrentValue;
         }
-
-
-
 
         /// <summary>
         /// 
@@ -1626,9 +1341,6 @@
                         this.ActItem.UnregLayerListenerProgOut(this);
                     }
 
-                    this.ReqCancelEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-                    this.ReqSaveEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-
                     await this.ScannerEnable();
                     this.Loading = false;
 
@@ -1728,7 +1440,7 @@
 
                 if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
                 {
-                    XDocument xmlDoc = form.DisplayControlData;
+                    XDocument xmlDoc = await form.GetXML();
                     this.ActItem.ActHdr.SkidInfo = await SysSkidInfo.GetSkidInfoFromXML(xmlDoc);
 
                     if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno == 0)
@@ -1810,7 +1522,7 @@
 
                         if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
                         {
-                            xmlDoc = form.DisplayControlData;
+                            xmlDoc = await form.GetXML();
                             prodUnitRefno = Convert.ToInt32(xmlDoc.Root.Element("ProductUnitRefno").Value);
                         }
                     }
@@ -2117,10 +1829,6 @@
                 {
                     this.Loading = true;
                     await Device.InvokeOnMainThreadAsync(() => this.dataGridMainActivity.IsEnabled = false);
-
-                    this.ReqCancelDisableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-                    this.ReqSaveDisableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-
                     await this.ScannerDisable();
 
                     if (0 < this.ActItem.ListItems.Count)
@@ -2142,7 +1850,7 @@
 
                         if (await Device.InvokeOnMainThreadAsync(async () => await form.DisplayControl.ShowDialog() == DialogResult.OK))
                         {
-                            XDocument xmlDoc = form.DisplayControlData;
+                            XDocument xmlDoc = await form.GetXML();
                             this.ActItem.RefreshQuantity(
                                 this.dataGridMainActivity.SelectedItem,
                                 Math.Round(decimal.Parse(xmlDoc.Root.Element("qty").Value), 3),
@@ -2174,9 +1882,6 @@
                     });
 
                     await this.ScannerEnable();
-
-                    this.ReqCancelEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-                    this.ReqSaveEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                 }
             });
         }
@@ -2189,10 +1894,6 @@
             try
             {
                 this.dataGridMainActivity.IsEnabled = false;
-
-                this.ReqCancelDisableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-                this.ReqSaveDisableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-
                 await this.ScannerDisable();
 
                 if (this.ActItem.ActHdr.SkidInfo != null)
@@ -2228,10 +1929,6 @@
             {
                 this.dataGridMainActivity.IsEnabled = true;
                 await this.ScannerEnable();
-
-                this.ReqCancelEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-                this.ReqSaveEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-
                 this.dataGridMainActivity.Focus();
             }
         }
@@ -2278,9 +1975,6 @@
                 this.Loading = true;
                 this.dataGridMainActivity.IsEnabled = false;
 
-                this.ReqCancelDisableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-                this.ReqSaveDisableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-
                 await ShowInventoryInquirySummary();
             }
             catch (Exceptions.MessageOnlyException ex)
@@ -2300,9 +1994,6 @@
                 this.Loading = false;
                 this.dataGridMainActivity.IsEnabled = true;
                 await this.ScannerEnable();
-
-                this.ReqCancelEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-                this.ReqSaveEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
             }
         }
 
@@ -2332,9 +2023,6 @@
             try
             {
                 this.dataGridMainActivity.IsEnabled = false;
-
-                this.ReqCancelDisableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-                this.ReqSaveDisableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
 
                 await this.ScannerDisable();
 
@@ -2370,9 +2058,6 @@
             {
                 this.dataGridMainActivity.IsEnabled = true;
                 await this.ScannerEnable();
-
-                this.ReqCancelEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-                this.ReqSaveEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
             }
         }
 
@@ -2385,9 +2070,6 @@
         {
             try
             {
-                this.ReqCancelDisableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-                this.ReqSaveDisableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-
                 await this.ScannerDisable();
 
                 string msg = await this.ActItem.GetTotalQuantity();
@@ -2414,9 +2096,6 @@
             finally
             {
                 await this.ScannerEnable();
-
-                this.ReqCancelEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-                this.ReqSaveEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
             }
         }
 

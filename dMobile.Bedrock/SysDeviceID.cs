@@ -25,21 +25,9 @@
                 deviceID += Build.Device;
             }
 
-            // TODO: If we start targeting a higher sdk, this will be changed to Build.getSerial().
-            // This will require additional device permissions.
-            if (SDK_VERSION > BuildVersionCodes.M)
+            if (!string.IsNullOrEmpty(Build.Serial))
             {
-                if (!string.IsNullOrEmpty(Build.GetSerial()))
-                {
-                    deviceID += Build.GetSerial();
-                }
-            }
-            else
-            {
-                if (!string.IsNullOrEmpty(Build.Serial))
-                {
-                    deviceID += Build.Serial;
-                }
+                deviceID += Build.Serial;
             }
 
             if (string.IsNullOrEmpty(deviceID))

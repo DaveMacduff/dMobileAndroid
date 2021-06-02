@@ -15,19 +15,13 @@ using dMobile.View.Activity;
 namespace dMobile.View.Menus
 {
     [XamlCompilation(XamlCompilationOptions.Compile)]
-    public partial class ucInventoryAdjustmentsMenu : DMobileContentPage, IAppArea, IAppPublisher
+    public partial class ucInventoryAdjustmentsMenu : DMobileContentPage, IAppArea
     {
         #region Fields
 
-        //private UserControl callingControl = new ucInventoryMenu();
         private SysEnvironment sysEnv;
         private AdjustmentSettings adjSettings;
         private bool isControlLoaded = false;
-        private ReqCloseHandler reqCloseEvent;
-        private ReqSaveEnableHandler reqSaveEnableEvent;
-        private ReqSaveDisableHandler reqSaveDisableEvent;
-        private ReqCancelEnableHandler reqCancelEnableEvent;
-        private ReqCancelDisableHandler reqCancelDisableEvent;
 
         #endregion
 
@@ -73,11 +67,9 @@ namespace dMobile.View.Menus
                 // TODO: Verify keycodes
                 Enum.TryParse(keyPressed, out Keycode keycode);
 
-                if (keycode == Keycode.F1 || keycode == Keycode.Escape)
+                if (keycode == Keycode.F1)
                 {
                     this.DisableControls();
-                    //this.CallingControl = new ucInventoryMenu();
-                    this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     this.IsControlLoaded = false;
                 }
                 else if (keycode == Keycode.Num1)
@@ -124,157 +116,27 @@ namespace dMobile.View.Menus
         {
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
             await this.ScannerDisable();
-            
+
             base.OnDisappearing();
         }
 
-        #endregion
-
-        #region Delegates
-
-        public delegate void ReqCloseHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
-        public delegate void ReqCancelDisableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
-        public delegate void ReqSaveDisableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
-        public delegate void ReqCancelEnableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
-        public delegate void ReqSaveEnableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
-
-        #endregion
-
-        #region Events
-
-        public event ReqCloseHandler ReqClose
+        protected override bool OnBackButtonPressed()
         {
-            add
+            Device.BeginInvokeOnMainThread(() =>
             {
-                this.ReqCloseEvent = (ReqCloseHandler)Delegate.Combine(this.reqCloseEvent, value);
-            }
+                base.OnBackButtonPressed();
 
-            remove
-            {
-                this.ReqCloseEvent = (ReqCloseHandler)Delegate.Remove(this.reqCloseEvent, value);
-            }
-        }
+                this.DisableControls();
+                this.IsControlLoaded = false;
 
-        public event ReqSaveEnableHandler ReqSaveEnable
-        {
-            add
-            {
-                this.ReqSaveEnableEvent = (ReqSaveEnableHandler)Delegate.Combine(this.ReqSaveEnableEvent, value);
-            }
+            });
 
-            remove
-            {
-                this.ReqSaveEnableEvent = (ReqSaveEnableHandler)Delegate.Remove(this.ReqSaveEnableEvent, value);
-            }
-        }
-
-        public event ReqSaveDisableHandler ReqSaveDisable
-        {
-            add
-            {
-                this.ReqSaveDisableEvent = (ReqSaveDisableHandler)Delegate.Combine(this.ReqSaveDisableEvent, value);
-            }
-
-            remove
-            {
-                this.ReqSaveDisableEvent = (ReqSaveDisableHandler)Delegate.Remove(this.ReqSaveDisableEvent, value);
-            }
-        }
-
-        public event ReqCancelEnableHandler ReqCancelEnable
-        {
-            add
-            {
-                this.ReqCancelEnableEvent = (ReqCancelEnableHandler)Delegate.Combine(this.ReqCancelEnableEvent, value);
-            }
-
-            remove
-            {
-                this.ReqCancelEnableEvent = (ReqCancelEnableHandler)Delegate.Remove(this.ReqCancelEnableEvent, value);
-            }
-        }
-
-        public event ReqCancelDisableHandler ReqCancelDisable
-        {
-            add
-            {
-                this.ReqCancelDisableEvent = (ReqCancelDisableHandler)Delegate.Combine(this.ReqCancelDisableEvent, value);
-            }
-
-            remove
-            {
-                this.ReqCancelDisableEvent = (ReqCancelDisableHandler)Delegate.Remove(this.ReqCancelDisableEvent, value);
-            }
+            return true;
         }
 
         #endregion
 
         #region Properties
-
-        private ReqCloseHandler ReqCloseEvent
-        {
-            get
-            {
-                return this.reqCloseEvent;
-            }
-
-            set
-            {
-                this.reqCloseEvent = value;
-            }
-        }
-
-        private ReqSaveEnableHandler ReqSaveEnableEvent
-        {
-            get
-            {
-                return this.reqSaveEnableEvent;
-            }
-
-            set
-            {
-                this.reqSaveEnableEvent = value;
-            }
-        }
-
-        private ReqSaveDisableHandler ReqSaveDisableEvent
-        {
-            get
-            {
-                return this.reqSaveDisableEvent;
-            }
-
-            set
-            {
-                this.reqSaveDisableEvent = value;
-            }
-        }
-
-        private ReqCancelEnableHandler ReqCancelEnableEvent
-        {
-            get
-            {
-                return this.reqCancelEnableEvent;
-            }
-
-            set
-            {
-                this.reqCancelEnableEvent = value;
-            }
-        }
-
-        private ReqCancelDisableHandler ReqCancelDisableEvent
-        {
-            get
-            {
-                return this.reqCancelDisableEvent;
-            }
-
-            set
-            {
-                this.reqCancelDisableEvent = value;
-            }
-        }
 
         private bool IsControlLoaded
         {
@@ -359,16 +221,6 @@ namespace dMobile.View.Menus
             return true;
         }
 
-        ///// <summary>
-        /////
-        ///// </summary>
-        ///// <returns></returns>
-        ///// <remarks></remarks>
-        //public UserControl GetCallingControl()
-        //{
-        //    return this.CallingControl;
-        //}
-
         /// <summary>
         ///
         /// </summary>
@@ -413,100 +265,6 @@ namespace dMobile.View.Menus
                 + "</params>");
 
             return xmldocParams;
-        }
-
-        #endregion
-
-        #region IAppPublisher Members
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void RegisterReqClose(IAppListener appEventListener)
-        {
-            this.ReqClose += new ReqCloseHandler(appEventListener.ReqClose);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void UnregisterReqClose(IAppListener appEventListener)
-        {
-            this.ReqClose -= new ReqCloseHandler(appEventListener.ReqClose);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void RegisterReqSaveEnable(IAppListener appEventListener)
-        {
-            this.ReqSaveEnable += new ReqSaveEnableHandler(appEventListener.ReqSaveEnable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void UnregisterReqSaveEnable(IAppListener appEventListener)
-        {
-            this.ReqSaveEnable -= new ReqSaveEnableHandler(appEventListener.ReqSaveEnable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void RegisterReqSaveDisable(IAppListener appEventListener)
-        {
-            this.ReqSaveDisable += new ReqSaveDisableHandler(appEventListener.ReqSaveDisable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void UnregisterReqSaveDisable(IAppListener appEventListener)
-        {
-            this.ReqSaveDisable -= new ReqSaveDisableHandler(appEventListener.ReqSaveDisable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void RegisterReqCancelEnable(IAppListener appEventListener)
-        {
-            this.ReqCancelEnable += new ReqCancelEnableHandler(appEventListener.ReqCancelEnable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void UnregisterReqCancelEnable(IAppListener appEventListener)
-        {
-            this.ReqCancelEnable -= new ReqCancelEnableHandler(appEventListener.ReqCancelEnable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void RegisterReqCancelDisable(IAppListener appEventListener)
-        {
-            this.ReqSaveDisable += new ReqSaveDisableHandler(appEventListener.ReqCancelDisable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void UnregisterReqCancelDisable(IAppListener appEventListener)
-        {
-            this.ReqSaveDisable -= new ReqSaveDisableHandler(appEventListener.ReqCancelDisable);
         }
 
         #endregion
@@ -602,22 +360,9 @@ namespace dMobile.View.Menus
                         this.cmdRequisition.IsEnabled = true;
                         this.cmdDisposal.IsEnabled = true;
                     }
-
-                    this.ReqCancelEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                 }
             }
         }
-
-        ///// <summary>
-        /////
-        ///// </summary>
-        ///// <param name="sender"></param>
-        ///// <param name="e"></param>
-        ///// <remarks></remarks>
-        //private void cmdInventory_KeyUp(object sender, KeyEventArgs e)
-        //{
-        //    HandleKeyPress(e, SysCommon.AdjTypes.Inventory);
-        //}
 
         /// <summary>
         ///
@@ -641,17 +386,6 @@ namespace dMobile.View.Menus
             await SetAdjustmentType(SysCommon.AdjTypes.Production);
         }
 
-        ///// <summary>
-        /////
-        ///// </summary>
-        ///// <param name="sender"></param>
-        ///// <param name="e"></param>
-        ///// <remarks></remarks>
-        //private void cmdProduction_KeyUp(object sender, KeyEventArgs e)
-        //{
-        //    HandleKeyPress(e, SysCommon.AdjTypes.Production);
-        //}
-
         /// <summary>
         ///
         /// </summary>
@@ -662,17 +396,6 @@ namespace dMobile.View.Menus
         {
             await SetAdjustmentType(SysCommon.AdjTypes.Rework);
         }
-
-        ///// <summary>
-        /////
-        ///// </summary>
-        ///// <param name="sender"></param>
-        ///// <param name="e"></param>
-        ///// <remarks></remarks>
-        //private void cmdRework_KeyUp(object sender, KeyEventArgs e)
-        //{
-        //    HandleKeyPress(e, SysCommon.AdjTypes.Rework);
-        //}
 
         /// <summary>
         ///
@@ -685,17 +408,6 @@ namespace dMobile.View.Menus
             await SetAdjustmentType(SysCommon.AdjTypes.Disposal);
         }
 
-        ///// <summary>
-        /////
-        ///// </summary>
-        ///// <param name="sender"></param>
-        ///// <param name="e"></param>
-        ///// <remarks></remarks>
-        //private void cmdDisposal_KeyUp(object sender, KeyEventArgs e)
-        //{
-        //    HandleKeyPress(e, SysCommon.AdjTypes.Disposal);
-        //}
-
         /// <summary>
         ///
         /// </summary>
@@ -706,17 +418,6 @@ namespace dMobile.View.Menus
         {
             await SetAdjustmentType(SysCommon.AdjTypes.Requisition);
         }
-
-        ///// <summary>
-        /////
-        ///// </summary>
-        ///// <param name="sender"></param>
-        ///// <param name="e"></param>
-        ///// <remarks></remarks>
-        //private void cmdRequisition_KeyUp(object sender, KeyEventArgs e)
-        //{
-        //    HandleKeyPress(e, SysCommon.AdjTypes.Requisition);
-        //}
 
         /// <summary>
         /// Click handler for Convert Product.
@@ -733,73 +434,12 @@ namespace dMobile.View.Menus
         /// </summary>
         private async Task ShowConvertProductForm()
         {
-            //this.CallingControl = new ucActivityConvertProduct();
             this.DisableControls();
-            this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
             this.IsControlLoaded = false;
 
             ucActivityConvertProduct convertProduct = new ucActivityConvertProduct();
             await convertProduct.Show();
         }
-
-        ///// <summary>
-        ///// Key up handler for Convert Product.
-        ///// </summary>
-        ///// <param name="sender"></param>
-        ///// <param name="e"></param>
-        //private void cmdConvertProduct_KeyUp(object sender, KeyEventArgs e)
-        //{
-        //    HandleKeyPress(e, SysCommon.AdjTypes.ConvertProduct);
-        //}
-
-        ///// <summary>
-        ///// Generic keypress handler.
-        ///// </summary>
-        ///// <param name="defaultAdjType">Type that will be set if enter key is pressed.</param>
-        //private void HandleKeyPress(KeyEventArgs e, SysCommon.AdjTypes defaultAdjType)
-        //{
-        //    if (e.KeyValue == 134)
-        //    {
-        //        SetAdjustmentType(defaultAdjType);
-        //        return;
-        //    }
-
-        //    switch (e.KeyCode)
-        //    {
-        //        case Keys.Enter:
-        //            SetAdjustmentType(defaultAdjType);
-        //            break;
-
-        //        // Equivalent to Escape || F1
-        //        case Keys.Escape:
-        //        case Keys.F1:
-        //            this.DisableControls();
-        //            //this.CallingControl = new ucInventoryMenu();
-        //            this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-
-        //            this.IsControlLoaded = false;
-        //            break;
-
-        //        case Keys.D1:
-        //            SetAdjustmentType(SysCommon.AdjTypes.Inventory);
-        //            break;
-        //        case Keys.D2:
-        //            SetAdjustmentType(SysCommon.AdjTypes.Production);
-        //            break;
-        //        case Keys.D3:
-        //            SetAdjustmentType(SysCommon.AdjTypes.Rework);
-        //            break;
-        //        case Keys.D4:
-        //            SetAdjustmentType(SysCommon.AdjTypes.Requisition);
-        //            break;
-        //        case Keys.D5:
-        //            SetAdjustmentType(SysCommon.AdjTypes.Disposal);
-        //            break;
-        //        case Keys.D6:
-        //            SetAdjustmentType(SysCommon.AdjTypes.ConvertProduct);
-        //            break;
-        //    }
-        //}
 
         /// <summary>
         /// Sets the adjustment type and saves adjustment settings.
@@ -831,9 +471,6 @@ namespace dMobile.View.Menus
             this.cmdRework.IsEnabled = false;
             this.cmdDisposal.IsEnabled = false;
             this.cmdRequisition.IsEnabled = false;
-            
-            this.ReqCancelDisableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-            this.ReqSaveDisableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
         }
 
         /// <summary>
@@ -847,11 +484,9 @@ namespace dMobile.View.Menus
             AdjustmentSettings tempAdjSettings = this.AdjSettings;
             this.AdjSettings.SaveData(ref tempAdjSettings);
             this.AdjSettings = tempAdjSettings;
-            //this.CallingControl = new ucActivityHdr(SysCommon.ActSubTypes.Adjustment);
-            this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
             this.IsControlLoaded = false;
 
-            ucActivityHdr ucActivityHdr =  new ucActivityHdr(SysCommon.ActSubTypes.Adjustment);
+            ucActivityHdr ucActivityHdr = new ucActivityHdr(SysCommon.ActSubTypes.Adjustment);
             await ucActivityHdr.Show();
         }
 

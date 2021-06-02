@@ -23,17 +23,10 @@
     using Xamarin.Forms.Xaml;
 
     [XamlCompilation(XamlCompilationOptions.Compile)]
-    public partial class SplashStartup : DMobileContentPage, IAppArea, IAppPublisher, IDataNubListener
+    public partial class SplashStartup : DMobileContentPage, IAppArea, IDataNubListener
     {
-        //private int totalTicks = 0;
         private bool isErrorRaised = false;
-        //private UserControl callingControl = null;
         private SysEnvironment sysEnv = null;
-        private ReqCloseHandler reqCloseEvent;
-        private ReqSaveEnableHandler reqSaveEnableEvent;
-        private ReqSaveDisableHandler reqSaveDisableEvent;
-        private ReqCancelEnableHandler reqCancelEnableEvent;
-        private ReqCancelDisableHandler reqCancelDisableEvent;
         private ObservableCollection<string> itemsList;
 
         public SplashStartup()
@@ -59,22 +52,12 @@
                 {
                     Enum.TryParse(keyPressed, out Keycode keycode);
 
-                    if (keycode == Keycode.Escape || keycode == Keycode.Grave)
-                    {
-                        //Application.Current.Quit();
-                        Android.OS.Process.KillProcess(Android.OS.Process.MyPid());
-                    }
-                    else if (keycode == Keycode.Enter)
+                    if (keycode == Keycode.Enter)
                     {
                         if (this.btnClose.IsEnabled)
                         {
-                            this.BtnClose_Clicked(null, null);
+                            this.BtnClose_Clicked(this, new EventArgs());
                         }
-                    }
-                    else
-                    {
-                        // clear any pending key events
-                        //Application.DoEvents();
                     }
                 }
                 catch (Exception ex)
@@ -96,90 +79,6 @@
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
         }
 
-        public delegate void ReqCloseHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
-        public delegate void ReqCancelDisableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
-        public delegate void ReqSaveDisableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
-        public delegate void ReqCancelEnableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
-        public delegate void ReqSaveEnableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
-
-        public event ReqCloseHandler ReqClose
-        {
-            add
-            {
-                this.ReqCloseEvent = (ReqCloseHandler)Delegate.Combine(this.ReqCloseEvent, value);
-            }
-
-            remove
-            {
-                this.ReqCloseEvent = (ReqCloseHandler)Delegate.Remove(this.ReqCloseEvent, value);
-            }
-        }
-
-        public event ReqSaveEnableHandler ReqSaveEnable
-        {
-            add
-            {
-                this.ReqSaveEnableEvent = (ReqSaveEnableHandler)Delegate.Combine(this.ReqSaveEnableEvent, value);
-            }
-
-            remove
-            {
-                this.ReqSaveEnableEvent = (ReqSaveEnableHandler)Delegate.Remove(this.ReqSaveEnableEvent, value);
-            }
-        }
-
-        public event ReqSaveDisableHandler ReqSaveDisable
-        {
-            add
-            {
-                this.ReqSaveDisableEvent = (ReqSaveDisableHandler)Delegate.Combine(this.ReqSaveDisableEvent, value);
-            }
-
-            remove
-            {
-                this.ReqSaveDisableEvent = (ReqSaveDisableHandler)Delegate.Remove(this.ReqSaveDisableEvent, value);
-            }
-        }
-
-        public event ReqCancelEnableHandler ReqCancelEnable
-        {
-            add
-            {
-                this.ReqCancelEnableEvent = (ReqCancelEnableHandler)Delegate.Combine(this.ReqCancelEnableEvent, value);
-            }
-
-            remove
-            {
-                this.ReqCancelEnableEvent = (ReqCancelEnableHandler)Delegate.Remove(this.ReqCancelEnableEvent, value);
-            }
-        }
-
-        public event ReqCancelDisableHandler ReqCancelDisable
-        {
-            add
-            {
-                this.ReqCancelDisableEvent = (ReqCancelDisableHandler)Delegate.Combine(this.ReqCancelDisableEvent, value);
-            }
-
-            remove
-            {
-                this.ReqCancelDisableEvent = (ReqCancelDisableHandler)Delegate.Remove(this.ReqCancelDisableEvent, value);
-            }
-        }
-
-        //public int TotalTicks
-        //{
-        //    get
-        //    {
-        //        return this.totalTicks;
-        //    }
-
-        //    set
-        //    {
-        //        this.totalTicks = value;
-        //    }
-        //}
-
         public bool IsErrorRaised
         {
             get
@@ -193,19 +92,6 @@
             }
         }
 
-        //public UserControl CallingControl
-        //{
-        //    get
-        //    {
-        //        return this.callingControl;
-        //    }
-
-        //    set
-        //    {
-        //        this.callingControl = value;
-        //    }
-        //}
-
         public ObservableCollection<string> ItemsList
         {
             get
@@ -216,71 +102,6 @@
             set
             {
                 this.itemsList = value;
-            }
-        }
-
-        private ReqCloseHandler ReqCloseEvent
-        {
-            get
-            {
-                return this.reqCloseEvent;
-            }
-
-            set
-            {
-                this.reqCloseEvent = value;
-            }
-        }
-
-        private ReqSaveEnableHandler ReqSaveEnableEvent
-        {
-            get
-            {
-                return this.reqSaveEnableEvent;
-            }
-
-            set
-            {
-                this.reqSaveEnableEvent = value;
-            }
-        }
-
-        private ReqSaveDisableHandler ReqSaveDisableEvent
-        {
-            get
-            {
-                return this.reqSaveDisableEvent;
-            }
-
-            set
-            {
-                this.reqSaveDisableEvent = value;
-            }
-        }
-
-        private ReqCancelEnableHandler ReqCancelEnableEvent
-        {
-            get
-            {
-                return this.reqCancelEnableEvent;
-            }
-
-            set
-            {
-                this.reqCancelEnableEvent = value;
-            }
-        }
-
-        private ReqCancelDisableHandler ReqCancelDisableEvent
-        {
-            get
-            {
-                return this.reqCancelDisableEvent;
-            }
-
-            set
-            {
-                this.reqCancelDisableEvent = value;
             }
         }
 
@@ -334,23 +155,6 @@
             return true;
         }
 
-        ///// <summary>
-        /////
-        ///// </summary>
-        ///// <returns></returns>
-        ///// <remarks></remarks>
-        //public UserControl GetCallingControl()
-        //{
-        //    if (this.IsErrorRaised)
-        //    {
-        //        return this.CallingControl;
-        //    }
-        //    else
-        //    {
-        //        return new LoginStartup();
-        //    }
-        //}
-
         /// <summary>
         ///
         /// </summary>
@@ -394,96 +198,6 @@
                 + "</params>");
 
             return doc;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void RegisterReqClose(IAppListener appEventListener)
-        {
-            this.ReqClose += new ReqCloseHandler(appEventListener.ReqClose);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void UnregisterReqClose(IAppListener appEventListener)
-        {
-            this.ReqClose -= new ReqCloseHandler(appEventListener.ReqClose);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void RegisterReqSaveEnable(IAppListener appEventListener)
-        {
-            this.ReqSaveEnable += new ReqSaveEnableHandler(appEventListener.ReqSaveEnable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void UnregisterReqSaveEnable(IAppListener appEventListener)
-        {
-            this.ReqSaveEnable -= new ReqSaveEnableHandler(appEventListener.ReqSaveEnable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void RegisterReqSaveDisable(IAppListener appEventListener)
-        {
-            this.ReqSaveDisable += new ReqSaveDisableHandler(appEventListener.ReqSaveDisable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void UnregisterReqSaveDisable(IAppListener appEventListener)
-        {
-            this.ReqSaveDisable -= new ReqSaveDisableHandler(appEventListener.ReqSaveDisable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void RegisterReqCancelEnable(IAppListener appEventListener)
-        {
-            this.ReqCancelEnable += new ReqCancelEnableHandler(appEventListener.ReqCancelEnable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void UnregisterReqCancelEnable(IAppListener appEventListener)
-        {
-            this.ReqCancelEnable -= new ReqCancelEnableHandler(appEventListener.ReqCancelEnable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void RegisterReqCancelDisable(IAppListener appEventListener)
-        {
-            this.ReqSaveDisable += new ReqSaveDisableHandler(appEventListener.ReqCancelDisable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void UnregisterReqCancelDisable(IAppListener appEventListener)
-        {
-            this.ReqSaveDisable -= new ReqSaveDisableHandler(appEventListener.ReqCancelDisable);
         }
 
         public void OnNubStatOut(
@@ -675,28 +389,6 @@
             return xmlString.ToString();
         }
 
-        ///// <summary>
-        /////
-        ///// </summary>
-        ///// <param name="sender"></param>
-        ///// <param name="e"></param>
-        ///// <remarks></remarks>
-        //private void lstStatus_KeyDown(object sender, KeyEventArgs e)
-        //{
-        //    if (this.timerStatus.Enabled == false)
-        //    {
-        //        if (e.KeyCode == Keys.Escape)
-        //        {
-        //            Application.Current.Exit();
-        //        }
-        //    }
-        //    else
-        //    {
-        //        // clear any pending key events
-        //        Application.DoEvents();
-        //    }
-        //}
-
         /// <summary>
         ///
         /// </summary>
@@ -739,17 +431,6 @@
 
                 if (this.IsErrorRaised)
                 {
-                    //                    MessageBox.Show(
-                    //#if MULTILANGUAGE
-                    //                        Translator.GetInstance().Translate(TranslatorVocabulary.DBCreationFailed),
-                    //#else
-                    //                        "Database creation failed.",
-                    //#endif
-                    //                        this.GetControlDescription(),
-                    //                        MessageBoxButtons.OK,
-                    //                        MessageBoxIcon.Exclamation,
-                    //                        MessageBoxDefaultButton.Button1);
-
                     await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         //TODO: Resource Strings
@@ -845,7 +526,7 @@
             this.Loading = true;
 
             await Task.Run(async () =>
-            {                
+            {
                 //this.TotalTicks = this.TotalTicks + this.timerStatus.Interval;
 
                 //if (this.Enabled && this.TotalTicks >= 1000)
@@ -883,8 +564,6 @@
                     }
 
                     DataIntegrityCheck();
-
-                    this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                 }
                 catch (Exception ex)
                 {

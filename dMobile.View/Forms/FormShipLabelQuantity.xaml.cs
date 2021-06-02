@@ -60,19 +60,28 @@ namespace dMobile.View.Forms
             {
                 Enum.TryParse(keyPressed, out Keycode keycode);
 
-                if (keycode == Keycode.Escape)
-                {
-                    await this.Close();
-                }
-                else if (keycode == Keycode.F1)
+                if (keycode == Keycode.Enter || keycode == Keycode.F1)
                 {
                     if (this.txtQuantity.Text != null)
                     {
+                        this.DialogResult = DialogResult.OK;
                         this.Quantity = Convert.ToInt32(this.txtQuantity.Text);
                         await this.Close();
                     }
                 }
             });
+        }
+
+        protected override bool OnBackButtonPressed()
+        {
+            Device.BeginInvokeOnMainThread(async () =>
+            {
+                base.OnBackButtonPressed();
+                this.DialogResult = DialogResult.None;
+                await this.Close();
+            });
+
+            return true;
         }
 
         /// <summary>
@@ -161,6 +170,7 @@ namespace dMobile.View.Forms
 
         private async void cmdCancel_Click(object sender, EventArgs e)
         {
+            this.DialogResult = DialogResult.None;
             await this.Close();
         }
 

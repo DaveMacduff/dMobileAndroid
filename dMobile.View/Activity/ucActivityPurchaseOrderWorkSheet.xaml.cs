@@ -22,7 +22,7 @@
     using dMobile.Resources.Models;
 
     [XamlCompilation(XamlCompilationOptions.Compile)]
-    public partial class ucActivityPurchaseOrderWorkSheet : DMobileContentPage, IAppArea, IAppPublisher
+    public partial class ucActivityPurchaseOrderWorkSheet : DMobileContentPage, IAppArea
     {
         #region Fields
 
@@ -40,11 +40,6 @@
         private int prodUnitRefno = 0;
         private ObservableCollection<string> itemsList;
         private ObservableCollection<object> dataGridMainActivityItemsList;
-        private ReqCloseHandler reqCloseEvent;
-        private ReqSaveEnableHandler reqSaveEnableEvent;
-        private ReqSaveDisableHandler reqSaveDisableEvent;
-        private ReqCancelEnableHandler reqCancelEnableEvent;
-        private ReqCancelDisableHandler reqCancelDisableEvent;
         private bool isFirstAppearance = true;
 
         #endregion
@@ -120,18 +115,7 @@
 
                 if (!this.Loading)
                 {
-                    if (keycode == Keycode.Escape)
-                    {
-                        if (await SaveChanges())
-                        {
-                            ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-                        }
-                        else
-                        {
-                            await CancelChanges();
-                        }
-                    }
-                    else if (keycode == Keycode.DpadDown)
+                    if (keycode == Keycode.DpadDown)
                     {
                         if (this.dataGridMainActivity.SelectedItem != null && Convert.ToInt32(this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem)) < this.DataGridMainActivityItemsList.Count - 1)
                         {
@@ -184,84 +168,24 @@
             base.OnDisappearing();
         }
 
-        #region Delegates
-
-        public delegate void ReqCloseHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
-        public delegate void ReqCancelDisableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
-        public delegate void ReqSaveDisableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
-        public delegate void ReqCancelEnableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
-        public delegate void ReqSaveEnableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
-
-        #endregion
-
-        #region Events
-
-        public event ReqCloseHandler ReqClose
+        protected override bool OnBackButtonPressed()
         {
-            add
+            Device.BeginInvokeOnMainThread(async () =>
             {
-                this.ReqCloseEvent = (ReqCloseHandler)Delegate.Combine(this.ReqCloseEvent, value);
-            }
+                base.OnBackButtonPressed();
 
-            remove
-            {
-                this.ReqCloseEvent = (ReqCloseHandler)Delegate.Remove(this.ReqCloseEvent, value);
-            }
+                if (await this.SaveChanges())
+                {
+                    await this.Close();
+                }
+                else if (await this.CancelChanges())
+                {
+                    await this.Close();
+                }
+            });
+
+            return true;
         }
-
-        public event ReqSaveEnableHandler ReqSaveEnable
-        {
-            add
-            {
-                this.ReqSaveEnableEvent = (ReqSaveEnableHandler)Delegate.Combine(this.ReqSaveEnableEvent, value);
-            }
-
-            remove
-            {
-                this.ReqSaveEnableEvent = (ReqSaveEnableHandler)Delegate.Remove(this.ReqSaveEnableEvent, value);
-            }
-        }
-
-        public event ReqSaveDisableHandler ReqSaveDisable
-        {
-            add
-            {
-                this.ReqSaveDisableEvent = (ReqSaveDisableHandler)Delegate.Combine(this.ReqSaveDisableEvent, value);
-            }
-
-            remove
-            {
-                this.ReqSaveDisableEvent = (ReqSaveDisableHandler)Delegate.Remove(this.ReqSaveDisableEvent, value);
-            }
-        }
-
-        public event ReqCancelEnableHandler ReqCancelEnable
-        {
-            add
-            {
-                this.ReqCancelEnableEvent = (ReqCancelEnableHandler)Delegate.Combine(this.ReqCancelEnableEvent, value);
-            }
-
-            remove
-            {
-                this.ReqCancelEnableEvent = (ReqCancelEnableHandler)Delegate.Remove(this.ReqCancelEnableEvent, value);
-            }
-        }
-
-        public event ReqCancelDisableHandler ReqCancelDisable
-        {
-            add
-            {
-                this.ReqCancelDisableEvent = (ReqCancelDisableHandler)Delegate.Combine(this.ReqCancelDisableEvent, value);
-            }
-
-            remove
-            {
-                this.ReqCancelDisableEvent = (ReqCancelDisableHandler)Delegate.Remove(this.ReqCancelDisableEvent, value);
-            }
-        }
-
-        #endregion
 
         #region Properties
 
@@ -288,71 +212,6 @@
             set
             {
                 this.scanner = value;
-            }
-        }
-
-        private ReqCloseHandler ReqCloseEvent
-        {
-            get
-            {
-                return this.reqCloseEvent;
-            }
-
-            set
-            {
-                this.reqCloseEvent = value;
-            }
-        }
-
-        private ReqSaveEnableHandler ReqSaveEnableEvent
-        {
-            get
-            {
-                return this.reqSaveEnableEvent;
-            }
-
-            set
-            {
-                this.reqSaveEnableEvent = value;
-            }
-        }
-
-        private ReqSaveDisableHandler ReqSaveDisableEvent
-        {
-            get
-            {
-                return this.reqSaveDisableEvent;
-            }
-
-            set
-            {
-                this.reqSaveDisableEvent = value;
-            }
-        }
-
-        private ReqCancelEnableHandler ReqCancelEnableEvent
-        {
-            get
-            {
-                return this.reqCancelEnableEvent;
-            }
-
-            set
-            {
-                this.reqCancelEnableEvent = value;
-            }
-        }
-
-        private ReqCancelDisableHandler ReqCancelDisableEvent
-        {
-            get
-            {
-                return this.reqCancelDisableEvent;
-            }
-
-            set
-            {
-                this.reqCancelDisableEvent = value;
             }
         }
 
@@ -616,7 +475,7 @@
 
                             if (dialogResult == DialogResult.OK)
                             {
-                                xmlDocEdit = form.DisplayControlData;
+                                xmlDocEdit = await form.GetXML();
 
                                 // TODO: Fix sorting
                                 //string strOldSort = ActItem.DataViewItems.Sort;
@@ -658,7 +517,7 @@
 
                             if (dialogResult == DialogResult.OK)
                             {
-                                xmlDocEdit = form.DisplayControlData;
+                                xmlDocEdit = await form.GetXML();
                                 XDocument request = XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" + "<params>" + ("<ProductUnitRefno>" + ActItem.ProdInfo.UnitRefno + "</ProductUnitRefno>") + ("<ProductCode>" + ActItem.ProdInfo.Code + "</ProductCode>") + ("<ProductUnitIsBC>" + ActItem.ProdInfo.UnitIsBC + "</ProductUnitIsBC>") + ("<UnitCode>" + ActItem.ProdInfo.UnitCode + "</UnitCode>") + ("<ProductUnitBarCodeCode>" + BarParse.ProductIdentifier + "</ProductUnitBarCodeCode>") + ("<ProductUnitBarCodeSymbologyPrefix>" + BarParse.SymbologyPrefix + "</ProductUnitBarCodeSymbologyPrefix>") + ("<alt_qty>" + xmlDocEdit.Root.Element("alt_qty").Value + "</alt_qty>") + ("<base_qty>" + xmlDocEdit.Root.Element("base_qty").Value + "</base_qty>") + ("<wt_qty>" + xmlDocEdit.Root.Element("wt_qty").Value + "</wt_qty>") + ("<whs_id>" + LocMap.LoginWhsLocMapRefno + "</whs_id>") + ("<refno>" + ActItem.FKRefno + "</refno>") + ("<itm_refno>" + ActItem.FKRefno + "</itm_refno>") + ("<alt_unit>" + ActItem.ProdInfo.UnitCode + "</alt_unit>") + ("<base_unit>" + ActItem.ProdInfo.BaseUnitCode + "</base_unit>") + ("<wt_unit>" + ActItem.ProdInfo.WeightUnitCode + "</wt_unit>") + "</params>");
                                 await ActItem.Insert(request, false);
                             }
@@ -738,7 +597,7 @@
 
                     if (await Device.InvokeOnMainThreadAsync(async () => await form.DisplayControl.ShowDialog() == DialogResult.OK))
                     {
-                        xmlDocProduct = form.DisplayControlData;
+                        xmlDocProduct = await form.GetXML();
                         this.prodUnitRefno = int.Parse(xmlDocProduct.Root.Element("ProductUnitRefno").Value);
 
                         //IF A PRODUCT WAS SELECTED, CREATE THE XML FOR THE BAR CODE ACTIVITY INSERT
@@ -868,6 +727,7 @@
             {
                 await ScannerDisable();
             }
+
             return true;
         }
 
@@ -959,12 +819,7 @@
             if (!SysEnvironment.GetInstance().IsApplicationExitInvoked)
             {
                 await ScannerEnable();
-
                 await Device.InvokeOnMainThreadAsync(() => updnBarCodeModifier1.SelectedItem = SysEnv.CurrentBarCodeModifier1);
-
-                ReqCancelEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-                ReqSaveEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-
                 LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(LocMap.LoginWhsLocMapRefno);
                 await RefreshData();
             }
@@ -1020,7 +875,7 @@
 
                     if (dialogResult == DialogResult.OK)
                     {
-                        xmlDocProduct = formSelectProd.DisplayControlData;
+                        xmlDocProduct = await formSelectProd.GetXML();
                         ActItem.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(int.Parse(xmlDocProduct.Root.Element("ProductUnitRefno").Value));
                         ActItem.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(ActItem.ProdInfo.Refno);
                         iActivityItemFoundRefno = await ActItem.GetRefnoFromProdUnitRefno(int.Parse(xmlDocProduct.Root.Element("ProductUnitRefno").Value));
@@ -1031,11 +886,10 @@
                             FormDialogContainer formPurchaseOrderWorkSheetEdit = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucActivityPurchaseOrderWorkSheetEdit, ActDetail, SysCommon.ActSubTypes.NotApplicable);
 
                             dialogResult = await formPurchaseOrderWorkSheetEdit.DisplayControl.ShowDialog();
-                            await formPurchaseOrderWorkSheetEdit.SaveChanges(this, new EventArgs());
 
                             if (dialogResult == DialogResult.OK)
                             {
-                                xmlDocEdit = formPurchaseOrderWorkSheetEdit.DisplayControlData;
+                                xmlDocEdit = await formPurchaseOrderWorkSheetEdit.GetXML();
                                 XDocument request = XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" + "<params>" + ("<ProductUnitRefno>" + xmlDocProduct.Root.Element("ProductUnitRefno").Value + "</ProductUnitRefno>") + ("<ProductCode>" + xmlDocProduct.Root.Element("ProductCode").Value + "</ProductCode>") + ("<ProductUnitIsBC>" + xmlDocProduct.Root.Element("ProductUnitIsBC").Value + "</ProductUnitIsBC>") + ("<UnitCode>" + xmlDocProduct.Root.Element("UnitCode").Value + "</UnitCode>") + ("<ProductUnitBarCodeCode>" + strProductUnitBarCodeCode + "</ProductUnitBarCodeCode>") + ("<ProductUnitBarCodeSymbologyPrefix>" + strBarCodeSymbologyPrefix + "</ProductUnitBarCodeSymbologyPrefix>") + ("<alt_qty>" + xmlDocEdit.Root.Element("alt_qty").Value + "</alt_qty>") + ("<base_qty>" + xmlDocEdit.Root.Element("base_qty").Value + "</base_qty>") + ("<wt_qty>" + xmlDocEdit.Root.Element("wt_qty").Value + "</wt_qty>") + ("<whs_id>" + LocMap.LoginWhsLocMapRefno + "</whs_id>") + ("<refno>" + ActItem.FKRefno + "</refno>") + ("<itm_refno>" + ActItem.FKRefno + "</itm_refno>") + ("<alt_unit>" + ActItem.ProdInfo.UnitCode + "</alt_unit>") + ("<base_unit>" + ActItem.ProdInfo.BaseUnitCode + "</base_unit>") + ("<wt_unit>" + ActItem.ProdInfo.WeightUnitCode + "</wt_unit>") + "</params>");
                                 await ActItem.Update(request);
                             }
@@ -1057,8 +911,7 @@
 
                             if (dialogResult == DialogResult.OK)
                             {
-                                await form.SaveChanges(this, new EventArgs());
-                                xmlDocEdit = form.DisplayControlData;
+                                xmlDocEdit = await form.GetXML();
                                 XDocument request = XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" + "<params>" + ("<ProductUnitRefno>" + ActItem.ProdInfo.UnitRefno + "</ProductUnitRefno>") + ("<ProductCode>" + ActItem.ProdInfo.Code + "</ProductCode>") + ("<ProductUnitIsBC>" + ActItem.ProdInfo.UnitIsBC + "</ProductUnitIsBC>") + ("<UnitCode>" + ActItem.ProdInfo.UnitCode + "</UnitCode>") + ("<ProductUnitBarCodeCode>" + strProductUnitBarCodeCode + "</ProductUnitBarCodeCode>") + ("<ProductUnitBarCodeSymbologyPrefix>" + strBarCodeSymbologyPrefix + "</ProductUnitBarCodeSymbologyPrefix>") + ("<alt_qty>" + xmlDocEdit.Root.Element("alt_qty").Value + "</alt_qty>") + ("<base_qty>" + xmlDocEdit.Root.Element("base_qty").Value + "</base_qty>") + ("<wt_qty>" + xmlDocEdit.Root.Element("wt_qty").Value + "</wt_qty>") + ("<whs_id>" + LocMap.LoginWhsLocMapRefno + "</whs_id>") + ("<refno>" + ActItem.FKRefno + "</refno>") + ("<itm_refno>" + ActItem.FKRefno + "</itm_refno>") + ("<alt_unit>" + ActItem.ProdInfo.UnitCode + "</alt_unit>") + ("<base_unit>" + ActItem.ProdInfo.BaseUnitCode + "</base_unit>") + ("<wt_unit>" + ActItem.ProdInfo.WeightUnitCode + "</wt_unit>") + "</params>");
 
                                 await ActItem.Insert(request, false);
@@ -1093,100 +946,6 @@
             }
 
             await ScannerEnable();
-        }
-
-        #endregion
-
-        #region IAppPublisher Members
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void RegisterReqClose(IAppListener appEventListener)
-        {
-            ReqClose += new ReqCloseHandler(appEventListener.ReqClose);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void UnregisterReqClose(IAppListener appEventListener)
-        {
-            ReqClose -= new ReqCloseHandler(appEventListener.ReqClose);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void RegisterReqSaveEnable(IAppListener appEventListener)
-        {
-            ReqSaveEnable += new ReqSaveEnableHandler(appEventListener.ReqSaveEnable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void UnregisterReqSaveEnable(IAppListener appEventListener)
-        {
-            ReqSaveEnable -= new ReqSaveEnableHandler(appEventListener.ReqSaveEnable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void RegisterReqSaveDisable(IAppListener appEventListener)
-        {
-            ReqSaveDisable += new ReqSaveDisableHandler(appEventListener.ReqSaveDisable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void UnregisterReqSaveDisable(IAppListener appEventListener)
-        {
-            ReqSaveDisable -= new ReqSaveDisableHandler(appEventListener.ReqSaveDisable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void RegisterReqCancelEnable(IAppListener appEventListener)
-        {
-            ReqCancelEnable += new ReqCancelEnableHandler(appEventListener.ReqCancelEnable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void UnregisterReqCancelEnable(IAppListener appEventListener)
-        {
-            ReqCancelEnable -= new ReqCancelEnableHandler(appEventListener.ReqCancelEnable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void RegisterReqCancelDisable(IAppListener appEventListener)
-        {
-            ReqSaveDisable += new ReqSaveDisableHandler(appEventListener.ReqCancelDisable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void UnregisterReqCancelDisable(IAppListener appEventListener)
-        {
-            ReqSaveDisable -= new ReqSaveDisableHandler(appEventListener.ReqCancelDisable);
         }
 
         #endregion

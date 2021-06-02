@@ -13,16 +13,10 @@
     using Xamarin.Forms.Xaml;
 
     [XamlCompilation(XamlCompilationOptions.Compile)]
-    public partial class ucUtilitiesMenu : DMobileContentPage, IAppArea, IAppPublisher
+    public partial class ucUtilitiesMenu : DMobileContentPage, IAppArea
     {
-        //private UserControl callingControl = new ucOptionsMenu();
         private SysEnvironment sysEnv;
         private bool isControlsLoaded = false;
-        private ReqCloseHandler reqCloseEvent;
-        private ReqSaveEnableHandler reqSaveEnableEvent;
-        private ReqSaveDisableHandler reqSaveDisableEvent;
-        private ReqCancelEnableHandler reqCancelEnableEvent;
-        private ReqCancelDisableHandler reqCancelDisableEvent;
 
         public ucUtilitiesMenu()
         {
@@ -55,9 +49,7 @@
 
                 if (keycode == Keycode.Enter)
                 {
-                    this.DisableControls();                    
-                    //this.CallingControl = new ucActivityProductLabel();
-                    this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                    this.DisableControls();
                     this.IsControlLoaded = false;
 
                     ucActivityProductLabel productLabel = new ucActivityProductLabel();
@@ -66,8 +58,6 @@
                 else if (keycode == Keycode.F1)
                 {
                     this.DisableControls();
-                    //this.CallingControl = new ucOptionsMenu();
-                    this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     this.IsControlLoaded = false;
 
                     await this.Close();
@@ -75,28 +65,22 @@
                 else if (keycode == Keycode.Num1)
                 {
                     this.DisableControls();
-                    //this.CallingControl = new ucActivityScanBarCodes();
-                    this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     this.IsControlLoaded = false;
-                    
+
                     ucActivityScanBarCodes scanBarcodes = new ucActivityScanBarCodes();
                     await scanBarcodes.Show();
                 }
                 else if (keycode == Keycode.Num2)
                 {
                     this.DisableControls();
-                    //this.CallingControl = new ucActivityProductLabel();
-                    this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     this.IsControlLoaded = false;
-                    
+
                     ucActivityProductLabel productLabel = new ucActivityProductLabel();
                     await productLabel.ShowDialog();
                 }
                 else if (keycode == Keycode.Num3)
                 {
                     this.DisableControls();
-                    //this.CallingControl = new AssignDefaultLocation();
-                    this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     this.IsControlLoaded = false;
 
                     ucAssignDefaultLocation assignDefaultLocation = new ucAssignDefaultLocation();
@@ -120,144 +104,8 @@
         /// </summary>
         protected override void OnDisappearing()
         {
-            base.OnDisappearing();
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
-        }
-
-        public delegate void ReqCloseHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
-        public delegate void ReqCancelDisableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
-        public delegate void ReqSaveDisableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
-        public delegate void ReqCancelEnableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
-        public delegate void ReqSaveEnableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
-        
-        public event ReqCloseHandler ReqClose
-        {
-            add
-            {
-                this.ReqCloseEvent = (ReqCloseHandler)Delegate.Combine(this.ReqCloseEvent, value);
-            }
-
-            remove
-            {
-                this.ReqCloseEvent = (ReqCloseHandler)Delegate.Remove(this.ReqCloseEvent, value);
-            }
-        }
-
-        public event ReqSaveEnableHandler ReqSaveEnable
-        {
-            add
-            {
-                this.ReqSaveEnableEvent = (ReqSaveEnableHandler)Delegate.Combine(this.ReqSaveEnableEvent, value);
-            }
-
-            remove
-            {
-                this.ReqSaveEnableEvent = (ReqSaveEnableHandler)Delegate.Remove(this.ReqSaveEnableEvent, value);
-            }
-        }
-
-        public event ReqSaveDisableHandler ReqSaveDisable
-        {
-            add
-            {
-                this.ReqSaveDisableEvent = (ReqSaveDisableHandler)Delegate.Combine(this.ReqSaveDisableEvent, value);
-            }
-
-            remove
-            {
-                this.ReqSaveDisableEvent = (ReqSaveDisableHandler)Delegate.Remove(this.ReqSaveDisableEvent, value);
-            }
-        }
-
-        public event ReqCancelEnableHandler ReqCancelEnable
-        {
-            add
-            {
-                this.ReqCancelEnableEvent = (ReqCancelEnableHandler)Delegate.Combine(this.ReqCancelEnableEvent, value);
-            }
-
-            remove
-            {
-                this.ReqCancelEnableEvent = (ReqCancelEnableHandler)Delegate.Remove(this.ReqCancelEnableEvent, value);
-            }
-        }
-
-        public event ReqCancelDisableHandler ReqCancelDisable
-        {
-            add
-            {
-                this.ReqCancelDisableEvent = (ReqCancelDisableHandler)Delegate.Combine(this.ReqCancelDisableEvent, value);
-            }
-
-            remove
-            {
-                this.ReqCancelDisableEvent = (ReqCancelDisableHandler)Delegate.Remove(this.ReqCancelDisableEvent, value);
-            }
-        }
-
-        private ReqCloseHandler ReqCloseEvent
-        {
-            get
-            {
-                return this.reqCloseEvent;
-            }
-
-            set
-            {
-                this.reqCloseEvent = value;
-            }
-        }
-
-        private ReqSaveEnableHandler ReqSaveEnableEvent
-        {
-            get
-            {
-                return this.reqSaveEnableEvent;
-            }
-
-            set
-            {
-                this.reqSaveEnableEvent = value;
-            }
-        }
-
-        private ReqSaveDisableHandler ReqSaveDisableEvent
-        {
-            get
-            {
-                return this.reqSaveDisableEvent;
-            }
-
-            set
-            {
-                this.reqSaveDisableEvent = value;
-            }
-        }
-
-        private ReqCancelEnableHandler ReqCancelEnableEvent
-        {
-            get
-            {
-                return this.reqCancelEnableEvent;
-            }
-
-            set
-            {
-                this.reqCancelEnableEvent = value;
-            }
-        }
-
-        private ReqCancelDisableHandler ReqCancelDisableEvent
-        {
-            get
-            {
-                return this.reqCancelDisableEvent;
-            }
-
-            set
-            {
-                this.reqCancelDisableEvent = value;
-            }
+            base.OnDisappearing();
         }
 
         private bool IsControlLoaded
@@ -272,19 +120,6 @@
                 this.isControlsLoaded = value;
             }
         }
-
-        //private UserControl CallingControl
-        //{
-        //    get
-        //    {
-        //        return this.callingControl;
-        //    }
-
-        //    set
-        //    {
-        //        this.callingControl = value;
-        //    }
-        //}
 
         private SysEnvironment SysEnv
         {
@@ -340,16 +175,6 @@
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        //public UserControl GetCallingControl()
-        //{
-        //    return this.CallingControl;
-        //}
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
         public string GetControlDescription()
         {
             // TODO: Resource strings
@@ -392,96 +217,6 @@
         }
 
         /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void RegisterReqClose(IAppListener appEventListener)
-        {
-            this.ReqClose += new ReqCloseHandler(appEventListener.ReqClose);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void UnregisterReqClose(IAppListener appEventListener)
-        {
-            this.ReqClose -= new ReqCloseHandler(appEventListener.ReqClose);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void RegisterReqSaveEnable(IAppListener appEventListener)
-        {
-            this.ReqSaveEnable += new ReqSaveEnableHandler(appEventListener.ReqSaveEnable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void UnregisterReqSaveEnable(IAppListener appEventListener)
-        {
-            this.ReqSaveEnable -= new ReqSaveEnableHandler(appEventListener.ReqSaveEnable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void RegisterReqSaveDisable(IAppListener appEventListener)
-        {
-            this.ReqSaveDisable += new ReqSaveDisableHandler(appEventListener.ReqSaveDisable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void UnregisterReqSaveDisable(IAppListener appEventListener)
-        {
-            this.ReqSaveDisable -= new ReqSaveDisableHandler(appEventListener.ReqSaveDisable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void RegisterReqCancelEnable(IAppListener appEventListener)
-        {
-            this.ReqCancelEnable += new ReqCancelEnableHandler(appEventListener.ReqCancelEnable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void UnregisterReqCancelEnable(IAppListener appEventListener)
-        {
-            this.ReqCancelEnable -= new ReqCancelEnableHandler(appEventListener.ReqCancelEnable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void RegisterReqCancelDisable(IAppListener appEventListener)
-        {
-            this.ReqSaveDisable += new ReqSaveDisableHandler(appEventListener.ReqCancelDisable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void UnregisterReqCancelDisable(IAppListener appEventListener)
-        {
-            this.ReqSaveDisable -= new ReqSaveDisableHandler(appEventListener.ReqCancelDisable);
-        }
-
-        /// <summary>
         ///
         /// </summary>
         /// <remarks></remarks>
@@ -490,9 +225,6 @@
             this.cmdProductLabels.IsEnabled = false;
             this.cmdScanBarCodes.IsEnabled = false;
             this.cmdAssignDefaultLocation.IsEnabled = false;
-
-            this.ReqCancelDisableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-            this.ReqSaveDisableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
         }
 
         /// <summary>
@@ -504,10 +236,8 @@
         private async void cmdScanBarCodes_Click(object sender, EventArgs e)
         {
             this.DisableControls();
-            //this.CallingControl = new ucActivityScanBarCodes();
-            this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
             this.IsControlLoaded = false;
-            
+
             ucActivityScanBarCodes scanBarcodes = new ucActivityScanBarCodes();
             await scanBarcodes.Show();
         }
@@ -521,8 +251,6 @@
         private async void cmdProductLabels_Click(object sender, EventArgs e)
         {
             this.DisableControls();
-            //this.CallingControl = new ucActivityProductLabel();
-            this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
             this.IsControlLoaded = false;
 
             ucActivityProductLabel productLabel = new ucActivityProductLabel();
@@ -538,8 +266,6 @@
         private async void cmdAssignDefaultLocation_Click(object sender, EventArgs e)
         {
             this.DisableControls();
-            //this.CallingControl = new AssignDefaultLocation();
-            this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
             this.IsControlLoaded = false;
 
             ucAssignDefaultLocation assignDefaultLocation = new ucAssignDefaultLocation();
@@ -563,7 +289,6 @@
 
                     if (this.SysEnv.IsCommunicationTestSuccessful && !this.SysEnv.SysSettings.IsDisconnectedMode)
                     {
-                        ////this.cmdProductLabels.IsEnabled = true;
                         this.cmdProductLabels.IsEnabled = false;
                     }
                     else
@@ -581,8 +306,6 @@
                     }
 
                     this.cmdScanBarCodes.Focus();
-
-                    this.ReqCancelEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                 }
             }
         }

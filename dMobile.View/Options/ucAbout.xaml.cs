@@ -16,17 +16,11 @@
     using Xamarin.Forms.Xaml;
 
     [XamlCompilation(XamlCompilationOptions.Compile)]
-    public partial class ucAbout : DMobileContentPage, IAppArea, IAppPublisher
+    public partial class ucAbout : DMobileContentPage, IAppArea
     {
-        //UserControl callingControl = new ucOptionsMenu();
         NetworkInterface nic = null;
         private bool isControlLoaded = false;
         private ObservableCollection<IPAddr> itemsList;
-        private ReqCloseHandler reqCloseEvent;
-        private ReqSaveEnableHandler reqSaveEnableEvent;
-        private ReqSaveDisableHandler reqSaveDisableEvent;
-        private ReqCancelEnableHandler reqCancelEnableEvent;
-        private ReqCancelDisableHandler reqCancelDisableEvent;
 
         /// <summary>
         ///
@@ -89,17 +83,24 @@
                 {
                     if (await this.SaveChanges())
                     {
-                        this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-                    }
-                }
-                else if (keycode == Keycode.Escape)
-                {
-                    if (await this.CancelChanges())
-                    {
-                        this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                        await this.Close();
                     }
                 }
             });
+        }
+
+        protected override bool OnBackButtonPressed()
+        {
+            Device.BeginInvokeOnMainThread(async () =>
+            {
+                if (await this.CancelChanges())
+                {
+                    base.OnBackButtonPressed();
+                    await this.Close();
+                }
+            });
+
+            return true;
         }
 
         /// <summary>
@@ -110,144 +111,6 @@
             base.OnDisappearing();
 
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
-        }
-
-        public delegate void ReqCloseHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
-        public delegate void ReqCancelDisableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
-        public delegate void ReqSaveDisableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
-        public delegate void ReqCancelEnableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
-        public delegate void ReqSaveEnableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
-
-        public event ReqCloseHandler ReqClose
-        {
-            add
-            {
-                this.ReqCloseEvent = (ReqCloseHandler)Delegate.Combine(this.ReqCloseEvent, value);
-            }
-
-            remove
-            {
-                this.ReqCloseEvent = (ReqCloseHandler)Delegate.Remove(this.ReqCloseEvent, value);
-            }
-        }
-
-        public event ReqSaveEnableHandler ReqSaveEnable
-        {
-            add
-            {
-                this.ReqSaveEnableEvent = (ReqSaveEnableHandler)Delegate.Combine(this.ReqSaveEnableEvent, value);
-            }
-
-            remove
-            {
-                this.ReqSaveEnableEvent = (ReqSaveEnableHandler)Delegate.Remove(this.ReqSaveEnableEvent, value);
-            }
-        }
-
-        public event ReqSaveDisableHandler ReqSaveDisable
-        {
-            add
-            {
-                this.ReqSaveDisableEvent = (ReqSaveDisableHandler)Delegate.Combine(this.ReqSaveDisableEvent, value);
-            }
-
-            remove
-            {
-                this.ReqSaveDisableEvent = (ReqSaveDisableHandler)Delegate.Remove(this.ReqSaveDisableEvent, value);
-            }
-        }
-
-        public event ReqCancelEnableHandler ReqCancelEnable
-        {
-            add
-            {
-                this.ReqCancelEnableEvent = (ReqCancelEnableHandler)Delegate.Combine(this.ReqCancelEnableEvent, value);
-            }
-
-            remove
-            {
-                this.ReqCancelEnableEvent = (ReqCancelEnableHandler)Delegate.Remove(this.ReqCancelEnableEvent, value);
-            }
-        }
-
-        public event ReqCancelDisableHandler ReqCancelDisable
-        {
-            add
-            {
-                this.ReqCancelDisableEvent = (ReqCancelDisableHandler)Delegate.Combine(this.ReqCancelDisableEvent, value);
-            }
-
-            remove
-            {
-                this.ReqCancelDisableEvent = (ReqCancelDisableHandler)Delegate.Remove(this.ReqCancelDisableEvent, value);
-            }
-        }
-
-
-
-        private ReqCloseHandler ReqCloseEvent
-        {
-            get
-            {
-                return this.reqCloseEvent;
-            }
-
-            set
-            {
-                this.reqCloseEvent = value;
-            }
-        }
-
-        private ReqSaveEnableHandler ReqSaveEnableEvent
-        {
-            get
-            {
-                return this.reqSaveEnableEvent;
-            }
-
-            set
-            {
-                this.reqSaveEnableEvent = value;
-            }
-        }
-
-        private ReqSaveDisableHandler ReqSaveDisableEvent
-        {
-            get
-            {
-                return this.reqSaveDisableEvent;
-            }
-
-            set
-            {
-                this.reqSaveDisableEvent = value;
-            }
-        }
-
-        private ReqCancelEnableHandler ReqCancelEnableEvent
-        {
-            get
-            {
-                return this.reqCancelEnableEvent;
-            }
-
-            set
-            {
-                this.reqCancelEnableEvent = value;
-            }
-        }
-
-        private ReqCancelDisableHandler ReqCancelDisableEvent
-        {
-            get
-            {
-                return this.reqCancelDisableEvent;
-            }
-
-            set
-            {
-                this.reqCancelDisableEvent = value;
-            }
         }
 
         public bool IsControlLoaded
@@ -263,19 +126,6 @@
             }
         }
 
-        //public UserControl CallingControl
-        //{
-        //    get
-        //    {
-        //        return this.callingControl;
-        //    }
-
-        //    set
-        //    {
-        //        this.callingControl = value;
-        //    }
-        //}
-
         public NetworkInterface NIC
         {
             get
@@ -288,9 +138,6 @@
                 this.nic = value;
             }
         }
-
-
-
 
         /// <summary>
         /// Unregister the bar code scan event handler and disable the scanner.
@@ -327,16 +174,6 @@
         {
             return true;
         }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        //public UserControl GetCallingControl()
-        //{
-        //    return this.CallingControl;
-        //}
 
         /// <summary>
         ///
@@ -384,101 +221,6 @@
             return xmldocParams;
         }
 
-
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void RegisterReqClose(IAppListener appEventListener)
-        {
-            ReqClose += new ReqCloseHandler(appEventListener.ReqClose);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void UnregisterReqClose(IAppListener appEventListener)
-        {
-            ReqClose -= new ReqCloseHandler(appEventListener.ReqClose);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void RegisterReqSaveEnable(IAppListener appEventListener)
-        {
-            ReqSaveEnable += new ReqSaveEnableHandler(appEventListener.ReqSaveEnable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void UnregisterReqSaveEnable(IAppListener appEventListener)
-        {
-            ReqSaveEnable -= new ReqSaveEnableHandler(appEventListener.ReqSaveEnable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void RegisterReqSaveDisable(IAppListener appEventListener)
-        {
-            ReqSaveDisable += new ReqSaveDisableHandler(appEventListener.ReqSaveDisable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void UnregisterReqSaveDisable(IAppListener appEventListener)
-        {
-            ReqSaveDisable -= new ReqSaveDisableHandler(appEventListener.ReqSaveDisable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void RegisterReqCancelEnable(IAppListener appEventListener)
-        {
-            ReqCancelEnable += new ReqCancelEnableHandler(appEventListener.ReqCancelEnable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void UnregisterReqCancelEnable(IAppListener appEventListener)
-        {
-            ReqCancelEnable -= new ReqCancelEnableHandler(appEventListener.ReqCancelEnable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void RegisterReqCancelDisable(IAppListener appEventListener)
-        {
-            ReqSaveDisable += new ReqSaveDisableHandler(appEventListener.ReqCancelDisable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void UnregisterReqCancelDisable(IAppListener appEventListener)
-        {
-            ReqSaveDisable -= new ReqSaveDisableHandler(appEventListener.ReqCancelDisable);
-        }
-
-
-
-
         /// <summary>
         ///
         /// </summary>
@@ -493,13 +235,6 @@
                 {
                     this.IsControlLoaded = true;
                     this.lblDeviceIDData.Text = SysCommon.WordWrap2String(SysDeviceID.GetDeviceID(), 30);
-
-                    //if (this.lstDeviceNameIP.SelectedIndices.Count != 1)
-                    //{
-                    //    this.lstDeviceNameIP.Items[0].Focused = true;
-                    //}
-
-                    this.ReqCancelEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                 }
             }
         }
@@ -510,9 +245,6 @@
         /// <remarks></remarks>
         private void RefreshNICList()
         {
-            //this.lstDeviceNameIP.BeginUpdate();
-            //this.lstDeviceNameIP.Items.Clear();
-
             IPAddress IpAddress = Dns.GetHostAddresses(Dns.GetHostName()).FirstOrDefault();
 
             foreach (NetworkInterface ni in NetworkInterface.GetAllNetworkInterfaces())
@@ -532,16 +264,7 @@
                         this.itemsList.Add(test);
                     }
                 }
-
-                //string s = ni.Name + " " + ni.GetPhysicalAddress().ToString();
-
-                //string[] s = new string[] { ni.Name, ni.CurrentIpAddress.ToString() };
-                //ListViewItem lvi = new ListViewItem(s);
-                //lvi.Tag = ni;
-                //this.lstDeviceNameIP.Items.Add(lvi);
             }
-
-            //this.lstDeviceNameIP.EndUpdate();
         }
 
         private class IPAddr : ContentPage
@@ -605,18 +328,13 @@
             await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Assembly Versions", message, "OK"));
         }
 
-
         private void LstDeviceNameIP_ItemSelected(object sender, SelectedItemChangedEventArgs e)
         {
-            //if (lstDeviceNameIP.SelectedIndices.Count > 0)
-            //{
-            //this.NIC = (NetworkInterface)(this.lstDeviceNameIP.Items[this.lstDeviceNameIP.SelectedIndices[0]].Tag);
             var test = (IPAddr)this.lstDeviceNameIP.SelectedItem;
             this.NIC = test.networkInterface;
             this.lblMACAddressData.Text = this.NIC.GetPhysicalAddress().ToString();
             this.lblSpeedData.Text = this.NIC.Speed.ToString();
             this.lblStatusData.Text = this.NIC.OperationalStatus.ToString();
-            //}
         }
     }
 }

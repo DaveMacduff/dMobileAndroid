@@ -16,7 +16,7 @@ using Xamarin.Forms.Xaml;
 namespace dMobile.View.Activity
 {
     [XamlCompilation(XamlCompilationOptions.Compile)]
-    public partial class ucActivityHdrProductionTicketFilter : DMobileModal, IAppArea, IAppPublisher
+    public partial class ucActivityHdrProductionTicketFilter : DMobileModal, IAppArea
     {
         #region Fields
 
@@ -29,11 +29,6 @@ namespace dMobile.View.Activity
         private bool isControlLoaded = false;
         private string m_strFullClassName = "dMobile.ucActivityHdrProductionTicketFilter";
         private bool m_bChangesMade = false;
-        private ReqCloseHandler reqCloseEvent;
-        private ReqSaveEnableHandler reqSaveEnableEvent;
-        private ReqSaveDisableHandler reqSaveDisableEvent;
-        private ReqCancelEnableHandler reqCancelEnableEvent;
-        private ReqCancelDisableHandler reqCancelDisableEvent;
         private Dictionary<string, Sort> filters = new Dictionary<string, Sort>();
 
         #endregion
@@ -110,15 +105,18 @@ namespace dMobile.View.Activity
 
                 if (!this.Loading)
                 {
-                    if (keycode == Keycode.Escape || keycode == Keycode.F1)
+                    if (keycode == Keycode.F1)
                     {
                         if (await SaveChanges())
                         {
-                            ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs()); ;
+                            this.DialogResult = DialogResult.OK;
+                            await this.Close();
                         }
                         else
                         {
+                            this.DialogResult = DialogResult.None;
                             await CancelChanges();
+                            await this.Close();
                         }
                     }
                 }
@@ -146,113 +144,31 @@ namespace dMobile.View.Activity
             base.OnDisappearing();
         }
 
-        #endregion
-
-        #region Delegates
-
-        public delegate void ReqCloseHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
-        public delegate void ReqSaveEnableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
-        public delegate void ReqSaveDisableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
-        public delegate void ReqCancelEnableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
-        public delegate void ReqCancelDisableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
-
-        #endregion
-
-        #region Events
-
-        public event ReqCloseHandler ReqClose
+        protected override bool OnBackButtonPressed()
         {
-            add
+            Device.BeginInvokeOnMainThread(async () =>
             {
-                ReqCloseEvent = (ReqCloseHandler)Delegate.Combine(ReqCloseEvent, value);
-            }
-            remove
-            {
-                ReqCloseEvent = (ReqCloseHandler)Delegate.Remove(ReqCloseEvent, value);
-            }
-        }
+                base.OnBackButtonPressed();
 
-        public event ReqSaveEnableHandler ReqSaveEnable
-        {
-            add
-            {
-                ReqSaveEnableEvent = (ReqSaveEnableHandler)Delegate.Combine(ReqSaveEnableEvent, value);
-            }
-            remove
-            {
-                ReqSaveEnableEvent = (ReqSaveEnableHandler)Delegate.Remove(ReqSaveEnableEvent, value);
-            }
-        }
+                if (await SaveChanges())
+                {
+                    this.DialogResult = DialogResult.OK;
+                    await this.Close();
+                }
+                else
+                {
+                    this.DialogResult = DialogResult.None;
+                    await CancelChanges();
+                    await this.Close();
+                }
+            });
 
-        public event ReqSaveDisableHandler ReqSaveDisable
-        {
-            add
-            {
-                ReqSaveDisableEvent = (ReqSaveDisableHandler)Delegate.Combine(ReqSaveDisableEvent, value);
-            }
-            remove
-            {
-                ReqSaveDisableEvent = (ReqSaveDisableHandler)Delegate.Remove(ReqSaveDisableEvent, value);
-            }
-        }
-
-        public event ReqCancelEnableHandler ReqCancelEnable
-        {
-            add
-            {
-                ReqCancelEnableEvent = (ReqCancelEnableHandler)Delegate.Combine(ReqCancelEnableEvent, value);
-            }
-            remove
-            {
-                ReqCancelEnableEvent = (ReqCancelEnableHandler)Delegate.Remove(ReqCancelEnableEvent, value);
-            }
-        }
-
-        public event ReqCancelDisableHandler ReqCancelDisable
-        {
-            add
-            {
-                ReqCancelDisableEvent = (ReqCancelDisableHandler)Delegate.Combine(ReqCancelDisableEvent, value);
-            }
-            remove
-            {
-                ReqCancelDisableEvent = (ReqCancelDisableHandler)Delegate.Remove(ReqCancelDisableEvent, value);
-            }
+            return true;
         }
 
         #endregion
 
         #region Properties
-
-        private ReqCloseHandler ReqCloseEvent
-        {
-            get { return reqCloseEvent; }
-            set { reqCloseEvent = value; }
-        }
-
-        private ReqSaveEnableHandler ReqSaveEnableEvent
-        {
-            get { return reqSaveEnableEvent; }
-            set { reqSaveEnableEvent = value; }
-        }
-
-        private ReqSaveDisableHandler ReqSaveDisableEvent
-        {
-            get { return reqSaveDisableEvent; }
-            set { reqSaveDisableEvent = value; }
-        }
-
-        private ReqCancelEnableHandler ReqCancelEnableEvent
-        {
-            get { return reqCancelEnableEvent; }
-            set { reqCancelEnableEvent = value; }
-        }
-
-        private ReqCancelDisableHandler ReqCancelDisableEvent
-        {
-            get { return reqCancelDisableEvent; }
-            set { reqCancelDisableEvent = value; }
-        }
 
         public ProductionTicketSettings TicketSettings
         {
@@ -454,9 +370,6 @@ namespace dMobile.View.Activity
                 cboSortBy1.SelectedIndex = TicketSettings.iSortBy1Index;
                 cboSortBy2.SelectedIndex = TicketSettings.iSortBy2Index;
                 cboSortBy3.SelectedIndex = TicketSettings.iSortBy3Index;
-
-                ReqCancelEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-                ReqSaveEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
             }
         }
 
@@ -503,7 +416,7 @@ namespace dMobile.View.Activity
         public string GetControlDescription()
         {
             // TODO: Resource strings
-            return "dMobile Activity Production Filter";
+            return "Activity Production Filter";
         }
 
         /// <summary>
@@ -639,105 +552,10 @@ namespace dMobile.View.Activity
 
         #endregion
 
-        #region IAppPublisher Members
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void RegisterReqClose(IAppListener appEventListener)
-        {
-            ReqClose += new ReqCloseHandler(appEventListener.ReqClose);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void UnregisterReqClose(IAppListener appEventListener)
-        {
-            ReqClose -= new ReqCloseHandler(appEventListener.ReqClose);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void RegisterReqSaveEnable(IAppListener appEventListener)
-        {
-            ReqSaveEnable += new ReqSaveEnableHandler(appEventListener.ReqSaveEnable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void UnregisterReqSaveEnable(IAppListener appEventListener)
-        {
-            ReqSaveEnable -= new ReqSaveEnableHandler(appEventListener.ReqSaveEnable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void RegisterReqSaveDisable(IAppListener appEventListener)
-        {
-            ReqSaveDisable += new ReqSaveDisableHandler(appEventListener.ReqSaveDisable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void UnregisterReqSaveDisable(IAppListener appEventListener)
-        {
-            ReqSaveDisable -= new ReqSaveDisableHandler(appEventListener.ReqSaveDisable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void RegisterReqCancelEnable(IAppListener appEventListener)
-        {
-            ReqCancelEnable += new ReqCancelEnableHandler(appEventListener.ReqCancelEnable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void UnregisterReqCancelEnable(IAppListener appEventListener)
-        {
-            ReqCancelEnable -= new ReqCancelEnableHandler(appEventListener.ReqCancelEnable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void RegisterReqCancelDisable(IAppListener appEventListener)
-        {
-            ReqSaveDisable += new ReqSaveDisableHandler(appEventListener.ReqCancelDisable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void UnregisterReqCancelDisable(IAppListener appEventListener)
-        {
-            ReqSaveDisable -= new ReqSaveDisableHandler(appEventListener.ReqCancelDisable);
-        }
-
-        #endregion
-
         private async void btnSave_Clicked(object sender, EventArgs e)
         {
             if (await SaveChanges())
             {
-                ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs()); ;
                 this.DialogResult = DialogResult.OK;
                 await this.Close();
             }

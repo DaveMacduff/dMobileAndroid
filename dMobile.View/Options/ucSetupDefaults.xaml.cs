@@ -18,18 +18,13 @@ using System.Collections.ObjectModel;
 namespace dMobile.View.Options
 {
     [XamlCompilation(XamlCompilationOptions.Compile)]
-    public partial class ucSetupDefaults : DMobileContentPage, IAppPublisher
+    public partial class ucSetupDefaults : DMobileContentPage
     {
         private bool isControlLoaded;
         private bool isChangesMade;
         public ObservableCollection<Theme> themesList;
         private SysEnvironment sysEnv;
         private PrinterSettings prnSettings;
-        private ReqCloseHandler reqCloseEvent;
-        private ReqSaveEnableHandler reqSaveEnableEvent;
-        private ReqSaveDisableHandler reqSaveDisableEvent;
-        private ReqCancelEnableHandler reqCancelEnableEvent;
-        private ReqCancelDisableHandler reqCancelDisableEvent;
         private SysCommon.ActSubTypes actSubType;
 
         public ucSetupDefaults()
@@ -74,12 +69,6 @@ namespace dMobile.View.Options
             this.btnSave.Text = "Save";
         }
 
-        public delegate void ReqCloseHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
-        public delegate void ReqCancelDisableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
-        public delegate void ReqSaveDisableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
-        public delegate void ReqCancelEnableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
-        public delegate void ReqSaveEnableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
-
         /// <summary>
         /// The OnAppearing
         /// </summary>
@@ -95,13 +84,6 @@ namespace dMobile.View.Options
                 if (keycode == Keycode.Enter)
                 {
                     this.BtnSave_Clicked(this, new EventArgs());
-                }
-                else if (keycode == Keycode.Escape)
-                {
-                    if (await this.CancelChanges())
-                    {
-                        this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-                    }
                 }
                 else if (keycode == Keycode.F1)
                 {
@@ -122,69 +104,23 @@ namespace dMobile.View.Options
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
         }
 
-        public event ReqCloseHandler ReqClose
+        protected override bool OnBackButtonPressed()
         {
-            add
+            Device.BeginInvokeOnMainThread(async () =>
             {
-                this.ReqCloseEvent = (ReqCloseHandler)Delegate.Combine(this.ReqCloseEvent, value);
-            }
+                base.OnBackButtonPressed();
 
-            remove
-            {
-                this.ReqCloseEvent = (ReqCloseHandler)Delegate.Remove(this.ReqCloseEvent, value);
-            }
-        }
+                if (await this.SaveChanges())
+                {
+                    await this.Close();
+                }
+                else if (await this.CancelChanges())
+                {
+                    await this.Close();
+                }
+            });
 
-        public event ReqSaveEnableHandler ReqSaveEnable
-        {
-            add
-            {
-                this.ReqSaveEnableEvent = (ReqSaveEnableHandler)Delegate.Combine(this.ReqSaveEnableEvent, value);
-            }
-
-            remove
-            {
-                this.ReqSaveEnableEvent = (ReqSaveEnableHandler)Delegate.Remove(this.ReqSaveEnableEvent, value);
-            }
-        }
-
-        public event ReqSaveDisableHandler ReqSaveDisable
-        {
-            add
-            {
-                this.ReqSaveDisableEvent = (ReqSaveDisableHandler)Delegate.Combine(this.ReqSaveDisableEvent, value);
-            }
-
-            remove
-            {
-                this.ReqSaveDisableEvent = (ReqSaveDisableHandler)Delegate.Remove(this.ReqSaveDisableEvent, value);
-            }
-        }
-
-        public event ReqCancelEnableHandler ReqCancelEnable
-        {
-            add
-            {
-                this.ReqCancelEnableEvent = (ReqCancelEnableHandler)Delegate.Combine(this.ReqCancelEnableEvent, value);
-            }
-
-            remove
-            {
-                this.ReqCancelEnableEvent = (ReqCancelEnableHandler)Delegate.Remove(this.ReqCancelEnableEvent, value);
-            }
-        }
-
-        public event ReqCancelDisableHandler ReqCancelDisable
-        {
-            add
-            {
-                this.ReqCancelDisableEvent = (ReqCancelDisableHandler)Delegate.Combine(this.ReqCancelDisableEvent, value);
-            }
-
-            remove
-            {
-                this.ReqCancelDisableEvent = (ReqCancelDisableHandler)Delegate.Remove(this.ReqCancelDisableEvent, value);
-            }
+            return true;
         }
 
         private SysCommon.ActSubTypes ActSubType
@@ -197,71 +133,6 @@ namespace dMobile.View.Options
             set
             {
                 this.actSubType = value;
-            }
-        }
-
-        private ReqCloseHandler ReqCloseEvent
-        {
-            get
-            {
-                return this.reqCloseEvent;
-            }
-
-            set
-            {
-                this.reqCloseEvent = value;
-            }
-        }
-
-        private ReqSaveEnableHandler ReqSaveEnableEvent
-        {
-            get
-            {
-                return this.reqSaveEnableEvent;
-            }
-
-            set
-            {
-                this.reqSaveEnableEvent = value;
-            }
-        }
-
-        private ReqSaveDisableHandler ReqSaveDisableEvent
-        {
-            get
-            {
-                return this.reqSaveDisableEvent;
-            }
-
-            set
-            {
-                this.reqSaveDisableEvent = value;
-            }
-        }
-
-        private ReqCancelEnableHandler ReqCancelEnableEvent
-        {
-            get
-            {
-                return this.reqCancelEnableEvent;
-            }
-
-            set
-            {
-                this.reqCancelEnableEvent = value;
-            }
-        }
-
-        private ReqCancelDisableHandler ReqCancelDisableEvent
-        {
-            get
-            {
-                return this.reqCancelDisableEvent;
-            }
-
-            set
-            {
-                this.reqCancelDisableEvent = value;
             }
         }
 
@@ -304,19 +175,6 @@ namespace dMobile.View.Options
                 this.isControlLoaded = value;
             }
         }
-
-        //private UserControl CallingControl
-        //{
-        //    get
-        //    {
-        //        return this.callingControl;
-        //    }
-
-        //    set
-        //    {
-        //        this.callingControl = value;
-        //    }
-        //}
 
         private SysEnvironment SysEnv
         {
@@ -427,16 +285,6 @@ namespace dMobile.View.Options
             return isReadyToClose;
         }
 
-        ///// <summary>
-        /////
-        ///// </summary>
-        ///// <returns></returns>
-        ///// <remarks></remarks>
-        //public UserControl GetCallingControl()
-        //{
-        //    return new ucOptionsMenu();
-        //}
-
         /// <summary>
         ///
         /// </summary>
@@ -468,11 +316,8 @@ namespace dMobile.View.Options
                             if (result.Result)
                             {
                                 FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucRefreshDataStatus, SysCommon.ActSubTypes.PurgeActivityData);
-                                await Device.InvokeOnMainThreadAsync(async () => await form.DisplayControl.ShowDialog().ContinueWith(async (_) =>
-                                {
-                                    await form.SaveChanges(this, new EventArgs());
-                                    XDocument xmlDoc = form.DisplayControlData;
-                                }));
+                                await Device.InvokeOnMainThreadAsync(async () => await form.DisplayControl.ShowDialog());
+                                XDocument xmlDoc = await form.GetXML();
                             }
                             else
                             {
@@ -627,96 +472,6 @@ namespace dMobile.View.Options
         }
 
         /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void RegisterReqClose(IAppListener appEventListener)
-        {
-            this.ReqClose += new ReqCloseHandler(appEventListener.ReqClose);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void UnregisterReqClose(IAppListener appEventListener)
-        {
-            this.ReqClose -= new ReqCloseHandler(appEventListener.ReqClose);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void RegisterReqSaveEnable(IAppListener appEventListener)
-        {
-            this.ReqSaveEnable += new ReqSaveEnableHandler(appEventListener.ReqSaveEnable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void UnregisterReqSaveEnable(IAppListener appEventListener)
-        {
-            this.ReqSaveEnable -= new ReqSaveEnableHandler(appEventListener.ReqSaveEnable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void RegisterReqSaveDisable(IAppListener appEventListener)
-        {
-            this.ReqSaveDisable += new ReqSaveDisableHandler(appEventListener.ReqSaveDisable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void UnregisterReqSaveDisable(IAppListener appEventListener)
-        {
-            this.ReqSaveDisable -= new ReqSaveDisableHandler(appEventListener.ReqSaveDisable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void RegisterReqCancelEnable(IAppListener appEventListener)
-        {
-            this.ReqCancelEnable += new ReqCancelEnableHandler(appEventListener.ReqCancelEnable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void UnregisterReqCancelEnable(IAppListener appEventListener)
-        {
-            this.ReqCancelEnable -= new ReqCancelEnableHandler(appEventListener.ReqCancelEnable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void RegisterReqCancelDisable(IAppListener appEventListener)
-        {
-            this.ReqSaveDisable += new ReqSaveDisableHandler(appEventListener.ReqCancelDisable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void UnregisterReqCancelDisable(IAppListener appEventListener)
-        {
-            this.ReqSaveDisable -= new ReqSaveDisableHandler(appEventListener.ReqCancelDisable);
-        }
-
-        /// <summary>
         ///
         /// </summary>
         /// <param name="sender"></param>
@@ -728,10 +483,6 @@ namespace dMobile.View.Options
             {
                 this.LoadData();
                 this.IsControlLoaded = true;
-                //this.chkDisconnectMode.Focus();
-
-                this.ReqCancelEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-                this.ReqSaveEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
             }
         }
 
@@ -959,15 +710,6 @@ namespace dMobile.View.Options
         private void ChkEnableShippingMobilePrinter_Toggled(object sender, ToggledEventArgs e)
         {
             this.IdentifyChangesMade(sender, new EventArgs());
-
-            //if (this.chkEnableShippingMobilePrinter.IsToggled)
-            //{
-            //    cboShippingMobilePrinter.IsEnabled = true;
-            //}
-            //else
-            //{
-            //    cboShippingMobilePrinter.IsEnabled = false;
-            //}
         }
 
         private async void ChkDisconnectMode_Toggled(object sender, ToggledEventArgs e)
@@ -1005,7 +747,7 @@ namespace dMobile.View.Options
         {
             if (await this.SaveChanges())
             {
-                this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                await this.Close();
             }
         }
 

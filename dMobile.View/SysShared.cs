@@ -222,7 +222,7 @@ namespace dMobile.View
 
                                 if (continueAssocBarCode)
                                 {
-                                    XDocument xmlDoc = frmSelectProduct.DisplayControlData;
+                                    XDocument xmlDoc = await frmSelectProduct.GetXML();
                                     prodUnitRefno = int.Parse(xmlDoc.Root.Element("ProductUnitRefno").Value);
 
                                     // If a product was selected, create the xml for the bar code

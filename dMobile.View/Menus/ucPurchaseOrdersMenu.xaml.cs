@@ -15,18 +15,12 @@ using Xamarin.Forms.Xaml;
 namespace dMobile.View.Menus
 {
     [XamlCompilation(XamlCompilationOptions.Compile)]
-    public partial class ucPurchaseOrdersMenu : DMobileContentPage, IAppArea, IAppPublisher
+    public partial class ucPurchaseOrdersMenu : DMobileContentPage, IAppArea
     {
         #region Fields
 
-        //private UserControl callingControl = new ucMainMenu();
         private SysEnvironment sysEnv;
         private bool isControlLoaded = false;
-        private ReqCloseHandler reqCloseEvent;
-        private ReqSaveEnableHandler reqSaveEnableEvent;
-        private ReqSaveDisableHandler reqSaveDisableEvent;
-        private ReqCancelEnableHandler reqCancelEnableEvent;
-        private ReqCancelDisableHandler reqCancelDisableEvent;
 
         #endregion
 
@@ -63,18 +57,9 @@ namespace dMobile.View.Menus
 
                 if (keycode == Keycode.Enter)
                 {
-                    //this.CallingControl = new ucActivityHdr(SysCommon.ActSubTypes.PurchaseOrderWorkSheet);                            
                     ucActivityHdr worksheet = new ucActivityHdr(SysCommon.ActSubTypes.PurchaseOrderWorkSheet);
                     await worksheet.Show();
                     this.DisableControls();
-                    this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-                    this.IsControlLoaded = false;
-                }
-                else if (keycode == Keycode.Escape)
-                {
-                    //this.CallingControl = new ucMainMenu();
-                    this.DisableControls();
-                    this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     this.IsControlLoaded = false;
                 }
                 else if (keycode == Keycode.Num1)
@@ -82,25 +67,20 @@ namespace dMobile.View.Menus
                     ucActivityHdr receiving = new ucActivityHdr(SysCommon.ActSubTypes.Receiving);
                     await receiving.Show();
                     this.DisableControls();
-                    this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     this.IsControlLoaded = false;
                 }
                 else if (keycode == Keycode.Num2)
                 {
-                    //this.CallingControl = new ucActivitySkidPutAway()
                     ucActivitySkidPutAway putAway = new ucActivitySkidPutAway();
                     await putAway.Show();
                     this.DisableControls();
-                    this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     this.IsControlLoaded = false;
                 }
                 else if (keycode == Keycode.Num3)
                 {
-                    //this.CallingControl = new ucActivityHdr(SysCommon.ActSubTypes.PurchaseOrderWorkSheet);                    
                     ucActivityHdr worksheet = new ucActivityHdr(SysCommon.ActSubTypes.PurchaseOrderWorkSheet);
                     await worksheet.Show();
                     this.DisableControls();
-                    this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     this.IsControlLoaded = false;
                 }
             });
@@ -126,151 +106,21 @@ namespace dMobile.View.Menus
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
         }
 
-        #region Delegates
-
-        public delegate void ReqCloseHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
-        public delegate void ReqCancelDisableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
-        public delegate void ReqSaveDisableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
-        public delegate void ReqCancelEnableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
-        public delegate void ReqSaveEnableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
-
-        #endregion
-
-        #region Events
-
-        public event ReqCloseHandler ReqClose
+        protected override bool OnBackButtonPressed()
         {
-            add
+            Device.BeginInvokeOnMainThread(() =>
             {
-                this.ReqCloseEvent = (ReqCloseHandler)Delegate.Combine(this.ReqCloseEvent, value);
-            }
+                base.OnBackButtonPressed();
 
-            remove
-            {
-                this.ReqCloseEvent = (ReqCloseHandler)Delegate.Remove(this.ReqCloseEvent, value);
-            }
+                this.DisableControls();
+                this.IsControlLoaded = false;
+
+            });
+
+            return true;
         }
-
-        public event ReqSaveEnableHandler ReqSaveEnable
-        {
-            add
-            {
-                this.ReqSaveEnableEvent = (ReqSaveEnableHandler)Delegate.Combine(this.ReqSaveEnableEvent, value);
-            }
-
-            remove
-            {
-                this.ReqSaveEnableEvent = (ReqSaveEnableHandler)Delegate.Remove(this.ReqSaveEnableEvent, value);
-            }
-        }
-
-        public event ReqSaveDisableHandler ReqSaveDisable
-        {
-            add
-            {
-                this.ReqSaveDisableEvent = (ReqSaveDisableHandler)Delegate.Combine(this.ReqSaveDisableEvent, value);
-            }
-
-            remove
-            {
-                this.ReqSaveDisableEvent = (ReqSaveDisableHandler)Delegate.Remove(this.ReqSaveDisableEvent, value);
-            }
-        }
-
-        public event ReqCancelEnableHandler ReqCancelEnable
-        {
-            add
-            {
-                this.ReqCancelEnableEvent = (ReqCancelEnableHandler)Delegate.Combine(this.ReqCancelEnableEvent, value);
-            }
-
-            remove
-            {
-                this.ReqCancelEnableEvent = (ReqCancelEnableHandler)Delegate.Remove(this.ReqCancelEnableEvent, value);
-            }
-        }
-
-        public event ReqCancelDisableHandler ReqCancelDisable
-        {
-            add
-            {
-                this.ReqCancelDisableEvent = (ReqCancelDisableHandler)Delegate.Combine(this.ReqCancelDisableEvent, value);
-            }
-
-            remove
-            {
-                this.ReqCancelDisableEvent = (ReqCancelDisableHandler)Delegate.Remove(this.ReqCancelDisableEvent, value);
-            }
-        }
-
-        #endregion
 
         #region Properties
-
-        private ReqCloseHandler ReqCloseEvent
-        {
-            get
-            {
-                return this.reqCloseEvent;
-            }
-
-            set
-            {
-                this.reqCloseEvent = value;
-            }
-        }
-
-        private ReqSaveEnableHandler ReqSaveEnableEvent
-        {
-            get
-            {
-                return this.reqSaveEnableEvent;
-            }
-
-            set
-            {
-                this.reqSaveEnableEvent = value;
-            }
-        }
-
-        private ReqSaveDisableHandler ReqSaveDisableEvent
-        {
-            get
-            {
-                return this.reqSaveDisableEvent;
-            }
-
-            set
-            {
-                this.reqSaveDisableEvent = value;
-            }
-        }
-
-        private ReqCancelEnableHandler ReqCancelEnableEvent
-        {
-            get
-            {
-                return this.reqCancelEnableEvent;
-            }
-
-            set
-            {
-                this.reqCancelEnableEvent = value;
-            }
-        }
-
-        private ReqCancelDisableHandler ReqCancelDisableEvent
-        {
-            get
-            {
-                return this.reqCancelDisableEvent;
-            }
-
-            set
-            {
-                this.reqCancelDisableEvent = value;
-            }
-        }
 
         private bool IsControlLoaded
         {
@@ -284,19 +134,6 @@ namespace dMobile.View.Menus
                 this.isControlLoaded = value;
             }
         }
-
-        //private UserControl CallingControl
-        //{
-        //  get
-        //  {
-        //    return this.callingControl;
-        //  }
-
-        //  set
-        //  {
-        //    this.callingControl = value;
-        //  }
-        //}
 
         private SysEnvironment SysEnv
         {
@@ -358,16 +195,6 @@ namespace dMobile.View.Menus
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        //public UserControl GetCallingControl()
-        //{
-        //  return this.CallingControl;
-        //}
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
         public string GetControlDescription()
         {
             // TODO: Resource strings
@@ -411,100 +238,6 @@ namespace dMobile.View.Menus
 
         #endregion
 
-        #region IAppPublisher Members
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void RegisterReqClose(IAppListener appEventListener)
-        {
-            this.ReqClose += new ReqCloseHandler(appEventListener.ReqClose);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void UnregisterReqClose(IAppListener appEventListener)
-        {
-            this.ReqClose -= new ReqCloseHandler(appEventListener.ReqClose);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void RegisterReqSaveEnable(IAppListener appEventListener)
-        {
-            this.ReqSaveEnable += new ReqSaveEnableHandler(appEventListener.ReqSaveEnable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void UnregisterReqSaveEnable(IAppListener appEventListener)
-        {
-            this.ReqSaveEnable -= new ReqSaveEnableHandler(appEventListener.ReqSaveEnable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void RegisterReqSaveDisable(IAppListener appEventListener)
-        {
-            this.ReqSaveDisable += new ReqSaveDisableHandler(appEventListener.ReqSaveDisable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void UnregisterReqSaveDisable(IAppListener appEventListener)
-        {
-            this.ReqSaveDisable -= new ReqSaveDisableHandler(appEventListener.ReqSaveDisable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void RegisterReqCancelEnable(IAppListener appEventListener)
-        {
-            this.ReqCancelEnable += new ReqCancelEnableHandler(appEventListener.ReqCancelEnable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void UnregisterReqCancelEnable(IAppListener appEventListener)
-        {
-            this.ReqCancelEnable -= new ReqCancelEnableHandler(appEventListener.ReqCancelEnable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void RegisterReqCancelDisable(IAppListener appEventListener)
-        {
-            this.ReqSaveDisable += new ReqSaveDisableHandler(appEventListener.ReqCancelDisable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void UnregisterReqCancelDisable(IAppListener appEventListener)
-        {
-            this.ReqSaveDisable -= new ReqSaveDisableHandler(appEventListener.ReqCancelDisable);
-        }
-
-        #endregion
-
         #endregion
 
         #region Private Members
@@ -518,9 +251,6 @@ namespace dMobile.View.Menus
             this.cmdPutAway.IsEnabled = false;
             this.cmdReceiving.IsEnabled = false;
             this.cmdWorkSheet.IsEnabled = false;
-
-            this.ReqCancelDisableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-            this.ReqSaveDisableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
         }
 
         /// <summary>
@@ -579,8 +309,6 @@ namespace dMobile.View.Menus
                     }
 
                     this.cmdReceiving.Focus();
-
-                    this.ReqCancelEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                 }
             }
         }
@@ -593,9 +321,7 @@ namespace dMobile.View.Menus
         /// <remarks></remarks>
         private async void cmdReceiving_Click(object sender, EventArgs e)
         {
-            //this.CallingControl = new ucActivityHdr(SysCommon.ActSubTypes.Receiving);
             this.DisableControls();
-            this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
             this.IsControlLoaded = false;
             ucActivityHdr receiving = new ucActivityHdr(SysCommon.ActSubTypes.Receiving);
             await receiving.Show();
@@ -609,9 +335,7 @@ namespace dMobile.View.Menus
         /// <remarks></remarks>
         private async void cmdPutAway_Click(object sender, EventArgs e)
         {
-            //this.CallingControl = new ucActivitySkidPutAway();
             this.DisableControls();
-            this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
             this.IsControlLoaded = false;
             ucActivitySkidPutAway putAway = new ucActivitySkidPutAway();
             await putAway.Show();
@@ -625,11 +349,9 @@ namespace dMobile.View.Menus
         /// <remarks></remarks>
         private async void cmdWorkSheet_Click(object sender, EventArgs e)
         {
-            //this.CallingControl = new ucActivityPurchaseOrderWorkSheet(SysCommon.ActSubTypes.PurchaseOrderWorkSheet);                    
             this.DisableControls();
-            this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
             this.IsControlLoaded = false;
-            ucActivityPurchaseOrderWorkSheet worksheet = new ucActivityPurchaseOrderWorkSheet(SysCommon.ActSubTypes.PurchaseOrderWorkSheet);        
+            ucActivityPurchaseOrderWorkSheet worksheet = new ucActivityPurchaseOrderWorkSheet(SysCommon.ActSubTypes.PurchaseOrderWorkSheet);
             await worksheet.Show();
         }
 

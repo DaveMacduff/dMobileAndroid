@@ -17,9 +17,8 @@
     using Xamarin.Forms.Xaml;
 
     [XamlCompilation(XamlCompilationOptions.Compile)]
-    public partial class ucCommunicationSetup : DMobileContentPage, IAppArea, ISysSocketEventListener, IAppPublisher
+    public partial class ucCommunicationSetup : DMobileContentPage, IAppArea, ISysSocketEventListener
     {
-        //private UserControl callingControl = new ucOptionsMenu();
         private bool isControlLoaded = false;
         private bool isChangesMade = false;
         private int minIPAdress = 0;
@@ -29,11 +28,6 @@
         private int maxNumberOfPorts = 100;
         private SysEnvironment sysEnv;
         private SysSocket sysSock;
-        private ReqCloseHandler reqCloseEvent;
-        private ReqSaveEnableHandler reqSaveEnableEvent;
-        private ReqSaveDisableHandler reqSaveDisableEvent;
-        private ReqCancelEnableHandler reqCancelEnableEvent;
-        private ReqCancelDisableHandler reqCancelDisableEvent;
         private ObservableCollection<string> itemsList;
 
         public ucCommunicationSetup()
@@ -74,14 +68,7 @@
                 {
                     if (await this.SaveChanges())
                     {
-                        this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-                    }
-                }
-                else if (keycode == Keycode.Escape)
-                {
-                    if (await this.CancelChanges())
-                    {
-                        this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+                        await this.Close();
                     }
                 }
             });
@@ -107,78 +94,24 @@
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
         }
 
-        public delegate void ReqCloseHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
-        public delegate void ReqCancelDisableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
-        public delegate void ReqSaveDisableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
-        public delegate void ReqCancelEnableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
-        public delegate void ReqSaveEnableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
-
-        public event ReqCloseHandler ReqClose
+        protected override bool OnBackButtonPressed()
         {
-            add
+            Device.BeginInvokeOnMainThread(async () =>
             {
-                this.ReqCloseEvent = (ReqCloseHandler)Delegate.Combine(this.ReqCloseEvent, value);
-            }
+                base.OnBackButtonPressed();
 
-            remove
-            {
-                this.ReqCloseEvent = (ReqCloseHandler)Delegate.Remove(this.ReqCloseEvent, value);
-            }
+                if (await this.SaveChanges())
+                {
+                    await this.Close();
+                }
+                else if (await this.CancelChanges())
+                {
+                    await this.Close();
+                }
+            });
+
+            return true;
         }
-
-        public event ReqSaveEnableHandler ReqSaveEnable
-        {
-            add
-            {
-                this.ReqSaveEnableEvent = (ReqSaveEnableHandler)Delegate.Combine(this.ReqSaveEnableEvent, value);
-            }
-
-            remove
-            {
-                this.ReqSaveEnableEvent = (ReqSaveEnableHandler)Delegate.Remove(this.ReqSaveEnableEvent, value);
-            }
-        }
-
-        public event ReqSaveDisableHandler ReqSaveDisable
-        {
-            add
-            {
-                this.ReqSaveDisableEvent = (ReqSaveDisableHandler)Delegate.Combine(this.ReqSaveDisableEvent, value);
-            }
-
-            remove
-            {
-                this.ReqSaveDisableEvent = (ReqSaveDisableHandler)Delegate.Remove(this.ReqSaveDisableEvent, value);
-            }
-        }
-
-        public event ReqCancelEnableHandler ReqCancelEnable
-        {
-            add
-            {
-                this.ReqCancelEnableEvent = (ReqCancelEnableHandler)Delegate.Combine(this.ReqCancelEnableEvent, value);
-            }
-
-            remove
-            {
-                this.ReqCancelEnableEvent = (ReqCancelEnableHandler)Delegate.Remove(this.ReqCancelEnableEvent, value);
-            }
-        }
-
-        public event ReqCancelDisableHandler ReqCancelDisable
-        {
-            add
-            {
-                this.ReqCancelDisableEvent = (ReqCancelDisableHandler)Delegate.Combine(this.ReqCancelDisableEvent, value);
-            }
-
-            remove
-            {
-                this.ReqCancelDisableEvent = (ReqCancelDisableHandler)Delegate.Remove(this.ReqCancelDisableEvent, value);
-            }
-        }
-
-
 
         private SysSocket SysSock
         {
@@ -216,84 +149,6 @@
             set
             {
                 this.isChangesMade = value;
-            }
-        }
-
-        //private UserControl CallingControl
-        //{
-        //  get
-        //  {
-        //    return this.callingControl;
-        //  }
-
-        //  set
-        //  {
-        //    this.callingControl = value;
-        //  }
-        //}
-
-        private ReqCloseHandler ReqCloseEvent
-        {
-            get
-            {
-                return this.reqCloseEvent;
-            }
-
-            set
-            {
-                this.reqCloseEvent = value;
-            }
-        }
-
-        private ReqSaveEnableHandler ReqSaveEnableEvent
-        {
-            get
-            {
-                return this.reqSaveEnableEvent;
-            }
-
-            set
-            {
-                this.reqSaveEnableEvent = value;
-            }
-        }
-
-        private ReqSaveDisableHandler ReqSaveDisableEvent
-        {
-            get
-            {
-                return this.reqSaveDisableEvent;
-            }
-
-            set
-            {
-                this.reqSaveDisableEvent = value;
-            }
-        }
-
-        private ReqCancelEnableHandler ReqCancelEnableEvent
-        {
-            get
-            {
-                return this.reqCancelEnableEvent;
-            }
-
-            set
-            {
-                this.reqCancelEnableEvent = value;
-            }
-        }
-
-        private ReqCancelDisableHandler ReqCancelDisableEvent
-        {
-            get
-            {
-                return this.reqCancelDisableEvent;
-            }
-
-            set
-            {
-                this.reqCancelDisableEvent = value;
             }
         }
 
@@ -362,8 +217,6 @@
             }
         }
 
-
-
         /// <summary>
         /// Unregister the bar code scan event handler and disable the scanner.
         /// </summary>
@@ -379,16 +232,6 @@
         public async Task ScannerEnable()
         {
         }
-
-        ///// <summary>
-        /////
-        ///// </summary>
-        ///// <returns></returns>
-        ///// <remarks></remarks>
-        //public UserControl GetCallingControl()
-        //{
-        //  return this.CallingControl;
-        //}
 
         /// <summary>
         ///
@@ -624,9 +467,6 @@
                 this.LoadData();
                 this.IsControlLoaded = true;
                 this.updnIP1.Focus();
-
-                this.ReqCancelEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-                this.ReqSaveEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
             }
         }
 
@@ -792,13 +632,9 @@
         {
             // Needed to check if the enter key was pressed last, because it seems that
             // SelectNextControl causes a click event to fire if it is the next control
-            this.DisableControls();
-            //this.CallingControl = new ucCommunicationSetupAdvanced();
 
             ucCommunicationSetupAdvanced setupAdvanced = new ucCommunicationSetupAdvanced();
             await setupAdvanced.Show();
-
-            this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
         }
 
         /// <summary>
@@ -823,132 +659,12 @@
         /// <summary>
         ///
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <remarks></remarks>
-        //public void SelectValueGotFocus(object sender, EventArgs e)
-        //{
-        //    //SysCommon.SelectValueInNumericUpDown((UpDownBase)sender);
-        //}
-
-        /// <summary>
-        ///
-        /// </summary>
         /// <param name="sysSocketEventPublisher"></param>
         /// <param name="sysSocketEventArgs"></param>
         /// <remarks></remarks>
         public void OnSysSocketStatusOut(ISysSocketEventPublisher sysSocketEventPublisher, SysSocketEventArgs sysSocketEventArgs)
         {
             this.AddCommMsg(this, null, sysSocketEventArgs.StatusOutMsg);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void RegisterReqClose(IAppListener appEventListener)
-        {
-            this.ReqClose += new ReqCloseHandler(appEventListener.ReqClose);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void UnregisterReqClose(IAppListener appEventListener)
-        {
-            this.ReqClose -= new ReqCloseHandler(appEventListener.ReqClose);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void RegisterReqSaveEnable(IAppListener appEventListener)
-        {
-            this.ReqSaveEnable += new ReqSaveEnableHandler(appEventListener.ReqSaveEnable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void UnregisterReqSaveEnable(IAppListener appEventListener)
-        {
-            this.ReqSaveEnable -= new ReqSaveEnableHandler(appEventListener.ReqSaveEnable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void RegisterReqSaveDisable(IAppListener appEventListener)
-        {
-            this.ReqSaveDisable += new ReqSaveDisableHandler(appEventListener.ReqSaveDisable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void UnregisterReqSaveDisable(IAppListener appEventListener)
-        {
-            this.ReqSaveDisable -= new ReqSaveDisableHandler(appEventListener.ReqSaveDisable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void RegisterReqCancelEnable(IAppListener appEventListener)
-        {
-            this.ReqCancelEnable += new ReqCancelEnableHandler(appEventListener.ReqCancelEnable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void UnregisterReqCancelEnable(IAppListener appEventListener)
-        {
-            this.ReqCancelEnable -= new ReqCancelEnableHandler(appEventListener.ReqCancelEnable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void RegisterReqCancelDisable(IAppListener appEventListener)
-        {
-            this.ReqSaveDisable += new ReqSaveDisableHandler(appEventListener.ReqCancelDisable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void UnregisterReqCancelDisable(IAppListener appEventListener)
-        {
-            this.ReqSaveDisable -= new ReqSaveDisableHandler(appEventListener.ReqCancelDisable);
-        }
-
-
-
-        private void DisableControls()
-        {
-            ////cmdAdvanced.Enabled = False
-            ////cmdConnect.Enabled = False
-            ////lstCommMsg.Enabled = False
-            ////updnBasePort.Enabled = False
-            ////updnDefaultPort.Enabled = False
-            ////updnIP1.Enabled = False
-            ////updnIP2.Enabled = False
-            ////updnIP3.Enabled = False
-            ////updnIP4.Enabled = False
-            ////updnMaxPorts.Enabled = False
-
-            this.ReqCancelDisableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-            this.ReqSaveDisableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
         }
 
         /// <summary>
@@ -1046,20 +762,7 @@
                 try
                 {
                     this.SysSock.RegSockListenerStatusOut((ISysSocketEventListener)this);
-
                     this.SysEnv.IsCommunicationTestSuccessful = false;
-
-                    //// If DateAndTime.Hour(DateTime.Now) Mod 2 = 0 And 
-                    //// DateAndTime.Minute(DateTime.Now) Mod 2 = 0 Then
-                    //// Dim strAppDir As String = Path.GetDirectoryName(
-                    //// Assembly.GetExecutingAssembly().GetName().CodeBase)
-                    //// Dim strFullPathToMyFile As String = Path.Combine(
-                    //// strAppDir, "dMobileResource03.wav")    'modem sound
-                    //// Dim oSnd As clsSound = New clsSound(strFullPathToMyFile)
-                    //// oSnd.Play()
-                    //// Thread.Sleep(25000)
-                    //// End If
-
                     socket = this.SysEnv.SysSock.Connect();
 
                     if (socket == null)

@@ -18,7 +18,7 @@
     using Android.Views;
 
     [XamlCompilation(XamlCompilationOptions.Compile)]
-    public partial class ucActivityItemPurchaseOrderWorkSheetEdit : DMobileModal, IAppArea, IAppPublisher
+    public partial class ucActivityItemPurchaseOrderWorkSheetEdit : DMobileModal, IAppArea
     {
         #region Fields
 
@@ -27,7 +27,6 @@
         private int m_iSelectedIndex = 0;
         private bool isChangesMade = false;
         private bool isControlLoaded = false;
-        //private UserControl m_ucCallingControl = null;
         private bool isEnterTrapped = false;
         private XDocument m_xmlDoc = null;
         private string m_strFullClassName = typeof(ucActivityItemPurchaseOrderWorkSheetEdit).FullName;
@@ -37,15 +36,10 @@
         private bool isEditTrapped = false;
         private SysCommon.ActSubTypes m_eActivitySubType = SysCommon.ActSubTypes.NotApplicable;
         private SysEnvironment m_oEnvironment;
-        private ReqCloseHandler reqCloseEvent;
-        private ReqSaveEnableHandler reqSaveEnableEvent;
-        private ReqSaveDisableHandler reqSaveDisableEvent;
-        private ReqCancelEnableHandler reqCancelEnableEvent;
-        private ReqCancelDisableHandler reqCancelDisableEvent;
         private ObservableCollection<string> itemsList;
 
         #endregion
-        
+
         #region Constructors
 
         public ucActivityItemPurchaseOrderWorkSheetEdit()
@@ -101,18 +95,11 @@
 
                 if (!this.Loading)
                 {
-                    if (keycode == Keycode.Escape)
-                    {
-                        this.DialogResult = DialogResult.None;
-                        await CancelChanges();
-                        ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-                    }
-                    else if (keycode == Keycode.Enter)
+                    if (keycode == Keycode.Enter)
                     {
                         if (await SaveChanges())
                         {
                             this.DialogResult = DialogResult.OK;
-                            ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                             await this.Close();
                         }
                     }
@@ -140,111 +127,20 @@
             base.OnDisappearing();
         }
 
-        #region Delegates
-
-        public delegate void ReqCloseHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
-        public delegate void ReqCancelDisableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
-        public delegate void ReqSaveDisableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
-        public delegate void ReqCancelEnableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
-        public delegate void ReqSaveEnableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
-
-        #endregion
-
-        #region Events
-
-        public event ReqCloseHandler ReqClose
+        protected override bool OnBackButtonPressed()
         {
-            add
+            Device.BeginInvokeOnMainThread(async () =>
             {
-                ReqCloseEvent = (ReqCloseHandler)Delegate.Combine(ReqCloseEvent, value);
-            }
-            remove
-            {
-                ReqCloseEvent = (ReqCloseHandler)Delegate.Remove(ReqCloseEvent, value);
-            }
-        }
+                base.OnBackButtonPressed();
+                await this.CancelChanges();
+                this.DialogResult = DialogResult.None;
+                await this.Close();
+            });
 
-        public event ReqSaveEnableHandler ReqSaveEnable
-        {
-            add
-            {
-                ReqSaveEnableEvent = (ReqSaveEnableHandler)Delegate.Combine(ReqSaveEnableEvent, value);
-            }
-            remove
-            {
-                ReqSaveEnableEvent = (ReqSaveEnableHandler)Delegate.Remove(ReqSaveEnableEvent, value);
-            }
+            return true;
         }
-
-        public event ReqSaveDisableHandler ReqSaveDisable
-        {
-            add
-            {
-                ReqSaveDisableEvent = (ReqSaveDisableHandler)Delegate.Combine(ReqSaveDisableEvent, value);
-            }
-            remove
-            {
-                ReqSaveDisableEvent = (ReqSaveDisableHandler)Delegate.Remove(ReqSaveDisableEvent, value);
-            }
-        }
-
-        public event ReqCancelEnableHandler ReqCancelEnable
-        {
-            add
-            {
-                ReqCancelEnableEvent = (ReqCancelEnableHandler)Delegate.Combine(ReqCancelEnableEvent, value);
-            }
-            remove
-            {
-                ReqCancelEnableEvent = (ReqCancelEnableHandler)Delegate.Remove(ReqCancelEnableEvent, value);
-            }
-        }
-
-        public event ReqCancelDisableHandler ReqCancelDisable
-        {
-            add
-            {
-                ReqCancelDisableEvent = (ReqCancelDisableHandler)Delegate.Combine(ReqCancelDisableEvent, value);
-            }
-            remove
-            {
-                ReqCancelDisableEvent = (ReqCancelDisableHandler)Delegate.Remove(ReqCancelDisableEvent, value);
-            }
-        }
-
-        #endregion
 
         #region Properties
-
-        private ReqCloseHandler ReqCloseEvent
-        {
-            get { return reqCloseEvent; }
-            set { reqCloseEvent = value; }
-        }
-
-        private ReqSaveEnableHandler ReqSaveEnableEvent
-        {
-            get { return reqSaveEnableEvent; }
-            set { reqSaveEnableEvent = value; }
-        }
-
-        private ReqSaveDisableHandler ReqSaveDisableEvent
-        {
-            get { return reqSaveDisableEvent; }
-            set { reqSaveDisableEvent = value; }
-        }
-
-        private ReqCancelEnableHandler ReqCancelEnableEvent
-        {
-            get { return reqCancelEnableEvent; }
-            set { reqCancelEnableEvent = value; }
-        }
-
-        private ReqCancelDisableHandler ReqCancelDisableEvent
-        {
-            get { return reqCancelDisableEvent; }
-            set { reqCancelDisableEvent = value; }
-        }
 
         public SysEnvironment oEnvironment
         {
@@ -438,7 +334,7 @@
             //lstDisplay.Items.Clear();
             //lstDisplay.Items.Add("PROD: " + ActDetail.ActItem.ProdInfo.Code + ActDetail.ActItem.ProdInfo.UnitBC + "  " + ActDetail.ActItem.ProdInfo.Desc);
             //lstDisplay.Items.Add("SIZE: " + ActDetail.ActItem.ProdInfo.UnitSizeDesc);
-            
+
             this.ItemsList.Clear();
 
             // TODO: Resource strings
@@ -469,7 +365,7 @@
         private bool IsValidData()
         {
             bool IsRetVal = true;
-            
+
             //if (!Information.IsNumeric(txtAltQty.Text))
             if (!decimal.TryParse(txtAltQty.Text, out _))
             {
@@ -529,9 +425,6 @@
                     ShowProductInfo();
                     txtAltQty.Focus();
                 }
-
-                ReqCancelEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-                ReqSaveEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
             }
         }
 
@@ -573,17 +466,6 @@
         {
             return !isChangesMade;
         }
-
-        ///// <summary>
-        /////
-        ///// </summary>
-        ///// <returns></returns>
-        ///// <remarks></remarks>
-        //public UserControl GetCallingControl()
-        //{
-        //    ucOptionsMenu ucDisplayControl = null;
-        //    return ucDisplayControl;
-        //}
 
         /// <summary>
         ///
@@ -706,32 +588,6 @@
             }
         }
 
-        ///// <summary>
-        /////
-        ///// </summary>
-        ///// <param name="sender"></param>
-        ///// <param name="e"></param>
-        ///// <remarks></remarks>
-        //public void ValidateEntry(object sender, System.ComponentModel.CancelEventArgs e)
-        //{
-        //    try
-        //    {
-        //        if (sender == txtAltQty)
-        //        {
-        //            //e.Cancel = True
-        //        }
-
-        //    }
-        //    catch (Exception Ex)
-        //    {
-
-        //        if (SysCommon.ErrorReportAndRequestContinue(strFullClassName, "ValidateEntry", Ex) == false)
-        //        {
-        //            Application.Exit();
-        //        }
-        //    }
-        //}
-
         /// <summary>
         ///
         /// </summary>
@@ -752,104 +608,9 @@
 
                 if (SysCommon.ErrorReportAndRequestContinue(strFullClassName, "IdentifyChangesMade", Ex) == false)
                 {
-                    //Application.Exit();
                     Android.OS.Process.KillProcess(Android.OS.Process.MyPid());
                 }
             }
-        }
-
-        #endregion
-
-        #region IAppPublisher Members
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void RegisterReqClose(IAppListener appEventListener)
-        {
-            ReqClose += new ReqCloseHandler(appEventListener.ReqClose);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void UnregisterReqClose(IAppListener appEventListener)
-        {
-            ReqClose -= new ReqCloseHandler(appEventListener.ReqClose);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void RegisterReqSaveEnable(IAppListener appEventListener)
-        {
-            ReqSaveEnable += new ReqSaveEnableHandler(appEventListener.ReqSaveEnable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void UnregisterReqSaveEnable(IAppListener appEventListener)
-        {
-            ReqSaveEnable -= new ReqSaveEnableHandler(appEventListener.ReqSaveEnable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void RegisterReqSaveDisable(IAppListener appEventListener)
-        {
-            ReqSaveDisable += new ReqSaveDisableHandler(appEventListener.ReqSaveDisable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void UnregisterReqSaveDisable(IAppListener appEventListener)
-        {
-            ReqSaveDisable -= new ReqSaveDisableHandler(appEventListener.ReqSaveDisable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void RegisterReqCancelEnable(IAppListener appEventListener)
-        {
-            ReqCancelEnable += new ReqCancelEnableHandler(appEventListener.ReqCancelEnable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void UnregisterReqCancelEnable(IAppListener appEventListener)
-        {
-            ReqCancelEnable -= new ReqCancelEnableHandler(appEventListener.ReqCancelEnable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void RegisterReqCancelDisable(IAppListener appEventListener)
-        {
-            ReqSaveDisable += new ReqSaveDisableHandler(appEventListener.ReqCancelDisable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void UnregisterReqCancelDisable(IAppListener appEventListener)
-        {
-            ReqSaveDisable -= new ReqSaveDisableHandler(appEventListener.ReqCancelDisable);
         }
 
         #endregion
@@ -859,7 +620,6 @@
             if (await SaveChanges())
             {
                 this.DialogResult = DialogResult.OK;
-                ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                 await this.Close();
             }
         }
@@ -867,7 +627,7 @@
         private async void btnCancel_Clicked(object sender, EventArgs e)
         {
             this.DialogResult = DialogResult.None;
-            ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
+            await CancelChanges();
             await this.Close();
         }
     }

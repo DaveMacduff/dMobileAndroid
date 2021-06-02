@@ -37,13 +37,13 @@
         /// <summary>
         /// The OnAppearing
         /// </summary>
-        protected override void OnAppearing()
+        protected override async void OnAppearing()
         {
             base.OnAppearing();
 
             this.lstStatus.ItemsSource = this.ItemsList;
 
-            Device.BeginInvokeOnMainThread(() =>
+            await Device.InvokeOnMainThreadAsync(() =>
             {
                 this.lstStatus.ScrollTo(this.ItemsList[this.ItemsList.Count - 1], ScrollToPosition.MakeVisible, false);
             });
@@ -52,11 +52,6 @@
             {
                 // TODO: Verify keycodes
                 Enum.TryParse(keyPressed, out Keycode keycode);
-
-                if (keycode == Keycode.Escape)
-                {
-                    Device.BeginInvokeOnMainThread(async () => await this.Close());
-                }
             });
         }
 
@@ -65,9 +60,21 @@
         /// </summary>
         protected override void OnDisappearing()
         {
-            base.OnDisappearing();
-
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
+            base.OnDisappearing();
+        }
+
+        protected override bool OnBackButtonPressed()
+        {
+            Device.BeginInvokeOnMainThread(async () =>
+            {
+                base.OnBackButtonPressed();
+
+                this.DialogResult = DialogResult.None;
+                await this.Close();
+            });
+
+            return true;
         }
 
         /// <summary>
@@ -80,7 +87,8 @@
                 if (this.itemsList != null)
                 {
                     return this.itemsList;
-                } else
+                }
+                else
                 {
                     return new ObservableCollection<string>();
                 }
@@ -97,9 +105,10 @@
         /// </summary>
         /// <param name="sender">The sender<see cref="object"/></param>
         /// <param name="e">The e<see cref="EventArgs"/></param>
-        private void BtnClose_Clicked(object sender, EventArgs e)
+        private async void BtnClose_Clicked(object sender, EventArgs e)
         {
-            Device.BeginInvokeOnMainThread(async () => await this.Close());
+            this.DialogResult = DialogResult.None;
+            await Device.InvokeOnMainThreadAsync(async () => await this.Close());
         }
     }
 }

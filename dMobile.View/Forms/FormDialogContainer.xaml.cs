@@ -16,8 +16,10 @@ namespace dMobile.View.Forms
     using System.Threading.Tasks;
 
     [XamlCompilation(XamlCompilationOptions.Compile)]
-    public partial class FormDialogContainer : DMobileModal, IAppListener
+    public partial class FormDialogContainer : DMobileModal
     {
+        private IDMobileModal displayControl;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="FormDialogContainer"/> class.
         /// </summary>
@@ -25,10 +27,6 @@ namespace dMobile.View.Forms
         {
             InitializeComponent();
         }
-
-        private bool isControlClosing = false;
-        private XDocument displayControlData;
-        private IDMobileModal displayControl;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FormDialogContainer"/> class.
@@ -40,9 +38,6 @@ namespace dMobile.View.Forms
             IDMobileModal control = null;
 
             this.InitializeComponent();
-
-            //this.menuItemCancel.Enabled = false;
-            //this.menuItemSave.Enabled = false;
 
             switch (typeInnerControl)
             {
@@ -86,9 +81,6 @@ namespace dMobile.View.Forms
 
             this.InitializeComponent();
 
-            //this.menuItemCancel.Enabled = false;
-            //this.menuItemSave.Enabled = false;
-
             switch (typeInnerControl)
             {
                 case EDialogTypes.ucActivityShippingLabelEdit:
@@ -112,9 +104,6 @@ namespace dMobile.View.Forms
             IDMobileModal control = null;
 
             this.InitializeComponent();
-
-            //this.menuItemCancel.Enabled = false;
-            //this.menuItemSave.Enabled = false;
 
             switch (typeInnerControl)
             {
@@ -146,9 +135,6 @@ namespace dMobile.View.Forms
             IDMobileModal control = null;
 
             this.InitializeComponent();
-
-            //this.menuItemCancel.Enabled = false;
-            //this.menuItemSave.Enabled = false;
 
             switch (typeInnerControl)
             {
@@ -184,9 +170,6 @@ namespace dMobile.View.Forms
             IDMobileModal control = null;
 
             this.InitializeComponent();
-
-            //this.menuItemCancel.Enabled = false;
-            //this.menuItemSave.Enabled = false;
 
             switch (typeInnerControl)
             {
@@ -264,22 +247,6 @@ namespace dMobile.View.Forms
         }
 
         /// <summary>
-        /// Gets or sets the DisplayControlData
-        /// </summary>
-        public XDocument DisplayControlData
-        {
-            get
-            {
-                return this.displayControlData;
-            }
-
-            set
-            {
-                this.displayControlData = value;
-            }
-        }
-
-        /// <summary>
         /// Gets or sets the DisplayControl
         /// </summary>
         public IDMobileModal DisplayControl
@@ -292,22 +259,6 @@ namespace dMobile.View.Forms
             set
             {
                 this.displayControl = value;
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether IsControlClosing
-        /// </summary>
-        public bool IsControlClosing
-        {
-            get
-            {
-                return this.isControlClosing;
-            }
-
-            set
-            {
-                this.isControlClosing = value;
             }
         }
 
@@ -328,183 +279,6 @@ namespace dMobile.View.Forms
         }
 
         /// <summary>
-        /// The SaveChanges
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        public async Task SaveChanges(object sender, EventArgs e)
-        {
-            if (this.DisplayControl == null)
-            {
-                await this.ReqCloseDialogContainer(this.DisplayControl, EventArgs.Empty);
-            }
-            else
-            {
-                if (await ((IAppArea)this.DisplayControl).SaveChanges())
-                {
-                    await this.ReqCloseDialogContainer(this.DisplayControl, EventArgs.Empty);
-
-                    if (this.IsControlClosing)
-                    {
-                        this.DialogResult = DialogResult.OK;
-                    }
-                    else
-                    {
-                        this.DialogResult = DialogResult.Cancel;
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// The menuItemCancel_Click
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        public async void menuItemCancel_Click(object sender, EventArgs e)
-        {
-            //this.menuItemCancel.Enabled = false;
-
-            if (this.DisplayControl == null)
-            {
-                await this.ReqCloseDialogContainer(this.DisplayControl, EventArgs.Empty);
-            }
-            else
-            {
-                if (await ((IAppArea)this.DisplayControl).CancelChanges())
-                {
-                    await this.ReqCloseDialogContainer(this.DisplayControl, EventArgs.Empty);
-                }
-            }
-        }
-
-        /// <summary>
-        /// The FormDialogContainer_Closing
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        public void FormDialogContainer_Closing(object sender, CancelEventArgs e)
-        {
-            if (this.IsControlClosing)
-            {
-                e.Cancel = false;
-            }
-            else
-            {
-                e.Cancel = true;
-            }
-        }
-
-        /// <summary>
-        /// The FormDialogContainer_GotFocus
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        public void FormDialogContainer_GotFocus(object sender, EventArgs e)
-        {
-            //this.panelContents.Focus();
-        }
-
-        /// <summary>
-        /// The FormDialogContainer_Load
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        public void FormDialogContainer_Load(object sender, EventArgs e)
-        {
-            //try
-            //{
-                //int platform = (int)SysPlatformDetector.GetPlatform();
-
-                ////adjust the form size and pnlMain location depending on the OS
-                ////Windows CE menus appear at the top versus at the bottom for PPC
-                //if (platform == Convert.ToInt32(Platform.WindowsCE))
-                //{
-                //    this.Size = new Size(321, 241);
-                //    panelContents.Location = new Point(0, 27);
-
-                //    this.mainMenu.MenuItems[0].Text = "      Save        ";
-                //    this.mainMenu.MenuItems[1].Text = "       Cancel     ";
-
-                //}
-                //else
-                //{
-                //    if (platform == Convert.ToInt32(Platform.PocketPC))
-                //    {
-                //        this.WindowState = FormWindowState.Normal;
-                //    }
-
-                //    this.Size = new Size(321, 241);
-                //    this.panelContents.Location = new Point(0, 27);
-
-                //    this.mainMenu.MenuItems[0].Text = "    Save    ";
-                //    this.mainMenu.MenuItems[1].Text = "   Cancel   ";
-                //}
-            //}
-            //catch (Exception ex)
-            //{
-                //MessageBox.Show(
-                //  ex.Message,
-                //  "dMobile",
-                //  MessageBoxButtons.OK,
-                //  MessageBoxIcon.Exclamation,
-                //  MessageBoxDefaultButton.Button1);
-
-                //DisplayAlert("dMobile", ex.Message, Resource.OK);
-            //}
-        }
-
-        /// <summary>
-        /// The ReqClose
-        /// </summary>
-        /// <param name="appEventPub"></param>
-        /// <param name="appEventArgs"></param>
-        public async void ReqClose(IAppPublisher appEventPub, AppEventArgs appEventArgs)
-        {
-            await this.ReqCloseDialogContainer(appEventPub, appEventArgs);
-        }
-
-        /// <summary>
-        /// The ReqSaveEnable
-        /// </summary>
-        /// <param name="appEventPub"></param>
-        /// <param name="appEventArgs"></param>
-        public void ReqSaveEnable(IAppPublisher appEventPub, AppEventArgs appEventArgs)
-        {
-            //this.menuItemSave.Enabled = true;
-        }
-
-        /// <summary>
-        /// The ReqSaveDisable
-        /// </summary>
-        /// <param name="appEventPub"></param>
-        /// <param name="appEventArgs"></param>
-        public void ReqSaveDisable(IAppPublisher appEventPub, AppEventArgs appEventArgs)
-        {
-            //this.menuItemSave.Enabled = false;
-        }
-
-        /// <summary>
-        /// The ReqCancelEnable
-        /// </summary>
-        /// <param name="appEventPub"></param>
-        /// <param name="appEventArgs"></param>
-        public void ReqCancelEnable(IAppPublisher appEventPub, AppEventArgs appEventArgs)
-        {
-            //this.menuItemCancel.Enabled = true;
-        }
-
-        /// <summary>
-        /// The ReqCancelDisable
-        /// </summary>
-        /// <param name="appEventPub"></param>
-        /// <param name="appEventArgs"></param>
-        public void ReqCancelDisable(IAppPublisher appEventPub, AppEventArgs appEventArgs)
-        {
-            //this.menuItemCancel.Enabled = false;
-        }
-
-        /// <summary>
         /// The ShowActivityObj
         /// </summary>
         /// <param name="control"></param>
@@ -516,12 +290,6 @@ namespace dMobile.View.Forms
             }
             else
             {
-                ((IAppPublisher)control).RegisterReqClose((IAppListener)this);
-                ((IAppPublisher)control).RegisterReqSaveEnable((IAppListener)this);
-                ((IAppPublisher)control).RegisterReqSaveDisable((IAppListener)this);
-                ((IAppPublisher)control).RegisterReqCancelEnable((IAppListener)this);
-                ((IAppPublisher)control).RegisterReqCancelDisable((IAppListener)this);
-
                 this.DisplayControl = control;
 
             }
@@ -762,28 +530,6 @@ namespace dMobile.View.Forms
             }
 
             return control;
-        }
-
-        /// <summary>
-        /// The ReqCloseDialogContainer
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private async Task ReqCloseDialogContainer(object sender, EventArgs e)
-        {
-            this.IsControlClosing = true;
-
-            if (this.DisplayControl != null)
-            {
-                await ((IAppArea)sender).ScannerDisable();
-                this.DisplayControlData = await ((IAppArea)sender).GetXML();
-
-                ((IAppPublisher)sender).UnregisterReqClose((IAppListener)this);
-                ((IAppPublisher)sender).UnregisterReqSaveEnable((IAppListener)this);
-                ((IAppPublisher)sender).UnregisterReqSaveDisable((IAppListener)this);
-                ((IAppPublisher)sender).UnregisterReqCancelEnable((IAppListener)this);
-                ((IAppPublisher)sender).UnregisterReqCancelDisable((IAppListener)this);
-            }
         }
     }
 }

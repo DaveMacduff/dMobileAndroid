@@ -13,26 +13,11 @@
     using Xamarin.Forms.Xaml;
     using Resource = dMobile.Resources.Properties.Resources;
 
-
-
     [XamlCompilation(XamlCompilationOptions.Compile)]
-    public partial class ucMainMenu : DMobileContentPage, IAppArea, IAppPublisher
+    public partial class ucMainMenu : DMobileContentPage, IAppArea
     {
-
-        //private UserControl callingControl = new LoginStartup();
         private SysEnvironment sysEnv;
         private bool isControlLoaded = false;
-        private ReqCloseHandler reqCloseEvent;
-        private ReqSaveEnableHandler reqSaveEnableEvent;
-        private ReqSaveDisableHandler reqSaveDisableEvent;
-        private ReqCancelEnableHandler reqCancelEnableEvent;
-        private ReqCancelDisableHandler reqCancelDisableEvent;
-
-        public delegate void ReqCloseHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
-        public delegate void ReqCancelDisableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
-        public delegate void ReqSaveDisableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
-        public delegate void ReqCancelEnableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
-        public delegate void ReqSaveEnableHandler(IAppPublisher appPub, AppEventArgs appEventArgs);
 
         public ucMainMenu()
         {
@@ -44,7 +29,7 @@
             {
                 this.SysEnv = SysEnvironment.GetInstance();
             }
-            
+
             this.cmdPurchaseOrders.Text = "1) " + Resource.ReceivingAndPutAway;
             this.cmdSalesOrders.Text = "2) " + Resource.SalesOrders;
             this.cmdInventory.Text = "3) " + Resource.Inventory;
@@ -64,47 +49,38 @@
                 // TODO: Verify keycodes
                 Enum.TryParse(keyPressed, out Keycode keycode);
 
-                if (keycode == Keycode.Escape || keycode == Keycode.F1)
+                if (keycode == Keycode.F1)
                 {
                     this.DisableControls();
-                    //this.CallingControl = new LoginStartup();
-                    this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     this.IsControlLoaded = false;
                 }
                 else if (keycode == Keycode.Num1)
                 {
                     this.DisableControls();
-                    //this.CallingControl = new ucPurchaseOrdersMenu();
-                    this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     this.IsControlLoaded = false;
-                    
+
                     ucPurchaseOrdersMenu purchaseOrders = new ucPurchaseOrdersMenu();
                     await purchaseOrders.Show();
                 }
                 else if (keycode == Keycode.Num2)
                 {
                     this.DisableControls();
-                    //this.CallingControl = new ucSalesOrdersMenu();
-                    this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     this.IsControlLoaded = false;
-                    
+
                     ucSalesOrdersMenu salesOrders = new ucSalesOrdersMenu();
                     await salesOrders.Show();
                 }
                 else if (keycode == Keycode.Num3)
                 {
                     this.DisableControls();
-                    this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     this.IsControlLoaded = false;
-                    
+
                     ucInventoryMenu inventoryMenu = new ucInventoryMenu();
                     await inventoryMenu.Show();
                 }
                 else if (keycode == Keycode.Num4)
                 {
                     this.DisableControls();
-                    //this.CallingControl = new ucProductionTicketMenu();
-                    this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     this.IsControlLoaded = false;
 
                     ucProductionTicketMenu production = new ucProductionTicketMenu();
@@ -113,9 +89,8 @@
                 else if (keycode == Keycode.Num5)
                 {
                     this.DisableControls();
-                    this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                     this.IsControlLoaded = false;
-                    
+
                     ucOptionsMenu optionsMenu = new ucOptionsMenu();
                     await optionsMenu.Show();
                 }
@@ -138,151 +113,22 @@
         protected override void OnDisappearing()
         {
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
-            
+
             base.OnDisappearing();
         }
 
-        public event ReqCloseHandler ReqClose
+        protected override bool OnBackButtonPressed()
         {
-            add
+            Device.BeginInvokeOnMainThread(() =>
             {
-                this.ReqCloseEvent = (ReqCloseHandler)Delegate.Combine(this.ReqCloseEvent, value);
-            }
+                base.OnBackButtonPressed();
 
-            remove
-            {
-                this.ReqCloseEvent = (ReqCloseHandler)Delegate.Remove(this.ReqCloseEvent, value);
-            }
-        }
+                this.DisableControls();
+                this.IsControlLoaded = false;
 
-        public event ReqSaveEnableHandler ReqSaveEnable
-        {
-            add
-            {
-                this.ReqSaveEnableEvent = (ReqSaveEnableHandler)Delegate.Combine(this.ReqSaveEnableEvent, value);
-            }
+            });
 
-            remove
-            {
-                this.ReqSaveEnableEvent = (ReqSaveEnableHandler)Delegate.Remove(this.ReqSaveEnableEvent, value);
-            }
-        }
-
-        public event ReqSaveDisableHandler ReqSaveDisable
-        {
-            add
-            {
-                this.ReqSaveDisableEvent = (ReqSaveDisableHandler)Delegate.Combine(this.ReqSaveDisableEvent, value);
-            }
-
-            remove
-            {
-                this.ReqSaveDisableEvent = (ReqSaveDisableHandler)Delegate.Remove(this.ReqSaveDisableEvent, value);
-            }
-        }
-
-        public event ReqCancelEnableHandler ReqCancelEnable
-        {
-            add
-            {
-                this.ReqCancelEnableEvent = (ReqCancelEnableHandler)Delegate.Combine(this.ReqCancelEnableEvent, value);
-            }
-
-            remove
-            {
-                this.ReqCancelEnableEvent = (ReqCancelEnableHandler)Delegate.Remove(this.ReqCancelEnableEvent, value);
-            }
-        }
-
-        public event ReqCancelDisableHandler ReqCancelDisable
-        {
-            add
-            {
-                this.ReqCancelDisableEvent = (ReqCancelDisableHandler)Delegate.Combine(this.ReqCancelDisableEvent, value);
-            }
-
-            remove
-            {
-                this.ReqCancelDisableEvent = (ReqCancelDisableHandler)Delegate.Remove(this.ReqCancelDisableEvent, value);
-            }
-        }
-
-        private ReqCloseHandler ReqCloseEvent
-        {
-            get
-            {
-                return this.reqCloseEvent;
-            }
-
-            set
-            {
-                this.reqCloseEvent = value;
-            }
-        }
-
-        //private UserControl CallingControl
-        //{
-        //  get
-        //  {
-        //    return this.callingControl;
-        //  }
-
-        //  set
-        //  {
-        //    this.callingControl = value;
-        //  }
-        //}
-
-        private ReqSaveEnableHandler ReqSaveEnableEvent
-        {
-            get
-            {
-                return this.reqSaveEnableEvent;
-            }
-
-            set
-            {
-                this.reqSaveEnableEvent = value;
-            }
-        }
-
-        private ReqSaveDisableHandler ReqSaveDisableEvent
-        {
-            get
-            {
-                return this.reqSaveDisableEvent;
-            }
-
-            set
-            {
-                this.reqSaveDisableEvent = value;
-            }
-        }
-
-        private ReqCancelEnableHandler ReqCancelEnableEvent
-        {
-            get
-            {
-                return this.reqCancelEnableEvent;
-            }
-
-            set
-            {
-                this.reqCancelEnableEvent = value;
-            }
-        }
-
-        private ReqCancelDisableHandler ReqCancelDisableEvent
-        {
-            get
-            {
-                return this.reqCancelDisableEvent;
-            }
-
-            set
-            {
-                this.reqCancelDisableEvent = value;
-            }
+            return true;
         }
 
         private bool IsControlLoaded
@@ -347,16 +193,6 @@
             return true;
         }
 
-        ///// <summary>
-        /////
-        ///// </summary>
-        ///// <returns></returns>
-        ///// <remarks></remarks>
-        //public UserControl GetCallingControl()
-        //{
-        //  return this.CallingControl;
-        //}
-
         /// <summary>
         ///
         /// </summary>
@@ -402,97 +238,7 @@
 
             return xmldocParams;
         }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void RegisterReqClose(IAppListener appEventListener)
-        {
-            this.ReqClose += new ReqCloseHandler(appEventListener.ReqClose);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void UnregisterReqClose(IAppListener appEventListener)
-        {
-            this.ReqClose -= new ReqCloseHandler(appEventListener.ReqClose);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void RegisterReqSaveEnable(IAppListener appEventListener)
-        {
-            this.ReqSaveEnable += new ReqSaveEnableHandler(appEventListener.ReqSaveEnable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void UnregisterReqSaveEnable(IAppListener appEventListener)
-        {
-            this.ReqSaveEnable -= new ReqSaveEnableHandler(appEventListener.ReqSaveEnable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void RegisterReqSaveDisable(IAppListener appEventListener)
-        {
-            this.ReqSaveDisable += new ReqSaveDisableHandler(appEventListener.ReqSaveDisable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void UnregisterReqSaveDisable(IAppListener appEventListener)
-        {
-            this.ReqSaveDisable -= new ReqSaveDisableHandler(appEventListener.ReqSaveDisable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void RegisterReqCancelEnable(IAppListener appEventListener)
-        {
-            this.ReqCancelEnable += new ReqCancelEnableHandler(appEventListener.ReqCancelEnable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void UnregisterReqCancelEnable(IAppListener appEventListener)
-        {
-            this.ReqCancelEnable -= new ReqCancelEnableHandler(appEventListener.ReqCancelEnable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void RegisterReqCancelDisable(IAppListener appEventListener)
-        {
-            this.ReqSaveDisable += new ReqSaveDisableHandler(appEventListener.ReqCancelDisable);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="appEventListener"></param>
-        public void UnregisterReqCancelDisable(IAppListener appEventListener)
-        {
-            this.ReqSaveDisable -= new ReqSaveDisableHandler(appEventListener.ReqCancelDisable);
-        }
-
+    
         /// <summary>
         ///
         /// </summary>
@@ -504,9 +250,6 @@
             this.cmdProduction.IsEnabled = false;
             this.cmdPurchaseOrders.IsEnabled = false;
             this.cmdSalesOrders.IsEnabled = false;
-
-            this.ReqCancelDisableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
-            this.ReqSaveDisableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
         }
 
         /// <summary>
@@ -605,8 +348,6 @@
 
                     // attempt to give focus to first control
                     this.cmdPurchaseOrders.Focus();
-
-                    this.ReqCancelEnableEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
                 }
             }
         }
@@ -620,8 +361,6 @@
         public async void cmdPurchaseOrders_Click(object sender, EventArgs e)
         {
             this.DisableControls();
-            //this.CallingControl = new ucPurchaseOrdersMenu();
-            this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
             this.IsControlLoaded = false;
 
             ucPurchaseOrdersMenu purchaseOrders = new ucPurchaseOrdersMenu();
@@ -637,10 +376,8 @@
         private async void cmdSalesOrders_Click(object sender, EventArgs e)
         {
             this.DisableControls();
-            //this.CallingControl = new ucSalesOrdersMenu();            
-            this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
             this.IsControlLoaded = false;
-            
+
             ucSalesOrdersMenu salesOrdersMenu = new ucSalesOrdersMenu();
             await salesOrdersMenu.Show();
         }
@@ -654,8 +391,6 @@
         private async void cmdInventory_Click(object sender, EventArgs e)
         {
             this.DisableControls();
-            //this.CallingControl = new ucInventoryMenu();
-            this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
             this.IsControlLoaded = false;
 
             ucInventoryMenu inventoryMenu = new ucInventoryMenu();
@@ -671,8 +406,6 @@
         private async void cmdProduction_Click(object sender, EventArgs e)
         {
             this.DisableControls();
-            //this.CallingControl = new ucProductionTicketMenu();
-            this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
             this.IsControlLoaded = false;
 
             ucProductionTicketMenu production = new ucProductionTicketMenu();
@@ -688,9 +421,8 @@
         private async void cmdOptions_Click(object sender, EventArgs e)
         {
             this.DisableControls();
-            this.ReqCloseEvent?.Invoke((IAppPublisher)this, new AppEventArgs());
             this.IsControlLoaded = false;
-            
+
             ucOptionsMenu optionsMenu = new ucOptionsMenu();
             await optionsMenu.Show();
         }

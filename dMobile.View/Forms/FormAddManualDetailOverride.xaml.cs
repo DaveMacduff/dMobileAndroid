@@ -76,16 +76,24 @@ namespace dMobile.View.Forms
 
                 if (!this.Loading)
                 {
-                    if (keycode == Keycode.Escape)
-                    {
-                        await this.Close();
-                    }
-                    else if (keycode == Keycode.F1)
+                    if (keycode == Keycode.Enter || keycode == Keycode.F1)
                     {
                         this.cmdOK_Click(null, new EventArgs());
                     }
                 }
             });
+        }
+
+        protected override bool OnBackButtonPressed()
+        {
+            Device.BeginInvokeOnMainThread(async () =>
+            {
+                base.OnBackButtonPressed();
+                this.DialogResult = DialogResult.None;
+                await this.Close();
+            });
+
+            return true;
         }
 
         /// <summary>
