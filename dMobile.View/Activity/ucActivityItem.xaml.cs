@@ -1586,7 +1586,7 @@
                         if (this.SysEnv.SysSettings.IsVerifyProductLocation && (this.ActSubType == SysCommon.ActSubTypes.Picking || this.ActSubType == SysCommon.ActSubTypes.TransferFrom))
                         {
                             // LocationMapRefno is assumed to be the picking WarehouseLocationMapRefno
-                            int locMapRefno = this.ActItem.GetDefaultLocMapRefno(Convert.ToInt32((this.ActItem.ListItems[foundRowIdx] as dynamic).LocationMapRefno), Convert.ToInt32((this.ActItem.ListItems[foundRowIdx] as dynamic).ProductRefno));
+                            int locMapRefno = await this.ActItem.GetDefaultLocMapRefno(Convert.ToInt32((this.ActItem.ListItems[foundRowIdx] as dynamic).LocationMapRefno), Convert.ToInt32((this.ActItem.ListItems[foundRowIdx] as dynamic).ProductRefno));
 
                             if (this.LocMap.CurrLocMapRefno != locMapRefno)
                             {

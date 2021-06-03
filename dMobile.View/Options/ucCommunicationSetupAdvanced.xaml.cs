@@ -570,10 +570,10 @@ namespace dMobile.View.Options
 
         #endregion
 
-        private void BtnSave_Clicked(object sender, EventArgs e)
+        private async void BtnSave_Clicked(object sender, EventArgs e)
         {
             this.ValidateEntry(null, new CancelEventArgs());
-            this.SaveChanges();
+            await this.SaveChanges();
         }
 
         private void TextChanged(object sender, TextChangedEventArgs e)

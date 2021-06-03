@@ -973,7 +973,7 @@ namespace dMobile.View.Activity
                             tempSkidInfo.LocMapRefno = 0;
                         }
 
-                        this.DisplayData();
+                        await Device.InvokeOnMainThreadAsync(() => this.DisplayData());
                     }
                     else
                     {
@@ -1022,7 +1022,7 @@ namespace dMobile.View.Activity
                         this.SkidInfo.CurrSkid = tempSkidInfo;
                     }
 
-                    this.DisplayData();
+                    await Device.InvokeOnMainThreadAsync(() => this.DisplayData());
                 }
 
                 // Product identifier
@@ -1050,7 +1050,7 @@ namespace dMobile.View.Activity
                             tempSkidInfo.ProdInfo = null;
                         }
 
-                        this.DisplayData();
+                        await Device.InvokeOnMainThreadAsync(() => this.DisplayData());
                     }
                     else
                     {
@@ -1086,7 +1086,7 @@ namespace dMobile.View.Activity
                 if (await this.IsReadyToSave())
                 {
                     await this.SaveSkid();
-                    this.DisplayData();
+                    await Device.InvokeOnMainThreadAsync(() => this.DisplayData());
 
                     // TODO: Resource strings
                     if (await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Print skid label?", "Yes", "No")))
@@ -1425,7 +1425,7 @@ namespace dMobile.View.Activity
             finally
             {
                 this.Loading = false;
-                this.DisplayData();
+                await Device.InvokeOnMainThreadAsync(() => this.DisplayData());
             }
         }
 

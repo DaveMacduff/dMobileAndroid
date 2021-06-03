@@ -347,6 +347,11 @@
         /// <remarks></remarks>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
+            if (this.Loading)
+            {
+                return; 
+            }
+
             this.Loading = true;
 
             await Task.Run(async () =>

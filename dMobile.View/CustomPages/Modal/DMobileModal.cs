@@ -144,6 +144,11 @@
         {
             try
             {
+                while (this.Loading)
+                {
+                    // Wait for loading to complete
+                }
+
                 if (Application.Current.MainPage is MasterDetailPage mainPage)
                 {
                     await Device.InvokeOnMainThreadAsync(async () => await mainPage.Detail.Navigation.PopModalAsync());
