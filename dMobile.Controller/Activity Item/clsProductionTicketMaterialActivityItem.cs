@@ -599,7 +599,7 @@
 
             //if (string.IsNullOrEmpty(this.ActItemFilter))
             //{
-            this.ListItems = this.listProductionTicketMaterialItems.Where(productionTicketMaterialItem => productionTicketMaterialItem.ProductCode.ToString().Contains(searchText.Trim())).Cast<object>().ToList();
+            this.ListItems = this.listProductionTicketMaterialItems.Where(productionTicketMaterialItem => productionTicketMaterialItem.ProductCode.ToString().ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
             //}
             //else
             //{

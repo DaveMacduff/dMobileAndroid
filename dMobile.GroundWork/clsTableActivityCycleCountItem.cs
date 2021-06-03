@@ -142,7 +142,7 @@
             {
                 string query = "DELETE FROM tActivityItemBarCodeAssociationXRef "
                         + "WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno IN "
-                        + "(SELECT tActivityItem.ActivityItemRefno FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?";
+                        + "(SELECT tActivityItem.ActivityItemRefno FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?)";
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts));
 
                 query = "DELETE FROM tActivityItemCount WHERE tActivityItemCount.ActivityItemSubType = ?";

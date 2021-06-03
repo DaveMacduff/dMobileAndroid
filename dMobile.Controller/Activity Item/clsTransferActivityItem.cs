@@ -624,7 +624,7 @@
 
             //if (string.IsNullOrEmpty(this.ActItemFilter))
             //{
-            this.ListItems = this.listTransferItems.Where(transferItem => transferItem.ProductCode.ToString().Contains(searchText.Trim())).Cast<object>().ToList();
+            this.ListItems = this.listTransferItems.Where(transferItem => transferItem.ProductCode.ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
             //}
             //else
             //{

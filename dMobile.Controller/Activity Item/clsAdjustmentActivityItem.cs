@@ -558,7 +558,7 @@ namespace dMobile.Controller
 
             //if (string.IsNullOrEmpty(this.ActItemFilter))
             //{
-            this.ListItems = this.listAdjustmentItems.Where(adjItem => adjItem.ProductCode.ToString().Contains(searchText.Trim())).Cast<object>().ToList();
+            this.ListItems = this.listAdjustmentItems.Where(adjItem => adjItem.ProductCode.ToString().ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
             //}
 
             foreach (AdjustmentItem adjustmentItem in this.ListItems)

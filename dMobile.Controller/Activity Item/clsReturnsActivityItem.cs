@@ -503,7 +503,7 @@
 
             //if (string.IsNullOrEmpty(this.ActItemFilter))
             //{
-            this.ListItems = this.listReturnItems.Where(returnItem => returnItem.ProductCode.ToString().Contains(searchText.Trim())).Cast<object>().ToList();
+            this.ListItems = this.listReturnItems.Where(returnItem => returnItem.ProductCode.ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
             //}
             //else
             //{

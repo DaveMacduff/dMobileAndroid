@@ -327,7 +327,7 @@ namespace dMobile.Controller
 
             //if (string.IsNullOrEmpty(this.ActFilter))
             //{
-            this.ListHdrs = this.listReceives.Where(receive => receive.ActivityReceivingPONumber.Contains(searchText.Trim())).Cast<object>().ToList();
+            this.ListHdrs = this.listReceives.Where(receive => receive.ActivityReceivingPONumber.ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
             //}
             //else
             //{

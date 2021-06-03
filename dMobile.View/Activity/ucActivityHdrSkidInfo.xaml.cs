@@ -271,62 +271,65 @@ namespace dMobile.View.Activity
                 {
                     this.isFirstAppearance = false;
 
-                    // No active skid selected
-                    if (this.actItem.ActHdr.SkidInfo == null || this.actItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno == 0)
+                    if (this.actItem != null)
                     {
-                        // Default the location from the line item object.
-                        this.LocMap.CurrLocMap = this.actItem.LocMap.CurrLocMap;
-
-                        // Default the potential new skid product unit from the line item object.
-                        SSkidInfo tempSkidInfo = this.SkidInfo.CurrSkid;
-                        tempSkidInfo.LocMap = this.LocMap.CurrLocMap;
-
-                        if (this.actItem.SelectedActivityItem != null && this.actItem.ListItems != null)
+                        // No active skid selected
+                        if (this.actItem.ActHdr.SkidInfo == null || this.actItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno == 0)
                         {
-                            this.ProdUnitRefno = Convert.ToInt32((this.actItem.SelectedActivityItem as dynamic).ProductUnitRefno);
+                            // Default the location from the line item object.
+                            this.LocMap.CurrLocMap = this.actItem.LocMap.CurrLocMap;
 
-                            tempSkidInfo.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(this.ProdUnitRefno);
-                            tempSkidInfo.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(tempSkidInfo.ProdInfo.Refno);
+                            // Default the potential new skid product unit from the line item object.
+                            SSkidInfo tempSkidInfo = this.SkidInfo.CurrSkid;
+                            tempSkidInfo.LocMap = this.LocMap.CurrLocMap;
+
+                            if (this.actItem.SelectedActivityItem != null && this.actItem.ListItems != null)
+                            {
+                                this.ProdUnitRefno = Convert.ToInt32((this.actItem.SelectedActivityItem as dynamic).ProductUnitRefno);
+
+                                tempSkidInfo.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(this.ProdUnitRefno);
+                                tempSkidInfo.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(tempSkidInfo.ProdInfo.Refno);
+                            }
+                            else
+                            {
+                                tempSkidInfo.ProdInfo = new ProductInfo();
+                            }
+
+                            // Assign the current skid object with the defaults.
+                            this.SkidInfo.CurrSkid = tempSkidInfo;
                         }
                         else
                         {
-                            tempSkidInfo.ProdInfo = new ProductInfo();
-                        }
+                            try
+                            {
+                                this.IsNewSkid = false;
+                                this.SavedSkidInfo = this.actItem.ActHdr.SkidInfo;
 
-                        // Assign the current skid object with the defaults.
-                        this.SkidInfo.CurrSkid = tempSkidInfo;
-                    }
-                    else
-                    {
-                        try
-                        {
-                            this.IsNewSkid = false;
-                            this.SavedSkidInfo = this.actItem.ActHdr.SkidInfo;
+                                // Update the skid info from dtec. e.g. Bucket totals may have been updated.
+                                this.SkidInfo = await SysSkidInfo.GetSkidInfoFromBarCodeOrCode(this.actItem.ActHdr.SkidInfo.CurrSkid.SkidCode.TrimEnd());
 
-                            // Update the skid info from dtec. e.g. Bucket totals may have been updated.
-                            this.SkidInfo = await SysSkidInfo.GetSkidInfoFromBarCodeOrCode(this.actItem.ActHdr.SkidInfo.CurrSkid.SkidCode.TrimEnd());
+                                // Update the saved skid, to reflect dtec changes after the call GetSkidInfoFromBarCodeOrCode.
+                                // The changes in dtec are valid.
+                                this.SavedSkidInfo = this.actItem.ActHdr.SkidInfo;
+                                this.EnableControls();
+                            }
+                            catch (Exceptions.MessageOnlyException ex)
+                            {
+                                this.SkidInfo = this.actItem.ActHdr.SkidInfo;
+                                ex.Show(SysCommon.ActSubTypes.SkidInfo);
+                            }
+                            catch (Exception ex)
+                            {
+                                this.SkidInfo = this.actItem.ActHdr.SkidInfo;
+                                FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.SkidInfo, ex);
+                                await errRpt.ShowDialog();
+                            }
 
-                            // Update the saved skid, to reflect dtec changes after the call GetSkidInfoFromBarCodeOrCode.
-                            // The changes in dtec are valid.
-                            this.SavedSkidInfo = this.actItem.ActHdr.SkidInfo;
-                            this.EnableControls();
-                        }
-                        catch (Exceptions.MessageOnlyException ex)
-                        {
-                            this.SkidInfo = this.actItem.ActHdr.SkidInfo;
-                            ex.Show(SysCommon.ActSubTypes.SkidInfo);
-                        }
-                        catch (Exception ex)
-                        {
-                            this.SkidInfo = this.actItem.ActHdr.SkidInfo;
-                            FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.SkidInfo, ex);
-                            await errRpt.ShowDialog();
-                        }
-
-                        if (this.actItem.ActHdr.SkidInfo == null || this.actItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
-                        {
-                            this.LocMap.CurrLocMap = this.SkidInfo.CurrSkid.LocMap;
-                            this.ProdUnitRefno = this.SkidInfo.CurrSkid.ProdInfo.UnitRefno;
+                            if (this.actItem.ActHdr.SkidInfo == null || this.actItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
+                            {
+                                this.LocMap.CurrLocMap = this.SkidInfo.CurrSkid.LocMap;
+                                this.ProdUnitRefno = this.SkidInfo.CurrSkid.ProdInfo.UnitRefno;
+                            }
                         }
                     }
                 }

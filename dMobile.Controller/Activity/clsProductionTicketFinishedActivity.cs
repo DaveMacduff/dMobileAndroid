@@ -315,7 +315,7 @@ namespace dMobile.Controller
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
-            this.ListHdrs = this.listProductionTicketFinished.Where(prodTicket => prodTicket.ActivityProductionStringFKRefno.Contains(searchText.Trim())).Cast<object>().ToList();
+            this.ListHdrs = this.listProductionTicketFinished.Where(prodTicket => prodTicket.ActivityProductionStringFKRefno.ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
 
             foreach (ProductionTicketFinished productionTicketFinished in this.ListHdrs)
             {

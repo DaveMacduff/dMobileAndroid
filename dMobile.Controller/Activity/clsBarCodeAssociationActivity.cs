@@ -220,8 +220,7 @@ namespace dMobile.Controller
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
-            //this.DataViewHdrs.RowFilter = "ProductUnitBarCodeCode LIKE \'%" + searchText.Trim() + "%\'";
-            this.ListHdrs = (List<object>)this.ListHdrs.OfType<BarcodeAssociation>().Where(bca => bca.ProductUnitBarCodeCode.Contains(searchText.Trim()));
+            this.ListHdrs = (List<object>)this.ListHdrs.OfType<BarcodeAssociation>().Where(bca => bca.ProductUnitBarCodeCode.ToLower().Contains(searchText.ToLower().Trim()));
 
             foreach (BarcodeAssociation barcodeAssociation in this.ListHdrs)
             {

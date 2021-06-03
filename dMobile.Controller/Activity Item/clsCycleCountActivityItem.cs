@@ -185,7 +185,7 @@
                 {
                     //result = MessageBox.Show("A line item already exists for this location and product." + Environment.NewLine + "Do you wish to create one?", "New Item", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button3);
                     // TODO: Resource strings
-                    result = await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert("New Item", "A line item already exists for this location and product.", "Yes", "No"));
+                    result = await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert("New Item", "A line item already exists for this location and product." + Environment.NewLine + "Do you wish to create one?", "Yes", "No"));
                 }
                 else
                 {
@@ -811,7 +811,7 @@
             //if (string.IsNullOrEmpty(this.ActItemFilter))
             //{
             //this.DataViewItems.RowFilter = "ProductCode LIKE \'%" + searchText.Trim() + "%\'";
-            this.ListItems = this.listCountItems.Where(countItem => countItem.ProductCode.ToString().Contains(searchText.Trim())).Cast<object>().ToList();
+            this.ListItems = this.listCountItems.Where(countItem => countItem.ProductCode.ToString().ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
             //}
             //else
             //{

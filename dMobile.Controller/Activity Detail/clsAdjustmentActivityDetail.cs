@@ -898,7 +898,7 @@
         public override ObservableCollection<object> Search(string searchText)
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
-            this.ListDetails = this.listAdjustmentDetails.Where(adjDetail => adjDetail.ActivityDetailAdjustmentFKRefno.ToString().Contains(searchText.Trim())).Cast<object>().ToList();
+            this.ListDetails = this.listAdjustmentDetails.Where(adjDetail => adjDetail.ActivityDetailAdjustmentFKRefno.ToString().ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
 
             foreach (AdjustmentDetail adjustmentDetail in this.ListDetails)
             {

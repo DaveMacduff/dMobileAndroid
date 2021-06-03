@@ -669,8 +669,6 @@ namespace dMobile.GroundWork
             string emptyDate = "01-01-1900";
             List<object> detailParameters = new List<object>();
 
-            detailParameters.Add(Convert.ToInt32(0));
-
             if (useFNo)
             {
                 detailParameters.Add(Convert.ToString(drow["f05"]));

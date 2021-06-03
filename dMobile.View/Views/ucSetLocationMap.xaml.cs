@@ -205,6 +205,7 @@
 
             try
             {
+                this.IsEnabled = false;
                 await this.ucSetLocationMap_GotFocus(this, new EventArgs());
                 await this.tabLocation_GotFocus(this, new EventArgs());
             }
@@ -212,6 +213,10 @@
             {
                 // TODO: Logging
                 Console.WriteLine("this.ucSetLocationMap_GotFocus/tabLocation_GotFocus threw error " + ex);
+            }
+            finally
+            {
+                this.IsEnabled = true;
             }
         }
 
@@ -753,7 +758,7 @@
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        private void txtSearchSection_TextChanged(object sender, TextChangedEventArgs e)
+        private async void txtSearchSection_TextChanged(object sender, TextChangedEventArgs e)
         {
             try
             {
@@ -787,7 +792,7 @@
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "An error occurred while searching." + ex.Message, "OK"));
                 this.FilteredListSections = this.ListSections;
             }
             finally
@@ -1031,40 +1036,47 @@
         /// <remarks></remarks>
         private async Task LoadData()
         {
-            // Default to the login warehouse
-            int locMapRefno;
-
-            if (0 < this.DefaultWhsLocMapRefno)
+            try
             {
-                // If the default warehouse match the current
-                if (this.LocMap.CurrLocMap.WhsLocMapRefno == this.DefaultWhsLocMapRefno)
+                // Default to the login warehouse
+                int locMapRefno;
+
+                if (0 < this.DefaultWhsLocMapRefno)
                 {
-                    locMapRefno = this.LocMap.CurrLocMapRefno;
+                    // If the default warehouse match the current
+                    if (this.LocMap.CurrLocMap.WhsLocMapRefno == this.DefaultWhsLocMapRefno)
+                    {
+                        locMapRefno = this.LocMap.CurrLocMapRefno;
+                    }
+                    else
+                    {
+                        locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(this.DefaultWhsLocMapRefno, 0, SysCommon.ProdLocMapTypes.Picking);
+                    }
+                }
+                else if (0 >= this.LocMap.CurrLocMap.WhsLocMapRefno)
+                {
+                    locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(this.LocMap.LoginWhsLocMapRefno, 0, SysCommon.ProdLocMapTypes.Picking);
                 }
                 else
                 {
-                    locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(this.DefaultWhsLocMapRefno, 0, SysCommon.ProdLocMapTypes.Picking);
+                    locMapRefno = this.LocMap.CurrLocMapRefno;
                 }
+
+                this.LocMapInfo = await LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
+
+                // Load the dataviews and apply row filters base on the current sLocationMapInfo values
+                await this.LoadWhsList();
+                await this.LoadSections();
+                await this.LoadSlots();
+
+                this.SelectWarehouse();
+                this.SelectSection();
+                this.SelectSlotCoordinate();
             }
-            else if (0 >= this.LocMap.CurrLocMap.WhsLocMapRefno)
+            catch (Exception ex)
             {
-                locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(this.LocMap.LoginWhsLocMapRefno, 0, SysCommon.ProdLocMapTypes.Picking);
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "An error occurred while loading data." + ex.Message, "OK"));
             }
-            else
-            {
-                locMapRefno = this.LocMap.CurrLocMapRefno;
-            }
-
-            this.LocMapInfo = await LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
-
-            // Load the dataviews and apply row filters base on the current sLocationMapInfo values
-            await this.LoadWhsList();
-            await this.LoadSections();
-            await this.LoadSlots();
-
-            this.SelectWarehouse();
-            this.SelectSection();
-            this.SelectSlotCoordinate();
         }
 
         /// <summary>
@@ -1183,10 +1195,7 @@
                     this.cboSectionSearch.SelectedIndex = 0;
                     //this.cboSectionSearch.Text = "Description";
                 }
-                //}
 
-                //if (this.tabLocation.SelectedIndex == 2)
-                //{
                 if (this.CurrentPage.TabIndex == 2)
                 {
                     if (this.FilteredListSlotCoord1.Count > 0)
@@ -1233,6 +1242,10 @@
                     {
                         this.dgSections.SelectedItem = section;
                     }
+                    else if (this.SectionObservableCollection.Count > 0)
+                    {
+                        this.dgSections.SelectedItem = this.SectionObservableCollection[0];
+                    }
                 }
                 else
                 {
@@ -1276,6 +1289,10 @@
                     {
                         this.dgCoord1.SelectedItem = slotCoord1;
                     }
+                    else if (this.SlotCoord1ObservableCollection.Count > 0)
+                    {
+                        this.dgCoord1.SelectedItem = this.SlotCoord1ObservableCollection[0];
+                    }
                 }
                 else
                 {
@@ -1294,6 +1311,10 @@
                     {
                         this.dgCoord2.SelectedItem = slotCoord2;
                     }
+                    else if (this.SlotCoord2ObservableCollection.Count > 0)
+                    {
+                        this.dgCoord2.SelectedItem = this.SlotCoord2ObservableCollection[0];
+                    }
                 }
                 else
                 {
@@ -1311,6 +1332,10 @@
                     if (slotCoord3 != null)
                     {
                         this.dgCoord3.SelectedItem = slotCoord3;
+                    }
+                    else if (this.SlotCoord3ObservableCollection.Count > 0)
+                    {
+                        this.dgCoord3.SelectedItem = this.SlotCoord3ObservableCollection[0];
                     }
                 }
                 else
@@ -1331,42 +1356,49 @@
         /// <remarks></remarks>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
-            // No need to disable/enable scanner because only messagebox are called. 
-            // GoFocus and LostFocus events will handle the scanner
-            this.Parse = scanArgs.ParseInfo;
+            try
+            {
+                // No need to disable/enable scanner because only messagebox are called. 
+                // GoFocus and LostFocus events will handle the scanner
+                this.Parse = scanArgs.ParseInfo;
 
-            if (!string.IsNullOrEmpty(this.Parse.ActFKRefno))
-            {
-                // TODO: Resource strings
-                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Scanning an header reference # is not supported here!", "OK"));
+                if (!string.IsNullOrEmpty(this.Parse.ActFKRefno))
+                {
+                    // TODO: Resource strings
+                    await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Scanning an header reference # is not supported here!", "OK"));
+                }
+                else if (!string.IsNullOrEmpty(this.Parse.ActItemFKRefno))
+                {
+                    // TODO: Resource strings
+                    await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Scanning an item reference # is not supported here!", "OK"));
+                }
+                else if (!string.IsNullOrEmpty(this.Parse.ProductIdentifier))
+                {
+                    // TODO: Resource strings
+                    await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Scanning a product bar code is not supported here!", "OK"));
+                }
+                else if (!string.IsNullOrEmpty(this.Parse.SSCC18))
+                {
+                    // TODO: Resource strings
+                    await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Scanning a shipping container bar code is not supported here!", "OK"));
+                }
+                else if (!string.IsNullOrEmpty(this.Parse.LocationIdentifier))
+                {
+                    int locMapRefno = await LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(this.Parse.LocationIdentifier);
+                    this.LocMapInfo = await LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
+                    this.SelectWarehouse();
+                    this.SelectSection();
+                    this.SelectSlotCoordinate();
+                }
+                else
+                {
+                    // TODO: Resource strings
+                    await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Scanned bar code type is not supported here!", "OK"));
+                }
             }
-            else if (!string.IsNullOrEmpty(this.Parse.ActItemFKRefno))
+            catch (Exception ex)
             {
-                // TODO: Resource strings
-                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Scanning an item reference # is not supported here!", "OK"));
-            }
-            else if (!string.IsNullOrEmpty(this.Parse.ProductIdentifier))
-            {
-                // TODO: Resource strings
-                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Scanning a product bar code is not supported here!", "OK"));
-            }
-            else if (!string.IsNullOrEmpty(this.Parse.SSCC18))
-            {
-                // TODO: Resource strings
-                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Scanning a shipping container bar code is not supported here!", "OK"));
-            }
-            else if (!string.IsNullOrEmpty(this.Parse.LocationIdentifier))
-            {
-                int locMapRefno = await LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(this.Parse.LocationIdentifier);
-                this.LocMapInfo = await LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
-                this.SelectWarehouse();
-                this.SelectSection();
-                this.SelectSlotCoordinate();
-            }
-            else
-            {
-                // TODO: Resource strings
-                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Scanned bar code type is not supported here!", "OK"));
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "An error occurred while processing barcode." + ex.Message, "OK"));
             }
         }
 
@@ -1374,98 +1406,133 @@
 
         private async void dgWhs_ItemSelected(object sender, SelectedItemChangedEventArgs e)
         {
-            if (this.isControlLoaded)
+            try
             {
-                this.IsChangesMade = true;
-
-                if (this.IsControlLoaded && e.SelectedItem is Warehouse warehouse)
+                if (this.isControlLoaded)
                 {
-                    this.LocMapInfo = await LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(warehouse.LocationMapRefno));
-                    this.dgSections.SelectedItem = null;
-                    this.dgCoord1.SelectedItem = null;
-                    this.dgCoord2.SelectedItem = null;
-                    this.dgCoord3.SelectedItem = null;
-                    await this.LoadSections();
-                    await this.UpdateLocationDisplay();
+                    this.IsChangesMade = true;
+
+                    if (this.IsControlLoaded && e.SelectedItem is Warehouse warehouse)
+                    {
+                        this.LocMapInfo = await LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(warehouse.LocationMapRefno));
+                        this.dgSections.SelectedItem = null;
+                        this.dgCoord1.SelectedItem = null;
+                        this.dgCoord2.SelectedItem = null;
+                        this.dgCoord3.SelectedItem = null;
+                        await this.LoadSections();
+                        await this.UpdateLocationDisplay();
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "An error occurred while selecting a warehouse." + ex.Message, "OK"));
             }
         }
 
         private async void dgSections_ItemSelected(object sender, SelectedItemChangedEventArgs e)
         {
-            this.IsChangesMade = true;
-
-            if (this.IsControlLoaded && e.SelectedItem is Section section)
+            try
             {
-                this.LocMapInfo = await LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(section.LocationMapRefno));
-                this.dgCoord1.SelectedItem = null;
-                this.dgCoord2.SelectedItem = null;
-                this.dgCoord3.SelectedItem = null;
-                await this.LoadSlots();
-                await this.UpdateLocationDisplay();
+                this.IsChangesMade = true;
+
+                if (this.IsControlLoaded && e.SelectedItem is Section section)
+                {
+                    this.LocMapInfo = await LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(section.LocationMapRefno));
+                    this.dgCoord1.SelectedItem = null;
+                    this.dgCoord2.SelectedItem = null;
+                    this.dgCoord3.SelectedItem = null;
+                    await this.LoadSlots();
+                    await this.UpdateLocationDisplay();
+                }
+            }
+            catch (Exception ex)
+            {
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "An error occurred while selecting a section." + ex.Message, "OK"));
             }
         }
 
         private async void dgCoord1_ItemSelected(object sender, SelectedItemChangedEventArgs e)
         {
-            if (this.IsControlLoaded)
+            try
             {
-                this.IsChangesMade = true;
-                int slotLocMapRefno = 0;
-
-                if (e.SelectedItem is Slot slot1 && this.dgCoord2.SelectedItem is Slot slot2 && this.dgCoord3.SelectedItem is Slot slot3)
+                if (this.IsControlLoaded)
                 {
-                    slotLocMapRefno = await LocationMapTasks.GetSlotRefnoFromCoordinates(this.LocMapInfo.SectLocMapRefno, slot1.LocationMapSlotCoordinateRefno, slot2.LocationMapSlotCoordinateRefno, slot3.LocationMapSlotCoordinateRefno);
-                }
+                    this.IsChangesMade = true;
+                    int slotLocMapRefno = 0;
 
-                if (slotLocMapRefno != 0)
-                {
-                    this.LocMapInfo = await LocationMapTasks.GetSLocMapFromLocMapRefno(slotLocMapRefno);
-                }
+                    if (e.SelectedItem is Slot slot1 && this.dgCoord2.SelectedItem is Slot slot2 && this.dgCoord3.SelectedItem is Slot slot3)
+                    {
+                        slotLocMapRefno = await LocationMapTasks.GetSlotRefnoFromCoordinates(this.LocMapInfo.SectLocMapRefno, slot1.LocationMapSlotCoordinateRefno, slot2.LocationMapSlotCoordinateRefno, slot3.LocationMapSlotCoordinateRefno);
+                    }
 
-                await this.UpdateLocationDisplay();
+                    if (slotLocMapRefno != 0)
+                    {
+                        this.LocMapInfo = await LocationMapTasks.GetSLocMapFromLocMapRefno(slotLocMapRefno);
+                    }
+
+                    await this.UpdateLocationDisplay();
+                }
+            }
+            catch (Exception ex)
+            {
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "An error occurred while selecting slot coordinate 1." + ex.Message, "OK"));
             }
         }
 
         private async void dgCoord2_ItemSelected(object sender, SelectedItemChangedEventArgs e)
         {
-            if (this.IsControlLoaded)
+            try
             {
-                this.IsChangesMade = true;
-                int slotLocMapRefno = 0;
-
-                if (this.dgCoord1.SelectedItem is Slot slot1 && e.SelectedItem is Slot slot2 && this.dgCoord3.SelectedItem is Slot slot3)
+                if (this.IsControlLoaded)
                 {
-                    slotLocMapRefno = await LocationMapTasks.GetSlotRefnoFromCoordinates(this.LocMapInfo.SectLocMapRefno, slot1.LocationMapSlotCoordinateRefno, slot2.LocationMapSlotCoordinateRefno, slot3.LocationMapSlotCoordinateRefno);
-                }
+                    this.IsChangesMade = true;
+                    int slotLocMapRefno = 0;
 
-                if (slotLocMapRefno != 0)
-                {
-                    this.LocMapInfo = await LocationMapTasks.GetSLocMapFromLocMapRefno(slotLocMapRefno);
-                }
+                    if (this.dgCoord1.SelectedItem is Slot slot1 && e.SelectedItem is Slot slot2 && this.dgCoord3.SelectedItem is Slot slot3)
+                    {
+                        slotLocMapRefno = await LocationMapTasks.GetSlotRefnoFromCoordinates(this.LocMapInfo.SectLocMapRefno, slot1.LocationMapSlotCoordinateRefno, slot2.LocationMapSlotCoordinateRefno, slot3.LocationMapSlotCoordinateRefno);
+                    }
 
-                await this.UpdateLocationDisplay();
+                    if (slotLocMapRefno != 0)
+                    {
+                        this.LocMapInfo = await LocationMapTasks.GetSLocMapFromLocMapRefno(slotLocMapRefno);
+                    }
+
+                    await this.UpdateLocationDisplay();
+                }
+            }
+            catch (Exception ex)
+            {
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "An error occurred while selecting slot coordinate 2." + ex.Message, "OK"));
             }
         }
 
         private async void dgCoord3_ItemSelected(object sender, SelectedItemChangedEventArgs e)
         {
-            if (this.IsControlLoaded)
+            try
             {
-                this.IsChangesMade = true;
-                int slotLocMapRefno = 0;
-
-                if (this.dgCoord1.SelectedItem is Slot slot1 && this.dgCoord2.SelectedItem is Slot slot2 && e.SelectedItem is Slot slot3)
+                if (this.IsControlLoaded)
                 {
-                    slotLocMapRefno = await LocationMapTasks.GetSlotRefnoFromCoordinates(this.LocMapInfo.SectLocMapRefno, slot1.LocationMapSlotCoordinateRefno, slot2.LocationMapSlotCoordinateRefno, slot3.LocationMapSlotCoordinateRefno);
-                }
+                    this.IsChangesMade = true;
+                    int slotLocMapRefno = 0;
 
-                if (slotLocMapRefno != 0)
-                {
-                    this.LocMapInfo = await LocationMapTasks.GetSLocMapFromLocMapRefno(slotLocMapRefno);
-                }
+                    if (this.dgCoord1.SelectedItem is Slot slot1 && this.dgCoord2.SelectedItem is Slot slot2 && e.SelectedItem is Slot slot3)
+                    {
+                        slotLocMapRefno = await LocationMapTasks.GetSlotRefnoFromCoordinates(this.LocMapInfo.SectLocMapRefno, slot1.LocationMapSlotCoordinateRefno, slot2.LocationMapSlotCoordinateRefno, slot3.LocationMapSlotCoordinateRefno);
+                    }
 
-                await this.UpdateLocationDisplay();
+                    if (slotLocMapRefno != 0)
+                    {
+                        this.LocMapInfo = await LocationMapTasks.GetSLocMapFromLocMapRefno(slotLocMapRefno);
+                    }
+
+                    await this.UpdateLocationDisplay();
+                }
+            }
+            catch (Exception ex)
+            {
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "An error occurred while selecting slot coordinate 3." + ex.Message, "OK"));
             }
         }
 

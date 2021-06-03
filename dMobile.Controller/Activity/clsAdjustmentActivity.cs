@@ -349,17 +349,7 @@ namespace dMobile.Controller
             // TODO: Test search
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
-            //if (string.IsNullOrEmpty(this.ActFilter))
-            //{
-            //    this.ListHdrs = this.listAdjustments.Where(adjustment => adjustment.ActivityAdjustmentStringFKRefno.Contains(searchText.Trim())).Cast<object>().ToList();
-            //}
-            //else
-            //{
-            //    // TODO: Fix filtering
-            //    //this.DataViewHdrs.RowFilter = this.ActFilter + " AND ActivityAdjustmentStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
-            //}
-
-            this.ListHdrs = this.listAdjustments.Where(adjustment => adjustment.ActivityAdjustmentStringFKRefno.Contains(searchText.Trim())).Cast<object>().ToList();
+            this.ListHdrs = this.listAdjustments.Where(adjustment => adjustment.ActivityAdjustmentStringFKRefno.ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
 
             foreach (Adjustment adjustment in this.ListHdrs)
             {

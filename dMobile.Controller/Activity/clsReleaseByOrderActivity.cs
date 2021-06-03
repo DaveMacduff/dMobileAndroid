@@ -435,7 +435,7 @@ namespace dMobile.Controller
             //if (string.IsNullOrEmpty(ActFilter))
             //{
                 //this.DataViewHdrs.RowFilter = "ActivityPickingStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
-                this.ListHdrs = this.listPicking.Where(picking => picking.ActivityPickingStringFKRefno.Contains(searchText.Trim())).Cast<object>().ToList();
+                this.ListHdrs = this.listPicking.Where(picking => picking.ActivityPickingStringFKRefno.ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
             //}
             //else
             //{

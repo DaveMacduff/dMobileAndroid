@@ -308,7 +308,7 @@ namespace dMobile.Controller
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
-            this.ListHdrs = this.listReturns.Where(returns => returns.ActivityReturnsStringFKRefno.Contains(searchText.Trim())).Cast<object>().ToList();
+            this.ListHdrs = this.listReturns.Where(returns => returns.ActivityReturnsStringFKRefno.ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
 
             foreach (Return returns in this.ListHdrs)
             {

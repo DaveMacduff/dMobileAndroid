@@ -346,7 +346,7 @@ namespace dMobile.Controller
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
-            this.ListHdrs = this.listTransfers.Where(transfer => transfer.ActivityTransferStringFKRefno.Contains(searchText.Trim())).Cast<object>().ToList();
+            this.ListHdrs = this.listTransfers.Where(transfer => transfer.ActivityTransferStringFKRefno.ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
 
             foreach (Transfer transfer in this.ListHdrs)
             {

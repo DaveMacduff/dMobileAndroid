@@ -666,7 +666,7 @@
 
             //if (string.IsNullOrEmpty(this.ActItemFilter))
             //{
-            this.ListItems = this.listProductionTicketFinishedItems.Where(productionTicketFinishedItem => productionTicketFinishedItem.ProductCode.ToString().Contains(searchText.Trim())).Cast<object>().ToList();
+            this.ListItems = this.listProductionTicketFinishedItems.Where(productionTicketFinishedItem => productionTicketFinishedItem.ProductCode.ToString().ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
             //}
             //else
             //{

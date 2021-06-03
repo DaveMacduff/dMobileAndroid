@@ -225,8 +225,7 @@
             string query = string.Empty;
             List<object> parameters = new List<object>();
 
-
-            if (locMap.CurrLocMap.IsSlotCoord1Tracked & locMap.CurrLocMap.IsSlotCoord2Tracked & locMap.CurrLocMap.IsSlotCoord3Tracked)
+            if (locMap.CurrLocMap.IsSlotCoord1Tracked && locMap.CurrLocMap.IsSlotCoord2Tracked && locMap.CurrLocMap.IsSlotCoord3Tracked)
             {
                 query = "SELECT tLocationMapSlot.LocationMapRefno "
                     + "FROM tLocationMapSlot "
@@ -239,7 +238,7 @@
                 parameters.Add(Convert.ToInt32(slotCoord2Refno));
                 parameters.Add(Convert.ToInt32(slotCoord3Refno));
             }
-            else if (locMap.CurrLocMap.IsSlotCoord1Tracked & locMap.CurrLocMap.IsSlotCoord2Tracked)
+            else if (locMap.CurrLocMap.IsSlotCoord1Tracked && locMap.CurrLocMap.IsSlotCoord2Tracked)
             {
                 query = "SELECT tLocationMapSlot.LocationMapRefno "
                     + "FROM tLocationMapSlot "

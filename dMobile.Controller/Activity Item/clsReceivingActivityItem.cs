@@ -635,15 +635,7 @@
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
-            //if (string.IsNullOrEmpty(this.ActItemFilter))
-            //{
-            this.ListItems = this.listReceiveItems.Where(receiveItem => receiveItem.ProductCode.Contains(searchText.Trim())).Cast<object>().ToList();
-            //}
-            //else
-            //{
-                // TODO: Fix filtering
-                //this.DataViewItems.RowFilter = this.ActItemFilter + " AND ProductCode LIKE \'%" + searchText.Trim() + "%\'";
-            //}
+            this.ListItems = this.listReceiveItems.Where(receiveItem => receiveItem.ProductCode.ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
 
             foreach (ReceiveItem receiveItem in this.ListItems)
             {

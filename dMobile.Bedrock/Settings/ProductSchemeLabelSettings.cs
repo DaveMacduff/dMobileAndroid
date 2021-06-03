@@ -244,7 +244,7 @@ namespace dMobile.Bedrock
                 }
 
                 // Create a FileStream to read with.
-                using (FileStream reader = new FileStream(fullPathToMyFile, FileMode.Open))
+                using (FileStream reader = new FileStream(fullPathToMyFile, FileMode.Open, FileAccess.Read, FileShare.Read))
                 {
                     // Deserialize the stream to the object, and close the TextReader
                     settings = (ProdSchemeLabelSettings)serializer.Deserialize(reader);
@@ -273,7 +273,7 @@ namespace dMobile.Bedrock
                     string fullPathToMyFile = Path.Combine(appDir, this.fileName);
 
                     // Create a FileStream to write with.
-                    using (FileStream writer = new FileStream(fullPathToMyFile, FileMode.Create))
+                    using (FileStream writer = new FileStream(fullPathToMyFile, FileMode.Create, FileAccess.Write, FileShare.None))
                     {
                         // Serialize the object, and close the TextWriter
                         serializer.Serialize(writer, settings);

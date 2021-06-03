@@ -148,7 +148,7 @@ namespace dMobile.Bedrock
                 }
 
                 // Create a FileStream to read with.
-                using (FileStream reader = new FileStream(strFullPathToMyFile, FileMode.Open))
+                using (FileStream reader = new FileStream(strFullPathToMyFile, FileMode.Open, FileAccess.Read, FileShare.Read))
                 {
                     oCycleCountSettings = (CycleCountSettings)serializer.Deserialize(reader);
                 }
@@ -177,7 +177,7 @@ namespace dMobile.Bedrock
                     string strFullPathToMyFile = Path.Combine(strAppDir, m_strFileName);
 
                     // Create a FileStream to write with.
-                    using (FileStream writer = new FileStream(strFullPathToMyFile, FileMode.Create))
+                    using (FileStream writer = new FileStream(strFullPathToMyFile, FileMode.Create, FileAccess.Write, FileShare.None))
                     {
                         serializer.Serialize(writer, oCycleCountSettings);
                     }

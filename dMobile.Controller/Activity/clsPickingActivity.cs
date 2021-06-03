@@ -969,7 +969,7 @@
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
-            this.ListHdrs = this.listPicking.Where(picking => picking.ActivityPickingStringFKRefno.Contains(searchText.Trim())).Cast<object>().ToList();
+            this.ListHdrs = this.listPicking.Where(picking => picking.ActivityPickingStringFKRefno.ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
 
             foreach (Picking picking in this.ListHdrs)
             {

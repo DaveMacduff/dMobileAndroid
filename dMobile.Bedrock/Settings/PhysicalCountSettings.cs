@@ -148,7 +148,7 @@
                 }
 
                 // Create a FileStream to read with.
-                using (FileStream reader = new FileStream(strFullPathToMyFile, FileMode.Open))
+                using (FileStream reader = new FileStream(strFullPathToMyFile, FileMode.Open, FileAccess.Read, FileShare.Read))
                 {
                     // Deserialize the stream to the object, and close the TextReader
                     oPhysicalCountSettings = (PhysicalCountSettings)serializer.Deserialize(reader);
@@ -178,7 +178,7 @@
                     string strFullPathToMyFile = Path.Combine(strAppDir, m_strFileName);
 
                     // Create a FileStream to write with.
-                    using (FileStream writer = new FileStream(strFullPathToMyFile, FileMode.Create))
+                    using (FileStream writer = new FileStream(strFullPathToMyFile, FileMode.Create, FileAccess.Write, FileShare.None))
                     {
                         // Serialize the object, and close the TextWriter
                         serializer.Serialize(writer, oPhysicalCountSettings);

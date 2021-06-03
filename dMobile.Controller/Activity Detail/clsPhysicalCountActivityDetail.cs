@@ -900,7 +900,7 @@ namespace dMobile.Controller
         public override ObservableCollection<object> Search(string searchText)
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
-            this.ListDetails = this.listCountDetails.Where(countDetail => countDetail.ActivityDetailCountFKRefno.ToString().Contains(searchText.Trim())).Cast<object>().ToList();
+            this.ListDetails = this.listCountDetails.Where(countDetail => countDetail.ActivityDetailCountFKRefno.ToString().ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
 
             foreach (CountDetail countDetail in this.ListDetails)
             {

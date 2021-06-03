@@ -317,18 +317,17 @@ namespace dMobile.Controller
             // TODO: verify filtering
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
-            this.ListHdrs = this.listCounts.Where(count => count.ActivityCountStringFKRefno.Contains(searchText.Trim())).Cast<object>().ToList();
+            this.ListHdrs = this.listCounts.Where(count => count.ActivityCountStringFKRefno.ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
 
             foreach (Count count in this.ListHdrs)
             {
+                //string description = string.Empty;
+                //string[] descriptionSubstring = Convert.ToString(count.ActivityCountTypeDescription).Split();
 
-                string description = string.Empty;
-                string[] descriptionSubstring = Convert.ToString(count.ActivityCountTypeDescription).Split();
-
-                if (descriptionSubstring != null && descriptionSubstring.Length > 1)
-                {
-                    description = descriptionSubstring[0] + " " + descriptionSubstring[1];
-                }
+                //if (descriptionSubstring != null && descriptionSubstring.Length > 1)
+                //{
+                //    description = descriptionSubstring[0] + " " + descriptionSubstring[1];
+                //}
 
                 //Count count = new Count
                 //{
