@@ -470,13 +470,13 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public async Task RefreshData()
         {
-            this.Loading = true;
-
-            await this.ScannerDisable();
-            this.ItemsList.Clear();
-
             try
             {
+                this.Loading = true;
+
+                await this.ScannerDisable();
+                this.ItemsList.Clear();
+
                 this.ActItem.RegLayerListenerProgOut(this);
                 XDocument xmldocParams = XDocument.Parse(
                     "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
@@ -487,6 +487,17 @@ namespace dMobile.View.Activity
 
                 this.DataGridMainActivityItemsList = this.ActItem.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
                 this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
+
+                this.ItemsList.Clear();
+
+                if (this.DataGridMainActivityItemsList.Count > 0)
+                {
+                    this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[0];
+                    // TODO: test
+                    await this.ActItem.SelectActivityItem(this.ActItem.ListItems[0]);
+                }
+
+                DisplaySummaryData();
             }
             catch (Exception ex)
             {
@@ -499,21 +510,9 @@ namespace dMobile.View.Activity
             finally
             {
                 this.ActItem.UnregLayerListenerProgOut(this);
+                await this.ScannerEnable();
+                this.Loading = false;
             }
-
-            this.ItemsList.Clear();
-
-            if (this.DataGridMainActivityItemsList.Count > 0)
-            {
-                this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[0];
-                // TODO: test
-                await this.ActItem.SelectActivityItem(this.ActItem.ListItems[0]);
-            }
-
-            DisplaySummaryData();
-            await this.ScannerEnable();
-
-            this.Loading = false;
         }
 
         /// <summary>
@@ -597,8 +596,13 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
-            this.BarParse = scanArgs.ParseInfo;
+            if (this.Loading || scanArgs == null)
+            {
+                return;
+            }
 
+            this.Loading = true;
+            this.BarParse = scanArgs.ParseInfo;
             await this.ScannerDisable();
 
             try
@@ -645,6 +649,7 @@ namespace dMobile.View.Activity
             finally
             {
                 await this.ScannerEnable();
+                this.Loading = false;
             }
         }
 

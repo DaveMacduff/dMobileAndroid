@@ -310,15 +310,10 @@
             SysCommon.LocMapSubTypes locMapSubType = SysCommon.LocMapSubTypes.None;
             LocationMap locMap = LocationMap.GetInstance();
 
-            //cmndLocMap.CommandType = CommandType.Text;
-            //cmndLocMap.CommandText = "SELECT * FROM tLocationMap WHERE LocationMapRefno = @locMapRefno";
-            //cmndLocMap.Parameters.Add(new SQLiteParameter("@locMapRefno", Convert.ToInt32(locMapRefno)));
-
             List<tLocationMapModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tLocationMapModel>("SELECT * FROM tLocationMap WHERE LocationMapRefno = ?", Convert.ToInt32(locMapRefno));
 
             if (results != null && results.Count > 0)
             {
-                //locMapSubType = (SysCommon.LocMapSubTypes)drLocMap.GetInt32(Convert.ToInt32(SysCommon.LocMapFields.SubType));
                 locMapSubType = (SysCommon.LocMapSubTypes)results[0].LocationMapSubType;
             }
 
@@ -428,21 +423,6 @@
 
             if (tempLocMapRefno == 0 & slotLocnMapFKRefno != 0)
             {
-                //using (SQLiteCommand cmndLocMap = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                //{
-                //    cmndLocMap.CommandType = CommandType.Text;
-                //    cmndLocMap.CommandText = "SELECT LocationMapRefno FROM tLocationMapSlot WHERE LocationMapSlotFKRefno = @slotLocnMapFKRefno";
-                //    cmndLocMap.Parameters.Add(new SQLiteParameter("@slotLocnMapFKRefno", Convert.ToInt32(slotLocnMapFKRefno)));
-
-                //    using (SQLiteDataReader drLocMap = cmndLocMap.ExecuteReader())
-                //    {
-                //        if (drLocMap.Read())
-                //        {
-                //            tempLocMapRefno = Convert.ToInt32(drLocMap["LocationMapRefno"]);
-                //        }
-                //    }
-                //}
-
                 List<tLocationMapModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tLocationMapModel>("SELECT LocationMapRefno FROM tLocationMapSlot WHERE LocationMapSlotFKRefno = ?", Convert.ToInt32(slotLocnMapFKRefno));
 
                 if (results != null && results.Count > 0)
@@ -453,21 +433,6 @@
 
             if (tempLocMapRefno == 0 & sectionLocMapFKRefno != 0)
             {
-                //using (SQLiteCommand cmndLocMap = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                //{
-                //    cmndLocMap.CommandType = CommandType.Text;
-                //    cmndLocMap.CommandText = "SELECT LocationMapRefno FROM tLocationMapSection WHERE LocationMapSectionFKRefno = @sectionLocMapFKRefno";
-                //    cmndLocMap.Parameters.Add(new SQLiteParameter("@sectionLocMapFKRefno", Convert.ToInt32(sectionLocMapFKRefno)));
-
-                //    using (SQLiteDataReader drLocMap = cmndLocMap.ExecuteReader())
-                //    {
-                //        if (drLocMap.Read())
-                //        {
-                //            tempLocMapRefno = Convert.ToInt32(drLocMap["LocationMapRefno"]);
-                //        }
-                //    }
-                //}
-
                 List<tLocationMapSectionModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tLocationMapSectionModel>("SELECT LocationMapRefno FROM tLocationMapSection WHERE LocationMapSectionFKRefno = ?", Convert.ToInt32(sectionLocMapFKRefno));
 
                 if (results != null && results.Count > 0)
@@ -478,21 +443,6 @@
 
             if (tempLocMapRefno == 0 & warehouseLocMapFKRefno != 0)
             {
-                //using (SQLiteCommand cmndLocMap = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-                //{
-                //    cmndLocMap.CommandType = CommandType.Text;
-                //    cmndLocMap.CommandText = "SELECT LocationMapRefno FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = @warehouseLocMapFKRefno";
-                //    cmndLocMap.Parameters.Add(new SQLiteParameter("@warehouseLocMapFKRefno", Convert.ToInt32(warehouseLocMapFKRefno)));
-
-                //    using (SQLiteDataReader drLocMap = cmndLocMap.ExecuteReader())
-                //    {
-                //        if (drLocMap.Read())
-                //        {
-                //            tempLocMapRefno = Convert.ToInt32(drLocMap["LocationMapRefno"]);
-                //        }
-                //    }
-                //}
-
                 List<tLocationMapWarehouseModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tLocationMapWarehouseModel>("SELECT LocationMapRefno FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = ?", Convert.ToInt32(warehouseLocMapFKRefno));
 
                 if (results != null && results.Count > 0)

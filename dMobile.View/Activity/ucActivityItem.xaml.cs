@@ -1874,7 +1874,6 @@
                 }
                 finally
                 {
-                    this.Loading = false;
                     await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         this.dataGridMainActivity.IsEnabled = true;
@@ -1882,6 +1881,7 @@
                     });
 
                     await this.ScannerEnable();
+                    this.Loading = false;
                 }
             });
         }
@@ -1991,9 +1991,9 @@
             }
             finally
             {
-                this.Loading = false;
                 this.dataGridMainActivity.IsEnabled = true;
                 await this.ScannerEnable();
+                this.Loading = false;
             }
         }
 
@@ -2111,8 +2111,8 @@
                 return;
             }
 
-            await this.ScannerDisable();
             this.Loading = true;
+            await this.ScannerDisable();
 
             int prodUnitRefno = 0;
             object selectedItem = null;
@@ -2355,7 +2355,8 @@
                     else
                     {
                         await this.ActItem.SelectActivityItem(selectedItem);
-                        await Device.InvokeOnMainThreadAsync(() => this.DisplayData());
+                        await Device.InvokeOnMainThreadAsync(() => this.dataGridMainActivity.SelectedItem = selectedItem);
+                        await Device.InvokeOnMainThreadAsync(async () => await this.DisplayData());
                     }
 
                     if (!await LocationMapTasks.IsCompleteLocMapRefno(this.LocMap.CurrLocMapRefno))
@@ -2381,7 +2382,7 @@
                         if (this.SysEnv.SysSettings.IsVerifyProductLocation && (this.ActSubType == SysCommon.ActSubTypes.Picking || this.ActSubType == SysCommon.ActSubTypes.TransferFrom))
                         {
                             // LocationMapRefno is assumed to be the picking WarehouseLocationMapRefno
-                            int locMapRefno = this.ActItem.GetDefaultLocMapRefno(Convert.ToInt32((selectedItem as dynamic).LocationMapRefno), Convert.ToInt32((selectedItem as dynamic).ProductRefno));
+                            int locMapRefno = await this.ActItem.GetDefaultLocMapRefno(Convert.ToInt32(selectedItem.GetType().GetProperty("LocationMapRefno")?.GetValue(selectedItem)), Convert.ToInt32(selectedItem.GetType().GetProperty("ProductRefno")?.GetValue(selectedItem)));
 
                             if (this.LocMap.CurrLocMapRefno != locMapRefno)
                             {

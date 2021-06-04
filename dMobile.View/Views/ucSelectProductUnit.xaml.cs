@@ -138,12 +138,18 @@
 
             try
             {
+                this.Loading = true;
                 await this.ucSelectProduct_GotFocus(this, new EventArgs());
             }
             catch (Exception ex)
             {
                 // TODO: Logging
-                Console.WriteLine("this.ucSelectProduct_GotFocus threw error " + ex);
+                // TODO: Resource strings
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "An error occurred loading data." + Environment.NewLine + ex.Message, "OK");
+            }
+            finally
+            {
+                this.Loading = false;
             }
         }
 
@@ -164,12 +170,7 @@
             {
                 base.OnBackButtonPressed();
 
-                if (await this.SaveChanges())
-                {
-                    this.DialogResult = DialogResult.OK;
-                    await this.Close();
-                }
-                else if (await this.CancelChanges())
+                if (await this.CancelChanges())
                 {
                     this.DialogResult = DialogResult.None;
                     await this.Close();
@@ -671,12 +672,8 @@
             if (!SysEnvironment.GetInstance().IsApplicationExitInvoked)
             {
                 await this.ScannerEnable();
-
-                this.Loading = true;
                 await Task.Run(async () => { await this.LoadData(); });
-                this.Loading = false;
-
-                this.cboSearch.SelectedIndex = 0;
+                await Device.InvokeOnMainThreadAsync(() => this.cboSearch.SelectedIndex = 0);
                 this.IsControlLoaded = true;
             }
         }
@@ -875,10 +872,16 @@
         /// <remarks></remarks>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
+            if (this.Loading || scanArgs == null)
+            {
+                return;
+            }
+
             BarCodeParse parse = null;
 
             try
             {
+                this.Loading = true;
                 await this.ScannerDisable();
 
                 parse = scanArgs.ParseInfo;
@@ -943,6 +946,7 @@
             finally
             {
                 await this.ScannerEnable();
+                this.Loading = false;
             }
         }
 

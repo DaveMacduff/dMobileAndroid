@@ -640,12 +640,18 @@ namespace dMobile.View.Activity
         /// <param name="scanArgs"></param>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
+            if (this.Loading || scanArgs == null)
+            {
+                return;
+            }
+
             int prodUnitRefno = 0;
             int currRowIdx = this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem);
             int svdActDetailFKRefno = this.ActDetail.FKRefno;
 
             try
             {
+                this.Loading = true;
                 this.Parse = scanArgs.ParseInfo;
 
                 await this.ScannerDisable();
@@ -773,6 +779,7 @@ namespace dMobile.View.Activity
             finally
             {
                 await this.ScannerEnable();
+                this.Loading = false;
             }
         }
 

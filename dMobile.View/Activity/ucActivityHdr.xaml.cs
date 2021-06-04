@@ -617,8 +617,8 @@
                 return;
             }
 
-            await this.ScannerDisable();
             this.Loading = true;
+            await this.ScannerDisable();
 
             string message = string.Empty;
             //string savedViewSort = string.Empty;
@@ -711,11 +711,11 @@
             }
             finally
             {
-                this.Loading = false;
-
                 // TODO: Fix sorting
                 //this.ActHdr.DataViewHdrs.Sort = savedViewSort;
                 await this.ScannerEnable();
+
+                this.Loading = false;
             }
         }
 

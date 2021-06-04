@@ -877,6 +877,11 @@
         /// <remarks></remarks>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
+            if (this.Loading || scanArgs == null)
+            {
+                return;
+            }
+
             int prodUnitRefno = 0;
             BarCodeParse parse = null;
 
@@ -884,6 +889,7 @@
             {
                 try
                 {
+                    this.Loading = true;
                     await this.ScannerDisable();
 
                     parse = scanArgs.ParseInfo;
@@ -981,6 +987,7 @@
                 finally
                 {
                     await this.ScannerEnable();
+                    this.Loading = false;
                 }
             });
         }

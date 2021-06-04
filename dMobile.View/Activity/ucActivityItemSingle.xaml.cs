@@ -1058,6 +1058,13 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
+            if (this.Loading || scanArgs == null)
+            {
+                return;
+            }
+
+            this.Loading = true;
+
             // TODO: Test barcodehandler
             string msg = string.Empty;
             int prodUnitRefno = 0;
@@ -1511,6 +1518,7 @@ namespace dMobile.View.Activity
             finally
             {
                 await this.ScannerEnable();
+                this.Loading = false;
             }
         }
 

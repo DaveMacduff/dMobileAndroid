@@ -1356,8 +1356,15 @@
         /// <remarks></remarks>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
+            if (this.Loading || scanArgs == null)
+            {
+                return;
+            }
+
             try
             {
+                this.Loading = true;
+
                 // No need to disable/enable scanner because only messagebox are called. 
                 // GoFocus and LostFocus events will handle the scanner
                 this.Parse = scanArgs.ParseInfo;
@@ -1399,6 +1406,10 @@
             catch (Exception ex)
             {
                 await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "An error occurred while processing barcode." + ex.Message, "OK"));
+            }
+            finally
+            {
+                this.Loading = false;
             }
         }
 

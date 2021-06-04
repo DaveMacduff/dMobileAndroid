@@ -947,10 +947,16 @@ namespace dMobile.View.Activity
         /// <param name="scanArgs"></param>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
+            if (this.Loading || scanArgs == null)
+            {
+                return;
+            }
+
             BarCodeParse codeParse = null;
 
             try
             {
+                this.Loading = true;
                 await this.ScannerDisable();
 
                 codeParse = scanArgs.ParseInfo;
@@ -1071,6 +1077,7 @@ namespace dMobile.View.Activity
             finally
             {
                 await this.ScannerEnable();
+                this.Loading = false;
             }
         }
 

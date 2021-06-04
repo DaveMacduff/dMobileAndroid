@@ -594,11 +594,17 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
+            if (this.Loading || scanArgs == null)
+            {
+                return;
+            }
+
             BarCodeParse parse = null;
             bool isInsertReady = false;
 
             try
             {
+                this.Loading = true;
                 await this.ScannerDisable();
 
                 SActItemSchemeData tempItemProdSchemeData = new SActItemSchemeData();
@@ -682,6 +688,7 @@ namespace dMobile.View.Activity
             finally
             {
                 await this.ScannerEnable();
+                this.Loading = false;
             }
         }
 

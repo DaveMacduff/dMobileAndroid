@@ -347,9 +347,9 @@
         /// <remarks></remarks>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
-            if (this.Loading)
+            if (this.Loading || scanArgs == null)
             {
-                return; 
+                return;
             }
 
             this.Loading = true;
@@ -632,12 +632,26 @@
         /// <remarks></remarks>
         private async Task RefreshData()
         {
-            this.Loading = true;
-
             try
             {
+                this.Loading = true;
                 await Activity.Refresh(null);
                 await ActItem.Refresh(null);
+
+                await Device.InvokeOnMainThreadAsync(async () =>
+                {
+                    this.ItemsList.Clear();
+
+                    ActItem.ListItems = await ActItem.GetActivityItemList(false);
+                    this.DataGridMainActivityItemsList = this.ActItem.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
+                    dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
+
+                    if (ActItem.ListItems.Count > 0 && this.DataGridMainActivityItemsList.Count > 0)
+                    {
+                        await ActItem.SelectActivityItem(this.DataGridMainActivityItemsList[0]);
+                        this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[0];
+                    }
+                });
             }
             catch (SQLiteException ex)
             {
@@ -653,23 +667,10 @@
                 // TODO: Resource strings
                 await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Refresh", ex.Message, "OK"));
             }
-
-            await Device.InvokeOnMainThreadAsync(async () =>
+            finally
             {
-                this.ItemsList.Clear();
-
-                ActItem.ListItems = await ActItem.GetActivityItemList(false);
-                this.DataGridMainActivityItemsList = this.ActItem.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
-                dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
-
-                if (ActItem.ListItems.Count > 0 && this.DataGridMainActivityItemsList.Count > 0)
-                {
-                    await ActItem.SelectActivityItem(this.DataGridMainActivityItemsList[0]);
-                    this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[0];
-                }
-            });
-
-            this.Loading = false;
+                this.Loading = false;
+            }
         }
 
         #endregion

@@ -583,6 +583,11 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
+            if (this.Loading || scanArgs == null)
+            {
+                return;
+            }
+
             await Task.Run(async () =>
             {
                 this.Loading = true;
@@ -1203,8 +1208,8 @@ namespace dMobile.View.Activity
                 }
                 finally
                 {
-                    this.Loading = false;
                     await this.ScannerEnable();
+                    this.Loading = false;
                 }
             });
         }

@@ -340,16 +340,22 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public async Task RefreshData()
         {
-            this.Loading = true;
-            await this.ScannerDisable();
-            this.ItemsList.Clear();
-
             try
             {
+                this.Loading = true;
+                await this.ScannerDisable();
+                this.ItemsList.Clear();
+
                 await this.ActDetail.Refresh();
 
                 this.DataGridMainActivityItemsList = this.ActDetail.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
                 this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
+
+                if (this.ActDetail.ListDetails.Count > 0 && this.DataGridMainActivityItemsList.Count > 0)
+                {
+                    await this.ActDetail.SelectActivityDetail(this.ActDetail.ListDetails[0]);
+                    this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[0];
+                }
             }
             catch (Exception ex)
             {
@@ -360,17 +366,11 @@ namespace dMobile.View.Activity
                     Android.OS.Process.KillProcess(Android.OS.Process.MyPid());
                 });
             }
-
-            this.ItemsList.Clear();
-
-            if (this.ActDetail.ListDetails.Count > 0 && this.DataGridMainActivityItemsList.Count > 0)
+            finally
             {
-                await this.ActDetail.SelectActivityDetail(this.ActDetail.ListDetails[0]);
-                this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[0];
+                await this.ScannerEnable();
+                this.Loading = false;
             }
-
-            await this.ScannerEnable();
-            this.Loading = false;
         }
 
         /// <summary>
@@ -395,18 +395,23 @@ namespace dMobile.View.Activity
         /// <param name="scanArgs"></param>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
-            this.BarParse = scanArgs.ParseInfo;
-
-            await this.ScannerDisable();
-
-            //<issue="13609" author="RD" date="2016/02/22"/>
-            if (ActDetail != null && ActDetail.ActItem != null)
+            if (this.Loading || scanArgs == null)
             {
-                SysShared.AssertSuppressedErrorsAgainstScheme(ActDetail.ActItem.ProdInfo, this.BarParse);
+                return;
             }
 
             try
             {
+                this.Loading = true;
+                this.BarParse = scanArgs.ParseInfo;
+                await this.ScannerDisable();
+
+                //<issue="13609" author="RD" date="2016/02/22"/>
+                if (ActDetail != null && ActDetail.ActItem != null)
+                {
+                    SysShared.AssertSuppressedErrorsAgainstScheme(ActDetail.ActItem.ProdInfo, this.BarParse);
+                }
+
                 if (!string.IsNullOrEmpty(this.BarParse.ActFKRefno))
                 {
                     // TODO: Resource strings
@@ -450,6 +455,7 @@ namespace dMobile.View.Activity
             finally
             {
                 await this.ScannerEnable();
+                this.Loading = false;
             }
         }
 

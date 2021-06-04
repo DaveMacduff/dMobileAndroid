@@ -867,8 +867,15 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
+            if (this.Loading || scanArgs == null)
+            {
+                return;
+            }
+
             try
             {
+                this.Loading = true;
+
                 // No need to disable/enable scanner because only messagebox are called. 
                 // GoFocus and LostFocus events will handle the scanner
                 this.BarParse = scanArgs.ParseInfo;
@@ -918,6 +925,10 @@ namespace dMobile.View.Activity
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
                     await errRpt.ShowDialog();
                 });
+            }
+            finally
+            {
+                this.Loading = false;
             }
         }
 

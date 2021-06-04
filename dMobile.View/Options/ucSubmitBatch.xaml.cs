@@ -515,8 +515,9 @@ namespace dMobile.View.Options
                         this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
                     });
 
-                    if (Activity.ListHdrs.Count > 0)
+                    if (Activity.ListHdrs.Count > 0 && this.DataGridMainActivityItemsList.Count > 0)
                     {
+                        this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[0];
                         await Activity.SelectActivity(this.DataGridMainActivityItemsList[0]);
                     }
 
@@ -794,7 +795,6 @@ namespace dMobile.View.Options
                 {
                     //this.pbarStatus.Maximum = 100;
                     //this.pbarStatus.Visible = false;
-                    this.Loading = false;
                     await this.LoadData();
 
                     await Device.InvokeOnMainThreadAsync(() =>
@@ -802,6 +802,8 @@ namespace dMobile.View.Options
                         this.ItemsList.Clear();
                         this.cmdSubmit.IsEnabled = true;
                     });
+
+                    this.Loading = false;
                 }
             });
         }

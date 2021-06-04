@@ -523,24 +523,16 @@
         /// <param name="e"></param>
         private async Task LoadData(object sender, EventArgs e)
         {
-            this.Loading = true;
-
             await Task.Run(async () =>
             {
-                //this.TotalTicks = this.TotalTicks + this.timerStatus.Interval;
-
-                //if (this.Enabled && this.TotalTicks >= 1000)
-                //if (this.IsEnabled)
-                //{
-                //this.timerStatus.Enabled = false;
-
                 try
                 {
+                    this.Loading = true;
+
                     // TODO: Resource Strings
                     this.StartUpStatusOut(sender, e, "Initializing environment.");
 
                     this.SysEnv = SysEnvironment.GetInstance();
-
                     this.SysEnv.IsCommunicationTestSuccessful = this.CommunicationTest(sender, e);
 
                     if (this.SysEnv.IsCommunicationTestSuccessful)
@@ -567,17 +559,18 @@
                 }
                 catch (Exception ex)
                 {
-                    Device.BeginInvokeOnMainThread(async () =>
+                    await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         FormErrorReport errReport = new FormErrorReport(SysCommon.ActSubTypes.SplashStartup, ex, this.GetControlDescription(), "timerStatus_Tick");
                         await errReport.ShowDialog();
                         Android.OS.Process.KillProcess(Android.OS.Process.MyPid());
                     });
                 }
-                //}
+                finally
+                {
+                    this.Loading = false;
+                }
             });
-
-            this.Loading = false;
         }
 
         /// <summary>
