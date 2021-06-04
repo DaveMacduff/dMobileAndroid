@@ -145,7 +145,7 @@
             {
                 // TODO: Logging
                 // TODO: Resource strings
-                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "An error occurred loading data." + Environment.NewLine + ex.Message, "OK");
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "An error occurred loading data." + Environment.NewLine + ex.Message, "OK"));
             }
             finally
             {
