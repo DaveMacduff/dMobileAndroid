@@ -41,6 +41,7 @@ namespace dMobile.View.Activity
         private SysCommon.ActSubTypes actSubType = SysCommon.ActSubTypes.MoveInventory;
         private ObservableCollection<string> itemsList;
         private ObservableCollection<object> dataGridMainActivityItemsList;
+        private List<string> optionsMenuItems = new List<string>();
 
         #endregion
 
@@ -104,6 +105,9 @@ namespace dMobile.View.Activity
 
             this.Scanner = BarCodeSingleton.GetInstance().Scanner;
             this.Title = this.GetControlDescription();
+
+            this.optionsMenuItems.Add("Save");
+            this.optionsMenuItems.Add("Cancel");
         }
 
         #endregion
@@ -137,21 +141,28 @@ namespace dMobile.View.Activity
 
             try
             {
-                await this.ucActivityMoveInventory_GotFocus(this, new EventArgs());
+                this.Loading = true;
+                await Task.Run(async () => await this.ucActivityMoveInventory_GotFocus());
             }
             catch (Exception ex)
             {
                 // TODO: Resource strings
                 await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "this.ucActivityMoveInventory_GotFocus threw an error " + ex, "OK"));
             }
+            finally
+            {
+                this.Loading = false;
+            }
         }
 
         /// <summary>
         /// The OnDisappearing
         /// </summary>
-        protected override void OnDisappearing()
+        protected override async void OnDisappearing()
         {
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
+            await ScannerDisable();
+
             base.OnDisappearing();
         }
 
@@ -161,11 +172,7 @@ namespace dMobile.View.Activity
             {
                 base.OnBackButtonPressed();
 
-                if (await this.SaveChanges())
-                {
-                    await this.Close();
-                }
-                else if (await this.CancelChanges())
+                if (await this.CancelChanges())
                 {
                     await this.Close();
                 }
@@ -516,11 +523,13 @@ namespace dMobile.View.Activity
 
             try
             {
+                this.Loading = true;
+
                 if (await IsReadyToSave())
                 {
                     if (ActDetail.ListDetails != null && ActDetail.ListDetails.Count > 0)
                     {
-                        for (int idx = 0; idx <= ActDetail.ListDetails.Count - 1; idx++)
+                        for (int idx = 0; idx < ActDetail.ListDetails.Count; idx++)
                         {
                             try
                             {
@@ -529,7 +538,7 @@ namespace dMobile.View.Activity
                                     ActItem.FKRefno = 0;
                                     ActItem.Refno = 0;
                                     ProductInfo oProductInfo = ActItem.ProdInfo;
-                                    oProductInfo = ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32((ActDetail.ListDetails[idx] as dynamic).ProductUnitRefno));
+                                    oProductInfo = await ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(ActDetail.ListDetails[idx].GetType().GetProperty("ProductUnitRefno")?.GetValue(ActDetail.ListDetails[idx])));
                                     oProductInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(oProductInfo.Refno);
                                     ActItem.ProdInfo = oProductInfo;
                                     ActDetail = await ActDetail.GetInfo(ActDetail.ListDetails[idx], false);
@@ -547,7 +556,7 @@ namespace dMobile.View.Activity
                             catch (Exception ex)
                             {
                                 // TODO: Resource strings
-                                bool result = await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Move Submission", Convert.ToString("Submit Move Failed" + Environment.NewLine + ex.Message), "Abort", "Retry"));
+                                bool result = await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Move Submission", Convert.ToString("Submit Move Failed" + Environment.NewLine + ex.Message), "Cancel", "Retry"));
 
                                 if (result)
                                 {
@@ -597,6 +606,10 @@ namespace dMobile.View.Activity
                     FormErrorReport errorReport = new FormErrorReport(this.ActSubType, ex);
                     await errorReport.ShowDialog();
                 });
+            }
+            finally
+            {
+                this.Loading = false;
             }
 
             return bSaveComplete;
@@ -716,28 +729,39 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         private async void cmdFromLocation_Click(object sender, EventArgs e)
         {
-            await this.ScannerDisable();
-
-            FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucSelectLocationMap, SysCommon.ActSubTypes.NotApplicable);
-
-            if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
+            try
             {
-                this.SelFromLocMap = LocMap.CurrLocMap;
-                this.SelFromCurrLocMapRefno = this.LocMap.CurrLocMapRefno;
+                this.Loading = true;
+                await this.ScannerDisable();
 
-                if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
+                FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucSelectLocationMap, SysCommon.ActSubTypes.NotApplicable);
+
+                if (await Device.InvokeOnMainThreadAsync(async () => await form.DisplayControl.ShowDialog() == DialogResult.OK))
                 {
-                    // TODO: Resource strings
-                    this.cmdFromLocation.Text = "From " + LocationMapTasks.GetCurrentReadableLocation();
-                }
-                else
-                {
-                    // TODO: Resource strings
-                    this.cmdFromLocation.Text = "Set From Location";
+                    this.SelFromLocMap = LocMap.CurrLocMap;
+                    this.SelFromCurrLocMapRefno = this.LocMap.CurrLocMapRefno;
+
+                    if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
+                    {
+                        // TODO: Resource strings
+                        await Device.InvokeOnMainThreadAsync(() => this.cmdFromLocation.Text = "From " + LocationMapTasks.GetCurrentReadableLocation());
+                    }
+                    else
+                    {
+                        // TODO: Resource strings
+                        await Device.InvokeOnMainThreadAsync(() => this.cmdFromLocation.Text = "Set From Location");
+                    }
                 }
             }
-
-            await this.ScannerEnable();
+            catch (Exception ex)
+            {
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "Error selecting to location." + Environment.NewLine + ex.Message, "OK"));
+            }
+            finally
+            {
+                await this.ScannerEnable();
+                this.Loading = false;
+            }
         }
 
         /// <summary>
@@ -747,42 +771,49 @@ namespace dMobile.View.Activity
         /// <param name="e"></param>
         private async void cmdToLocation_Click(object sender, EventArgs e)
         {
-            await this.ScannerDisable();
-
-            FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucSelectLocationMap, SysCommon.ActSubTypes.NotApplicable);
-
-            if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
+            try
             {
-                this.SelToLocMap = this.LocMap.CurrLocMap;
-                this.SelToCurrLocMapRefno = this.LocMap.CurrLocMapRefno;
+                this.Loading = true;
+                await this.ScannerDisable();
 
-                if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
+                FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucSelectLocationMap, SysCommon.ActSubTypes.NotApplicable);
+
+                if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
                 {
-                    // TODO: Resource strings
-                    this.cmdToLocation.Text = "To " + LocationMapTasks.GetCurrentReadableLocation();
-                }
-                else
-                {
-                    // TODO: Resource strings
-                    this.cmdToLocation.Text = "Set To Location";
+                    this.SelToLocMap = this.LocMap.CurrLocMap;
+                    this.SelToCurrLocMapRefno = this.LocMap.CurrLocMapRefno;
+
+                    if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
+                    {
+                        // TODO: Resource strings
+                        await Device.InvokeOnMainThreadAsync(() => this.cmdToLocation.Text = "To " + LocationMapTasks.GetCurrentReadableLocation());
+                    }
+                    else
+                    {
+                        // TODO: Resource strings
+                        await Device.InvokeOnMainThreadAsync(() => this.cmdToLocation.Text = "Set To Location");
+                    }
                 }
             }
-
-            await this.ScannerEnable();
+            catch (Exception ex)
+            {
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "Error selecting to location." + Environment.NewLine + ex.Message, "OK"));
+            }
+            finally
+            {
+                await this.ScannerEnable();
+                this.Loading = false;
+            }
         }
 
         /// <summary>
         ///
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         /// <remarks></remarks>
-        private async Task ucActivityMoveInventory_GotFocus(object sender, EventArgs e)
+        private async Task ucActivityMoveInventory_GotFocus()
         {
             if (!SysEnvironment.GetInstance().IsApplicationExitInvoked)
             {
-                await this.ScannerEnable();
-
                 await Device.InvokeOnMainThreadAsync(() => this.updnBarCodeModifier1.SelectedItem = this.SysEnv.CurrentBarCodeModifier1);
 
                 if (this.IsControlLoaded == false)
@@ -814,7 +845,6 @@ namespace dMobile.View.Activity
                     }
 
                     await this.RefreshData();
-
                     this.IsControlLoaded = true;
                 }
             }
@@ -832,18 +862,25 @@ namespace dMobile.View.Activity
 
             try
             {
+                this.Loading = true;
                 await this.ScannerDisable();
 
                 FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucSelectProductUnit, this.ActSubType);
 
-                if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
+                if (await Device.InvokeOnMainThreadAsync(async () => await form.DisplayControl.ShowDialog() == DialogResult.OK))
                 {
                     XDocument xmlDoc = await form.GetXML();
                     prodUnitRefno = Convert.ToInt32(xmlDoc.Root.Element("ProductUnitRefno").Value);
+                    object infoObject = null;
 
                     await this.ActItem.Insert(xmlDoc, false);
-                    // TODO: Test
-                    this.ActDetail = await this.ActDetail.GetInfo(this.ActDetail.ListDetails[0], true);
+
+                    if (this.ActDetail.ListDetails.Count > 0)
+                    {
+                        infoObject = this.ActDetail.ListDetails[0];
+                    }
+
+                    this.ActDetail = await this.ActDetail.GetInfo(infoObject, true);
 
                     SysCommon.SFillQuantity fillQty = SysCommon.FillQuantityStructureFromQuantity((ProductInfo)this.ActItem.ProdInfo, 1);
                     SActItemSchemeData tempItemSchemeData = new SActItemSchemeData
@@ -899,9 +936,14 @@ namespace dMobile.View.Activity
             }
             finally
             {
+                await Device.InvokeOnMainThreadAsync(() =>
+                {
+                    this.DataGridMainActivityItemsList = this.ActDetail.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
+                    this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
+                });
+
                 await this.ScannerEnable();
-                this.DataGridMainActivityItemsList = this.ActDetail.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
-                this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
+                this.Loading = false;
             }
         }
 
@@ -997,7 +1039,15 @@ namespace dMobile.View.Activity
                               + "</params>");
 
                         await this.ActItem.Insert(xmlDoc, false);
-                        this.ActDetail = await this.ActDetail.GetInfo(this.ActDetail.ListDetails[0], true);
+
+                        object infoObject = null;
+
+                        if (this.ActDetail.ListDetails.Count > 0)
+                        {
+                            infoObject = this.ActDetail.ListDetails[0];
+                        }
+
+                        this.ActDetail = await this.ActDetail.GetInfo(infoObject, true);
 
                         SActItemSchemeData tempItemSchemeData = new SActItemSchemeData();
                         bool isInsertReady = false;
@@ -1059,6 +1109,12 @@ namespace dMobile.View.Activity
             }
             finally
             {
+                await Device.InvokeOnMainThreadAsync(() =>
+                {
+                    this.DataGridMainActivityItemsList = this.ActDetail.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
+                    this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
+                });
+
                 await this.ScannerEnable();
                 this.Loading = false;
             }
@@ -1088,6 +1144,32 @@ namespace dMobile.View.Activity
             });
 
             await this.ScannerEnable();
+        }
+
+        private async void OptionsMenu_Clicked(object sender, EventArgs e)
+        {
+            if (this.Loading)
+            {
+                return;
+            }
+
+            // TODO: Resource strings
+            string result = await DisplayActionSheet("Move Inventory Options", "Close", null, this.optionsMenuItems.ToArray());
+
+            if (result == "Save")
+            {
+                if (await this.SaveChanges())
+                {
+                    await this.Close();
+                }
+            }
+            else if (result == "Cancel")
+            {
+                if (await this.CancelChanges())
+                {
+                    await this.Close();
+                }
+            }
         }
 
         #endregion

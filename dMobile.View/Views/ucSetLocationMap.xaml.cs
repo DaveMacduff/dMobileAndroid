@@ -205,6 +205,7 @@
 
             try
             {
+                this.Loading = true;
                 this.IsEnabled = false;
                 await this.ucSetLocationMap_GotFocus(this, new EventArgs());
                 await this.tabLocation_GotFocus(this, new EventArgs());
@@ -217,6 +218,7 @@
             finally
             {
                 this.IsEnabled = true;
+                this.Loading = false;
             }
         }
 
@@ -237,12 +239,7 @@
             {
                 base.OnBackButtonPressed();
 
-                if (await this.SaveChanges())
-                {
-                    this.DialogResult = DialogResult.OK;
-                    await this.Close();
-                }
-                else if (await this.CancelChanges())
+                if (await this.CancelChanges())
                 {
                     this.DialogResult = DialogResult.None;
                     await this.Close();

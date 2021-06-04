@@ -12,7 +12,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Emulator|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\Emulator\</OutputPath>
+    <OutputPath>bin\Emulator\netstandard2.1</OutputPath>
     <DefineConstants>TRACE;DEBUG;EMULATOR</DefineConstants>
     <UseVSHostingProcess>false</UseVSHostingProcess>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>

@@ -122,13 +122,13 @@ namespace dMobile.View.Menus
 
         protected override bool OnBackButtonPressed()
         {
-            Device.BeginInvokeOnMainThread(() =>
+            Device.BeginInvokeOnMainThread(async () =>
             {
                 base.OnBackButtonPressed();
 
                 this.DisableControls();
                 this.IsControlLoaded = false;
-
+                await this.Close();
             });
 
             return true;
@@ -471,6 +471,7 @@ namespace dMobile.View.Menus
             this.cmdRework.IsEnabled = false;
             this.cmdDisposal.IsEnabled = false;
             this.cmdRequisition.IsEnabled = false;
+            this.cmdConvertProduct.IsEnabled = false;
         }
 
         /// <summary>

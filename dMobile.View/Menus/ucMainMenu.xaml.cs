@@ -117,19 +117,19 @@
             base.OnDisappearing();
         }
 
-        protected override bool OnBackButtonPressed()
-        {
-            Device.BeginInvokeOnMainThread(() =>
-            {
-                base.OnBackButtonPressed();
+        //protected override bool OnBackButtonPressed()
+        //{
+        //    Device.BeginInvokeOnMainThread(() =>
+        //    {
+        //        base.OnBackButtonPressed();
 
-                this.DisableControls();
-                this.IsControlLoaded = false;
+        //        this.DisableControls();
+        //        this.IsControlLoaded = false;
 
-            });
+        //    });
 
-            return true;
-        }
+        //    return true;
+        //}
 
         private bool IsControlLoaded
         {

@@ -111,11 +111,11 @@ namespace dMobile.View.Menus
 
         protected override bool OnBackButtonPressed()
         {
-            Device.BeginInvokeOnMainThread(() =>
+            Device.BeginInvokeOnMainThread(async () =>
             {
                 base.OnBackButtonPressed();
-
                 this.DisableControls();
+                await this.Close();
             });
 
             return true;

@@ -451,31 +451,31 @@ namespace dMobile.Controller
                 this.UniqueSchemeID = Convert.ToString(detail.ActivityDetailUniqueSchemeID);
 
                 // Check for DBNull because extra detail is in a child table, left join from the dataview query.
-                if (detail.ActivityDetailExtra1Text != null)
+                if (detail.GetType().GetProperty("ActivityDetailExtra1Text")?.GetValue(detail) != null && detail.ActivityDetailExtra1Text != null)
                 {
                     this.ActExtra.Text1 = Convert.ToString(detail.ActivityDetailExtra1Text);
                 }
 
                 // Check for DBNull because extra detail is in a child table, left join from the dataview query.
-                if (detail.ActivityDetailExtra2Text != null)
+                if (detail.GetType().GetProperty("ActivityDetailExtra2Text")?.GetValue(detail) != null && detail.ActivityDetailExtra2Text != null)
                 {
                     this.ActExtra.Text2 = Convert.ToString(detail.ActivityDetailExtra2Text);
                 }
 
                 // Check for DBNull because extra detail is in a child table, left join from the dataview query.
-                if (detail.ActivityDetailExtra3Text != null)
+                if (detail.GetType().GetProperty("ActivityDetailExtra3Text")?.GetValue(detail) != null && detail.ActivityDetailExtra3Text != null)
                 {
                     this.ActExtra.Text3 = Convert.ToString(detail.ActivityDetailExtra3Text);
                 }
 
                 // Check for DBNull because extra detail is in a child table, left join from the dataview query.
-                if (detail.ActivityDetailExtra4Text != null)
+                if (detail.GetType().GetProperty("ActivityDetailExtra4Text")?.GetValue(detail) != null && detail.ActivityDetailExtra4Text != null)
                 {
                     this.ActExtra.Text4 = Convert.ToString(detail.ActivityDetailExtra4Text);
                 }
 
                 // Check for DBNull because extra detail is in a child table, left join from the dataview query.
-                if (detail.ActivityDetailExtra5Date != null && !string.IsNullOrEmpty(Convert.ToString(detail.ActivityDetailExtra5Date)))
+                if (detail.GetType().GetProperty("ActivityDetailExtra5Date")?.GetValue(detail) != null && detail.ActivityDetailExtra5Date != null && !string.IsNullOrEmpty(Convert.ToString(detail.ActivityDetailExtra5Date)))
                 {
                     this.ActExtra.DateTime5 = Convert.ToDateTime(detail.ActivityDetailExtra5Date);
                 }
