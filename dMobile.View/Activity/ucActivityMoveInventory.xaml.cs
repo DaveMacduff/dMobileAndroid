@@ -783,7 +783,7 @@ namespace dMobile.View.Activity
             {
                 await this.ScannerEnable();
 
-                this.updnBarCodeModifier1.SelectedItem = this.SysEnv.CurrentBarCodeModifier1;
+                await Device.InvokeOnMainThreadAsync(() => this.updnBarCodeModifier1.SelectedItem = this.SysEnv.CurrentBarCodeModifier1);
 
                 if (this.IsControlLoaded == false)
                 {
@@ -792,12 +792,12 @@ namespace dMobile.View.Activity
 
                     if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
                     {
-                        this.cmdFromLocation.Text = LocationMapTasks.GetCurrentReadableLocation();
+                        await Device.InvokeOnMainThreadAsync(() => this.cmdFromLocation.Text = LocationMapTasks.GetCurrentReadableLocation());
                     }
                     else
                     {
                         // TODO: Resource strings
-                        this.cmdFromLocation.Text = "Set From Location";
+                        await Device.InvokeOnMainThreadAsync(() => this.cmdFromLocation.Text = "Set From Location");
                     }
 
                     this.SelToLocMap = this.LocMap.CurrLocMap;
@@ -805,12 +805,12 @@ namespace dMobile.View.Activity
 
                     if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
                     {
-                        this.cmdToLocation.Text = LocationMapTasks.GetCurrentReadableLocation();
+                        await Device.InvokeOnMainThreadAsync(() => this.cmdToLocation.Text = LocationMapTasks.GetCurrentReadableLocation());
                     }
                     else
                     {
                         // TODO: Resource strings
-                        this.cmdToLocation.Text = "Set To Location";
+                        await Device.InvokeOnMainThreadAsync(() => this.cmdToLocation.Text = "Set To Location");
                     }
 
                     await this.RefreshData();
@@ -960,12 +960,12 @@ namespace dMobile.View.Activity
 
                         if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
                         {
-                            this.cmdToLocation.Text = LocationMapTasks.GetCurrentReadableLocation();
+                            await Device.InvokeOnMainThreadAsync(() => this.cmdToLocation.Text = LocationMapTasks.GetCurrentReadableLocation());
                         }
                         else
                         {
                             // TODO: Resource strings
-                            this.cmdToLocation.Text = "Set To Location";
+                            await Device.InvokeOnMainThreadAsync(() => this.cmdToLocation.Text = "Set To Location");
                         }
                     }
                     else
@@ -975,12 +975,12 @@ namespace dMobile.View.Activity
 
                         if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
                         {
-                            this.cmdFromLocation.Text = LocationMapTasks.GetCurrentReadableLocation();
+                            await Device.InvokeOnMainThreadAsync(() => this.cmdFromLocation.Text = LocationMapTasks.GetCurrentReadableLocation());
                         }
                         else
                         {
                             // TODO: Resource strings
-                            this.cmdFromLocation.Text = "Set From Location";
+                            await Device.InvokeOnMainThreadAsync(() => this.cmdFromLocation.Text = "Set From Location");
                         }
                     }
                 }
@@ -1039,9 +1039,9 @@ namespace dMobile.View.Activity
             {
                 ex.Show(this.ActSubType);
 
-                if (this.ActDetail.ListDetails.Count > 0 && rowIdx + 1 <= this.ActDetail.ListDetails.Count)
+                if (this.ActDetail.ListDetails.Count > 0 && rowIdx >= 0)
                 {
-                    this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[rowIdx];
+                    await Device.InvokeOnMainThreadAsync(() => this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[rowIdx]);
                 }
             }
             catch (Exception ex)
@@ -1052,9 +1052,9 @@ namespace dMobile.View.Activity
                     await errorReport.ShowDialog();
                 });
 
-                if (this.ActDetail.ListDetails.Count > 0 && rowIdx + 1 <= this.ActDetail.ListDetails.Count)
+                if (this.ActDetail.ListDetails.Count > 0 && rowIdx >= 0)
                 {
-                    this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[rowIdx];
+                    await Device.InvokeOnMainThreadAsync(() => this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[rowIdx]);
                 }
             }
             finally
@@ -1071,18 +1071,21 @@ namespace dMobile.View.Activity
         private async Task RefreshData()
         {
             await this.ScannerDisable();
-
-            this.ItemsList.Clear();
-
             await this.ActDetail.GetActivityDetailList(false);
-            this.DataGridMainActivityItemsList = this.ActDetail.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
-            this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
 
-            if (this.ActDetail.ListDetails.Count > 0 && this.DataGridMainActivityItemsList.Count > 0)
+            await Device.InvokeOnMainThreadAsync(async () =>
             {
-                this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[0];
-                await this.ActDetail.SelectActivityDetail(this.ActDetail.ListDetails[this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem)]);
-            }
+                this.ItemsList.Clear();
+
+                this.DataGridMainActivityItemsList = this.ActDetail.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
+                this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
+
+                if (this.ActDetail.ListDetails.Count > 0 && this.DataGridMainActivityItemsList.Count > 0)
+                {
+                    this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[0];
+                    await this.ActDetail.SelectActivityDetail(this.ActDetail.ListDetails[this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem)]);
+                }
+            });
 
             await this.ScannerEnable();
         }

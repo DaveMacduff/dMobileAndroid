@@ -101,20 +101,19 @@ namespace dMobile.View.Menus
         /// </summary>
         protected override void OnDisappearing()
         {
-            base.OnDisappearing();
-
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
+            base.OnDisappearing();
         }
 
         protected override bool OnBackButtonPressed()
         {
-            Device.BeginInvokeOnMainThread(() =>
+            Device.BeginInvokeOnMainThread(async () =>
             {
                 base.OnBackButtonPressed();
 
                 this.DisableControls();
                 this.IsControlLoaded = false;
-
+                await this.Close();
             });
 
             return true;

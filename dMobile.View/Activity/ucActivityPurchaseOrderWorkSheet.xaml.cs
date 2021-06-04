@@ -539,7 +539,7 @@
                             throw (new Exception("Unable To Indentify Item"));
                         }
 
-                        this.dataGridMainActivity.SelectedItem = purchaseOrderWorkSheetItem;
+                        await Device.InvokeOnMainThreadAsync(() => this.dataGridMainActivity.SelectedItem = purchaseOrderWorkSheetItem);
                     }
                     else
                     {
