@@ -15,6 +15,7 @@
         /// </summary>
         private bool loading;
         private string optionsIconSource;
+        private bool isClosing = false;
 
         /// <summary>
         /// Gets or sets a value indicating whether Loading
@@ -68,7 +69,7 @@
             }
             catch (Exception ex)
             {
-                await Device.InvokeOnMainThreadAsync(async() => await DisplayAlert(Resource.Error, ex.Message, Resource.OK));
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(Resource.Error, ex.Message, Resource.OK));
             }
         }
 
@@ -80,19 +81,29 @@
         {
             try
             {
-                while (this.Loading)
+                if (!this.isClosing)
                 {
-                    // Wait for loading to complete
-                }
+                    this.isClosing = true;
 
-                if (Application.Current.MainPage is MasterDetailPage mainPage)
-                {
-                    await mainPage.Detail.Navigation.PopAsync();
+                    await Task.Run(() =>
+                    {
+                        while (this.Loading)
+                        {
+                            // Wait for loading to complete
+                        }
+                    });
+
+                    if (Application.Current.MainPage is MasterDetailPage mainPage)
+                    {
+                        await Device.InvokeOnMainThreadAsync(async () => await mainPage.Detail.Navigation.PopAsync());
+                    }
+
+                    this.isClosing = false;
                 }
             }
             catch (Exception ex)
             {
-                await Device.InvokeOnMainThreadAsync(async() => await DisplayAlert(Resource.Error, ex.Message, Resource.OK));
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(Resource.Error, ex.Message, Resource.OK));
             }
         }
     }

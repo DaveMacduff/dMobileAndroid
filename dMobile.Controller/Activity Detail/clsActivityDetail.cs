@@ -878,7 +878,6 @@ namespace dMobile.Controller
 
                 if (this.FKRefno > 0)
                 {
-                    // TODO: Test that this returns the expected value
                     detail = this.ListDetails.Where(obj => Convert.ToInt32(obj.GetType().GetProperty(actDetailFKRefnoFldName).GetValue(obj, null)) == this.FKRefno).FirstOrDefault();
                 }
 
@@ -920,22 +919,22 @@ namespace dMobile.Controller
                 detail.ActivityDetailExtra4Text = this.ActExtra.Text4;
                 detail.ActivityDetailExtra5Date = this.ActExtra.DateTime5;
 
-                string locCode = string.Empty;
+                int locCode = 0;
                 string locName = string.Empty;
 
                 if (this.LocMap.CurrLocMap.SlotLocMapRefno > 0)
                 {
-                    locCode = this.LocMap.CurrLocMap.SlotCode.ToString();
+                    locCode = this.LocMap.CurrLocMap.SlotCode;
                     locName = this.LocMap.CurrLocMap.SlotName;
                 }
                 else if (this.LocMap.CurrLocMap.SectLocMapRefno > 0)
                 {
-                    locCode = this.LocMap.CurrLocMap.SectCode.ToString();
+                    locCode = this.LocMap.CurrLocMap.SectCode;
                     locName = this.LocMap.CurrLocMap.SectName;
                 }
                 else
                 {
-                    locCode = this.LocMap.CurrLocMap.WhsCode.ToString();
+                    locCode = this.LocMap.CurrLocMap.WhsCode;
                     locName = this.LocMap.CurrLocMap.WhsName;
                 }
 

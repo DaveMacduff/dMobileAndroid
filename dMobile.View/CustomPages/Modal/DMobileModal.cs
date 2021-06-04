@@ -17,6 +17,7 @@
         private bool loading;
         private string optionsIconSource;
         private DialogResult dialogResult = DialogResult.None;
+        private bool isClosing = false;
 
         /// <summary>
         /// Gets or sets a value indicating whether Loading
@@ -144,18 +145,28 @@
         {
             try
             {
-                while (this.Loading)
+                if (!isClosing)
                 {
-                    // Wait for loading to complete
-                }
+                    this.isClosing = true;
 
-                if (Application.Current.MainPage is MasterDetailPage mainPage)
-                {
-                    await Device.InvokeOnMainThreadAsync(async () => await mainPage.Detail.Navigation.PopModalAsync());
-                }
-                else
-                {
-                    await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.Navigation.PopModalAsync());
+                    await Task.Run(() =>
+                    {
+                        while (this.Loading)
+                        {
+                            // Wait for loading to complete
+                        }
+                    });
+
+                    if (Application.Current.MainPage is MasterDetailPage mainPage)
+                    {
+                        await Device.InvokeOnMainThreadAsync(async () => await mainPage.Detail.Navigation.PopModalAsync());
+                    }
+                    else
+                    {
+                        await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.Navigation.PopModalAsync());
+                    }
+
+                    this.isClosing = false;
                 }
             }
             catch (Exception ex)
