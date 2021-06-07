@@ -494,48 +494,61 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public async void cmdAddProduct_Click(object sender, EventArgs e)
         {
-            if (this.Activity.SkidInfo.CurrSkid.SkidFKRefno != 0)
+            try
             {
-                await this.ScannerDisable();
-                this.ActItem.ProdInfo = this.OrigProdInfoOnSkid;
-
-                // TODO: Resource strings
-                if (await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Select UOM", "Select a different unit of measure?", "Yes", "No")))
+                if (this.Activity.SkidInfo.CurrSkid.SkidFKRefno != 0)
                 {
-                    FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucSelectProductUnitFilterToProduct, this.ActItem, this.ActSubType);
+                    this.Loading = true;
+                    await this.ScannerDisable();
+                    this.ActItem.ProdInfo = this.OrigProdInfoOnSkid;
 
-                    if (await Device.InvokeOnMainThreadAsync(async () => await form.DisplayControl.ShowDialog() == DialogResult.OK))
+                    // TODO: Resource strings
+                    if (await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Select UOM", "Select a different unit of measure?", "Yes", "No")))
                     {
-                        XDocument xmlDoc = await form.GetXML();
-                        int prodUnitRefno = int.Parse(xmlDoc.Root.Element("ProductUnitRefno").Value);
+                        FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucSelectProductUnitFilterToProduct, this.ActItem, this.ActSubType);
 
-                        if (prodUnitRefno != 0)
+                        if (await Device.InvokeOnMainThreadAsync(async () => await form.DisplayControl.ShowDialog() == DialogResult.OK))
                         {
-                            this.ActItem.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
+                            XDocument xmlDoc = await form.GetXML();
+                            int prodUnitRefno = int.Parse(xmlDoc.Root.Element("ProductUnitRefno").Value);
+
+                            if (prodUnitRefno != 0)
+                            {
+                                this.ActItem.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
+                            }
                         }
                     }
+
+                    // Clear this.ActDetail. If false is passed for parameter isAdd, attempt to read data from
+                    // DataViewDetail is made which has not data. = error.
+                    this.ActDetail = await this.ActDetail.GetInfo(this.ActDetail.ListDetails[0], true);
+
+                    SysCommon.SFillQuantity fillQty = SysCommon.FillQuantityStructureFromQuantity((ProductInfo)this.ActItem.ProdInfo, this.ActDetailOnSkid.Quantity);
+
+                    this.ActDetail.Quantity = fillQty.Quantity;
+                    this.ActDetail.BaseQuantity = fillQty.BaseQuantity;
+                    this.ActDetail.WeightQuantity = fillQty.WeightQuantity;
+                    this.ActDetail.SchemeID = this.ActDetailOnSkid.SchemeID;
+                    this.ActDetail.UniqueSchemeID = this.ActDetailOnSkid.UniqueSchemeID;
+                    this.ActDetail.SchemeData = this.ActDetailOnSkid.SchemeData;
+                    this.ActDetail.ActExtra.Text1 = string.Empty;
+                    this.ActDetail.ActExtra.Text2 = string.Empty;
+                    this.ActDetail.ActExtra.Text3 = string.Empty;
+                    this.ActDetail.ActExtra.Text4 = string.Empty;
+                    this.ActDetail.ActExtra.DateTime5 = new DateTime(1900, 1, 1);
+
+                    await this.InsertActivityDetail(this.ActDetail);
                 }
-
-                // Clear this.ActDetail. If false is passed for parameter isAdd, attempt to read data from
-                // DataViewDetail is made which has not data. = error.
-                this.ActDetail = await this.ActDetail.GetInfo(this.ActDetail.ListDetails[0], true);
-
-                SysCommon.SFillQuantity fillQty = SysCommon.FillQuantityStructureFromQuantity((ProductInfo)this.ActItem.ProdInfo, this.ActDetailOnSkid.Quantity);
-
-                this.ActDetail.Quantity = fillQty.Quantity;
-                this.ActDetail.BaseQuantity = fillQty.BaseQuantity;
-                this.ActDetail.WeightQuantity = fillQty.WeightQuantity;
-                this.ActDetail.SchemeID = this.ActDetailOnSkid.SchemeID;
-                this.ActDetail.UniqueSchemeID = this.ActDetailOnSkid.UniqueSchemeID;
-                this.ActDetail.SchemeData = this.ActDetailOnSkid.SchemeData;
-                this.ActDetail.ActExtra.Text1 = string.Empty;
-                this.ActDetail.ActExtra.Text2 = string.Empty;
-                this.ActDetail.ActExtra.Text3 = string.Empty;
-                this.ActDetail.ActExtra.Text4 = string.Empty;
-                this.ActDetail.ActExtra.DateTime5 = new DateTime(1900, 1, 1);
-
-                await this.InsertActivityDetail(this.ActDetail);
+            }
+            catch (Exception ex)
+            {
+                // TODO: Resource strings
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "An error occurred while adding a product." + Environment.NewLine + ex.Message, "OK"));
+            }
+            finally
+            {
                 await this.ScannerEnable();
+                this.Loading = false;
             }
         }
 

@@ -304,12 +304,13 @@
                                 ")";
 
                                 detailParameterList.Add(Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts));
+                                detailParameterList.Add(Convert.ToInt32(SysCommon.ActStatus.NoChange));
                                 detailParameterList.Add(actItemCountRefno);
-                                detailParameterList.Add(countItems[0].ProductUnitRefno);
                                 detailParameterList.Add(this.SaveDetailLocation(drow, transaction, true));
+                                detailParameterList.Add(countItems[0].ProductUnitRefno);
                                 detailParameterList.AddRange(this.SaveDetail(drow, transaction, true));
 
-                                transaction.Execute(queryInsertDetail, detailParameterList);
+                                transaction.Execute(queryInsertDetail, detailParameterList.ToArray());
 
                                 actDetailRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityDetail"));
                                 actDetailCycleFKRefno = Convert.ToInt32(drow["f01"]);

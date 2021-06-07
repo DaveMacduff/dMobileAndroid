@@ -746,7 +746,7 @@ namespace dMobile.View.Activity
                     if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
                     {
                         // TODO: Resource strings
-                        await Device.InvokeOnMainThreadAsync(() => this.cmdFromLocation.Text = "From " + LocationMapTasks.GetCurrentReadableLocation());
+                        await Device.InvokeOnMainThreadAsync(() => this.cmdFromLocation.Text = "From: " + LocationMapTasks.GetCurrentReadableLocation());
                     }
                     else
                     {
@@ -788,7 +788,7 @@ namespace dMobile.View.Activity
                     if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
                     {
                         // TODO: Resource strings
-                        await Device.InvokeOnMainThreadAsync(() => this.cmdToLocation.Text = "To " + LocationMapTasks.GetCurrentReadableLocation());
+                        await Device.InvokeOnMainThreadAsync(() => this.cmdToLocation.Text = "To: " + LocationMapTasks.GetCurrentReadableLocation());
                     }
                     else
                     {
@@ -825,7 +825,7 @@ namespace dMobile.View.Activity
 
                     if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
                     {
-                        await Device.InvokeOnMainThreadAsync(() => this.cmdFromLocation.Text = LocationMapTasks.GetCurrentReadableLocation());
+                        await Device.InvokeOnMainThreadAsync(() => this.cmdFromLocation.Text = "From: " + LocationMapTasks.GetCurrentReadableLocation());
                     }
                     else
                     {
@@ -838,7 +838,7 @@ namespace dMobile.View.Activity
 
                     if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
                     {
-                        await Device.InvokeOnMainThreadAsync(() => this.cmdToLocation.Text = LocationMapTasks.GetCurrentReadableLocation());
+                        await Device.InvokeOnMainThreadAsync(() => this.cmdToLocation.Text = "To: " + LocationMapTasks.GetCurrentReadableLocation());
                     }
                     else
                     {
@@ -1004,7 +1004,7 @@ namespace dMobile.View.Activity
 
                         if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
                         {
-                            await Device.InvokeOnMainThreadAsync(() => this.cmdToLocation.Text = LocationMapTasks.GetCurrentReadableLocation());
+                            await Device.InvokeOnMainThreadAsync(() => this.cmdToLocation.Text = "To: " + LocationMapTasks.GetCurrentReadableLocation());
                         }
                         else
                         {
@@ -1019,7 +1019,7 @@ namespace dMobile.View.Activity
 
                         if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
                         {
-                            await Device.InvokeOnMainThreadAsync(() => this.cmdFromLocation.Text = LocationMapTasks.GetCurrentReadableLocation());
+                            await Device.InvokeOnMainThreadAsync(() => this.cmdFromLocation.Text = "From: " + LocationMapTasks.GetCurrentReadableLocation());
                         }
                         else
                         {

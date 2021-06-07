@@ -1286,7 +1286,7 @@
 
                     if (this.firstLoad)
                     {
-                        Console.WriteLine("this.ActItem.Refresh");
+                        Console.WriteLine("______this.ActItem.Refresh.....");
                         this.firstLoad = false;
                         await this.ActItem.Refresh(this.ActItem.ActHdr.XMLDataCriteria);
                     }
@@ -1568,12 +1568,8 @@
                         {
                             if (this.ActItem.IsAllowAddItem)
                             {
+                                Console.WriteLine("______ INSERTING DETAIL!!!!!!");
                                 await this.ActItem.Insert(xmlDoc, false);
-
-                                // This is a little dangerous we assume that the new row idx will be the last one
-                                foundRowIdx = this.ActItem.ListItems.Count - 1;
-                                this.ActItem.SelectedActivityItem = this.ActItem.ListItems[foundRowIdx];
-                                actItemFoundRefno = this.ActItem.Refno;
                             }
                             else
                             {
@@ -1708,6 +1704,11 @@
                 }
                 finally
                 {
+                    if (this.ActItem.ListItems.Count > 0)
+                    {
+                        this.ActItem.SelectedActivityItem = this.ActItem.ListItems.LastOrDefault();
+                    }
+
                     await DisplayData();
                     await this.ScannerEnable();
                 }
@@ -1754,7 +1755,7 @@
 
                                 // This is a little dangerous we assume that the new row idx will be the last one
                                 //foundRowIdx = this.ActItem.DataViewItems.Count - 1;
-                                selectedItem = this.ActItem.ListItems.Last();
+                                selectedItem = this.ActItem.ListItems.LastOrDefault();
                                 actItemFoundRefno = this.ActItem.Refno;
                             }
                             else
@@ -2215,7 +2216,7 @@
                                     await this.ActItem.Insert(ProductInfoTasks.GetXML(tempProdInfo), false);
 
                                     // This is a little dangerous we assume that the new row idx will be the last one
-                                    selectedItem = this.ActItem.ListItems.Last();
+                                    selectedItem = this.ActItem.ListItems.LastOrDefault();
                                     actItemFoundRefno = this.ActItem.Refno;
                                 }
                                 else
@@ -2336,7 +2337,7 @@
                                 await this.ActItem.Insert(ProductInfoTasks.GetXML(this.ActItem.ActHdr.SkidInfo.CurrSkid.ProdInfo), false);
 
                                 // This is a little dangerous we assume that the new row idx will be the last one
-                                selectedItem = this.ActItem.ListItems.Last();
+                                selectedItem = this.ActItem.ListItems.LastOrDefault();
                                 actItemFoundRefno = this.ActItem.Refno;
                             }
                             else
@@ -2720,6 +2721,7 @@
         {
             try
             {
+                Console.WriteLine("_______ REFRESH_DATA!!!");
                 this.ActItem.RegLayerListenerProgOut(this);
 
                 this.ActItem.ListItems = null;
@@ -2739,9 +2741,11 @@
                         {
                             this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[0];
                         }
-                        else if (this.DataGridMainActivityItemsList.Count > this.SelectedIndex)
+                        else
                         {
-                            this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[this.SelectedIndex];
+                            object selectedItem = this.DataGridMainActivityItemsList.Where(item =>
+                            Convert.ToInt32(item.GetType().GetProperty("ActivityItemRefno")?.GetValue(item)) == Convert.ToInt32(this.dataGridMainActivity.SelectedItem.GetType().GetProperty("ActivityItemRefno")?.GetValue(this.dataGridMainActivity.SelectedItem))).FirstOrDefault();
+                            this.dataGridMainActivity.SelectedItem = selectedItem;
                         }
                     }
                 });
