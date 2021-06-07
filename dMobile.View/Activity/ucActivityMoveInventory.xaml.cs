@@ -525,77 +525,79 @@ namespace dMobile.View.Activity
             {
                 this.Loading = true;
 
-                if (await IsReadyToSave())
+                await Task.Run(async () =>
                 {
-                    if (ActDetail.ListDetails != null && ActDetail.ListDetails.Count > 0)
+                    if (await IsReadyToSave())
                     {
-                        for (int idx = 0; idx < ActDetail.ListDetails.Count; idx++)
+                        if (ActDetail.ListDetails != null && ActDetail.ListDetails.Count > 0)
                         {
-                            try
+                            for (int idx = 0; idx < ActDetail.ListDetails.Count; idx++)
                             {
-                                if (ActDetail.ListDetails.Count > 0)
-                                {
-                                    ActItem.FKRefno = 0;
-                                    ActItem.Refno = 0;
-                                    ProductInfo oProductInfo = ActItem.ProdInfo;
-                                    oProductInfo = await ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(ActDetail.ListDetails[idx].GetType().GetProperty("ProductUnitRefno")?.GetValue(ActDetail.ListDetails[idx])));
-                                    oProductInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(oProductInfo.Refno);
-                                    ActItem.ProdInfo = oProductInfo;
-                                    ActDetail = await ActDetail.GetInfo(ActDetail.ListDetails[idx], false);
-                                    XDocument xmlParam = XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" + "<param>" + ("<whs_id>" + SelFromLocMap.WhsFKRefno.ToString() + "</whs_id>") + ("<sect_refno>" + SelFromLocMap.SectFKRefno.ToString() + "</sect_refno>") + ("<slot_refno>" + SelFromLocMap.SlotFKRefno.ToString() + "</slot_refno>") + ("<to_sect_refno>" + SelToLocMap.SectFKRefno.ToString() + "</to_sect_refno>") + ("<to_slot_refno>" + SelToLocMap.SlotFKRefno.ToString() + "</to_slot_refno>") + "</param>");
-
-                                    await ActDetail.Submit(ActDetail.ListDetails[idx], xmlParam);
-                                    idx--;
-                                }
-                                else
-                                {
-                                    goto endOfForLoop;
-                                }
-
-                            }
-                            catch (Exception ex)
-                            {
-                                // TODO: Resource strings
-                                bool result = await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Move Submission", Convert.ToString("Submit Move Failed" + Environment.NewLine + ex.Message), "Cancel", "Retry"));
-
-                                if (result)
-                                {
-                                    bSaveComplete = false;
-                                    goto endOfForLoop;
-
-                                }
-                                else
+                                try
                                 {
                                     if (ActDetail.ListDetails.Count > 0)
                                     {
+                                        ActItem.FKRefno = 0;
+                                        ActItem.Refno = 0;
+                                        ProductInfo oProductInfo = ActItem.ProdInfo;
+                                        oProductInfo = await ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(ActDetail.ListDetails[idx].GetType().GetProperty("ProductUnitRefno")?.GetValue(ActDetail.ListDetails[idx])));
+                                        oProductInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(oProductInfo.Refno);
+                                        ActItem.ProdInfo = oProductInfo;
+                                        ActDetail = await ActDetail.GetInfo(ActDetail.ListDetails[idx], false);
+                                        XDocument xmlParam = XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" + "<param>" + ("<whs_id>" + SelFromLocMap.WhsFKRefno.ToString() + "</whs_id>") + ("<sect_refno>" + SelFromLocMap.SectFKRefno.ToString() + "</sect_refno>") + ("<slot_refno>" + SelFromLocMap.SlotFKRefno.ToString() + "</slot_refno>") + ("<to_sect_refno>" + SelToLocMap.SectFKRefno.ToString() + "</to_sect_refno>") + ("<to_slot_refno>" + SelToLocMap.SlotFKRefno.ToString() + "</to_slot_refno>") + "</param>");
+
+                                        await ActDetail.Submit(ActDetail.ListDetails[idx], xmlParam);
                                         idx--;
+                                    }
+                                    else
+                                    {
+                                        goto endOfForLoop;
+                                    }
+
+                                }
+                                catch (Exception ex)
+                                {
+                                    // TODO: Resource strings
+                                    bool result = await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Move Submission", Convert.ToString("Submit Move Failed" + Environment.NewLine + ex.Message), "Cancel", "Retry"));
+
+                                    if (result)
+                                    {
+                                        bSaveComplete = false;
+                                        goto endOfForLoop;
+
+                                    }
+                                    else
+                                    {
+                                        if (ActDetail.ListDetails.Count > 0)
+                                        {
+                                            idx--;
+                                        }
                                     }
                                 }
                             }
-                        }
 
-                    endOfForLoop:
+                        endOfForLoop:
 
-                        if (ActDetail.ListDetails.Count > 0)
-                        {
-                            bSaveComplete = false;
-                        }
-                        else
-                        {
-                            // TODO: Resource strings
-                            if (await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Move Submission", "Finished Moves?", "Yes", "No")))
+                            if (ActDetail.ListDetails.Count > 0)
                             {
-                                bSaveComplete = true;
+                                bSaveComplete = false;
+                            }
+                            else
+                            {
+                                // TODO: Resource strings
+                                if (await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Move Submission", "Finished Moves?", "Yes", "No")))
+                                {
+                                    bSaveComplete = true;
+                                }
                             }
                         }
                     }
-                }
-                else
-                {
-                    // TODO: Resource strings
-                    await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Validation", "Data Failed Validation. Check Your Data.", "OK"));
-                }
-
+                    else
+                    {
+                        // TODO: Resource strings
+                        await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Validation", "Data Failed Validation. Check Your Data.", "OK"));
+                    }
+                });
             }
             catch (Exception ex)
             {

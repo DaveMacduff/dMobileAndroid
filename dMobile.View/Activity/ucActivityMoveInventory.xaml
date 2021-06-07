@@ -19,7 +19,7 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <Button x:Name="cmdFromLocation" Clicked="cmdFromLocation_Click" Grid.Row="0" />
+                <Button x:Name="cmdFromLocation" Clicked="cmdFromLocation_Click" Grid.Row="0" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
 
                 <Grid Grid.Row="1">
                     <Grid.ColumnDefinitions>
@@ -29,12 +29,12 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
-                    <CheckBox x:Name="chkScanToLocation" Grid.Column="0" VerticalOptions="Center"/>
+                    <CheckBox x:Name="chkScanToLocation" Grid.Column="0" VerticalOptions="Center" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
                     <Label x:Name="lblScanToLocation" Grid.Column="1" VerticalOptions="Center"/>
-                    <Picker x:Name="updnBarCodeModifier1" Grid.Column="2"/>
-                    <Button x:Name="cmdAdd" Grid.Column="3" Clicked="cmdAdd_Click"/>
+                    <Picker x:Name="updnBarCodeModifier1" Grid.Column="2" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                    <Button x:Name="cmdAdd" Grid.Column="3" Clicked="cmdAdd_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
                 </Grid>
-                
+
                 <Frame Grid.Row="2" OutlineColor="{DynamicResource BorderColor}">
                     <ScrollView Orientation="Horizontal">
                         <Grid x:Name="dataGridMainActivityHeader">
