@@ -184,7 +184,7 @@ namespace dMobile.Controller
 
                 if (result)
                 {
-                    await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(async transaction =>
+                    await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
                     {
                         try
                         {
@@ -233,33 +233,6 @@ namespace dMobile.Controller
 
                             transaction.Execute(query, parameters);
                             transaction.Commit();
-
-                            this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
-                            this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
-
-                            if (this.ListItems != null)
-                            {
-                                this.ListItems.Add(new
-                                {
-                                    ActivityItemRefno = this.Refno,
-                                    ActivityItemAdjustmentFKRefno = this.FKRefno,
-                                    ActivityItemAdjustmentStringFKRefno = this.FKRefno.ToString(),
-                                    ProductUnitRefno = prodUnitRefno,
-                                    ProductRefno = this.ProdInfo.Refno,
-                                    ProductCode = this.ProdInfo.Code,
-                                    ProductDescription = this.ProdInfo.Desc,
-                                    UnitCode = this.ProdInfo.UnitCode,
-                                    ProductUnitBC = this.ProdInfo.UnitBC,
-                                    ProductUnitSizeDescription = this.ProdInfo.UnitSizeDesc,
-                                    LocationMapRefno = this.LocMap.CurrLocMap.WhsLocMapRefno,
-                                    LocationCode = this.LocMap.CurrLocMap.WhsCode,
-                                    LocationName = this.LocMap.CurrLocMap.WhsName,
-                                    ActivityItemStatus = SysCommon.ActStatus.Inserted,
-                                    ActivityItemAdjustmentQuantity = 0,
-                                    ActivityItemAdjustmentBaseQuantity = 0,
-                                    ActivityItemAdjustmentWeightQuantity = 0
-                                });
-                            }
                         }
                         catch (SQLiteException ex)
                         {
@@ -269,6 +242,33 @@ namespace dMobile.Controller
                             Console.WriteLine(ex);
                         }
                     });
+
+                    this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
+                    this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
+
+                    if (this.ListItems != null)
+                    {
+                        this.ListItems.Add(new
+                        {
+                            ActivityItemRefno = this.Refno,
+                            ActivityItemAdjustmentFKRefno = this.FKRefno,
+                            ActivityItemAdjustmentStringFKRefno = this.FKRefno.ToString(),
+                            ProductUnitRefno = prodUnitRefno,
+                            ProductRefno = this.ProdInfo.Refno,
+                            ProductCode = this.ProdInfo.Code,
+                            ProductDescription = this.ProdInfo.Desc,
+                            UnitCode = this.ProdInfo.UnitCode,
+                            ProductUnitBC = this.ProdInfo.UnitBC,
+                            ProductUnitSizeDescription = this.ProdInfo.UnitSizeDesc,
+                            LocationMapRefno = this.LocMap.CurrLocMap.WhsLocMapRefno,
+                            LocationCode = this.LocMap.CurrLocMap.WhsCode,
+                            LocationName = this.LocMap.CurrLocMap.WhsName,
+                            ActivityItemStatus = SysCommon.ActStatus.Inserted,
+                            ActivityItemAdjustmentQuantity = 0,
+                            ActivityItemAdjustmentBaseQuantity = 0,
+                            ActivityItemAdjustmentWeightQuantity = 0
+                        });
+                    }
                 }
             }
         }

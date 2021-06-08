@@ -190,7 +190,7 @@
 
                 if (dlgResult)
                 {
-                    await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(async (transaction) =>
+                    await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
                     {
                         try
                         {
@@ -243,8 +243,6 @@
 
                             transaction.Execute(querytItemProduction, parametersItemProduction);
 
-                            this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
-                            this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
                             this.FKRefno = this.Refno * -1;
 
                             transaction.Execute("INSERT INTO tActivityItemProductionFinished (ActivityItemRefno, ActivityItemProductionFinishedFKRefno, ActivityItemProductionFinishedStringFKRefno) VALUES (?, ?, ?)",
@@ -252,33 +250,6 @@
                                 Convert.ToInt32(this.FKRefno),
                                 Convert.ToString(this.FKRefno));
                             transaction.Commit();
-
-                            if (this.ListItems != null)
-                            {
-                                this.ListItems.Add(new ProductionTicketFinishedItem()
-                                {
-                                    ActivityItemRefno = this.Refno,
-                                    ActivityItemProductionFinishedFKRefno = this.FKRefno,
-                                    ActivityItemProductionFinishedStringFKRefno = this.FKRefno.ToString(),
-                                    ProductUnitRefno = prodUnitRefno,
-                                    ProductRefno = int.Parse(data.Root.Element("ProductRefno").Value),
-                                    ProductCode = data.Root.Element("ProductCode").Value,
-                                    ProductDescription = data.Root.Element("ProductDescription").Value,
-                                    BaseUnitCode = data.Root.Element("BaseUnitCode").Value,
-                                    ProductUnitBC = data.Root.Element("ProductUnitBC").Value,
-                                    ProductUnitSizeDescription = data.Root.Element("ProductUnitSizeDescription").Value,
-                                    LocationMapRefno = this.LocMap.CurrLocMap.WhsLocMapRefno,
-                                    LocationCode = this.LocMap.CurrLocMap.WhsCode,
-                                    LocationName = this.LocMap.CurrLocMap.WhsName,
-                                    ActivityItemStatus = Convert.ToInt32(SysCommon.ActStatus.Inserted),
-                                    ActivityItemProductionQuantity = 0,
-                                    ActivityItemProductionBaseQuantity = 0,
-                                    ActivityItemProductionWeightQuantity = 0,
-                                    ActivityItemProductionQuantityExpected = 0,
-                                    ActivityItemProductionBaseQuantityExpected = 0,
-                                    ActivityItemProductionWeightQuantityExpected = 0
-                                });
-                            }
                         }
                         catch (SQLiteException ex)
                         {
@@ -288,6 +259,36 @@
                             Console.WriteLine(ex);
                         }
                     });
+
+                    this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
+                    this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
+
+                    if (this.ListItems != null)
+                    {
+                        this.ListItems.Add(new ProductionTicketFinishedItem()
+                        {
+                            ActivityItemRefno = this.Refno,
+                            ActivityItemProductionFinishedFKRefno = this.FKRefno,
+                            ActivityItemProductionFinishedStringFKRefno = this.FKRefno.ToString(),
+                            ProductUnitRefno = prodUnitRefno,
+                            ProductRefno = int.Parse(data.Root.Element("ProductRefno").Value),
+                            ProductCode = data.Root.Element("ProductCode").Value,
+                            ProductDescription = data.Root.Element("ProductDescription").Value,
+                            BaseUnitCode = data.Root.Element("BaseUnitCode").Value,
+                            ProductUnitBC = data.Root.Element("ProductUnitBC").Value,
+                            ProductUnitSizeDescription = data.Root.Element("ProductUnitSizeDescription").Value,
+                            LocationMapRefno = this.LocMap.CurrLocMap.WhsLocMapRefno,
+                            LocationCode = this.LocMap.CurrLocMap.WhsCode,
+                            LocationName = this.LocMap.CurrLocMap.WhsName,
+                            ActivityItemStatus = Convert.ToInt32(SysCommon.ActStatus.Inserted),
+                            ActivityItemProductionQuantity = 0,
+                            ActivityItemProductionBaseQuantity = 0,
+                            ActivityItemProductionWeightQuantity = 0,
+                            ActivityItemProductionQuantityExpected = 0,
+                            ActivityItemProductionBaseQuantityExpected = 0,
+                            ActivityItemProductionWeightQuantityExpected = 0
+                        });
+                    }
                 }
             }
         }
@@ -670,8 +671,8 @@
             //}
             //else
             //{
-                // TODO: Fix filtering
-                //this.DataViewItems.RowFilter = this.ActItemFilter + " AND ProductCode LIKE \'%" + searchText.Trim() + "%\'";
+            // TODO: Fix filtering
+            //this.DataViewItems.RowFilter = this.ActItemFilter + " AND ProductCode LIKE \'%" + searchText.Trim() + "%\'";
             //}
 
             // Add all items in dataview to observable collection for display

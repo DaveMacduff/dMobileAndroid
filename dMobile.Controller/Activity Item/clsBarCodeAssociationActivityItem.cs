@@ -140,13 +140,13 @@
 
             if (!isProdUnitBarCodeFound)
             {
-                await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(async (transaction) =>
+                await this.ActHdr.Create(SysCommon.ActSubTypes.BarCodeAssociation);
+                await this.Create(SysCommon.ActSubTypes.BarCodeAssociation);
+
+                await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
                 {
                     try
                     {
-                        await this.ActHdr.Create(SysCommon.ActSubTypes.BarCodeAssociation);
-                        await this.Create(SysCommon.ActSubTypes.BarCodeAssociation);
-
                         // Add the new Bar Code to Product Unit Bar Codes                            
                         string queryInsertProdUnitBarcode = "INSERT INTO tProductUnitBarCode ("
                             + "ProductUnitRefno,"

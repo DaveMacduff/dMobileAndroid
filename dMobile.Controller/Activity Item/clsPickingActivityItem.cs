@@ -424,7 +424,7 @@
 
                 if (result)
                 {
-                    await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(async (transaction) =>
+                    await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
                     {
                         try
                         {
@@ -495,43 +495,6 @@
 
                             transaction.Execute(query, parameters);
                             transaction.Commit();
-
-                            this.FKRefno = this.Refno * -1;
-
-                            this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
-                            this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
-
-                            if (this.ListItems != null)
-                            {
-                                this.ListItems.Add(new PickingItem()
-                                {
-                                    ActivityItemRefno = this.Refno,
-                                    ActivityItemPickingFKRefno = this.FKRefno,
-                                    ActivityItemPickingStringFKRefno = this.FKRefno.ToString(),
-                                    ProductUnitRefno = prodUnitRefno,
-                                    ProductRefno = this.ProdInfo.Refno,
-                                    ProductCode = this.ProdInfo.Code,
-                                    ProductDescription = this.ProdInfo.Desc,
-                                    UnitCode = this.ProdInfo.UnitCode,
-                                    ProductUnitBC = this.ProdInfo.UnitBC,
-                                    ProductUnitSizeDescription = this.ProdInfo.UnitSizeDesc,
-                                    LocationMapRefno = this.LocMap.CurrLocMap.WhsLocMapRefno,
-                                    LocationCode = this.LocMap.CurrLocMap.WhsCode,
-                                    LocationName = this.LocMap.CurrLocMap.WhsName,
-                                    ActivityItemPickingCustomerProductUnitCode = string.Empty,
-                                    ActivityItemStatus = Convert.ToInt32(SysCommon.ActStatus.Inserted),
-                                    IsActivityItemPickingComment = string.Empty,
-                                    ActivityItemPickingQuantityOrdered = 0,
-                                    ActivityItemPickingBaseQuantityOrdered = 0,
-                                    ActivityItemPickingWeightQuantityOrdered = 0,
-                                    ActivityItemPickingQuantityShipped = 0,
-                                    ActivityItemPickingBaseQuantityShipped = 0,
-                                    ActivityItemPickingWeightQuantityShipped = 0,
-                                    ActivityItemPickingQuantityAvailable = 0,
-                                    ActivityItemPickingBaseQuantityAvailable = 0,
-                                    ActivityItemPickingWeightQuantityAvailable = 0,
-                                });
-                            }
                         }
                         catch (SQLiteException ex)
                         {
@@ -540,6 +503,42 @@
                             transaction.Rollback();
                         }
                     });
+
+                    this.FKRefno = this.Refno * -1;
+                    this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
+                    this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
+
+                    if (this.ListItems != null)
+                    {
+                        this.ListItems.Add(new PickingItem()
+                        {
+                            ActivityItemRefno = this.Refno,
+                            ActivityItemPickingFKRefno = this.FKRefno,
+                            ActivityItemPickingStringFKRefno = this.FKRefno.ToString(),
+                            ProductUnitRefno = prodUnitRefno,
+                            ProductRefno = this.ProdInfo.Refno,
+                            ProductCode = this.ProdInfo.Code,
+                            ProductDescription = this.ProdInfo.Desc,
+                            UnitCode = this.ProdInfo.UnitCode,
+                            ProductUnitBC = this.ProdInfo.UnitBC,
+                            ProductUnitSizeDescription = this.ProdInfo.UnitSizeDesc,
+                            LocationMapRefno = this.LocMap.CurrLocMap.WhsLocMapRefno,
+                            LocationCode = this.LocMap.CurrLocMap.WhsCode,
+                            LocationName = this.LocMap.CurrLocMap.WhsName,
+                            ActivityItemPickingCustomerProductUnitCode = string.Empty,
+                            ActivityItemStatus = Convert.ToInt32(SysCommon.ActStatus.Inserted),
+                            IsActivityItemPickingComment = string.Empty,
+                            ActivityItemPickingQuantityOrdered = 0,
+                            ActivityItemPickingBaseQuantityOrdered = 0,
+                            ActivityItemPickingWeightQuantityOrdered = 0,
+                            ActivityItemPickingQuantityShipped = 0,
+                            ActivityItemPickingBaseQuantityShipped = 0,
+                            ActivityItemPickingWeightQuantityShipped = 0,
+                            ActivityItemPickingQuantityAvailable = 0,
+                            ActivityItemPickingBaseQuantityAvailable = 0,
+                            ActivityItemPickingWeightQuantityAvailable = 0,
+                        });
+                    }
                 }
             }
         }

@@ -195,7 +195,7 @@
             {
                 if (this.SysEnv.SysSettings.IsDisconnectedMode)
                 {
-                    await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(async (transaction) =>
+                    await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
                     {
                         try
                         {
@@ -247,9 +247,6 @@
                             transaction.Commit();
 
                             this.FKRefno = this.Refno * -1;
-
-                            this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
-                            this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
                             this.IsUpdateView = true;
                         }
                         catch (SQLiteException ex)
@@ -304,6 +301,9 @@
 
             if (this.IsUpdateView && this.ListItems != null)
             {
+                this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
+                this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
+
                 // TODO: Fix sorting
                 //string oldSort = DataViewItems.Sort;
                 //int rowIdx = 0;

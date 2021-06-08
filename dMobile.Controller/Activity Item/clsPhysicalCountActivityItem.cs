@@ -210,7 +210,7 @@
 
                 if (result)
                 {
-                    await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(async (transaction) =>
+                    await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
                     {
                         try
                         {
@@ -264,37 +264,6 @@
 
                             transaction.Execute(query, parameters);
                             transaction.Commit();
-
-                            this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
-                            this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
-                            this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
-
-                            if (this.ListItems != null)
-                            {
-                                this.ListItems.Add(new CountItem()
-                                {
-                                    ActivityItemRefno = this.Refno,
-                                    ActivityItemCountFKRefno = this.FKRefno,
-                                    ActivityItemCountStringFKRefno = this.FKRefno.ToString(),
-                                    ProductUnitRefno = prodUnitRefno,
-                                    ProductRefno = this.ProdInfo.Refno,
-                                    ProductCode = this.ProdInfo.Code,
-                                    ProductDescription = this.ProdInfo.Desc,
-                                    UnitCode = this.ProdInfo.UnitCode,
-                                    ProductUnitBC = this.ProdInfo.UnitBC,
-                                    ProductUnitSizeDescription = this.ProdInfo.UnitSizeDesc,
-                                    LocationMapRefno = locMapRefno,
-                                    LocationCode = Convert.ToString(this.LocMap.CurrLocMap.WhsCode),
-                                    LocationName = this.LocMap.CurrLocMap.WhsName,
-                                    ActivityItemStatus = Convert.ToInt32(SysCommon.ActStatus.Inserted),
-                                    ActivityItemCountQuantityOnHand = 0,
-                                    ActivityItemCountBaseQuantityOnHand = 0,
-                                    ActivityItemCountWeightQuantityOnHand = 0,
-                                    ActivityItemCountQuantity = 0,
-                                    ActivityItemCountBaseQuantity = 0,
-                                    ActivityItemCountWeightQuantity = 0
-                                });
-                            }
                         }
                         catch (SQLiteException ex)
                         {
@@ -304,6 +273,37 @@
                             transaction.Rollback();
                         }
                     });
+
+                    this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
+                    this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
+                    this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
+
+                    if (this.ListItems != null)
+                    {
+                        this.ListItems.Add(new CountItem()
+                        {
+                            ActivityItemRefno = this.Refno,
+                            ActivityItemCountFKRefno = this.FKRefno,
+                            ActivityItemCountStringFKRefno = this.FKRefno.ToString(),
+                            ProductUnitRefno = prodUnitRefno,
+                            ProductRefno = this.ProdInfo.Refno,
+                            ProductCode = this.ProdInfo.Code,
+                            ProductDescription = this.ProdInfo.Desc,
+                            UnitCode = this.ProdInfo.UnitCode,
+                            ProductUnitBC = this.ProdInfo.UnitBC,
+                            ProductUnitSizeDescription = this.ProdInfo.UnitSizeDesc,
+                            LocationMapRefno = locMapRefno,
+                            LocationCode = Convert.ToString(this.LocMap.CurrLocMap.WhsCode),
+                            LocationName = this.LocMap.CurrLocMap.WhsName,
+                            ActivityItemStatus = Convert.ToInt32(SysCommon.ActStatus.Inserted),
+                            ActivityItemCountQuantityOnHand = 0,
+                            ActivityItemCountBaseQuantityOnHand = 0,
+                            ActivityItemCountWeightQuantityOnHand = 0,
+                            ActivityItemCountQuantity = 0,
+                            ActivityItemCountBaseQuantity = 0,
+                            ActivityItemCountWeightQuantity = 0
+                        });
+                    }
                 }
             }
         }
