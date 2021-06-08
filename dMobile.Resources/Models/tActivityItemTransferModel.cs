@@ -47,10 +47,10 @@ namespace dMobile.Resources.Models
         [PrimaryKey, NotNull, ForeignKey(typeof(tActivityItemModel)), Indexed(Name = "UQ_ActivityItemTransferOnActivityItemRefno", Order = 1, Unique = true)]
         public int ActivityItemRefno { get; set; }
 
-        [NotNull, Indexed(Name = "UQ_ActivityItemTransferOnActivityItemSubType", Order = 1, Unique = true)]
+        [NotNull, Indexed(Name = "UQ_ActivityItemTransferOnActivityItemSubType", Order = 1, Unique = false)]
         public int ActivityItemSubType { get; set; }
 
-        [NotNull, Indexed(Name = "UQ_ActivityItemTransferOnActivityItemTransferFKRefnoAndActivitySubType", Order = 1, Unique = true)]
+        [NotNull, Indexed(Name = "UQ_ActivityItemTransferOnActivityItemTransferFKRefnoAndActivitySubType", Order = 1, Unique = false)]
         public int ActivityItemTransferFKRefno { get; set; }
 
         [NotNull]

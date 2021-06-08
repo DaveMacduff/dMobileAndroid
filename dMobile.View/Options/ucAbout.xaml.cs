@@ -267,7 +267,7 @@
             }
         }
 
-        private class IPAddr : ContentPage
+        private class IPAddr : DMobileContentPage
         {
             public NetworkInterface networkInterface;
             private string displayMember;

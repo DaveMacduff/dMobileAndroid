@@ -17,6 +17,7 @@ using dMobile.Resources.Enums;
 using Android.Views;
 using System.Collections.ObjectModel;
 using System.Collections;
+using dMobile.Resources.Types;
 
 namespace dMobile.View.Options
 {
@@ -95,8 +96,9 @@ namespace dMobile.View.Options
         private TableActivityPurchaseOrderWorkSheetItem purchaseOrderWorkSheetItem;
         private PrinterSettings printerSettings;
         private ProdSchemeLabelSettings schemeLabelSettings;
-        private ObservableCollection<string> itemsList;
+        private ObservableCollection<Message> itemsList;
         private bool isFirstAppearance = true;
+        private int messageIndex = 0;
 
         public ucRefreshDataStatus()
         {
@@ -177,7 +179,7 @@ namespace dMobile.View.Options
                 this.purchaseOrderWorkSheetItem = new TableActivityPurchaseOrderWorkSheetItem();
                 this.printerSettings = new PrinterSettings();
                 this.schemeLabelSettings = new ProdSchemeLabelSettings();
-                this.itemsList = new ObservableCollection<string>();
+                this.itemsList = new ObservableCollection<Message>();
             }
 
             this.ActSubType = actSubTypes;
@@ -1133,7 +1135,7 @@ namespace dMobile.View.Options
         }
 
 
-        public ObservableCollection<string> ItemsList
+        public ObservableCollection<Message> ItemsList
         {
             get
             {
@@ -1710,8 +1712,8 @@ namespace dMobile.View.Options
 
             Device.BeginInvokeOnMainThread(() =>
             {
-                ItemsList.Add(Resource.LastRefresh + " " + this.SysEnv.RefreshOpt.RefreshedDataLast.ToString());
-                ItemsList.Add(Resource.RefreshChangesOnly + " " + this.SysEnv.RefreshOpt.IsRefreshedLastDataChangesOnly.ToString());
+                ItemsList.Add(new Message() { MessageIndex = this.messageIndex++, MessageValue = Resource.LastRefresh + " " + this.SysEnv.RefreshOpt.RefreshedDataLast.ToString() });
+                ItemsList.Add(new Message() { MessageIndex = this.messageIndex++, MessageValue = Resource.RefreshChangesOnly + " " + this.SysEnv.RefreshOpt.IsRefreshedLastDataChangesOnly.ToString() });
             });
 
             this.ContactUsers.RegisterDataAccessListenerProgressOut(this);
@@ -1762,8 +1764,8 @@ namespace dMobile.View.Options
         {
             Device.BeginInvokeOnMainThread(() =>
             {
-                this.ItemsList.Add(message);
-                this.lstStatus.ScrollTo(message, ScrollToPosition.MakeVisible, false);
+                this.ItemsList.Add(new Message() { MessageIndex = this.messageIndex++, MessageValue = message });
+                this.lstStatus.ScrollTo(this.ItemsList.LastOrDefault(), ScrollToPosition.MakeVisible, true);
             });
         }
 
@@ -1772,7 +1774,7 @@ namespace dMobile.View.Options
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        /// <param name="value"></param>
+        /// <param name="value"></param>  
         /// <param name="minValue"></param>
         /// <param name="maxValue"></param>
         private void ProgressOut(object sender, EventArgs e, int value, int minValue, int maxValue)

@@ -18,7 +18,7 @@
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <ViewCell IsEnabled="False">
-                            <Label Text="{Binding}" VerticalTextAlignment="Center"/>
+                            <Label Text="{Binding MessageValue}" VerticalTextAlignment="Center"/>
                         </ViewCell>
                     </DataTemplate>
                 </ListView.ItemTemplate>

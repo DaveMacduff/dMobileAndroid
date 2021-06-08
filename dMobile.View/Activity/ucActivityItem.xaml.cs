@@ -1272,10 +1272,10 @@
         /// <remarks></remarks>
         private async Task ucActivityItem_GotFocus(object sender, EventArgs e)
         {
-            if (this.Loading)
-            {
-                return;
-            }
+            //if (this.Loading)
+            //{
+            //    return;
+            //}
 
             await Task.Run(async () =>
             {

@@ -41,10 +41,10 @@ namespace dMobile.Resources.Models
     [Table("tContactUser")]
     public class tContactUserModel
     {
-        [PrimaryKey, NotNull, ForeignKey(typeof(tContactModel))]
+        [PrimaryKey, NotNull, ForeignKey(typeof(tContactModel)), Indexed(Name = "UQ_ContactUserOnContactRefnoAndContactSubType", Order = 1, Unique = true)]
         public int ContactRefno { get; set; }
 
-        [NotNull]
+        [NotNull, Indexed(Name = "UQ_ContactUserOnContactRefnoAndContactSubType", Order = 2, Unique = true)]
         public int ContactSubType { get; set; }
 
         [Indexed(Name = "UQ_ContactUserOnContactUserCode", Order = 1, Unique = true), NotNull]

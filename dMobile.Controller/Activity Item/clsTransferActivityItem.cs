@@ -210,7 +210,7 @@
         {
             int prodUnitRefno = int.Parse(data.Root.Element("ProductUnitRefno").Value);
 
-            await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(async (transaction) =>
+            await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
             {
                 string queryActivityItem = "INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno) VALUES (?, ?, ?)";
                 List<object> parametersActivityItem = new List<object>();
@@ -277,35 +277,36 @@
                 parametersTransferItem.Add(Convert.ToInt32(0));
 
                 transaction.Execute(queryTransferItem, parametersTransferItem.ToArray());
-
-                this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
-                this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
-
-                if (this.ListItems != null)
-                {
-                    this.ListItems.Add(new TransferItem()
-                    {
-                        ActivityItemRefno = this.Refno,
-                        ActivityItemTransferFKRefno = this.FKRefno,
-                        ActivityItemTransferStringFKRefno = this.FKRefno.ToString(),
-                        ProductUnitRefno = prodUnitRefno,
-                        ProductRefno = int.Parse(data.Root.Element("ProductRefno").Value),
-                        ProductCode = data.Root.Element("ProductCode").Value,
-                        ProductDescription = data.Root.Element("ProductDescription").Value,
-                        UnitCode = data.Root.Element("UnitCode").Value,
-                        ProductUnitBC = data.Root.Element("ProductUnitBC").Value,
-                        ProductUnitSizeDescription = data.Root.Element("ProductUnitSizeDescription").Value,
-                        LocationMapRefno = this.LocMap.CurrLocMap.WhsLocMapRefno,
-                        LocationCode = this.LocMap.CurrLocMap.WhsCode,
-                        LocationName = this.LocMap.CurrLocMap.WhsName,
-                        ActivityItemStatus = Convert.ToInt32(SysCommon.ActStatus.Inserted),
-                        ActivityItemTransferRequiredQuantity = 0,
-                        ActivityItemTransferQuantity = 0,
-                        ActivityItemTransferBaseQuantity = 0,
-                        ActivityItemTransferWeightQuantity = 0
-                    });
-                }
+                transaction.Commit();
             });
+
+            this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
+            this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
+
+            if (this.ListItems != null)
+            {
+                this.ListItems.Add(new TransferItem()
+                {
+                    ActivityItemRefno = this.Refno,
+                    ActivityItemTransferFKRefno = this.FKRefno,
+                    ActivityItemTransferStringFKRefno = this.FKRefno.ToString(),
+                    ProductUnitRefno = prodUnitRefno,
+                    ProductRefno = int.Parse(data.Root.Element("ProductRefno").Value),
+                    ProductCode = data.Root.Element("ProductCode").Value,
+                    ProductDescription = data.Root.Element("ProductDescription").Value,
+                    UnitCode = data.Root.Element("UnitCode").Value,
+                    ProductUnitBC = data.Root.Element("ProductUnitBC").Value,
+                    ProductUnitSizeDescription = data.Root.Element("ProductUnitSizeDescription").Value,
+                    LocationMapRefno = this.LocMap.CurrLocMap.WhsLocMapRefno,
+                    LocationCode = this.LocMap.CurrLocMap.WhsCode,
+                    LocationName = this.LocMap.CurrLocMap.WhsName,
+                    ActivityItemStatus = Convert.ToInt32(SysCommon.ActStatus.Inserted),
+                    ActivityItemTransferRequiredQuantity = 0,
+                    ActivityItemTransferQuantity = 0,
+                    ActivityItemTransferBaseQuantity = 0,
+                    ActivityItemTransferWeightQuantity = 0
+                });
+            }
         }
 
         /// <summary>

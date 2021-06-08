@@ -31,6 +31,7 @@ namespace dMobile.View.Activity
         private SysEnvironment sysEnv;
         private ObservableCollection<string> itemsList;
         private ObservableCollection<object> dataGridMainActivityItemsList;
+        private List<string> optionsMenuItems = new List<string>();
 
         #endregion
 
@@ -59,6 +60,7 @@ namespace dMobile.View.Activity
             this.Title = this.GetControlDescription();
             this.ItemsList = new ObservableCollection<string>();
             this.DataGridMainActivityItemsList = new ObservableCollection<object>();
+            this.optionsMenuItems.Add("Release order");
         }
 
         #endregion
@@ -82,44 +84,7 @@ namespace dMobile.View.Activity
                     {
                         try
                         {
-                            if (this.ActSubType == SysCommon.ActSubTypes.Picking || this.ActSubType == SysCommon.ActSubTypes.PickingSingle)
-                            {
-                                await this.ScannerDisable();
-
-                                // SHIPPING LABELS
-                                if (this.SysEnv.SysSettings.CanPrintShippingLabel && !this.SysEnv.SysSettings.IsDisconnectedMode)
-                                {
-                                    // Load activity properties, activity is an argument for the ShippingLabelControl
-                                    // SelectedIdx is not refreshed.
-                                    this.Activity.Refno = this.Activity.GetRefnoFromRowIdx(this.dataGridMainActivity.SelectedItem);
-
-                                    SysCommon.SLabelQuantity labelQuantity = new SysCommon.SLabelQuantity();
-                                    labelQuantity = await this.Activity.GetLabelQuantity();
-
-                                    FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucActivityShippingLabelEdit, this.ActSubType, labelQuantity, this.Activity, SysCommon.ShippingLabelQuantitySelectionMode.BothFullRepack);
-
-                                    if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
-                                    {
-                                        XDocument request = await form.GetXML();
-
-                                        // The itm_refno elements is used to mark the ar_oeitm.slbl_prtd as true.
-                                        // If itm_refno is zero then no line is updated as printed.
-                                        request.Element("params").Element("whs_id").AddAfterSelf(new XElement("itm_refno", 0));
-                                        await this.Activity.PrintLabel(request);
-                                    }
-                                }
-
-                                if (this.SysEnv.SysSettings.IsPickRefreshOrdAfterRel)
-                                {
-                                    await this.RefreshData();
-                                }
-                                else
-                                {
-                                    this.Activity.ListHdrs.Remove(this.dataGridMainActivity.SelectedItem);
-                                }
-
-                                await this.ScannerEnable();
-                            }
+                            await ReleaseOrder();
                         }
                         catch (Exception ex)
                         {
@@ -138,6 +103,67 @@ namespace dMobile.View.Activity
             {
                 // TODO: Resource strings
                 await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "this.ucActivityHdrReleaseByOrder_GotFocus threw an error " + ex, "OK"));
+            }
+        }
+
+        private async Task ReleaseOrder()
+        {
+            if (this.ActSubType == SysCommon.ActSubTypes.Picking || this.ActSubType == SysCommon.ActSubTypes.PickingSingle)
+            {
+                await this.ScannerDisable();
+
+                // SHIPPING LABELS
+                if (this.SysEnv.SysSettings.CanPrintShippingLabel && !this.SysEnv.SysSettings.IsDisconnectedMode)
+                {
+                    // Load activity properties, activity is an argument for the ShippingLabelControl
+                    // SelectedIdx is not refreshed.
+                    this.Activity.Refno = this.Activity.GetRefnoFromRowIdx(this.dataGridMainActivity.SelectedItem);
+
+                    SysCommon.SLabelQuantity labelQuantity = new SysCommon.SLabelQuantity();
+                    labelQuantity = await this.Activity.GetLabelQuantity();
+
+                    FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucActivityShippingLabelEdit, this.ActSubType, labelQuantity, this.Activity, SysCommon.ShippingLabelQuantitySelectionMode.BothFullRepack);
+
+                    if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
+                    {
+                        XDocument request = await form.GetXML();
+
+                        // The itm_refno elements is used to mark the ar_oeitm.slbl_prtd as true.
+                        // If itm_refno is zero then no line is updated as printed.
+                        request.Element("params").Element("whs_id").AddAfterSelf(new XElement("itm_refno", 0));
+                        await this.Activity.PrintLabel(request);
+                    }
+                }
+
+                if (this.SysEnv.SysSettings.IsPickRefreshOrdAfterRel)
+                {
+                    await this.RefreshData();
+                }
+                else
+                {
+                    this.Activity.ListHdrs.Remove(this.dataGridMainActivity.SelectedItem);
+
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                    {
+                        this.ItemsList.Clear();
+                        this.DataGridMainActivityItemsList = this.Activity.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
+
+                        if (!string.IsNullOrEmpty(this.txtSearchHdr.Text))
+                        {
+                            this.DataGridMainActivityItemsList = this.Activity.Search(this.txtSearchHdr.Text);
+                        }
+
+                        this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
+
+                        if (this.Activity.ListHdrs.Count > 0 && this.DataGridMainActivityItemsList.Count > 0 && this.DataGridMainActivityItemsList[0] != null)
+                        {
+                            this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[0];
+                            await this.Activity.SelectActivity(this.dataGridMainActivity.SelectedItem);
+                        }
+                    });
+                }
+
+                await this.ScannerEnable();
             }
         }
 
@@ -709,6 +735,22 @@ namespace dMobile.View.Activity
             });
 
             this.Loading = false;
+        }
+
+        private async void OptionsMenu_Clicked(object sender, EventArgs e)
+        {
+            if (this.Loading)
+            {
+                return;
+            }
+
+            // TODO: Resource strings
+            string result = await DisplayActionSheet("Release Order Options", "Close", null, this.optionsMenuItems.ToArray());
+
+            if (result == "Release order")
+            {
+                await this.ReleaseOrder();
+            }
         }
 
         #endregion

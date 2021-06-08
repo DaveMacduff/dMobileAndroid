@@ -10,6 +10,7 @@
     using dMobile.View;
     using System;
     using Xamarin.Forms;
+    using Xamarin.Forms.Platform.Android;
 
     /// <summary>
     /// Defines the <see cref="MainActivity" />
@@ -27,7 +28,7 @@
             ToolbarResource = Resource.Layout.Toolbar;
 
             base.OnCreate(savedInstanceState);
-            global::Xamarin.Forms.Forms.Init(this, savedInstanceState); 
+            global::Xamarin.Forms.Forms.Init(this, savedInstanceState);
             LoadApplication(new App());
         }
 
@@ -36,18 +37,18 @@
         ///// </summary>
         //protected override void OnStop()
         //{
-            //try
-            //{
-            //    SystemSettings tempSystemSettings = SysEnvironment.GetInstance().SysSettings;
-            //    SystemSettingsTasks.SaveData(ref tempSystemSettings);
-            //    SysEnvironment.GetInstance().ContactLog.SubmitContactLogOut();
-            //}
-            //catch (Exception ex)
-            //{
-            //    Log.Error(nameof(MainActivity), ex.Message);
-            //}
+        //try
+        //{
+        //    SystemSettings tempSystemSettings = SysEnvironment.GetInstance().SysSettings;
+        //    SystemSettingsTasks.SaveData(ref tempSystemSettings);
+        //    SysEnvironment.GetInstance().ContactLog.SubmitContactLogOut();
+        //}
+        //catch (Exception ex)
+        //{
+        //    Log.Error(nameof(MainActivity), ex.Message);
+        //}
 
-            //base.OnStop();
+        //base.OnStop();
         //}
 
         /// <summary>

@@ -72,7 +72,7 @@ namespace dMobile.Resources.Models
         [PrimaryKey, NotNull, ForeignKey(typeof(tLocationMapModel)), Indexed(Name = "UQ_LocationMapSlotOnLocationMapRefnoAndLocationMapSubType", Order = 1, Unique = true)]
         public int LocationMapRefno { get; set; }
 
-        [NotNull, Indexed(Name = "UQ_LocationMapSlotOnLocationMapRefnoAndLocationMapSubType", Order = 1, Unique = true)]
+        [NotNull, Indexed(Name = "UQ_LocationMapSlotOnLocationMapRefnoAndLocationMapSubType", Order = 2, Unique = true)]
         public int LocationMapSubType { get; set; }
 
         [NotNull, ForeignKey(typeof(tLocationMapSectionModel)), Indexed(Name = "FK_LocationMapSlotOnSectionLocationMapRefno", Order = 1, Unique = false)]

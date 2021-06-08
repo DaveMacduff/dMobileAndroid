@@ -33,10 +33,10 @@ namespace dMobile.Resources.Models
         [PrimaryKey, NotNull, ForeignKey(typeof(tActivityDetailModel))]
         public int ActivityDetailRefno { get; set; }
 
-        [NotNull]
+        [NotNull, Indexed(Name = "UQ_ActivityDetailTransferOnActivityDetailTransferFKRefnoAndTransModeEnum", Order = 1, Unique = true)]
         public int ActivityDetailTransferFKRefno { get; set;}
 
-        [NotNull, Indexed(Name = "UQ_ActivityDetailTransferOnActivityDetailTransferFKRefnoAndTransModeEnum", Order = 1, Unique = true)]
+        [NotNull]
         public bool ActivityDetailTransferIsConfirmed { get; set; }
 
         [NotNull, Indexed(Name = "UQ_ActivityDetailTransferOnActivityDetailTransferFKRefnoAndTransModeEnum", Order = 2, Unique = true)]

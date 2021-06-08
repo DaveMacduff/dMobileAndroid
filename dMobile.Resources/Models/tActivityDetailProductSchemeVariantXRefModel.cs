@@ -44,7 +44,7 @@ namespace dMobile.Resources.Models
         // TODO: Can only support one index right now
         [Indexed(Name = "UQ_ActivityDetailProductSchemeVariantXRefOnActivityDetailRefno", Order = 1, Unique = true), NotNull, ForeignKey(typeof(tActivityDetailModel))]
         public int ActivityDetailRefno { get; set; }
-        [Indexed(Name = "FK_ActivityDetailProductSchemeVariantXRefOnProductSchemeVariantRefno", Order = 1, Unique = true), NotNull, ForeignKey(typeof(tProductSchemeVariantModel))]
+        [Indexed(Name = "FK_ActivityDetailProductSchemeVariantXRefOnProductSchemeVariantRefno", Order = 1, Unique = false), NotNull, ForeignKey(typeof(tProductSchemeVariantModel))]
         public int ProductSchemeVariantRefno { get; set; }
     }
 }

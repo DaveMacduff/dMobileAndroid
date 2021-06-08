@@ -74,43 +74,6 @@
         }
 
         /// <summary>
-        /// The OnAppearing
-        /// </summary>
-        protected override void OnAppearing()
-        {
-            base.OnAppearing();
-            Application.Current.ModalPopping += this.Current_ModalPopping;
-        }
-
-        /// <summary>
-        /// The OnDisappearing
-        /// </summary>
-        protected override void OnDisappearing()
-        {
-            base.OnDisappearing();
-            Application.Current.ModalPopping -= this.Current_ModalPopping;
-        }
-
-        /// <summary>
-        /// The Current_ModalPopped
-        /// </summary>
-        private void Current_ModalPopping(object sender, ModalPoppingEventArgs e)
-        {
-            try
-            {
-                while (!this.tcs.Task.IsCompleted)
-                {
-                    this.tcs.TrySetResult(true);
-                }
-            }
-            catch (Exception ex)
-            {
-                // TODO: logging
-                Console.WriteLine(ex);
-            }
-        }
-
-        /// <summary>
         /// The ShowDialog
         /// </summary>
         /// <returns>The <see cref="Task{DialogResult}"/></returns> 
@@ -120,11 +83,11 @@
             {
                 if (Application.Current.MainPage is MasterDetailPage mainPage)
                 {
-                    await Device.InvokeOnMainThreadAsync(async () => await mainPage.Detail.Navigation.PushModalAsync(new NavigationPage(this)));
+                    await Device.InvokeOnMainThreadAsync(async () => await mainPage.Detail.Navigation.PushAsync(this));
                 }
                 else
                 {
-                    await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.Navigation.PushModalAsync(new NavigationPage(this)));
+                    await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.Navigation.PushAsync(this));
                 }
 
                 await this.Closed;
@@ -145,6 +108,7 @@
         {
             try
             {
+                Console.WriteLine(DateTime.Now.Ticks + " Enter modal closing");
                 if (!isClosing)
                 {
                     this.isClosing = true;
@@ -157,17 +121,24 @@
                         }
                     });
 
+                    while (!this.tcs.Task.IsCompleted)
+                    {
+                        this.tcs.TrySetResult(true);
+                    }
+
                     if (Application.Current.MainPage is MasterDetailPage mainPage)
                     {
-                        await Device.InvokeOnMainThreadAsync(async () => await mainPage.Detail.Navigation.PopModalAsync());
+                        await Device.InvokeOnMainThreadAsync(async () => await mainPage.Detail.Navigation.PopAsync());
                     }
                     else
                     {
-                        await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.Navigation.PopModalAsync());
+                        await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.Navigation.PopAsync());
                     }
 
                     this.isClosing = false;
                 }
+
+                Console.WriteLine(DateTime.Now.Ticks + " Exit modal closing");
             }
             catch (Exception ex)
             {

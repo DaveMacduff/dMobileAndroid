@@ -47,7 +47,7 @@ namespace dMobile.Resources.Models
         [NotNull, Indexed(Name = "UQ_ActivityTransferOnActivityRefnoAndActivitySubType", Order = 2, Unique = true)]
         public int ActivitySubType { get; set; }
 
-        [NotNull, Indexed(Name = "UQ_ActivityTransferOnActivityTransferFKRefno", Order = 1, Unique = true)]
+        [NotNull, Indexed(Name = "UQ_ActivityTransferOnActivityTransferFKRefno", Order = 1, Unique = false)]
         public int ActivityTransferFKRefno { get; set; }
 
         [NotNull]

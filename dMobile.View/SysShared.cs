@@ -15,10 +15,11 @@ using dMobile.Resources.Models;
 using System.Collections.Generic;
 using static dMobile.Bedrock.ProductInfoTasks;
 using static dMobile.Bedrock.LocationMapTasks;
+using dMobile.View.CustomPages;
 
 namespace dMobile.View
 {
-    public class SysShared : ContentPage
+    public class SysShared : DMobileContentPage
     {
         // TODO: Resource strings
         /// <summary>

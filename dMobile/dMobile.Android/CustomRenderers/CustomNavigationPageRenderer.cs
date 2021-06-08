@@ -1,49 +1,85 @@
-﻿//using Android.Content;
-//using Android.Widget;
-//using dMobile.Droid.CustomRenderers;
-//using Xamarin.Forms;
-//using NavigationRenderer = Xamarin.Forms.Platform.Android.AppCompat.NavigationPageRenderer;
-//using Support = Android.Support.V7.Widget;
+﻿using Android.Content;
+using Android.Support.V4.Widget;
+using Android.Views;
+using Android.Widget;
+using dMobile.Droid.CustomRenderers;
+using Xamarin.Forms;
+using Xamarin.Forms.Platform.Android;
+using Xamarin.Forms.Platform.Android.AppCompat;
+using NavigationRenderer = Xamarin.Forms.Platform.Android.AppCompat.NavigationPageRenderer;
+using Support = Android.Support.V7.Widget;
 
-//[assembly: ExportRenderer(typeof(NavigationPage), typeof(CustomNavigationPageRenderer))]
-//namespace dMobile.Droid.CustomRenderers
-//{
-//    /// <summary>
-//    /// Defines the <see cref="CustomNavigationPageRenderer" />
-//    /// </summary>
-//    public class CustomNavigationPageRenderer : NavigationRenderer
-//    {
-//        /// <summary>
-//        /// Initializes a new instance of the <see cref="CustomNavigationPageRenderer"/> class.
-//        /// </summary>
-//        /// <param name="context">The context<see cref="Context"/></param>
-//        public CustomNavigationPageRenderer(Context context) : base(context) { }
+[assembly: ExportRenderer(typeof(NavigationPage), typeof(CustomNavigationPageRenderer))]
+namespace dMobile.Droid.CustomRenderers
+{
+    /// <summary>
+    /// Defines the <see cref="CustomNavigationPageRenderer" />
+    /// </summary>
+    public class CustomNavigationPageRenderer : NavigationRenderer
+    {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CustomNavigationPageRenderer"/> class.
+        /// </summary>
+        /// <param name="context">The context<see cref="Context"/></param>
+        public CustomNavigationPageRenderer(Context context) : base(context) { }
+        protected override void OnAttachedToWindow()
+        {
+            base.OnAttachedToWindow();
 
-//        ///// <summary>
-//        ///// The OnLayout
-//        ///// </summary>
-//        ///// <param name="changed">The changed<see cref="bool"/></param>
-//        ///// <param name="l">The l<see cref="int"/></param>
-//        ///// <param name="t">The t<see cref="int"/></param>
-//        ///// <param name="r">The r<see cref="int"/></param>
-//        ///// <param name="b">The b<see cref="int"/></param>
-//        //protected override void OnLayout(bool changed, int l, int t, int r, int b)
-//        //{
-//        //    base.OnLayout(changed, l, t, r, b);
+            Element page = Element.Parent;
+            MasterDetailPage masterDetailPage = null;
+            
+            while (page != null)
+            {
+                if (page is MasterDetailPage)
+                {
+                    masterDetailPage = page as MasterDetailPage;
+                    break;
+                }
 
-//        //    var toolbar = FindViewById<Support.Toolbar>(Resource.Id.toolbar);
+                page = page.Parent;
+            }
 
-//        //    if (toolbar == null) return;
+            if (masterDetailPage == null)
+            {
+                return;
+            }
 
-//        //    for (var index = 0; index < toolbar.ChildCount; index++)
-//        //    {                
-//        //        if (toolbar.GetChildAt(index) is TextView title)
-//        //        {
-//        //            float toolbarCenter = toolbar.Width / 2;
-//        //            float titleCenter = title.Width / 2;
-//        //            title.SetX(toolbarCenter - titleCenter);
-//        //        }
-//        //    }
-//        //}
-//    }
-//}
+            var renderer = Platform.GetRenderer(masterDetailPage) as MasterDetailPageRenderer;
+            
+            if (renderer == null)
+            {
+                return;
+            }
+
+            var drawerLayout = (DrawerLayout)renderer;
+            Support.Toolbar toolbar = this.FindViewById<Support.Toolbar>(Resource.Id.toolbar);
+
+            toolbar?.SetNavigationOnClickListener(new MenuClickListener(Element, drawerLayout));
+        }
+
+        private class MenuClickListener : Java.Lang.Object, IOnClickListener
+        {
+            readonly NavigationPage navigationPage;
+            private DrawerLayout layout;
+
+            public MenuClickListener(NavigationPage navigationPage, DrawerLayout layout)
+            {
+                this.navigationPage = navigationPage;
+                this.layout = layout;
+            }
+
+            public void OnClick(Android.Views.View v)
+            {
+                if (navigationPage.Navigation.NavigationStack.Count <= 1)
+                {
+                    layout.OpenDrawer((int)GravityFlags.Left);
+                }
+                else if (navigationPage.CurrentPage.Parent is NavigationPage page)
+                {
+                    page.SendBackButtonPressed();
+                }
+            }
+        }
+    }
+}

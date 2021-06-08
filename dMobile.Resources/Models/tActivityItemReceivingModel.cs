@@ -50,13 +50,13 @@ namespace dMobile.Resources.Models
     [Table("tActivityItemReceiving")]
     public class tActivityItemReceivingModel
     {
-        [PrimaryKey, NotNull, ForeignKey(typeof(tActivityItemModel))]
+        [PrimaryKey, NotNull, ForeignKey(typeof(tActivityItemModel)), Indexed(Name = "UQ_ActivityItemReceivingOnActivityItemRefnoAndActivityItemSubType", Order = 1, Unique = true)]
         public int ActivityItemRefno { get; set; }
 
-        [NotNull]
+        [NotNull, Indexed(Name = "UQ_ActivityItemReceivingOnActivityItemRefnoAndActivityItemSubType", Order = 2, Unique = true)]
         public int ActivityItemSubType { get; set; }
 
-        [NotNull]
+        [NotNull, Indexed(Name = "UQ_ActivityItemReceivingOnActivityItemReceivingFKRefno", Order = 1, Unique = true)]
         public int ActivityItemReceivingFKRefno { get; set; }
 
         [NotNull]
@@ -65,7 +65,7 @@ namespace dMobile.Resources.Models
         [NotNull, ForeignKey(typeof(tProductUnitModel))]
         public int ProductUnitRefno { get; set; }
 
-        [NotNull, ForeignKey(typeof(tLocationMapWarehouseModel))]
+        [NotNull, ForeignKey(typeof(tLocationMapWarehouseModel)), Indexed(Name = "FK_ActivityItemReceivingOnWarehouseLocationMapRefno", Order = 1, Unique = false)]
         public int WarehouseLocationMapRefno { get; set; }
 
         [NotNull]

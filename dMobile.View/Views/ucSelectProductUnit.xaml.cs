@@ -112,10 +112,13 @@
 
                 if (keycode == Keycode.Enter || keycode == Keycode.F1)
                 {
-                    if (await this.SaveChanges())
+                    if (this.dgProducts.SelectedItem != null)
                     {
-                        this.DialogResult = DialogResult.OK;
-                        await this.Close();
+                        if (await this.SaveChanges())
+                        {
+                            this.DialogResult = DialogResult.OK;
+                            await this.Close();
+                        }
                     }
                 }
                 else if (keycode == Keycode.DpadDown)
@@ -1103,9 +1106,13 @@
             {
                 this.dgProducts.ItemsSource = this.ProductUnitsObservableCollection;
 
-                if (this.ProductUnitsObservableCollection.Count > 0 && this.dgProducts.SelectedItem == null)
+                if (this.ProductUnitsObservableCollection.Count > 0)
                 {
                     this.dgProducts.SelectedItem = this.ProductUnitsObservableCollection[0];
+                } 
+                else
+                {
+                    this.dgProducts.SelectedItem = null;
                 }
             });
         }
@@ -1154,7 +1161,7 @@
 
         private async void CmdSelect_Clicked(object sender, EventArgs e)
         {
-            if (await this.SaveChanges())
+            if (this.dgProducts.SelectedItem != null && await this.SaveChanges())
             {
                 this.DialogResult = DialogResult.OK;
                 await this.Close();

@@ -45,7 +45,7 @@ namespace dMobile.Resources.Models
         [PrimaryKey, NotNull, ForeignKey(typeof(tActivityModel)), Indexed(Name = "UQ_ActivityReturnsOnActivityRefnoAndActivitySubType", Order = 1, Unique = true)]
         public int ActivityRefno { get; set; }
 
-        [NotNull, Indexed(Name = "UQ_ActivityReturnsOnActivityRefnoAndActivitySubType", Order = 1, Unique = true)]
+        [NotNull, Indexed(Name = "UQ_ActivityReturnsOnActivityRefnoAndActivitySubType", Order = 2, Unique = true)]
         public int ActivitySubType { get; set; }
 
         [NotNull, Indexed(Name = "UQ_ActivityReturnsOnActivityReturnsFKRefno", Order = 1, Unique = true)]
