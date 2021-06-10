@@ -108,7 +108,6 @@
         {
             try
             {
-                Console.WriteLine(DateTime.Now.Ticks + " Enter modal closing");
                 if (!isClosing)
                 {
                     this.isClosing = true;
@@ -137,8 +136,6 @@
 
                     this.isClosing = false;
                 }
-
-                Console.WriteLine(DateTime.Now.Ticks + " Exit modal closing");
             }
             catch (Exception ex)
             {

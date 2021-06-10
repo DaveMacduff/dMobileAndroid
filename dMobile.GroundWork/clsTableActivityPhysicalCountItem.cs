@@ -233,8 +233,6 @@
 
                                 actItemRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityItem"));
 
-                                //prodUnitRefno = this.GetProductUnitRefnoFromDataRow(drow, ref errMsg, drProd, drUnit, drProdUnit, true);
-
                                 bool useFNo = true;
                                 int prodRefno = 0;
                                 int prodFKRefno = 0;
@@ -306,8 +304,7 @@
                                 // TODO: Resource strings
                                 errMsg += Environment.NewLine + "Is bc " + prodUnitIsBC;
 
-                                List<tProductUnitModel> productUnitresults = transaction.Query<tProductUnitModel>("SELECT * FROM tProductUnit WHERE ProductRefno = ? AND UnitRefno = ? AND ProductUnitIsBC = ?",
-                                    prodRefno, unitRefno, prodUnitIsBC);
+                                List<tProductUnitModel> productUnitresults = transaction.Query<tProductUnitModel>("SELECT * FROM tProductUnit WHERE ProductRefno = ? AND UnitRefno = ? AND ProductUnitIsBC = ?", prodRefno, unitRefno, prodUnitIsBC);
 
                                 if (productUnitresults != null && productUnitresults.Count > 0)
                                 {
@@ -332,25 +329,17 @@
                                     {
                                         locMapRefno = locationMapSlotResults[0].LocationMapRefno;
                                     }
-                                    else
-                                    {
-                                        throw new Exception("Failed to read Location Map Slots. Could not find " + locMapSlotFKRefno.ToString()); ;
-                                    }
                                 }
 
                                 if (locMapRefno == 0)
                                 {
                                     locMapSectFKRefno = Convert.ToInt32(drow["f07"]);
 
-                                    List<tLocationMapSectionModel> locationMapSectionResults = transaction.Query<tLocationMapSectionModel>("SELECT * FROM tLocationMapSection WHERE LocationMapSectionFKRefno = ?)", locMapSectFKRefno);
+                                    List<tLocationMapSectionModel> locationMapSectionResults = transaction.Query<tLocationMapSectionModel>("SELECT * FROM tLocationMapSection WHERE LocationMapSectionFKRefno = ?", locMapSectFKRefno);
 
                                     if (locationMapSectionResults != null && locationMapSectionResults.Count > 0)
                                     {
                                         locMapRefno = locationMapSectionResults[0].LocationMapRefno;
-                                    }
-                                    else
-                                    {
-                                        throw new Exception("Failed to read Location Map Section. Could not find " + locMapSectFKRefno.ToString());
                                     }
                                 }
 
@@ -359,13 +348,10 @@
                                     locMapWhsFKRefno = Convert.ToInt32(drow["f06"]);
 
                                     List<tLocationMapWarehouseModel> locationMapWarehouseResults = transaction.Query<tLocationMapWarehouseModel>("SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = ?", locMapWhsFKRefno);
+
                                     if (locationMapWarehouseResults != null && locationMapWarehouseResults.Count > 0)
                                     {
                                         locMapRefno = locationMapWarehouseResults[0].LocationMapRefno;
-                                    }
-                                    else
-                                    {
-                                        throw new Exception("Failed to read Location Map Warehouse table. Could not find " + locMapWhsFKRefno.ToString());
                                     }
                                 }
 

@@ -226,18 +226,23 @@ namespace dMobile.View.Activity
 
             try
             {
+                await this.ScannerDisable();
+
                 if (this.isFirstAppearance)
                 {
                     this.isFirstAppearance = false;
                     this.ActDetail.ActItem.ProdInfo.Unit2BaseUnitFactor = await ProductInfoTasks.GetUnitRelationFactor(this.ActDetail.ActItem.ProdInfo);
+                    await this.ucActivityDetail_GotFocus();
                 }
-
-                await this.ucActivityDetail_GotFocus();
             }
             catch (Exception ex)
             {
                 // TODO: Resource strings
                 await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "this.ucActivityDetail_GotFocus/tmrActivityDetailLoaded_Tick threw an error " + ex, "OK"));
+            }
+            finally
+            {
+                await this.ScannerEnable();
             }
         }
 
@@ -843,10 +848,9 @@ namespace dMobile.View.Activity
         {
             try
             {
-                this.Loading = true;
-
                 await Task.Run(async () =>
                 {
+                    this.Loading = true;
 
                     if (this.IsControlLoaded)
                     {
@@ -928,7 +932,8 @@ namespace dMobile.View.Activity
                                     actDetail.SchemeData = schemeData;
 
                                     isInsertReady = await SysShared.GatherProductData(parse, this.ActSubType, this.ActDetail.ActItem, tempItemProdSchemeData, isInsertReady, this.ActDetail, true);
-                                    await this.InsertActivityDetail(this.dataGridMainActivity.SelectedItem, this.ActDetail, parse, isInsertReady);
+                                    await this.InsertActivityDetail(this.ActDetail, parse, isInsertReady);
+                                    await this.RefreshData();
                                     await this.ActDetail.SelectActivityDetail(this.dataGridMainActivity.SelectedItem);
                                 }
                             }
@@ -968,7 +973,7 @@ namespace dMobile.View.Activity
                 this.Loading = false;
             }
         }
-
+        
         /// <summary>
         ///
         /// </summary>
@@ -993,7 +998,7 @@ namespace dMobile.View.Activity
                         {
                             FormAddManualDetailOverride form = new FormAddManualDetailOverride();
 
-                            if (await form.ShowDialog() == DialogResult.OK)
+                            if (await Device.InvokeOnMainThreadAsync(async () => await form.ShowDialog() == DialogResult.OK))
                             {
                                 isAllowedAddManualDetail = true;
                             }
@@ -1030,7 +1035,7 @@ namespace dMobile.View.Activity
                 }
                 catch (Exception ex)
                 {
-                    Device.BeginInvokeOnMainThread(async () =>
+                    await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
                         await errRpt.ShowDialog();
@@ -1059,7 +1064,6 @@ namespace dMobile.View.Activity
                     {
                         //// This prevents UI lag when pushing modal into view
                         //await Task.Delay(500);
-                        await this.ScannerDisable();
 
                         if (this.IsControlLoaded == false)
                         {
@@ -1105,13 +1109,12 @@ namespace dMobile.View.Activity
 
                     });
 
-                    await this.ScannerEnable();
-
                     this.IsControlLoaded = true;
                 }
                 catch (Exception ex)
                 {
                     await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "Error refreshing detail data." + Environment.NewLine + ex.Message, "OK"));
+                    throw ex;
                 }
                 finally
                 {
@@ -1129,7 +1132,13 @@ namespace dMobile.View.Activity
         private void txtSearchHdr_TextChanged(object sender, TextChangedEventArgs e)
         {
             this.DataGridMainActivityItemsList = this.ActDetail.Search(this.txtSearchDetail.Text);
+            this.dataGridMainActivity.SelectedItem = null;
             this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
+
+            if (this.DataGridMainActivityItemsList?.Count > 0)
+            {
+                this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[0];
+            }
         }
 
         /// <summary>
@@ -1428,7 +1437,7 @@ namespace dMobile.View.Activity
                                 actDetail.SchemeData = schemeData;
 
                                 isInsertReady = await SysShared.GatherProductData(this.Parse, this.ActSubType, this.ActDetail.ActItem, tempItemProdSchemeData, isInsertReady, this.ActDetail, false);
-                                await this.InsertActivityDetail(currRowIdx, this.ActDetail, this.Parse, isInsertReady);
+                                await this.InsertActivityDetail(this.ActDetail, this.Parse, isInsertReady);
                                 await this.RefreshData();
                             }
                         }
@@ -1681,7 +1690,7 @@ namespace dMobile.View.Activity
         /// <param name="actDetail"></param>
         /// <param name="parse"></param>
         /// <param name="isInsertDetailReady"></param>
-        private async Task InsertActivityDetail(object selectedObject, ActDetail actDetail, BarCodeParse parse, bool isInsertDetailReady)
+        private async Task InsertActivityDetail(ActDetail actDetail, BarCodeParse parse, bool isInsertDetailReady)
         {
             if (isInsertDetailReady)
             {
@@ -1689,11 +1698,6 @@ namespace dMobile.View.Activity
                 XDocument xmlDoc = actDetail.GetXML(actDetail);
                 await actDetail.Insert(xmlDoc);
                 actDetail.ActItem.UpdateListItemQuantity(actDetail.ActItem.SelectedActivityItem, actDetail.Quantity, actDetail.BaseQuantity, actDetail.WeightQuantity);
-            }
-
-            if (actDetail.ListDetails.Count > 0 && this.DataGridMainActivityItemsList.Count > 0)
-            {
-                await Device.InvokeOnMainThreadAsync(() => this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[this.DataGridMainActivityItemsList.Count - 1]);
             }
         }
 
@@ -1982,9 +1986,10 @@ namespace dMobile.View.Activity
 
         private async void DataGridMainActivity_ItemSelected(object sender, SelectedItemChangedEventArgs e)
         {
-            await this.ActDetail.SelectActivityDetail(this.dataGridMainActivity.SelectedItem);
+            await this.ActDetail.SelectActivityDetail(e.SelectedItem);
             await Device.InvokeOnMainThreadAsync(() => this.DisplayData());
         }
+
 
         #endregion
 

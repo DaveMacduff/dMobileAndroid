@@ -747,7 +747,6 @@ namespace dMobile.Controller
         {
             if (0 < prodSchemeData.VariantNumber)
             {
-
                 List<tProductSchemeVariantModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tProductSchemeVariantModel>("SELECT * FROM tProductSchemeVariant WHERE ProductSchemeVariantNo = ?", Convert.ToInt32(prodSchemeData.VariantNumber));
 
                 if (results != null && results.Count > 0)
@@ -875,7 +874,7 @@ namespace dMobile.Controller
                 bool detailToBeAdded = false;
                 //string oldSort = this.DataViewDetails.Sort;
                 //this.DataViewDetails.Sort = dataViewSortKey;
-
+                
                 if (this.FKRefno > 0)
                 {
                     detail = this.ListDetails.Where(obj => Convert.ToInt32(obj.GetType().GetProperty(actDetailFKRefnoFldName).GetValue(obj, null)) == this.FKRefno).FirstOrDefault();

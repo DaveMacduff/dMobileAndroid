@@ -1633,9 +1633,18 @@
             {
                 if (this.IsControlLoaded)
                 {
-                    this.IsChangesMade = true;
                     this.DataGridMainActivityItemsList = this.ActHdr.Search(this.txtSearchHdr.Text);
-                    this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
+
+                    await Device.InvokeOnMainThreadAsync(() =>
+                    {
+                        this.dataGridMainActivity.SelectedItem = null;
+                        this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
+
+                        if (this.DataGridMainActivityItemsList?.Count > 0)
+                        {
+                            this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[0];
+                        }
+                    });
                 }
             }
             catch (Exceptions.MessageOnlyException ex)

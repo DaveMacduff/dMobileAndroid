@@ -231,7 +231,7 @@ namespace dMobile.Controller
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                throw ex;
             }
         }
 

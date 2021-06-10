@@ -1272,11 +1272,6 @@
         /// <remarks></remarks>
         private async Task ucActivityItem_GotFocus(object sender, EventArgs e)
         {
-            //if (this.Loading)
-            //{
-            //    return;
-            //}
-
             await Task.Run(async () =>
             {
                 try
@@ -1286,7 +1281,6 @@
 
                     if (this.firstLoad)
                     {
-                        Console.WriteLine("______this.ActItem.Refresh.....");
                         this.firstLoad = false;
                         await this.ActItem.Refresh(this.ActItem.ActHdr.XMLDataCriteria);
                     }
@@ -1709,7 +1703,8 @@
                         this.ActItem.SelectedActivityItem = this.ActItem.ListItems.LastOrDefault();
                     }
 
-                    await DisplayData();
+                    await Device.InvokeOnMainThreadAsync(() => this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList?.LastOrDefault());
+                    await Device.InvokeOnMainThreadAsync(async () => await DisplayData());
                     await this.ScannerEnable();
                 }
             }
@@ -2721,7 +2716,6 @@
         {
             try
             {
-                Console.WriteLine("_______ REFRESH_DATA!!!");
                 this.ActItem.RegLayerListenerProgOut(this);
 
                 this.ActItem.ListItems = null;
@@ -2735,7 +2729,7 @@
                     this.DataGridMainActivityItemsList = this.ActItem.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
                     this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
 
-                    if (this.ActItem.ListItems.Count > 0 && this.DataGridMainActivityItemsList.Count > 0)
+                    if (this.ActItem.ListItems?.Count > 0 && this.DataGridMainActivityItemsList?.Count > 0)
                     {
                         if (this.dataGridMainActivity.SelectedItem == null)
                         {
@@ -2743,8 +2737,9 @@
                         }
                         else
                         {
-                            object selectedItem = this.DataGridMainActivityItemsList.Where(item =>
+                            object selectedItem = this.DataGridMainActivityItemsList?.Where(item =>
                             Convert.ToInt32(item.GetType().GetProperty("ActivityItemRefno")?.GetValue(item)) == Convert.ToInt32(this.dataGridMainActivity.SelectedItem.GetType().GetProperty("ActivityItemRefno")?.GetValue(this.dataGridMainActivity.SelectedItem))).FirstOrDefault();
+                            this.dataGridMainActivity.SelectedItem = null;
                             this.dataGridMainActivity.SelectedItem = selectedItem;
                         }
                     }
@@ -2768,8 +2763,6 @@
                     GC.Collect();
                     GC.WaitForPendingFinalizers();
                 });
-
-                this.Loading = false;
             }
         }
 
@@ -3116,14 +3109,23 @@
             }
         }
 
-        private void TxtSearchItem_TextChanged(object sender, TextChangedEventArgs e)
+        private async void TxtSearchItem_TextChanged(object sender, TextChangedEventArgs e)
         {
-            this.IsChangesMade = true;
             this.DataGridMainActivityItemsList = null;
             this.dataGridMainActivity.ItemsSource = null;
 
             this.DataGridMainActivityItemsList = this.ActItem.Search(this.txtSearchItem.Text);
-            this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
+
+            await Device.InvokeOnMainThreadAsync(() =>
+            {
+                this.dataGridMainActivity.SelectedItem = null;
+                this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
+
+                if (this.DataGridMainActivityItemsList?.Count > 0)
+                {
+                    this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[0];
+                }
+            });
         }
 
         private void TxtSearchItem_Focused(object sender, FocusEventArgs e)
@@ -3134,7 +3136,6 @@
 
         private void UpdnBarCodeModifier1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            this.IsChangesMade = true;
             this.SysEnv.CurrentBarCodeModifier1 = this.updnBarCodeModifier1.SelectedItem.ToString();
         }
 

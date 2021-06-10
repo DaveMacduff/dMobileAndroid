@@ -1710,7 +1710,7 @@ namespace dMobile.View.Options
         {
             this.SysEnv.RefreshOpt = this.SysEnv.RefreshOpt.LoadData();
 
-            Device.BeginInvokeOnMainThread(() =>
+            await Device.InvokeOnMainThreadAsync(() =>
             {
                 ItemsList.Add(new Message() { MessageIndex = this.messageIndex++, MessageValue = Resource.LastRefresh + " " + this.SysEnv.RefreshOpt.RefreshedDataLast.ToString() });
                 ItemsList.Add(new Message() { MessageIndex = this.messageIndex++, MessageValue = Resource.RefreshChangesOnly + " " + this.SysEnv.RefreshOpt.IsRefreshedLastDataChangesOnly.ToString() });
@@ -1765,7 +1765,7 @@ namespace dMobile.View.Options
             Device.BeginInvokeOnMainThread(() =>
             {
                 this.ItemsList.Add(new Message() { MessageIndex = this.messageIndex++, MessageValue = message });
-                this.lstStatus.ScrollTo(this.ItemsList.LastOrDefault(), ScrollToPosition.MakeVisible, true);
+                this.lstStatus.ScrollTo(this.ItemsList.LastOrDefault(), ScrollToPosition.MakeVisible, false);
             });
         }
 
