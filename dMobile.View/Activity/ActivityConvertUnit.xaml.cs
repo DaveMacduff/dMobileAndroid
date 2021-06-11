@@ -89,18 +89,6 @@ namespace dMobile.View.Activity
                 }
 
                 this.updnBarCodeModifier1.SelectedItem = this.SysEnv.CurrentBarCodeModifier1;
-
-                this.Activity = ActivityFacade.GetActivity(SysCommon.ActSubTypes.ConvertUnit);
-                this.Activity.SkidInfo = new SysSkidInfo();
-                this.Activity.ActSubType = SysCommon.ActSubTypes.ConvertUnit;
-
-                this.ActItem = ActItemFacade.GetActItem(this.Activity, SysCommon.ActSubTypes.ConvertUnit);
-                this.ActItem.ActSubType = this.Activity.ActSubType;
-                this.ActItem.GetActivityItemList(false);
-
-                this.ActDetail = ActDetailFacade.GetActDetail(this.ActItem, SysCommon.ActSubTypes.ConvertUnit);
-                this.ActDetail.ActSubType = this.ActItem.ActSubType;
-
                 this.Title = this.GetControlDescription();
             }
         }
@@ -137,28 +125,30 @@ namespace dMobile.View.Activity
 
             MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
             {
-                // TODO: Verify keycodes
-                Enum.TryParse(keyPressed, out Keycode keycode);
-
-                if (keycode == Keycode.Enter || keycode == Keycode.F1)
+                if (!this.Loading)
                 {
-                    if (await this.SaveChanges())
-                    {
-                        await this.Close();
-                    }
-                }
-                else if (keycode == Keycode.F2)
-                {
-                    if (this.dgUnitWeight.SelectedItem is ConvertUnitDetail convertUnitDetail)
-                    {
-                        ucActivityConvertUnitWeightEdit activityConvertUnitWeightEdit = new ucActivityConvertUnitWeightEdit(convertUnitDetail);
+                    // TODO: Verify keycodes
+                    Enum.TryParse(keyPressed, out Keycode keycode);
 
-                        if (await activityConvertUnitWeightEdit.ShowDialog() == DialogResult.OK && activityConvertUnitWeightEdit.WeightHasChanged)
+                    if (keycode == Keycode.Enter || keycode == Keycode.F1)
+                    {
+                        if (await this.SaveChanges())
                         {
-                            // TODO: Determine type
-                            (this.dgUnitWeight.SelectedItem as dynamic).ActivityDetailWeightQuantity = activityConvertUnitWeightEdit.EditedWeight;
-                            await this.DisplayData();
-                            await this.DesignObservableCollection();
+                            await this.Close();
+                        }
+                    }
+                    else if (keycode == Keycode.F2)
+                    {
+                        if (this.dgUnitWeight.SelectedItem is ConvertUnitDetail convertUnitDetail)
+                        {
+                            ucActivityConvertUnitWeightEdit activityConvertUnitWeightEdit = new ucActivityConvertUnitWeightEdit(convertUnitDetail);
+
+                            if (await activityConvertUnitWeightEdit.ShowDialog() == DialogResult.OK && activityConvertUnitWeightEdit.WeightHasChanged)
+                            {
+                                convertUnitDetail.ActivityDetailWeightQuantity = activityConvertUnitWeightEdit.EditedWeight;
+                                await this.DisplayData();
+                                await this.DesignObservableCollection();
+                            }
                         }
                     }
                 }
@@ -166,9 +156,23 @@ namespace dMobile.View.Activity
 
             try
             {
+                this.Loading = true;
+
                 if (this.firstAppearance)
                 {
                     this.firstAppearance = false;
+
+                    this.Activity = ActivityFacade.GetActivity(SysCommon.ActSubTypes.ConvertUnit);
+                    this.Activity.SkidInfo = new SysSkidInfo();
+                    this.Activity.ActSubType = SysCommon.ActSubTypes.ConvertUnit;
+
+                    this.ActItem = ActItemFacade.GetActItem(this.Activity, SysCommon.ActSubTypes.ConvertUnit);
+                    this.ActItem.ActSubType = this.Activity.ActSubType;
+                    await this.ActItem.GetActivityItemList(false);
+
+                    this.ActDetail = ActDetailFacade.GetActDetail(this.ActItem, SysCommon.ActSubTypes.ConvertUnit);
+                    this.ActDetail.ActSubType = this.ActItem.ActSubType;
+
                     await this.DesignObservableCollection();
                 }
 
@@ -178,6 +182,10 @@ namespace dMobile.View.Activity
             {
                 // TODO: Resource strings
                 await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "this.ucActivityConvertUnit_GotFocus threw an error " + ex, "OK"));
+            }
+            finally
+            {
+                this.Loading = false;
             }
         }
 
@@ -857,6 +865,10 @@ namespace dMobile.View.Activity
                             }
                         }
                     }
+                }
+                catch (TaskCanceledException ex)
+                {
+                    // Do nothing, task cancelled by user
                 }
                 catch (Exceptions.MessageOnlyException ex)
                 {

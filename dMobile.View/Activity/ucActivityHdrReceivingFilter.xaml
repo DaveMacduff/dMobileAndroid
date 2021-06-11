@@ -68,7 +68,7 @@
                                 <customcontrols:CustomSwitch x:Name="chkApplyArrivalDate" Grid.Row="0" Grid.Column="1" VerticalOptions="CenterAndExpand"/>
 
                                 <Label x:Name="lblArrivalDate" Text="Arrival" Grid.Row="1" Grid.Column="0" VerticalOptions="CenterAndExpand"/>
-                                <DatePicker x:Name="dtpArrivalDate" Grid.Row="1" Grid.Column="1" VerticalOptions="CenterAndExpand"/>
+                                <DatePicker x:Name="dtpArrivalDate" Grid.Row="1" Grid.Column="1" VerticalOptions="CenterAndExpand" DateSelected="dtpArrivalDate_DateSelected"/>
                             </Grid>
                         </Frame>
 

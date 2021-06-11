@@ -743,6 +743,10 @@ namespace dMobile.View.Activity
 
                 this.DisplaySummaryData();
             }
+            catch (TaskCanceledException)
+            {
+                this.CleanUpBarCodeHandler(svdActDetailFKRefno, currRowIdx);
+            }
             catch (IsReadyToApplyException)
             {
                 this.CleanUpBarCodeHandler(svdActDetailFKRefno, currRowIdx);

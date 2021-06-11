@@ -914,7 +914,7 @@ namespace dMobile.View.Activity
                     this.ActDetail.ActExtra.DateTime5 = new DateTime(1980, 1, 1);
 
                     isInsertReady = await SysShared.GatherProductData(this.BarCodeParse, this.ActSubType, this.ActItem, tempItemSchemeData, isInsertReady, this.ActDetail, true);
-                    this.InsertActivityDetail(foundRowIdx, this.ActDetail, this.BarCodeParse, isInsertReady);
+                    await this.InsertActivityDetail(foundRowIdx, this.ActDetail, this.BarCodeParse, isInsertReady);
                 }
             }
             catch (GatherProductDataException ex)
@@ -956,12 +956,12 @@ namespace dMobile.View.Activity
         /// <param name="actDetail"></param>
         /// <param name="oBarCodeParse"></param>
         /// <remarks></remarks>
-        private void InsertActivityDetail(int rowIdx, ActDetail actDetail, BarCodeParse parse, bool isInsertDetailReady)
+        private async Task InsertActivityDetail(int rowIdx, ActDetail actDetail, BarCodeParse parse, bool isInsertDetailReady)
         {
             if (isInsertDetailReady)
             {
                 XDocument xmlDoc = this.ActDetail.GetXML(this.ActDetail);
-                this.ActDetail.Insert(xmlDoc);
+                await this.ActDetail.Insert(xmlDoc);
 
                 if (this.ActDetail.ListDetails.Count > 0 && this.DataGridMainActivityItemsList.Count > this.ActDetail.ListDetails.Count - 1)
                 {
@@ -1062,7 +1062,7 @@ namespace dMobile.View.Activity
                         }
 
                         isInsertReady = await SysShared.GatherProductData(this.BarCodeParse, this.ActSubType, this.ActItem, tempItemSchemeData, isInsertReady, this.ActDetail, false);
-                        this.InsertActivityDetail(foundRowIdx, this.ActDetail, this.BarCodeParse, isInsertReady);
+                        await this.InsertActivityDetail(foundRowIdx, this.ActDetail, this.BarCodeParse, isInsertReady);
 
                     }
                     else if (!string.IsNullOrEmpty(barCodeParse.ActFKRefno))
@@ -1086,6 +1086,10 @@ namespace dMobile.View.Activity
                         throw new Exceptions.MessageOnlyException("Scanning bar code type is not supported here.");
                     }
                 }
+            }
+            catch (TaskCanceledException)
+            {
+                // Do nothing, task cancelled by user
             }
             catch (Exceptions.MessageOnlyException ex)
             {

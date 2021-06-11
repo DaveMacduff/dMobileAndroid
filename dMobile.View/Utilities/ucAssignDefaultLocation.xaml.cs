@@ -151,11 +151,7 @@
             {
                 base.OnBackButtonPressed();
 
-                if (await this.SaveChanges())
-                {
-                    await this.Close();
-                }
-                else if (await this.CancelChanges())
+                if (await this.CancelChanges())
                 {
                     await this.Close();
                 }
@@ -951,7 +947,7 @@
                                 }
                             }
 
-                            await this.DisplayData();
+                            await Device.InvokeOnMainThreadAsync(async () => await this.DisplayData());
                         }
 
                         // Activity item fk refno
@@ -976,9 +972,13 @@
                         }
                     }
                 }
+                catch (TaskCanceledException)
+                {
+                    // Do nothing, task cancelled by user
+                }
                 catch (Exception ex)
                 {
-                    Device.BeginInvokeOnMainThread(async () =>
+                    await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
                         await errRpt.ShowDialog();

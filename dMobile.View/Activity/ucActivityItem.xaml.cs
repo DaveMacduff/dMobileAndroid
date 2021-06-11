@@ -42,6 +42,7 @@
         private int selectedIndex;
         private List<string> optionsMenuItems = new List<string>();
         private bool firstLoad = true;
+        private bool isAddingDetail = false;
 
         // For handling double click on listview item
         private int numTaps = 0;
@@ -1279,21 +1280,21 @@
                     this.Loading = true;
                     await this.ScannerDisable();
 
+                    while (this.isAddingDetail)
+                    {
+                        // Delay on appearing until detail has been added
+                    }
+
                     if (this.firstLoad)
                     {
                         this.firstLoad = false;
                         await this.ActItem.Refresh(this.ActItem.ActHdr.XMLDataCriteria);
                     }
 
-                    //This prevents UI lag when pushing modal into view
-                    //await Task.Delay(500);
-
                     await Device.InvokeOnMainThreadAsync(() => this.updnBarCodeModifier1.SelectedItem = this.SysEnv.CurrentBarCodeModifier1);
 
                     if (this.IsControlLoaded == false)
                     {
-                        //this.ActItem.DesignDataGrid(this.dataGridMainActivity);
-
                         if (0 < this.LocMap.CurrLocMap.WhsLocMapRefno)
                         {
                             string getCurrentReadableLocation = LocationMapTasks.GetCurrentReadableLocation();
@@ -1336,9 +1337,8 @@
                     }
 
                     await this.ScannerEnable();
-                    this.Loading = false;
-
                     this.IsControlLoaded = true;
+                    this.Loading = false;
                 }
             });
         }
@@ -1562,7 +1562,6 @@
                         {
                             if (this.ActItem.IsAllowAddItem)
                             {
-                                Console.WriteLine("______ INSERTING DETAIL!!!!!!");
                                 await this.ActItem.Insert(xmlDoc, false);
                             }
                             else
@@ -1824,7 +1823,7 @@
                 try
                 {
                     this.Loading = true;
-                    await Device.InvokeOnMainThreadAsync(() => this.dataGridMainActivity.IsEnabled = false);
+                    this.isAddingDetail = true;
                     await this.ScannerDisable();
 
                     if (0 < this.ActItem.ListItems.Count)
@@ -1872,12 +1871,12 @@
                 {
                     await Device.InvokeOnMainThreadAsync(async () =>
                     {
-                        this.dataGridMainActivity.IsEnabled = true;
                         await this.DisplayData();
                     });
 
                     await this.ScannerEnable();
-                    this.Loading = false;
+                    this.isAddingDetail = false;
+                    // Do not need to set this.Loading = false here, onAppearing takes care of it
                 }
             });
         }
@@ -2480,7 +2479,6 @@
             catch (TaskCanceledException)
             {
                 // Do nothing as task is being cancelled from IdentifyProductScanned when user declines to assign barcode to product
-                Console.WriteLine("No product chosen");
             }
             catch (Exceptions.MessageOnlyException ex)
             {
@@ -3111,21 +3109,32 @@
 
         private async void TxtSearchItem_TextChanged(object sender, TextChangedEventArgs e)
         {
-            this.DataGridMainActivityItemsList = null;
-            this.dataGridMainActivity.ItemsSource = null;
-
-            this.DataGridMainActivityItemsList = this.ActItem.Search(this.txtSearchItem.Text);
-
-            await Device.InvokeOnMainThreadAsync(() =>
+            try
             {
-                this.dataGridMainActivity.SelectedItem = null;
-                this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
+                this.DataGridMainActivityItemsList = null;
+                this.dataGridMainActivity.ItemsSource = null;
 
-                if (this.DataGridMainActivityItemsList?.Count > 0)
+                this.DataGridMainActivityItemsList = this.ActItem.Search(this.txtSearchItem.Text);
+
+                await Device.InvokeOnMainThreadAsync(() =>
                 {
-                    this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[0];
-                }
-            });
+                    this.dataGridMainActivity.SelectedItem = null;
+                    this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
+
+                    if (this.DataGridMainActivityItemsList?.Count > 0)
+                    {
+                        this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[0];
+                    }
+                });
+            }
+            catch (NotImplementedException ex)
+            {
+                // Handle not implemented
+                // TODO: Logging
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Not implemented", ex.Message, "OK"));
+                this.txtSearchItem.Text = string.Empty;
+                this.txtSearchItem.IsEnabled = false;
+            }
         }
 
         private void TxtSearchItem_Focused(object sender, FocusEventArgs e)

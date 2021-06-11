@@ -18,6 +18,7 @@ using dMobile.Resources.Types;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace dMobile.View.Activity
 {
@@ -933,7 +934,7 @@ namespace dMobile.View.Activity
 
                                     isInsertReady = await SysShared.GatherProductData(parse, this.ActSubType, this.ActDetail.ActItem, tempItemProdSchemeData, isInsertReady, this.ActDetail, true);
                                     await this.InsertActivityDetail(this.ActDetail, parse, isInsertReady);
-                                    await this.RefreshData();
+                                    await this.RefreshData(isAdding: true);
                                     await this.ActDetail.SelectActivityDetail(this.dataGridMainActivity.SelectedItem);
                                 }
                             }
@@ -973,7 +974,7 @@ namespace dMobile.View.Activity
                 this.Loading = false;
             }
         }
-        
+
         /// <summary>
         ///
         /// </summary>
@@ -1438,7 +1439,7 @@ namespace dMobile.View.Activity
 
                                 isInsertReady = await SysShared.GatherProductData(this.Parse, this.ActSubType, this.ActDetail.ActItem, tempItemProdSchemeData, isInsertReady, this.ActDetail, false);
                                 await this.InsertActivityDetail(this.ActDetail, this.Parse, isInsertReady);
-                                await this.RefreshData();
+                                await this.RefreshData(isAdding: true);
                             }
                         }
                     }
@@ -1550,6 +1551,10 @@ namespace dMobile.View.Activity
                     }
                 }
             }
+            catch (TaskCanceledException)
+            {
+                await this.CleanUpBarCodeHandler(svdActDetailFKRefno, currRowIdx);
+            }
             catch (IsReadyToApplyException)
             {
                 await this.CleanUpBarCodeHandler(svdActDetailFKRefno, currRowIdx);
@@ -1633,7 +1638,7 @@ namespace dMobile.View.Activity
         ///
         /// </summary>
         /// <remarks></remarks>
-        private async Task RefreshData()
+        private async Task RefreshData(bool isAdding = false)
         {
             try
             {
@@ -1642,7 +1647,7 @@ namespace dMobile.View.Activity
                 this.ActDetail.ListDetails = null;
                 this.ActDetail.ListDetails = await this.ActDetail.GetActivityDetailList(false);
 
-                await Device.InvokeOnMainThreadAsync(() =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     this.ItemsList.Clear();
 
@@ -1652,16 +1657,11 @@ namespace dMobile.View.Activity
                     this.DataGridMainActivityItemsList = this.ActDetail.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
                     this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
 
-                    if (this.ActDetail.ListDetails.Count > 0 && this.DataGridMainActivityItemsList.Count > 0)
+                    if (this.ActDetail?.ListDetails?.Count > 0 && this.DataGridMainActivityItemsList?.Count > 0)
                     {
-                        this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[0];
-                        this.ActDetail.SelectActivityDetail(this.dataGridMainActivity.SelectedItem);
+                        this.dataGridMainActivity.SelectedItem = isAdding == false ? this.DataGridMainActivityItemsList[0] : this.DataGridMainActivityItemsList.LastOrDefault();
+                        await this.ActDetail.SelectActivityDetail(this.dataGridMainActivity.SelectedItem);
                     }
-                    else if (this.DataGridMainActivityItemsList.Count > this.SelectedIndex)
-                    {
-                        this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[this.SelectedIndex];
-                    }
-
                 });
             }
             catch (Exception ex)

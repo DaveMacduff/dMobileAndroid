@@ -471,9 +471,9 @@ namespace dMobile.View.Activity
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        public void DataGridMainActivity_ItemSelected(object sender, SelectedItemChangedEventArgs e)
+        public async void DataGridMainActivity_ItemSelected(object sender, SelectedItemChangedEventArgs e)
         {
-            this.Activity.SelectActivity(e.SelectedItem);
+            await this.Activity.SelectActivity(e.SelectedItem);
         }
 
         /// <summary>
@@ -534,10 +534,10 @@ namespace dMobile.View.Activity
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        public void cmdAdd_Click(object sender, EventArgs e)
+        public async void cmdAdd_Click(object sender, EventArgs e)
         {
             XDocument xmlDoc = null;
-            this.Activity.Insert(xmlDoc);
+            await this.Activity.Insert(xmlDoc);
         }
 
         /// <summary>

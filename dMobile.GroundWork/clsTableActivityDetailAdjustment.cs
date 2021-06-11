@@ -169,7 +169,7 @@
             int actItemAdjFKRefno = 0;
 
             string query = "SELECT * FROM tActivityItemAdjustment WHERE ActivityItemRefno = ?";
-            List<tActivityItemAdjustmentModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityItemAdjustmentModel>(query, Convert.ToInt32(SysCommon.ActSubTypes.Adjustment));
+            List<tActivityItemAdjustmentModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityItemAdjustmentModel>(query, actItemAdjRefno);
 
             if (results != null && results.Count > 0)
             {
@@ -402,7 +402,6 @@
                                 }
                                 else
                                 {
-                                    parametersInsertDetail.Add(Convert.ToInt32(0));
                                     parametersInsertDetail.Add(drow["ActivityDetailUniqueSchemeID"].ToString());
                                     parametersInsertDetail.Add(drow["ActivityDetailSchemeID"].ToString());
                                     parametersInsertDetail.Add(drow["ActivityDetailQuantity"].ToString());

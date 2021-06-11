@@ -17,6 +17,7 @@ using Android.Views;
 using System.Collections.ObjectModel;
 using System.Runtime.CompilerServices;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace dMobile.View.Activity
 {
@@ -521,7 +522,7 @@ namespace dMobile.View.Activity
 
                     // Clear this.ActDetail. If false is passed for parameter isAdd, attempt to read data from
                     // DataViewDetail is made which has not data. = error.
-                    this.ActDetail = await this.ActDetail.GetInfo(this.ActDetail.ListDetails[0], true);
+                    this.ActDetail = await this.ActDetail.GetInfo(this.ActDetail.ListDetails.Count > 0 ? this.ActDetail.ListDetails.LastOrDefault() : null, true);
 
                     SysCommon.SFillQuantity fillQty = SysCommon.FillQuantityStructureFromQuantity((ProductInfo)this.ActItem.ProdInfo, this.ActDetailOnSkid.Quantity);
 
@@ -1146,17 +1147,20 @@ namespace dMobile.View.Activity
                 {
                     await actDetail.Insert(xmlDoc);
 
-                    if (actDetail.ListDetails.Count > 0)
+                    await Device.InvokeOnMainThreadAsync(() =>
                     {
-                        this.DataGridMainActivityItemsList = actDetail.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
-                        this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
-                        this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[actDetail.ListDetails.Count - 1];
-                    }
-                    else
-                    {
-                        this.DataGridMainActivityItemsList = this.ActDetailOnSkid.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
-                        this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
-                    }
+                        if (actDetail.ListDetails.Count > 0)
+                        {
+                            this.DataGridMainActivityItemsList = actDetail.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
+                            this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
+                            this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[actDetail.ListDetails.Count - 1];
+                        }
+                        else
+                        {
+                            this.DataGridMainActivityItemsList = this.ActDetailOnSkid.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
+                            this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
+                        }
+                    });
                 }
             }
         }
@@ -1174,230 +1178,237 @@ namespace dMobile.View.Activity
                 return;
             }
 
-            this.Loading = true;
-            int prodUnitRefno = 0;
-            int svdActDetailFKRefno = this.ActDetailOnSkid.FKRefno;
-
-            try
+            await Task.Run(async () =>
             {
-                this.BarCodeParse = scanArgs.ParseInfo;
+                this.Loading = true;
+                int prodUnitRefno = 0;
+                int svdActDetailFKRefno = this.ActDetailOnSkid.FKRefno;
 
-                await this.ScannerDisable();
-
-                if (!string.IsNullOrEmpty(this.BarCodeParse.LocationIdentifier))
+                try
                 {
-                    this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(await LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(this.BarCodeParse.LocationIdentifier));
+                    this.BarCodeParse = scanArgs.ParseInfo;
 
-                    if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
+                    await this.ScannerDisable();
+
+                    if (!string.IsNullOrEmpty(this.BarCodeParse.LocationIdentifier))
                     {
-                        this.cmdLocation.Text = LocationMapTasks.GetCurrentReadableLocation();
-                    }
-                    else
-                    {
-                        // TODO: Resource strings
-                        this.cmdLocation.Text = "Set To Location";
-                    }
-                }
-                else
-                {
-                    if (!string.IsNullOrEmpty(this.BarCodeParse.ProductIdentifier))
-                    {
-                        if (!await LocationMapTasks.IsCompleteLocMapRefno(this.LocMap.CurrLocMapRefno))
+                        this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(await LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(this.BarCodeParse.LocationIdentifier));
+
+                        if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
                         {
-                            // TODO: Resource strings
-                            throw new Exceptions.MessageOnlyException("Location must be set first.");
+                            await Device.InvokeOnMainThreadAsync(() => this.cmdLocation.Text = LocationMapTasks.GetCurrentReadableLocation());
                         }
                         else
                         {
+                            // TODO: Resource strings
+                            await Device.InvokeOnMainThreadAsync(() => this.cmdLocation.Text = "Set To Location");
+                        }
+                    }
+                    else
+                    {
+                        if (!string.IsNullOrEmpty(this.BarCodeParse.ProductIdentifier))
+                        {
+                            if (!await LocationMapTasks.IsCompleteLocMapRefno(this.LocMap.CurrLocMapRefno))
+                            {
+                                // TODO: Resource strings
+                                throw new Exceptions.MessageOnlyException("Location must be set first.");
+                            }
+                            else
+                            {
+                                if (this.Activity.SkidInfo.CurrSkid.SkidFKRefno == 0)
+                                {
+                                    // TODO: Resource strings
+                                    throw new Exceptions.MessageOnlyException("A skid must be selected first before scanning any product detail.");
+                                }
+
+                                prodUnitRefno = await SysShared.IdentifyProductScanned(this.ActSubType, this.BarCodeParse, prodUnitRefno);
+
+                                if (this.Activity.SkidInfo.CurrSkid.ProdInfo.UnitRefno != prodUnitRefno)
+                                {
+                                    // TODO: Resource strings
+                                    throw new Exceptions.MessageOnlyException("Identified scanned product does not match the selected skid product.");
+                                }
+
+                                await this.GatherProductData(scanArgs.ParseInfo);
+                            }
+                        }
+                        else if (!string.IsNullOrEmpty(BarCodeParse.ActFKRefno))
+                        {
+                            // TODO: Resource strings
+                            throw new Exceptions.MessageOnlyException("Scanning an activity header reference # is not supported here.");
+                        }
+                        else if (!string.IsNullOrEmpty(BarCodeParse.ActItemFKRefno))
+                        {
+                            // TODO: Resource strings
+                            throw new Exceptions.MessageOnlyException("Scanning an activity item reference # is not supported here.");
+                        }
+                        else if (!string.IsNullOrEmpty(this.BarCodeParse.SSCC18))
+                        {
+                            if (!this.SysEnv.SysSettings.IsSkidTrackingModule)
+                            {
+                                // TODO: Resource strings
+                                throw new Exceptions.MessageOnlyException("Scanning a shipping container bar code is not enabled.");
+                            }
+
+                            if (this.SysEnv.SysSettings.IsDisconnectedMode)
+                            {
+                                // TODO: Resource strings
+                                throw new Exceptions.MessageOnlyException("Scanning a shipping container bar code is not supported in disconnected mode.");
+                            }
+
+                            await this.ClearContents();
+
+                            this.Activity.SkidInfo = await SysSkidInfo.GetSkidInfoFromBarCodeOrCode(scanArgs.ParseInfo.SSCC18);
+
                             if (this.Activity.SkidInfo.CurrSkid.SkidFKRefno == 0)
                             {
                                 // TODO: Resource strings
-                                throw new Exceptions.MessageOnlyException("A skid must be selected first before scanning any product detail.");
+                                throw new Exceptions.MessageOnlyException("Skid does not exist.");
                             }
 
-                            prodUnitRefno = await SysShared.IdentifyProductScanned(this.ActSubType, this.BarCodeParse, prodUnitRefno);
+                            if (this.Activity.SkidInfo.CurrSkid.SkidFKRefno != 0)
+                            {
+                                await Device.InvokeOnMainThreadAsync(() => this.cmdAddProduct.IsEnabled = true);
 
-                            if (this.Activity.SkidInfo.CurrSkid.ProdInfo.UnitRefno != prodUnitRefno)
+                                // TODO: Resource strings
+                                await Device.InvokeOnMainThreadAsync(() => this.cmdSelectSkid.Text = "Skid# " + Activity.SkidInfo.CurrSkid.SkidCode);
+
+                                await Device.InvokeOnMainThreadAsync(() => this.ItemsList.Clear());
+
+                                // TODO: Resource strings
+                                this.ItemsList.Add("Skid Product: " + ProductInfoTasks.GetCurrReadableProdBCUnit(this.Activity.SkidInfo.CurrSkid.ProdInfo));
+                                this.ItemsList.Add("Skid Location: " + LocationMapTasks.GetCurrentReadableLocation(this.Activity.SkidInfo.CurrSkid.LocMap));
+
+                                await Device.InvokeOnMainThreadAsync(async () => this.cmdLocation.IsEnabled = true);
+                                await Device.InvokeOnMainThreadAsync(() => this.cmdLocation.Text = LocationMapTasks.GetCurrentReadableLocation(this.Activity.SkidInfo.CurrSkid.LocMap));
+
+                                this.Activity.FKRefno = this.Activity.SkidInfo.CurrSkid.SkidFKRefno;
+                                this.Activity.Refno = this.Activity.SkidInfo.CurrSkid.SkidFKRefno;
+
+                                this.ActItem.FKRefno = this.Activity.SkidInfo.CurrSkid.SkidFKRefno;
+                                this.ActItem.Refno = this.Activity.SkidInfo.CurrSkid.SkidFKRefno;
+                                this.ActItem.LocMap = this.LocMap;
+                                this.ActItem.ProdInfo = this.Activity.SkidInfo.CurrSkid.ProdInfo;
+                                this.ActItem.ProdInfo.Unit2BaseUnitFactor = await ProductInfoTasks.GetUnitRelationFactor(this.ActItem.ProdInfo);
+
+                                this.OrigProdInfoOnSkid = this.ActItem.ProdInfo;
+
+                                this.ActDetailOnSkid.LocMap = this.ActItem.LocMap;
+                                SProductSchemeData tempSchemeData = this.ActDetailOnSkid.SchemeData;
+                                tempSchemeData.LogisticUnitSkidNumber = this.ActDetailOnSkid.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode;
+                                this.ActDetailOnSkid.SchemeData = tempSchemeData;
+
+                                await this.ActDetailOnSkid.Refresh();
+                            }
+                            else
                             {
                                 // TODO: Resource strings
-                                throw new Exceptions.MessageOnlyException("Identified scanned product does not match the selected skid product.");
+                                await Device.InvokeOnMainThreadAsync(() => this.cmdSelectSkid.Text = "Select Skid");
                             }
-
-                            await this.GatherProductData(scanArgs.ParseInfo);
-                        }
-                    }
-                    else if (!string.IsNullOrEmpty(BarCodeParse.ActFKRefno))
-                    {
-                        // TODO: Resource strings
-                        throw new Exceptions.MessageOnlyException("Scanning an activity header reference # is not supported here.");
-                    }
-                    else if (!string.IsNullOrEmpty(BarCodeParse.ActItemFKRefno))
-                    {
-                        // TODO: Resource strings
-                        throw new Exceptions.MessageOnlyException("Scanning an activity item reference # is not supported here.");
-                    }
-                    else if (!string.IsNullOrEmpty(this.BarCodeParse.SSCC18))
-                    {
-                        if (!this.SysEnv.SysSettings.IsSkidTrackingModule)
-                        {
-                            // TODO: Resource strings
-                            throw new Exceptions.MessageOnlyException("Scanning a shipping container bar code is not enabled.");
-                        }
-
-                        if (this.SysEnv.SysSettings.IsDisconnectedMode)
-                        {
-                            // TODO: Resource strings
-                            throw new Exceptions.MessageOnlyException("Scanning a shipping container bar code is not supported in disconnected mode.");
-                        }
-
-                        await this.ClearContents();
-
-                        this.Activity.SkidInfo = await SysSkidInfo.GetSkidInfoFromBarCodeOrCode(scanArgs.ParseInfo.SSCC18);
-
-                        if (this.Activity.SkidInfo.CurrSkid.SkidFKRefno == 0)
-                        {
-                            // TODO: Resource strings
-                            throw new Exceptions.MessageOnlyException("Skid does not exist.");
-                        }
-
-                        if (this.Activity.SkidInfo.CurrSkid.SkidFKRefno != 0)
-                        {
-                            this.cmdAddProduct.IsEnabled = true;
-
-                            // TODO: Resource strings
-                            this.cmdSelectSkid.Text = "Skid# " + Activity.SkidInfo.CurrSkid.SkidCode;
-
-                            this.ItemsList.Clear();
-
-                            // TODO: Resource strings
-                            this.ItemsList.Add("Skid Product: " + ProductInfoTasks.GetCurrReadableProdBCUnit(this.Activity.SkidInfo.CurrSkid.ProdInfo));
-                            this.ItemsList.Add("Skid Location: " + LocationMapTasks.GetCurrentReadableLocation(this.Activity.SkidInfo.CurrSkid.LocMap));
-
-                            this.cmdLocation.IsEnabled = true;
-                            this.cmdLocation.Text = LocationMapTasks.GetCurrentReadableLocation(this.Activity.SkidInfo.CurrSkid.LocMap);
-
-                            this.Activity.FKRefno = this.Activity.SkidInfo.CurrSkid.SkidFKRefno;
-                            this.Activity.Refno = this.Activity.SkidInfo.CurrSkid.SkidFKRefno;
-
-                            this.ActItem.FKRefno = this.Activity.SkidInfo.CurrSkid.SkidFKRefno;
-                            this.ActItem.Refno = this.Activity.SkidInfo.CurrSkid.SkidFKRefno;
-                            this.ActItem.LocMap = this.LocMap;
-                            this.ActItem.ProdInfo = this.Activity.SkidInfo.CurrSkid.ProdInfo;
-                            this.ActItem.ProdInfo.Unit2BaseUnitFactor = await ProductInfoTasks.GetUnitRelationFactor(this.ActItem.ProdInfo);
-
-                            this.OrigProdInfoOnSkid = this.ActItem.ProdInfo;
-
-                            this.ActDetailOnSkid.LocMap = this.ActItem.LocMap;
-                            SProductSchemeData tempSchemeData = this.ActDetailOnSkid.SchemeData;
-                            tempSchemeData.LogisticUnitSkidNumber = this.ActDetailOnSkid.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode;
-                            this.ActDetailOnSkid.SchemeData = tempSchemeData;
-
-                            await this.ActDetailOnSkid.Refresh();
                         }
                         else
                         {
                             // TODO: Resource strings
-                            this.cmdSelectSkid.Text = "Select Skid";
+                            throw new Exceptions.MessageOnlyException("Scanned bar code type is not supported here.");
                         }
+                    }
+                }
+                catch (TaskCanceledException)
+                {
+                    // Do nothing, task cancelled by user
+                }
+                catch (Exceptions.MessageOnlyException ex)
+                {
+                    ex.Show(this.ActSubType);
+
+                    if (this.ActDetailOnSkid.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
+                    {
+                        // TODO: Resource strings
+                        await Device.InvokeOnMainThreadAsync(() => this.cmdSelectSkid.Text = "Skid# " + this.ActDetailOnSkid.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode);
                     }
                     else
                     {
                         // TODO: Resource strings
-                        throw new Exceptions.MessageOnlyException("Scanned bar code type is not supported here.");
+                        await Device.InvokeOnMainThreadAsync(() => this.cmdSelectSkid.Text = "Select Skid");
+                    }
+
+                    this.ActDetailOnSkid.FKRefno = svdActDetailFKRefno;
+                }
+                catch (IsReadyToApplyException ex)
+                {
+                    if (this.ActDetailOnSkid.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
+                    {
+                        // TODO: Resource strings
+                        await Device.InvokeOnMainThreadAsync(() => this.cmdSelectSkid.Text = "Skid# " + this.ActDetailOnSkid.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode);
+                    }
+                    else
+                    {
+                        // TODO: Resource strings
+                        await Device.InvokeOnMainThreadAsync(() => this.cmdSelectSkid.Text = "Select Skid");
+                    }
+
+                    this.ActDetailOnSkid.FKRefno = svdActDetailFKRefno;
+
+                    if (!ex.SuppressError)
+                    {
+                        await Device.InvokeOnMainThreadAsync(async () =>
+                        {
+                            FormErrorReport errorReport = new FormErrorReport(this.ActSubType, ex);
+                            await errorReport.ShowDialog();
+                        });
                     }
                 }
-            }
-            catch (Exceptions.MessageOnlyException ex)
-            {
-                ex.Show(this.ActSubType);
+                catch (GatherProductDataException ex)
+                {
+                    if (this.ActDetailOnSkid.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
+                    {
+                        // TODO: Resource strings
+                        await Device.InvokeOnMainThreadAsync(() => this.cmdSelectSkid.Text = "Skid# " + this.ActDetailOnSkid.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode);
+                    }
+                    else
+                    {
+                        // TODO: Resource strings
+                        await Device.InvokeOnMainThreadAsync(() => this.cmdSelectSkid.Text = "Select Skid");
+                    }
 
-                if (this.ActDetailOnSkid.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
-                {
-                    // TODO: Resource strings
-                    this.cmdSelectSkid.Text = "Skid# " + this.ActDetailOnSkid.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode;
-                }
-                else
-                {
-                    // TODO: Resource strings
-                    this.cmdSelectSkid.Text = "Select Skid";
-                }
+                    this.ActDetailOnSkid.FKRefno = svdActDetailFKRefno;
 
-                this.ActDetailOnSkid.FKRefno = svdActDetailFKRefno;
-            }
-            catch (IsReadyToApplyException ex)
-            {
-                if (this.ActDetailOnSkid.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
-                {
-                    // TODO: Resource strings
-                    this.cmdSelectSkid.Text = "Skid# " + this.ActDetailOnSkid.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode;
+                    if (!ex.SuppressError)
+                    {
+                        await Device.InvokeOnMainThreadAsync(async () =>
+                        {
+                            FormErrorReport errorReport = new FormErrorReport(this.ActSubType, ex);
+                            await errorReport.ShowDialog();
+                        });
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
-                    // TODO: Resource strings
-                    this.cmdSelectSkid.Text = "Select Skid";
-                }
+                    if (this.ActDetailOnSkid.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
+                    {
+                        // TODO: Resource strings
+                        await Device.InvokeOnMainThreadAsync(() => this.cmdSelectSkid.Text = "Skid# " + this.ActDetailOnSkid.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode);
+                    }
+                    else
+                    {
+                        // TODO: Resource strings
+                        await Device.InvokeOnMainThreadAsync(() => this.cmdSelectSkid.Text = "Select Skid");
+                    }
 
-                this.ActDetailOnSkid.FKRefno = svdActDetailFKRefno;
+                    this.ActDetailOnSkid.FKRefno = svdActDetailFKRefno;
 
-                if (!ex.SuppressError)
-                {
                     await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         FormErrorReport errorReport = new FormErrorReport(this.ActSubType, ex);
                         await errorReport.ShowDialog();
                     });
                 }
-            }
-            catch (GatherProductDataException ex)
-            {
-                if (this.ActDetailOnSkid.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
+                finally
                 {
-                    // TODO: Resource strings
-                    this.cmdSelectSkid.Text = "Skid# " + this.ActDetailOnSkid.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode;
+                    await this.ScannerEnable();
+                    this.Loading = false;
                 }
-                else
-                {
-                    // TODO: Resource strings
-                    this.cmdSelectSkid.Text = "Select Skid";
-                }
-
-                this.ActDetailOnSkid.FKRefno = svdActDetailFKRefno;
-
-                if (!ex.SuppressError)
-                {
-                    await Device.InvokeOnMainThreadAsync(async () =>
-                    {
-                        FormErrorReport errorReport = new FormErrorReport(this.ActSubType, ex);
-                        await errorReport.ShowDialog();
-                    });
-                }
-            }
-            catch (Exception ex)
-            {
-                if (this.ActDetailOnSkid.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
-                {
-                    // TODO: Resource strings
-                    this.cmdSelectSkid.Text = "Skid# " + this.ActDetailOnSkid.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode;
-                }
-                else
-                {
-                    // TODO: Resource strings
-                    this.cmdSelectSkid.Text = "Select Skid";
-                }
-
-                this.ActDetailOnSkid.FKRefno = svdActDetailFKRefno;
-
-                await Device.InvokeOnMainThreadAsync(async () =>
-                {
-                    FormErrorReport errorReport = new FormErrorReport(this.ActSubType, ex);
-                    await errorReport.ShowDialog();
-                });
-            }
-            finally
-            {
-                await this.ScannerEnable();
-                this.Loading = false;
-            }
+            });
         }
 
         private async Task GatherProductData(BarCodeParse barParse)

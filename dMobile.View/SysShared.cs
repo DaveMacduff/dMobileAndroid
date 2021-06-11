@@ -174,7 +174,8 @@ namespace dMobile.View
                         catch (Exception ex)
                         {
                             // TODO: Resource strings
-                            await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert("Identify Product", ex.Message, "OK"));
+                            // await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert("Identify Product", ex.Message, "OK"));
+                            throw ex;
                         }
                     }
 
@@ -189,6 +190,10 @@ namespace dMobile.View
                         if (await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert("Activity Item", msg, "Yes", "No")))
                         {
                             selectedYes = true;
+                        }
+                        else
+                        {
+                            throw new TaskCanceledException();
                         }
 
                         // Changed functionality to disallow product scanning everywhere.
@@ -219,6 +224,10 @@ namespace dMobile.View
                                 if (await Device.InvokeOnMainThreadAsync(async () => await frmSelectProduct.DisplayControl.ShowDialog() == DialogResult.OK))
                                 {
                                     continueAssocBarCode = true;
+                                }
+                                else
+                                {
+                                    throw new TaskCanceledException();
                                 }
 
                                 if (continueAssocBarCode)
@@ -258,7 +267,7 @@ namespace dMobile.View
                             else
                             {
                                 // TODO: Resource strings
-                                Exception ex = new Exception("Product not identified.");
+                                Exception ex = new Exception("Manual override failed.");
                                 throw ex;
                             }
                         }
@@ -267,7 +276,8 @@ namespace dMobile.View
             }
             catch (Exception ex)
             {
-                await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert("Error", "Error identifying product scanned." + Environment.NewLine + ex.Message, "OK"));
+                // await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert("Error", "Error identifying product scanned." + Environment.NewLine + ex.Message, "OK"));
+                throw ex;
             }
 
             return prodUnitRefno;

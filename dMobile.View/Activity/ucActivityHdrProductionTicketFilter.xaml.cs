@@ -124,7 +124,7 @@ namespace dMobile.View.Activity
 
             try
             {
-                this.ucActivityHdrProductionFilter_GotFocus(this, new EventArgs());
+                this.ucActivityHdrProductionFilter_GotFocus();
             }
             catch (Exception ex)
             {
@@ -288,7 +288,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         private void LoadData()
         {
-            TicketSettings.LoadData();
+            this.TicketSettings = TicketSettings.LoadData();
 
             if (SysCommon.IsEmptyDate(TicketSettings.ProductionDateFilter))
             {
@@ -354,16 +354,11 @@ namespace dMobile.View.Activity
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        public void ucActivityHdrProductionFilter_GotFocus(object sender, EventArgs e)
+        public void ucActivityHdrProductionFilter_GotFocus()
         {
             if (!SysEnvironment.GetInstance().IsApplicationExitInvoked)
             {
-                //Reload oProductionTicketSettings because intial values will be scewed because of SelectedIndexChanged events firing
-                if (!IsControlLoaded)
-                {
-                    LoadData();
-                }
-
+                LoadData();
                 dtpProductionDate.Date = TicketSettings.ProductionDateFilter;
                 chkApplyProductionDate.IsToggled = TicketSettings.IsApplyProductionDateFilter;
 

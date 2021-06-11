@@ -265,10 +265,10 @@
                                 {
                                     actItemRefno,
                                     Convert.ToInt32(SysCommon.ActSubTypes.Adjustment),
-                                    prodUnitRefno,
-                                    locMapRefno,
                                     actItemAdjFKRefno,
                                     Convert.ToString(actItemAdjFKRefno),
+                                    prodUnitRefno,
+                                    locMapRefno,
                                     Convert.ToDecimal(drow["ActivityItemAdjustmentQuantity"]),
                                     Convert.ToDecimal(drow["ActivityItemAdjustmentBaseQuantity"]),
                                     Convert.ToDecimal(drow["ActivityItemAdjustmentWeightQuantity"]),

@@ -69,7 +69,6 @@ namespace dMobile.View.Activity
             this.SysEnv = SysEnvironment.GetInstance();
             this.LocMap = LocationMap.GetInstance();
             this.SavedLocMap = this.LocMap.CurrLocMap;
-            ////this.CallingActSubType = SysCommon.ActSubTypes.NotApplicable;
             this.CallingActSubType = SysCommon.ActSubTypes.SkidInfo;
             this.Scanner = BarCodeSingleton.GetInstance().Scanner;
             this.IsNewSkid = true;
@@ -311,7 +310,7 @@ namespace dMobile.View.Activity
                                 // Update the saved skid, to reflect dtec changes after the call GetSkidInfoFromBarCodeOrCode.
                                 // The changes in dtec are valid.
                                 this.SavedSkidInfo = this.actItem.ActHdr.SkidInfo;
-                                this.EnableControls();
+                                await Device.InvokeOnMainThreadAsync(async () => this.EnableControls());
                             }
                             catch (Exceptions.MessageOnlyException ex)
                             {
@@ -322,7 +321,7 @@ namespace dMobile.View.Activity
                             {
                                 this.SkidInfo = this.actItem.ActHdr.SkidInfo;
                                 FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.SkidInfo, ex);
-                                await errRpt.ShowDialog();
+                                await Device.InvokeOnMainThreadAsync(async () => await errRpt.ShowDialog());
                             }
 
                             if (this.actItem.ActHdr.SkidInfo == null || this.actItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
@@ -1011,7 +1010,7 @@ namespace dMobile.View.Activity
                         this.LocMap.CurrLocMap = this.SkidInfo.CurrSkid.LocMap;
                         this.ProdUnitRefno = this.SkidInfo.CurrSkid.ProdInfo.UnitRefno;
                         this.IsNewSkid = false;
-                        this.EnableControls();
+                        await Device.InvokeOnMainThreadAsync(() => this.EnableControls());
                     }
                     catch (Exception ex)
                     {
@@ -1065,6 +1064,10 @@ namespace dMobile.View.Activity
                     }
                 }
             }
+            catch (TaskCanceledException)
+            {
+                // Do nothing, task cancelled by user
+            }
             catch (Exceptions.MessageOnlyException ex)
             {
                 ex.Show(SysCommon.ActSubTypes.SkidInfo);
@@ -1072,7 +1075,7 @@ namespace dMobile.View.Activity
             catch (Exception ex)
             {
                 FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.SkidInfo, ex);
-                await errRpt.ShowDialog();
+                await Device.InvokeOnMainThreadAsync(async () => await errRpt.ShowDialog());
             }
             finally
             {
@@ -1216,8 +1219,8 @@ namespace dMobile.View.Activity
             }
             else
             {
-                this.cmdSkidProduct.IsEnabled = false;
-                this.cmdLocation.IsEnabled = false;
+                //this.cmdSkidProduct.IsEnabled = false;
+                //this.cmdLocation.IsEnabled = false;
                 this.txtTi.IsEnabled = false;
                 this.txtHi.IsEnabled = false;
                 this.txtHeight.IsEnabled = false;
@@ -1309,7 +1312,7 @@ namespace dMobile.View.Activity
         {
             if (!SysEnvironment.GetInstance().IsApplicationExitInvoked)
             {
-                this.updnBarCodeModifier1.SelectedItem = this.SysEnv.CurrentBarCodeModifier1;
+                await Device.InvokeOnMainThreadAsync(async () => this.updnBarCodeModifier1.SelectedItem = this.SysEnv.CurrentBarCodeModifier1);
 
                 if (!string.IsNullOrEmpty(this.txtSkidCode.Text))
                 {
@@ -1317,7 +1320,7 @@ namespace dMobile.View.Activity
                 }
 
                 await this.ScannerEnable();
-                this.DisplayData();
+                await Device.InvokeOnMainThreadAsync(async () => this.DisplayData());
 
                 this.IsControlLoaded = true;
             }
@@ -1333,19 +1336,19 @@ namespace dMobile.View.Activity
         {
             FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucSelectLocationMap, SysCommon.ActSubTypes.NotApplicable);
 
-            if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
+            if (await Device.InvokeOnMainThreadAsync(async () => await form.DisplayControl.ShowDialog() == DialogResult.OK))
             {
                 if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
                 {
                     SSkidInfo tempSkidInfo = this.SkidInfo.CurrSkid;
                     tempSkidInfo.LocMap = this.LocMap.CurrLocMap;
                     this.SkidInfo.CurrSkid = tempSkidInfo;
-                    this.cmdLocation.Text = LocationMapTasks.GetCurrentReadableLocation();
+                    await Device.InvokeOnMainThreadAsync(async () => this.cmdLocation.Text = LocationMapTasks.GetCurrentReadableLocation());
                 }
                 else
                 {
                     // TODO: Resource strings
-                    this.cmdLocation.Text = "Set Location";
+                    await Device.InvokeOnMainThreadAsync(async () => this.cmdLocation.Text = "Set Location");
                 }
             }
         }
@@ -1427,7 +1430,7 @@ namespace dMobile.View.Activity
             catch (Exception ex)
             {
                 FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.SkidInfo, ex);
-                await errRpt.ShowDialog();
+                await Device.InvokeOnMainThreadAsync(async () => await errRpt.ShowDialog());
             }
             finally
             {
@@ -1561,7 +1564,7 @@ namespace dMobile.View.Activity
                     {
                         if (!this.IsSkidCodeChanged)
                         {
-                            this.DisableControls();
+                            Device.BeginInvokeOnMainThread(() => this.DisableControls());
                         }
 
                         this.IsSkidCodeChanged = true;
@@ -1803,8 +1806,8 @@ namespace dMobile.View.Activity
             try
             {
                 await this.SetupSkid();
-                this.EnableControls();
-                this.DisplayData();
+                await Device.InvokeOnMainThreadAsync(() => this.EnableControls());
+                await Device.InvokeOnMainThreadAsync(() => this.DisplayData());
             }
             catch (Exception ex)
             {
@@ -1815,7 +1818,7 @@ namespace dMobile.View.Activity
                 // TODO: Resource strings
                 await Device.InvokeOnMainThreadAsync(() => DisplayAlert(this.GetControlDescription(), ex.Message + Environment.NewLine + "A new Skid will be created upon saving.", "OK"));
 
-                this.EnableControls();
+                await Device.InvokeOnMainThreadAsync(() => this.EnableControls());
                 this.SkidInfo = new SysSkidInfo();
                 SSkidInfo tempSkidInfo2 = this.SkidInfo.CurrSkid;
                 tempSkidInfo2.SkidCode = this.txtSkidCode.Text;
@@ -1831,22 +1834,22 @@ namespace dMobile.View.Activity
                 SSkidInfo tempSkidInfo2 = this.SkidInfo.CurrSkid;
                 tempSkidInfo2.LocMap = this.LocMap.CurrLocMap;
                 this.SkidInfo.CurrSkid = tempSkidInfo2;
-                this.cmdLocation.Text = LocationMapTasks.GetCurrentReadableLocation();
+                await Device.InvokeOnMainThreadAsync(() => this.cmdLocation.Text = LocationMapTasks.GetCurrentReadableLocation());
             }
             else
             {
                 // TODO: Resource strings
-                this.cmdLocation.Text = "Set Location";
+                await Device.InvokeOnMainThreadAsync(() => this.cmdLocation.Text = "Set Location");
             }
 
             // TODO: Resource strings
-            this.cmdSkidProduct.Text = "Select Product";
+            await Device.InvokeOnMainThreadAsync(() => this.cmdSkidProduct.Text = "Select Product");
 
             if (this.SkidInfo.CurrSkid.ProdInfo != null)
             {
                 if (this.SkidInfo.CurrSkid.ProdInfo.UnitRefno != 0)
                 {
-                    this.cmdSkidProduct.Text = ProductInfoTasks.GetCurrReadableProdBCUnit(this.SkidInfo.CurrSkid.ProdInfo);
+                    await Device.InvokeOnMainThreadAsync(() => this.cmdSkidProduct.Text = ProductInfoTasks.GetCurrReadableProdBCUnit(this.SkidInfo.CurrSkid.ProdInfo));
                 }
             }
 
@@ -1865,9 +1868,9 @@ namespace dMobile.View.Activity
                 this.IsNewSkid = true;
 
                 // Clearing the skid code text box is needed to handle a new skid in this.SaveChanges().
-                this.txtSkidCode.Text = string.Empty;
+                await Device.InvokeOnMainThreadAsync(async () => this.txtSkidCode.Text = string.Empty);
                 IsSkidCodeChanged = false;
-                this.DisableControls();
+                await Device.InvokeOnMainThreadAsync(() => this.DisableControls());
 
                 SSkidInfo tempSkidInfo = new SSkidInfo();
                 tempSkidInfo.LocMap = this.LocMap.CurrLocMap;
@@ -1887,9 +1890,11 @@ namespace dMobile.View.Activity
                 {
                     // If save fails just display the new skid detail.
                 }
-
-                this.DisplayData();
-                this.EnableControls();
+                await Device.InvokeOnMainThreadAsync(() =>
+                {
+                    this.DisplayData();
+                    this.EnableControls();
+                });
             }
             catch (Exceptions.MessageOnlyException ex)
             {

@@ -673,6 +673,10 @@ namespace dMobile.View.Activity
                     }
                 }
             }
+            catch (TaskCanceledException)
+            {
+                // Do nothing, task cancelled by user
+            }
             catch (Exceptions.MessageOnlyException ex)
             {
                 ex.Show(this.ActSubType);

@@ -569,7 +569,7 @@ namespace dMobile.View.Activity
                 if (await this.IsReadyToClose())
                 {
                     // Clear any properties.
-                    this.ClearContents();
+                    await this.ClearContents();
                     // Expect the control to close.
                 }
                 else
@@ -640,14 +640,14 @@ namespace dMobile.View.Activity
         ///
         /// </summary>
         /// <remarks></remarks>
-        private void ClearContents()
+        private async Task ClearContents()
         {
             this.FromProdRefno = 0;
             this.ToProdRefno = 0;
             this.LocMap.CurrLocMap = new SLocMap();
             this.LocMap = LocationMap.GetInstance();
-            this.ActItem.Delete();
-            this.ActDetail.Delete();
+            await this.ActItem.Delete();
+            await this.ActDetail.Delete();
             this.cmdLocation.Text = "Set Location";
             this.cmdSelectFromProduct.Text = "Select From Product";
             this.cmdSelectToProduct.Text = "Select To Product";

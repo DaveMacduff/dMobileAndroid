@@ -25,6 +25,7 @@ namespace dMobile.Resources.Models
     //string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ActivityItemProductionMaterialOnActivityItemProductionMaterialFKRefno ON tActivityItemProductionMaterial(ActivityItemProductionMaterialFKRefno ASC)";
     //await this.RunDDLCommand(sqlNdx);
 
+    [Table("tActivityItemProductionMaterial")]
     public class tActivityItemProductionMaterialModel
     {
         [PrimaryKey, NotNull, ForeignKey(typeof(tActivityItemProductionModel))]

@@ -720,6 +720,10 @@ namespace dMobile.View.Activity
                         throw new Exception("Scanned bar code type is not supported here.");
                     }
                 }
+                catch (TaskCanceledException)
+                {
+                    // Do nothing, task cancelled by user
+                }
                 catch (Exception ex)
                 {
                     await Device.InvokeOnMainThreadAsync(async () =>

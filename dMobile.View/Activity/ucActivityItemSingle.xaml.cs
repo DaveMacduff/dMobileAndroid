@@ -1461,6 +1461,10 @@ namespace dMobile.View.Activity
                     }
                 }
             }
+            catch (TaskCanceledException)
+            {
+                // Do nothing, task cancelled by user
+            }
             catch (IsReadyToApplyException ex)
             {
                 if (!ex.SuppressError)

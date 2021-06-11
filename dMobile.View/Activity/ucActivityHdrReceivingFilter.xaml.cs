@@ -350,7 +350,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public async Task ucActivityReceivingFilter_GotFocus(object sender, EventArgs e)
         {
-            await Task.Run(() =>
+            await Task.Run(async () =>
             {
                 if (!SysEnvironment.GetInstance().IsApplicationExitInvoked)
                 {
@@ -360,17 +360,18 @@ namespace dMobile.View.Activity
                         LoadData();
                     }
 
-                    chkApplyArrivalDate.IsToggled = RecvSettings.IsApplyArrivalDateFilter;
-                    dtpArrivalDate.Date = RecvSettings.dtArrivalDateFilter;
+                    await Device.InvokeOnMainThreadAsync(() =>
+                    {
+                        chkApplyArrivalDate.IsToggled = RecvSettings.IsApplyArrivalDateFilter;
+                        dtpArrivalDate.Date = RecvSettings.dtArrivalDateFilter;
 
-                    chkApplyIssuedDate.IsToggled = RecvSettings.IsApplyIssuedDateFilter;
-                    dtpIssuedDate.Date = RecvSettings.dtIssuedDateFilter;
+                        chkApplyIssuedDate.IsToggled = RecvSettings.IsApplyIssuedDateFilter;
+                        dtpIssuedDate.Date = RecvSettings.dtIssuedDateFilter;
 
-                    cboSortBy1.SelectedIndex = RecvSettings.iSortBy1Index;
-                    cboSortBy2.SelectedIndex = RecvSettings.iSortBy2Index;
-                    cboSortBy3.SelectedIndex = RecvSettings.iSortBy3Index;
-
-                    dtpIssuedDate.Focus();
+                        cboSortBy1.SelectedIndex = RecvSettings.iSortBy1Index;
+                        cboSortBy2.SelectedIndex = RecvSettings.iSortBy2Index;
+                        cboSortBy3.SelectedIndex = RecvSettings.iSortBy3Index;
+                    });
                 }
             });
         }
@@ -561,6 +562,11 @@ namespace dMobile.View.Activity
             this.DialogResult = DialogResult.None;
             await CancelChanges();
             await this.Close();
+        }
+
+        private void dtpArrivalDate_DateSelected(object sender, DateChangedEventArgs e)
+        {
+
         }
     }
 }

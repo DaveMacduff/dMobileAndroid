@@ -360,7 +360,6 @@
                 //int prodUnitRefno = 0;
                 int actItemFoundRefno = 0;
                 var currentRowIdx = Convert.ToInt32(this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem));
-                int foundRowIdx = 0;
 
                 this.BarParse = scanArgs.ParseInfo;
 
