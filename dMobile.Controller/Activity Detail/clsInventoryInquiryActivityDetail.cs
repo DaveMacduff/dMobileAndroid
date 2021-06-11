@@ -21,7 +21,6 @@ namespace dMobile.Controller
         private double columnWidth2 = 0;
         private double columnWidth3 = 0;
         private ResourceDictionary resourceDictionary = new ResourceDictionary();
-        List<InventoryInquiryDetail> listInventoryInquiryDetails = new List<InventoryInquiryDetail>();
 
         /// <summary>
         /// 
@@ -179,7 +178,21 @@ namespace dMobile.Controller
                             if (ds.Tables.Count != 0)
                             {
                                 // TODO: Test
-                                this.ListDetails = ds.Tables["tActivityDetail"].Rows.Cast<object>().ToList();
+                                foreach (DataRow row in ds.Tables["tActivityDetail"].Rows)
+                                {
+                                    InventoryInquiryDetail inquiryDetail = new InventoryInquiryDetail
+                                    {
+                                        ProductCode = Convert.ToString(row["ProductCode"] != DBNull.Value ? row["ProductCode"] : null),
+                                        ProductUnitBC = Convert.ToString(row["ProductUnitBC"] != DBNull.Value ? row["ProductUnitBC"] : null),
+                                        UnitCode = Convert.ToString(row["UnitCode"] != DBNull.Value ? row["UnitCode"] : null),
+                                        WeightUnitCode = Convert.ToString(row["WeightUnitCode"] != DBNull.Value ? row["WeightUnitCode"] : null),
+                                        ActivityDetailQuantity = Convert.ToDecimal(row["ActivityDetailQuantity"] != DBNull.Value ? row["ActivityDetailQuantity"] : null),
+                                        ActivityDetailWeightQuantity = Convert.ToDecimal(row["ActivityDetailWeightQuantity"] != DBNull.Value ? row["ActivityDetailWeightQuantity"] : null),
+                                        ActivityDetailSchemeID = Convert.ToString(row["ActivityDetailSchemeID"] != DBNull.Value ? row["ActivityDetailSchemeID"] : null),
+                                    };
+
+                                    this.ListDetails.Add(inquiryDetail);
+                                }
                             }
                         }
                     }
@@ -219,18 +232,17 @@ namespace dMobile.Controller
         /// <returns></returns>
         public override async Task<List<object>> GetActivityDetailList(bool isSubmitBatch)
         {
-            DataTable dataTableDetails = new DataTable("tActivityDetail");
+            //DataTable dataTableDetails = new DataTable("tActivityDetail");
 
-            dataTableDetails.Columns.Add("ProductCode", Type.GetType("System.String"));
-            dataTableDetails.Columns.Add("ProductUnitBC", Type.GetType("System.String"));
-            dataTableDetails.Columns.Add("UnitCode", Type.GetType("System.String"));
-            dataTableDetails.Columns.Add("WeightUnitCode", Type.GetType("System.String"));
-            dataTableDetails.Columns.Add("ActivityDetailQuantity", Type.GetType("System.Decimal"));
-            dataTableDetails.Columns.Add("ActivityDetailWeightQuantity", Type.GetType("System.Decimal"));
-            dataTableDetails.Columns.Add("ActivityDetailSchemeID", Type.GetType("System.String"));
+            //dataTableDetails.Columns.Add("ProductCode", Type.GetType("System.String"));
+            //dataTableDetails.Columns.Add("ProductUnitBC", Type.GetType("System.String"));
+            //dataTableDetails.Columns.Add("UnitCode", Type.GetType("System.String"));
+            //dataTableDetails.Columns.Add("WeightUnitCode", Type.GetType("System.String"));
+            //dataTableDetails.Columns.Add("ActivityDetailQuantity", Type.GetType("System.Decimal"));
+            //dataTableDetails.Columns.Add("ActivityDetailWeightQuantity", Type.GetType("System.Decimal"));
+            //dataTableDetails.Columns.Add("ActivityDetailSchemeID", Type.GetType("System.String"));
 
-            this.listInventoryInquiryDetails = dataTableDetails.Rows.Cast<InventoryInquiryDetail>().ToList();
-            this.ListDetails = this.listInventoryInquiryDetails.Cast<object>().ToList();
+            this.ListDetails = new List<object>();
             return this.ListDetails;
         }
 

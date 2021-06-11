@@ -333,17 +333,17 @@
                             }
                             finally
                             {
-                                Application.Current.MainPage = new NavigationPage(new SplashStartup());
                                 // TODO: Resource strings
-                                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Please log back in for changes to be made in effect.", "OK"));
+                                Device.BeginInvokeOnMainThread(async () => await DisplayAlert(this.GetControlDescription(), "Please log back in for changes to be made in effect.", "OK"));
+                                await Device.InvokeOnMainThreadAsync(() => Application.Current.MainPage = new NavigationPage(new SplashStartup()));
                             }
                         }
                     }
                     else
                     {
-                        Application.Current.MainPage = new NavigationPage(new SplashStartup());
                         // TODO: Resource strings
-                        await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Please log back in for changes to be made in effect.", "OK"));
+                        Device.BeginInvokeOnMainThread(async () => await DisplayAlert(this.GetControlDescription(), "Please log back in for changes to be made in effect.", "OK"));
+                        await Device.InvokeOnMainThreadAsync(() => Application.Current.MainPage = new NavigationPage(new SplashStartup()));
                     }
                 }
             }

@@ -109,7 +109,6 @@ namespace dMobile.View.Activity
                             {
                                 FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
                                 await errRpt.ShowDialog();
-                                Android.OS.Process.KillProcess(Android.OS.Process.MyPid());
                             });
                         }
                         finally
@@ -118,8 +117,6 @@ namespace dMobile.View.Activity
                             await this.ScannerEnable();
 
                             this.IsEnabled = true;
-
-                            this.dataGridMainActivity.Focus();
                         }
                     }
                 }
@@ -391,7 +388,6 @@ namespace dMobile.View.Activity
                 {
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
                     await errRpt.ShowDialog();
-                    Android.OS.Process.KillProcess(Android.OS.Process.MyPid());
                 });
             }
             finally
@@ -458,7 +454,7 @@ namespace dMobile.View.Activity
         public async Task RefreshData()
         {
             await this.ScannerDisable();
-            this.ItemsList.Clear();
+            await Device.InvokeOnMainThreadAsync(() => this.ItemsList.Clear());
 
             try
             {
@@ -468,8 +464,11 @@ namespace dMobile.View.Activity
                     + "</params>");
 
                 await this.ActItem.Refresh(xmldocParams);
-                this.DataGridMainActivityItemsList = this.ActItem.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
-                this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
+                await Device.InvokeOnMainThreadAsync(() =>
+                {
+                    this.DataGridMainActivityItemsList = this.ActItem.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
+                    this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
+                });
             }
             catch (Exception ex)
             {
@@ -477,7 +476,6 @@ namespace dMobile.View.Activity
                 {
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
                     await errRpt.ShowDialog();
-                    Android.OS.Process.KillProcess(Android.OS.Process.MyPid());
                 });
             }
 
@@ -572,7 +570,6 @@ namespace dMobile.View.Activity
                 {
                     FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
                     await errRpt.ShowDialog();
-                    Android.OS.Process.KillProcess(Android.OS.Process.MyPid());
                 });
             }
             finally

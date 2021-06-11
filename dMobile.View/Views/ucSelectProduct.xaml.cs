@@ -120,8 +120,8 @@ namespace dMobile.View
         /// </summary>
         protected override void OnDisappearing()
         {
-            base.OnDisappearing();
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
+            base.OnDisappearing();
         }
 
         protected override bool OnBackButtonPressed()
@@ -135,8 +135,9 @@ namespace dMobile.View
                     this.DialogResult = DialogResult.OK;
                     await this.Close();
                 }
-                else if (await this.CancelChanges())
+                else
                 {
+                    await this.CancelChanges();
                     this.DialogResult = DialogResult.None;
                     await this.Close();
                 }
@@ -685,11 +686,9 @@ namespace dMobile.View
 
         private async void CmdClose_Clicked(object sender, EventArgs e)
         {
-            if (await this.CancelChanges())
-            {
-                this.DialogResult = DialogResult.None;
-                await this.Close();
-            }
+            await this.CancelChanges();
+            this.DialogResult = DialogResult.None;
+            await this.Close();
         }
     }
 

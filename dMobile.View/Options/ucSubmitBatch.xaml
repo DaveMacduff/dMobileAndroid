@@ -42,8 +42,8 @@
                     </ListView>
                 </Frame>
 
-                <Button x:Name="cmdFilter" Grid.Row="2" Text="Filter" Clicked="cmdFilter_Click"/>
-                <Button x:Name="cmdSubmit" Grid.Row="3" Text="Submit Selected" Clicked="cmdSubmit_Click"/>
+                <Button x:Name="cmdFilter" Grid.Row="2" Text="Filter" Clicked="cmdFilter_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
+                <Button x:Name="cmdSubmit" Grid.Row="3" Text="Submit Selected" Clicked="cmdSubmit_Click" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}"/>
 
             </Grid>
 

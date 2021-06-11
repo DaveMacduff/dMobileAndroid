@@ -120,11 +120,11 @@ namespace dMobile.View.Activity
                             await this.Close();
                         }
                     }
-                    else if (keycode == Keycode.Del || keycode == Keycode.Clear || keycode == Keycode.Back)
+                    else if (keycode == Keycode.Del || keycode == Keycode.Clear)
                     {
                         if (this.DataGridMainActivityItemsList.Count > 0 && this.dataGridMainActivity.SelectedItem != null)
                         {
-                            if (await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Put Away", "Do you wish yo delete this record?", "Yes", "No")))
+                            if (await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Put Away", "Do you wish to delete this record?", "Yes", "No")))
                             {
                                 this.ActDetail.ListDetails.Remove(this.dataGridMainActivity.SelectedItem);
 
@@ -163,9 +163,10 @@ namespace dMobile.View.Activity
         /// <summary>
         /// The OnDisappearing
         /// </summary>
-        protected override void OnDisappearing()
+        protected override async void OnDisappearing()
         {
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
+            await this.ScannerDisable();
             base.OnDisappearing();
         }
 
@@ -561,43 +562,53 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public async void cmdLocation_Click(object sender, EventArgs e)
         {
-            await this.ScannerDisable();
-
-            FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucSelectLocationMap, this.ActItem.ActHdr.SkidInfo.CurrSkid.LocMap.WhsLocMapRefno, true);
-            await Device.InvokeOnMainThreadAsync(async () => await form.DisplayControl.ShowDialog());
-
-            if (form.DialogResult == DialogResult.OK)
+            try
             {
-                if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
+                await this.ScannerDisable();
+
+                FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucSelectLocationMap, this.ActItem.ActHdr.SkidInfo.CurrSkid.LocMap.WhsLocMapRefno, true);
+                await Device.InvokeOnMainThreadAsync(async () => await form.DisplayControl.ShowDialog());
+
+                if (form.DialogResult == DialogResult.OK)
                 {
-                    await Device.InvokeOnMainThreadAsync(() => this.cmdLocation.Text = LocationMapTasks.GetCurrentReadableLocation());
-
-                    if (this.ActDetail.ListDetails.Count > 0)
+                    if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
                     {
-                        for (int i = 0; i <= this.ActDetail.ListDetails.Count - 1; i++)
+                        await Device.InvokeOnMainThreadAsync(() => this.cmdLocation.Text = LocationMapTasks.GetCurrentReadableLocation());
+
+                        if (this.ActDetail.ListDetails.Count > 0)
                         {
-                            (this.ActDetail.ListDetails[i] as dynamic).LocationMapRefno = this.LocMap.CurrLocMapRefno;
+                            for (int i = 0; i <= this.ActDetail.ListDetails.Count - 1; i++)
+                            {
+                                (this.ActDetail.ListDetails[i] as dynamic).LocationMapRefno = this.LocMap.CurrLocMapRefno;
 
-                            (this.ActDetail.ListDetails[i] as dynamic).ActivityDetailSchemeID = ProductInfoTasks.GetActSchemeIDFromSProdSchemeData(
-                                this.ActDetailOnSkid.ActItem.ProdInfo.Code,
-                                this.ActDetailOnSkid.ActItem.ProdInfo.Scheme,
-                                this.ActDetailOnSkid.SchemeData);
+                                (this.ActDetail.ListDetails[i] as dynamic).ActivityDetailSchemeID = ProductInfoTasks.GetActSchemeIDFromSProdSchemeData(
+                                    this.ActDetailOnSkid.ActItem.ProdInfo.Code,
+                                    this.ActDetailOnSkid.ActItem.ProdInfo.Scheme,
+                                    this.ActDetailOnSkid.SchemeData);
 
-                            (this.ActDetail.ListDetails[i] as dynamic).ActivityDetailUniqueSchemeID = ProductInfoTasks.GetActUniqueSchemeIDFromSProdSchemeData(
-                                this.ActDetailOnSkid.ActItem.ProdInfo.Code,
-                                this.ActDetailOnSkid.ActItem.ProdInfo.Scheme,
-                                this.ActDetailOnSkid.SchemeData);
+                                (this.ActDetail.ListDetails[i] as dynamic).ActivityDetailUniqueSchemeID = ProductInfoTasks.GetActUniqueSchemeIDFromSProdSchemeData(
+                                    this.ActDetailOnSkid.ActItem.ProdInfo.Code,
+                                    this.ActDetailOnSkid.ActItem.ProdInfo.Scheme,
+                                    this.ActDetailOnSkid.SchemeData);
+                            }
                         }
                     }
-                }
-                else
-                {
-                    // TODO: Resource strings
-                    await Device.InvokeOnMainThreadAsync(() => this.cmdLocation.Text = "Set Location");
+                    else
+                    {
+                        // TODO: Resource strings
+                        await Device.InvokeOnMainThreadAsync(() => this.cmdLocation.Text = "Set Location");
+                    }
                 }
             }
+            catch (Exception ex)
+            {
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "Error setting location." + Environment.NewLine + ex.Message, "OK"));
+            }
+            finally
+            {
+                await this.ScannerEnable();
+            }
 
-            await this.ScannerEnable();
         }
 
         /// <summary>
@@ -844,7 +855,7 @@ namespace dMobile.View.Activity
                 else
                 {
                     // TODO: Resource strings
-                    await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Skid Put Away", "Data Failed Validation. Check Your Data.", "OK"));
+                    //await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Skid Put Away", "Data Failed Validation. Check Your Data.", "OK"));
                 }
             }
             catch (Exceptions.MessageOnlyException ex)
@@ -1186,9 +1197,8 @@ namespace dMobile.View.Activity
 
                 try
                 {
-                    this.BarCodeParse = scanArgs.ParseInfo;
-
                     await this.ScannerDisable();
+                    this.BarCodeParse = scanArgs.ParseInfo;
 
                     if (!string.IsNullOrEmpty(this.BarCodeParse.LocationIdentifier))
                     {
@@ -1279,7 +1289,7 @@ namespace dMobile.View.Activity
                                 this.ItemsList.Add("Skid Product: " + ProductInfoTasks.GetCurrReadableProdBCUnit(this.Activity.SkidInfo.CurrSkid.ProdInfo));
                                 this.ItemsList.Add("Skid Location: " + LocationMapTasks.GetCurrentReadableLocation(this.Activity.SkidInfo.CurrSkid.LocMap));
 
-                                await Device.InvokeOnMainThreadAsync(async () => this.cmdLocation.IsEnabled = true);
+                                await Device.InvokeOnMainThreadAsync(() => this.cmdLocation.IsEnabled = true);
                                 await Device.InvokeOnMainThreadAsync(() => this.cmdLocation.Text = LocationMapTasks.GetCurrentReadableLocation(this.Activity.SkidInfo.CurrSkid.LocMap));
 
                                 this.Activity.FKRefno = this.Activity.SkidInfo.CurrSkid.SkidFKRefno;
@@ -1430,12 +1440,6 @@ namespace dMobile.View.Activity
 
                 await this.ActDetail.IsReadyToApply(xmlParam);
 
-                if (this.ActDetail.ListDetails.Count == 0)
-                {
-                    this.DataGridMainActivityItemsList = this.ActDetail.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
-                    this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
-                }
-
                 XDocument xmlDoc = XDocument.Parse(
                     "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                     + "<params>"
@@ -1453,15 +1457,16 @@ namespace dMobile.View.Activity
 
                 await this.ActDetail.Insert(xmlDoc);
 
-                if (this.ActDetail.ListDetails.Count > 0 && this.DataGridMainActivityItemsList.Count > 0)
-                {
-                    this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[this.ActDetail.ListDetails.Count - 1];
-                }
-                else
+                await Device.InvokeOnMainThreadAsync(() =>
                 {
                     this.DataGridMainActivityItemsList = this.ActDetail.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
                     this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
-                }
+
+                    if (this.ActDetail.ListDetails.Count > 0 && this.DataGridMainActivityItemsList.Count > 0)
+                    {
+                        this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList.LastOrDefault();
+                    }
+                });
             }
         }
 

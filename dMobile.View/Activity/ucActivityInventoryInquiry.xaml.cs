@@ -35,7 +35,7 @@ namespace dMobile.View.Activity
         private BarCodeParse barParse;
         private BarCodeScanner.BarCodeScanner scanner;
         private string mainGridMappingName = "tLocationMapDefault";
-        private List<object> listItems;
+        private List<object> listItems = new List<object>();
         private bool isControlLoaded = false;
         private ObservableCollection<object> dataGridMainItemsList = new ObservableCollection<object>();
 
@@ -897,7 +897,7 @@ namespace dMobile.View.Activity
         {
             this.DataGridMainItemsList = new ObservableCollection<object>();
 
-            foreach (dynamic obj in this.ListItems)
+            foreach (Location location in this.ListItems)
             {
                 //var location = new
                 //{
@@ -907,7 +907,7 @@ namespace dMobile.View.Activity
                 //    LocationMapType = Convert.ToString(row["LocationMapType"])
                 //};
 
-                this.DataGridMainItemsList.Add(obj);
+                this.DataGridMainItemsList.Add(location);
             }
 
             // TODO: Resource strings
@@ -1132,14 +1132,7 @@ namespace dMobile.View.Activity
         /// <returns></returns>
         private async Task<List<object>> GetDataViewProductOnly()
         {
-            DataTable dataTableItems = new DataTable("tLocation");
-            dataTableItems.Columns.Add("ProductCode", Type.GetType("System.String"));
-            dataTableItems.Columns.Add("LocationMapType", Type.GetType("System.String"));
-            dataTableItems.Columns.Add("ProductDescription", Type.GetType("System.String"));
-            dataTableItems.Columns.Add("ProductBrandDescription", Type.GetType("System.String"));
-
-            List<object> listLocationMapTypes = dataTableItems.Select().ToList<object>();
-
+            List<ProductLocationMapType> listLocationMapTypes = new List<ProductLocationMapType>();
             string queryPickingOnly = this.GetDataViewProductOnlyPickingQuery();
 
             if (!string.IsNullOrEmpty(queryPickingOnly))
@@ -1191,7 +1184,7 @@ namespace dMobile.View.Activity
             //this.DataViewItems.AllowDelete = false;
             //this.DataViewItems.Sort = "ProductCode,LocationMapType";
 
-            this.ListItems = (List<object>)listLocationMapTypes.OfType<ProductLocationMapType>().OrderBy(locMapType => locMapType.ProductCode).ThenBy(locMapType => locMapType.LocationMapType);
+            this.ListItems = (List<object>)listLocationMapTypes.OrderBy(locMapType => locMapType.ProductCode).ThenBy(locMapType => locMapType.LocationMapType);
             return this.ListItems;
         }
 
@@ -1201,32 +1194,31 @@ namespace dMobile.View.Activity
         /// <returns></returns>
         private async Task<List<object>> GetDataViewLocationOnly()
         {
-            DataTable dataTableItems = new DataTable("tLocation");
-
-            dataTableItems.Columns.Add("LocationMapWarehouseCode", Type.GetType("System.Int32"));
-            dataTableItems.Columns.Add("LocationMapSectionName", Type.GetType("System.String"));
-            dataTableItems.Columns.Add("LocationMapSlotName", Type.GetType("System.String"));
-            dataTableItems.Columns.Add("LocationMapType", Type.GetType("System.String"));
-
+            List<Location> locations = new List<Location>();
             int locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(this.LocMap.CurrLocMap.WhsLocMapRefno, this.ActItem.ProdInfo.Refno, SysCommon.ProdLocMapTypes.Picking);
             SLocMap locMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
 
-            DataRow row = dataTableItems.NewRow();
-            row["LocationMapWarehouseCode"] = locMap.WhsCode;
-            row["LocationMapSectionName"] = locMap.SectName;
-            row["LocationMapSlotName"] = locMap.SlotName;
-            row["LocationMapType"] = "Picking";
-            dataTableItems.Rows.Add(row);
+            Location pickingLocation = new Location()
+            {
+                LocationMapWarehouseCode = locMap.WhsCode,
+                LocationMapSectionName = locMap.SectName,
+                LocationMapSlotName = locMap.SlotName,
+                LocationMapType = "Picking"
+            };
 
             locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(this.LocMap.CurrLocMap.WhsLocMapRefno, this.ActItem.ProdInfo.Refno, SysCommon.ProdLocMapTypes.Receiving);
             locMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
 
-            row = dataTableItems.NewRow();
-            row["LocationMapWarehouseCode"] = locMap.WhsCode;
-            row["LocationMapSectionName"] = locMap.SectName;
-            row["LocationMapSlotName"] = locMap.SlotName;
-            row["LocationMapType"] = "Receiving";
-            dataTableItems.Rows.Add(row);
+            Location receivingLocation = new Location()
+            {
+                LocationMapWarehouseCode = locMap.WhsCode,
+                LocationMapSectionName = locMap.SectName,
+                LocationMapSlotName = locMap.SlotName,
+                LocationMapType = "Receiving"
+            };
+
+            locations.Add(pickingLocation);
+            locations.Add(receivingLocation);
 
             //this.DataViewItems = dataTableItems.DefaultView;
             //this.DataViewItems.Table.TableName = this.MainGridMappingName;
@@ -1235,7 +1227,8 @@ namespace dMobile.View.Activity
             //this.DataViewItems.AllowDelete = false;
             //this.DataViewItems.Sort = "LocationMapWarehouseCode,LocationMapSectionName,LocationMapSlotName,LocationMapType";
 
-            this.ListItems = (List<object>)dataTableItems.Select().ToList().OfType<dynamic>().OrderBy(obj => obj.LocationMapWarehouseCode).ThenBy(obj => obj.LocationMapSectionName).ThenBy(obj => obj.LocationMapSlotName).ThenBy(obj => obj.LocationMapType);
+            locations = locations.OrderBy(obj => obj.LocationMapWarehouseCode).ThenBy(obj => obj.LocationMapSectionName).ThenBy(obj => obj.LocationMapSlotName).ThenBy(obj => obj.LocationMapType).ToList();
+            this.ListItems = locations.Cast<object>().ToList();
             return this.ListItems;
         }
 

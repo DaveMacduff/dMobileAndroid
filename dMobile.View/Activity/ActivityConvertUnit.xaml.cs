@@ -1306,7 +1306,7 @@ namespace dMobile.View.Activity
                             this.ActItem.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(this.ToProdUnitRefno);
                             this.ActItem.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ActItem.ProdInfo.Refno);
 
-                            SysCommon.SFillQuantity fillQty = this.RequestConvertUnitResult(
+                            SysCommon.SFillQuantity fillQty = await this.RequestConvertUnitResult(
                                 this.FromProdUnitRefno,
                                 this.ToProdUnitRefno,
                                 Convert.ToDecimal((this.ActItem.ListItems[0] as dynamic).ActivityDetailQuantity),

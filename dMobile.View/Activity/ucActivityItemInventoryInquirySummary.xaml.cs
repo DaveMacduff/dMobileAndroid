@@ -10,6 +10,7 @@ using dMobile.BarCodeScanner;
 using dMobile.Bedrock;
 using dMobile.Controller;
 using dMobile.Resources.Enums;
+using dMobile.Resources.Types;
 using dMobile.View.CustomPages.Modal;
 using dMobile.View.Forms;
 using Xamarin.Forms;
@@ -104,15 +105,18 @@ namespace dMobile.View.Activity
                             }
 
                             // TODO: Test
-                            this.ActItem.ProdInfo = ProductInfoTasks.GetInfoFromCodeBCUnit(
-                                Convert.ToString((this.ActItem.ListItems[currentIndex] as dynamic).productcode),
-                                Convert.ToString((this.ActItem.ListItems[currentIndex] as dynamic).productunitbc),
-                                Convert.ToString((this.ActItem.ListItems[currentIndex] as dynamic).unitcode));
+                            this.ActItem.ProdInfo = await ProductInfoTasks.GetInfoFromCodeBCUnit(
+                                Convert.ToString((this.ActItem.ListItems[currentIndex] as ActivityItem).ProductCode),
+                                Convert.ToString((this.ActItem.ListItems[currentIndex] as ActivityItem).ProductUnitBC),
+                                Convert.ToString((this.ActItem.ListItems[currentIndex] as ActivityItem).UnitCode));
 
                             ActDetail actDetail = ActDetailFacade.GetActDetail(this.ActItem, SysCommon.ActSubTypes.InventoryInquiry);
 
-                            FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucActivityInventoryInquiryDetail, actDetail, this.ActSubType);
-                            await form.DisplayControl.ShowDialog();
+                            await Device.InvokeOnMainThreadAsync(async () =>
+                            {
+                                FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucActivityInventoryInquiryDetail, actDetail, this.ActSubType);
+                                await form.DisplayControl.ShowDialog();
+                            });
                         }
                         catch (Exception ex)
                         {
@@ -475,7 +479,7 @@ namespace dMobile.View.Activity
                 this.Loading = true;
 
                 await this.ScannerDisable();
-                this.ItemsList.Clear();
+                await Device.InvokeOnMainThreadAsync(() => this.ItemsList.Clear());
 
                 this.ActItem.RegLayerListenerProgOut(this);
                 XDocument xmldocParams = XDocument.Parse(
@@ -485,19 +489,21 @@ namespace dMobile.View.Activity
 
                 await this.ActItem.Refresh(xmldocParams);
 
-                this.DataGridMainActivityItemsList = this.ActItem.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
-                this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
-
-                this.ItemsList.Clear();
+                await Device.InvokeOnMainThreadAsync(() =>
+                {
+                    this.DataGridMainActivityItemsList = this.ActItem.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
+                    this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
+                    this.ItemsList.Clear();
+                });
 
                 if (this.DataGridMainActivityItemsList.Count > 0)
                 {
-                    this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[0];
+                    await Device.InvokeOnMainThreadAsync(() => this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[0]);
                     // TODO: test
                     await this.ActItem.SelectActivityItem(this.ActItem.ListItems[0]);
                 }
 
-                DisplaySummaryData();
+                await Device.InvokeOnMainThreadAsync(() => DisplaySummaryData());
             }
             catch (Exception ex)
             {
@@ -521,7 +527,7 @@ namespace dMobile.View.Activity
         /// </summary>
         private void DisplaySummaryData()
         {
-            dynamic selectedItem = this.ActItem.SelectedActivityItem;
+            ActivityItem selectedItem = this.ActItem.SelectedActivityItem as ActivityItem;
             ProductInfo prodInfo = this.ActItem.ProdInfo;
 
             this.ItemsList.Clear();
@@ -531,22 +537,22 @@ namespace dMobile.View.Activity
                 // TODO: Resource strings
                 this.ItemsList.Add(string.Format(
                     "Quantity {0} {1} @ {2} {3}",
-                    selectedItem.activityitemquantity,
-                    selectedItem.unitcode,
-                    selectedItem.activityitemweightquantity,
-                    selectedItem.weightunitcode));
+                    selectedItem.ActivityItemQuantity,
+                    selectedItem.UnitCode,
+                    selectedItem.ActivityItemWeightQuantity,
+                    selectedItem.WeightUnitCode));
 
                 if (this.ActItem.LocMap.CurrLocMap.IsSectionTracked)
                 {
                     if (this.ActItem.LocMap.CurrLocMap.IsSlotTracked)
                     {
                         // TODO: Resource strings
-                        this.ItemsList.Add(string.Format("Section {0} Slot {1}", selectedItem.locationmapsectionfkrefno, selectedItem.locationmapslotfkrefno));
+                        this.ItemsList.Add(string.Format("Section {0} Slot {1}", selectedItem.LocationMapSectionFKRefno, selectedItem.LocationMapSlotFKRefno));
                     }
                     else
                     {
                         // TODO: Resource strings
-                        this.ItemsList.Add(string.Format("Section {0}", selectedItem.locationmapsectionfkrefno));
+                        this.ItemsList.Add(string.Format("Section {0}", selectedItem.LocationMapSectionFKRefno));
                     }
                 }
             }

@@ -88,12 +88,17 @@ namespace dMobile.View.Options
 
             try
             {
+                this.Loading = true;
                 await this.ucSubmitBatch_GotFocus(this, new EventArgs());
             }
             catch (Exception ex)
             {
                 // TODO: Resource strings
                 await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "this.ucSubmitBatch_GotFocus threw an error " + ex, "OK"));
+            }
+            finally
+            {
+                this.Loading = false;
             }
         }
 
@@ -429,11 +434,10 @@ namespace dMobile.View.Options
         /// <remarks></remarks>
         private async Task LoadData()
         {
-            if (!this.Loading)
+            await Task.Run(async () =>
             {
                 try
                 {
-                    this.Loading = true;
                     this.Activity = null;
 
                     switch (this.SubmitBatchSettings.eActivitySubType)
@@ -509,17 +513,17 @@ namespace dMobile.View.Options
 
                     this.Activity.ListHdrs = await this.Activity.GetActivityList(true);
 
-                    await Device.InvokeOnMainThreadAsync(() =>
+                    await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         this.DataGridMainActivityItemsList = this.Activity.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
                         this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
-                    });
 
-                    if (Activity.ListHdrs.Count > 0 && this.DataGridMainActivityItemsList.Count > 0)
-                    {
-                        this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[0];
-                        await Activity.SelectActivity(this.DataGridMainActivityItemsList[0]);
-                    }
+                        if (Activity.ListHdrs.Count > 0 && this.DataGridMainActivityItemsList.Count > 0)
+                        {
+                            this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[0];
+                            await Activity.SelectActivity(this.DataGridMainActivityItemsList[0]);
+                        }
+                    });
 
                     this.IsControlLoaded = true;
                 }
@@ -528,11 +532,7 @@ namespace dMobile.View.Options
                     // TODO: Resource strings
                     await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", ex.Message, "OK"));
                 }
-                finally
-                {
-                    this.Loading = false;
-                }
-            }
+            });
         }
 
         /// <summary>
@@ -572,7 +572,6 @@ namespace dMobile.View.Options
                 try
                 {
                     this.Loading = true;
-                    await Device.InvokeOnMainThreadAsync(() => this.cmdSubmit.IsEnabled = false);
 
                     if (this.Activity.ListHdrs.Count > 0)
                     {
@@ -724,7 +723,7 @@ namespace dMobile.View.Options
                                                 + "</ProductUnitBarCodeModifier1>"
                                                 + "</params>");
 
-                                        await actItem.Submit(xmlParams, itemIdx);
+                                        await actItem.Submit(xmlParams, actItem.ListItems[itemIdx]);
                                     }
                                     else if (this.SubmitBatchSettings.eActivitySubType == SysCommon.ActSubTypes.PurchaseOrderWorkSheet)
                                     {
@@ -757,7 +756,7 @@ namespace dMobile.View.Options
                                                 + "<wt_unit>" + actItem.ProdInfo.WeightUnitCode + "</wt_unit>"
                                                 + "</params>");
 
-                                        await actItem.Submit(xmlParams, itemIdx);
+                                        await actItem.Submit(xmlParams, actItem.ListItems[itemIdx]);
 
                                         break;
                                     }

@@ -12,6 +12,7 @@ namespace dMobile.Bedrock
     using System.Xml;
     using System.Xml.Schema;
     using System.Threading.Tasks;
+    using dMobile.Resources.Models;
 
     public struct SProductSchemeData
     {
@@ -1881,7 +1882,9 @@ namespace dMobile.Bedrock
             sql.Append("INNER JOIN tActivityDetail ON tActivityDetail.ActivityItemRefno = tActivityItem.ActivityItemRefno ");
             sql.AppendFormat("WHERE tActivityDetail.ActivityDetailStatus <> {0}", Convert.ToInt32(ActStatus.NoChange));
 
-            if (await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(sql.ToString()) != 0)
+            List<tActivityModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityModel>(Convert.ToString(sql));
+            
+            if (results?.Count > 0)
             {
                 isDataExists = true;
             }

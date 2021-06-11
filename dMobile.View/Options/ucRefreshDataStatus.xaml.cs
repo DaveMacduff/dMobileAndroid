@@ -1194,7 +1194,6 @@ namespace dMobile.View.Options
                 if (SysCommon.ErrorReportAndRequestContinue(this.FullClassName, Resource.IsReadyToSave, ex) == false)
                 {
                     //Application.Exit();
-                    Android.OS.Process.KillProcess(Android.OS.Process.MyPid());
                 }
 
                 isReadyToSave = false;

@@ -479,23 +479,23 @@
         /// <returns></returns>
         public override async Task<List<object>> GetActivityItemList(bool isSubmitBatch)
         {
-            DataTable dataTableItems = new DataTable("tActivityItem");
+            //DataTable dataTableItems = new DataTable("tActivityItem");
 
-            dataTableItems.Columns.Add("productcode", Type.GetType("System.String"));
-            dataTableItems.Columns.Add("productunitbc", Type.GetType("System.String"));
-            dataTableItems.Columns.Add("unitcode", Type.GetType("System.String"));
-            dataTableItems.Columns.Add("weightunitcode", Type.GetType("System.String"));
-            dataTableItems.Columns.Add("activitydetaillogisticunitproductiondate", Type.GetType("System.String"));
-            dataTableItems.Columns.Add("activitydetaillogisticunitbestbeforesellbydate", Type.GetType("System.String"));
-            dataTableItems.Columns.Add("locationmapwarehousefkrefno", Type.GetType("System.String"));
-            dataTableItems.Columns.Add("locationmapsectionfkrefno", Type.GetType("System.String"));
-            dataTableItems.Columns.Add("locationmapslotfkrefno", Type.GetType("System.String"));
-            dataTableItems.Columns.Add("skidcode", Type.GetType("System.String"));
-            dataTableItems.Columns.Add("activityitemquantity", Type.GetType("System.Decimal"));
-            dataTableItems.Columns.Add("activityitemweightquantity", Type.GetType("System.Decimal"));
+            //dataTableItems.Columns.Add("productcode", Type.GetType("System.String"));
+            //dataTableItems.Columns.Add("productunitbc", Type.GetType("System.String"));
+            //dataTableItems.Columns.Add("unitcode", Type.GetType("System.String"));
+            //dataTableItems.Columns.Add("weightunitcode", Type.GetType("System.String"));
+            //dataTableItems.Columns.Add("activitydetaillogisticunitproductiondate", Type.GetType("System.String"));
+            //dataTableItems.Columns.Add("activitydetaillogisticunitbestbeforesellbydate", Type.GetType("System.String"));
+            //dataTableItems.Columns.Add("locationmapwarehousefkrefno", Type.GetType("System.String"));
+            //dataTableItems.Columns.Add("locationmapsectionfkrefno", Type.GetType("System.String"));
+            //dataTableItems.Columns.Add("locationmapslotfkrefno", Type.GetType("System.String"));
+            //dataTableItems.Columns.Add("skidcode", Type.GetType("System.String"));
+            //dataTableItems.Columns.Add("activityitemquantity", Type.GetType("System.Decimal"));
+            //dataTableItems.Columns.Add("activityitemweightquantity", Type.GetType("System.Decimal"));
+            //this.listInventoryInquiryItems = dataTableItems.Rows.Cast<InventoryInquiryItem>().ToList();
 
-            this.listInventoryInquiryItems = dataTableItems.Rows.Cast<InventoryInquiryItem>().ToList();
-            this.ListItems = this.listInventoryInquiryItems.Cast<object>().ToList();
+            this.ListItems = new List<object>();
             return this.ListItems;
         }
 
@@ -561,7 +561,26 @@
 
                             if (ds.Tables.Count != 0)
                             {
-                                this.ListItems = ds.Tables["tActivityItem"].Select().ToList<object>();
+                                foreach (DataRow row in ds.Tables["tActivityItem"].Rows)
+                                {
+                                    ActivityItem activityItem = new ActivityItem
+                                    {
+                                        ProductCode = Convert.ToString(row["ProductCode"] != DBNull.Value ? row["ProductCode"] : null),
+                                        ProductUnitBC = Convert.ToString(row["ProductUnitBC"] != DBNull.Value ? row["ProductUnitBC"] : null),
+                                        UnitCode = Convert.ToString(row["UnitCode"] != DBNull.Value ? row["UnitCode"] : null),
+                                        WeightUnitCode = Convert.ToString(row["WeightUnitCode"] != DBNull.Value ? row["WeightUnitCode"] : null),
+                                        ActivityDetailLogisticUnitProductionDate = Convert.ToString(row["ActivityDetailLogisticUnitProductionDate"] != DBNull.Value ? row["ActivityDetailLogisticUnitProductionDate"] : null),
+                                        ActivityDetailLogisticUnitBestbeforesellbydate = Convert.ToString(row["ActivityDetailLogisticUnitBestbeforesellbydate"] != DBNull.Value ? row["ActivityDetailLogisticUnitBestbeforesellbydate"] : null),
+                                        LocationMapWarehouseFKRefno = Convert.ToString(row["LocationMapWarehouseFKRefno"] != DBNull.Value ? row["LocationMapWarehouseFKRefno"] : null),
+                                        LocationMapSectionFKRefno = Convert.ToString(row["LocationMapSectionFKRefno"] != DBNull.Value ? row["LocationMapSectionFKRefno"] : null),
+                                        LocationMapSlotFKRefno = Convert.ToString(row["LocationMapSlotFKRefno"] != DBNull.Value ? row["LocationMapSlotFKRefno"] : null),
+                                        SkidCode = Convert.ToString(row["SkidCode"] != DBNull.Value ? row["SkidCode"] : null),
+                                        ActivityItemQuantity = Convert.ToDecimal(row["ActivityItemQuantity"] != DBNull.Value ? row["ActivityItemQuantity"] : null),
+                                        ActivityItemWeightQuantity = Convert.ToDecimal(row["ActivityItemWeightQuantity"] != DBNull.Value ? row["ActivityItemWeightQuantity"] : null),
+                                    };
+
+                                    this.ListItems.Add(activityItem);
+                                }
                             }
                         }
 

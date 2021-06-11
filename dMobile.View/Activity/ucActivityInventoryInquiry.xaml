@@ -13,8 +13,8 @@
         <AbsoluteLayout VerticalOptions="Center">
             <Grid x:Name="gridContainer" Padding="10" AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0,0,1,1">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="50*"/>
-                    <RowDefinition Height="50*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
                 <Frame VerticalOptions="Start" Grid.Row="0" OutlineColor="{DynamicResource BorderColor}">
@@ -24,7 +24,7 @@
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
-                            <ListView x:Name="dataGridMain" HasUnevenRows="true" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" Grid.Row="1"/>
+                            <ListView x:Name="dataGridMain" HasUnevenRows="true" IsEnabled="{Binding Loading, Converter={Helpers:BoolConverter}}" Grid.Row="1" SelectionMode="None"/>
                         </Grid>
                     </ScrollView>
                 </Frame>

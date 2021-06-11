@@ -443,7 +443,6 @@ namespace dMobile.View.Activity
             {
                 if (SysCommon.ErrorReportAndRequestContinue(strFullClassName, "IsReadyToSave", Ex) == false)
                 {
-                    Android.OS.Process.KillProcess(Android.OS.Process.MyPid());
                 }
 
                 IsReadyToSave = false;
@@ -516,7 +515,6 @@ namespace dMobile.View.Activity
             {
                 if (SysCommon.ErrorReportAndRequestContinue(m_strFullClassName, "SaveChanges", Ex) == false)
                 {
-                    Android.OS.Process.KillProcess(Android.OS.Process.MyPid());
                 }
 
                 bSaveComplete = false;
@@ -557,7 +555,6 @@ namespace dMobile.View.Activity
             {
                 if (SysCommon.ErrorReportAndRequestContinue(m_strFullClassName, "CancelChanges", Ex) == false)
                 {
-                    Android.OS.Process.KillProcess(Android.OS.Process.MyPid());
                 }
 
                 bCancelChanges = false;
@@ -602,7 +599,6 @@ namespace dMobile.View.Activity
 
                 if (SysCommon.ErrorReportAndRequestContinue(m_strFullClassName, "IdentifyChangesMade", Ex) == false)
                 {
-                    Android.OS.Process.KillProcess(Android.OS.Process.MyPid());
                 }
             }
         }

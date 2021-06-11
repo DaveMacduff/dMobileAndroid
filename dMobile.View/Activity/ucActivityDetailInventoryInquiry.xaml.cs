@@ -277,7 +277,6 @@ namespace dMobile.View.Activity
                 {
                     FormErrorReport errRpt = new FormErrorReport(ex);
                     await errRpt.ShowDialog();
-                    Android.OS.Process.KillProcess(Android.OS.Process.MyPid());
                 });
             }
             finally
@@ -340,37 +339,48 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         public async Task RefreshData()
         {
-            try
+            await Task.Run(async () =>
             {
-                this.Loading = true;
-                await this.ScannerDisable();
-                this.ItemsList.Clear();
-
-                await this.ActDetail.Refresh();
-
-                this.DataGridMainActivityItemsList = this.ActDetail.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
-                this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
-
-                if (this.ActDetail.ListDetails.Count > 0 && this.DataGridMainActivityItemsList.Count > 0)
+                try
                 {
-                    await this.ActDetail.SelectActivityDetail(this.ActDetail.ListDetails[0]);
-                    this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[0];
+                    this.Loading = true;
+                    await this.ScannerDisable();
+                    await Device.InvokeOnMainThreadAsync(() => this.ItemsList.Clear());
+
+                    await this.ActDetail.Refresh();
+
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                    {
+                        this.DataGridMainActivityItemsList = this.ActDetail.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
+                        this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
+
+                        if (this.ActDetail.ListDetails.Count > 0 && this.DataGridMainActivityItemsList.Count > 0)
+                        {
+                            this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[0];
+                            await this.ActDetail.SelectActivityDetail(this.ActDetail.ListDetails[0]);
+                        }
+                    });
                 }
-            }
-            catch (Exception ex)
-            {
-                await Device.InvokeOnMainThreadAsync(async () =>
+                catch (NotImplementedException)
                 {
-                    FormErrorReport errRpt = new FormErrorReport(ex);
-                    await errRpt.ShowDialog();
-                    Android.OS.Process.KillProcess(Android.OS.Process.MyPid());
-                });
-            }
-            finally
-            {
-                await this.ScannerEnable();
-                this.Loading = false;
-            }
+                    // Handle this.ActDetail.SelectActivityDetail not implemented
+                    // TODO: Logging
+                    Console.WriteLine(this.GetControlDescription() + " Not implemented exception");
+                }
+                catch (Exception ex)
+                {
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                    {
+                        FormErrorReport errRpt = new FormErrorReport(ex);
+                        await errRpt.ShowDialog();
+                    });
+                }
+                finally
+                {
+                    await this.ScannerEnable();
+                    this.Loading = false;
+                }
+            });
         }
 
         /// <summary>
@@ -449,7 +459,6 @@ namespace dMobile.View.Activity
                 {
                     FormErrorReport errRpt = new FormErrorReport(ex);
                     await errRpt.ShowDialog();
-                    Android.OS.Process.KillProcess(Android.OS.Process.MyPid());
                 });
             }
             finally

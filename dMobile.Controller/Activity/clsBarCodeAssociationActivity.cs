@@ -12,7 +12,6 @@ namespace dMobile.Controller
     using dMobile.Resources.Services;
     using dMobile.Resources.Types;
     using Xamarin.Forms;
-    using System.Threading.Tasks;
     using System.Collections.Generic;
     using System.Linq;
 
@@ -24,6 +23,7 @@ namespace dMobile.Controller
         private double columnWidth3 = 0;
         private double columnWidth4 = 0;
         private ResourceDictionary resourceDictionary = new ResourceDictionary();
+        List<BarcodeAssociation> barcodeAssociations = new List<BarcodeAssociation>();
 
         #region Constructors
 
@@ -134,8 +134,8 @@ namespace dMobile.Controller
             if (selectedActivity is BarcodeAssociation barcodeAssociation)
             {
                 this.SelectedActivity = barcodeAssociation;
-                this.FKRefno = Convert.ToInt32((selectedActivity as dynamic).ActivityRefno);
-                this.Refno = Convert.ToInt32((selectedActivity as dynamic).ActivityRefno);
+                this.FKRefno = barcodeAssociation.ActivityRefno;
+                this.Refno = barcodeAssociation.ActivityRefno;
             }
         }
 
@@ -146,8 +146,11 @@ namespace dMobile.Controller
         /// <returns></returns>
         public override int GetRefnoFromRowIdx(object selectedObject)
         {
-            this.FKRefno = Convert.ToInt32((selectedObject as dynamic).ActivityRefno);
-            this.Refno = Convert.ToInt32((selectedObject as dynamic).ActivityRefno);
+            if (selectedObject is BarcodeAssociation barcodeAssociation)
+            {
+                this.FKRefno = Convert.ToInt32(barcodeAssociation.ActivityRefno);
+                this.Refno = Convert.ToInt32(barcodeAssociation.ActivityRefno);
+            }
 
             return this.Refno;
         }
@@ -206,7 +209,8 @@ namespace dMobile.Controller
                 sql.AppendFormat(" AND tActivityItem.ActivityItemSubType = {0}", Convert.ToInt32(SysCommon.ActSubTypes.BarCodeAssociation));
             }
 
-            this.ListHdrs = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<object>(sql.ToString());
+            this.barcodeAssociations = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<BarcodeAssociation>(sql.ToString());
+            this.ListHdrs = this.barcodeAssociations.Cast<object>().ToList();
             return this.ListHdrs;
         }
 
@@ -220,7 +224,7 @@ namespace dMobile.Controller
         {
             ObservableCollection<object> observableCollection = new ObservableCollection<object>();
 
-            this.ListHdrs = (List<object>)this.ListHdrs.OfType<BarcodeAssociation>().Where(bca => bca.ProductUnitBarCodeCode.ToLower().Contains(searchText.ToLower().Trim()));
+            this.ListHdrs = this.barcodeAssociations.Where(barcode => barcode.ProductUnitBarCodeCode.ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
 
             foreach (BarcodeAssociation barcodeAssociation in this.ListHdrs)
             {

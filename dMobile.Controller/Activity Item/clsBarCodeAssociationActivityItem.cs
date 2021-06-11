@@ -234,16 +234,6 @@
             }
         }
 
-        ///// <summary>
-        /////
-        ///// </summary>
-        ///// <param name="dataGridMain"></param>
-        ///// <remarks></remarks>
-        //public override void DesignDataGrid(DataGrid dataGridMain)
-        //{
-        //  throw new NotImplementedException();
-        //}
-
         public override ObservableCollection<object> DesignGrid(ref Grid dataGridMainActivityHeader, ref ListView dataGridMainActivity)
         {
             throw new NotImplementedException();
@@ -356,15 +346,13 @@
         /// <param name="idx"></param>
         public override async Task SelectActivityItem(object selectedActivityItem)
         {
-            dynamic selectedItem = selectedActivityItem;
-
-            if (selectedItem != null)
+            if (selectedActivityItem is BarcodeAssociationItem barcodeAssociationItem)
             {
-                this.SelectedActivityItem = selectedItem;
-                this.Refno = Convert.ToInt32(selectedItem.ActivityItemRefno);
-                this.ProdInfo = ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(selectedItem.ProductUnitRefno));
+                this.SelectedActivityItem = barcodeAssociationItem;
+                this.Refno = Convert.ToInt32(barcodeAssociationItem.ActivityItemRefno);
+                this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(barcodeAssociationItem.ProductUnitRefno));
                 this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
-                this.FKRefno = Convert.ToInt32(selectedItem.ActivityItemRefno);
+                this.FKRefno = Convert.ToInt32(barcodeAssociationItem.ActivityItemRefno);
             }
         }
 
@@ -408,9 +396,9 @@
                 {
                     await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("UPDATE tActivityItem SET ActivityItemStatus = ? WHERE ActivityItemRefno = ?", Convert.ToInt32(SysCommon.ActStatus.NoChange), this.Refno);
 
-                    if (this.ListItems != null && selectedActivityItem != null)
+                    if (this.ListItems != null && selectedActivityItem is BarcodeAssociationItem barcodeAssociationItem)
                     {
-                        (selectedActivityItem as dynamic).ActivityStatus = SysCommon.ActStatus.NoChange;
+                        barcodeAssociationItem.ActivityItemStatus = Convert.ToInt32(SysCommon.ActStatus.NoChange);
                     }
                 }
             }

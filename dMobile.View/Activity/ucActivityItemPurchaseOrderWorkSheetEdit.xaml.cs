@@ -447,8 +447,6 @@
             {
                 if (SysCommon.ErrorReportAndRequestContinue(strFullClassName, "IsReadyToSave", Ex) == false)
                 {
-                    //Application.Exit();
-                    Android.OS.Process.KillProcess(Android.OS.Process.MyPid());
                 }
 
                 IsReadyToSave = false;
@@ -504,7 +502,6 @@
             {
                 if (SysCommon.ErrorReportAndRequestContinue(strFullClassName, "SaveChanges", Ex) == false)
                 {
-                    Android.OS.Process.KillProcess(Android.OS.Process.MyPid());
                 }
 
                 bSaveComplete = false;
@@ -608,7 +605,6 @@
 
                 if (SysCommon.ErrorReportAndRequestContinue(strFullClassName, "IdentifyChangesMade", Ex) == false)
                 {
-                    Android.OS.Process.KillProcess(Android.OS.Process.MyPid());
                 }
             }
         }

@@ -141,7 +141,8 @@
         /// <returns>Name of the section.</returns>
         public static async Task<string> GetSectionName(int locMapSectFKRefno)
         {
-            return Convert.ToString(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<tLocationMapSectionModel>("SELECT LocationMapSectionName FROM tLocationMapSection WHERE LocationMapSectionFKRefno = ?", Convert.ToInt32(locMapSectFKRefno)));
+            List<tLocationMapSectionModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tLocationMapSectionModel>("SELECT LocationMapSectionName FROM tLocationMapSection WHERE LocationMapSectionFKRefno = ?", Convert.ToInt32(locMapSectFKRefno));
+            return Convert.ToString(results[0].LocationMapSectionName);
         }
 
         /// <summary>
@@ -151,7 +152,8 @@
         /// <returns>Name of the slot.</returns>
         public static async Task<string> GetSlotName(int locMapSlotFKRefno)
         {
-            return Convert.ToString(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<tLocationMapSlotModel>("SELECT LocationMapSlotName FROM tLocationMapSlot WHERE LocationMapSlotFKRefno = ?", Convert.ToInt32(locMapSlotFKRefno)));
+            List<tLocationMapSlotModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tLocationMapSlotModel>("SELECT LocationMapSlotName FROM tLocationMapSlot WHERE LocationMapSlotFKRefno = ?", Convert.ToInt32(locMapSlotFKRefno));
+            return Convert.ToString(results[0].LocationMapSlotName);
         }
 
         /// <summary>

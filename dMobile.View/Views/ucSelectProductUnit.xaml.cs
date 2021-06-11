@@ -173,11 +173,9 @@
             {
                 base.OnBackButtonPressed();
 
-                if (await this.CancelChanges())
-                {
-                    this.DialogResult = DialogResult.None;
-                    await this.Close();
-                }
+                await this.CancelChanges();
+                this.DialogResult = DialogResult.None;
+                await this.Close();
             });
 
             return true;
@@ -1109,7 +1107,7 @@
                 if (this.ProductUnitsObservableCollection.Count > 0)
                 {
                     this.dgProducts.SelectedItem = this.ProductUnitsObservableCollection[0];
-                } 
+                }
                 else
                 {
                     this.dgProducts.SelectedItem = null;
@@ -1170,11 +1168,9 @@
 
         private async void CmdClose_Clicked(object sender, EventArgs e)
         {
-            if (await this.CancelChanges())
-            {
-                this.DialogResult = DialogResult.None;
-                await this.Close();
-            }
+            await this.CancelChanges();
+            this.DialogResult = DialogResult.None;
+            await this.Close();
         }
     }
 }

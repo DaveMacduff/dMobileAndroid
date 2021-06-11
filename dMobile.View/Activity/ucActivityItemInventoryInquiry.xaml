@@ -12,7 +12,7 @@
                     <RowDefinition Height="30*"/>
                 </Grid.RowDefinitions>
 
-                <Frame VerticalOptions="Start" Grid.Row="0" OutlineColor="{DynamicResource BorderColor}">
+                <Frame Grid.Row="0" OutlineColor="{DynamicResource BorderColor}" VerticalOptions="FillAndExpand">
                     <ScrollView Orientation="Horizontal">
                         <Grid x:Name="dataGridMainActivityHeader">
                             <Grid.RowDefinitions>

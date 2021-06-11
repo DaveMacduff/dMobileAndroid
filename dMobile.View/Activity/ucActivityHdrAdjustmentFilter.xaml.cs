@@ -457,7 +457,6 @@ namespace dMobile.View.Activity
             {
                 if (SysCommon.ErrorReportAndRequestContinue(this.FullClassName, "IsReadyToSave", ex) == false)
                 {
-                    Android.OS.Process.KillProcess(Android.OS.Process.MyPid());
                 }
 
                 isReadyToSave = false;
@@ -602,7 +601,6 @@ namespace dMobile.View.Activity
             {
                 if (SysCommon.ErrorReportAndRequestContinue(this.FullClassName, "SaveChanges", ex) == false)
                 {
-                    Android.OS.Process.KillProcess(Android.OS.Process.MyPid());
                 }
 
                 saveComplete = false;
@@ -630,7 +628,6 @@ namespace dMobile.View.Activity
             {
                 if (SysCommon.ErrorReportAndRequestContinue(this.FullClassName, "IdentifyChangesMade", ex) == false)
                 {
-                    Android.OS.Process.KillProcess(Android.OS.Process.MyPid());
                 }
             }
         }
@@ -660,7 +657,6 @@ namespace dMobile.View.Activity
             {
                 if (SysCommon.ErrorReportAndRequestContinue(this.FullClassName, "cboAdjustmentType_SelectedIndexChanged", ex) == false)
                 {
-                    Android.OS.Process.KillProcess(Android.OS.Process.MyPid());
                 }
             }
         }

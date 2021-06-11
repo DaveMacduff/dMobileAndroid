@@ -403,7 +403,6 @@ namespace dMobile.View
                 FormErrorReport errReport = new FormErrorReport(SysCommon.ActSubTypes.LoginStartup, ex);
                 await Device.InvokeOnMainThreadAsync(async () => await errReport.ShowDialog().ContinueWith(result =>
                 {
-                    Android.OS.Process.KillProcess(Android.OS.Process.MyPid());
                 }));
 
                 saveComplete = false;
@@ -435,7 +434,6 @@ namespace dMobile.View
                 FormErrorReport errReport = new FormErrorReport(SysCommon.ActSubTypes.LoginStartup, ex);
                 await errReport.ShowDialog().ContinueWith(result =>
                 {
-                    Android.OS.Process.KillProcess(Android.OS.Process.MyPid());
                 });
             }
 
@@ -614,7 +612,6 @@ namespace dMobile.View
                 FormErrorReport errReport = new FormErrorReport(ex);
                 await errReport.ShowDialog().ContinueWith(result =>
                 {
-                    Android.OS.Process.KillProcess(Android.OS.Process.MyPid());
                 });
             }
             catch (Exception ex)

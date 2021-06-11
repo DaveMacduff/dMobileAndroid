@@ -310,7 +310,7 @@ namespace dMobile.View.Activity
                                 // Update the saved skid, to reflect dtec changes after the call GetSkidInfoFromBarCodeOrCode.
                                 // The changes in dtec are valid.
                                 this.SavedSkidInfo = this.actItem.ActHdr.SkidInfo;
-                                await Device.InvokeOnMainThreadAsync(async () => this.EnableControls());
+                                await Device.InvokeOnMainThreadAsync(() => this.EnableControls());
                             }
                             catch (Exceptions.MessageOnlyException ex)
                             {
@@ -1312,7 +1312,7 @@ namespace dMobile.View.Activity
         {
             if (!SysEnvironment.GetInstance().IsApplicationExitInvoked)
             {
-                await Device.InvokeOnMainThreadAsync(async () => this.updnBarCodeModifier1.SelectedItem = this.SysEnv.CurrentBarCodeModifier1);
+                await Device.InvokeOnMainThreadAsync(() => this.updnBarCodeModifier1.SelectedItem = this.SysEnv.CurrentBarCodeModifier1);
 
                 if (!string.IsNullOrEmpty(this.txtSkidCode.Text))
                 {
@@ -1320,7 +1320,7 @@ namespace dMobile.View.Activity
                 }
 
                 await this.ScannerEnable();
-                await Device.InvokeOnMainThreadAsync(async () => this.DisplayData());
+                await Device.InvokeOnMainThreadAsync(() => this.DisplayData());
 
                 this.IsControlLoaded = true;
             }
@@ -1564,7 +1564,7 @@ namespace dMobile.View.Activity
                     {
                         if (!this.IsSkidCodeChanged)
                         {
-                            Device.BeginInvokeOnMainThread(() => this.DisableControls());
+                            //Device.BeginInvokeOnMainThread(() => this.DisableControls());
                         }
 
                         this.IsSkidCodeChanged = true;
@@ -1868,7 +1868,7 @@ namespace dMobile.View.Activity
                 this.IsNewSkid = true;
 
                 // Clearing the skid code text box is needed to handle a new skid in this.SaveChanges().
-                await Device.InvokeOnMainThreadAsync(async () => this.txtSkidCode.Text = string.Empty);
+                await Device.InvokeOnMainThreadAsync(() => this.txtSkidCode.Text = string.Empty);
                 IsSkidCodeChanged = false;
                 await Device.InvokeOnMainThreadAsync(() => this.DisableControls());
 
@@ -1890,11 +1890,6 @@ namespace dMobile.View.Activity
                 {
                     // If save fails just display the new skid detail.
                 }
-                await Device.InvokeOnMainThreadAsync(() =>
-                {
-                    this.DisplayData();
-                    this.EnableControls();
-                });
             }
             catch (Exceptions.MessageOnlyException ex)
             {
@@ -1906,6 +1901,14 @@ namespace dMobile.View.Activity
                 {
                     FormErrorReport errRpt = new FormErrorReport(SysCommon.ActSubTypes.SkidInfo, ex);
                     await errRpt.ShowDialog();
+                });
+            }
+            finally
+            {
+                await Device.InvokeOnMainThreadAsync(() =>
+                {
+                    this.DisplayData();
+                    this.EnableControls();
                 });
             }
         }

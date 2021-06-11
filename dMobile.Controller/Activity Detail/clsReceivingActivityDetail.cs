@@ -517,7 +517,7 @@ namespace dMobile.Controller
                 sql.Append("tActivityDetailExtra.ActivityDetailExtra2Text AS ActivityDetailExtra2Text,");
                 sql.Append("tActivityDetailExtra.ActivityDetailExtra3Text AS ActivityDetailExtra3Text,");
                 sql.Append("tActivityDetailExtra.ActivityDetailExtra4Text AS ActivityDetailExtra4Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra5Date AS ActivityDetailExtra5Date");
+                sql.Append("tActivityDetailExtra.ActivityDetailExtra5Date AS ActivityDetailExtra5Date ");
                 sql.Append("FROM tActivityDetailReceiving ");
                 sql.Append("INNER JOIN tActivityDetail ON tActivityDetail.ActivityDetailRefno ");
                 sql.Append("= tActivityDetailReceiving.ActivityDetailRefno ");
