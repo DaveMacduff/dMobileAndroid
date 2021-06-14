@@ -1434,8 +1434,8 @@ namespace dMobile.View.Activity
             }
             finally
             {
-                this.Loading = false;
                 await Device.InvokeOnMainThreadAsync(() => this.DisplayData());
+                this.Loading = false;
             }
         }
 
