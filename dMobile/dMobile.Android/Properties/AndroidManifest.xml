@@ -1,7 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.dMobile.Android" android:installLocation="auto" android:versionCode="1" android:versionName="1.1.0">
 	<uses-sdk android:minSdkVersion="23" android:targetSdkVersion="28" />
-	<uses-permission android:name="android.permission.SET_TIME" />
 	<uses-permission android:name="android.permission.READ_PHONE_STATE" />
 	<uses-permission android:name="com.honeywell.decode.permission.DECODE" />
 	<application android:label="dMobile" android:largeHeap="true"></application>
