@@ -788,11 +788,20 @@
                                 }
                                 else
                                 {
-                                    if (this.SelectedIndex > -1)
+                                    if (this.SelectedIndex > -1 && this.DataGridMainActivityItemsList.Count > this.SelectedIndex)
                                     {
                                         this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[this.SelectedIndex];
                                     }
+                                    else
+                                    {
+                                        this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[0];
+                                    }
                                 }
+                            }
+                            else if (this.dataGridMainActivity.SelectedItem != null)
+                            {
+                                this.ActHdr.SelectedActivity = null;
+                                this.dataGridMainActivity.SelectedItem = null;
                             }
 
                             await this.DisplayData();
@@ -1619,12 +1628,9 @@
 
         private async void DataGridMainActivity_ItemSelected(object sender, SelectedItemChangedEventArgs e)
         {
-            if (e.SelectedItem != null)
-            {
-                this.SelectedIndex = e.SelectedItemIndex;
-                await this.ActHdr.SelectActivity(e.SelectedItem);
-                await this.DisplayData();
-            }
+            this.SelectedIndex = e.SelectedItemIndex;
+            await this.ActHdr.SelectActivity(e.SelectedItem);
+            await this.DisplayData();
         }
 
         private async void TxtSearchHdr_TextChanged(object sender, TextChangedEventArgs e)
