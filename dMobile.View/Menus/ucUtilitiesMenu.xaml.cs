@@ -47,7 +47,7 @@
                 // TODO: Verify keycodes
                 Enum.TryParse(keyPressed, out Keycode keycode);
 
-                if (keycode == Keycode.Enter)
+                if (keycode == Keycode.Enter && this.cmdProductLabels.IsEnabled)
                 {
                     this.DisableControls();
                     this.IsControlLoaded = false;
@@ -55,14 +55,7 @@
                     ucActivityProductLabel productLabel = new ucActivityProductLabel();
                     await productLabel.ShowDialog();
                 }
-                else if (keycode == Keycode.F1)
-                {
-                    this.DisableControls();
-                    this.IsControlLoaded = false;
-
-                    await this.Close();
-                }
-                else if (keycode == Keycode.Num1)
+                else if (keycode == Keycode.Num1 && this.cmdScanBarCodes.IsEnabled)
                 {
                     this.DisableControls();
                     this.IsControlLoaded = false;
@@ -70,7 +63,7 @@
                     ucActivityScanBarCodes scanBarcodes = new ucActivityScanBarCodes();
                     await scanBarcodes.Show();
                 }
-                else if (keycode == Keycode.Num2)
+                else if (keycode == Keycode.Num2 && this.cmdProductLabels.IsEnabled)
                 {
                     this.DisableControls();
                     this.IsControlLoaded = false;
@@ -78,7 +71,7 @@
                     ucActivityProductLabel productLabel = new ucActivityProductLabel();
                     await productLabel.ShowDialog();
                 }
-                else if (keycode == Keycode.Num3)
+                else if (keycode == Keycode.Num3 && this.cmdAssignDefaultLocation.IsEnabled)
                 {
                     this.DisableControls();
                     this.IsControlLoaded = false;

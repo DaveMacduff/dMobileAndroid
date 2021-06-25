@@ -55,33 +55,33 @@ namespace dMobile.View.Menus
                 // TODO: Verify keycodes
                 Enum.TryParse(keyPressed, out Keycode keycode);
 
-                if (keycode == Keycode.Enter)
+                if (keycode == Keycode.Enter && this.cmdWorkSheet.IsEnabled)
                 {
-                    ucActivityHdr worksheet = new ucActivityHdr(SysCommon.ActSubTypes.PurchaseOrderWorkSheet);
-                    await worksheet.Show();
                     this.DisableControls();
                     this.IsControlLoaded = false;
+                    ucActivityHdr worksheet = new ucActivityHdr(SysCommon.ActSubTypes.PurchaseOrderWorkSheet);
+                    await worksheet.Show();
                 }
-                else if (keycode == Keycode.Num1)
+                else if (keycode == Keycode.Num1 && this.cmdReceiving.IsEnabled)
                 {
+                    this.DisableControls();
+                    this.IsControlLoaded = false;
                     ucActivityHdr receiving = new ucActivityHdr(SysCommon.ActSubTypes.Receiving);
                     await receiving.Show();
+                }
+                else if (keycode == Keycode.Num2 && this.cmdPutAway.IsEnabled)
+                {
                     this.DisableControls();
                     this.IsControlLoaded = false;
-                }
-                else if (keycode == Keycode.Num2)
-                {
                     ucActivitySkidPutAway putAway = new ucActivitySkidPutAway();
                     await putAway.Show();
+                }
+                else if (keycode == Keycode.Num3 && this.cmdWorkSheet.IsEnabled)
+                {
                     this.DisableControls();
                     this.IsControlLoaded = false;
-                }
-                else if (keycode == Keycode.Num3)
-                {
                     ucActivityHdr worksheet = new ucActivityHdr(SysCommon.ActSubTypes.PurchaseOrderWorkSheet);
                     await worksheet.Show();
-                    this.DisableControls();
-                    this.IsControlLoaded = false;
                 }
             });
 

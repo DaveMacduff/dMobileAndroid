@@ -64,7 +64,7 @@ namespace dMobile.View.Menus
                 // TODO: Verify keycodes
                 Enum.TryParse(keyPressed, out Keycode keycode);
 
-                if (keycode == Keycode.Enter)
+                if (keycode == Keycode.Enter && this.cmdMovement.IsEnabled)
                 {
                     this.DisableControls();
                     this.IsControlLoaded = false;
@@ -72,7 +72,7 @@ namespace dMobile.View.Menus
                     ucInventoryMovementMenu inventoryMovementMenu = new ucInventoryMovementMenu();
                     await inventoryMovementMenu.Show();
                 }
-                else if (keycode == Keycode.Num1)
+                else if (keycode == Keycode.Num1 && this.cmdMovement.IsEnabled)
                 {
                     this.DisableControls();
                     this.IsControlLoaded = false;
@@ -80,7 +80,7 @@ namespace dMobile.View.Menus
                     ucInventoryMovementMenu inventoryMovementMenu = new ucInventoryMovementMenu();
                     await inventoryMovementMenu.Show();
                 }
-                else if (keycode == Keycode.Num2)
+                else if (keycode == Keycode.Num2 && this.cmdConvertUnits.IsEnabled)
                 {
                     this.DisableControls();
                     this.IsControlLoaded = false;
@@ -88,7 +88,7 @@ namespace dMobile.View.Menus
                     ucActivityConvertUnit convertUnit = new ucActivityConvertUnit();
                     await convertUnit.Show();
                 }
-                else if (keycode == Keycode.Num3)
+                else if (keycode == Keycode.Num3 && this.cmdInventoryCounts.IsEnabled)
                 {
                     this.DisableControls();
                     this.IsControlLoaded = false;
@@ -96,7 +96,7 @@ namespace dMobile.View.Menus
                     ucInventoryCountsMenu countsMenu = new ucInventoryCountsMenu();
                     await countsMenu.Show();
                 }
-                else if (keycode == Keycode.Num4)
+                else if (keycode == Keycode.Num4 && this.cmdSkidMaintenance.IsEnabled)
                 {
                     this.DisableControls();
                     this.IsControlLoaded = false;
@@ -104,7 +104,7 @@ namespace dMobile.View.Menus
                     ucActivityHdrSkidInfo skidInfo = new ucActivityHdrSkidInfo();
                     await skidInfo.ShowDialog();
                 }
-                else if (keycode == Keycode.Num5)
+                else if (keycode == Keycode.Num5 && this.cmdInquiry.IsEnabled)
                 {
                     this.DisableControls();
                     this.IsControlLoaded = false;
@@ -112,7 +112,7 @@ namespace dMobile.View.Menus
                     ucActivityInventoryInquiry inquiry = new ucActivityInventoryInquiry();
                     await inquiry.ShowDialog();
                 }
-                else if (keycode == Keycode.Num6)
+                else if (keycode == Keycode.Num6 && this.cmdAdjustments.IsEnabled)
                 {
                     this.DisableControls();
                     this.IsControlLoaded = false;

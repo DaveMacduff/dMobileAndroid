@@ -577,8 +577,6 @@ namespace dMobile.View.Activity
                 this.Loading = true;
 
                 string message = string.Empty;
-                //int currRowIdx = this.dataGridMainActivity.CurrentRowIndex;
-                //int currRowIdx = this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem);
                 string savedViewSort = string.Empty;
 
                 this.Parse = scanArgs.ParseInfo;
@@ -592,18 +590,10 @@ namespace dMobile.View.Activity
 
                     if (!string.IsNullOrEmpty(actStringFKRefno))
                     {
-                        // TODO: Fix sorting
-                        //savedViewSort = this.Activity.DataViewHdrs.Sort;
-                        //this.Activity.DataViewHdrs.Sort = this.Activity.GetFKRefnoIdx();
-
                         object selectedActivity = this.Activity.ListHdrs.OfType<object>().Where(activity => Convert.ToString(activity.GetType().GetProperty(this.Activity.GetFKRefnoIdx()).GetValue(activity)) == actStringFKRefno).FirstOrDefault();
-
-                        // TODO: Fix sorting
-                        //this.Activity.DataViewHdrs.Sort = savedViewSort;
 
                         if (selectedActivity != null)
                         {
-                            //this.dataGridMainActivity.CurrentRowIndex = rowIdx;
                             this.Activity.GetRefnoFromRowIdx(selectedActivity);
 
                             FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucActivityItem, this.Activity, this.ActSubType);
@@ -616,7 +606,6 @@ namespace dMobile.View.Activity
 
                             // TODO: Resource strings
                             message = string.Format("Unable To Find Reference# {0}", actStringFKRefno);
-                            //MessageBox.Show(message, this.GetControlDescription(), MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
 
                             // TODO: Resource strings
                             await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), message, "OK"));
@@ -626,7 +615,6 @@ namespace dMobile.View.Activity
                     {
                         // TODO: Resource strings
                         message = string.Format("Unable To Parse Reference# {0}", actStringFKRefno);
-                        //MessageBox.Show(message, this.GetControlDescription(), MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
 
                         // TODO: Resource strings
                         await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), message, "OK"));
@@ -634,36 +622,26 @@ namespace dMobile.View.Activity
                 }
                 else if (!string.IsNullOrEmpty(this.Parse.ActItemFKRefno))
                 {
-                    //MessageBox.Show("Scanning an activity item reference # is not supported here.", this.GetControlDescription(), MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
-
                     // TODO: Resource strings
                     await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Scanning an activity item reference # is not supported here.", "OK"));
                 }
                 else if (!string.IsNullOrEmpty(this.Parse.ProductIdentifier))
                 {
-                    //MessageBox.Show("Scanning a product bar code is not supported here.", this.GetControlDescription(), MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
-
                     // TODO: Resource strings
                     await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Scanning a product bar code is not supported here.", "OK"));
                 }
                 else if (!string.IsNullOrEmpty(this.Parse.SSCC18))
                 {
-                    //MessageBox.Show("Scanning a shipping container bar code is not supported here!", this.GetControlDescription(), MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
-
                     // TODO: Resource strings
                     await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Scanning a shipping container bar code is not supported here!", "OK"));
                 }
                 else if (!string.IsNullOrEmpty(this.Parse.LocationIdentifier))
                 {
-                    //MessageBox.Show("Scanning a location identifier bar code is not supported here.", this.GetControlDescription(), MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
-
                     // TODO: Resource strings
                     await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Scanning a location identifier bar code is not supported here.", "OK"));
                 }
                 else
                 {
-                    //MessageBox.Show("Scanned bar code type is not supported here.", this.GetControlDescription(), MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
-
                     // TODO: Resource strings
                     await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), "Scanned bar code type is not supported here.", "OK"));
                 }

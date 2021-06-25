@@ -49,12 +49,7 @@
                 // TODO: Verify keycodes
                 Enum.TryParse(keyPressed, out Keycode keycode);
 
-                if (keycode == Keycode.F1)
-                {
-                    this.DisableControls();
-                    this.IsControlLoaded = false;
-                }
-                else if (keycode == Keycode.Num1)
+                if (keycode == Keycode.Num1 && this.cmdPurchaseOrders.IsEnabled)
                 {
                     this.DisableControls();
                     this.IsControlLoaded = false;
@@ -62,7 +57,7 @@
                     ucPurchaseOrdersMenu purchaseOrders = new ucPurchaseOrdersMenu();
                     await purchaseOrders.Show();
                 }
-                else if (keycode == Keycode.Num2)
+                else if (keycode == Keycode.Num2 && this.cmdSalesOrders.IsEnabled)
                 {
                     this.DisableControls();
                     this.IsControlLoaded = false;
@@ -70,7 +65,7 @@
                     ucSalesOrdersMenu salesOrders = new ucSalesOrdersMenu();
                     await salesOrders.Show();
                 }
-                else if (keycode == Keycode.Num3)
+                else if (keycode == Keycode.Num3 && this.cmdInventory.IsEnabled)
                 {
                     this.DisableControls();
                     this.IsControlLoaded = false;
@@ -78,7 +73,7 @@
                     ucInventoryMenu inventoryMenu = new ucInventoryMenu();
                     await inventoryMenu.Show();
                 }
-                else if (keycode == Keycode.Num4)
+                else if (keycode == Keycode.Num4 && this.cmdProduction.IsEnabled)
                 {
                     this.DisableControls();
                     this.IsControlLoaded = false;
@@ -86,7 +81,7 @@
                     ucProductionTicketMenu production = new ucProductionTicketMenu();
                     await production.Show();
                 }
-                else if (keycode == Keycode.Num5)
+                else if (keycode == Keycode.Num5 && this.cmdOptions.IsEnabled)
                 {
                     this.DisableControls();
                     this.IsControlLoaded = false;
@@ -238,7 +233,7 @@
 
             return xmldocParams;
         }
-    
+
         /// <summary>
         ///
         /// </summary>

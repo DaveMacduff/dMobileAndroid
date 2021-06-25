@@ -22,8 +22,8 @@ namespace dMobile.Resources.Models
 
     //+ ")";
 
-    //        if (this.OnNubStatOut != null)
-    //        {
+    //if (this.OnNubStatOut != null)
+    //{
     //    // TODO: Resource strings
     //    this.MsgEventArgs.StatusOutMsg = "Creating picking table.";
     //    this.OnNubStatOut(this, this.MsgEventArgs);

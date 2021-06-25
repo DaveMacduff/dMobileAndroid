@@ -54,7 +54,7 @@ namespace dMobile.View.Menus
                 // TODO: Verify keycodes
                 Enum.TryParse(keyPressed, out Keycode keycode);
 
-                if (keycode == Keycode.Num1)
+                if (keycode == Keycode.Num1 && this.cmdFinishedGoods.IsEnabled)
                 {
                     this.DisableControls();
                     this.UnloadControl();
@@ -62,7 +62,7 @@ namespace dMobile.View.Menus
                     ucActivityHdr ticketFinished = new ucActivityHdr(SysCommon.ActSubTypes.TicketFinished);
                     await ticketFinished.Show();
                 }
-                else if (keycode == Keycode.Num2)
+                else if (keycode == Keycode.Num2 && this.cmdIngredientMaterial.IsEnabled)
                 {
                     this.DisableControls();
                     this.UnloadControl();
@@ -70,7 +70,7 @@ namespace dMobile.View.Menus
                     ucActivityHdr ticketMaterial = new ucActivityHdr(SysCommon.ActSubTypes.TicketMaterial);
                     await ticketMaterial.Show();
                 }
-                else if (keycode == Keycode.Num3)
+                else if (keycode == Keycode.Num3 && this.cmdByProduct.IsEnabled)
                 {
                     this.DisableControls();
                     this.UnloadControl();
@@ -78,7 +78,7 @@ namespace dMobile.View.Menus
                     ucActivityHdr ticketAddProduct = new ucActivityHdr(SysCommon.ActSubTypes.TicketAddProduct);
                     await ticketAddProduct.Show();
                 }
-                else if (keycode == Keycode.Num4)
+                else if (keycode == Keycode.Num4 && this.cmdDebox.IsEnabled)
                 {
                     this.DisableControls();
                     this.UnloadControl();

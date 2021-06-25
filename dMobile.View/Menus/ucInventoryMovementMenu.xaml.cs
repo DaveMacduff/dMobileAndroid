@@ -65,25 +65,25 @@ namespace dMobile.View.Menus
                 // TODO: Verify keycodes
                 Enum.TryParse(keyPressed, out Keycode keycode);
 
-                if (keycode == Keycode.Num1)
+                if (keycode == Keycode.Num1 && this.cmdMoveProduct.IsEnabled)
                 {
                     this.DisableControls();
                     ucActivityMoveInventory ucActivityMoveInventory = new ucActivityMoveInventory(SysCommon.ActSubTypes.MoveInventory);
                     await ucActivityMoveInventory.Show();
                 }
-                else if (keycode == Keycode.Num2)
+                else if (keycode == Keycode.Num2 && this.cmdTransferFrom.IsEnabled)
                 {
                     this.DisableControls();
                     ucActivityHdr transferFrom = new ucActivityHdr(SysCommon.ActSubTypes.TransferFrom);
                     await transferFrom.Show();
                 }
-                else if (keycode == Keycode.Num3)
+                else if (keycode == Keycode.Num3 && this.cmdTransferTo.IsEnabled)
                 {
                     this.DisableControls();
                     ucActivityHdr transferTo = new ucActivityHdr(SysCommon.ActSubTypes.TransferTo);
                     await transferTo.Show();
                 }
-                else if (keycode == Keycode.Num4)
+                else if (keycode == Keycode.Num4 && this.cmdMoveSkid.IsEnabled)
                 {
                     await MoveSkid();
                 }

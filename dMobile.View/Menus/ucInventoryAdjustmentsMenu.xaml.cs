@@ -72,27 +72,27 @@ namespace dMobile.View.Menus
                     this.DisableControls();
                     this.IsControlLoaded = false;
                 }
-                else if (keycode == Keycode.Num1)
+                else if (keycode == Keycode.Num1 && this.cmdInventory.IsEnabled)
                 {
                     await SetAdjustmentType(SysCommon.AdjTypes.Inventory);
                 }
-                else if (keycode == Keycode.Num2)
+                else if (keycode == Keycode.Num2 && this.cmdProduction.IsEnabled)
                 {
                     await SetAdjustmentType(SysCommon.AdjTypes.Production);
                 }
-                else if (keycode == Keycode.Num3)
+                else if (keycode == Keycode.Num3 && this.cmdRework.IsEnabled)
                 {
                     await SetAdjustmentType(SysCommon.AdjTypes.Rework);
                 }
-                else if (keycode == Keycode.Num4)
+                else if (keycode == Keycode.Num4 && this.cmdRequisition.IsEnabled)
                 {
                     await SetAdjustmentType(SysCommon.AdjTypes.Requisition);
                 }
-                else if (keycode == Keycode.Num5)
+                else if (keycode == Keycode.Num5 && this.cmdDisposal.IsEnabled)
                 {
                     await SetAdjustmentType(SysCommon.AdjTypes.Disposal);
                 }
-                else if (keycode == Keycode.Num6)
+                else if (keycode == Keycode.Num6 && this.cmdConvertProduct.IsEnabled)
                 {
                     await SetAdjustmentType(SysCommon.AdjTypes.ConvertProduct);
                 }

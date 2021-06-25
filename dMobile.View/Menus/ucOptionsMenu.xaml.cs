@@ -61,7 +61,7 @@
                 // TODO: Verify keycodes
                 Enum.TryParse(keyPressed, out Keycode keycode);
 
-                if (keycode == Keycode.Enter)
+                if (keycode == Keycode.Enter && this.cmdSetupDefaults.IsEnabled)
                 {
                     this.DisableControls();
                     this.IsControlLoaded = false;
@@ -69,12 +69,7 @@
                     ucSetupDefaults setupDefaults = new ucSetupDefaults();
                     await setupDefaults.Show();
                 }
-                else if (keycode == Keycode.F1)
-                {
-                    this.DisableControls();
-                    this.IsControlLoaded = false;
-                }
-                else if (keycode == Keycode.Num1)
+                else if (keycode == Keycode.Num1 && this.cmdSetupDefaults.IsEnabled)
                 {
                     this.DisableControls();
                     this.IsControlLoaded = false;
@@ -82,7 +77,7 @@
                     ucSetupDefaults setupDefaults = new ucSetupDefaults();
                     await setupDefaults.Show();
                 }
-                else if (keycode == Keycode.Num2)
+                else if (keycode == Keycode.Num2 && this.cmdCommunicationSetup.IsEnabled)
                 {
                     this.DisableControls();
                     this.IsControlLoaded = false;
@@ -91,7 +86,7 @@
                     await commSetup.Show();
 
                 }
-                else if (keycode == Keycode.Num3)
+                else if (keycode == Keycode.Num3 && this.cmdRefreshData.IsEnabled)
                 {
                     this.DisableControls();
                     this.IsControlLoaded = false;
@@ -99,7 +94,7 @@
                     ucRefreshDataOptions refreshDataOption = new ucRefreshDataOptions();
                     await refreshDataOption.Show();
                 }
-                else if (keycode == Keycode.Num4)
+                else if (keycode == Keycode.Num4 && this.cmdSubmitBatch.IsEnabled)
                 {                    
                     this.DisableControls();
                     this.IsControlLoaded = false;
@@ -107,7 +102,7 @@
                     ucSubmitBatch submitBatch = new ucSubmitBatch();
                     await submitBatch.Show();
                 }
-                else if (keycode == Keycode.Num5)
+                else if (keycode == Keycode.Num5 && this.cmdUtilities.IsEnabled)
                 {
                     this.DisableControls();
                     this.IsControlLoaded = false;
@@ -115,7 +110,7 @@
                     ucUtilitiesMenu utilities = new ucUtilitiesMenu();
                     await utilities.Show();
                 }
-                else if (keycode == Keycode.Num6)
+                else if (keycode == Keycode.Num6 && this.cmdAbout.IsEnabled)
                 {
                     this.DisableControls();
                     this.IsControlLoaded = false;

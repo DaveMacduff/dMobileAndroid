@@ -55,7 +55,7 @@ namespace dMobile.View.Menus
                 // TODO: Verify keycodes
                 Enum.TryParse(keyPressed, out Keycode keycode);
 
-                if (keycode == Keycode.Enter)
+                if (keycode == Keycode.Enter && this.cmdPhysicalCount.IsEnabled)
                 {
                     this.DisableControls();
                     this.IsControlLoaded = false;
@@ -63,7 +63,7 @@ namespace dMobile.View.Menus
                     ucActivityHdr physicalCountHdr = new ucActivityHdr(SysCommon.ActSubTypes.PhysicalCounts);
                     await physicalCountHdr.Show();
                 }
-                else if (keycode == Keycode.Num1)
+                else if (keycode == Keycode.Num1 && this.cmdPhysicalCount.IsEnabled)
                 {
                     this.DisableControls();
                     this.IsControlLoaded = false;
@@ -71,7 +71,7 @@ namespace dMobile.View.Menus
                     ucActivityHdr physicalCountHdr = new ucActivityHdr(SysCommon.ActSubTypes.PhysicalCounts);
                     await physicalCountHdr.Show();
                 }
-                else if (keycode == Keycode.Num2)
+                else if (keycode == Keycode.Num2 && this.cmdCycleCount.IsEnabled)
                 {
                     this.DisableControls();
                     this.IsControlLoaded = false;

@@ -746,8 +746,6 @@
 
                     await Task.Run(async () =>
                     {
-                        //this.Loading = true;
-
                         try
                         {
                             this.ActHdr.RegLayerListenerProgOut(this);
@@ -769,43 +767,7 @@
                         await Device.InvokeOnMainThreadAsync(() => this.ItemsList.Clear());
                         this.ActHdr.ListHdrs = await this.ActHdr.GetActivityList(false);
 
-                        await Device.InvokeOnMainThreadAsync(async () =>
-                        {
-                            this.DataGridMainActivityItemsList = this.ActHdr.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
-
-                            if (!string.IsNullOrEmpty(this.txtSearchHdr.Text))
-                            {
-                                this.DataGridMainActivityItemsList = this.ActHdr.Search(this.txtSearchHdr.Text);
-                            }
-
-                            this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
-
-                            if (this.ActHdr.ListHdrs.Count > 0 && this.DataGridMainActivityItemsList.Count > 0)
-                            {
-                                if (this.dataGridMainActivity.SelectedItem == null)
-                                {
-                                    this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[0];
-                                }
-                                else
-                                {
-                                    if (this.SelectedIndex > -1 && this.DataGridMainActivityItemsList.Count > this.SelectedIndex)
-                                    {
-                                        this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[this.SelectedIndex];
-                                    }
-                                    else
-                                    {
-                                        this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[0];
-                                    }
-                                }
-                            }
-                            else if (this.dataGridMainActivity.SelectedItem != null)
-                            {
-                                this.ActHdr.SelectedActivity = null;
-                                this.dataGridMainActivity.SelectedItem = null;
-                            }
-
-                            await this.DisplayData();
-                        });
+                        await this.DesignGrid();
                     });
                 }
             }
@@ -827,6 +789,47 @@
 
                 this.isRefreshing = false;
             }
+        }
+
+        private async Task DesignGrid()
+        {
+            await Device.InvokeOnMainThreadAsync(async () =>
+            {
+                this.DataGridMainActivityItemsList = this.ActHdr.DesignGrid(ref this.dataGridMainActivityHeader, ref this.dataGridMainActivity);
+
+                if (!string.IsNullOrEmpty(this.txtSearchHdr.Text))
+                {
+                    this.DataGridMainActivityItemsList = this.ActHdr.Search(this.txtSearchHdr.Text);
+                }
+
+                this.dataGridMainActivity.ItemsSource = this.DataGridMainActivityItemsList;
+
+                if (this.ActHdr.ListHdrs.Count > 0 && this.DataGridMainActivityItemsList.Count > 0)
+                {
+                    if (this.dataGridMainActivity.SelectedItem == null)
+                    {
+                        this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[0];
+                    }
+                    else
+                    {
+                        if (this.SelectedIndex > -1 && this.DataGridMainActivityItemsList.Count > this.SelectedIndex)
+                        {
+                            this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[this.SelectedIndex];
+                        }
+                        else
+                        {
+                            this.dataGridMainActivity.SelectedItem = this.DataGridMainActivityItemsList[0];
+                        }
+                    }
+                }
+                else if (this.dataGridMainActivity.SelectedItem != null)
+                {
+                    this.ActHdr.SelectedActivity = null;
+                    this.dataGridMainActivity.SelectedItem = null;
+                }
+
+                await this.DisplayData();
+            });
         }
 
         /// <summary>
@@ -1453,14 +1456,14 @@
             {
                 try
                 {
-                    if (Convert.ToInt32(this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem)) < 0)
+                    if (this.dataGridMainActivity.SelectedItem == null || Convert.ToInt32(this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem)) < 0)
                     {
                         // TODO: Resource strings
                         throw new Exceptions.MessageOnlyException("Please select a record to release.");
                     }
 
                     // Important! Need to ask for label quantity before the change status AND set this.ActHdr.Refno
-                    this.ActHdr.Refno = this.ActHdr.GetRefnoFromRowIdx(Convert.ToInt32(this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem)));
+                    this.ActHdr.Refno = this.ActHdr.GetRefnoFromRowIdx(this.dataGridMainActivity.SelectedItem);
 
                     SysCommon.SLabelQuantity labelQuantity = new SysCommon.SLabelQuantity();
 
@@ -1469,7 +1472,7 @@
                         labelQuantity = await this.ActHdr.GetLabelQuantity(this.SysEnv.SysSettings.IsPickSinglePrintShipLabelFullQuantity);
                     }
 
-                    if (await Device.InvokeOnMainThreadAsync(async () => await this.ActHdr.ChangeStatus(Convert.ToInt32(this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem)))))
+                    if (await Device.InvokeOnMainThreadAsync(async () => await this.ActHdr.ChangeStatus(this.dataGridMainActivity.SelectedItem)))
                     {
                         // Print labels after release
                         await this.ScannerDisable();
@@ -1491,6 +1494,7 @@
                             else
                             {
                                 this.ActHdr.ListHdrs.Remove(dataGridMainActivity.SelectedItem);
+                                await this.DesignGrid();
                             }
                         }
                         else if (this.ActSubType == SysCommon.ActSubTypes.Adjustment)
@@ -1506,12 +1510,11 @@
                                     // Show pop up screen
                                     FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucActivityDeboxLabelCount, ActSubType);
 
-                                    if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
+                                    if (await Device.InvokeOnMainThreadAsync(async () => await form.DisplayControl.ShowDialog() == DialogResult.OK))
                                     {
                                         XDocument doc = await form.GetXML();
                                         await actHdr.PrintLabel(doc);
                                     }
-
                                 }
                             }
                         }

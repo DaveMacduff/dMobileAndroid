@@ -56,7 +56,7 @@
                 // TODO: Verify keycodes
                 Enum.TryParse(keyPressed, out Keycode keycode);
 
-                if (keycode == Keycode.Num1)
+                if (keycode == Keycode.Num1 && this.cmdPicking.IsEnabled)
                 {
                     this.DisableControls();
 
@@ -65,7 +65,7 @@
 
                     this.IsControlLoaded = false;
                 }
-                else if (keycode == Keycode.Num2)
+                else if (keycode == Keycode.Num2 && this.cmdReturns.IsEnabled)
                 {
                     this.DisableControls();
 
@@ -74,7 +74,7 @@
 
                     this.IsControlLoaded = false;
                 }
-                else if (keycode == Keycode.Num3)
+                else if (keycode == Keycode.Num3 && this.cmdReleaseByOrder.IsEnabled)
                 {
                     this.DisableControls();
 
