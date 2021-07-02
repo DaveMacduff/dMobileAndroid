@@ -47,9 +47,8 @@
             if (secondAttempt)
             {
                 string barCode = globalLocationIdentifier.Substring(0, globalLocationIdentifier.TrimEnd().Length - 1);
-                locMapRefno = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<tLocationMapSlotModel>("SELECT LocationMapRefno FROM tLocationMapSlot WHERE LocationMapSlotBarCode LIKE ?%", barCode));
+                locMapRefno = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT LocationMapRefno FROM tLocationMapSlot WHERE LocationMapSlotBarCode LIKE ?%", barCode));
             }
-
 
             // second attempt to find the location as a complete SECTION bar code
             if (locMapRefno == 0)
@@ -74,7 +73,7 @@
                 if (secondAttempt)
                 {
                     string barCode = globalLocationIdentifier.Substring(0, globalLocationIdentifier.TrimEnd().Length - 1);
-                    locMapRefno = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<tLocationMapSectionModel>("SELECT tLocationMapSection.LocationMapRefno FROM tLocationMapSection WHERE tLocationMapSection.LocationMapSectionBarCode LIKE ?%", barCode));
+                    locMapRefno = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT tLocationMapSection.LocationMapRefno FROM tLocationMapSection WHERE tLocationMapSection.LocationMapSectionBarCode LIKE ?%", barCode));
                 }
             }
 
@@ -101,7 +100,7 @@
                 if (secondAttempt)
                 {
                     string barCode = globalLocationIdentifier.Substring(0, globalLocationIdentifier.TrimEnd().Length - 1);
-                    locMapRefno = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<tLocationMapWarehouseModel>("SELECT tLocationMapWarehouse.LocationMapRefno FROM tLocationMapWarehouse WHERE tLocationMapWarehouse.LocationMapWarehouseBarCode LIKE ?%", barCode));
+                    locMapRefno = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT tLocationMapWarehouse.LocationMapRefno FROM tLocationMapWarehouse WHERE tLocationMapWarehouse.LocationMapWarehouseBarCode LIKE ?%", barCode));
                 }
 
             }
@@ -263,7 +262,7 @@
             else
             {
                 // TODO: Resource strings
-                throw new Exception("Location map tracking map settings are not set.");
+                //throw new Exception("Location map tracking map settings are not set.");
             }
 
             List<tLocationMapSlotModel> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tLocationMapSlotModel>(query, parameters.ToArray());
@@ -994,7 +993,7 @@
             // Perform SQL query to lookup subtype
             int locationSubType = 0;
 
-            locationSubType = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<tLocationMapModel>("SELECT LocationMapSubType FROM tLocationMap WHERE LocationMapRefno = ?", locMapRefno));
+            locationSubType = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT LocationMapSubType FROM tLocationMap WHERE LocationMapRefno = ?", locMapRefno));
 
             switch ((SysCommon.LocMapSubTypes)locationSubType)
             {
@@ -1004,11 +1003,11 @@
 
                 case SysCommon.LocMapSubTypes.Section:
                     // Access Section table for WarehouseLocationMapRefno
-                    return Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<tLocationMapSectionModel>("SELECT WarehouseLocationMapRefno FROM tLocationMapSection WHERE LocationMapRefno = ?", Convert.ToInt32(locationSubType)));
+                    return Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT WarehouseLocationMapRefno FROM tLocationMapSection WHERE LocationMapRefno = ?", locMapRefno));
 
                 case SysCommon.LocMapSubTypes.Slot:
                     // Access Slot table for WarehouseLocationMapRefno
-                    return Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<tLocationMapSlotModel>("SELECT WarehouseLocationMapRefno FROM tLocationMapSlot WHERE LocationMapRefno = ?", Convert.ToInt32(locationSubType)));
+                    return Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT WarehouseLocationMapRefno FROM tLocationMapSlot WHERE LocationMapRefno = ?", locMapRefno));
 
                 case SysCommon.LocMapSubTypes.Warehouse:
                     // It already is a WarehouseLocationMapRefno

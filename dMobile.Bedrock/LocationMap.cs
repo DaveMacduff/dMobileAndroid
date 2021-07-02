@@ -34,7 +34,7 @@ namespace dMobile.Bedrock
         //private static bool isSlotCoord3LocMapTracked = false;
 
         // maintains last selected location for ucSetLocationMap 
-        private static SLocMap currLocMap = new SLocMap();
+        private static SLocMap currLocMap;
 
         #endregion
 
@@ -56,6 +56,11 @@ namespace dMobile.Bedrock
         {
             get
             {
+                if (currLocMap == null)
+                {
+                    currLocMap = new SLocMap();
+                }
+
                 return currLocMap;
             }
 

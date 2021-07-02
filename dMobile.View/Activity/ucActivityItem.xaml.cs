@@ -1289,26 +1289,16 @@
                     {
                         this.firstLoad = false;
                         await this.ActItem.Refresh(this.ActItem.ActHdr.XMLDataCriteria);
-                    }
 
-                    await Device.InvokeOnMainThreadAsync(() => this.updnBarCodeModifier1.SelectedItem = this.SysEnv.CurrentBarCodeModifier1);
-
-                    if (this.IsControlLoaded == false)
-                    {
-                        if (0 < this.LocMap.CurrLocMap.WhsLocMapRefno)
+                        if (this.LocMap.CurrLocMap.WhsLocMapRefno <= 0)
                         {
-                            string getCurrentReadableLocation = LocationMapTasks.GetCurrentReadableLocation();
-                            await Device.InvokeOnMainThreadAsync(() => this.CmdLocationText = "Location: " + Environment.NewLine + getCurrentReadableLocation);
-                        }
-                        else
-                        {
-                            // TODO: Resource strings
-                            await Device.InvokeOnMainThreadAsync(() => this.CmdLocationText = "Set Location");
+                            this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(this.LocMap.LoginWhsLocMapRefno);
                         }
                     }
 
                     await Device.InvokeOnMainThreadAsync(() =>
                     {
+                        this.updnBarCodeModifier1.SelectedItem = this.SysEnv.CurrentBarCodeModifier1;
                         this.CmdLocationIsEnabled = true;
                         this.CmdSelectSkidIsEnabled = this.SysEnv.SysSettings.IsSkidTrackingModule;
                         this.CmdAddProductIsEnabled = this.ActItem.IsAllowAddItem;

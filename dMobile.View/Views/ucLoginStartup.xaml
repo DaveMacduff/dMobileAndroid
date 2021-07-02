@@ -29,10 +29,10 @@
                 <!--<Image Grid.Row="0" Source="TestImage.png" HeightRequest="58" WidthRequest="240" HorizontalOptions="Center" />-->
 
                 <Label x:Name="lblLoginID" Grid.Row="1" Text="Login ID"/>
-                <Entry x:Name="txtLoginID" Grid.Row="2" Grid.ColumnSpan="2" TextChanged="IdentifyChangesMade" Keyboard="Numeric" Focused="txtLoginID_GotFocus"/>
+                <Entry x:Name="txtLoginID" Grid.Row="2" Grid.ColumnSpan="2" TextChanged="IdentifyChangesMade" Keyboard="Numeric"/>
 
                 <Label x:Name="lblLoginPassword" Grid.Row="3" Text="Password"/>
-                <Entry x:Name="txtLoginPassword" Grid.Row="4" IsPassword="True" Grid.ColumnSpan="2" TextChanged="IdentifyChangesMade" Focused="txtLoginPassword_GotFocus"/>
+                <Entry x:Name="txtLoginPassword" Grid.Row="4" IsPassword="True" Grid.ColumnSpan="2" TextChanged="IdentifyChangesMade"/>
 
                 <Label x:Name="lblWarehouse" Grid.Row="5" Text="Warehouse"/>
                 <Custom:CustomPicker x:Name="lstWarehouse" Grid.Row="6" Grid.ColumnSpan="2" SelectedIndexChanged="LstWarehouse_SelectedIndexChanged"/>

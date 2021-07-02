@@ -11,7 +11,7 @@ namespace dMobile.Bedrock
     using System.Collections.Generic;
     using System.Text;
 
-    public struct SLocMap
+    public class SLocMap
     {
         private int whsLocMapRefno;
         private int whsFKRefno;

@@ -295,17 +295,20 @@ namespace dMobile.Bedrock
         {
             get
             {
-                if (0 < this.LocMap.SlotLocMapRefno)
+                if (this.LocMap != null)
                 {
-                    this.locMapRefno = this.LocMap.SlotLocMapRefno;
-                }
-                else if (0 < this.LocMap.SectLocMapRefno)
-                {
-                    this.locMapRefno = this.LocMap.SectLocMapRefno;
-                }
-                else
-                {
-                    this.locMapRefno = this.LocMap.WhsLocMapRefno;
+                    if (0 < this.LocMap.SlotLocMapRefno)
+                    {
+                        this.locMapRefno = this.LocMap.SlotLocMapRefno;
+                    }
+                    else if (0 < this.LocMap.SectLocMapRefno)
+                    {
+                        this.locMapRefno = this.LocMap.SectLocMapRefno;
+                    }
+                    else
+                    {
+                        this.locMapRefno = this.LocMap.WhsLocMapRefno;
+                    }
                 }
 
                 return this.locMapRefno;

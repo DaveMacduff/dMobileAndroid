@@ -22,6 +22,11 @@
         /// <remarks></remarks>
         public static string GetCurrReadableProdBCUnit(ProductInfo prodInfo)
         {
+            if (prodInfo == null)
+            {
+                return string.Empty;
+            }
+
             return prodInfo.Code.TrimEnd() + (" " + prodInfo.UnitBC).TrimEnd() + " " + prodInfo.UnitCode;
         }
 

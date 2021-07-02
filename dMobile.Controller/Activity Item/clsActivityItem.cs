@@ -646,7 +646,7 @@
                     // Use a tmpLocMap to get the WarehouseLocationMapRefno. 
                     // The count LocationMapRefno could be a warehouse, section or slot location map refno.
                     SLocMap tmpLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(this.SelectedActivityItem.GetType().GetProperty("LocationMapRefno")?.GetValue(this.SelectedActivityItem)));
-                    int tmpDefaultLocMap = await this.GetDefaultLocMapRefno(tmpLocMap.WhsLocMapRefno,Convert.ToInt32(this.SelectedActivityItem.GetType().GetProperty("ProductRefno")?.GetValue(this.SelectedActivityItem)));
+                    int tmpDefaultLocMap = await this.GetDefaultLocMapRefno(tmpLocMap.WhsLocMapRefno, Convert.ToInt32(this.SelectedActivityItem.GetType().GetProperty("ProductRefno")?.GetValue(this.SelectedActivityItem)));
                     this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(tmpDefaultLocMap);
 
                     // clear the skid

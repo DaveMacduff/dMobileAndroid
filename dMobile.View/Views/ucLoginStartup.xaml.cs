@@ -665,36 +665,6 @@ namespace dMobile.View
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        /// <remarks></remarks>
-        private void txtLoginID_GotFocus(object sender, FocusEventArgs e)
-        {
-            if (this.txtLoginID.Text != null)
-            {
-                this.txtLoginID.CursorPosition = 0;
-                this.txtLoginID.SelectionLength = this.txtLoginID.Text.Length;
-            }
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <remarks></remarks>
-        private void txtLoginPassword_GotFocus(object sender, FocusEventArgs e)
-        {
-            if (this.txtLoginPassword.Text != null)
-            {
-                this.txtLoginPassword.CursorPosition = 0;
-                this.txtLoginPassword.SelectionLength = this.txtLoginPassword.Text.Length;
-            }
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private async void PictureBoxLogo_DoubleClick(object sender, EventArgs e)
         {
             if (this.IsEnableAllModuleBypassLicense)
