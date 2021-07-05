@@ -1421,39 +1421,37 @@
                 await this.ScannerDisable();
 
                 FormDialogContainer form = new FormDialogContainer(FormDialogContainer.EDialogTypes.ucSkidInfo, this.ActItem, this.ActSubType);
+                await form.DisplayControl.ShowDialog();
 
-                if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
+                XDocument xmlDoc = await form.GetXML();
+                this.ActItem.ActHdr.SkidInfo = await SysSkidInfo.GetSkidInfoFromXML(xmlDoc);
+
+                if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno == 0)
                 {
-                    XDocument xmlDoc = await form.GetXML();
-                    this.ActItem.ActHdr.SkidInfo = await SysSkidInfo.GetSkidInfoFromXML(xmlDoc);
+                    // Needed to refresh the selected item location, called SelectItem.
+                    await this.ActItem.SelectActivityItem(this.ActItem.SelectedActivityItem);
+                }
+                else
+                {
+                    int actItemFoundRefno = await this.ActItem.GetRefnoFromProdUnitRefno(this.ActItem.ActHdr.SkidInfo.CurrSkid.ProdInfo.UnitRefno);
 
-                    if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno == 0)
+                    // TODO: Sorting example
+                    this.ActItem.ListItems = this.ActItem.ListItems.OrderBy(item => item.GetType().GetProperty("ActivityItemRefno")?.GetValue(item)).ToList();
+
+                    if (actItemFoundRefno > 0)
                     {
-                        // Needed to refresh the selected item location, called SelectItem.
-                        await this.ActItem.SelectActivityItem(this.ActItem.SelectedActivityItem);
-                    }
-                    else
-                    {
-                        int actItemFoundRefno = await this.ActItem.GetRefnoFromProdUnitRefno(this.ActItem.ActHdr.SkidInfo.CurrSkid.ProdInfo.UnitRefno);
+                        //int foundRowIdx = this.ActItem.ListItems.Find(actItemFoundRefno);
+                        object selectedItem = this.ActItem.ListItems.Where(act => Convert.ToString(act.GetType().GetProperty("ActivityItemRefno")?.GetValue(act)) == Convert.ToString(actItemFoundRefno)).FirstOrDefault();
 
-                        // TODO: Sorting example
-                        this.ActItem.ListItems = this.ActItem.ListItems.OrderBy(item => item.GetType().GetProperty("ActivityItemRefno")?.GetValue(item)).ToList();
-
-                        if (actItemFoundRefno > 0)
+                        if (selectedItem != null)
                         {
-                            //int foundRowIdx = this.ActItem.ListItems.Find(actItemFoundRefno);
-                            object selectedItem = this.ActItem.ListItems.Where(act => Convert.ToString(act.GetType().GetProperty("ActivityItemRefno")?.GetValue(act)) == Convert.ToString(actItemFoundRefno)).FirstOrDefault();
-
-                            if (selectedItem != null)
-                            {
-                                await this.ActItem.SelectActivityItem(selectedItem);
-                            }
+                            await this.ActItem.SelectActivityItem(selectedItem);
                         }
                     }
-
-                    await this.DisplayData();
-                    await this.ScannerEnable();
                 }
+
+                await this.DisplayData();
+                await this.ScannerEnable();
             }
         }
 
@@ -2766,334 +2764,354 @@
             string prodUnitSizeDesc = string.Empty;
             string prodBrandDesc = string.Empty;
             string prodCode = string.Empty;
-            this.ItemsList.Clear();
 
-            if (0 < this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno)
+            try
             {
-                this.CmdAddSkidIsEnabled = true;
+                if (!this.Loading)
+                {
+                    this.Loading = true;
+                }
 
-                // TODO: Resource strings
-                this.CmdSelectSkidText = "Skid# " + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode;
-                this.CmdLocationIsEnabled = false;
-            }
-            else
-            {
-                this.CmdAddSkidIsEnabled = false;
-                this.CmdLocationIsEnabled = true;
+                this.ItemsList.Clear();
 
-                // TODO: Resource strings
-                this.CmdSelectSkidText = "Select Skid";
-            }
-
-            if (0 < this.LocMap.CurrLocMap.WhsLocMapRefno)
-            {
-                this.CmdLocationText = "Location: " + Environment.NewLine + LocationMapTasks.GetCurrentReadableLocation();
-            }
-            else
-            {
-                // TODO: Resource strings
-                this.CmdLocationText = "Set Location";
-            }
-
-            switch (this.ActItem.ActSubType)
-            {
-                case SysCommon.ActSubTypes.Adjustment:
-                    if (this.dataGridMainActivity.SelectedItem is AdjustmentItem adjustmentItem)
-                    {
-                        prodLocCode = Convert.ToString(adjustmentItem.LocationCode);
-                        prodLocName = adjustmentItem.LocationName;
-                        prodDesc = adjustmentItem.ProductDescription;
-                        prodUnitSizeDesc = adjustmentItem.ProductUnitSizeDescription;
-                    }
-
-                    this.ItemsList.Clear();
-                    this.ItemsList.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
+                if (0 < this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno)
+                {
+                    this.CmdAddSkidIsEnabled = true;
 
                     // TODO: Resource strings
-                    this.ItemsList.Add("LOCATION: " + prodLocCode.Trim() + " " + prodLocName.Trim());
-                    break;
-
-                case SysCommon.ActSubTypes.AssignDefaultLocation:
-                    break;
-
-                case SysCommon.ActSubTypes.BarCodeAssociation:
-                    break;
-
-                case SysCommon.ActSubTypes.BreakSkid:
-                    break;
-
-                case SysCommon.ActSubTypes.ConvertUnit:
-                    break;
-
-                case SysCommon.ActSubTypes.CycleCounts:
-                    if (this.dataGridMainActivity.SelectedItem is CountItem cycleCountItem)
-                    {
-                        prodLocCode = cycleCountItem.LocationCode;
-                        prodLocName = cycleCountItem.LocationName;
-                        prodDesc = cycleCountItem.ProductDescription;
-                        prodUnitSizeDesc = cycleCountItem.ProductUnitSizeDescription;
-                    }
-
-                    this.ItemsList.Clear();
-                    this.ItemsList.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
+                    this.CmdSelectSkidText = "Skid# " + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode;
+                    this.CmdLocationIsEnabled = false;
+                }
+                else
+                {
+                    this.CmdAddSkidIsEnabled = false;
+                    this.CmdLocationIsEnabled = true;
 
                     // TODO: Resource strings
-                    this.ItemsList.Add("LOCATION: " + prodLocCode.Trim() + " " + prodLocName.Trim());
-                    break;
+                    this.CmdSelectSkidText = "Select Skid";
+                }
 
-                case SysCommon.ActSubTypes.DataStatus:
-                    break;
+                if (0 < this.LocMap.CurrLocMap.WhsLocMapRefno)
+                {
+                    this.CmdLocationText = "Location: " + Environment.NewLine + LocationMapTasks.GetCurrentReadableLocation();
+                }
+                else
+                {
+                    // TODO: Resource strings
+                    this.CmdLocationText = "Set Location";
+                }
 
-                case SysCommon.ActSubTypes.InventoryInquiry:
-                    this.ItemsList.Clear();
+                switch (this.ActItem.ActSubType)
+                {
+                    case SysCommon.ActSubTypes.Adjustment:
+                        if (this.dataGridMainActivity.SelectedItem is AdjustmentItem adjustmentItem)
+                        {
+                            prodLocCode = Convert.ToString(adjustmentItem.LocationCode);
+                            prodLocName = adjustmentItem.LocationName;
+                            prodDesc = adjustmentItem.ProductDescription;
+                            prodUnitSizeDesc = adjustmentItem.ProductUnitSizeDescription;
+                        }
 
-                    if (0 >= this.ActItem.ProdInfo.Refno)
-                    {
+                        this.ItemsList.Clear();
+                        this.ItemsList.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
+
                         // TODO: Resource strings
-                        this.ItemsList.Add(string.Format("PRODUCT: {0}", "All"));
-                    }
-                    else
-                    {
+                        this.ItemsList.Add("LOCATION: " + prodLocCode.Trim() + " " + prodLocName.Trim());
+                        break;
+
+                    case SysCommon.ActSubTypes.AssignDefaultLocation:
+                        break;
+
+                    case SysCommon.ActSubTypes.BarCodeAssociation:
+                        break;
+
+                    case SysCommon.ActSubTypes.BreakSkid:
+                        break;
+
+                    case SysCommon.ActSubTypes.ConvertUnit:
+                        break;
+
+                    case SysCommon.ActSubTypes.CycleCounts:
+                        if (this.dataGridMainActivity.SelectedItem is CountItem cycleCountItem)
+                        {
+                            prodLocCode = cycleCountItem.LocationCode;
+                            prodLocName = cycleCountItem.LocationName;
+                            prodDesc = cycleCountItem.ProductDescription;
+                            prodUnitSizeDesc = cycleCountItem.ProductUnitSizeDescription;
+                        }
+
+                        this.ItemsList.Clear();
+                        this.ItemsList.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
+
                         // TODO: Resource strings
-                        this.ItemsList.Add(string.Format("PRODUCT: {0}", ProductInfoTasks.GetCurrReadableProdBCUnit(this.ActItem.ProdInfo)));
-                    }
+                        this.ItemsList.Add("LOCATION: " + prodLocCode.Trim() + " " + prodLocName.Trim());
+                        break;
 
-                    // TODO: Resource strings
-                    this.ItemsList.Add(string.Format("LOCATION: {0}", LocationMapTasks.GetCurrentReadableLocation()));
-                    break;
+                    case SysCommon.ActSubTypes.DataStatus:
+                        break;
 
-                case SysCommon.ActSubTypes.InventoryReplenishment:
-                    break;
+                    case SysCommon.ActSubTypes.InventoryInquiry:
+                        this.ItemsList.Clear();
 
-                case SysCommon.ActSubTypes.MoveInventory:
-                    break;
-
-                case SysCommon.ActSubTypes.MoveSkid:
-                    break;
-
-                case SysCommon.ActSubTypes.NotApplicable:
-                    break;
-
-                case SysCommon.ActSubTypes.PhysicalCounts:
-                    if (this.dataGridMainActivity.SelectedItem is CountItem physicalCountItem)
-                    {
-                        // Do not check if default location is enabled. Always show the default location.
-                        SLocMap tempLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(physicalCountItem.LocationMapRefno));
-                        int defLocMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(tempLocMap.WhsLocMapRefno, Convert.ToInt32(physicalCountItem.ProductRefno), SysCommon.ProdLocMapTypes.Picking);
-                        defProdLoc = LocationMapTasks.GetCurrentReadableLocation(await LocationMapTasks.GetSLocMapFromLocMapRefno(defLocMapRefno));
-
-                        prodDesc = physicalCountItem.ProductDescription.ToString();
-                        prodUnitSizeDesc = physicalCountItem.ProductUnitSizeDescription.ToString();
-                    }
-
-                    this.ItemsList.Clear();
-                    this.ItemsList.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
-
-                    // TODO: Resource strings
-                    this.ItemsList.Add("LOCATION: " + defProdLoc.Trim());
-                    break;
-
-                case SysCommon.ActSubTypes.Picking:
-                    if (this.dataGridMainActivity.SelectedItem is PickingItem pickingItem)
-                    {
-                        prodLocCode = Convert.ToString(pickingItem.LocationCode);
-                        prodLocName = pickingItem.LocationName;
-                        prodCode = pickingItem.ProductCode;
-                        prodDesc = pickingItem.ProductDescription;
-                        prodUnitSizeDesc = pickingItem.ProductUnitSizeDescription;
-                        prodBrandDesc = pickingItem.ProductBrandDescription;
-                    }
-
-                    this.ItemsList.Clear();
-
-                    switch (this.SysEnv.SysSettings.PickItemDescOpt)
-                    {
-                        case 1:
+                        if (0 >= this.ActItem.ProdInfo.Refno)
+                        {
                             // TODO: Resource strings
-                            this.ItemsList.Add("SIZE: " + prodUnitSizeDesc.Trim() + ", " + prodBrandDesc.Trim());
-                            break;
-
-                        default:
+                            this.ItemsList.Add(string.Format("PRODUCT: {0}", "All"));
+                        }
+                        else
+                        {
                             // TODO: Resource strings
-                            this.ItemsList.Add("DESC: " + prodDesc.Trim() + ", " + prodUnitSizeDesc.Trim());
-                            break;
-                    }
+                            this.ItemsList.Add(string.Format("PRODUCT: {0}", ProductInfoTasks.GetCurrReadableProdBCUnit(this.ActItem.ProdInfo)));
+                        }
 
-                    // TODO: Resource strings
-                    this.ItemsList.Add("LOCATION: " + prodLocCode.Trim() + " " + prodLocName.Trim());
-                    break;
+                        // TODO: Resource strings
+                        this.ItemsList.Add(string.Format("LOCATION: {0}", LocationMapTasks.GetCurrentReadableLocation()));
+                        break;
 
-                case SysCommon.ActSubTypes.PickingSingle:
-                    if (this.dataGridMainActivity.SelectedItem is PickingItem pickingItemSingle)
-                    {
-                        prodLocCode = Convert.ToString(pickingItemSingle.LocationCode);
-                        prodLocName = pickingItemSingle.LocationName;
-                        prodDesc = pickingItemSingle.ProductDescription;
-                        prodUnitSizeDesc = pickingItemSingle.ProductUnitSizeDescription;
-                        prodBrandDesc = pickingItemSingle.ProductBrandDescription;
-                    }
+                    case SysCommon.ActSubTypes.InventoryReplenishment:
+                        break;
 
-                    this.ItemsList.Clear();
-                    this.ItemsList.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
+                    case SysCommon.ActSubTypes.MoveInventory:
+                        break;
 
-                    // TODO: Resource strings
-                    this.ItemsList.Add("LOCATION: " + prodLocCode.Trim() + " " + prodLocName.Trim());
-                    break;
+                    case SysCommon.ActSubTypes.MoveSkid:
+                        break;
 
-                case SysCommon.ActSubTypes.TicketAddProduct:
-                    if (this.dataGridMainActivity.SelectedItem is ProductionTicketByProductItem productionTicketByProductItem)
-                    {
-                        prodLocCode = Convert.ToString(productionTicketByProductItem.LocationCode);
-                        prodLocName = productionTicketByProductItem.LocationName;
-                        prodDesc = productionTicketByProductItem.ProductDescription;
-                        prodUnitSizeDesc = productionTicketByProductItem.ProductUnitSizeDescription;
-                    }
+                    case SysCommon.ActSubTypes.NotApplicable:
+                        break;
 
-                    this.ItemsList.Clear();
-                    this.ItemsList.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
+                    case SysCommon.ActSubTypes.PhysicalCounts:
+                        if (this.dataGridMainActivity.SelectedItem is CountItem physicalCountItem)
+                        {
+                            // Do not check if default location is enabled. Always show the default location.
+                            SLocMap tempLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(physicalCountItem.LocationMapRefno));
+                            int defLocMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromProdRefno(tempLocMap.WhsLocMapRefno, Convert.ToInt32(physicalCountItem.ProductRefno), SysCommon.ProdLocMapTypes.Picking);
+                            defProdLoc = LocationMapTasks.GetCurrentReadableLocation(await LocationMapTasks.GetSLocMapFromLocMapRefno(defLocMapRefno));
 
-                    // TODO: Resource strings
-                    this.ItemsList.Add("LOCATION: " + prodLocCode.Trim() + " " + prodLocName.Trim());
-                    break;
+                            prodDesc = physicalCountItem.ProductDescription.ToString();
+                            prodUnitSizeDesc = physicalCountItem.ProductUnitSizeDescription.ToString();
+                        }
 
-                case SysCommon.ActSubTypes.TicketFinished:
-                    if (this.dataGridMainActivity.SelectedItem is ProductionTicketFinishedItem productionTicketFinishedItem)
-                    {
-                        prodLocCode = Convert.ToString(productionTicketFinishedItem.LocationCode);
-                        prodLocName = productionTicketFinishedItem.LocationName;
-                        prodDesc = productionTicketFinishedItem.ProductDescription;
-                        prodUnitSizeDesc = productionTicketFinishedItem.ProductUnitSizeDescription;
-                    }
+                        this.ItemsList.Clear();
+                        this.ItemsList.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
 
-                    this.ItemsList.Clear();
-                    this.ItemsList.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
+                        // TODO: Resource strings
+                        this.ItemsList.Add("LOCATION: " + defProdLoc.Trim());
+                        break;
 
-                    // TODO: Resource strings
-                    //this.lstDisplay.Items.Add("LOCATION: " + prodLocCode.Trim() + " " + prodLocName.Trim());
-                    this.ItemsList.Add("LOCATION: " + prodLocCode.Trim() + " " + prodLocName.Trim());
-                    break;
+                    case SysCommon.ActSubTypes.Picking:
+                        if (this.dataGridMainActivity.SelectedItem is PickingItem pickingItem)
+                        {
+                            prodLocCode = Convert.ToString(pickingItem.LocationCode);
+                            prodLocName = pickingItem.LocationName;
+                            prodCode = pickingItem.ProductCode;
+                            prodDesc = pickingItem.ProductDescription;
+                            prodUnitSizeDesc = pickingItem.ProductUnitSizeDescription;
+                            prodBrandDesc = pickingItem.ProductBrandDescription;
+                        }
 
-                case SysCommon.ActSubTypes.TicketMaterial:
-                    if (this.dataGridMainActivity.SelectedItem is ProductionTicketMaterialItem productionTicketMaterialItem)
-                    {
-                        prodLocCode = Convert.ToString(productionTicketMaterialItem.LocationCode);
-                        prodLocName = productionTicketMaterialItem.LocationName;
-                        prodDesc = productionTicketMaterialItem.ProductDescription;
-                        prodUnitSizeDesc = productionTicketMaterialItem.ProductUnitSizeDescription;
-                    }
+                        this.ItemsList.Clear();
 
-                    this.ItemsList.Clear();
-                    this.ItemsList.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
+                        switch (this.SysEnv.SysSettings.PickItemDescOpt)
+                        {
+                            case 1:
+                                // TODO: Resource strings
+                                this.ItemsList.Add("SIZE: " + prodUnitSizeDesc.Trim() + ", " + prodBrandDesc.Trim());
+                                break;
 
-                    // TODO: Resource strings
-                    this.ItemsList.Add("LOCATION: " + prodLocCode.Trim() + " " + prodLocName.Trim());
-                    break;
+                            default:
+                                // TODO: Resource strings
+                                this.ItemsList.Add("DESC: " + prodDesc.Trim() + ", " + prodUnitSizeDesc.Trim());
+                                break;
+                        }
 
-                case SysCommon.ActSubTypes.PurchaseOrderWorkSheet:
-                    if (this.dataGridMainActivity.SelectedItem is PurchaseOrderWorkSheetItem purchaseOrderWorkSheetItem)
-                    {
-                        prodLocCode = Convert.ToString(purchaseOrderWorkSheetItem.LocationCode);
-                        prodLocName = purchaseOrderWorkSheetItem.LocationName;
-                        prodDesc = purchaseOrderWorkSheetItem.ProductDescription;
-                        prodUnitSizeDesc = purchaseOrderWorkSheetItem.ProductUnitSizeDescription;
-                    }
+                        // TODO: Resource strings
+                        this.ItemsList.Add("LOCATION: " + prodLocCode.Trim() + " " + prodLocName.Trim());
+                        break;
 
-                    this.ItemsList.Clear();
-                    this.ItemsList.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
+                    case SysCommon.ActSubTypes.PickingSingle:
+                        if (this.dataGridMainActivity.SelectedItem is PickingItem pickingItemSingle)
+                        {
+                            prodLocCode = Convert.ToString(pickingItemSingle.LocationCode);
+                            prodLocName = pickingItemSingle.LocationName;
+                            prodDesc = pickingItemSingle.ProductDescription;
+                            prodUnitSizeDesc = pickingItemSingle.ProductUnitSizeDescription;
+                            prodBrandDesc = pickingItemSingle.ProductBrandDescription;
+                        }
 
-                    // TODO: Resource strings
-                    this.ItemsList.Add("LOCATION: " + prodLocCode.Trim() + " " + prodLocName.Trim());
-                    break;
+                        this.ItemsList.Clear();
+                        this.ItemsList.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
 
-                case SysCommon.ActSubTypes.PurgeActivityData:
-                    break;
+                        // TODO: Resource strings
+                        this.ItemsList.Add("LOCATION: " + prodLocCode.Trim() + " " + prodLocName.Trim());
+                        break;
 
-                case SysCommon.ActSubTypes.PutAwaySkid:
-                    break;
+                    case SysCommon.ActSubTypes.TicketAddProduct:
+                        if (this.dataGridMainActivity.SelectedItem is ProductionTicketByProductItem productionTicketByProductItem)
+                        {
+                            prodLocCode = Convert.ToString(productionTicketByProductItem.LocationCode);
+                            prodLocName = productionTicketByProductItem.LocationName;
+                            prodDesc = productionTicketByProductItem.ProductDescription;
+                            prodUnitSizeDesc = productionTicketByProductItem.ProductUnitSizeDescription;
+                        }
 
-                case SysCommon.ActSubTypes.Receiving:
-                    if (this.dataGridMainActivity.SelectedItem is ReceiveItem receiveItem)
-                    {
-                        prodLocCode = Convert.ToString(receiveItem.LocationCode);
-                        prodLocName = receiveItem.LocationName;
-                        prodDesc = receiveItem.ProductDescription;
-                        prodUnitSizeDesc = receiveItem.ProductUnitSizeDescription;
-                    }
+                        this.ItemsList.Clear();
+                        this.ItemsList.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
 
-                    this.ItemsList.Clear();
-                    this.ItemsList.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
+                        // TODO: Resource strings
+                        this.ItemsList.Add("LOCATION: " + prodLocCode.Trim() + " " + prodLocName.Trim());
+                        break;
 
-                    // TODO: Resource strings
-                    this.ItemsList.Add("LOCATION: " + prodLocCode.Trim() + " " + prodLocName.Trim());
-                    break;
+                    case SysCommon.ActSubTypes.TicketFinished:
+                        if (this.dataGridMainActivity.SelectedItem is ProductionTicketFinishedItem productionTicketFinishedItem)
+                        {
+                            prodLocCode = Convert.ToString(productionTicketFinishedItem.LocationCode);
+                            prodLocName = productionTicketFinishedItem.LocationName;
+                            prodDesc = productionTicketFinishedItem.ProductDescription;
+                            prodUnitSizeDesc = productionTicketFinishedItem.ProductUnitSizeDescription;
+                        }
 
-                case SysCommon.ActSubTypes.RefreshData:
-                    break;
+                        this.ItemsList.Clear();
+                        this.ItemsList.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
 
-                case SysCommon.ActSubTypes.ReleaseByItemSection:
-                    break;
+                        // TODO: Resource strings
+                        //this.lstDisplay.Items.Add("LOCATION: " + prodLocCode.Trim() + " " + prodLocName.Trim());
+                        this.ItemsList.Add("LOCATION: " + prodLocCode.Trim() + " " + prodLocName.Trim());
+                        break;
 
-                case SysCommon.ActSubTypes.ReleaseByOrder:
-                    break;
+                    case SysCommon.ActSubTypes.TicketMaterial:
+                        if (this.dataGridMainActivity.SelectedItem is ProductionTicketMaterialItem productionTicketMaterialItem)
+                        {
+                            prodLocCode = Convert.ToString(productionTicketMaterialItem.LocationCode);
+                            prodLocName = productionTicketMaterialItem.LocationName;
+                            prodDesc = productionTicketMaterialItem.ProductDescription;
+                            prodUnitSizeDesc = productionTicketMaterialItem.ProductUnitSizeDescription;
+                        }
 
-                case SysCommon.ActSubTypes.Returns:
-                    if (this.dataGridMainActivity.SelectedItem is ReturnItem returnItem)
-                    {
-                        prodLocCode = Convert.ToString(returnItem.LocationCode);
-                        prodLocName = returnItem.LocationName;
-                        prodCode = returnItem.ProductCode;
-                        prodDesc = returnItem.ProductDescription;
-                        prodUnitSizeDesc = returnItem.ProductUnitSizeDescription;
-                        prodBrandDesc = returnItem.ProductBrandDescription;
-                    }
+                        this.ItemsList.Clear();
+                        this.ItemsList.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
 
-                    this.ItemsList.Clear();
+                        // TODO: Resource strings
+                        this.ItemsList.Add("LOCATION: " + prodLocCode.Trim() + " " + prodLocName.Trim());
+                        break;
 
-                    // TODO: Resource strings
-                    this.ItemsList.Add("SIZE: " + prodUnitSizeDesc.Trim() + ", " + prodBrandDesc.Trim());
-                    this.ItemsList.Add("LOCATION: " + prodLocCode.Trim() + " " + prodLocName.Trim());
-                    break;
+                    case SysCommon.ActSubTypes.PurchaseOrderWorkSheet:
+                        if (this.dataGridMainActivity.SelectedItem is PurchaseOrderWorkSheetItem purchaseOrderWorkSheetItem)
+                        {
+                            prodLocCode = Convert.ToString(purchaseOrderWorkSheetItem.LocationCode);
+                            prodLocName = purchaseOrderWorkSheetItem.LocationName;
+                            prodDesc = purchaseOrderWorkSheetItem.ProductDescription;
+                            prodUnitSizeDesc = purchaseOrderWorkSheetItem.ProductUnitSizeDescription;
+                        }
 
-                case SysCommon.ActSubTypes.SelectLocation:
-                    break;
+                        this.ItemsList.Clear();
+                        this.ItemsList.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
 
-                case SysCommon.ActSubTypes.SelectProduct:
-                    break;
+                        // TODO: Resource strings
+                        this.ItemsList.Add("LOCATION: " + prodLocCode.Trim() + " " + prodLocName.Trim());
+                        break;
 
-                case SysCommon.ActSubTypes.SkidInfo:
-                    break;
+                    case SysCommon.ActSubTypes.PurgeActivityData:
+                        break;
 
-                case SysCommon.ActSubTypes.TransferFrom:
-                    if (this.dataGridMainActivity.SelectedItem is TransferItem transferItemFrom)
-                    {
-                        prodLocCode = Convert.ToString(transferItemFrom.LocationCode);
-                        prodLocName = transferItemFrom.LocationName;
-                        prodDesc = transferItemFrom.ProductDescription;
-                        prodUnitSizeDesc = transferItemFrom.ProductUnitSizeDescription;
-                    }
+                    case SysCommon.ActSubTypes.PutAwaySkid:
+                        break;
 
-                    this.ItemsList.Clear();
-                    this.ItemsList.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
+                    case SysCommon.ActSubTypes.Receiving:
+                        if (this.dataGridMainActivity.SelectedItem is ReceiveItem receiveItem)
+                        {
+                            prodLocCode = Convert.ToString(receiveItem.LocationCode);
+                            prodLocName = receiveItem.LocationName;
+                            prodDesc = receiveItem.ProductDescription;
+                            prodUnitSizeDesc = receiveItem.ProductUnitSizeDescription;
+                        }
 
-                    // TODO: Resource strings
-                    this.ItemsList.Add("LOCATION: " + prodLocCode.Trim() + " " + prodLocName.Trim());
-                    break;
+                        this.ItemsList.Clear();
+                        this.ItemsList.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
 
-                case SysCommon.ActSubTypes.TransferTo:
-                    if (this.dataGridMainActivity.SelectedItem is TransferItem transferItemTo)
-                    {
-                        prodLocCode = Convert.ToString(transferItemTo.LocationCode);
-                        prodLocName = transferItemTo.LocationName;
-                        prodDesc = transferItemTo.ProductDescription;
-                        prodUnitSizeDesc = transferItemTo.ProductUnitSizeDescription;
-                    }
+                        // TODO: Resource strings
+                        this.ItemsList.Add("LOCATION: " + prodLocCode.Trim() + " " + prodLocName.Trim());
+                        break;
 
-                    this.ItemsList.Clear();
-                    this.ItemsList.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
+                    case SysCommon.ActSubTypes.RefreshData:
+                        break;
 
-                    // TODO: Resource strings
-                    this.ItemsList.Add("LOCATION: " + prodLocCode.Trim() + " " + prodLocName.Trim());
-                    break;
+                    case SysCommon.ActSubTypes.ReleaseByItemSection:
+                        break;
+
+                    case SysCommon.ActSubTypes.ReleaseByOrder:
+                        break;
+
+                    case SysCommon.ActSubTypes.Returns:
+                        if (this.dataGridMainActivity.SelectedItem is ReturnItem returnItem)
+                        {
+                            prodLocCode = Convert.ToString(returnItem.LocationCode);
+                            prodLocName = returnItem.LocationName;
+                            prodCode = returnItem.ProductCode;
+                            prodDesc = returnItem.ProductDescription;
+                            prodUnitSizeDesc = returnItem.ProductUnitSizeDescription;
+                            prodBrandDesc = returnItem.ProductBrandDescription;
+                        }
+
+                        this.ItemsList.Clear();
+
+                        // TODO: Resource strings
+                        this.ItemsList.Add("SIZE: " + prodUnitSizeDesc.Trim() + ", " + prodBrandDesc.Trim());
+                        this.ItemsList.Add("LOCATION: " + prodLocCode.Trim() + " " + prodLocName.Trim());
+                        break;
+
+                    case SysCommon.ActSubTypes.SelectLocation:
+                        break;
+
+                    case SysCommon.ActSubTypes.SelectProduct:
+                        break;
+
+                    case SysCommon.ActSubTypes.SkidInfo:
+                        break;
+
+                    case SysCommon.ActSubTypes.TransferFrom:
+                        if (this.dataGridMainActivity.SelectedItem is TransferItem transferItemFrom)
+                        {
+                            prodLocCode = Convert.ToString(transferItemFrom.LocationCode);
+                            prodLocName = transferItemFrom.LocationName;
+                            prodDesc = transferItemFrom.ProductDescription;
+                            prodUnitSizeDesc = transferItemFrom.ProductUnitSizeDescription;
+                        }
+
+                        this.ItemsList.Clear();
+                        this.ItemsList.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
+
+                        // TODO: Resource strings
+                        this.ItemsList.Add("LOCATION: " + prodLocCode.Trim() + " " + prodLocName.Trim());
+                        break;
+
+                    case SysCommon.ActSubTypes.TransferTo:
+                        if (this.dataGridMainActivity.SelectedItem is TransferItem transferItemTo)
+                        {
+                            prodLocCode = Convert.ToString(transferItemTo.LocationCode);
+                            prodLocName = transferItemTo.LocationName;
+                            prodDesc = transferItemTo.ProductDescription;
+                            prodUnitSizeDesc = transferItemTo.ProductUnitSizeDescription;
+                        }
+
+                        this.ItemsList.Clear();
+                        this.ItemsList.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
+
+                        // TODO: Resource strings
+                        this.ItemsList.Add("LOCATION: " + prodLocCode.Trim() + " " + prodLocName.Trim());
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Display Data", ex.Message, "OK"));
+            }
+            finally
+            {
+                if (this.Loading)
+                {
+                    this.Loading = false;
+                }
             }
         }
 

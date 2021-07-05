@@ -18,7 +18,7 @@
                     <RowDefinition Height="15*"/>
                 </Grid.RowDefinitions>
 
-                <Label x:Name="lblSkidNumber" Grid.Row="0"/>
+                <Label x:Name="lblSkidNumber" Grid.Row="0" FontAttributes="Bold"/>
 
                 <Frame VerticalOptions="Start" OutlineColor="{DynamicResource BorderColor}" Grid.Row="1">
                     <ScrollView Orientation="Horizontal">

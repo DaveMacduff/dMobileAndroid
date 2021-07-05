@@ -886,9 +886,7 @@ namespace dMobile.View.Activity
 
             try
             {
-                if ((this.callingActSubType == SysCommon.ActSubTypes.Picking || this.CallingActSubType == SysCommon.ActSubTypes.PickingSingle)
-                    && !string.IsNullOrEmpty(this.txtSkidCode.Text)
-                    && this.SkidInfo.CurrSkid.SkidCode != this.txtSkidCode.Text.PadRight(20))
+                if ((this.callingActSubType == SysCommon.ActSubTypes.Picking || this.CallingActSubType == SysCommon.ActSubTypes.PickingSingle) && !string.IsNullOrEmpty(this.txtSkidCode.Text) && this.SkidInfo.CurrSkid.SkidCode != this.txtSkidCode.Text.PadRight(20))
                 {
                     this.txtSkidCode_KeyUpEnter(this.txtSkidCode, new KeyEventArgs(false, Keycode.Enter, new KeyEvent(KeyEventActions.Up, Keycode.Enter)));
                 }
