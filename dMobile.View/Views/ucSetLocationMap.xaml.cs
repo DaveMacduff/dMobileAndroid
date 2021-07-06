@@ -733,14 +733,14 @@
                 {
                     await this.ScannerEnable();
                     await this.LoadData();
-                    this.SelectWarehouse();
+                    await this.SelectWarehouse();
 
                     // Selecting the section and slot are required here even if the section / slot grids are not display 
                     // because we want to set the grid(s).CurrentRowIdx
                     if (this.LocMap.CurrLocMap.IsSectionTracked)
                     {
-                        this.SelectSection();
-                        this.SelectSlotCoordinate();
+                        await this.SelectSection();
+                        await this.SelectSlotCoordinate();
                     }
 
                     this.IsControlLoaded = true;
@@ -794,7 +794,7 @@
             }
             finally
             {
-                this.PopulateSectionList();
+                await this.PopulateSectionList();
             }
         }
 
@@ -804,13 +804,13 @@
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        private void txtSlotCoordinate1_TextChanged(object sender, TextChangedEventArgs e)
+        private async void txtSlotCoordinate1_TextChanged(object sender, TextChangedEventArgs e)
         {
             this.FilteredListSlotCoord1 = this.ListSlotCoord1.Where<Slot>(slot => slot.LocationMapSlotCoordinateCode.Contains(this.txtSlotCoordinate1.Text.Trim())).ToList();
-            this.PopulateSlotCoord1List();
+            await this.PopulateSlotCoord1List();
         }
 
-        private void PopulateSlotCoord1List()
+        private async Task PopulateSlotCoord1List()
         {
             this.SlotCoord1ObservableCollection = new ObservableCollection<Slot>();
 
@@ -826,7 +826,7 @@
                 this.SlotCoord1ObservableCollection.Add(slot);
             }
 
-            this.dgCoord1.ItemsSource = this.SlotCoord1ObservableCollection;
+            await Device.InvokeOnMainThreadAsync(() => this.dgCoord1.ItemsSource = this.SlotCoord1ObservableCollection);
         }
 
         /// <summary>
@@ -835,14 +835,14 @@
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        private void txtSlotCoordinate2_TextChanged(object sender, TextChangedEventArgs e)
+        private async void txtSlotCoordinate2_TextChanged(object sender, TextChangedEventArgs e)
         {
             //this.DataViewSlotCoord2.RowFilter = "LocationMapSlotCoordinateCode LIKE \'%" + this.txtSlotCoordinate2.Text.Trim() + "%\'";
             this.FilteredListSlotCoord2 = this.ListSlotCoord2.Where<Slot>(slot => slot.LocationMapSlotCoordinateCode.Contains(this.txtSlotCoordinate1.Text.Trim())).ToList();
-            this.PopulateSlotCoord2List();
+            await this.PopulateSlotCoord2List();
         }
 
-        private void PopulateSlotCoord2List()
+        private async Task PopulateSlotCoord2List()
         {
             this.SlotCoord2ObservableCollection = new ObservableCollection<Slot>();
 
@@ -858,7 +858,7 @@
                 this.SlotCoord2ObservableCollection.Add(slot);
             }
 
-            this.dgCoord2.ItemsSource = this.SlotCoord2ObservableCollection;
+            await Device.InvokeOnMainThreadAsync(() => this.dgCoord2.ItemsSource = this.SlotCoord2ObservableCollection);
         }
 
         /// <summary>
@@ -867,14 +867,14 @@
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        private void txtSlotCoordinate3_TextChanged(object sender, TextChangedEventArgs e)
+        private async void txtSlotCoordinate3_TextChanged(object sender, TextChangedEventArgs e)
         {
             //this.DataViewSlotCoord3.RowFilter = "LocationMapSlotCoordinateCode LIKE \'%" + this.txtSlotCoordinate3.Text.Trim() + "%\'";
             this.FilteredListSlotCoord3 = this.ListSlotCoord3.Where<Slot>(slot => slot.LocationMapSlotCoordinateCode.Contains(this.txtSlotCoordinate1.Text.Trim())).ToList();
-            this.PopulateSlotCoord3List();
+            await this.PopulateSlotCoord3List();
         }
 
-        private void PopulateSlotCoord3List()
+        private async Task PopulateSlotCoord3List()
         {
             this.SlotCoord3ObservableCollection = new ObservableCollection<Slot>();
 
@@ -890,7 +890,7 @@
                 this.SlotCoord3ObservableCollection.Add(slot);
             }
 
-            this.dgCoord3.ItemsSource = this.SlotCoord3ObservableCollection;
+            await Device.InvokeOnMainThreadAsync(() => this.dgCoord3.ItemsSource = this.SlotCoord3ObservableCollection);
         }
 
         /// <summary>
@@ -913,7 +913,7 @@
                     {
                         this.FilteredListSections = this.ListSections.Where<Section>(section => section.WarehouseLocationMapRefno == this.LocMapInfo.WhsLocMapRefno).ToList();
 
-                        this.SelectSection();
+                        await this.SelectSection();
 
                         if (this.FilteredListSections.Count > 0)
                         {
@@ -937,7 +937,7 @@
                         this.FilteredListSlotCoord2 = this.ListSlotCoord2.Where<Slot>(slot => slot.SectionLocationMapRefno == this.LocMapInfo.SectLocMapRefno).ToList();
                         this.FilteredListSlotCoord3 = this.ListSlotCoord3.Where<Slot>(slot => slot.SectionLocationMapRefno == this.LocMapInfo.SectLocMapRefno).ToList();
 
-                        this.SelectSlotCoordinate();
+                        await this.SelectSlotCoordinate();
 
                         if (this.FilteredListSlotCoord1.Count > 0)
                         {
@@ -994,7 +994,7 @@
         {
             this.ListWarehouse = await LocationMapTasks.GetWhsList();
             this.FilteredListWarehouse = this.ListWarehouse;
-            this.PopulateWarehouseList();
+            await this.PopulateWarehouseList();
         }
 
         /// <summary>
@@ -1005,7 +1005,7 @@
         {
             this.ListSections = await LocationMapTasks.GetSectList();
             this.FilteredListSections = this.ListSections.Where(section => section.WarehouseLocationMapRefno == this.LocMapInfo.WhsLocMapRefno).ToList();
-            this.PopulateSectionList();
+            await this.PopulateSectionList();
         }
 
         /// <summary>
@@ -1016,15 +1016,15 @@
         {
             this.ListSlotCoord1 = await LocationMapTasks.GetSlotCoord1List();
             this.FilteredListSlotCoord1 = this.ListSlotCoord1.Where<Slot>(slot => slot.SectionLocationMapRefno == this.LocMapInfo.SectLocMapRefno).ToList();
-            this.PopulateSlotCoord1List();
+            await this.PopulateSlotCoord1List();
 
             this.ListSlotCoord2 = await LocationMapTasks.GetSlotCoord2List();
             this.FilteredListSlotCoord2 = this.ListSlotCoord2.Where<Slot>(slot => slot.SectionLocationMapRefno == this.LocMapInfo.SectLocMapRefno).ToList();
-            this.PopulateSlotCoord2List();
+            await this.PopulateSlotCoord2List();
 
             this.ListSlotCoord3 = await LocationMapTasks.GetSlotCoord3List();
             this.FilteredListSlotCoord3 = this.ListSlotCoord3.Where<Slot>(slot => slot.SectionLocationMapRefno == this.LocMapInfo.SectLocMapRefno).ToList();
-            this.PopulateSlotCoord3List();
+            await this.PopulateSlotCoord3List();
         }
 
         /// <summary>
@@ -1066,9 +1066,9 @@
                 await this.LoadSections();
                 await this.LoadSlots();
 
-                this.SelectWarehouse();
-                this.SelectSection();
-                this.SelectSlotCoordinate();
+                await this.SelectWarehouse();
+                await this.SelectSection();
+                await this.SelectSlotCoordinate();
             }
             catch (Exception ex)
             {
@@ -1080,7 +1080,7 @@
         ///
         /// </summary>
         /// <remarks></remarks>
-        private void SelectWarehouse()
+        private async Task SelectWarehouse()
         {
             // Attempt to find last selected warehouse in warehouse view
             if (this.LocMapInfo.WhsLocMapRefno != 0)
@@ -1089,18 +1089,18 @@
 
                 if (selectedWarehouse != null)
                 {
-                    this.dgWhs.SelectedItem = selectedWarehouse;
+                    await Device.InvokeOnMainThreadAsync(() => this.dgWhs.SelectedItem = selectedWarehouse);
                 }
                 else if (this.WarehouseObservableCollection.Count > 0)
                 {
-                    this.dgWhs.SelectedItem = this.WarehouseObservableCollection[0];
+                    await Device.InvokeOnMainThreadAsync(() => this.dgWhs.SelectedItem = this.WarehouseObservableCollection[0]);
                 }
             }
             else
             {
                 if (this.WarehouseObservableCollection.Count > 0)
                 {
-                    this.dgWhs.SelectedItem = this.WarehouseObservableCollection[0];
+                    await Device.InvokeOnMainThreadAsync(() => this.dgWhs.SelectedItem = this.WarehouseObservableCollection[0]);
                 }
             }
         }
@@ -1226,7 +1226,7 @@
         ///
         /// </summary>
         /// <remarks></remarks>
-        private void SelectSection()
+        private async Task SelectSection()
         {
             if (this.LocMap.CurrLocMap.IsSectionTracked)
             {
@@ -1237,18 +1237,18 @@
 
                     if (section != null)
                     {
-                        this.dgSections.SelectedItem = section;
+                        await Device.InvokeOnMainThreadAsync(() => this.dgSections.SelectedItem = section);
                     }
                     else if (this.SectionObservableCollection.Count > 0)
                     {
-                        this.dgSections.SelectedItem = this.SectionObservableCollection[0];
+                        await Device.InvokeOnMainThreadAsync(() => this.dgSections.SelectedItem = this.SectionObservableCollection[0]);
                     }
                 }
                 else
                 {
                     if (this.SectionObservableCollection.Count > 0)
                     {
-                        this.dgSections.SelectedItem = this.SectionObservableCollection[0];
+                        await Device.InvokeOnMainThreadAsync(() => this.dgSections.SelectedItem = this.SectionObservableCollection[0]);
                     }
                 }
             }
@@ -1258,23 +1258,23 @@
         ///
         /// </summary>
         /// <remarks></remarks>
-        private void SelectSlotCoordinate()
+        private async Task SelectSlotCoordinate()
         {
             if (this.LocMap.CurrLocMap.IsSlotTracked)
             {
                 if (this.FilteredListSlotCoord1.Count > this.SlotCoord1ObservableCollection.Count)
                 {
-                    this.PopulateSlotCoord1List();
+                    await this.PopulateSlotCoord1List();
                 }
 
                 if (this.FilteredListSlotCoord2.Count > this.SlotCoord2ObservableCollection.Count)
                 {
-                    this.PopulateSlotCoord2List();
+                    await this.PopulateSlotCoord2List();
                 }
 
                 if (this.FilteredListSlotCoord3.Count > this.SlotCoord3ObservableCollection.Count)
                 {
-                    this.PopulateSlotCoord3List();
+                    await this.PopulateSlotCoord3List();
                 }
 
                 // Attempt to find last selected slot coordinate in slot coordinate 1 view
@@ -1284,18 +1284,18 @@
 
                     if (slotCoord1 != null)
                     {
-                        this.dgCoord1.SelectedItem = slotCoord1;
+                        await Device.InvokeOnMainThreadAsync(() => this.dgCoord1.SelectedItem = slotCoord1);
                     }
                     else if (this.SlotCoord1ObservableCollection.Count > 0)
                     {
-                        this.dgCoord1.SelectedItem = this.SlotCoord1ObservableCollection[0];
+                        await Device.InvokeOnMainThreadAsync(() => this.dgCoord1.SelectedItem = this.SlotCoord1ObservableCollection[0]);
                     }
                 }
                 else
                 {
                     if (this.SlotCoord1ObservableCollection.Count > 0)
                     {
-                        this.dgCoord1.SelectedItem = this.SlotCoord1ObservableCollection[0];
+                        await Device.InvokeOnMainThreadAsync(() => this.dgCoord1.SelectedItem = this.SlotCoord1ObservableCollection[0]);
                     }
                 }
 
@@ -1306,18 +1306,18 @@
 
                     if (slotCoord2 != null)
                     {
-                        this.dgCoord2.SelectedItem = slotCoord2;
+                        await Device.InvokeOnMainThreadAsync(() => this.dgCoord2.SelectedItem = slotCoord2);
                     }
                     else if (this.SlotCoord2ObservableCollection.Count > 0)
                     {
-                        this.dgCoord2.SelectedItem = this.SlotCoord2ObservableCollection[0];
+                        await Device.InvokeOnMainThreadAsync(() => this.dgCoord2.SelectedItem = this.SlotCoord2ObservableCollection[0]);
                     }
                 }
                 else
                 {
                     if (this.SlotCoord2ObservableCollection.Count > 0)
                     {
-                        this.dgCoord2.SelectedItem = this.SlotCoord2ObservableCollection[0];
+                        await Device.InvokeOnMainThreadAsync(() => this.dgCoord2.SelectedItem = this.SlotCoord2ObservableCollection[0]);
                     }
                 }
 
@@ -1328,18 +1328,18 @@
 
                     if (slotCoord3 != null)
                     {
-                        this.dgCoord3.SelectedItem = slotCoord3;
+                        await Device.InvokeOnMainThreadAsync(() => this.dgCoord3.SelectedItem = slotCoord3);
                     }
                     else if (this.SlotCoord3ObservableCollection.Count > 0)
                     {
-                        this.dgCoord3.SelectedItem = this.SlotCoord3ObservableCollection[0];
+                        await Device.InvokeOnMainThreadAsync(() => this.dgCoord3.SelectedItem = this.SlotCoord3ObservableCollection[0]);
                     }
                 }
                 else
                 {
                     if (this.SlotCoord3ObservableCollection.Count > 0)
                     {
-                        this.dgCoord3.SelectedItem = this.SlotCoord3ObservableCollection[0];
+                        await Device.InvokeOnMainThreadAsync(() => this.dgCoord3.SelectedItem = this.SlotCoord3ObservableCollection[0]);
                     }
                 }
             }
@@ -1390,9 +1390,9 @@
                 {
                     int locMapRefno = await LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(this.Parse.LocationIdentifier);
                     this.LocMapInfo = await LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
-                    this.SelectWarehouse();
-                    this.SelectSection();
-                    this.SelectSlotCoordinate();
+                    await this.SelectWarehouse();
+                    await this.SelectSection();
+                    await this.SelectSlotCoordinate();
                 }
                 else
                 {
@@ -1423,10 +1423,13 @@
                     if (this.IsControlLoaded && e.SelectedItem is Warehouse warehouse)
                     {
                         this.LocMapInfo = await LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(warehouse.LocationMapRefno));
-                        this.dgSections.SelectedItem = null;
-                        this.dgCoord1.SelectedItem = null;
-                        this.dgCoord2.SelectedItem = null;
-                        this.dgCoord3.SelectedItem = null;
+                        await Device.InvokeOnMainThreadAsync(() =>
+                        {
+                            this.dgSections.SelectedItem = null;
+                            this.dgCoord1.SelectedItem = null;
+                            this.dgCoord2.SelectedItem = null;
+                            this.dgCoord3.SelectedItem = null;
+                        });
                         await this.LoadSections();
                         await this.UpdateLocationDisplay();
                     }
@@ -1544,7 +1547,7 @@
             }
         }
 
-        private void PopulateWarehouseList()
+        private async Task PopulateWarehouseList()
         {
             this.WarehouseObservableCollection = new ObservableCollection<Warehouse>();
 
@@ -1560,10 +1563,10 @@
                 this.WarehouseObservableCollection.Add(warehouse);
             }
 
-            this.dgWhs.ItemsSource = this.WarehouseObservableCollection;
+            await Device.InvokeOnMainThreadAsync(() => this.dgWhs.ItemsSource = this.WarehouseObservableCollection);
         }
 
-        private void PopulateSectionList()
+        private async Task PopulateSectionList()
         {
             this.SectionObservableCollection = new ObservableCollection<Section>();
 
@@ -1580,7 +1583,7 @@
                 this.SectionObservableCollection.Add(section);
             }
 
-            this.dgSections.ItemsSource = this.SectionObservableCollection;
+            await Device.InvokeOnMainThreadAsync(() => this.dgSections.ItemsSource = this.SectionObservableCollection);
         }
 
         private async void BtnSave_Clicked(object sender, EventArgs e)
