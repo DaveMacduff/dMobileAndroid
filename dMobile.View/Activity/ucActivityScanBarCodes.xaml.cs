@@ -688,10 +688,10 @@ namespace dMobile.View.Activity
                         {
                             try
                             {
-                                decimal deliScaleWeight = 0;
-                                string deliScaleWeightUnit = string.Empty;
-                                ProductInfoTasks.UnitRefnoFromBarCode unitRefnoFromBarcode = await ProductInfoTasks.GetUnitRefnoFromBarCode(prodIdentifier, this.SysEnv.CurrentBarCodeModifier1, this.Parse.Symbology, this.Parse.DeliScaleAmount, deliScaleWeight, deliScaleWeightUnit, prodInfo);
+                                ProductInfoTasks.UnitRefnoFromBarCode unitRefnoFromBarcode = await ProductInfoTasks.GetUnitRefnoFromBarCode(prodIdentifier, this.SysEnv.CurrentBarCodeModifier1, this.Parse.Symbology, this.Parse.DeliScaleAmount);
                                 this.UnitRefno = unitRefnoFromBarcode.ProdInfo.UnitRefno;
+                                decimal deliScaleWeight = unitRefnoFromBarcode.DeliScaleWeight;
+                                string deliScaleWeightUnit = unitRefnoFromBarcode.DeliScaleWeightUnit;
 
                                 if (this.UnitRefno == 0)
                                 {
@@ -730,12 +730,10 @@ namespace dMobile.View.Activity
                                         prodCode = resultsProductUnit[0].ProductCode.ToString();
 
                                         // If product was found associated display it.  'ProductID+BC+UOM'
-
                                         // TODO: Resource strings
                                         await this.AddScanMsg(sender, scanArgs, "Product Associated To Bar Code");
 
-                                        string prodbcuom = resultsProductUnit[0].ProductCode.ToString() + " "
-                                            + resultsProductUnit[0].ProductUnitBC.ToString() + " " + resultsProductUnit[0].UnitCode.ToString();
+                                        string prodbcuom = resultsProductUnit[0].ProductCode.ToString() + " " + resultsProductUnit[0].ProductUnitBC.ToString() + " " + resultsProductUnit[0].UnitCode.ToString();
                                         await this.AddScanMsg(sender, scanArgs, prodbcuom);
 
                                         if (this.Parse.DeliScaleAmount != 0 && (this.Parse.Symbology == SysCommon.BarCodeSymbologies.UCC_12_UPC_E || this.Parse.Symbology == SysCommon.BarCodeSymbologies.EAN_UCC_13))

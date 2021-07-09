@@ -145,10 +145,7 @@ namespace dMobile.View
                                 barCodeParse.ProductIdentifier,
                                 sysEnv.CurrentBarCodeModifier1,
                                 barCodeParse.Symbology,
-                                barCodeParse.DeliScaleAmount,
-                                deliScaleWeight,
-                                deliScaleWeightUnit,
-                                prod);
+                                barCodeParse.DeliScaleAmount);
 
                             prod = unitRefnoFromBarCode.ProdInfo;
                             prodUnitRefno = unitRefnoFromBarCode.ProdInfo.UnitRefno;

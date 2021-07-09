@@ -194,10 +194,8 @@
                string productUnitBarCodeCode,
                string productUnitBarCodeModifier1,
                SysCommon.BarCodeSymbologies barCodeSymbology,
-               decimal deliScaleAmount,
-               decimal deliScaleWeight,
-               string deliScaleWeightUnit,
-               ProductInfo prodInfo)
+               decimal deliScaleAmount
+            )
         {
             SysEnvironment sysEnv = SysEnvironment.GetInstance();
             UnitRefnoFromBarCode unitRefnoFromBarCode = new UnitRefnoFromBarCode();
@@ -262,28 +260,28 @@
                             unitRefnoFromBarCode.DeliScaleWeightUnit = Convert.ToString(result.SelectSingleNode("/VFPData/DeliScaleWeightUnit").FirstChild.Value);
                         }
 
-                        if (prodInfo.FKRefno != 0)
+                        if (unitRefnoFromBarCode.ProdInfo.FKRefno != 0)
                         {
-                            prodInfo.UnitIsBC = Convert.ToBoolean(result.SelectSingleNode("/VFPData/ProductUnitIsBC").FirstChild.Value);
-                            prodInfo.UnitCode = result.SelectSingleNode("/VFPData/ProductUnitCode").FirstChild.Value;
+                            unitRefnoFromBarCode.ProdInfo.UnitIsBC = Convert.ToBoolean(result.SelectSingleNode("/VFPData/ProductUnitIsBC").FirstChild.Value);
+                            unitRefnoFromBarCode.ProdInfo.UnitCode = result.SelectSingleNode("/VFPData/ProductUnitCode").FirstChild.Value;
 
-                            List<tProductModel> productList = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tProductModel>("SELECT * FROM tProduct WHERE ProductFKRefno = ?", Convert.ToInt32(prodInfo.FKRefno));
+                            List<tProductModel> productList = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tProductModel>("SELECT * FROM tProduct WHERE ProductFKRefno = ?", Convert.ToInt32(unitRefnoFromBarCode.ProdInfo.FKRefno));
 
                             if (productList != null && productList.Count > 0)
                             {
-                                prodInfo.Refno = productList[0].ProductRefno;
+                                unitRefnoFromBarCode.ProdInfo.Refno = productList[0].ProductRefno;
 
-                                List<tUnitModel> unitList = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tUnitModel>("SELECT * FROM tUnit WHERE UnitCode = ?", Convert.ToString(prodInfo.UnitCode));
+                                List<tUnitModel> unitList = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tUnitModel>("SELECT * FROM tUnit WHERE UnitCode = ?", Convert.ToString(unitRefnoFromBarCode.ProdInfo.UnitCode));
 
                                 if (unitList != null && unitList.Count > 0)
                                 {
                                     int unitRefno = unitList[0].UnitRefno;
 
-                                    List<tProductUnitModel> productUnitList = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tProductUnitModel>("SELECT * FROM tProductUnit WHERE ProductRefno = ? AND UnitRefno = ? AND ProductUnitIsBC = ?", prodInfo.Refno, unitRefno, prodInfo.UnitIsBC);
+                                    List<tProductUnitModel> productUnitList = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tProductUnitModel>("SELECT * FROM tProductUnit WHERE ProductRefno = ? AND UnitRefno = ? AND ProductUnitIsBC = ?", unitRefnoFromBarCode.ProdInfo.Refno, unitRefno, unitRefnoFromBarCode.ProdInfo.UnitIsBC);
 
                                     if (productUnitList != null && productUnitList.Count > 0)
                                     {
-                                        prodInfo.UnitRefno = productUnitList[0].ProductUnitRefno;
+                                        unitRefnoFromBarCode.ProdInfo.UnitRefno = productUnitList[0].ProductUnitRefno;
                                     }
                                 }
                             }
