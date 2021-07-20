@@ -1397,7 +1397,7 @@ namespace dMobile.View.Activity
             {
                 if (!string.IsNullOrEmpty(this.txtAltQty.Text))
                 {
-                    int.TryParse(this.txtAltQty.Text, out int result);
+                    decimal.TryParse(this.txtAltQty.Text, out decimal result);
                     qtyEntered = result;
                 }
             }
