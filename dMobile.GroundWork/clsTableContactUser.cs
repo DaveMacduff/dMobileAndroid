@@ -10,6 +10,7 @@
     using System.Xml.Linq;
     using System.Collections.Generic;
     using dMobile.Resources.Models;
+    using System.Linq;
 
     /// <summary>
     /// Defines the <see cref="TableContactUsers" />
@@ -255,6 +256,9 @@
                         // TODO: Resource strings
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving users.", false);
 
+                        // Check to see what users already exist
+                        List<tContactUserModel> resultsContactUser = transaction.Query<tContactUserModel>("SELECT ContactUserCode FROM tContactUser");
+
                         if (ds.Tables.Count != 0)
                         {
                             int progMax = Convert.ToInt32(ds.Tables["tContactUser"].Rows.Count);
@@ -292,11 +296,17 @@
 
                             foreach (DataRow drow in ds.Tables["tContactUser"].Rows)
                             {
-                                transaction.Execute("INSERT INTO tContact (ContactSubType) VALUES (?)", Convert.ToInt32(SysCommon.ContactSubTypes.User));
+                                contactCode = Convert.ToInt32(drow["ContactUserCode"]);
 
+                                /// Check to see if user already exists in table
+                                if (resultsContactUser.FirstOrDefault(x => x.ContactUserCode == contactCode) != null)
+                                {
+                                    continue;
+                                }
+
+                                transaction.Execute("INSERT INTO tContact (ContactSubType) VALUES (?)", Convert.ToInt32(SysCommon.ContactSubTypes.User));
                                 contactRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tContact"));
 
-                                contactCode = Convert.ToInt32(drow["ContactUserCode"]);
                                 errMsg = "Code " + contactCode;
                                 contactName = drow["ContactUserName"].ToString();
                                 errMsg += Environment.NewLine + "Name \'" + contactName + "\'";
