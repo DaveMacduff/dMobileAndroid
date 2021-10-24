@@ -939,6 +939,13 @@ namespace dMobile.View.Activity
                         await this.AddScanMsg(sender, scanArgs, "Manufacturer Serial Number: " + scanArgs.ParseInfo.ManufacturerSerialNumber);
                     }
 
+                    // TODO: Verify data is accurate/in correct position
+                    // DEV-5602 Brand Field Not Displaying on Dmobile Bar Code Association Window
+                    if (!string.IsNullOrEmpty(prodInfo?.BrandDesc))
+                    {
+                        await this.AddScanMsg(sender, scanArgs, "Brand Description: " + prodInfo.BrandDesc);
+                    }
+
                     if (!string.IsNullOrEmpty(scanArgs.ParseInfo.ItemReference))
                     {
                         // TODO: Resource strings
