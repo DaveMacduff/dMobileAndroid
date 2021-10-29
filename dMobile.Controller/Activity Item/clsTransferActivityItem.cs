@@ -150,18 +150,13 @@
                     switch (this.SysEnv.SysSettings.TransQtyOverWarn)
                     {
                         case SysCommon.ActTransfersQtyOverValLevels.ValidateWarnAndContinue:
-                            //if (MessageBox.Show(ex.Message + Environment.NewLine + "Continue?", "Quantity Over", MessageBoxButtons.YesNo, MessageBoxIcon.Question, sMessageBoxDefaultButton.Button2) == DialogResult.No)
-                            //{
                             // TODO: Resource strings
                             if (await Device.InvokeOnMainThreadAsync(async () => !await Application.Current.MainPage.DisplayAlert("Quantity Over", ex.Message + Environment.NewLine + "Continue?", "Yes", "No")))
                             {
                                 throw new IsReadyToApplyException(ex.Message, true, false);
-
                             }
-                            else
-                            {
-                                throw new IsReadyToApplyException(ex.Message, true, true);
-                            }
+                            
+                            break;
 
                         case SysCommon.ActTransfersQtyOverValLevels.ValidateWarnAndStop:
                             throw new IsReadyToApplyException(ex.Message, false, false);
