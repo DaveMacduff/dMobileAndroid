@@ -206,19 +206,15 @@
                             await this.DataGridMainActivity_KeyUpEnter();
                         }
                     }
-                    else if (keycode == Keycode.Grave)
-                    {
-                        if (await this.CancelChanges())
-                        {
-                            this.DialogResult = DialogResult.None;
-                            await this.Close();
-                        }
-                    }
                     else if (keycode == Keycode.Clear)
                     {
                         if (await this.CancelChanges())
                         {
                             this.DialogResult = DialogResult.None;
+                            
+                            // TODO: DEV-5619
+                            // Android dmobile F1 & F3 Button Not Working Same As Windows dmobile   
+                            await this.Close();
                         }
                     }
                     else if (keycode == Keycode.Del)
@@ -230,6 +226,10 @@
                         if (await this.SaveChanges())
                         {
                             this.DialogResult = DialogResult.OK;
+
+                            // TODO: DEV-5619
+                            // Android dmobile F1 & F3 Button Not Working Same As Windows dmobile   
+                            await this.Close();
                         }
                     }
                     else if (keycode == Keycode.F2)
@@ -2060,7 +2060,7 @@
                 if (!string.IsNullOrEmpty(msg))
                 {
                     // TODO: Resource strings
-                    await DisplayAlert(this.GetControlDescription(), msg, "OK");
+                    await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert(this.GetControlDescription(), msg, "OK"));
 
                 }
             }

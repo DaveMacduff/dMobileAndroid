@@ -194,6 +194,10 @@ namespace dMobile.View.Activity
                         if (await this.SaveChanges())
                         {
                             this.DialogResult = DialogResult.OK;
+
+                            // TODO: DEV-5619
+                            // Android dmobile F1 & F3 Button Not Working Same As Windows dmobile   
+                            await this.Close();
                         }
                     }
                     else if (keycode == Keycode.F3)
