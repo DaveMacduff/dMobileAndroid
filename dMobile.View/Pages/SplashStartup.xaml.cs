@@ -653,6 +653,7 @@
 
                         List<byte> bytRecvData = sysSock.ReceiveResponse(socket);
 
+                        socket.Disconnect(true);
                         socket.Close();
 
                         // TODO: Resource Strings

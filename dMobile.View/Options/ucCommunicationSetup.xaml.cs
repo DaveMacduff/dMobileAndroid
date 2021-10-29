@@ -782,6 +782,7 @@
                         this.AddCommMsg(this, EventArgs.Empty, "Waiting for response.");
                         bytRecvData = this.SysEnv.SysSock.ReceiveResponse(socket);
 
+                        socket.Disconnect(true);
                         socket.Close();
 
                         // TODO: Resource strings

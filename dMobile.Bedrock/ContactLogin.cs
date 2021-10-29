@@ -372,6 +372,7 @@ namespace dMobile.Bedrock
                         this.OnContactLoginStatusOut(this, msgEventArg);
                     }
 
+                    socket.Disconnect(true);
                     socket.Close();
 
                     if (this.OnContactLoginStatusOut != null)
@@ -497,6 +498,7 @@ namespace dMobile.Bedrock
                         this.OnContactLoginStatusOut(this, msgEventArg);
                     }
 
+                    socket.Disconnect(true);
                     socket.Close();
 
                     if (this.OnContactLoginStatusOut != null)

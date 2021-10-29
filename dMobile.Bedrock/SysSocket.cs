@@ -689,6 +689,7 @@ namespace dMobile.Bedrock
                             this.OnSysSocketStatusOut(this, sysSocketEventArgs);
                         }
 
+                        socket.Disconnect(true);
                         socket.Close();
                         throw ex;
                     }
@@ -787,6 +788,7 @@ namespace dMobile.Bedrock
                                 this.OnSysSocketStatusOut(this, sysSocketEventArgs);
                             }
 
+                            socket.Disconnect(true);
                             socket.Close();
                             throw ex;
                         }

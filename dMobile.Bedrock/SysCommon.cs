@@ -1988,6 +1988,8 @@ namespace dMobile.Bedrock
                 sysSock = sysEnv.SysSock.Connect();
                 if (sysSock != null)
                 {
+                    System.Threading.Thread.Sleep(500); // Temp fix until we can share a socket
+                    
                     bytesSent = sysEnv.SysSock.SendRequest(sysSock, sendData);
                     compressedData = sysEnv.SysSock.ReceiveResponse(sysSock);
                     
@@ -2010,13 +2012,14 @@ namespace dMobile.Bedrock
             {
                 if (sysSock != null)
                 {
+                    sysSock.Disconnect(true);
                     sysSock.Close();
                 }
 
                 // TODO: Resource strings
                 throw new Exception("SubmitComm socket error occurred.", ex);
             }
- 
+            sysSock.Disconnect(true);
             sysSock.Close();
             return recvData;
         }

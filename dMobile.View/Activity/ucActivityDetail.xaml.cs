@@ -1487,12 +1487,12 @@ namespace dMobile.View.Activity
                             }
 
                             // TODO: Resource strings
-                            this.CmdSelectSkidText = "Skid# " + this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode;
+                            await Device.InvokeOnMainThreadAsync(() => this.CmdSelectSkidText = "Skid# " + this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode);
                         }
                         else
                         {
                             // TODO: Resource strings
-                            this.CmdSelectSkidText = "Select Skid";
+                            await Device.InvokeOnMainThreadAsync(() => this.CmdSelectSkidText = "Select Skid");
                         }
 
                         if (this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno == 0)
@@ -1531,17 +1531,23 @@ namespace dMobile.View.Activity
 
                         if (this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
                         {
-                            this.CmdAddSkidIsEnabled = true;
+                            await Device.InvokeOnMainThreadAsync(() =>
+                            {
+                                this.CmdAddSkidIsEnabled = true;
 
-                            // TODO: Resource strings
-                            this.CmdSelectSkidText = "Skid # " + this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode;
+                                // TODO: Resource strings
+                                this.CmdSelectSkidText = "Skid # " + this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode;
+                            });
                         }
                         else
                         {
-                            this.CmdAddSkidIsEnabled = false;
+                            await Device.InvokeOnMainThreadAsync(() =>
+                            {
+                                this.CmdAddSkidIsEnabled = false;
 
-                            // TODO: Resource strings
-                            this.CmdSelectSkidText = "Select Skid";
+                                // TODO: Resource strings
+                                this.CmdSelectSkidText = "Select Skid";
+                            });
                         }
 
                         SysCommon.SFillQuantity fillQty = await this.ActDetail.GetDataViewTotalQuantity();
