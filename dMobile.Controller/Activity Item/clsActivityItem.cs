@@ -530,7 +530,7 @@
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public abstract string CreateSubmitXML(XDocument data);
+        public abstract Task<string> CreateSubmitXML(XDocument data);
 
         /// <summary>
         /// 
@@ -704,7 +704,7 @@
         /// <param name="isRepackQuantityOnly"></param>
         /// <returns>Structure containing the label quantities.</returns>
         /// <remarks>Currently picking is the only module needing this. Used for Shipping Labels.</remarks>
-        public virtual SysCommon.SLabelQuantity GetLabelQuantity(bool isRepackQuantityOnly)
+        public virtual Task<SysCommon.SLabelQuantity> GetLabelQuantity(bool isRepackQuantityOnly)
         {
             throw new NotImplementedException();
         }
@@ -760,7 +760,7 @@
         /// </summary>
         /// <param name="actDetailFKRefno"></param>
         /// <returns></returns>
-        public virtual SActItemSchemeData GetProdSchemeDataFromDetailFKRefno(int actDetailFKRefno)
+        public async virtual Task<SActItemSchemeData> GetProdSchemeDataFromDetailFKRefno(int actDetailFKRefno)
         {
             return new SActItemSchemeData();
         }
@@ -809,7 +809,7 @@
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public virtual string CreateDeleteXML(XDocument data)
+        public virtual Task<string> CreateDeleteXML(XDocument data)
         {
             throw new NotImplementedException();
         }

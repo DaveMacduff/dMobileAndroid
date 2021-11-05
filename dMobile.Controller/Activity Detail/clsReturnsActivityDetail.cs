@@ -1056,7 +1056,7 @@ namespace dMobile.Controller
                             + "<whs_id></whs_id>"
                             + "<sect_refno></sect_refno>"
                             + "</command>"
-                            + SysCommon.GetRequestDefaults(false)
+                            + await SysCommon.GetRequestDefaults(false)
                             + this.GetRequestDetailDefaults()
                             + ("<skid_fk_refno>" + 0 + "</skid_fk_refno>")
                             + "</imclient>");
@@ -1071,7 +1071,7 @@ namespace dMobile.Controller
                             + "<whs_id></whs_id>"
                             + "<sect_refno></sect_refno>"
                             + "</command>"
-                            + SysCommon.GetRequestDefaults(false)
+                            + await SysCommon.GetRequestDefaults(false)
                             + this.GetRequestDetailDefaults()
                             + ("<skid_fk_refno>" + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno + "</skid_fk_refno>")
                             + "</imclient>");
@@ -1087,7 +1087,7 @@ namespace dMobile.Controller
                         + "<whs_id></whs_id>"
                         + "<sect_refno></sect_refno>"
                         + "</command>"
-                        + SysCommon.GetRequestDefaults(false)
+                        + await SysCommon.GetRequestDefaults(false)
                         + ("<skid_data>" + sendData.Root.Element("skid_data").Value + "</skid_data>")
                         + ("<whs_id>" + this.LocMap.CurrLocMap.WhsFKRefno + "</whs_id>")
                         + ("<refno>" + this.ActItem.ActHdr.FKRefno + "</refno>")
@@ -1118,7 +1118,7 @@ namespace dMobile.Controller
                             + ("<whs_id>" + whsRefno + "</whs_id>")
                             + ("<sect_refno>" + sectRefno + "</sect_refno>")
                             + "</command>"
-                            + SysCommon.GetRequestDefaults(false)
+                            + await SysCommon.GetRequestDefaults(false)
                             + this.GetRequestDetailDefaults()
                             + ("<skid_fk_refno>" + 0 + "</skid_fk_refno>")
                             + "</imclient>");
@@ -1133,7 +1133,7 @@ namespace dMobile.Controller
                             + ("<whs_id>" + whsRefno + "</whs_id>")
                             + ("<sect_refno>" + sectRefno + "</sect_refno>")
                             + "</command>"
-                            + SysCommon.GetRequestDefaults(false)
+                            + await SysCommon.GetRequestDefaults(false)
                             + this.GetRequestDetailDefaults()
                             + ("<skid_fk_refno>" + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno + "</skid_fk_refno>")
                             + "</imclient>");
@@ -1149,7 +1149,7 @@ namespace dMobile.Controller
                         + ("<whs_id>" + whsRefno + "</whs_id>")
                         + ("<sect_refno>" + sectRefno + "</sect_refno>")
                         + "</command>"
-                        + SysCommon.GetRequestDefaults(false)
+                        + await SysCommon.GetRequestDefaults(false)
                         + ("<skid_data>" + sendData.Root.Element("skid_data").Value + "</skid_data>")
                         + ("<whs_id>" + this.LocMap.CurrLocMap.WhsFKRefno + "</whs_id>")
                         + ("<refno>" + this.ActItem.ActHdr.FKRefno + "</refno>")
@@ -1192,7 +1192,7 @@ namespace dMobile.Controller
                         + "<command>"
                         + "<action>DELETE SALES RETURN DETAIL</action>"
                         + "</command>"
-                        + SysCommon.GetRequestDefaults(false)
+                        + await SysCommon.GetRequestDefaults(false)
                         + this.GetRequestDetailDefaults()
                         + ("<skid_fk_refno>" + 0 + "</skid_fk_refno>")
                         + "</imclient>");
@@ -1205,7 +1205,7 @@ namespace dMobile.Controller
                         + "<command>"
                         + "<action>DELETE SALES RETURN DETAIL</action>"
                         + "</command>"
-                        + SysCommon.GetRequestDefaults(false)
+                        + await SysCommon.GetRequestDefaults(false)
                         + this.GetRequestDetailDefaults()
                         + ("<skid_fk_refno>" + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno + "</skid_fk_refno>")
                         + "</imclient>");
@@ -1219,7 +1219,7 @@ namespace dMobile.Controller
                     + "<command>"
                     + "<action>DELETE SALES RETURN DETAIL SKID</action>"
                     + "</command>"
-                    + SysCommon.GetRequestDefaults(false)
+                    + await SysCommon.GetRequestDefaults(false)
                     + ("<skid_data>" + data.Root.Element("skid_data").Value + "</skid_data>")
                     + ("<whs_id>" + LocMap.CurrLocMap.WhsFKRefno + "</whs_id>")
                     + ("<refno>" + ActItem.ActHdr.FKRefno + "</refno>")

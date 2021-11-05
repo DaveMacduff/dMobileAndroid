@@ -712,7 +712,7 @@
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public override string CreateSubmitXML(XDocument data)
+        public async override Task<string> CreateSubmitXML(XDocument data)
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);
@@ -723,7 +723,7 @@
                 + "<command>"
                 + "<action>SUBMIT TRANSFER ITEM</action>"
                 + "</command>"
-                + SysCommon.GetRequestDefaults(false)
+                + await SysCommon.GetRequestDefaults(false)
                 + ("<prod_id>" + data.Root.Element("ProductCode").Value.PadRight(10) + "</prod_id>")
                 + ("<alt_unit>" + data.Root.Element("UnitCode").Value + "</alt_unit>")
                 + ("<is_bc>" + bool.Parse(data.Root.Element("ProductUnitIsBC").Value) + "</is_bc>")

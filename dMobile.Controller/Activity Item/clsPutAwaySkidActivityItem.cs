@@ -183,7 +183,7 @@
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public override string CreateSubmitXML(XDocument data)
+        public override Task<string> CreateSubmitXML(XDocument data)
         {
             throw new NotImplementedException();
         }

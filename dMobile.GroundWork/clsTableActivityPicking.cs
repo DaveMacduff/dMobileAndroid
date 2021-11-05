@@ -129,7 +129,7 @@
         /// <returns></returns>
         protected override async Task<string> SendRequest(XDocument criteria)
         {
-            return await this.SendComm(this.CreateRequest(criteria));
+            return await this.SendComm(await this.CreateRequest(criteria));
         }
 
         /// <summary>
@@ -279,7 +279,7 @@
         /// </summary>
         /// <param name="critFilter"></param>
         /// <returns></returns>
-        protected override string CreateRequest(XDocument critFilter)
+        protected async override Task<string> CreateRequest(XDocument critFilter)
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);
@@ -292,7 +292,7 @@
                     + "<imclient>"
                     + "<command>"
                     + "<action>REQUEST SALES ORDERS</action>"
-                    + SysCommon.GetRequestDefaults(false)
+                    + await SysCommon.GetRequestDefaults(false)
                     + "<whs_id></whs_id>"
                     + "<sect_refno></sect_refno>"
                     + "</command>"
@@ -305,7 +305,7 @@
                     + "<imclient>"
                     + "<command>"
                     + "<action>REQUEST SALES ORDERS</action>"
-                    + SysCommon.GetRequestDefaults(false)
+                    + await SysCommon.GetRequestDefaults(false)
                     + ("<whs_id>" + critFilter.Root.Element("whs_id").Value + "</whs_id>")
                     + ("<sect_refno>" + critFilter.Root.Element("sect_refno").Value + "</sect_refno>")
                     + "</command>"

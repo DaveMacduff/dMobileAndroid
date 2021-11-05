@@ -341,7 +341,7 @@
                 + "<imclient>"
                 + "<command>"
                 + "<action>REQUEST TRANSFER FROM ITEMS</action>"
-                + SysCommon.GetRequestDefaults(false)
+                + await SysCommon.GetRequestDefaults(false)
                 + ("<refno>" + transFKRefno.ToString() + "</refno>")
                 + "</command>"
                 + "</imclient>");

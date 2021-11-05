@@ -578,7 +578,7 @@ namespace dMobile.Controller
                     + "<command>"
                     + "<action>SUBMIT PRINT DEBOX PRODUCT LABEL</action>"
                     + "</command>"
-                    + SysCommon.GetRequestDefaults(false)
+                    + await SysCommon.GetRequestDefaults(false)
                     + ("<refno>" + this.FKRefno + "</refno>")
                     + ("<whs_id>" + locMap.WhsFKRefno + "</whs_id>")
                     + ("<sect_refno>" + locMap.SectFKRefno + "</sect_refno>")
@@ -621,7 +621,7 @@ namespace dMobile.Controller
                       + "<command>"
                       + "<action>COMPLETE DEBOX ADJUSTMENT</action>"
                       + "</command>"
-                      + SysCommon.GetRequestDefaults(false)
+                      + await SysCommon.GetRequestDefaults(false)
                       + ("<refno>" + this.FKRefno + "</refno>")
                       + "</imclient>";
 

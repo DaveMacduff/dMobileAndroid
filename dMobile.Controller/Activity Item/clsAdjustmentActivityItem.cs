@@ -670,7 +670,7 @@ namespace dMobile.Controller
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public override string CreateSubmitXML(XDocument data)
+        public async override Task<string> CreateSubmitXML(XDocument data)
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);
@@ -686,7 +686,7 @@ namespace dMobile.Controller
                 + "<command>"
                 + "<action>SUBMIT ADJUSTMENT ITEM</action>"
                 + "</command>"
-                + SysCommon.GetRequestDefaults(false)
+                + await SysCommon.GetRequestDefaults(false)
                 + ("<prod_id>" + prodCode + "</prod_id>")
                 + ("<is_bc>" + prodUnitIsBC + "</is_bc>")
                 + ("<symbology>" + symbologyPrefix + "</symbology>")

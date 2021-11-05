@@ -329,7 +329,7 @@
                 + "<imclient>"
                 + "<command>"
                 + "<action>REQUEST PHYSICAL COUNTS</action>"
-                + SysCommon.GetRequestDefaults(false)
+                + await SysCommon.GetRequestDefaults(false)
                 + "</command>"
                 + "</imclient>");
 

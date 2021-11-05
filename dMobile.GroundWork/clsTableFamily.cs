@@ -284,7 +284,7 @@
                 + "<imclient>"
                 + "<command>"
                 + "<action>REQUEST FAMILIES</action>"
-                + SysCommon.GetRequestDefaults(true)
+                + await SysCommon.GetRequestDefaults(true)
                 + "</command>"
                 + "</imclient>");
 

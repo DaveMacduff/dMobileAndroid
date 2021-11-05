@@ -222,7 +222,7 @@
         /// <param name="idx"></param>
         public override async Task Submit(XDocument data, object selectedActivityItem)
         {
-            string reqData = SysCommon.SubmitComm(this.CreateSubmitXML(data));
+            string reqData = SysCommon.SubmitComm(await this.CreateSubmitXML(data));
 
             if (reqData.Length > 0)
             {
@@ -249,7 +249,7 @@
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public override string CreateSubmitXML(XDocument data)
+        public async override Task<string> CreateSubmitXML(XDocument data)
         {
             StringBuilder strXML = new StringBuilder();
             XmlWriter writer = XmlWriter.Create(strXML);
@@ -264,7 +264,7 @@
                 + "<command>"
                 + "<action>SUBMIT CONVERT PRODUCT</action>"
                 + "</command>"
-                + SysCommon.GetRequestDefaults(false)
+                + await SysCommon.GetRequestDefaults(false)
                 + ("<prod_id>" + prodCode + "</prod_id>")
                 + ("<is_bc>" + isBC.ToString() + "</is_bc>")
                 + ("<symbology>" + symbologyPrefix + "</symbology>")

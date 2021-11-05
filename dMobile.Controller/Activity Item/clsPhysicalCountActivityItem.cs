@@ -968,7 +968,7 @@
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public override string CreateSubmitXML(XDocument data)
+        public async override Task<string> CreateSubmitXML(XDocument data)
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);
@@ -983,7 +983,7 @@
                 + "<command>"
                 + "<action>SUBMIT PHYSICAL COUNT ITEM</action>"
                 + "</command>"
-                + SysCommon.GetRequestDefaults(false)
+                + await SysCommon.GetRequestDefaults(false)
                 + ("<prod_id>" + prodCode + "</prod_id>")
                 + ("<is_bc>" + prodUnitIsBC.ToString() + "</is_bc>")
                 + ("<symbology>" + symbologyPrefix + "</symbology>")

@@ -321,7 +321,7 @@
                 + "<imclient>"
                 + "<command>"
                 + "<action>REQUEST SECTIONS</action>"
-                + SysCommon.GetRequestDefaults(true)
+                + await SysCommon.GetRequestDefaults(true)
                 + ("<LocationMapWarehouseFKRefno>" + locMapWhsFKRefno + "</LocationMapWarehouseFKRefno>")
                 + "</command>"
                 + "</imclient>");

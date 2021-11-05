@@ -1013,7 +1013,7 @@
             // Print all receiving skid labels.
             if (this.ActSubType == SysCommon.ActSubTypes.Receiving && !this.SysEnv.SysSettings.IsDisconnectedMode && this.SysEnv.SysSettings.IsSkidTrackingModule && this.SysEnv.SysSettings.AskRecvPrintAllSkidLabelsUponSave)
             {
-                if (this.CheckIfSkids2Print())
+                if (await this.CheckIfSkids2Print())
                 {
                     //if (MessageBox.Show("Do you wish to print all skid label(s)?", "Skid Labels", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1) == DialogResult.Yes)
                     if (await DisplayAlert("Skid Labels", "Do you wish to print all skid label(s)?", "Yes", "No"))
@@ -1023,7 +1023,7 @@
                         XDocument request = XDocument.Parse(
                             "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
                             + "<imclient>"
-                            + SysCommon.GetRequestDefaults(false)
+                            + await SysCommon.GetRequestDefaults(false)
                             + "<command>"
                             + "<action>SUBMIT PRINT ALL SKID LABELS</action>"
                             + ("<whs_id>" + this.LocMap.CurrLocMap.WhsFKRefno + "</whs_id>")
@@ -1066,7 +1066,7 @@
         /// <summary>
         /// 
         /// </summary>
-        private bool CheckIfSkids2Print()
+        private async Task<bool> CheckIfSkids2Print()
         {
             bool isExist2Print = false;
 
@@ -1078,7 +1078,7 @@
                 XDocument request = XDocument.Parse(
                     "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
                     + "<imclient>"
-                    + SysCommon.GetRequestDefaults(false)
+                    + await SysCommon.GetRequestDefaults(false)
                     + "<command>"
                     + "<action>REQUEST CHECK IF SKIDS 2 PRINT</action>"
                     + ("<whs_id>" + this.LocMap.CurrLocMap.WhsFKRefno + "</whs_id>")
@@ -2248,7 +2248,7 @@
                         if (this.ActSubType == SysCommon.ActSubTypes.Picking)
                         {
                             //this.ActItem.DataViewItems.Sort = this.ActItem.GetDataViewSortFKRefnoIdx();
-                            tempItemProdSchemeData = this.ActItem.GetProdSchemeDataFromDetailFKRefno(int.Parse(parse.ActDetailFKRefno));
+                            tempItemProdSchemeData = await this.ActItem.GetProdSchemeDataFromDetailFKRefno(int.Parse(parse.ActDetailFKRefno));
                             //foundRowIdx = this.ActItem.DataViewItems.Find(tempItemProdSchemeData.ActItemFKRefno.ToString());
 
                             selectedItem = this.ActItem.ListItems.OfType<object>().Where(activityItem => Convert.ToString(activityItem.GetType().GetProperty(this.ActItem.GetDataViewSortFKRefnoIdx())?.GetValue(activityItem)) == Convert.ToString(tempItemProdSchemeData.ActItemFKRefno)).FirstOrDefault();

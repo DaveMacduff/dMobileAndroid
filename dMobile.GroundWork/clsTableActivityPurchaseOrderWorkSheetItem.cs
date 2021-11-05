@@ -268,7 +268,7 @@
                 + "<imclient>"
                 + "<command>"
                 + "<action>REQUEST PURCHASE ORDER WORK SHEET ITEMS</action>"
-                + SysCommon.GetRequestDefaults(false)
+                + await SysCommon.GetRequestDefaults(false)
                 + ("<refno>" + actWorkSheetFKRefno + "</refno>")
                 + "</command>"
                 + ("<whs_id>" + LocationMap.GetInstance().CurrLocMap.WhsFKRefno + "</whs_id>")

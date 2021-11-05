@@ -370,7 +370,7 @@
                 + "<imclient>"
                 + "<command>"
                 + "<action>REQUEST SALES ORDER DETAILS</action>"
-                + SysCommon.GetRequestDefaults(false)
+                + await SysCommon.GetRequestDefaults(false)
                 + ("<itm_refno>" + actItemPickFKRefno.ToString() + "</itm_refno>")
                 + "</command>"
                 + "</imclient>");

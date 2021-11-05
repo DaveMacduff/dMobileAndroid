@@ -166,7 +166,7 @@ namespace dMobile.GroundWork
         /// <returns></returns>
         protected override async Task<string> SendRequest(int prodLocMapType, int whsLocMapFKRefno)
         {
-            return await this.SendComm(this.CreateRequest(prodLocMapType, whsLocMapFKRefno));
+            return await this.SendComm(await this.CreateRequest(prodLocMapType, whsLocMapFKRefno));
         }
 
         /// <summary>
@@ -671,7 +671,7 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        protected override string CreateRequest(int prodLocMapType, int whsLocMapFKRefno)
+        protected async override Task<string> CreateRequest(int prodLocMapType, int whsLocMapFKRefno)
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);
@@ -681,7 +681,7 @@ namespace dMobile.GroundWork
                 + "<imclient>"
                 + "<command>"
                 + "<action>REQUEST PRODUCT LOCATION MAP TYPES</action>"
-                + SysCommon.GetRequestDefaults(true)
+                + await SysCommon.GetRequestDefaults(true)
                 + ("<product_location_map_type>" + prodLocMapType + "</product_location_map_type>")
                 + ("<whs_id>" + whsLocMapFKRefno + "</whs_id>")
                 + "</command>"

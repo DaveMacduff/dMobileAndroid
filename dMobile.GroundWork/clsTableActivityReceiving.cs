@@ -251,7 +251,7 @@
                   + "<imclient>"
                   + "<command>"
                   + "<action>REQUEST PURCHASE ORDERS</action>"
-                  + SysCommon.GetRequestDefaults(false)
+                  + await SysCommon.GetRequestDefaults(false)
                   + "</command>"
                   + "</imclient>");
 

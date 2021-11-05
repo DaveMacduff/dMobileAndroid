@@ -184,7 +184,7 @@
                 throw new Exception("No results in tActivityPicking for ActivityRefno " + actRefno + Environment.NewLine + this.FullClassName + "SendRequest");
             }
 
-            return await this.SendComm(this.CreateRequest(actPickFKRefno, xmlCriteria));
+            return await this.SendComm(await this.CreateRequest(actPickFKRefno, xmlCriteria));
         }
 
         /// <summary>
@@ -345,7 +345,7 @@
         /// <param name="actPickFKRefno"></param>
         /// <param name="criteria"></param>
         /// <returns></returns>
-        protected override string CreateRequest(int actPickFKRefno, XDocument criteria)
+        protected async override Task<string> CreateRequest(int actPickFKRefno, XDocument criteria)
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);
@@ -358,7 +358,7 @@
                     + "<imclient>"
                     + "<command>"
                     + "<action>REQUEST SALES ORDER ITEMS</action>"
-                    + SysCommon.GetRequestDefaults(false)
+                    + await SysCommon.GetRequestDefaults(false)
                     + ("<refno>" + actPickFKRefno + "</refno>")
                     + "<whs_id></whs_id>"
                     + "<sect_refno></sect_refno>"
@@ -373,7 +373,7 @@
                     + "<imclient>"
                     + "<command>"
                     + "<action>REQUEST SALES ORDER ITEMS</action>"
-                    + SysCommon.GetRequestDefaults(false)
+                    + await SysCommon.GetRequestDefaults(false)
                     + ("<refno>" + actPickFKRefno + "</refno>")
                     + ("<whs_id>" + criteria.Root.Element("whs_id").Value + "</whs_id>")
                     + ("<sect_refno>" + criteria.Root.Element("sect_refno").Value + "</sect_refno>")

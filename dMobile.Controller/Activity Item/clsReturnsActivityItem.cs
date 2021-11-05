@@ -598,7 +598,7 @@
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public override string CreateSubmitXML(XDocument data)
+        public override Task<string> CreateSubmitXML(XDocument data)
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);
@@ -636,7 +636,7 @@
             xml.Flush();
             xml.Close();
 
-            return xmlString.ToString();
+            return Task.Run(() => xmlString.ToString());
         }
 
         /// <summary>

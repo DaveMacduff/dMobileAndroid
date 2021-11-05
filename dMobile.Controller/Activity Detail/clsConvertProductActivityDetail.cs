@@ -540,7 +540,7 @@ namespace dMobile.Controller
                   + "<whs_id>0</whs_id>"
                   + "<sect_refno>0</sect_refno>"
                   + "</command>"
-                  + SysCommon.GetRequestDefaults(false)
+                  + await SysCommon.GetRequestDefaults(false)
                   + this.GetRequestDetailDefaults()
                   + ("<adjustment_type>" + SysCommon.AdjTypes.ConvertProduct + "</adjustment_type>")
                   + "<skid_fk_refno>0</skid_fk_refno>"
@@ -575,7 +575,7 @@ namespace dMobile.Controller
                 + "<whs_id>0</whs_id>"
                 + "<sect_refno>0</sect_refno>"
                 + "</command>"
-                + SysCommon.GetRequestDefaults(false)
+                + await SysCommon.GetRequestDefaults(false)
                 + this.GetRequestDetailDefaults()
                 + "<adjustment_type>" + SysCommon.AdjTypes.ConvertProduct + "</adjustment_type>"
                 + "<mobile_printer_name>"
@@ -626,7 +626,7 @@ namespace dMobile.Controller
             req.Append("<?xml version=\'1.0\' encoding=\'utf-16\' standalone=\'yes\'?>");
             req.Append("<imclient>");
             req.Append("<command><action>SUBMIT CONVERT PRODUCT</action></command>");
-            req.Append(SysCommon.GetRequestDefaults(false));
+            req.Append(await SysCommon.GetRequestDefaults(false));
             req.Append("<from>");
             req.AppendFormat("<whs_id>{0}</whs_id>", this.LocMap.CurrLocMap.WhsFKRefno);
             req.AppendFormat("<sect_refno>{0}</sect_refno>", this.LocMap.CurrLocMap.SectFKRefno);

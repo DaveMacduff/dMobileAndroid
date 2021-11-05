@@ -421,7 +421,7 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="criteria">The criteria<see cref="XDocument"/></param>
         /// <returns></returns>
-        protected virtual string CreateRequest(XDocument criteria)
+        protected virtual Task<string> CreateRequest(XDocument criteria)
         {
             throw new NotImplementedException();
         }
@@ -431,7 +431,7 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="familyCode"></param>
         /// <returns></returns>
-        protected virtual string CreateRequest(string familyCode)
+        protected virtual Task<string> CreateRequest(string familyCode)
         {
             throw new NotImplementedException();
         }
@@ -452,7 +452,7 @@ namespace dMobile.GroundWork
         /// <param name="actFKRefno"></param>
         /// <param name="criteria"></param>
         /// <returns></returns>
-        protected virtual string CreateRequest(int actFKRefno, XDocument criteria)
+        protected virtual Task<string> CreateRequest(int actFKRefno, XDocument criteria)
         {
             throw new NotImplementedException();
         }
@@ -463,7 +463,7 @@ namespace dMobile.GroundWork
         /// <param name="prodLocMapType"></param>
         /// <param name="whsLocMapFKRefno"></param>
         /// <returns></returns>
-        protected virtual string CreateRequest(int prodLocMapType, int whsLocMapFKRefno)
+        protected virtual Task<string> CreateRequest(int prodLocMapType, int whsLocMapFKRefno)
         {
             throw new NotImplementedException();
         }
@@ -473,7 +473,7 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="prodLocMapType"></param>
         /// <returns></returns>
-        protected virtual string CreateRequest(int prodLocMapType)
+        protected async virtual Task<string> CreateRequest(int prodLocMapType)
         {
             throw new NotImplementedException();
         }

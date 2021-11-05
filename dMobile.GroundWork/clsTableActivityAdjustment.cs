@@ -361,7 +361,7 @@
                 + "<imclient>"
                 + "<command>"
                 + "<action>REQUEST ADJUSTMENTS</action>"
-                + SysCommon.GetRequestDefaults(false)
+                + await SysCommon.GetRequestDefaults(false)
                 + "</command>"
                 + "</imclient>");
 

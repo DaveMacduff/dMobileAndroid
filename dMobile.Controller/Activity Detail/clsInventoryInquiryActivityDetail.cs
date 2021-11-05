@@ -390,7 +390,7 @@ namespace dMobile.Controller
                 + "<whs_id>0</whs_id>"
                 + "<sect_refno>0</sect_refno>"
                 + "</command>"
-                + SysCommon.GetRequestDefaults(false)
+                + await SysCommon.GetRequestDefaults(false)
                 + ("<prod_id>" + this.ActItem.ProdInfo.Code + "</prod_id>")
                 + ("<bc>" + this.ActItem.ProdInfo.UnitBC + "</bc>")
                 + ("<alt_unit>" + this.ActItem.ProdInfo.UnitCode + "</alt_unit>")

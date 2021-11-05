@@ -346,7 +346,7 @@
                 + "<imclient>"
                 + "<command>" +
                 "<action>REQUEST PHYSICAL COUNT DETAILS</action>"
-                + SysCommon.GetRequestDefaults(false)
+                + await SysCommon.GetRequestDefaults(false)
                 + ("<itm_refno>" + actItemCountFKRefno.ToString() + "</itm_refno>")
                 + "</command>"
                 + "</imclient>");

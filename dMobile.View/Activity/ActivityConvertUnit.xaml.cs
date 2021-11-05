@@ -1018,7 +1018,7 @@ namespace dMobile.View.Activity
             req.Append("<?xml version=\'1.0\' encoding=\'utf-16\' standalone=\'yes\'?>");
             req.Append("<imclient>");
             req.Append("<command><action>SUBMIT PRINT PRODUCT LABEL</action></command>");
-            req.Append(SysCommon.GetRequestDefaults(false));
+            req.Append(await SysCommon.GetRequestDefaults(false));
             req.AppendFormat("<whs_id>{0}</whs_id>", this.LocMap.CurrLocMap.WhsFKRefno);
             req.AppendFormat("<sect_refno>{0}</sect_refno>", this.LocMap.CurrLocMap.SectFKRefno);
             req.AppendFormat("<slot_refno>{0}</slot_refno>", this.LocMap.CurrLocMap.SlotFKRefno);
@@ -1073,7 +1073,7 @@ namespace dMobile.View.Activity
             req.Append("<?xml version=\'1.0\' encoding=\'utf-16\' standalone=\'yes\'?>");
             req.Append("<imclient>");
             req.Append("<command><action>SUBMIT CONVERT UNIT</action></command>");
-            req.Append(SysCommon.GetRequestDefaults(false));
+            req.Append(await SysCommon.GetRequestDefaults(false));
             req.Append("<from>");
             req.AppendFormat("<whs_id>{0}</whs_id>", this.LocMap.CurrLocMap.WhsFKRefno);
             req.AppendFormat("<sect_refno>{0}</sect_refno>", this.LocMap.CurrLocMap.SectFKRefno);
@@ -1518,7 +1518,7 @@ namespace dMobile.View.Activity
                 + "<command>"
                 + "<action>REQUEST CONVERT UNIT RESULT</action>"
                 + "</command>"
-                + SysCommon.GetRequestDefaults(false)
+                + await SysCommon.GetRequestDefaults(false)
                 + ("<prod_id>" + fromProd.Code + "</prod_id>")
                 + ("<from_bc>" + fromProd.UnitBC + "</from_bc>")
                 + ("<from_alt_qty>" + quantity + "</from_alt_qty>")

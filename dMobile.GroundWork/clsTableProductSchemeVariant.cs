@@ -302,7 +302,7 @@
                 + "<imclient>"
                 + "<command>"
                 + "<action>REQUEST PRODUCT SCHEME VARIANTS</action>"
-                + SysCommon.GetRequestDefaults(true)
+                + await SysCommon.GetRequestDefaults(true)
                 + "</command>"
                 + "</imclient>");
 

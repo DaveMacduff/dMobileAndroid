@@ -1240,7 +1240,7 @@ namespace dMobile.View.Activity
                         + "<command>"
                         + "<action>SUBMIT SALES ORDER DETAIL CONFIRM</action>"
                         + "</command>"
-                        + SysCommon.GetRequestDefaults(false)
+                        + await SysCommon.GetRequestDefaults(false)
                         + ("<refno>" + this.ActDetail.FKRefno + "</refno>")
                         + "</imclient>");
                 }

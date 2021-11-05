@@ -137,7 +137,7 @@
         {
             if (!this.SysEnv.SysSettings.IsDisconnectedMode)
             {
-                string sendReq = this.CreateDeleteXML(XDocument.Parse(
+                string sendReq = await this.CreateDeleteXML(XDocument.Parse(
                     "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                     + "<params>"
                     + "<skid_data>" + this.ActHdr.SkidInfo.CurrSkid.SkidCode + "</skid_data>"
@@ -171,7 +171,7 @@
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public override string CreateDeleteXML(XDocument data)
+        public async override Task<string> CreateDeleteXML(XDocument data)
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);
@@ -185,7 +185,7 @@
                     + "<command>"
                     + "<action>DELETE PURCHASE ORDER DETAIL SKID</action>"
                     + "</command>"
-                    + SysCommon.GetRequestDefaults(false)
+                    + await SysCommon.GetRequestDefaults(false)
                     + "<skid_data>" + data.Root.Element("skid_data").Value + "</skid_data>"
                     + "<whs_id>" + this.LocMap.CurrLocMap.WhsFKRefno + "</whs_id>"
                     + "<refno>" + this.ActHdr.FKRefno + "</refno>"
@@ -727,7 +727,7 @@
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public override string CreateSubmitXML(XDocument data)
+        public async override Task<string> CreateSubmitXML(XDocument data)
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);
@@ -743,7 +743,7 @@
                 + "<command>"
                 + "<action>SUBMIT RECEIVING ITEM</action>"
                 + "</command>"
-                + SysCommon.GetRequestDefaults(false)
+                + await SysCommon.GetRequestDefaults(false)
                 + ("<prod_id>" + prodCode + "</prod_id>")
                 + ("<is_bc>" + prodUnitIsBC.ToString() + "</is_bc>")
                 + ("<symbology>" + symbologyPrefix + "</symbology>")

@@ -355,7 +355,7 @@
                 + "<imclient>"
                 + "<command>"
                 + "<action>REQUEST PRODUCTION TICKET FINISHED DETAILS</action>"
-                + SysCommon.GetRequestDefaults(false)
+                + await SysCommon.GetRequestDefaults(false)
                 + ("<itm_refno>" + actItemProductionFKRefno.ToString() + "</itm_refno>")
                 + "</command>"
                 + "</imclient>");

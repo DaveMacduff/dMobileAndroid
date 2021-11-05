@@ -264,7 +264,7 @@
                 + "<imclient>"
                 + "<command>"
                 + "<action>REQUEST PRODUCTION TICKET FINISHED</action>"
-                + SysCommon.GetRequestDefaults(false)
+                + await SysCommon.GetRequestDefaults(false)
                 + "</command>"
                 + "</imclient>");
 

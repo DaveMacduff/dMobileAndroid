@@ -360,7 +360,7 @@
                 + "<imclient>"
                 + "<command>"
                 + "<action>REQUEST SALES RETURN DETAILS</action>"
-                + SysCommon.GetRequestDefaults(false)
+                + await SysCommon.GetRequestDefaults(false)
                 + ("<itm_refno>" + iActivityItemReturnsFKRefno.ToString() + "</itm_refno>")
                 + "</command>"
                 + "</imclient>");
