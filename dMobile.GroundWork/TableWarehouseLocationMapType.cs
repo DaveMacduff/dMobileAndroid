@@ -140,7 +140,7 @@ namespace dMobile.GroundWork
         /// <returns></returns>
         protected override async Task<string> SendRequest(int whsLocMapType)
         {
-            return await this.SendComm(this.CreateRequest(whsLocMapType));
+            return await this.SendComm(await this.CreateRequest(whsLocMapType));
         }
 
         /// <summary>
@@ -353,7 +353,7 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="whsLocMapType">The whsLocMapType<see cref="int"/></param>
         /// <returns></returns>
-        protected override string CreateRequest(int whsLocMapType)
+        protected async override Task<string> CreateRequest(int whsLocMapType)
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);
@@ -363,7 +363,7 @@ namespace dMobile.GroundWork
                 + "<imclient>"
                 + "<command>"
                 + "<action>REQUEST WAREHOUSE LOCATION MAP TYPES</action>"
-                + SysCommon.GetRequestDefaults(true)
+                + await SysCommon.GetRequestDefaults(true)
                 + ("<warehouse_location_map_type>" + whsLocMapType + "</warehouse_location_map_type>")
                 + "</command>"
                 + "</imclient>");

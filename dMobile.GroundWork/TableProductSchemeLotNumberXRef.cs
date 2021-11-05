@@ -250,7 +250,7 @@
                 + "<imclient>"
                 + "<command>"
                 + "<action>REQUEST PRODUCT SCHEME LOT NUMBER XREF</action>"
-                + SysCommon.GetRequestDefaults(true)
+                + await SysCommon.GetRequestDefaults(true)
                 + "</command>"
                 + "</imclient>");
 

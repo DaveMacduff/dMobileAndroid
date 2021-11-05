@@ -141,7 +141,7 @@
                     + "<command>"
                     + "<action>SUBMIT PRINT SHIPPING LABEL</action>"
                     + "</command>"
-                    + SysCommon.GetRequestDefaults(false)
+                    + await SysCommon.GetRequestDefaults(false)
                     + ("<refno>" + this.FKRefno + "</refno>")
                     + ("<itm_refno>" + data.Root.Element("itm_refno").Value + "</itm_refno>")
                     + ("<whs_id>" + locMap.WhsFKRefno + "</whs_id>")
@@ -215,7 +215,7 @@
                     + "<command>"
                     + "<action>REQUEST SHIPPING LABEL QUANTITY</action>"
                     + "</command>"
-                    + SysCommon.GetRequestDefaults(false)
+                    + await SysCommon.GetRequestDefaults(false)
                     + ("<refno>" + this.FKRefno + "</refno>")
                     + ("<sect_refno>" + locMap.SectFKRefno + "</sect_refno>")
                     + "</imclient>");
@@ -302,7 +302,7 @@
                 + "<imclient>"
                 + "<command>"
                 + "<action>REQUEST SALES ORDER IS BEING PICKED</action>"
-                + SysCommon.GetRequestDefaults(false)
+                + await SysCommon.GetRequestDefaults(false)
                 + ("<refno>" + this.FKRefno.ToString() + "</refno>")
                 + ("<whs_id>" + locMap.WhsFKRefno + "</whs_id>")
                 + ("<sect_refno>" + locMap.SectFKRefno + "</sect_refno>")
@@ -359,7 +359,7 @@
                     + "<imclient>"
                     + "<command>"
                     + "<action>SUBMIT SALES ORDER CLEAR BEING PICKED</action>"
-                    + SysCommon.GetRequestDefaults(false)
+                    + await SysCommon.GetRequestDefaults(false)
                     + ("<refno>" + FKRefno.ToString() + "</refno>")
                     + ("<whs_id>" + locMap.WhsFKRefno + "</whs_id>")
                     + ("<sect_refno>" + locMap.SectFKRefno + "</sect_refno>")
@@ -416,7 +416,7 @@
                     + "<command>"
                     + "<action>RELEASE SALES ORDER BY ORDER</action>"
                     + "</command>"
-                    + SysCommon.GetRequestDefaults(false)
+                    + await SysCommon.GetRequestDefaults(false)
                     + ("<refno>" + this.FKRefno.ToString() + "</refno>")
                     + "</imclient>");
 
@@ -492,7 +492,7 @@
                     + "<command>"
                     + "<action>REQUEST SALES ORDER QUANTITY UNDER CHECK</action>"
                     + "</command>"
-                    + SysCommon.GetRequestDefaults(false)
+                    + await SysCommon.GetRequestDefaults(false)
                     + ("<refno>" + this.FKRefno + "</refno>")
                     + ("<whs_id>" + locMap.CurrLocMap.WhsFKRefno + "</whs_id>")
                     + ("<sect_refno>" + locMap.CurrLocMap.SectFKRefno + "</sect_refno>")
@@ -1216,7 +1216,7 @@
                     + "<command>"
                     + "<action>RELEASE SALES ORDER BY ORDER ITEM SECTION</action>"
                     + "</command>"
-                    + SysCommon.GetRequestDefaults(false)
+                    + await SysCommon.GetRequestDefaults(false)
                     + ("<refno>" + this.FKRefno.ToString() + "</refno>")
                     + ("<whs_id>" + locMap.WhsFKRefno + "</whs_id>")
                     + ("<sect_refno>" + locMap.SectFKRefno + "</sect_refno>")

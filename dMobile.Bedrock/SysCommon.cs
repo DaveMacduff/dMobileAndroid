@@ -1839,7 +1839,7 @@ namespace dMobile.Bedrock
         /// </summary>
         /// <param name="useRefreshedDataLast"></param>
         /// <returns></returns>
-        public static string GetRequestDefaults(bool useRefreshedDataLast)
+        public async static Task<string> GetRequestDefaults(bool useRefreshedDataLast)
         {
             SysEnvironment sysEnv = SysEnvironment.GetInstance();
             string current = DateTime.Now.ToString("yyyy\'-\'MM\'-\'dd\'T\'HH\':\'mm\':\'ss");
@@ -1849,8 +1849,13 @@ namespace dMobile.Bedrock
                 revision = sysEnv.RefreshOpt.RefreshedDataLast.ToString("yyyy\'-\'MM\'-\'dd\'T\'HH\':\'mm\':\'ss");
             }
 
+            // Added the login warehouse fk refno, for request filtering. 
+            // Easier to add it here than review every activity request, for filtering.
+            SLocMap loginLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(LocationMap.GetInstance().LoginWhsLocMapRefno);
+
             string def = ("<device_id>" + sysEnv.DeviceID + "</device_id>")
                 + ("<login_id>" + sysEnv.ContactLog.LoginID + "</login_id>")
+                + ("<login_whs_id>" + loginLocMap.WhsFKRefno + "</login_whs_id>")
                 + ("<revision_datetime>" + revision + "</revision_datetime>")
                 + ("<stamp>" + current + "</stamp>");
 

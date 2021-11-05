@@ -117,7 +117,7 @@
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public override SysCommon.SLabelQuantity GetLabelQuantity(bool isRepackQuantityOnly)
+        public async override Task<SysCommon.SLabelQuantity> GetLabelQuantity(bool isRepackQuantityOnly)
         {
             SysCommon.SLabelQuantity labelQty = new SysCommon.SLabelQuantity();
 
@@ -135,7 +135,7 @@
                     + "<command>"
                     + "<action>REQUEST SHIPPING LABEL ITEM QUANTITY</action>"
                     + "</command>"
-                    + SysCommon.GetRequestDefaults(false)
+                    + await SysCommon.GetRequestDefaults(false)
                     + ("<itm_refno>" + this.FKRefno + "</itm_refno>")
                     + "</imclient>");
 
@@ -326,18 +326,18 @@
         /// </summary>
         /// <param name="actDetailFKRefno"></param>
         /// <returns></returns>
-        public override SActItemSchemeData GetProdSchemeDataFromDetailFKRefno(int actDetailFKRefno)
+        public async override Task<SActItemSchemeData> GetProdSchemeDataFromDetailFKRefno(int actDetailFKRefno)
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);
-            SActItemSchemeData itemSchemeData = base.GetProdSchemeDataFromDetailFKRefno(actDetailFKRefno);
+            SActItemSchemeData itemSchemeData = await base.GetProdSchemeDataFromDetailFKRefno(actDetailFKRefno);
 
             XDocument request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
                 + "<imclient>"
                 + "<command>"
                 + "<action>REQUEST SALES ORDER ITEM FROM DETAIL</action>"
-                + SysCommon.GetRequestDefaults(false)
+                + await SysCommon.GetRequestDefaults(false)
                 + ("<ser_refno>" + actDetailFKRefno + "</ser_refno>")
                 + "</command>"
                 + "</imclient>");
@@ -936,7 +936,7 @@
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public override string CreateSubmitXML(XDocument data)
+        public async override Task<string> CreateSubmitXML(XDocument data)
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);
@@ -952,7 +952,7 @@
                 + "<command>"
                 + "<action>SUBMIT PICKING ITEM</action>"
                 + "</command>"
-                + SysCommon.GetRequestDefaults(false)
+                + await SysCommon.GetRequestDefaults(false)
                 + "<prod_id>" + prodCode + "</prod_id>"
                 + "<is_bc>" + prodUnitIsBC + "</is_bc>"
                 + "<symbology>" + symbologyPrefix + "</symbology>"

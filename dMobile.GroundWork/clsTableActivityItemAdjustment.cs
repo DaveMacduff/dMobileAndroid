@@ -322,7 +322,7 @@
                 + "<imclient>"
                 + "<command>"
                 + "<action>REQUEST ADJUSTMENT ITEMS</action>"
-                + SysCommon.GetRequestDefaults(false)
+                + await SysCommon.GetRequestDefaults(false)
                 + ("<refno>" + actAdjFKRefno.ToString() + "</refno>")
                 + "</command>"
                 + "</imclient>");

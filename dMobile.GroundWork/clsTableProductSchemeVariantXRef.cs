@@ -243,7 +243,7 @@
                 + "<imclient>"
                 + "<command>"
                 + "<action>REQUEST PRODUCT SCHEME VARIANT XREF</action>"
-                + SysCommon.GetRequestDefaults(true)
+                + await SysCommon.GetRequestDefaults(true)
                 + "</command>"
                 + "</imclient>");
 

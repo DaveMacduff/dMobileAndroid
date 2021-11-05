@@ -280,7 +280,7 @@ namespace dMobile.GroundWork
                 + "<imclient>"
                 + "<command>"
                 + "<action>REQUEST ROUTES</action>"
-                + SysCommon.GetRequestDefaults(true)
+                + await SysCommon.GetRequestDefaults(true)
                 + "</command>"
                 + "</imclient>");
 

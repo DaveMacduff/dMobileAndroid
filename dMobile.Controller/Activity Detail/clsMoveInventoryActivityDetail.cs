@@ -467,7 +467,7 @@ namespace dMobile.Controller
                 + "<whs_id>0</whs_id>"
                 + "<sect_refno>0</sect_refno>"
                 + "</command>"
-                + SysCommon.GetRequestDefaults(false)
+                + await SysCommon.GetRequestDefaults(false)
                 + ("<prod_id>" + this.ActItem.ProdInfo.Code + "</prod_id>")
                 + ("<is_bc>" + this.ActItem.ProdInfo.UnitIsBC + "</is_bc>")
                 + ("<whs_id>" + data.Root.Element("whs_id").Value + "</whs_id>")

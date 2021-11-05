@@ -292,7 +292,7 @@ namespace dMobile.GroundWork
                 + "<imclient>"
                 + "<command>"
                 + "<action>REQUEST UNITS</action>"
-                + SysCommon.GetRequestDefaults(true)
+                + await SysCommon.GetRequestDefaults(true)
                 + "</command>"
                 + "</imclient>");
 

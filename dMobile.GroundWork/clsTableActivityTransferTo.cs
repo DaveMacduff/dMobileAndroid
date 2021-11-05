@@ -267,7 +267,7 @@
                 + "<imclient>"
                 + "<command>"
                 + "<action>REQUEST TRANSFERS</action>"
-                + SysCommon.GetRequestDefaults(false)
+                + await SysCommon.GetRequestDefaults(false)
                 + "</command>" + "</imclient>");
 
             request.Save(xml);

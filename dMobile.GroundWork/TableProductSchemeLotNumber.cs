@@ -220,7 +220,7 @@
                 + "<imclient>"
                 + "<command>"
                 + "<action>REQUEST PRODUCT SCHEME LOT NUMBERS</action>"
-                + SysCommon.GetRequestDefaults(true)
+                + await SysCommon.GetRequestDefaults(true)
                 + "</command>" + "</imclient>");
 
             request.Save(xml);

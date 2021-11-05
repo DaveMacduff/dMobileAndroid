@@ -380,7 +380,7 @@
                 + "<imclient>"
                 + "<command>"
                 + "<action>REQUEST CYCLE COUNT ITEMS</action>"
-                + SysCommon.GetRequestDefaults(false)
+                + await SysCommon.GetRequestDefaults(false)
                 + ("<refno>" + actCountFKRefno.ToString() + "</refno>")
                 + "</command>"
                 + "</imclient>");

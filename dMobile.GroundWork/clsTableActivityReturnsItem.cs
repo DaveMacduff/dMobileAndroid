@@ -329,7 +329,7 @@
                 + "<imclient>"
                 + "<command>"
                 + "<action>REQUEST SALES RETURN ITEMS</action>"
-                + SysCommon.GetRequestDefaults(false)
+                + await SysCommon.GetRequestDefaults(false)
                 + ("<refno>" + returnsFKRefno + "</refno>")
                 + "</command>"
                 + "</imclient>");

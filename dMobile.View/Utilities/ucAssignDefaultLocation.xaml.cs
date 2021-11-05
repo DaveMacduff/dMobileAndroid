@@ -618,7 +618,7 @@
                         + "<imclient>"
                         + "<command>"
                         + "<action>SUBMIT ASSIGN DEFAULT PRODUCT LOCATION</action>"
-                        + SysCommon.GetRequestDefaults(false)
+                        + await SysCommon.GetRequestDefaults(false)
                         + "</command>"
                         + "<receiving>"
                         + ("<prod_refno>" + this.ActItem.ProdInfo.FKRefno + "</prod_refno>")

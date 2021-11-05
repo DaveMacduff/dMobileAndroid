@@ -997,7 +997,7 @@ namespace dMobile.Controller
                     + "<whs_id>0</whs_id>"
                     + "<sect_refno>0</sect_refno>"
                     + "</command>"
-                    + SysCommon.GetRequestDefaults(false)
+                    + await SysCommon.GetRequestDefaults(false)
                     + this.GetRequestDetailDefaults()
                     + "<skid_fk_refno>" + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno + "</skid_fk_refno>"
                     + "</imclient>");
@@ -1012,7 +1012,7 @@ namespace dMobile.Controller
                     + "<whs_id>0</whs_id>"
                     + "<sect_refno>0</sect_refno>"
                     + "</command>"
-                    + SysCommon.GetRequestDefaults(false)
+                    + await SysCommon.GetRequestDefaults(false)
                     + "<skid_data>" + detailData.Root.Element("skid_data").Value + "</skid_data>"
                     + "<whs_id>" + this.LocMap.CurrLocMap.WhsFKRefno + "</whs_id>"
                     + "<refno>" + this.ActItem.ActHdr.FKRefno + "</refno>"
@@ -1054,7 +1054,7 @@ namespace dMobile.Controller
                     + "<whs_id>0</whs_id>"
                     + "<sect_refno>0</sect_refno>"
                     + "</command>"
-                    + SysCommon.GetRequestDefaults(false)
+                    + await SysCommon.GetRequestDefaults(false)
                     + this.GetRequestDetailDefaults()
                     + "<skid_fk_refno>" + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno + "</skid_fk_refno>"
                     + "<extra1>" + this.ActExtra.Text1 + "</extra1>"
@@ -1074,7 +1074,7 @@ namespace dMobile.Controller
                     + "<whs_id>0</whs_id>"
                     + "<sect_refno>0</sect_refno>"
                     + "</command>"
-                    + SysCommon.GetRequestDefaults(false)
+                    + await SysCommon.GetRequestDefaults(false)
                     + "<skid_data>" + detailData.Root.Element("skid_data").Value + "</skid_data>"
                     + "<whs_id>" + this.LocMap.CurrLocMap.WhsFKRefno + "</whs_id>"
                     + "<refno>" + this.ActItem.ActHdr.FKRefno + "</refno>"

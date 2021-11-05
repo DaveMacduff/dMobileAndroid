@@ -578,7 +578,7 @@
             + "<imclient>"
             + "<command>"
             + "<action>REQUEST ADJUSTMENT DETAILS</action>"
-            + SysCommon.GetRequestDefaults(false)
+            + await SysCommon.GetRequestDefaults(false)
             + ("<itm_refno>" + actItemAdjFKRefno + "</itm_refno>")
             + "</command>"
             + "</imclient>");

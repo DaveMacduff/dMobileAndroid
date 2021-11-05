@@ -29,7 +29,7 @@
             // So this will be a little slower, plus the extra parsing rules to include.
 
             // first attempt to find the location as a complete SLOT bar code
-            List<tLocationMapSlotModel> locationMapRefnoResults = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tLocationMapSlotModel>("SELECT LocationMapRefno FROM tLocationMapSlot WHERE LocationMapRefno = ?", globalLocationIdentifier);
+            List<tLocationMapSlotModel> locationMapRefnoResults = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tLocationMapSlotModel>("SELECT LocationMapRefno FROM tLocationMapSlot WHERE LocationMapSlotBarCode = ?", globalLocationIdentifier);
 
             if (locationMapRefnoResults != null && locationMapRefnoResults.Count > 0)
             {

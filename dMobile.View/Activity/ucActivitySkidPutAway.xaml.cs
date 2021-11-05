@@ -953,7 +953,7 @@ namespace dMobile.View.Activity
         //        + "<whs_id>0</whs_id>"
         //        + "<sect_refno>0</sect_refno>"
         //        + "</command>"
-        //        + SysCommon.GetRequestDefaults(false)
+        //        + await SysCommon.GetRequestDefaults(false)
         //        + ("<prod_id>" + prodInfo.Code + "</prod_id>")
         //        + ("<is_bc>" + prodInfo.UnitIsBC + "</is_bc>")
         //        + ("<whs_id>" + this.LocMap.CurrLocMap.WhsFKRefno + "</whs_id>")
@@ -1001,7 +1001,7 @@ namespace dMobile.View.Activity
             request.Append("<?xml version=\'1.0\' encoding=\'utf-16\' standalone=\'yes\'?>");
             request.Append("<imclient>");
             request.Append("<command><action>SUBMIT PUT AWAY SKID</action></command>");
-            request.Append(SysCommon.GetRequestDefaults(false));
+            request.Append(Task.Run(async() => { await SysCommon.GetRequestDefaults(false); } ));
 
             for (int idx = 0; idx <= skidDetail.Count - 1; idx++)
             {

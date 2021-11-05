@@ -368,7 +368,7 @@
                 + "<imclient>"
                 + "<command>"
                 + "<action>REQUEST CONTACT USERS</action>"
-                + SysCommon.GetRequestDefaults(true)
+                + await SysCommon.GetRequestDefaults(true)
                 + "</command>"
                 + "</imclient>");
 

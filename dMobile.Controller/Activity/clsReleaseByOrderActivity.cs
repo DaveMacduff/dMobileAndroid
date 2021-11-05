@@ -113,7 +113,7 @@ namespace dMobile.Controller
                         + "<command>"
                         + "<action>RELEASE SALES ORDER BY ORDER</action>"
                         + "</command>"
-                        + SysCommon.GetRequestDefaults(false)
+                        + await SysCommon.GetRequestDefaults(false)
                         + ("<refno>" + this.FKRefno + "</refno>")
                         + "</imclient>");
 

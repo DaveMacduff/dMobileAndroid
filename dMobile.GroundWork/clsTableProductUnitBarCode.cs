@@ -141,7 +141,7 @@ namespace dMobile.GroundWork
         /// <returns></returns>
         protected override async Task<string> SendRequest(string strFamilyCode)
         {
-            return await this.SendComm(this.CreateRequest(strFamilyCode));
+            return await this.SendComm(await this.CreateRequest(strFamilyCode));
         }
 
         /// <summary>
@@ -377,7 +377,7 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="familyCode"></param>
         /// <returns></returns>
-        protected override string CreateRequest(string familyCode)
+        protected async override Task<string> CreateRequest(string familyCode)
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);
@@ -387,7 +387,7 @@ namespace dMobile.GroundWork
                 + "<imclient>"
                 + "<command>"
                 + "<action>REQUEST PRODUCT UNIT BAR CODES</action>"
-                + SysCommon.GetRequestDefaults(true)
+                + await SysCommon.GetRequestDefaults(true)
                 + ("<family_code>" + familyCode + "</family_code>")
                 + "</command>"
                 + "</imclient>");

@@ -265,7 +265,7 @@
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        protected override string CreateRequest(string strFamilyCode)
+        protected async override Task<string> CreateRequest(string strFamilyCode)
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);
@@ -275,7 +275,7 @@
                 + "<imclient>"
                 + "<command>"
                 + "<action>REQUEST WAREHOUSE PRODUCT SCHEMES</action>"
-                + SysCommon.GetRequestDefaults(true)
+                + await SysCommon.GetRequestDefaults(true)
                 + ("<family_code>" + strFamilyCode + "</family_code>")
                 + "</command>"
                 + "</imclient>");
@@ -294,7 +294,7 @@
         /// <returns></returns>
         protected override async Task<string> SendRequest(string familyCode)
         {
-            return await this.SendComm(this.CreateRequest(familyCode));
+            return await this.SendComm(await this.CreateRequest(familyCode));
         }
     }
 }

@@ -1,19 +1,19 @@
 ﻿namespace dMobile.Controller
 {
+    using dMobile.Bedrock;
+    using dMobile.Resources.Models;
+    using dMobile.Resources.Types;
+    using SQLite;
     using System;
+    using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Data;
-    using SQLite;
+    using System.Linq;
     using System.Text;
     using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
-    using dMobile.Bedrock;
     using Xamarin.Forms;
-    using System.Collections.Generic;
-    using dMobile.Resources.Types;
-    using dMobile.Resources.Models;
-    using System.Linq;
 
     public class BarCodeActItem : ActItem
     {
@@ -198,7 +198,9 @@
 
                         if (!this.SysEnv.SysSettings.IsDisconnectedMode)
                         {
-                            string reqData = SysCommon.SubmitComm(this.CreateSubmitXML(data));
+                            //string temp = this.CreateSubmitXML(data).Result;
+                            string temp = Task.Run(async () => await this.CreateSubmitXML(data)).ToString();
+                            string reqData = SysCommon.SubmitComm(temp);
                             if (reqData.Length > 0)
                             {
                                 // Check if result is an error message
@@ -373,7 +375,7 @@
         public override async Task Submit(XDocument data, object selectedActivityItem)
         {
             XmlDocument xmlDoc = new XmlDocument();
-            string send = this.CreateSubmitXML(data);
+            string send = await this.CreateSubmitXML(data);
             string receivedData = SysCommon.SubmitComm(send);
             if (receivedData.Length > 0)
             {
@@ -409,7 +411,7 @@
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public override string CreateSubmitXML(XDocument data)
+        public async override Task<string> CreateSubmitXML(XDocument data)
         {
             StringBuilder strXML = new StringBuilder();
             XmlWriter writer = XmlWriter.Create(strXML);
@@ -426,7 +428,7 @@
                 + "<command>"
                 + "<action>SUBMIT BARCODE</action>"
                 + "</command>"
-                + SysCommon.GetRequestDefaults(false)
+                + await SysCommon.GetRequestDefaults(false)
                 + ("<prod_id>" + prodCode + "</prod_id>")
                 + ("<is_bc>" + prodUnitIsBC.ToString() + "</is_bc>")
                 + ("<symbology>" + barCodeSymbologyPrefix + "</symbology>")

@@ -479,7 +479,7 @@
                 + "<imclient>"
                 + "<command>"
                 + "<action>REQUEST SLOTS</action>"
-                + SysCommon.GetRequestDefaults(true)
+                + await SysCommon.GetRequestDefaults(true)
                 + ("<LocationMapWarehouseFKRefno>" + locMapWhsFKRefno.ToString() + "</LocationMapWarehouseFKRefno>")
                 + "</command>"
                 + "</imclient>");

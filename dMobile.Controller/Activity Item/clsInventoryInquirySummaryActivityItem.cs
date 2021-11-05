@@ -540,7 +540,7 @@
             {
                 this.DataLayerProgressOutHandler(this, new EventArgs(), 5);
 
-                string reqData = SysCommon.SubmitComm(this.CreateSubmitXML(data));
+                string reqData = SysCommon.SubmitComm(await this.CreateSubmitXML(data));
                 this.ListItems = await this.GetActivityItemList(false);
 
                 if (reqData.Length > 0)
@@ -664,7 +664,7 @@
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public override string CreateSubmitXML(XDocument data)
+        public async override Task<string> CreateSubmitXML(XDocument data)
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);
@@ -695,7 +695,7 @@
                 + "<whs_id>0</whs_id>"
                 + "<sect_refno>0</sect_refno>"
                 + "</command>"
-                + SysCommon.GetRequestDefaults(false)
+                + await SysCommon.GetRequestDefaults(false)
                 + ("<prod_id>" + this.ProdInfo.Code + "</prod_id>")
                 + ("<whs_id>" + this.LocMap.CurrLocMap.WhsFKRefno + "</whs_id>")
                 + sectionXml

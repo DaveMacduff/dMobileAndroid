@@ -1010,7 +1010,7 @@ namespace dMobile.View.Activity
                     XDocument request = XDocument.Parse(
                         "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
                         + "<imclient>"
-                        + SysCommon.GetRequestDefaults(false)
+                        + await SysCommon.GetRequestDefaults(false)
                         + "<command>"
                         + "<action>SUBMIT PRINT ALL SKID LABELS</action>"
                         + ("<whs_id>" + this.LocMap.CurrLocMap.WhsFKRefno + "</whs_id>")
@@ -1241,7 +1241,7 @@ namespace dMobile.View.Activity
                         else
                         {
                             //this.ActItem.DataViewItems.Sort = this.ActItem.GetDataViewSortFKRefnoIdx();
-                            tempItemSchemeData = this.ActItem.GetProdSchemeDataFromDetailFKRefno(int.Parse(barCodeParse.ActDetailFKRefno));
+                            tempItemSchemeData = await this .ActItem.GetProdSchemeDataFromDetailFKRefno(int.Parse(barCodeParse.ActDetailFKRefno));
                             //foundSelectedActivityItem = this.ActItem.DataViewItems.Find(tempItemSchemeData.ActItemFKRefno.ToString());
 
                             foundSelectedActivityItem = this.ActItem.ListItems.OfType<object>().Where(activityItem =>
@@ -1760,7 +1760,7 @@ namespace dMobile.View.Activity
                 if (2 > this.ActItem.ProdInfo.BoxCount)
                 {
                     SysCommon.SLabelQuantity labelQuantity = new SysCommon.SLabelQuantity();
-                    labelQuantity = this.ActItem.GetLabelQuantity(!this.SysEnv.SysSettings.IsPickSinglePrintShipLabelFullQuantity);
+                    labelQuantity = await this.ActItem.GetLabelQuantity(!this.SysEnv.SysSettings.IsPickSinglePrintShipLabelFullQuantity);
 
                     int totalQty = labelQuantity.FullQuantity
                         + labelQuantity.FreshQuantity
@@ -1787,7 +1787,7 @@ namespace dMobile.View.Activity
                                     XDocument request = XDocument.Parse(
                                         "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                                         + "<params>"
-                                        + SysCommon.GetRequestDefaults(false)
+                                        + await SysCommon.GetRequestDefaults(false)
                                         + ("<whs_id>" + this.LocMap.CurrLocMap.WhsFKRefno + "</whs_id>")
                                         + ("<itm_refno>" + this.ActItem.FKRefno + "</itm_refno>")
                                         + ("<sect_refno>" + this.LocMap.CurrLocMap.SectFKRefno + "</sect_refno>")
@@ -1817,7 +1817,7 @@ namespace dMobile.View.Activity
                             XDocument request = XDocument.Parse(
                                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                                 + "<params>"
-                                + SysCommon.GetRequestDefaults(false)
+                                + await SysCommon.GetRequestDefaults(false)
                                 + ("<whs_id>" + this.LocMap.CurrLocMap.WhsFKRefno + "</whs_id>")
                                 + ("<itm_refno>" + this.ActItem.FKRefno + "</itm_refno>")
                                 + ("<sect_refno>" + this.LocMap.CurrLocMap.SectFKRefno + "</sect_refno>")

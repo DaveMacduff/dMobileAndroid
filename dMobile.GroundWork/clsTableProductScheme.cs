@@ -457,7 +457,7 @@
                 + "<imclient>"
                 + "<command>"
                 + "<action>REQUEST PRODUCT SCHEMES</action>"
-                + SysCommon.GetRequestDefaults(true)
+                + await SysCommon.GetRequestDefaults(true)
                 + "</command>"
                 + "</imclient>");
 

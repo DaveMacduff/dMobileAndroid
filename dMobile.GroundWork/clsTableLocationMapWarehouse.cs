@@ -423,7 +423,7 @@
                 + "<imclient>"
                 + "<command>"
                 + "<action>REQUEST WAREHOUSES</action>"
-                + SysCommon.GetRequestDefaults(true)
+                + await SysCommon.GetRequestDefaults(true)
                 + "</command>"
                 + "</imclient>");
 

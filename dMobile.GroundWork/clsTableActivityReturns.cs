@@ -249,7 +249,7 @@
                 + "<imclient>"
                 + "<command>"
                 + "<action>REQUEST SALES RETURNS</action>"
-                + SysCommon.GetRequestDefaults(false)
+                + await SysCommon.GetRequestDefaults(false)
                 + "</command>"
                 + "</imclient>");
 
