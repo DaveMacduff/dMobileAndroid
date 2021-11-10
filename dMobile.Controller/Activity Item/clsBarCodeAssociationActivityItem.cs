@@ -198,8 +198,8 @@
 
                         if (!this.SysEnv.SysSettings.IsDisconnectedMode)
                         {
-                            //string temp = this.CreateSubmitXML(data).Result;
-                            string temp = Task.Run(async () => await this.CreateSubmitXML(data)).ToString();
+                            string temp = this.CreateSubmitXML(data).Result;
+                            //string temp = Task.Run(async () => await this.CreateSubmitXML(data)).ToString();
                             string reqData = SysCommon.SubmitComm(temp);
                             if (reqData.Length > 0)
                             {
