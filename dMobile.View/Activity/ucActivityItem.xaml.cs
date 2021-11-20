@@ -2727,6 +2727,7 @@
                             Convert.ToInt32(item.GetType().GetProperty("ActivityItemRefno")?.GetValue(item)) == Convert.ToInt32(this.dataGridMainActivity.SelectedItem.GetType().GetProperty("ActivityItemRefno")?.GetValue(this.dataGridMainActivity.SelectedItem))).FirstOrDefault();
                             this.dataGridMainActivity.SelectedItem = null;
                             this.dataGridMainActivity.SelectedItem = selectedItem;
+                            this.dataGridMainActivity. ScrollTo(this.dataGridMainActivity.SelectedItem, ScrollToPosition.MakeVisible, false);
                         }
                     }
                 });

@@ -1001,7 +1001,7 @@ namespace dMobile.View.Activity
             request.Append("<?xml version=\'1.0\' encoding=\'utf-16\' standalone=\'yes\'?>");
             request.Append("<imclient>");
             request.Append("<command><action>SUBMIT PUT AWAY SKID</action></command>");
-            request.Append(Task.Run(async() => { await SysCommon.GetRequestDefaults(false); } ));
+            request.Append(SysCommon.GetRequestDefaults(false).Result);
 
             for (int idx = 0; idx <= skidDetail.Count - 1; idx++)
             {

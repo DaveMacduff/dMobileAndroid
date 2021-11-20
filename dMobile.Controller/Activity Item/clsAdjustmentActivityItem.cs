@@ -606,7 +606,7 @@ namespace dMobile.Controller
                 this.FKRefno = Convert.ToInt32(adjustmentItem.ActivityItemAdjustmentFKRefno);
                 int actAdjType = Convert.ToInt32((this.ActHdr.SelectedActivity as Adjustment).ActivityAdjustmentType);
 
-                if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc && !this.SysEnv.SysSettings.IsVerifyProductLocation && (SysCommon.AdjTypes)actAdjType == SysCommon.AdjTypes.Requisition)
+                if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc && !this.SysEnv.SysSettings.IsVerifyProductLocation)// && (SysCommon.AdjTypes)actAdjType == SysCommon.AdjTypes.Requisition)
                 {
                     // LocationMapRefno is assumed to be the adjustment WarehouseLocationMapRefno
                     this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(await this.GetDefaultLocMapRefno(Convert.ToInt32(adjustmentItem.LocationMapRefno), Convert.ToInt32(adjustmentItem.ProductRefno)));
