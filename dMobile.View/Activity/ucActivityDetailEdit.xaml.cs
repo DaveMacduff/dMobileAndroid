@@ -877,7 +877,10 @@ namespace dMobile.View.Activity
             await Device.InvokeOnMainThreadAsync(() =>
             {
                 this.txtAltQty.Text = this.ActDetailEdit.Quantity.ToString();
-                //this.txtWtQty.Text = this.ActDetailEdit.WeightQuantity.ToString();
+                if (prodInfo.IsCatchWeight)
+                {
+                    this.txtWtQty.Text = this.ActDetailEdit.WeightQuantity.ToString();
+                }
             });
 
             if (!string.IsNullOrEmpty(this.ActDetail.ActExtra.Text1))
