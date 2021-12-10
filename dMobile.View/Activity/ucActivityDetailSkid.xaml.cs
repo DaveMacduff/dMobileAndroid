@@ -1139,8 +1139,12 @@ namespace dMobile.View.Activity
                 return;
             }
 
-            // Pass 0 as the current selected row on an add, true forces it as an add not an edit
-            this.ActDetail = await this.ActDetail.GetInfo(this.DataGridMainActivityItemsList[0], true);
+            // Check to see if grid is empty. If so, don't attempt to retrieve details.
+            if (this.DataGridMainActivityItemsList.Count != 0)
+            {
+                // Pass 0 as the current selected row on an add, true forces it as an add not an edit
+                this.ActDetail = await this.ActDetail.GetInfo(this.DataGridMainActivityItemsList[0], true);
+            }
 
             await this.ScannerDisable();
 
