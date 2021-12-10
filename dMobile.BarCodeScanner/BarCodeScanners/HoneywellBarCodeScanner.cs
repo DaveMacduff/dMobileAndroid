@@ -71,6 +71,20 @@
         /// <returns>The <see cref="Task"/></returns>
         public override async Task Start()
         {
+            // There is probably a better way to do this but we need to make sure the scan isn't still reading
+            int retry = 0;
+            
+            while (this.HoneywellReader.IsReaderOpened)
+            {
+                Thread.Sleep(100);
+                retry++;    
+
+                if (retry > 5)
+                {
+                    break;
+                }
+            }
+
             if (!this.HoneywellReader.IsReaderOpened)
             {
                 BarcodeReader.Result result = await this.HoneywellReader.OpenAsync();
