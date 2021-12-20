@@ -1,23 +1,20 @@
-﻿using dMobile.View.CustomPages.Modal;
-using System;
-using System.Collections.Generic;
-using SQLite;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.IO;
-using System.Xml.Linq;
+﻿using Android.Views;
 using dMobile.Bedrock;
 using dMobile.GroundWork;
+using dMobile.Resources.Enums;
+using dMobile.Resources.Types;
+using dMobile.View.CustomPages.Modal;
+using dMobile.View.Forms;
+using SQLite;
+using System;
+using System.Collections.ObjectModel;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Xml.Linq;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 using Resource = dMobile.Resources.Properties.Resources;
-using dMobile.View.Forms;
-using dMobile.Resources.Enums;
-using Android.Views;
-using System.Collections.ObjectModel;
-using System.Collections;
-using dMobile.Resources.Types;
 
 namespace dMobile.View.Options
 {
