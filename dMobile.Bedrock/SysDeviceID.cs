@@ -1,8 +1,11 @@
 ﻿namespace dMobile.Bedrock
 {
-    using Android.Util;
     using System;
     using System.Net.NetworkInformation;
+    using Android;
+    using Android.OS;
+    using Android.Util;
+    using Xamarin.Forms;
 
     public class SysDeviceID
     {
