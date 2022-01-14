@@ -806,8 +806,41 @@
         /// <remarks></remarks>
         private async void txtSlotCoordinate1_TextChanged(object sender, TextChangedEventArgs e)
         {
-            this.FilteredListSlotCoord1 = this.ListSlotCoord1.Where<Slot>(slot => slot.LocationMapSlotCoordinateCode.Contains(this.txtSlotCoordinate1.Text.Trim())).ToList();
-            await this.PopulateSlotCoord1List();
+            try
+            {
+                if (string.Compare(txtSlotCoordinate1.Text, string.Empty) > 0)
+                {
+                    if (this.LocMapInfo.SectLocMapRefno != 0)
+                    {
+                        this.FilteredListSlotCoord1 = this.ListSlotCoord1.Where<Slot>(slot => slot.LocationMapSlotCoordinateCode.Contains(this.txtSlotCoordinate1.Text.Trim().ToUpper())
+                        && slot.SectionLocationMapRefno == this.LocMapInfo.SectLocMapRefno).ToList();
+                    }
+                    else
+                    {
+                        this.FilteredListSlotCoord1 = this.ListSlotCoord1.Where<Slot>(slot => slot.LocationMapSlotCoordinateCode.Contains(this.txtSlotCoordinate1.Text.Trim().ToUpper())).ToList();
+                    }
+                }
+                else
+                {
+                    if (this.LocMapInfo.SectLocMapRefno != 0)
+                    {
+                        this.FilteredListSlotCoord1 = this.ListSlotCoord1.Where<Slot>(slot => slot.SectionLocationMapRefno == this.LocMapInfo.SectLocMapRefno).ToList();
+                    } 
+                    else
+                    {
+                        this.FilteredListSlotCoord1 = this.ListSlotCoord1;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "An error occurred while searching." + ex.Message, "OK"));
+                this.filteredListSlotCoord1 = this.ListSlotCoord1;
+            }
+            finally
+            {
+                await this.PopulateSlotCoord1List();
+            }
         }
 
         private async Task PopulateSlotCoord1List()
@@ -816,13 +849,6 @@
 
             foreach (Slot slot in this.FilteredListSlotCoord1)
             {
-                //Slot slot = new Slot
-                //{
-                //    LocationMapSlotCoordinateCode = Convert.ToString(row["LocationMapSlotCoordinateCode"]),
-                //    LocationMapSlotCoordinateRefno = Convert.ToInt32(row["LocationMapSlotCoordinateRefno"]),
-                //    SectionLocationMapRefno = Convert.ToInt32(row["SectionLocationMapRefno"])
-                //};
-
                 this.SlotCoord1ObservableCollection.Add(slot);
             }
 
@@ -837,9 +863,41 @@
         /// <remarks></remarks>
         private async void txtSlotCoordinate2_TextChanged(object sender, TextChangedEventArgs e)
         {
-            //this.DataViewSlotCoord2.RowFilter = "LocationMapSlotCoordinateCode LIKE \'%" + this.txtSlotCoordinate2.Text.Trim() + "%\'";
-            this.FilteredListSlotCoord2 = this.ListSlotCoord2.Where<Slot>(slot => slot.LocationMapSlotCoordinateCode.Contains(this.txtSlotCoordinate1.Text.Trim())).ToList();
-            await this.PopulateSlotCoord2List();
+            try
+            {
+                if (string.Compare(txtSlotCoordinate2.Text, string.Empty) > 0)
+                {
+                    if (this.LocMapInfo.SectLocMapRefno != 0)
+                    {
+                        this.FilteredListSlotCoord2 = this.ListSlotCoord2.Where<Slot>(slot => slot.LocationMapSlotCoordinateCode.Contains(this.txtSlotCoordinate2.Text.Trim().ToUpper())
+                        && slot.SectionLocationMapRefno == this.LocMapInfo.SectLocMapRefno).ToList();
+                    }
+                    else
+                    {
+                        this.FilteredListSlotCoord2 = this.ListSlotCoord2.Where<Slot>(slot => slot.LocationMapSlotCoordinateCode.Contains(this.txtSlotCoordinate2.Text.Trim().ToUpper())).ToList();
+                    }
+                }
+                else
+                {
+                    if (this.LocMapInfo.SectLocMapRefno != 0)
+                    {
+                        this.FilteredListSlotCoord2 = this.ListSlotCoord2.Where<Slot>(slot => slot.SectionLocationMapRefno == this.LocMapInfo.SectLocMapRefno).ToList();
+                    }
+                    else
+                    {
+                        this.FilteredListSlotCoord2 = this.ListSlotCoord2;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "An error occurred while searching." + ex.Message, "OK"));
+                this.filteredListSlotCoord2 = this.ListSlotCoord2;
+            }
+            finally
+            {
+                await this.PopulateSlotCoord2List();
+            }
         }
 
         private async Task PopulateSlotCoord2List()
@@ -848,13 +906,6 @@
 
             foreach (Slot slot in this.FilteredListSlotCoord2)
             {
-                //Slot slot = new Slot
-                //{
-                //    LocationMapSlotCoordinateCode = Convert.ToString(row["LocationMapSlotCoordinateCode"]),
-                //    LocationMapSlotCoordinateRefno = Convert.ToInt32(row["LocationMapSlotCoordinateRefno"]),
-                //    SectionLocationMapRefno = Convert.ToInt32(row["SectionLocationMapRefno"])
-                //};
-
                 this.SlotCoord2ObservableCollection.Add(slot);
             }
 
@@ -869,9 +920,41 @@
         /// <remarks></remarks>
         private async void txtSlotCoordinate3_TextChanged(object sender, TextChangedEventArgs e)
         {
-            //this.DataViewSlotCoord3.RowFilter = "LocationMapSlotCoordinateCode LIKE \'%" + this.txtSlotCoordinate3.Text.Trim() + "%\'";
-            this.FilteredListSlotCoord3 = this.ListSlotCoord3.Where<Slot>(slot => slot.LocationMapSlotCoordinateCode.Contains(this.txtSlotCoordinate1.Text.Trim())).ToList();
-            await this.PopulateSlotCoord3List();
+            try
+            {
+                if (string.Compare(txtSlotCoordinate3.Text, string.Empty) > 0)
+                {
+                    if (this.LocMapInfo.SectLocMapRefno != 0)
+                    {
+                        this.FilteredListSlotCoord3 = this.ListSlotCoord3.Where<Slot>(slot => slot.LocationMapSlotCoordinateCode.Contains(this.txtSlotCoordinate3.Text.Trim().ToUpper())
+                        && slot.SectionLocationMapRefno == this.LocMapInfo.SectLocMapRefno).ToList();
+                    }
+                    else
+                    {
+                        this.FilteredListSlotCoord3 = this.ListSlotCoord3.Where<Slot>(slot => slot.LocationMapSlotCoordinateCode.Contains(this.txtSlotCoordinate3.Text.Trim().ToUpper())).ToList();
+                    }
+                }
+                else
+                {
+                    if (this.LocMapInfo.SectLocMapRefno != 0)
+                    {
+                        this.FilteredListSlotCoord3 = this.ListSlotCoord3.Where<Slot>(slot => slot.SectionLocationMapRefno == this.LocMapInfo.SectLocMapRefno).ToList();
+                    }
+                    else
+                    {
+                        this.FilteredListSlotCoord3 = this.ListSlotCoord3;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                await Device.InvokeOnMainThreadAsync(async () => await DisplayAlert("Error", "An error occurred while searching." + ex.Message, "OK"));
+                this.filteredListSlotCoord3 = this.ListSlotCoord3;
+            }
+            finally
+            {
+                await this.PopulateSlotCoord3List();
+            }
         }
 
         private async Task PopulateSlotCoord3List()
@@ -880,13 +963,6 @@
 
             foreach (Slot slot in this.FilteredListSlotCoord3)
             {
-                //Slot slot = new Slot
-                //{
-                //    LocationMapSlotCoordinateCode = Convert.ToString(row["LocationMapSlotCoordinateCode"]),
-                //    LocationMapSlotCoordinateRefno = Convert.ToInt32(row["LocationMapSlotCoordinateRefno"]),
-                //    SectionLocationMapRefno = Convert.ToInt32(row["SectionLocationMapRefno"])
-                //};
-
                 this.SlotCoord3ObservableCollection.Add(slot);
             }
 

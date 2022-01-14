@@ -600,9 +600,9 @@ namespace dMobile.Controller
         {
             StringBuilder xmlString = new StringBuilder();
             XmlWriter xml = XmlWriter.Create(xmlString);
-
-            int fromProdRefno = Convert.ToInt32((this.ActItem.SelectedActivityItem as ConvertProductItem).From_prod_fk_refno);
-            int toProdRefno = Convert.ToInt32((this.ActItem.SelectedActivityItem as ConvertProductItem).To_prod_fk_refno);
+            
+            int fromProdRefno = Convert.ToInt32((this.ActItem.ListItems[0] as ConvertProductItem).From_prod_fk_refno);
+            int toProdRefno = Convert.ToInt32((this.ActItem.ListItems[0] as ConvertProductItem).To_prod_fk_refno);
 
             ProductInfo fromProd = await ProductInfoTasks.GetInfoFromRefno(fromProdRefno);
             ProductInfo toProd = await ProductInfoTasks.GetInfoFromRefno(toProdRefno);
