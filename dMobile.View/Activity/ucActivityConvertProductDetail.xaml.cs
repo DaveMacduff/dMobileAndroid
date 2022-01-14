@@ -156,6 +156,7 @@ namespace dMobile.View.Activity
         {
             Device.BeginInvokeOnMainThread(async () =>
             {
+                await this.CancelChanges();
                 base.OnBackButtonPressed();
                 await this.CloseForm();
             });

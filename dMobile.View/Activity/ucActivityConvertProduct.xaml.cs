@@ -644,7 +644,7 @@ namespace dMobile.View.Activity
         {
             this.FromProdRefno = 0;
             this.ToProdRefno = 0;
-            this.LocMap.CurrLocMap = new SLocMap();
+            this.LocMap = null;
             this.LocMap = LocationMap.GetInstance();
             await this.ActItem.Delete();
             await this.ActDetail.Delete();
