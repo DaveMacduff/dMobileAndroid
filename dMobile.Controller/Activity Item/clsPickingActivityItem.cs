@@ -1226,7 +1226,7 @@
                         + string.Format("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.Refno)
                         + "GROUP BY tUnit.UnitCode";
 
-                List<PickingItem> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<PickingItem>(query);
+                List<PickingItemSummary> results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<PickingItemSummary>(query);
 
                 if (results != null)
                 {
@@ -1236,7 +1236,7 @@
                         // This causes problems detecting if there is nothing to sum, resulting in null.
                         // Converting Convert.ToDecimal(dr["Ordered"]) fails because there is not data. However to a string works.
                         // TODO: Resource strings
-                        msg += string.Format("Total ordered:\r{0} @ {1}{2}\r\rTotal shipped:\r{3} @ {4}{5}",
+                        msg += string.Format("Total ordered:\r{0} @ {1}{2}\nTotal shipped:\r{3} @ {4}{5}",
                             Convert.ToInt32(Convert.ToDecimal(pickingItem.Ordered)),
                             Convert.ToDecimal(pickingItem.WeightOrdered),
                             Convert.ToString(pickingItem.WtUnitCode),
