@@ -349,6 +349,18 @@ namespace dMobile.View.Menus
                         }
                     }
 
+                    this.cmdConvertProduct.IsEnabled = false;
+                    if ((this.SysEnv.IsCommunicationTestSuccessful || this.SysEnv.SysSettings.IsDisconnectedMode)
+                       && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginID
+                       && !this.SysEnv.RefreshOpt.IsRefreshDataFailed)
+                    {
+                        if (this.SysEnv.SysSettings.IsInventoryAdjustmentModule
+                            || this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginID)
+                        {
+                            this.cmdConvertProduct.IsEnabled = true;
+                        }
+                    }
+
                     // Override all checks if module bypass enabled.
                     if ((this.SysEnv.IsCommunicationTestSuccessful || this.SysEnv.SysSettings.IsDisconnectedMode)
                         && this.SysEnv.IsEnableAllModuleBypassLicense
@@ -359,6 +371,7 @@ namespace dMobile.View.Menus
                         this.cmdRework.IsEnabled = true;
                         this.cmdRequisition.IsEnabled = true;
                         this.cmdDisposal.IsEnabled = true;
+                        this.cmdConvertProduct.IsEnabled = true;
                     }
                 }
             }
