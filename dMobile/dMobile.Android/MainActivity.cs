@@ -3,14 +3,16 @@
     using Android.App;
     using Android.Content.PM;
     using Android.OS;
-    using Android.Util;
     using Android.Views;
-    using dMobile.Bedrock;
     using dMobile.Resources.Enums;
     using dMobile.View;
+    using Newtonsoft.Json;
     using System;
+    using System.IO;
+    using System.Net;
+    using System.Net.Http;
+    using System.Threading.Tasks;
     using Xamarin.Forms;
-    using Xamarin.Forms.Platform.Android;
 
     /// <summary>
     /// Defines the <see cref="MainActivity" />
@@ -30,7 +32,28 @@
             base.OnCreate(savedInstanceState);
             global::Xamarin.Forms.Forms.Init(this, savedInstanceState);
             LoadApplication(new App());
+
+
+            /// THIS FAILS WITH A FATAL ERROR BUT NOT CLEAR WHY. MAYBE PERMISSIONS
+            using (var clients = new WebClient())
+            {
+                clients.DownloadFile("http://184.70.233.14:81/current/com.dmobile.android.apk", "com.dmobile.android.mpeg");
+            }
+
+
+            // THIS SECTION WORKS FOR HITTING API ENDPOINTS
+            //Uri uri = new Uri(string.Format(@"http://184.70.233.14:81/current/com.dmobile.android.apk", string.Empty));
+            ////Uri uri = new Uri(string.Format(@"https://www.google.ca", string.Empty));
+
+            //HttpClient client = new HttpClient();
+            //HttpResponseMessage response = client.GetAsync(uri).GetAwaiter().GetResult();
+            //if (response.IsSuccessStatusCode)
+            //{
+            //    string content = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+            //    var tempo = JsonConvert.DeserializeObject(content, typeof(string));
+            //}
         }
+
 
         ///// <summary>
         ///// The OnStop

@@ -4,5 +4,5 @@
 	<uses-permission android:name="android.permission.READ_PHONE_STATE" />
 	<uses-permission android:name="com.honeywell.decode.permission.DECODE" />
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-	<application android:label="dMobile" android:largeHeap="true"></application>
+	<application android:label="dMobile" android:largeHeap="true" android:networkSecurityConfig="@xml/network_security_config"></application>
 </manifest>
