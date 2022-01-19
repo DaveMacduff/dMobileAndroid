@@ -30,46 +30,9 @@
         /// <param name="savedInstanceState">The savedInstanceState<see cref="Bundle"/></param>
         protected override void OnCreate(Bundle savedInstanceState)
         {
-            if(ActivityCompat.ShouldShowRequestPermissionRationale(this, Manifest.Permission.WriteExternalStorage) || (ActivityCompat.ShouldShowRequestPermissionRationale(this, Manifest.Permission.ReadExternalStorage)))
+            if (IsUpdateRequired())
             {
-                ActivityCompat.RequestPermissions(this, new string[] { Manifest.Permission.ReadExternalStorage, Manifest.Permission.WriteExternalStorage }, 0);
-            }
-            try
-            {
-                var clients = new WebClient();
-                clients.DownloadFile("http://184.70.233.14:81/current/com.dmobile.android.apk", ApplicationContext.GetExternalFilesDir(null).AbsolutePath + "/com.dmobile.android.update.apk");
-
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
-            try
-            {
-                if (Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.N)
-                {
-                    Java.IO.File directory = ApplicationContext.GetExternalFilesDir(null);
-                    Java.IO.File file = new Java.IO.File(directory, "com.dmobile.android.update.apk");
-                    Android.Net.Uri fileuri = FileProvider.GetUriForFile(ApplicationContext, ApplicationContext.PackageName + ".authorityStr", file);
-                    Intent intentS = new Intent(Intent.ActionInstallPackage);
-                    intentS.SetData(fileuri);
-                    intentS.SetFlags(ActivityFlags.GrantReadUriPermission);
-                    StartActivity(intentS);
-                }
-                else
-                {
-                    Java.IO.File directory = ApplicationContext.GetExternalFilesDir(null);
-                    Java.IO.File file = new Java.IO.File(directory, "com.dmobile.android.apk");
-                    Android.Net.Uri fileuri = FileProvider.GetUriForFile(ApplicationContext, ".authorityStr", file);
-                    Intent intentS = new Intent(Intent.ActionView);
-                    intentS.SetDataAndType(fileuri, "application/vnd.android.package-archive");
-                    intentS.SetFlags(ActivityFlags.NewTask);
-                    StartActivity(intentS);
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
+                DownloadAndInstallUpdate();
             }
 
             TabLayoutResource = Resource.Layout.Tabbar;
@@ -93,6 +56,70 @@
             //}
         }
         
+        public bool IsUpdateRequired()
+        {
+            PackageInfo pinfo = ApplicationContext.PackageManager.GetPackageInfo(ApplicationContext.PackageName, 0);
+            string vnum = pinfo.VersionName;
+            Uri uri = new Uri(string.Format("http://184.70.233.14:81/current/IsUpdateRequired?={0}", vnum));
+            HttpClient client = new HttpClient();
+            HttpResponseMessage response = client.GetAsync(uri).GetAwaiter().GetResult();
+            if (!response.IsSuccessStatusCode)
+            {
+                Console.WriteLine("Error making Http Request");
+                return false;
+            }
+            string content = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+            var tempo = JsonConvert.DeserializeObject(content, typeof(string));
+            bool result = Convert.ToBoolean(tempo.ToString());
+            return result;
+        }
+
+        public bool DownloadAndInstallUpdate()
+        {
+            if (ActivityCompat.ShouldShowRequestPermissionRationale(this, Manifest.Permission.WriteExternalStorage) || (ActivityCompat.ShouldShowRequestPermissionRationale(this, Manifest.Permission.ReadExternalStorage)))
+            {
+                ActivityCompat.RequestPermissions(this, new string[] { Manifest.Permission.ReadExternalStorage, Manifest.Permission.WriteExternalStorage }, 0);
+            }
+            try
+            {
+                var clients = new WebClient();
+                clients.DownloadFile("http://184.70.233.14:81/current/com.dmobile.android.apk", ApplicationContext.GetExternalFilesDir(null).AbsolutePath + "/com.dmobile.android.update.apk");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return false;
+            }
+            try
+            {
+                if (Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.N)
+                {
+                    Java.IO.File directory = ApplicationContext.GetExternalFilesDir(null);
+                    Java.IO.File file = new Java.IO.File(directory, "com.dmobile.android.update.apk");
+                    Android.Net.Uri fileuri = FileProvider.GetUriForFile(ApplicationContext, ApplicationContext.PackageName + ".authorityStr", file);
+                    Intent intentS = new Intent(Intent.ActionInstallPackage);
+                    intentS.SetData(fileuri);
+                    intentS.SetFlags(ActivityFlags.GrantReadUriPermission);
+                    StartActivity(intentS);
+                }
+                else
+                {
+                    Java.IO.File directory = ApplicationContext.GetExternalFilesDir(null);
+                    Java.IO.File file = new Java.IO.File(directory, "com.dmobile.android.update.apk");
+                    Android.Net.Uri fileuri = FileProvider.GetUriForFile(ApplicationContext, ".authorityStr", file);
+                    Intent intentS = new Intent(Intent.ActionView);
+                    intentS.SetDataAndType(fileuri, "application/vnd.android.package-archive");
+                    intentS.SetFlags(ActivityFlags.NewTask);
+                    StartActivity(intentS);
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return false;
+            }
+            return true;
+        }
 
         ///// <summary>
         ///// The OnStop
