@@ -1,8 +1,12 @@
 ﻿namespace dMobile.Droid
 {
+    using Android;
     using Android.App;
+    using Android.Content;
     using Android.Content.PM;
     using Android.OS;
+    using Android.Support.V4.App;
+    using Android.Support.V4.Content;
     using Android.Views;
     using dMobile.Resources.Enums;
     using dMobile.View;
@@ -26,20 +30,55 @@
         /// <param name="savedInstanceState">The savedInstanceState<see cref="Bundle"/></param>
         protected override void OnCreate(Bundle savedInstanceState)
         {
+            if(ActivityCompat.ShouldShowRequestPermissionRationale(this, Manifest.Permission.WriteExternalStorage) || (ActivityCompat.ShouldShowRequestPermissionRationale(this, Manifest.Permission.ReadExternalStorage)))
+            {
+                ActivityCompat.RequestPermissions(this, new string[] { Manifest.Permission.ReadExternalStorage, Manifest.Permission.WriteExternalStorage }, 0);
+            }
+            try
+            {
+                var clients = new WebClient();
+                clients.DownloadFile("http://184.70.233.14:81/current/com.dmobile.android.apk", ApplicationContext.GetExternalFilesDir(null).AbsolutePath + "/com.dmobile.android.update.apk");
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+            try
+            {
+                if (Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.N)
+                {
+                    Java.IO.File directory = ApplicationContext.GetExternalFilesDir(null);
+                    Java.IO.File file = new Java.IO.File(directory, "com.dmobile.android.update.apk");
+                    Android.Net.Uri fileuri = FileProvider.GetUriForFile(ApplicationContext, ApplicationContext.PackageName + ".authorityStr", file);
+                    Intent intentS = new Intent(Intent.ActionInstallPackage);
+                    intentS.SetData(fileuri);
+                    intentS.SetFlags(ActivityFlags.GrantReadUriPermission);
+                    StartActivity(intentS);
+                }
+                else
+                {
+                    Java.IO.File directory = ApplicationContext.GetExternalFilesDir(null);
+                    Java.IO.File file = new Java.IO.File(directory, "com.dmobile.android.apk");
+                    Android.Net.Uri fileuri = FileProvider.GetUriForFile(ApplicationContext, ".authorityStr", file);
+                    Intent intentS = new Intent(Intent.ActionView);
+                    intentS.SetDataAndType(fileuri, "application/vnd.android.package-archive");
+                    intentS.SetFlags(ActivityFlags.NewTask);
+                    StartActivity(intentS);
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+
             TabLayoutResource = Resource.Layout.Tabbar;
             ToolbarResource = Resource.Layout.Toolbar;
 
             base.OnCreate(savedInstanceState);
             global::Xamarin.Forms.Forms.Init(this, savedInstanceState);
             LoadApplication(new App());
-
-
-            /// THIS FAILS WITH A FATAL ERROR BUT NOT CLEAR WHY. MAYBE PERMISSIONS
-            using (var clients = new WebClient())
-            {
-                clients.DownloadFile("http://184.70.233.14:81/current/com.dmobile.android.apk", "com.dmobile.android.mpeg");
-            }
-
+            
 
             // THIS SECTION WORKS FOR HITTING API ENDPOINTS
             //Uri uri = new Uri(string.Format(@"http://184.70.233.14:81/current/com.dmobile.android.apk", string.Empty));
@@ -53,7 +92,7 @@
             //    var tempo = JsonConvert.DeserializeObject(content, typeof(string));
             //}
         }
-
+        
 
         ///// <summary>
         ///// The OnStop
