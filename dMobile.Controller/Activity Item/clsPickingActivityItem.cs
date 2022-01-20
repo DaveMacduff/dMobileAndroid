@@ -179,7 +179,19 @@
             {
                 decimal weight = decimal.Parse(data.Root.Element("wt_qty").Value);
                 decimal qty = decimal.Parse(data.Root.Element("alt_qty").Value);
-                decimal per = this.SysEnv.SysSettings.ProdWeightUnitTolerancePercent / 100;
+
+                decimal per;
+
+                // Check weight tolerance
+                if (this.ProdInfo.WeightTolerance != 0)
+                {
+                    per = this.ProdInfo.WeightTolerance / 100;
+                }
+                else
+                {
+                    per = this.SysEnv.SysSettings.ProdWeightUnitTolerancePercent / 100;
+                }
+                
                 decimal weightUpper = (this.ProdInfo.UnitWeight + (this.ProdInfo.UnitWeight * per)) * qty;
                 decimal weightLower = (this.ProdInfo.UnitWeight - (this.ProdInfo.UnitWeight * per)) * qty;
 

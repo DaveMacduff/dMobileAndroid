@@ -42,6 +42,7 @@ namespace dMobile.Bedrock
         private bool unitIsDefault = false;
         private bool unitIsSellUnit = false;
         private decimal boxCount = 0;
+        private decimal weightTolerance = 0.00M;
 
         /// <summary>
         /// Checks if a product is allowed to be converted to another product.
@@ -342,6 +343,19 @@ namespace dMobile.Bedrock
             set
             {
                 this.isCatchAsk = value;
+            }
+        }
+
+        public decimal WeightTolerance
+        {
+            get
+            {
+                return this.weightTolerance;
+            }
+
+            set
+            {
+                this.weightTolerance = value;
             }
         }
     }

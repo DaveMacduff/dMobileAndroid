@@ -53,6 +53,7 @@
         private bool productUnitIsDefault;
         private bool productUnitIsSellUnit;
         private decimal productUnitBoxCount;
+        private decimal productUnitWeightTolerance;
 
         public int ProductUnitRefno { get => productUnitRefno; set => productUnitRefno = value; }
         public int ProductRefno { get => productRefno; set => productRefno = value; }
@@ -75,5 +76,6 @@
         public bool ProductUnitIsDefault { get => productUnitIsDefault; set => productUnitIsDefault = value; }
         public bool ProductUnitIsSellUnit { get => productUnitIsSellUnit; set => productUnitIsSellUnit = value; }
         public decimal ProductUnitBoxCount { get => productUnitBoxCount; set => productUnitBoxCount = value; }
+        public decimal ProductUnitWeightTolerance { get => productUnitWeightTolerance; set => productUnitWeightTolerance = value; }
     }
 }

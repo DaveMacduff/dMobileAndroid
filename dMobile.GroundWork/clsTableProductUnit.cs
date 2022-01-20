@@ -289,6 +289,8 @@ namespace dMobile.GroundWork
                         bool isProdUnitDefault = false;
                         // f10
                         decimal boxCount = 0;
+                        // f11
+                        decimal weightTolerance = 0.00M;
 
                         this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, 100);
 
@@ -337,6 +339,9 @@ namespace dMobile.GroundWork
                                             break;
                                         case "f10":
                                             boxCount = reader.ReadContentAsDecimal();
+                                            break;
+                                        case "f11":
+                                            weightTolerance = reader.ReadContentAsDecimal();
                                             break;
                                     }
                                 }
@@ -439,7 +444,8 @@ namespace dMobile.GroundWork
                                     "ProductUnitSizeDescription, " +
                                     "ProductUnitIsSellUnit, " +
                                     "ProductUnitIsDefault, " +
-                                    "ProductUnitBoxCount) " +
+                                    "ProductUnitBoxCount," +
+                                    "ProductUnitWeightTolerance) " +
                                     "VALUES " +
                                     "(?, " +
                                     "?, " +
@@ -451,6 +457,7 @@ namespace dMobile.GroundWork
                                     "?, " +
                                     "?, " +
                                     "?, " +
+                                    "?," +
                                     "?)";
                                 object[] parametersInsert = new object[]
                                 {
@@ -464,7 +471,8 @@ namespace dMobile.GroundWork
                                     Convert.ToString(description),
                                     Convert.ToInt32(isProdUnitSellUnit),
                                     Convert.ToInt32(isProdUnitDefault),
-                                    Convert.ToDecimal(boxCount)
+                                    Convert.ToDecimal(boxCount),
+                                    Convert.ToDecimal(weightTolerance)
                                 };
 
                                 transaction.Execute(queryInsert, parametersInsert);

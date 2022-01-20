@@ -87,5 +87,8 @@ namespace dMobile.Resources.Models
 
         [NotNull]
         public decimal ProductUnitBoxCount { get; set; }
+        
+        [NotNull]
+        public decimal ProductUnitWeightTolerance { get; set; }
     }
 }

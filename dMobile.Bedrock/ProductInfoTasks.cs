@@ -61,6 +61,7 @@
                   new XElement("ProductUnitIsSellUnit", prodInfo.UnitIsSellUnit.ToString()),
                   new XElement("ProductUnitIsDefault", prodInfo.UnitIsDefault.ToString()),
                   new XElement("ProductUnitBoxCount", prodInfo.BoxCount.ToString()),
+                  new XElement("ProductUnitWeightTolerance", prodInfo.WeightTolerance.ToString()),
                   new XElement("ProductUnitWeight", prodInfo.UnitWeight.ToString())));
 
             return request;
@@ -135,7 +136,8 @@
                 "tProduct.ProductBrandDescription, " +
                 "tProductUnit.ProductUnitIsSellUnit, " +
                 "tProductUnit.ProductUnitIsDefault, " +
-                "tProductUnit.ProductUnitBoxCount " +
+                "tProductUnit.ProductUnitBoxCount," +
+                "tProductUnit.ProductUnitWeightTolerance" +
                 "FROM tProductUnit " +
                 "INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno " +
                 "INNER JOIN tUnit AS aUnitWeight ON aUnitWeight.UnitRefno = tProductUnit.WtUnitRefno " +
@@ -170,6 +172,7 @@
                     prodInfo.UnitIsDefault = results[0].ProductUnitIsDefault;
                     prodInfo.UnitIsSellUnit = results[0].ProductUnitIsSellUnit;
                     prodInfo.BoxCount = results[0].ProductUnitBoxCount;
+                    prodInfo.WeightTolerance = results[0].ProductUnitWeightTolerance;
                 }
 
                 prodInfo.Unit2BaseUnitFactor = await ProductInfoTasks.GetUnitRelationFactor(prodInfo);
@@ -323,7 +326,8 @@
             "tProduct.ProductBrandDescription AS ProductBrandDescription, " +
             "tProductUnit.ProductUnitIsSellUnit AS ProductUnitIsSellUnit, " +
             "tProductUnit.ProductUnitIsDefault AS ProductUnitIsDefault, " +
-            "tProductUnit.ProductUnitBoxCount AS ProductUnitBoxCount " +
+            "tProductUnit.ProductUnitBoxCount AS ProductUnitBoxCount," +
+            "tProductUnit.ProductUnitWeightTolerance AS ProductUnitWeightTolerance " +
             "FROM tProductUnit " +
             "INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno " +
             "INNER JOIN tUnit AS aUnitWeight ON aUnitWeight.UnitRefno = tProductUnit.WtUnitRefno " +
@@ -356,6 +360,7 @@
                 prodInfo.UnitIsDefault = results[0].ProductUnitIsDefault;
                 prodInfo.UnitIsSellUnit = results[0].ProductUnitIsSellUnit;
                 prodInfo.BoxCount = results[0].ProductUnitBoxCount;
+                prodInfo.WeightTolerance = results[0].ProductUnitWeightTolerance;
             }
 
             prodInfo.Unit2BaseUnitFactor = await ProductInfoTasks.GetUnitRelationFactor(prodInfo);
@@ -393,7 +398,8 @@
             "tProduct.ProductBrandDescription, " +
             "tProductUnit.ProductUnitIsSellUnit, " +
             "tProductUnit.ProductUnitIsDefault, " +
-            "tProductUnit.ProductUnitBoxCount " +
+            "tProductUnit.ProductUnitBoxCount," +
+            "tProductUnit.ProductUnitWeightTolerance " +
             "FROM tProductUnit " +
             "INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno " +
             "INNER JOIN tUnit AS aUnitWeight ON aUnitWeight.UnitRefno = tProductUnit.WtUnitRefno " +
@@ -427,6 +433,7 @@
                 prodInfo.UnitIsDefault = results[0].ProductUnitIsDefault;
                 prodInfo.UnitIsSellUnit = results[0].ProductUnitIsSellUnit;
                 prodInfo.BoxCount = results[0].ProductUnitBoxCount;
+                prodInfo.WeightTolerance = results[0].ProductUnitWeightTolerance;
             }
 
             prodInfo.Unit2BaseUnitFactor = await ProductInfoTasks.GetUnitRelationFactor(prodInfo);
