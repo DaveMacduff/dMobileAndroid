@@ -174,11 +174,12 @@
             int foundActItemRefno = 0;
             bool result = false;
             int prodUnitRefno = int.Parse(data.Root.Element("ProductUnitRefno").Value);
-            int locMapRefno = this.LocMap.CurrLocMap.WhsLocMapRefno;
+            this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
+            int locMapRefno = this.LocMap.CurrLocMapRefno;
 
-            if (this.SysEnv.SysSettings.IsPhysicalDoNotDefaultProductLocation)
+            if (!this.SysEnv.SysSettings.IsPhysicalDoNotDefaultProductLocation)
             {
-                locMapRefno = this.LocMap.CurrLocMapRefno;
+                locMapRefno = await this.GetDefaultLocMapRefno(this.LocMap.CurrLocMap.WhsLocMapRefno, this.ProdInfo.Refno);
             }
 
             if (prodUnitRefno != 0)

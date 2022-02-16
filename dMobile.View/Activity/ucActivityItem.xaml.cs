@@ -2094,6 +2094,8 @@
                 return;
             }
 
+            bool needRefresh = true;
+
             this.Loading = true;
             await this.ScannerDisable();
 
@@ -2116,6 +2118,8 @@
                     {
                         string currentReadableLocation = LocationMapTasks.GetCurrentReadableLocation();
                         await Device.InvokeOnMainThreadAsync(() => this.CmdLocationText = "Location: " + Environment.NewLine + currentReadableLocation);
+
+                        needRefresh = false;
                     }
                     else
                     {
@@ -2462,7 +2466,10 @@
                     }
                 }
 
-                await this.RefreshData();
+                if (needRefresh)
+                {
+                    await this.RefreshData();
+                }
             }
             catch (TaskCanceledException)
             {
@@ -2704,6 +2711,11 @@
             {
                 this.ActItem.RegLayerListenerProgOut(this);
 
+                if (this.ActItem.ActSubType == SysCommon.ActSubTypes.PhysicalCounts)
+                {
+                    await this.ActItem.Refresh(this.ActItem.ActHdr.XMLDataCriteria);
+                }
+
                 this.ActItem.ListItems = null;
                 this.ActItem.ListItems = await this.ActItem.GetActivityItemList(false);
 
@@ -2723,11 +2735,28 @@
                         }
                         else
                         {
-                            object selectedItem = this.DataGridMainActivityItemsList?.Where(item =>
-                            Convert.ToInt32(item.GetType().GetProperty("ActivityItemRefno")?.GetValue(item)) == Convert.ToInt32(this.dataGridMainActivity.SelectedItem.GetType().GetProperty("ActivityItemRefno")?.GetValue(this.dataGridMainActivity.SelectedItem))).FirstOrDefault();
+                            object selectedItem = null;
+
+                            if (this.ActItem.ActSubType != SysCommon.ActSubTypes.PhysicalCounts)
+                            {
+                                selectedItem = this.DataGridMainActivityItemsList?.Where(item =>
+                                Convert.ToInt32(item.GetType().GetProperty("ActivityItemRefno")?.GetValue(item)) ==
+                                Convert.ToInt32(this.dataGridMainActivity.SelectedItem.GetType().GetProperty("ActivityItemRefno")?.
+                                GetValue(this.dataGridMainActivity.SelectedItem))).
+                                FirstOrDefault();
+                            }
+                            else
+                            {
+                                selectedItem = this.DataGridMainActivityItemsList?.Where(item =>
+                                Convert.ToInt32(item.GetType().GetProperty("ProductUnitRefno")?.GetValue(item)) ==
+                                Convert.ToInt32(this.dataGridMainActivity.SelectedItem.GetType().GetProperty("ProductUnitRefno")?.
+                                GetValue(this.dataGridMainActivity.SelectedItem))).
+                                FirstOrDefault();
+                            }
+
                             this.dataGridMainActivity.SelectedItem = null;
                             this.dataGridMainActivity.SelectedItem = selectedItem;
-                            this.dataGridMainActivity. ScrollTo(this.dataGridMainActivity.SelectedItem, ScrollToPosition.MakeVisible, false);
+                            this.dataGridMainActivity.ScrollTo(this.dataGridMainActivity.SelectedItem, ScrollToPosition.MakeVisible, false);
                         }
                     }
                 });
