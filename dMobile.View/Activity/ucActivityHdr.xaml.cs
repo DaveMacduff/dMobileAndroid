@@ -1376,10 +1376,11 @@
         {
             if (!this.Loading && this.dataGridMainActivity.SelectedItem != null && (Convert.ToInt32(this.DataGridMainActivityItemsList.IndexOf(this.dataGridMainActivity.SelectedItem)) > -1))
             {
-                await Task.Run(async () =>
+                try
                 {
-                    try
+                    await Task.Run(async () =>
                     {
+
                         this.Loading = true;
 
                         await this.ScannerDisable();
@@ -1423,25 +1424,25 @@
                             this.IsChangesMade = false;
                             await Device.InvokeOnMainThreadAsync(async () => await form.DisplayControl.ShowDialog());
                         }
-                    }
-                    catch (Exceptions.MessageOnlyException ex)
+                    });
+                }
+                catch (Exceptions.MessageOnlyException ex)
+                {
+                    ex.Show(this.ActSubType);
+                }
+                catch (Exception ex)
+                {
+                    await Device.InvokeOnMainThreadAsync(async () =>
                     {
-                        ex.Show(this.ActSubType);
-                    }
-                    catch (Exception ex)
-                    {
-                        await Device.InvokeOnMainThreadAsync(async () =>
-                        {
-                            FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
-                            await errRpt.ShowDialog();
-                        });
-                    }
-                    finally
-                    {
-                        await this.ScannerEnable();
-                        this.Loading = false;
-                    }
-                });
+                        FormErrorReport errRpt = new FormErrorReport(this.ActSubType, ex);
+                        await errRpt.ShowDialog();
+                    });
+                }
+                finally
+                {
+                    await this.ScannerEnable();
+                    this.Loading = false;
+                }
             }
         }
 
