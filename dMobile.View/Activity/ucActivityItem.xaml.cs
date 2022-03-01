@@ -2841,13 +2841,18 @@
                             prodLocName = adjustmentItem.LocationName;
                             prodDesc = adjustmentItem.ProductDescription;
                             prodUnitSizeDesc = adjustmentItem.ProductUnitSizeDescription;
+
+                            // Get product default location info
+                            int defLocMapRefno = await this.ActItem.GetDefaultLocMapRefno(adjustmentItem.LocationCode, adjustmentItem.ProductRefno);
+                            SLocMap sLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(defLocMapRefno);
+                            defLoc = LocationMapTasks.GetCurrentReadableLocation(sLocMap);
                         }
 
                         this.ItemsList.Clear();
                         this.ItemsList.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
 
                         // TODO: Resource strings
-                        this.ItemsList.Add("LOCATION: " + prodLocCode.Trim() + " " + prodLocName.Trim());
+                        this.ItemsList.Add("DEF LOC: " + defLoc);
                         break;
 
                     case SysCommon.ActSubTypes.AssignDefaultLocation:
@@ -2973,13 +2978,18 @@
                             prodDesc = pickingItemSingle.ProductDescription;
                             prodUnitSizeDesc = pickingItemSingle.ProductUnitSizeDescription;
                             prodBrandDesc = pickingItemSingle.ProductBrandDescription;
+
+                            // Get product default location info
+                            int defLocMapRefno = await this.ActItem.GetDefaultLocMapRefno(pickingItemSingle.LocationCode, pickingItemSingle.ProductRefno);
+                            SLocMap sLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(defLocMapRefno);
+                            defLoc = LocationMapTasks.GetCurrentReadableLocation(sLocMap);
                         }
 
                         this.ItemsList.Clear();
                         this.ItemsList.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
 
                         // TODO: Resource strings
-                        this.ItemsList.Add("LOCATION: " + prodLocCode.Trim() + " " + prodLocName.Trim());
+                        this.ItemsList.Add("DEF LOC: " + defLoc);
                         break;
 
                     case SysCommon.ActSubTypes.TicketAddProduct:
@@ -2989,13 +2999,18 @@
                             prodLocName = productionTicketByProductItem.LocationName;
                             prodDesc = productionTicketByProductItem.ProductDescription;
                             prodUnitSizeDesc = productionTicketByProductItem.ProductUnitSizeDescription;
+
+                            // Get product default location info
+                            int defLocMapRefno = await this.ActItem.GetDefaultLocMapRefno(productionTicketByProductItem.LocationCode, productionTicketByProductItem.ProductRefno);
+                            SLocMap sLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(defLocMapRefno);
+                            defLoc = LocationMapTasks.GetCurrentReadableLocation(sLocMap);
                         }
 
                         this.ItemsList.Clear();
                         this.ItemsList.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
 
                         // TODO: Resource strings
-                        this.ItemsList.Add("LOCATION: " + prodLocCode.Trim() + " " + prodLocName.Trim());
+                        this.ItemsList.Add("DEF LOC: " + defLoc);
                         break;
 
                     case SysCommon.ActSubTypes.TicketFinished:
@@ -3005,6 +3020,11 @@
                             prodLocName = productionTicketFinishedItem.LocationName;
                             prodDesc = productionTicketFinishedItem.ProductDescription;
                             prodUnitSizeDesc = productionTicketFinishedItem.ProductUnitSizeDescription;
+
+                            // Get product default location info
+                            int defLocMapRefno = await this.ActItem.GetDefaultLocMapRefno(productionTicketFinishedItem.LocationCode, productionTicketFinishedItem.ProductRefno);
+                            SLocMap sLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(defLocMapRefno);
+                            defLoc = LocationMapTasks.GetCurrentReadableLocation(sLocMap);
                         }
 
                         this.ItemsList.Clear();
@@ -3012,7 +3032,7 @@
 
                         // TODO: Resource strings
                         //this.lstDisplay.Items.Add("LOCATION: " + prodLocCode.Trim() + " " + prodLocName.Trim());
-                        this.ItemsList.Add("LOCATION: " + prodLocCode.Trim() + " " + prodLocName.Trim());
+                        this.ItemsList.Add("DEF LOC: " + defLoc);
                         break;
 
                     case SysCommon.ActSubTypes.TicketMaterial:
@@ -3022,13 +3042,18 @@
                             prodLocName = productionTicketMaterialItem.LocationName;
                             prodDesc = productionTicketMaterialItem.ProductDescription;
                             prodUnitSizeDesc = productionTicketMaterialItem.ProductUnitSizeDescription;
+
+                            // Get product default location info
+                            int defLocMapRefno = await this.ActItem.GetDefaultLocMapRefno(productionTicketMaterialItem.LocationCode, productionTicketMaterialItem.ProductRefno);
+                            SLocMap sLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(defLocMapRefno);
+                            defLoc = LocationMapTasks.GetCurrentReadableLocation(sLocMap);
                         }
 
                         this.ItemsList.Clear();
                         this.ItemsList.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
 
                         // TODO: Resource strings
-                        this.ItemsList.Add("LOCATION: " + prodLocCode.Trim() + " " + prodLocName.Trim());
+                        this.ItemsList.Add("DEF LOC: " + defLoc);
                         break;
 
                     case SysCommon.ActSubTypes.PurchaseOrderWorkSheet:
@@ -3038,13 +3063,18 @@
                             prodLocName = purchaseOrderWorkSheetItem.LocationName;
                             prodDesc = purchaseOrderWorkSheetItem.ProductDescription;
                             prodUnitSizeDesc = purchaseOrderWorkSheetItem.ProductUnitSizeDescription;
+
+                            // Get product default location info
+                            int defLocMapRefno = await this.ActItem.GetDefaultLocMapRefno(purchaseOrderWorkSheetItem.LocationCode, purchaseOrderWorkSheetItem.ProductRefno);
+                            SLocMap sLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(defLocMapRefno);
+                            defLoc = LocationMapTasks.GetCurrentReadableLocation(sLocMap);
                         }
 
                         this.ItemsList.Clear();
                         this.ItemsList.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
 
                         // TODO: Resource strings
-                        this.ItemsList.Add("LOCATION: " + prodLocCode.Trim() + " " + prodLocName.Trim());
+                        this.ItemsList.Add("DEF LOC: " + defLoc);
                         break;
 
                     case SysCommon.ActSubTypes.PurgeActivityData:
@@ -3060,13 +3090,18 @@
                             prodLocName = receiveItem.LocationName;
                             prodDesc = receiveItem.ProductDescription;
                             prodUnitSizeDesc = receiveItem.ProductUnitSizeDescription;
+
+                            // Get product default location info
+                            int defLocMapRefno = await this.ActItem.GetDefaultLocMapRefno(receiveItem.LocationCode, receiveItem.ProductRefno);
+                            SLocMap sLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(defLocMapRefno);
+                            defLoc = LocationMapTasks.GetCurrentReadableLocation(sLocMap);
                         }
 
                         this.ItemsList.Clear();
                         this.ItemsList.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
 
                         // TODO: Resource strings
-                        this.ItemsList.Add("LOCATION: " + prodLocCode.Trim() + " " + prodLocName.Trim());
+                        this.ItemsList.Add("DEF LOC: " + defLoc);
                         break;
 
                     case SysCommon.ActSubTypes.RefreshData:
@@ -3087,13 +3122,18 @@
                             prodDesc = returnItem.ProductDescription;
                             prodUnitSizeDesc = returnItem.ProductUnitSizeDescription;
                             prodBrandDesc = returnItem.ProductBrandDescription;
+
+                            // Get product default location info
+                            int defLocMapRefno = await this.ActItem.GetDefaultLocMapRefno(returnItem.LocationCode, returnItem.ProductRefno);
+                            SLocMap sLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(defLocMapRefno);
+                            defLoc = LocationMapTasks.GetCurrentReadableLocation(sLocMap);
                         }
 
                         this.ItemsList.Clear();
 
                         // TODO: Resource strings
                         this.ItemsList.Add("SIZE: " + prodUnitSizeDesc.Trim() + ", " + prodBrandDesc.Trim());
-                        this.ItemsList.Add("LOCATION: " + prodLocCode.Trim() + " " + prodLocName.Trim());
+                        this.ItemsList.Add("DEF LOC: " + defLoc);
                         break;
 
                     case SysCommon.ActSubTypes.SelectLocation:
@@ -3112,13 +3152,18 @@
                             prodLocName = transferItemFrom.LocationName;
                             prodDesc = transferItemFrom.ProductDescription;
                             prodUnitSizeDesc = transferItemFrom.ProductUnitSizeDescription;
+                            
+                            // Get product default location info
+                            int defLocMapRefno = await this.ActItem.GetDefaultLocMapRefno(transferItemFrom.LocationCode, transferItemFrom.ProductRefno);
+                            SLocMap sLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(defLocMapRefno);
+                            defLoc = LocationMapTasks.GetCurrentReadableLocation(sLocMap);
                         }
 
                         this.ItemsList.Clear();
                         this.ItemsList.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
 
                         // TODO: Resource strings
-                        this.ItemsList.Add("LOCATION: " + prodLocCode.Trim() + " " + prodLocName.Trim());
+                        this.ItemsList.Add("DEF LOC: " + defLoc);
                         break;
 
                     case SysCommon.ActSubTypes.TransferTo:
@@ -3128,13 +3173,18 @@
                             prodLocName = transferItemTo.LocationName;
                             prodDesc = transferItemTo.ProductDescription;
                             prodUnitSizeDesc = transferItemTo.ProductUnitSizeDescription;
+
+                            // Get product default location info
+                            int defLocMapRefno = await this.ActItem.GetDefaultLocMapRefno(transferItemTo.LocationCode, transferItemTo.ProductRefno);
+                            SLocMap sLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(defLocMapRefno);
+                            defLoc = LocationMapTasks.GetCurrentReadableLocation(sLocMap);
                         }
 
                         this.ItemsList.Clear();
                         this.ItemsList.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
 
                         // TODO: Resource strings
-                        this.ItemsList.Add("LOCATION: " + prodLocCode.Trim() + " " + prodLocName.Trim());
+                        this.ItemsList.Add("DEF LOC: " + defLoc);
                         break;
                 }
             }
