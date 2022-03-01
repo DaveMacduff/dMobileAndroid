@@ -901,7 +901,7 @@
 
                 case SysCommon.ActSubTypes.Picking:
                     // TODO: Resource strings
-                    desc = string.Format("Picking Order # {0}", this.ActItem.ActHdr.FKRefno);
+                    desc = string.Format("Pick # {0}", this.ActItem.ActHdr.FKRefno);
                     break;
 
                 case SysCommon.ActSubTypes.TransferFrom:
@@ -946,7 +946,7 @@
 
                 case SysCommon.ActSubTypes.PickingSingle:
                     // TODO: Resource strings
-                    desc = string.Format("Picking Order # {0}", this.ActItem.ActHdr.FKRefno);
+                    desc = string.Format("Pick # {0}", this.ActItem.ActHdr.FKRefno);
                     break;
 
                 default:
@@ -2794,6 +2794,7 @@
             string prodUnitSizeDesc = string.Empty;
             string prodBrandDesc = string.Empty;
             string prodCode = string.Empty;
+            string defLoc = string.Empty;
 
             try
             {
@@ -2938,6 +2939,11 @@
                             prodDesc = pickingItem.ProductDescription;
                             prodUnitSizeDesc = pickingItem.ProductUnitSizeDescription;
                             prodBrandDesc = pickingItem.ProductBrandDescription;
+
+                            // Get product default location info
+                            int defLocMapRefno = await this.ActItem.GetDefaultLocMapRefno(pickingItem.LocationCode, pickingItem.ProductRefno);
+                            SLocMap sLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(defLocMapRefno);
+                            defLoc = LocationMapTasks.GetCurrentReadableLocation(sLocMap);
                         }
 
                         this.ItemsList.Clear();
@@ -2956,7 +2962,7 @@
                         }
 
                         // TODO: Resource strings
-                        this.ItemsList.Add("LOCATION: " + prodLocCode.Trim() + " " + prodLocName.Trim());
+                        this.ItemsList.Add("DEF LOC: " + defLoc);
                         break;
 
                     case SysCommon.ActSubTypes.PickingSingle:

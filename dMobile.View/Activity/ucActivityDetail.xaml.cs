@@ -506,7 +506,7 @@ namespace dMobile.View.Activity
                 case SysCommon.ActSubTypes.Picking:
                 case SysCommon.ActSubTypes.PickingSingle:
                     // TODO: Resource strings
-                    desc = string.Format("Picking Order # {0}", this.ActDetail.ActItem.ActHdr.FKRefno);
+                    desc = string.Format("Pick # {0}", this.ActDetail.ActItem.ActHdr.FKRefno);
                     break;
 
                 case SysCommon.ActSubTypes.Receiving:

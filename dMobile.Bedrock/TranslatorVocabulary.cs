@@ -1222,7 +1222,7 @@ namespace dMobile.Bedrock
         Count = 240,
 
         /// <summary>
-        /// Picking Order # {0}
+        /// Pick # {0}
         /// </summary>
         PickingOrder = 241,
 

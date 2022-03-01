@@ -714,7 +714,7 @@ namespace dMobile.View.Activity
 
                 case SysCommon.ActSubTypes.Picking:
                     // TODO: Resource strings
-                    desc = string.Format("Picking Order # {0}", this.ActItem.ActHdr.FKRefno);
+                    desc = string.Format("Pick # {0}", this.ActItem.ActHdr.FKRefno);
                     break;
 
                 case SysCommon.ActSubTypes.TransferFrom:
@@ -759,7 +759,7 @@ namespace dMobile.View.Activity
 
                 case SysCommon.ActSubTypes.PickingSingle:
                     // TODO: Resource strings
-                    desc = string.Format("Picking Order # {0}", this.ActItem.ActHdr.FKRefno);
+                    desc = string.Format("Pick # {0}", this.ActItem.ActHdr.FKRefno);
                     break;
 
                 default:

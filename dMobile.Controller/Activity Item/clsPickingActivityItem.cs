@@ -911,6 +911,7 @@
             //}
 
             this.listPickingItems = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<PickingItem>(sql.ToString());
+            this.listPickingItems = this.listPickingItems.OrderBy(x => x.ActivityItemRefno).ToList();
             this.ListItems = this.listPickingItems.Cast<object>().ToList();
             return this.ListItems;
         }
