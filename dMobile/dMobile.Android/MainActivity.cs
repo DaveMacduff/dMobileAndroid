@@ -30,7 +30,10 @@
         /// <param name="savedInstanceState">The savedInstanceState<see cref="Bundle"/></param>
         protected override void OnCreate(Bundle savedInstanceState)
         {
-            string update = IsUpdateRequired();
+
+            //  Runs on app startup once to check if an update should be performed and if so
+            //  downloads and installs the updated apk.
+            string update = CheckForUpdate();
             if (update != "NO" && update != "ERR")
             {
                 DownloadAndInstallUpdate(update);
@@ -45,15 +48,17 @@
        
         }
         
-        //  This function will call an api endpoint which will use some data provided by the app - the version, ... - to check if the device should 
-        //  automatically install and update the application on launch.
-        public string IsUpdateRequired()
+        //  Calls the CheckForUpdate function from HomeBase api.
+        //  Returns the value received: either "NO" if no update is available,
+        //                                     "ERR" if there was an error in the server logic
+        //                                     OR the version it should update to as a string.
+        public string CheckForUpdate()
         {
             try
             {
                 PackageInfo pinfo = ApplicationContext.PackageManager.GetPackageInfo(ApplicationContext.PackageName, 0);
                 string vnum = pinfo.VersionName;
-                string uri = @"http://192.168.50.177:2857/HomeBase/CheckForUpdate?version=" + vnum;
+                string uri = @"http://184.70.233.14:2857/HomeBase/CheckForUpdate?version=" + vnum;
                 HttpClient client = new HttpClient();
                 HttpResponseMessage response = client.GetAsync(uri).GetAwaiter().GetResult();
                 if (!response.IsSuccessStatusCode)
@@ -62,8 +67,6 @@
                     return "ERR";
                 }
                 string content = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
-                //var tempo = JsonConvert.DeserializeObject(content, typeof(string));
-                //string result = tempo.ToString();
                 return content;
             } catch (Exception e)
             {
@@ -72,9 +75,10 @@
             }
         }
 
-        //  If the application should update, this function will download the latest .apk off our server before installing the update.
+        //  If the application should update, this function will download the latest .apk from the HomeBase GetApk method.
         //  If the function returns false that means there was a problem installing the update. If successful the user will be prompted 
         //  to install an update to this application, upon which the application will close during the install process. 
+        ///  <param name="ver">The version that is should be installed.</param>
         public bool DownloadAndInstallUpdate(string ver)
         {
             
@@ -85,8 +89,7 @@
             try
             {
                 var clients = new WebClient();
-                //clients.DownloadFile("http://184.70.233.14:81/current/com.dmobile.android.apk", ApplicationContext.GetExternalFilesDir(null).AbsolutePath + "/com.dmobile.android.update.apk");
-                clients.DownloadFile("http://192.168.50.177:2857/HomeBase/GetApk?version=" +ver, ApplicationContext.GetExternalFilesDir(null).AbsolutePath + "/com.dmobile.android.update.apk");
+                clients.DownloadFile("http://184.70.233.14:2857/HomeBase/GetApk?version=" + ver, ApplicationContext.GetExternalFilesDir(null).AbsolutePath + "/com.dmobile.android.update.apk");
             }
             catch (Exception e)
             {
