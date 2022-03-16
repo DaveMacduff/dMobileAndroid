@@ -34,6 +34,7 @@
             //  Runs on app startup once to check if an update should be performed and if so
             //  downloads and installs the updated apk.
             string update = CheckForUpdate();
+
             if (update != "NO" && update != "ERR")
             {
                 DownloadAndInstallUpdate(update);
@@ -51,24 +52,44 @@
         //  Calls the CheckForUpdate function from HomeBase api.
         //  Returns the value received: either "NO" if no update is available,
         //                                     "ERR" if there was an error in the server logic
-        //                                     OR the version it should update to as a string.
+        //                                      OR the version it should update to as a string.
         public string CheckForUpdate()
         {
             try
             {
-                PackageInfo pinfo = ApplicationContext.PackageManager.GetPackageInfo(ApplicationContext.PackageName, 0);
-                string vnum = pinfo.VersionName;
-                string uri = @"http://184.70.233.14:2857/HomeBase/CheckForUpdate?version=" + vnum;
-                HttpClient client = new HttpClient();
-                HttpResponseMessage response = client.GetAsync(uri).GetAwaiter().GetResult();
-                if (!response.IsSuccessStatusCode)
+                // Retrieve the version number of currently installed package
+                PackageInfo pinfo = ApplicationContext.PackageManager.GetPackageInfo(ApplicationContext.PackageName, 0);                
+                
+                if (pinfo == null)
                 {
-                    Console.WriteLine("Error making Http Request");
                     return "ERR";
                 }
-                string content = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
-                return content;
-            } catch (Exception e)
+
+                string vnum = pinfo.VersionName;
+
+                string uri = @"http://184.70.233.14:2857/HomeBase/CheckForUpdate?version=" + vnum;
+
+                HttpClient client = new HttpClient();
+                client.Timeout = new TimeSpan(3000);
+
+                HttpResponseMessage response = client.GetAsync(uri).GetAwaiter().GetResult();
+
+                if (response != null)
+                {
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        Console.WriteLine("Error making Http Request.\n Content: " + response.Content);
+                        return "ERR";
+                    }
+
+                    string content = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+                    return content;
+                }
+
+                return "ERR";
+
+            }
+            catch (Exception e)
             {
                 Console.WriteLine(e);
                 return "ERR";
@@ -81,13 +102,15 @@
         ///  <param name="ver">The version that is should be installed.</param>
         public bool DownloadAndInstallUpdate(string ver)
         {
-            
+            // Check to make sure permissions are sufficient to install. Otherwise prompt user.
             if (ActivityCompat.ShouldShowRequestPermissionRationale(this, Manifest.Permission.WriteExternalStorage) || (ActivityCompat.ShouldShowRequestPermissionRationale(this, Manifest.Permission.ReadExternalStorage)))
             {
                 ActivityCompat.RequestPermissions(this, new string[] { Manifest.Permission.ReadExternalStorage, Manifest.Permission.WriteExternalStorage }, 0);
             }
+
             try
             {
+                // Attempt to download file
                 var clients = new WebClient();
                 clients.DownloadFile("http://184.70.233.14:2857/HomeBase/GetApk?version=" + ver, ApplicationContext.GetExternalFilesDir(null).AbsolutePath + "/com.dmobile.android.update.apk");
             }
@@ -96,10 +119,15 @@
                 Console.WriteLine(e);
                 return false;
             }
+
             try
-            {                    
+            {
+                // Get file directory and file name
                 Java.IO.File directory = ApplicationContext.GetExternalFilesDir(null);    
                 Java.IO.File file = new Java.IO.File(directory, "com.dmobile.android.update.apk");
+
+                // Check Android version to use different activity and/or file provider
+                // Starts the install of new package
                 if (Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.N)
                 {
                     Android.Net.Uri fileuri = FileProvider.GetUriForFile(ApplicationContext, ApplicationContext.PackageName + ".authorityStr", file);
