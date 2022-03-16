@@ -3,5 +3,13 @@
 	<uses-sdk android:minSdkVersion="23" android:targetSdkVersion="28" />
 	<uses-permission android:name="android.permission.READ_PHONE_STATE" />
 	<uses-permission android:name="com.honeywell.decode.permission.DECODE" />
-	<application android:label="dMobile" android:largeHeap="true"></application>
+	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+	<uses-permission android:name="android.permission.INSTALL_PACKAGES" />
+	<uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+	<application android:label="dMobile" android:largeHeap="true" android:networkSecurityConfig="@xml/network_security_config">
+		<provider android:name="android.support.v4.content.FileProvider" android:authorities="${applicationId}.authorityStr" android:exported="false" android:grantUriPermissions="true">
+			<meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/paths" />
+		</provider>
+	</application>
 </manifest>
