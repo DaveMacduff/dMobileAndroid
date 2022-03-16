@@ -58,8 +58,7 @@
             try
             {
                 // Retrieve the version number of currently installed package
-                PackageInfo pinfo = ApplicationContext.PackageManager.GetPackageInfo(ApplicationContext.PackageName, 0);                
-                
+                PackageInfo pinfo = ApplicationContext.PackageManager.GetPackageInfo(ApplicationContext.PackageName, 0);
                 if (pinfo == null)
                 {
                     return "ERR";
