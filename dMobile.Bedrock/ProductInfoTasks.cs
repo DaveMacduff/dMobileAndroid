@@ -136,8 +136,8 @@
                 "tProduct.ProductBrandDescription, " +
                 "tProductUnit.ProductUnitIsSellUnit, " +
                 "tProductUnit.ProductUnitIsDefault, " +
-                "tProductUnit.ProductUnitBoxCount," +
-                "tProductUnit.ProductUnitWeightTolerance" +
+                "tProductUnit.ProductUnitBoxCount, " +
+                "tProductUnit.ProductUnitWeightTolerance " +
                 "FROM tProductUnit " +
                 "INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno " +
                 "INNER JOIN tUnit AS aUnitWeight ON aUnitWeight.UnitRefno = tProductUnit.WtUnitRefno " +
